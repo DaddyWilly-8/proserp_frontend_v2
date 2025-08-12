@@ -7,23 +7,31 @@ import {
   TextField,
   Button,
   Box,
-  List,
-  ListItem,
-  ListItemText
+  FormControl,
+  Select,
+  MenuItem
 } from '@mui/material';
-import { EditOutlined, DeleteOutlined, AddOutlined } from '@mui/icons-material';
+import { EditOutlined, DeleteOutlined, CheckOutlined } from '@mui/icons-material';
 import React, { useState } from 'react';
 import ProductSelect from '@/components/productAndServices/products/ProductSelect';
+import CommaSeparatedField from '@/shared/Inputs/CommaSeparatedField';
+import { Product } from '@/components/productAndServices/products/ProductType';
+import { MeasurementUnit } from '@/components/masters/measurementUnits/MeasurementUnitType';
+
+interface BomsFormRowItem {
+  product?: Product | null;
+  product_id?: number;
+  quantity: number;
+  measurement_unit_id?: number | null;
+  unit_symbol?: string | null;
+  conversion_factor?: number | null;
+}
 
 interface BomsFormRowProps {
-  item: any;
+  item: BomsFormRowItem;
   index: number;
-  items: any[];
-  setItems: React.Dispatch<React.SetStateAction<any[]>>;
-  setClearFormKey: React.Dispatch<React.SetStateAction<number>>;
-  submitMainForm: (e?: React.BaseSyntheticEvent) => Promise<void>;
-  submitItemForm: boolean;
-  setSubmitItemForm: React.Dispatch<React.SetStateAction<boolean>>;
+  items: BomsFormRowItem[];
+  setItems: React.Dispatch<React.SetStateAction<BomsFormRowItem[]>>;
 }
 
 const BomsFormRow: React.FC<BomsFormRowProps> = ({ 
@@ -33,26 +41,16 @@ const BomsFormRow: React.FC<BomsFormRowProps> = ({
   setItems 
 }) => {
   const [isEditing, setIsEditing] = useState(false);
-  const [showAlternatives, setShowAlternatives] = useState(false);
   
   const handleRemove = () => {
     setItems(items.filter((_, i) => i !== index));
   };
   
-  const handleUpdate = (updatedItem: any) => {
+  const handleUpdate = (updatedItem: BomsFormRowItem) => {
     const newItems = [...items];
     newItems[index] = updatedItem;
     setItems(newItems);
     setIsEditing(false);
-  };
-
-  const handleAddAlternative = (alternative: any) => {
-    const newItems = [...items];
-    if (!newItems[index].alternatives) {
-      newItems[index].alternatives = [];
-    }
-    newItems[index].alternatives.push(alternative);
-    setItems(newItems);
   };
 
   if (isEditing) {
@@ -61,7 +59,6 @@ const BomsFormRow: React.FC<BomsFormRowProps> = ({
         item={item}
         onUpdate={handleUpdate}
         onCancel={() => setIsEditing(false)}
-        onAddAlternative={handleAddAlternative}
       />
     );
   }
@@ -76,14 +73,11 @@ const BomsFormRow: React.FC<BomsFormRowProps> = ({
           
           <Grid size={5}>
             <Typography>{item.product?.name || 'Unknown Product'}</Typography>
-            <Typography variant="caption" color="text.secondary">
-              Conversion: {item.conversion_factor || 1}
-            </Typography>
           </Grid>
           
           <Grid size={3}>
             <Typography>
-              {item.quantity}
+              {item.quantity} {item.unit_symbol || ''}
             </Typography>
           </Grid>
           
@@ -100,24 +94,6 @@ const BomsFormRow: React.FC<BomsFormRowProps> = ({
               </IconButton>
             </Tooltip>
           </Grid>
-
-          {item.alternatives?.length > 0 && (
-            <Grid size={12}>
-              <Typography variant="caption" color="text.secondary">
-                Alternatives:
-              </Typography>
-              <List dense sx={{ pl: 2 }}>
-                {item.alternatives.map((alt: any, altIndex: number) => (
-                  <ListItem key={altIndex} sx={{ py: 0 }}>
-                    <ListItemText
-                      primary={`${alt.product?.name} - Qty: ${alt.quantity}`}
-                      secondary={`Conversion: ${alt.conversion_factor || 1}`}
-                    />
-                  </ListItem>
-                ))}
-              </List>
-            </Grid>
-          )}
         </Grid>
       </Box>
       <Divider />
@@ -127,158 +103,112 @@ const BomsFormRow: React.FC<BomsFormRowProps> = ({
 
 // Helper component for inline editing
 const BomsFormItemEditor: React.FC<{ 
-  item: any; 
-  onUpdate: (item: any) => void; 
+  item: BomsFormRowItem; 
+  onUpdate: (item: BomsFormRowItem) => void; 
   onCancel: () => void;
-  onAddAlternative: (alternative: any) => void;
-}> = ({ item, onUpdate, onCancel, onAddAlternative }) => {
-  const [product, setProduct] = useState(item.product);
-  const [quantity, setQuantity] = useState(item.quantity);
-  const [conversionFactor, setConversionFactor] = useState(item.conversion_factor || 1);
-  const [showAltForm, setShowAltForm] = useState(false);
-  const [altProduct, setAltProduct] = useState<any>(null);
-  const [altQuantity, setAltQuantity] = useState(1);
-  const [altConversion, setAltConversion] = useState(1);
+}> = ({ item, onUpdate, onCancel }) => {
+  // Initialize all fields with the current item values
+  const [product, setProduct] = useState<Product | null>(item.product ?? null);
+  const [quantity, setQuantity] = useState<number>(item.quantity);
+  const [selectedUnit, setSelectedUnit] = useState<number | null>(
+    item.measurement_unit_id ?? 
+    item.product?.primary_unit?.id ?? 
+    null
+  );
+  
+  // Get combined units (primary + secondary)
+  const combinedUnits: MeasurementUnit[] = [
+    ...(product?.secondary_units || []),
+    ...(product?.primary_unit ? [product.primary_unit] : []),
+  ];
 
-  const handleSave = () => {
+  const handleDone = () => {
+    const selectedUnitData = combinedUnits.find(u => u.id === selectedUnit);
     onUpdate({ 
       ...item, 
-      product, 
-      quantity, 
-      conversion_factor: conversionFactor,
-      alternatives: item.alternatives || []
+      product,
+      quantity,
+      measurement_unit_id: selectedUnit ?? undefined,
+      unit_symbol: selectedUnitData?.unit_symbol ?? item.unit_symbol,
+      conversion_factor: selectedUnitData?.conversion_factor ?? item.conversion_factor ?? 1
     });
-  };
-
-  const handleAddAlt = () => {
-    if (!altProduct) return;
-    
-    onAddAlternative({
-      product: altProduct,
-      quantity: altQuantity,
-      conversion_factor: altConversion
-    });
-    
-    // Reset form
-    setAltProduct(null);
-    setAltQuantity(1);
-    setAltConversion(1);
-    setShowAltForm(false);
   };
 
   return (
     <Box sx={{ mb: 2, pt: 1, pl: 1, borderLeft: '2px solid', borderColor: 'primary.main' }}>
       <Grid container spacing={2} alignItems="flex-end">
-        <Grid size={{xs:12, md:5}}>
+        <Grid size={{xs: 12, md: 5}}>
           <ProductSelect
             label="Product"
             value={product}
-            onChange={setProduct}
+            defaultValue={item.product} // Ensure product is pre-selected
+            onChange={(newProduct: Product | null) => {
+              setProduct(newProduct);
+              if (newProduct) {
+                // Try to maintain the same unit if available in new product
+                const availableUnits = [
+                  ...(newProduct.secondary_units || []),
+                  ...(newProduct.primary_unit ? [newProduct.primary_unit] : [])
+                ];
+                
+                const unitToSelect = availableUnits.some(u => u.id === selectedUnit) 
+                  ? selectedUnit 
+                  : newProduct.primary_unit?.id ?? null;
+                
+                setSelectedUnit(unitToSelect);
+              } else {
+                setSelectedUnit(null);
+              }
+            }}
           />
         </Grid>
         
-        <Grid size={{xs:6, md:3}}>
+        <Grid size={{xs: 12, md: 5}}>
           <TextField
             label="Quantity"
             fullWidth
             size="small"
-            type="number"
             value={quantity}
             onChange={(e) => setQuantity(Number(e.target.value))}
+            InputProps={{
+              inputComponent: CommaSeparatedField,
+              endAdornment: product && (
+                <FormControl variant="standard" sx={{ minWidth: 80, ml: 1 }}>
+                  <Select
+                    value={selectedUnit ?? ''}
+                    onChange={(e) => setSelectedUnit(e.target.value as number)}
+                    size="small"
+                    displayEmpty
+                  >
+                    {combinedUnits.map((unit) => (
+                      <MenuItem key={unit.id} value={unit.id}>
+                        {unit.unit_symbol}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              )
+            }}
+            sx={{
+              '& .MuiInputBase-root': {
+                paddingRight: product ? 0 : '14px'
+              }
+            }}
           />
         </Grid>
         
-        <Grid size={{xs:1, md:1}} textAlign="center">
+        <Grid size={{xs: 12, md: 2}} textAlign="center">
           <Button
             variant="contained"
             color="primary"
             size="small"
-            onClick={handleSave}
+            onClick={handleDone}
+            startIcon={<CheckOutlined />}
+            fullWidth
           >
-            Save
-          </Button>
-          <Button
-            variant="outlined"
-            color="secondary"
-            size="small"
-            onClick={onCancel}
-            sx={{ mt: 1 }}
-          >
-            Cancel
+            Done
           </Button>
         </Grid>
-
-        <Grid size={12}>
-          <Button
-            size="small"
-            startIcon={<AddOutlined />}
-            onClick={() => setShowAltForm(!showAltForm)}
-          >
-            {showAltForm ? 'Hide Alternative Form' : 'Add Alternative'}
-          </Button>
-        </Grid>
-
-        {showAltForm && (
-          <>
-            <Grid size={{xs:12, md:5}}>
-              <ProductSelect
-                label="Alternative Product"
-                value={altProduct}
-                onChange={setAltProduct}
-              />
-            </Grid>
-            
-            <Grid size={{xs:6, md:3}}>
-              <TextField
-                label="Quantity"
-                fullWidth
-                size="small"
-                type="number"
-                value={altQuantity}
-                onChange={(e) => setAltQuantity(Number(e.target.value))}
-              />
-            </Grid>
-            
-            <Grid size={{xs:5, md:3}}>
-              <TextField
-                label="Conversion Factor"
-                fullWidth
-                size="small"
-                type="number"
-                value={altConversion}
-                onChange={(e) => setAltConversion(Number(e.target.value))}
-              />
-            </Grid>
-            
-            <Grid size={{xs:1, md:1}}textAlign="center">
-              <Button
-                variant="outlined"
-                color="primary"
-                size="small"
-                onClick={handleAddAlt}
-                disabled={!altProduct}
-              >
-                Add
-              </Button>
-            </Grid>
-          </>
-        )}
-
-        {item.alternatives?.length > 0 && (
-          <Grid size={12}>
-            <Typography variant="subtitle2">Current Alternatives:</Typography>
-            <List dense>
-              {item.alternatives.map((alt: any, index: number) => (
-                <ListItem key={index}>
-                  <ListItemText
-                    primary={`${alt.product?.name} - Qty: ${alt.quantity}`}
-                    secondary={`Conversion: ${alt.conversion_factor || 1}`}
-                  />
-                </ListItem>
-              ))}
-            </List>
-          </Grid>
-        )}
       </Grid>
     </Box>
   );

@@ -1,5 +1,5 @@
 import { AddOutlined } from '@mui/icons-material';
-import { ButtonGroup, Tooltip, IconButton, Dialog, useMediaQuery } from '@mui/material';
+import { ButtonGroup, Tooltip, IconButton, useMediaQuery } from '@mui/material';
 import React, { useState } from 'react';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
@@ -14,31 +14,25 @@ const BomsActionTail = () => {
 
   return (
     <React.Fragment>
-      <Dialog
-        fullWidth
-        scroll={belowLargeScreen ? 'body' : 'paper'}
-        fullScreen={belowLargeScreen}
-        maxWidth="lg"
-        open={openDialog}
-        onClose={() => setOpenDialog(false)}
-      >
-        <BomsForm toggleOpen={setOpenDialog} />
-      </Dialog>
-
-      <ButtonGroup
-        variant="outlined"
-        size="small"
-        disableElevation
-        sx={{ '& .MuiButton-root': { px: 1 } }}
-      >
-        {checkOrganizationPermission(PERMISSIONS.BOM_CREATE) && (
+      {checkOrganizationPermission(PERMISSIONS.BOM_CREATE) && (
+        <ButtonGroup
+          variant="outlined"
+          size="small"
+          disableElevation
+          sx={{ '& .MuiButton-root': { px: 1 } }}
+        >
           <Tooltip title="New Bill of Material">
             <IconButton onClick={() => setOpenDialog(true)}>
               <AddOutlined />
             </IconButton>
           </Tooltip>
-        )}
-      </ButtonGroup>
+        </ButtonGroup>
+      )}
+
+      <BomsForm 
+        open={openDialog} 
+        toggleOpen={setOpenDialog} 
+      />
     </React.Fragment>
   );
 };

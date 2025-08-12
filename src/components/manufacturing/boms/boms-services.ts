@@ -1,28 +1,15 @@
-// services/boms-services.ts
-
 import axios from '@/lib/services/config';
 import {
   AddBOMResponse,
   UpdateBOMResponse,
   DeleteBOMResponse,
   PaginatedBOMResponse,
+  BOM,  // Add this import
+  BomsFormValues
 } from './BomsType';
 
-// Form values type
-interface BomsFormValues {
-  output_product_id?: number;
-  output_quantity: number;
-  items: {
-  product_id?: number;
-  quantity: number;
-  alternatives?: {
-  product_id?: number;
-  quantity: number;
-    }[];
-  }[];
-}
+// ... rest of your imports and interfaces ...
 
-// Main service object
 const bomsServices = {
   // ✅ Get paginated list of BOMs
   getList: async (
@@ -35,25 +22,31 @@ const bomsServices = {
     return data;
   },
 
-  // ✅ Add a new BOM (Header only – no output product/items here)
+  // ✅ Get single BOM by ID
+  show: async (id: number): Promise<BOM> => {
+    const { data } = await axios.get(`/api/manufacturing/boms/${id}`);
+    return data;
+  },
+
+  // ✅ Add a new BOM
   add: async (bom: {
-  output_product_id?: number;
-  output_quantity: number;
-  items: {
-  product_id?: number;
-  quantity: number;
-  alternatives?: {
-  product_id?: number;
-  quantity: number;
-    }[][];
-  }[];
+    output_product_id?: number;
+    output_quantity: number;
+    items: {
+      product_id?: number;
+      quantity: number;
+      alternatives?: {
+        product_id?: number;
+        quantity: number;
+      }[][];
+    }[];
   }): Promise<AddBOMResponse> => {
     await axios.get('/sanctum/csrf-cookie');
     const { data } = await axios.post('/api/manufacturing/boms/add', bom);
     return data;
   },
 
-  // ✅ Update output and items of existing BOM
+  // ✅ Update existing BOM
   update: async (
     id: number,
     bom: Pick<BomsFormValues, 'output_product_id' | 'output_quantity' | 'items'>
@@ -75,11 +68,12 @@ const bomsServices = {
 
 export default bomsServices;
 
-// Optional: Re-export types for easier import elsewhere
+// Re-export types
 export type {
   BomsFormValues,
   AddBOMResponse,
   UpdateBOMResponse,
   DeleteBOMResponse,
   PaginatedBOMResponse,
+  BOM  // Add this export if needed
 };

@@ -23,16 +23,30 @@ export interface BOM {
   items: BOMItem[];
 }
 
+export interface BomsFormValues {
+  output_product_id?: number;
+  output_quantity: number;
+  items: BomItem[];
+}
+
+export interface BomAlternative {
+  product_id?: number;
+  quantity: number;
+}
+
+export interface BomItem {
+  product_id?: number;
+  quantity: number;
+  measurement_unit_id?: number;
+  conversion_factor?: number;
+}
+
 export interface BOMItem {
- product_id: number;
+  product_id: number;
   quantity: number;
   conversion_factor: number;
-  alternatives?: {
-    product_id: number;
-    quantity: number;
-    conversion_factor: number;
-  }[];
 }
+
 
 // Response types (optional if you want to type responses)
 export interface AddBOMResponse {

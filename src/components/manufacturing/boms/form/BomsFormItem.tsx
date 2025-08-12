@@ -30,7 +30,7 @@ interface FormValues {
   quantity: number;
   measurement_unit_id?: number | null;
   unit_symbol?: string | null;
-  conversion_factor?: number | null; // ✅ Add this conversion_factor?: number | null; // ✅ Add this
+  conversion_factor?: number | null;
 }
 
 interface BomsFormItemProps {
@@ -39,12 +39,12 @@ interface BomsFormItemProps {
   submitItemForm: boolean;
   setSubmitItemForm: React.Dispatch<React.SetStateAction<boolean>>;
   item?: {
-  product_id?: number;
-  product?: Product;
-  quantity: number;
-  measurement_unit_id?: number;
-  measurement_unit?: MeasurementUnit;
-  unit_symbol?: string;
+    product_id?: number;
+    product?: Product;
+    quantity: number;
+    measurement_unit_id?: number;
+    measurement_unit?: MeasurementUnit;
+    unit_symbol?: string;
   };
   index?: number;
   setItems: React.Dispatch<React.SetStateAction<any[]>>;
@@ -76,7 +76,7 @@ const BomsFormItem: React.FC<BomsFormItemProps> = ({
   const [isAdding, setIsAdding] = useState(false);
 
   const { register, handleSubmit, watch, reset, setValue, formState: { errors } } = useForm<FormValues>({
-    resolver: yupResolver(validationSchema) as any,
+    resolver: yupResolver(validationSchema)as any,
     defaultValues: {
       product: item?.product ?? null,
       quantity: item?.quantity ?? 0,
@@ -87,13 +87,13 @@ const BomsFormItem: React.FC<BomsFormItemProps> = ({
   });
 
   const product = watch('product') as Product | undefined;
+  const quantity = watch('quantity');
 
   const combinedUnits: MeasurementUnit[] = [
     ...(product?.secondary_units || []),
     ...(product?.primary_unit ? [product.primary_unit] : []),
   ];
 
-  // ✅ Handle adding or editing item
   const updateItems: SubmitHandler<FormValues> = async (data) => {
     setIsAdding(true);
 
@@ -102,6 +102,7 @@ const BomsFormItem: React.FC<BomsFormItemProps> = ({
       product_id: data.product?.id,
       measurement_unit_id: selectedUnit,
       unit_symbol: data.unit_symbol,
+      conversion_factor: data.conversion_factor ?? 1
     };
 
     if (index > -1) {
@@ -123,14 +124,12 @@ const BomsFormItem: React.FC<BomsFormItemProps> = ({
     }
   };
 
-  // ✅ Auto-submit form when submitItemForm is triggered from parent
   useEffect(() => {
     if (submitItemForm) {
       handleSubmit(updateItems, () => setSubmitItemForm(false))();
     }
   }, [submitItemForm]);
 
-  // ✅ Watch product changes (esp. after quick add)
   useEffect(() => {
     if (addedProduct) {
       const unitId = addedProduct.primary_unit?.id ?? addedProduct.measurement_unit_id;
@@ -152,7 +151,7 @@ const BomsFormItem: React.FC<BomsFormItemProps> = ({
     <form onSubmit={handleSubmit(updateItems)} autoComplete="off">
       <Grid container spacing={2} alignItems="flex-end" mb={2}>
         {/* Product Selector */}
-        <Grid size={{xs:12, md:8}}>
+        <Grid size={{xs: 12, md: 8}}>
           <ProductSelect
             label="Input Product"
             frontError={errors.product}
@@ -161,7 +160,8 @@ const BomsFormItem: React.FC<BomsFormItemProps> = ({
             onChange={(newValue: Product | null) => {
               if (newValue) {
                 const unitId = newValue.primary_unit?.id ?? newValue.measurement_unit_id;
-                const unitSymbol = newValue.primary_unit?.unit_symbol ?? newValue.measurement_unit?.unit_symbol ?? '';
+                const unitSymbol = newValue.primary_unit?.unit_symbol ?? 
+                                  newValue.measurement_unit?.unit_symbol ?? '';
 
                 setValue('product', newValue, { shouldValidate: true, shouldDirty: true });
                 setValue('product_id', newValue.id);
@@ -177,38 +177,70 @@ const BomsFormItem: React.FC<BomsFormItemProps> = ({
             startAdornment={
               checkOrganizationPermission(['products_create']) && (
                 <Tooltip title="Add New Product">
-                  <AddOutlined onClick={() => setOpenProductQuickAdd(true)} sx={{ cursor: 'pointer' }} />
+                  <IconButton 
+                    onClick={() => setOpenProductQuickAdd(true)} 
+                    size="small"
+                    sx={{ p: 0.5 }}
+                  >
+                    <AddOutlined fontSize="small" />
+                  </IconButton>
                 </Tooltip>
               )
             }
+            sx={{ 
+              '& .MuiInputBase-root': { 
+                paddingRight: '8px' 
+              } 
+            }}
           />
         </Grid>
 
         {/* Quantity + Units */}
-        <Grid size={{xs:12, md:4}}>
+        <Grid size={{xs: 12, md: 4}}>
           <TextField
             label="Quantity"
             fullWidth
             size="small"
-            {...register('quantity')}
+            value={quantity}
+            {...register('quantity', { 
+              valueAsNumber: true,
+              required: 'Quantity is required',
+              min: {
+                value: 0.01,
+                message: 'Quantity must be greater than zero'
+              }
+            })}
             InputProps={{
               inputComponent: CommaSeparatedField,
-              endAdornment: product && selectedUnit && (
-                <FormControl fullWidth>
+              endAdornment: product && selectedUnit ? (
+                <FormControl 
+                  variant="standard" 
+                  sx={{ 
+                    minWidth: 80,
+                    ml: 1 
+                  }}
+                >
                   <Select
-                    value={selectedUnit}
+                    value={selectedUnit ?? ''}
                     onChange={(e) => {
-                      const unitId = e.target.value as number;
-                      setSelectedUnit(unitId);
-                      const unit = combinedUnits.find((u) => u.id === unitId);
-                      if (unit) {
-                        setValue('measurement_unit_id', unit.id);
-                        setValue('unit_symbol', unit.unit_symbol);
-                        setValue('conversion_factor', unit.conversion_factor ?? 1);
+                      const selectedUnitId = e.target.value as number;
+                      setSelectedUnit(selectedUnitId);
+                      const selectedUnit = combinedUnits.find((unit) => unit.id === selectedUnitId);
+                      if (selectedUnit) {
+                        setValue('conversion_factor', selectedUnit.conversion_factor ?? 1);
+                        setValue('measurement_unit_id', selectedUnit.id);
+                        setValue('unit_symbol', selectedUnit.unit_symbol);
                       }
                     }}
-                    variant="standard"
                     size="small"
+                    MenuProps={{
+                      PaperProps: {
+                        sx: {
+                          maxHeight: 300,
+                          borderRadius: 1
+                        }
+                      }
+                    }}
                   >
                     {combinedUnits.map((unit) => (
                       <MenuItem key={unit.id} value={unit.id}>
@@ -217,10 +249,19 @@ const BomsFormItem: React.FC<BomsFormItemProps> = ({
                     ))}
                   </Select>
                 </FormControl>
-              ),
+              ) : null
             }}
             error={!!errors.quantity}
             helperText={errors.quantity?.message}
+            inputProps={{
+              step: "any",
+              min: 0.01
+            }}
+            sx={{
+              '& .MuiInputBase-root': {
+                paddingRight: product && selectedUnit ? 0 : '14px'
+              }
+            }}
           />
         </Grid>
       </Grid>

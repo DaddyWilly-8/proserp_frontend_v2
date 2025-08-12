@@ -21,56 +21,47 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import BomsFormRow from './BomsFormRow';
 import { AddOutlined, HighlightOff } from '@mui/icons-material';
 import { Product } from '@/components/productAndServices/products/ProductType';
-import bomsServices from '../boms-services';
+import bomsServices, { BomsFormValues } from '../boms-services';
 import BomsFormItem from './BomsFormItem';
 import ProductSelect from '@/components/productAndServices/products/ProductSelect';
 
-  interface BomsFormProps {
-    toggleOpen: (open: boolean) => void;
-    bom?: any;
-    onSuccess?: () => void;
-  }
+interface BomsFormProps {
+  open: boolean;
+  toggleOpen: (open: boolean) => void;
+  bom?: any;
+  onSuccess?: () => void;
+}
 
-  interface BomsFormValues {
-    output_product_id?: number;
-    output_quantity: number;
-    items: {
-      product_id?: number;
-      quantity: number;
-      alternatives?: {
-        product_id?: number;
-        quantity: number;
-      }[];
-    }[];
-  }
+function BomsForm({ open, toggleOpen, bom = null, onSuccess }: BomsFormProps) {
+  const { enqueueSnackbar } = useSnackbar();
+  const queryClient = useQueryClient();
+  const [items, setItems] = useState<any[]>(bom?.items || []);
+  const [outputProduct, setOutputProduct] = useState<Product | null>(bom?.output_product || null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitItemForm, setSubmitItemForm] = useState(false);
+  const [clearFormKey, setClearFormKey] = useState(0);
 
-  function BomsForm({ toggleOpen, bom = null, onSuccess }: BomsFormProps) {
-    const { enqueueSnackbar } = useSnackbar();
-    const queryClient = useQueryClient();
-    const [items, setItems] = useState<any[]>(bom?.items || []);
-    const [outputProduct, setOutputProduct] = useState<Product | null>(bom?.output_product || null);
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const [submitItemForm, setSubmitItemForm] = useState(false);
-    const [clearFormKey, setClearFormKey] = useState(0);
-
-    const validationSchema = yup.object({
-      output_product_id: yup.number().required("Output product is required"),
-      output_quantity: yup.number().positive("Quantity is required").required("Quantity is required"),
-      items: yup.array().min(1, "At least one input item is required").of(
-              yup.object().shape({
-                product_id: yup.number().required("Product is required"),
-                quantity: yup.number().required("Quantity is required").positive("Quantity must be positive"),
-                measurement_unit_id: yup.number().required("Unit is required"),
-                conversion_factor: yup.number().required("Conversion factor is required").positive("Must be positive"),
-                alternatives: yup.array().of(
-                  yup.object().shape({
-                    product_id: yup.number().required("Product is required"),
-                    quantity: yup.number().required("Quantity is required").positive("Quantity must be positive"),
-                  })
-                ),
-              })
-            ),
-      });
+  const schema = yup.object().shape({
+    output_product_id: yup
+      .number()
+      .required('Output product is required'),
+    output_quantity: yup
+      .number()
+      .typeError('Output quantity must be a number')
+      .positive('Output quantity must be greater than zero')
+      .required('Output quantity is required'),
+    items: yup
+      .array()
+      .min(1, 'At least one item is required')
+      .of(
+        yup.object().shape({
+          product_id: yup.number().required('Product is required'),
+          quantity: yup.number().required().positive(),
+          measurement_unit_id: yup.number().required(),
+          conversion_factor: yup.number().required().positive()
+        })
+      )
+  });
 
   const {
     register,
@@ -79,90 +70,91 @@ import ProductSelect from '@/components/productAndServices/products/ProductSelec
     formState: { errors, isSubmitted },
     trigger,
   } = useForm<BomsFormValues>({
-    resolver: yupResolver(validationSchema as any),
+    resolver: yupResolver(schema) as any,
     defaultValues: {
       output_product_id: bom?.output_product?.id || null,
       output_quantity: bom?.output_quantity || '',
       items: bom?.items || [],
     },
-    mode: "onSubmit", // ✅ validate only on submit
+    mode: "onSubmit",
   });
 
   useEffect(() => {
-    setValue('items', items, { shouldValidate: false }); // don't trigger validation yet
+    setValue('items', items, { shouldValidate: false });
   }, [items, setValue]);
 
   useEffect(() => {
     if (isSubmitted) {
-      trigger('items'); // ✅ validate items only after submit
+      trigger('items');
     }
   }, [items, isSubmitted, trigger]);
 
-
-   const addBomMutation = useMutation({
+  const addBomMutation = useMutation({
     mutationFn: bomsServices.add,
     onSuccess: (data) => {
-    toggleOpen(false);
-    enqueueSnackbar(data.message, { variant: 'success' });
-    queryClient.invalidateQueries({ queryKey: ['boms'] });
-    onSuccess?.();
-      },
-      onError: (error: any) => {
-        error?.response?.data?.message && enqueueSnackbar(error.response.data.message, { variant: 'error' });
-      }
-    });
+      toggleOpen(false);
+      enqueueSnackbar(data.message, { variant: 'success' });
+      queryClient.invalidateQueries({ queryKey: ['boms'] });
+      onSuccess?.();
+    },
+    onError: (error: any) => {
+      error?.response?.data?.message && enqueueSnackbar(error.response.data.message, { variant: 'error' });
+    }
+  });
 
-   const updateBomMutation = useMutation({
-     mutationFn: ({ id, bom }: { id: number, bom: BomsFormValues }) => bomsServices.update(id, bom),
-     onSuccess: (data) => {
-     toggleOpen(false);
-     enqueueSnackbar(data.message, { variant: 'success' });
-     queryClient.invalidateQueries({ queryKey: ['boms'] });
-     onSuccess?.();
+  const updateBomMutation = useMutation({
+    mutationFn: ({ id, bom }: { id: number, bom: BomsFormValues }) => bomsServices.update(id, bom),
+    onSuccess: (data) => {
+      toggleOpen(false);
+      enqueueSnackbar(data.message, { variant: 'success' });
+      queryClient.invalidateQueries({ queryKey: ['boms'] });
+      onSuccess?.();
     },
     onError: (error: any) => {
       enqueueSnackbar(error?.response?.data?.message || 'Failed to update BOM', { variant: 'error' });
     }
   });
 
-   const onSubmit = (data: BomsFormValues) => {
+  const onSubmit = (data: BomsFormValues) => {
     if (items.length === 0) {
-      setValue('items', [], { shouldValidate: true });
+      enqueueSnackbar('Please add at least one item', { variant: 'error' });
       return;
     }
 
-  const payload: BomsFormValues = {
-    ...data,
-    items: items.map(item => ({
-    product_id: item.product?.id || item.product_id,
-    quantity: item.quantity,
-    measurement_unit_id: item.measurement_unit_id,
-    conversion_factor: item.conversion_factor ?? 1,
-    alternatives: item.alternatives?.map(alt => ({
-    product_id: alt.product?.id || alt.product_id,
-    quantity: alt.quantity,
-        }))
-      })),
-      output_product_id: outputProduct?.id || data.output_product_id
+    const payload = {
+      output_product_id: outputProduct?.id,
+      output_quantity: data.output_quantity,
+      items: items.map(item => ({
+        product_id: item.product?.id || item.product_id,
+        quantity: item.quantity,
+        measurement_unit_id: item.measurement_unit_id,
+        conversion_factor: item.conversion_factor || 1
+      }))
     };
 
-    if (bom?.id) {
-      updateBomMutation.mutate({ id: bom.id, bom: payload });
+    setIsSubmitting(true);
+    if (bom) {
+      updateBomMutation.mutate({ id: bom.id, bom: payload }, {
+        onSettled: () => setIsSubmitting(false),
+      });
     } else {
-      addBomMutation.mutate(payload);
+      addBomMutation.mutate(payload, {
+        onSettled: () => setIsSubmitting(false),
+      });
     }
   };
 
-
   return (
-    <React.Fragment>
+    <Dialog open={open} onClose={() => toggleOpen(false)} maxWidth="md" fullWidth>
       <DialogTitle>
         <Typography variant="h4" textAlign="center" mb={2}>
           {!bom ? 'New Bill of Material' : `Edit ${bom.id}`}
         </Typography>
+      </DialogTitle>
 
-        <Grid container spacing={2} mb={3}>
-          <Grid size={{xs:12, md:8}}>
+      <DialogContent>
+         <Grid container spacing={2} mb={3} sx={{ pt: 2 }}> 
+           <Grid  size={{xs:12, md:8}}>
             <ProductSelect
               label="Output Product"
               value={outputProduct}
@@ -175,7 +167,7 @@ import ProductSelect from '@/components/productAndServices/products/ProductSelec
             />
           </Grid>
 
-          <Grid size={{xs:12, md:4}}>
+          <Grid  size={{xs:12, md:4}}>
             <TextField
               label="Quantity"
               fullWidth
@@ -224,17 +216,11 @@ import ProductSelect from '@/components/productAndServices/products/ProductSelec
                 item={item as any}
                 items={items as any}
                 setItems={setItems as any}
-                setClearFormKey={setClearFormKey}
-                submitMainForm={handleSubmit(onSubmit)}
-                submitItemForm={submitItemForm}
-                setSubmitItemForm={setSubmitItemForm}
               />
             ))}
           </Grid>
         </Grid>
-      </DialogTitle>
 
-      <DialogContent>
         {isSubmitting && <LinearProgress />}
       </DialogContent>
 
@@ -253,10 +239,10 @@ import ProductSelect from '@/components/productAndServices/products/ProductSelec
           onClick={handleSubmit(onSubmit)}
           disabled={isSubmitting}
         >
-          {bom ? 'Update' : 'submit'}
+          {bom ? 'Update' : 'Submit'}
         </Button>
       </DialogActions>
-    </React.Fragment>
+    </Dialog>
   );
 }
 
