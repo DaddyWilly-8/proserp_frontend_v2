@@ -61,11 +61,11 @@ const BomsListItemAction: React.FC<{ bom: BOM }> = ({ bom }) => {
   ];
 
   const handleItemAction = (menuItem: MenuItemProps) => {
-  if (openEditDialog) return; // Prevent multiple dialog openings
-  switch (menuItem.action) {
-    case 'edit':
-      setOpenEditDialog(true);
-      break;
+    if (openEditDialog) return; // Prevent multiple dialog openings
+    switch (menuItem.action) {
+      case 'edit':
+        setOpenEditDialog(true);
+        break;
       case 'delete':
         showDialog({
           title: 'Confirm BOM Deletion',
@@ -83,21 +83,25 @@ const BomsListItemAction: React.FC<{ bom: BOM }> = ({ bom }) => {
     }
   };
 
-useEffect(() => {
-  return () => {
-    setOpenEditDialog(false); // Ensure dialog is closed on unmount
+  const handleClose = () => {
+    setOpenEditDialog(false);
   };
-}, []);
+
+  useEffect(() => {
+    return () => {
+      setOpenEditDialog(false); // Ensure dialog is closed on unmount
+    };
+  }, []);
 
   return (
     <>
-      {/* Edit Dialog */}
+      {/* Edit Dialog - REMOVED THE DUPLICATE AND {...props} */}
       <Dialog
         open={openEditDialog}
         fullWidth
         maxWidth="md"
         fullScreen={belowLargeScreen}
-        onClose={() => setOpenEditDialog(false)}
+        onClose={handleClose} // Use the consistent close handler
       >
         {isLoading ? (
           <div>

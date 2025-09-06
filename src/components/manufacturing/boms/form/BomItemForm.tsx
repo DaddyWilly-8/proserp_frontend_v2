@@ -193,7 +193,7 @@ const BomItemForm: React.FC<BomItemFormProps> = ({
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} autoComplete="off">
-      <Grid container spacing={2} alignItems="flex-end" mb={2}>
+      <Grid container spacing={2} mb={3} sx={{ pt: 2 }}>
         <Grid size={{ xs: 12, md: 8 }}>
           <Controller
             name="product"
