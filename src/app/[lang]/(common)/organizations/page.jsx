@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import OrganizationsList from "@/components/Organizations/list/OrganizationsList";
 import { getServerSession } from "next-auth";
 

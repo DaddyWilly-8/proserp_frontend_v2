@@ -37,6 +37,7 @@ interface MeasurementUnit {
 interface SaleItem {
   id: number;
   product: Product;
+  description: string;
   quantity: number;
   rate: number;
   measurement_unit: MeasurementUnit;
@@ -150,7 +151,10 @@ const SalePreviewOnscreen: React.FC<SalePreviewOnscreenProps> = ({ sale, organiz
             {sale.sale_items.map((saleItem, index) => (
               <TableRow key={saleItem.id} sx={{ backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor }}>
                 <TableCell>{index + 1}</TableCell>
-                <TableCell>{saleItem.product.name}</TableCell>
+                <TableCell>
+                  <div>{saleItem.product.name}</div>
+                  {saleItem.description && <div>({saleItem.description})</div>}
+                </TableCell>
                 <TableCell align="right">{`${saleItem.quantity} ${saleItem.measurement_unit.symbol}`}</TableCell>
                 <TableCell align="right">
                   <Tooltip title="Price" arrow>

@@ -2,11 +2,11 @@ import axios from "@/lib/services/config";
 
 const productServices = {};
 
-productServices.getList = async ({ type, keyword, page, limit }) => {
-    const response = await axios.get('/api/masters/products', {
-      params: { type, keyword, page, limit },
-    });
-    return response.data;
+productServices.getList = async (params) => {
+  const response = await axios.get('/api/masters/products', {
+    params,  // pass all query params here directly
+  });
+  return response.data;
 },
 
 productServices.downloadExcelTemplate = async (stores) => {

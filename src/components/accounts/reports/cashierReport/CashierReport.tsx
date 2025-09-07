@@ -77,122 +77,212 @@ const ReportDocument: React.FC<ReportDocumentProps> = ({
   const mainColor = authOrganization.organization.settings?.main_color || "#2113AD";
   const lightColor = authOrganization.organization.settings?.light_color || "#bec5da";
   const contrastText = authOrganization.organization.settings?.contrast_text || "#FFFFFF";
-  const currencyCode = authOrganization.organization.base_currency.code;
+  const currencyCode = authOrganization.base_currency?.code;
+  
+  // Helper function to format currency safely
+  const formatCurrency = (value: number) => {
+    try {
+      return value?.toLocaleString("en-US", {
+        style: "currency",
+        currency: currencyCode
+      }) || 'N/A';
+    } catch (e) {
+      return value?.toLocaleString() || 'N/A';
+    }
+  };
 
-    return reportData ? (
-        <Document
-            creator={` ${user.name} | Powered By ProsERP`}
-            producer="ProsERP"
-            title={`Cashier Report ${reportPeriod}`}
-        >
-            <Page size="A4" style={pdfStyles.page}>
-                <View style={pdfStyles.table}>
-                    <View style={{ ...pdfStyles.tableRow, marginBottom: 20 }}>
-                        <View style={{ flex: 1, maxWidth: 120 }}>
-                            <PdfLogo organization={authOrganization.organization} />
-                        </View>
-                        <View style={{ flex: 1, textAlign: 'right' }}>
-                            <Text style={{ ...pdfStyles.majorInfo, color: mainColor }}>{`Cashier Report`}</Text>
-                            <Text style={{ ...pdfStyles.minInfo }}>{reportPeriod}</Text>
-                        </View>
-                    </View>
-                </View>
-                <View style={{ ...pdfStyles.tableRow, marginTop: 10 }}>
-                    <View style={{ flex: 1, padding: 2 }}>
-                        <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>Printed By</Text>
-                        <Text style={{ ...pdfStyles.minInfo }}>{user.name}</Text>
-                    </View>
-                    <View style={{ flex: 1, padding: 2 }}>
-                        <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>Printed On</Text>
-                        <Text style={{ ...pdfStyles.minInfo }}>{readableDate(undefined, true)}</Text>
-                    </View>
-                </View>
-                {reportData.map((item, index) => (
-                    <View key={index} style={{ ...pdfStyles.table, marginTop: 30, border: 0.7 }}>
-                        <View style={{...pdfStyles.tableRow}}>
-                            <Text style={{ ...pdfStyles.tableCell, ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 1, textAlign: 'center'}}>{item.name}</Text>
-                        </View>
-                        <View style={{ ...pdfStyles.tableRow, marginBottom:5}}>
-                            <View style={{ flex: 1, padding: 2}}>
-                                <Text style={{...pdfStyles.minInfo, color: mainColor }}>Opening Balance</Text>
-                                <Text style={{...pdfStyles.minInfo }}>{item.opening_balance.toLocaleString("en-US", {style:"currency", currency:currencyCode})}</Text>
-                            </View>
-                            <View style={{flex: 1, padding: 2}}>
-                                <Text style={{...pdfStyles.minInfo, color: mainColor }}>Incoming Total</Text>
-                                <Text style={{...pdfStyles.minInfo, color: 'green' }}>{item.incoming_total.toLocaleString("en-US", {style:"currency", currency:currencyCode})}</Text>
-                            </View>
-                            <View style={{ flex: 1, padding: 2}}>
-                                <Text style={{...pdfStyles.minInfo, color: mainColor }}>Outgoing Total</Text>
-                                <Text style={{...pdfStyles.minInfo, color: 'red' }}>{item.outgoing_total.toLocaleString("en-US", {style:"currency", currency:currencyCode})}</Text>
-                            </View>
-                            <View style={{flex: 1, padding: 2}}>
-                                <Text style={{...pdfStyles.minInfo, color: mainColor }}>Closing Balance</Text>
-                                <Text style={{...pdfStyles.minInfo, color: 'blue' }}>{item.closing_balance.toLocaleString("en-US", {style:"currency", currency:currencyCode})}</Text>
-                            </View>
-                        </View>
+  if (!reportData) return null;
 
-                        {
-                        !!item?.incoming_transactions && Object?.values(item?.incoming_transactions)?.length > 0 &&
-                            <View style={{...pdfStyles.table, minHeight: 80, marginTop: 15 }}>
-                            <View style={{ ...pdfStyles.tableRow}}>
-                                    <Text style={{ ...pdfStyles.tableCell, ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 1, textAlign: 'center' }}>Incoming Transactions</Text>
-                                </View>
-                                <View style={{ ...pdfStyles.tableRow}}>
-                                    <Text style={{ ...pdfStyles.tableCell, ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 1 }}>Date</Text>
-                                    <Text style={{ ...pdfStyles.tableCell, ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 1.5 }}>Reference</Text>
-                                    <Text style={{ ...pdfStyles.tableCell, ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 2 }}>Description</Text>
-                                    <Text style={{ ...pdfStyles.tableCell, ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 1 }}>Amount</Text>
-                                </View>
-                                {Object?.values(item?.incoming_transactions)?.map((incomingItem, index) => (
-                                    <View key={index} style={pdfStyles.tableRow}>
-                                        <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 1 }}>{readableDate(incomingItem.transactionDate)}</Text>
-                                        <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 1.5 }}>{`${incomingItem.voucherNo} ${!!incomingItem.reference && incomingItem.reference.trim() !== '' ? '/' : ''} ${incomingItem.reference}` }</Text>
-                                        <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 2 }}>{incomingItem.description}</Text>
-                                        <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 1, textAlign: 'right' }}>{incomingItem.amount.toLocaleString()}</Text>
-                                    </View>
-                                ))}
-                                <View style={pdfStyles.tableRow}>
-                                    <Text style={{ ...pdfStyles.tableCell, ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 4.755, textAlign: 'center' }}>TOTAL</Text>
-                                    <Text style={{ ...pdfStyles.tableCell, ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 1, textAlign: 'right' }}>
-                                        {Object?.values(item?.incoming_transactions)?.reduce((total, incomingItem) => total + incomingItem.amount, 0).toLocaleString()}
-                                    </Text>
-                                </View>
-                            </View>
-                        } 
-                        
-                        {
-                        !!item?.outgoing_transactions && Object?.values(item?.outgoing_transactions)?.length > 0 &&
-                            <View style={{...pdfStyles.table, marginTop: 15 }}>
-                            <View style={{ ...pdfStyles.tableRow}}>
-                                    <Text style={{ ...pdfStyles.tableCell, ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 1, textAlign: 'center' }}>Outgoing Transactions</Text>
-                                </View>
-                                <View style={{ ...pdfStyles.tableRow}}>
-                                    <Text style={{ ...pdfStyles.tableCell, ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 1 }}>Date</Text>
-                                    <Text style={{ ...pdfStyles.tableCell, ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 1.5 }}>Reference</Text>
-                                    <Text style={{ ...pdfStyles.tableCell, ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 2 }}>Description</Text>
-                                    <Text style={{ ...pdfStyles.tableCell, ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 1 }}>Amount</Text>
-                                </View>
-                                {Object?.values(item?.outgoing_transactions)?.map((outgoingItem, index) => (
-                                    <View key={index} style={pdfStyles.tableRow}>
-                                        <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 1 }}>{readableDate(outgoingItem.transactionDate)}</Text>
-                                        <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 1.5 }}>{`${outgoingItem.voucherNo} ${!!outgoingItem.reference && outgoingItem.reference.trim() !== '' ? '/' : ''} ${outgoingItem.reference}` }</Text>
-                                        <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 2 }}>{outgoingItem.description}</Text>
-                                        <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 1, textAlign: 'right' }}>{outgoingItem.amount.toLocaleString()}</Text>
-                                    </View>
-                                ))}
-                                <View style={pdfStyles.tableRow}>
-                                    <Text style={{ ...pdfStyles.tableCell, ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 4.755, textAlign: 'center' }}>TOTAL</Text>
-                                    <Text style={{ ...pdfStyles.tableCell, ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 1, textAlign: 'right' }}>
-                                        {Object?.values(item?.outgoing_transactions)?.reduce((total, outgoingItem) => total + outgoingItem.amount, 0).toLocaleString()}
-                                    </Text>
-                                </View>
-                            </View>
-                        } 
-                    </View>
+  return (
+    <Document
+      creator={` ${user.name} | Powered By ProsERP`}
+      producer="ProsERP"
+      title={`Cashier Report ${reportPeriod}`}
+    >
+      <Page size="A4" style={pdfStyles.page}>
+        <View style={pdfStyles.table}>
+          <View style={{ ...pdfStyles.tableRow, marginBottom: 20 }}>
+            <View style={{ flex: 1, maxWidth: 120 }}>
+              <PdfLogo organization={authOrganization.organization} />
+            </View>
+            <View style={{ flex: 1, textAlign: 'right' }}>
+              <Text style={{ ...pdfStyles.majorInfo, color: mainColor }}>Cashier Report</Text>
+              <Text style={{ ...pdfStyles.minInfo }}>{reportPeriod}</Text>
+            </View>
+          </View>
+        </View>
+
+        <View style={{ ...pdfStyles.tableRow, marginTop: 10 }}>
+          <View style={{ flex: 1, padding: 2 }}>
+            <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>Printed By</Text>
+            <Text style={{ ...pdfStyles.minInfo }}>{user.name}</Text>
+          </View>
+          <View style={{ flex: 1, padding: 2 }}>
+            <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>Printed On</Text>
+            <Text style={{ ...pdfStyles.minInfo }}>{readableDate(undefined, true)}</Text>
+          </View>
+        </View>
+
+        {reportData.map((item, index) => (
+          <View key={index} style={{ ...pdfStyles.table, marginTop: 30, borderWidth: 0.7 }}>
+            <View style={{...pdfStyles.tableRow}}>
+              <Text style={{ 
+                ...pdfStyles.tableCell, 
+                ...pdfStyles.tableHeader, 
+                backgroundColor: mainColor, 
+                color: contrastText, 
+                flex: 1, 
+                textAlign: 'center'
+              }}>
+                {item.name}
+              </Text>
+            </View>
+
+            <View style={{ ...pdfStyles.tableRow, marginBottom: 5 }}>
+              <View style={{ flex: 1, padding: 2 }}>
+                <Text style={{...pdfStyles.minInfo, color: mainColor }}>Opening Balance</Text>
+                <Text style={{...pdfStyles.minInfo }}>{formatCurrency(item.opening_balance)}</Text>
+              </View>
+              <View style={{flex: 1, padding: 2}}>
+                <Text style={{...pdfStyles.minInfo, color: mainColor }}>Incoming Total</Text>
+                <Text style={{...pdfStyles.minInfo, color: 'green' }}>{formatCurrency(item.incoming_total)}</Text>
+              </View>
+              <View style={{ flex: 1, padding: 2}}>
+                <Text style={{...pdfStyles.minInfo, color: mainColor }}>Outgoing Total</Text>
+                <Text style={{...pdfStyles.minInfo, color: 'red' }}>{formatCurrency(item.outgoing_total)}</Text>
+              </View>
+              <View style={{flex: 1, padding: 2}}>
+                <Text style={{...pdfStyles.minInfo, color: mainColor }}>Closing Balance</Text>
+                <Text style={{...pdfStyles.minInfo, color: 'blue' }}>{formatCurrency(item.closing_balance)}</Text>
+              </View>
+            </View>
+
+            {item?.incoming_transactions && Object.values(item.incoming_transactions).length > 0 && (
+              <View style={{...pdfStyles.table, minHeight: 80, marginTop: 15 }}>
+                <View style={{ ...pdfStyles.tableRow}}>
+                  <Text style={{ 
+                    ...pdfStyles.tableCell, 
+                    ...pdfStyles.tableHeader, 
+                    backgroundColor: mainColor, 
+                    color: contrastText, 
+                    flex: 1, 
+                    textAlign: 'center' 
+                  }}>
+                    Incoming Transactions
+                  </Text>
+                </View>
+                
+                <View style={{ ...pdfStyles.tableRow}}>
+                  <Text style={{ ...pdfStyles.tableCell, ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 1 }}>Date</Text>
+                  <Text style={{ ...pdfStyles.tableCell, ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 1.5 }}>Reference</Text>
+                  <Text style={{ ...pdfStyles.tableCell, ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 2 }}>Description</Text>
+                  <Text style={{ ...pdfStyles.tableCell, ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 1 }}>Amount</Text>
+                </View>
+                
+                {Object.values(item.incoming_transactions).map((incomingItem, index) => (
+                  <View key={index} style={pdfStyles.tableRow}>
+                    <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 1 }}>
+                      {readableDate(incomingItem.transactionDate)}
+                    </Text>
+                    <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 1.5 }}>
+                      {`${incomingItem.voucherNo}${incomingItem.reference?.trim() ? `/${incomingItem.reference}` : ''}`}
+                    </Text>
+                    <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 2 }}>
+                      {incomingItem.description}
+                    </Text>
+                    <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 1, textAlign: 'right' }}>
+                      {formatCurrency(incomingItem.amount)}
+                    </Text>
+                  </View>
                 ))}
-            </Page>
-        </Document>
-    ) : '';
+                
+                <View style={pdfStyles.tableRow}>
+                  <Text style={{ ...pdfStyles.tableCell, ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 4.755, textAlign: 'center' }}>
+                    TOTAL
+                  </Text>
+                  <Text style={{ ...pdfStyles.tableCell, ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 1, textAlign: 'right' }}>
+                    {formatCurrency(Object.values(item.incoming_transactions).reduce((total, incomingItem) => total + incomingItem.amount, 0))}
+                  </Text>
+                </View>
+              </View>
+            )}
+
+            {item?.outgoing_transactions && Object.values(item.outgoing_transactions).length > 0 && (
+              <View style={{...pdfStyles.table, marginTop: 15 }}>
+                <View style={{ ...pdfStyles.tableRow}}>
+                  <Text style={{ 
+                    ...pdfStyles.tableCell, 
+                    ...pdfStyles.tableHeader, 
+                    backgroundColor: mainColor, 
+                    color: contrastText, 
+                    flex: 1, 
+                    textAlign: 'center' 
+                  }}>
+                    Outgoing Transactions
+                  </Text>
+                </View>
+                
+                <View style={{ ...pdfStyles.tableRow}}>
+                  <Text style={{ ...pdfStyles.tableCell, ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 1 }}>Date</Text>
+                  <Text style={{ ...pdfStyles.tableCell, ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 1.5 }}>Reference</Text>
+                  <Text style={{ ...pdfStyles.tableCell, ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 2 }}>Description</Text>
+                  <Text style={{ ...pdfStyles.tableCell, ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 1 }}>Amount</Text>
+                </View>
+                
+                {Object.values(item.outgoing_transactions).map((outgoingItem, index) => (
+                  <View key={index} style={pdfStyles.tableRow}>
+                    <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 1 }}>
+                      {readableDate(outgoingItem.transactionDate)}
+                    </Text>
+                    <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 1.5 }}>
+                      {`${outgoingItem.voucherNo}${outgoingItem.reference?.trim() ? `/${outgoingItem.reference}` : ''}`}
+                    </Text>
+                    <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 2 }}>
+                      {outgoingItem.description}
+                    </Text>
+                    <Text style={{ 
+                      ...pdfStyles.tableCell, 
+                      backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, 
+                      flex: 1, 
+                      textAlign: 'right'
+                    }}>
+                      {formatCurrency(outgoingItem.amount)}
+                    </Text>
+                  </View>
+                ))}
+                
+                <View style={pdfStyles.tableRow}>
+                  <Text style={{ 
+                    ...pdfStyles.tableCell, 
+                    ...pdfStyles.tableHeader, 
+                    backgroundColor: mainColor, 
+                    color: contrastText, 
+                    flex: 4.755, 
+                    textAlign: 'center'
+                  }}>
+                    TOTAL
+                  </Text>
+                  <Text style={{ 
+                    ...pdfStyles.tableCell, 
+                    ...pdfStyles.tableHeader, 
+                    backgroundColor: mainColor, 
+                    color: contrastText, 
+                    flex: 1, 
+                    textAlign: 'right'
+                  }}>
+                    {formatCurrency(Object.values(item.outgoing_transactions).reduce(
+                      (total, outgoingItem) => total + outgoingItem.amount, 
+                      0
+                    ))}
+                  </Text>
+                </View>
+              </View>
+            )}
+          </View>
+        ))}
+      </Page>
+    </Document>
+  );
 };
 
 interface FormValues {
@@ -312,12 +402,11 @@ const CashierReport: React.FC<CashierReportProps> = ({ as_at, setOpenCashierRepo
                   }}
                 />
               </Grid>
-
               <Grid size={{xs: 12, md: 6, lg: 3}}>
                 <div style={{ marginTop: 8, marginBottom: 8 }}>
                   <DateTimePicker
                     label="From (MM/DD/YYYY)"
-                    defaultValue={dayjs().startOf('day')}
+                    value={dayjs(watch('from'))}
                     minDate={dayjs(authOrganization?.organization.recording_start_date)}
                     slotProps={{
                       textField: {
@@ -340,7 +429,7 @@ const CashierReport: React.FC<CashierReportProps> = ({ as_at, setOpenCashierRepo
                 <div style={{ marginTop: 8, marginBottom: 8 }}>
                   <DateTimePicker
                     label="To (MM/DD/YYYY)"
-                    defaultValue={dayjs().endOf('day')}
+                    value={dayjs(watch('to'))}
                     minDate={dayjs(watch('from'))}
                     slotProps={{
                       textField: {

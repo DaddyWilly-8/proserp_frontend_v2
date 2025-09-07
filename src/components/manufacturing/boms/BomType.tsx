@@ -1,45 +1,34 @@
+import { MeasurementUnit } from "@/components/masters/measurementUnits/MeasurementUnitType";
 import { Product } from "@/components/productAndServices/products/ProductType";
 
 export interface BOM {
-  quantity: number;
-  product: any;
-   id: number;
-  output_product_id?: number;
-  output_quantity?: number;
-  created_at?: string;
-  updated_at?: string;
-  
-  // Optional expanded relationships
-  output_product?: {
-    id: number;
-    name: string;
-    measurement_unit_id?: number;
-    measurement_unit?: {
-      id: number;
-      name: string;
-      symbol: string;
-    };
-  };
-
+  id: number;
+  product?: Product | null;
+  product_id: number | null;
+  quantity: number | null ;
+  measurement_unit_id?: number | null;
+  conversion_factor?: number | null;
+  measurement_unit?: MeasurementUnit | null;
+  symbol?: string;
   items: BOMItem[];
+  alternatives?: BOMItem[];
+  bomNo?: string;
 }
 
-export interface BomsFormValues {
-  output_product_id?: number;
-  output_quantity?: number | null;
-  items: BomItem[];
+export interface BomFormValues {
+  product_id?: number | null;
+  quantity?: number | null;
+  measurement_unit_id?: number | null;
+  measurement_unit?: MeasurementUnit | null;
+  symbol:string;
+  conversion_factor: number;
+  items: BOMItem[];
+  alternatives?: BOMItem[];
 }
 
 export interface BomAlternative {
-  product_id?: number;
+  product_id?: number | null;
   quantity: number;
-}
-
-export interface BomItem {
-  product_id?: number;
-  quantity?: number;
-  measurement_unit_id?: number;
-  conversion_factor?: number;
 }
 
 // Response types (optional if you want to type responses)
@@ -63,14 +52,29 @@ export interface PaginatedBOMResponse {
 }
 
 export interface BOMItem {
-  product_id: number;
-  quantity: number;
-  measurement_unit_id: number;
+  id?: number;
+  product?: Product | null;
+  bom_id?: number;
+  product_id: number | undefined | null;
+  quantity: number | null;
   conversion_factor: number;
+  measurement_unit_id: number |undefined | null;
+  measurement_unit?: MeasurementUnit | null;
+  symbol?:string;
+  alternatives?: BOMItem[];
 }
 
 export interface BOMPayload {
-  output_product_id: number;
-  output_quantity: number;
+  id?:number;
+  product_id: number | null;
+  product?: Product | null;
+  quantity: number |null;
+  measurement_unit?: MeasurementUnit | null;
+  measurement_unit_id?: number | null;
+  symbol?:string;
+  conversion_factor?: number | null;
   items: BOMItem[];
+  alternatives?: BOMItem[]
+  bomNo?: string;
 }
+

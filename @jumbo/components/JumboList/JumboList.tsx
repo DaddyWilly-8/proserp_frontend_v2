@@ -3,7 +3,7 @@ import TransitionGroup from "react-transition-group/TransitionGroup";
 import Collapse from "@mui/material/Collapse";
 import List, { ListProps } from "@mui/material/List";
 import Grid, { GridProps } from "@mui/material/Grid";
-import {  SxProps, Theme } from "@mui/material";
+import { SxProps, Theme } from "@mui/material";
 import { Div } from '@jumbo/shared';
 import JumboListContext from "./JumboListContext";
 import JumboListWrapper from "./components/JumboListWrapper";
@@ -17,9 +17,10 @@ import {
 } from "./utils/constants";
 import { getUpdatedSelectedItems } from "./utils/listHelpers";
 import JumboListPagination from './components/JumboListPagination';
-import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import Image from 'next/image';
 import { keyframes } from "@emotion/react";
+import { useJumboAuth } from "@/app/providers/JumboAuthProvider";
+import { ASSET_IMAGES } from '@/utilities/constants/paths';
 
 interface MultiSelectOption {
     label: React.ReactNode;
@@ -124,7 +125,6 @@ const jumboListReducer = (state: JumboListState, action: JumboListAction): Jumbo
 };
 
 const JumboList = React.forwardRef<{ resetSelection: () => void }, JumboListProps>((props, ref) => {
-    const dictionary = useDictionary();
 
     const {
         header,
@@ -151,6 +151,11 @@ const JumboList = React.forwardRef<{ resetSelection: () => void }, JumboListProp
         disableTransition,
         view = 'list'
     } = props;
+
+    const { authOrganization } = useJumboAuth();
+    const mainColor = authOrganization?.organization.settings?.main_color || "#2113AD";
+    const lightColor = authOrganization?.organization.settings?.light_color || "#bec5da";
+    const contrastText = authOrganization?.organization.settings?.contrast_text || "#FFFFFF";
 
     const [jumboList, setJumboList] = React.useReducer(jumboListReducer, {
         primaryKey,
@@ -213,7 +218,7 @@ const JumboList = React.forwardRef<{ resetSelection: () => void }, JumboListProp
         },
     }), [setSelectedItems]);
 
-    const rotate = keyframes`
+    const spiralRotate = keyframes`
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
     `;
@@ -224,28 +229,78 @@ const JumboList = React.forwardRef<{ resetSelection: () => void }, JumboListProp
                 <JumboListWrapper component={wrapperComponent} sx={wrapperSx}>
                     <Div
                         sx={{
-                            display: 'flex',
-                            width: 100,
-                            height: 100,
-                            overflow: "hidden",
-                            backgroundColor: "#fff",
-                            borderRadius: "50%",
-                            flexDirection: 'column',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            p: (theme: Theme) => theme.spacing(3),
+                            position: "relative",
+                            width: 150,
+                            height: 150,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
                             m: 'auto',
-                            animation: `${rotate} 1.5s linear infinite`,
                         }}
                     >
-                        <Image
-                            src="/assets/images/logos/proserp-logo.jpeg"
-                            alt="ProsERP"
-                            width={95}
-                            height={95}
-                            style={{ objectFit: "contain" }}
-                            unoptimized
+                        {/* Spiral arcs */}
+                        <Div
+                            sx={{
+                                position: "absolute",
+                                width: 140,
+                                height: 140,
+                                border: "5px solid transparent",
+                                borderTopColor: mainColor,
+                                borderRadius: "50%",
+                                animation: `${spiralRotate} 2s linear infinite`,
+                                boxShadow: `0 0 10px ${mainColor}80`,
+                                clipPath: "polygon(0 0, 100% 0, 100% 50%, 0 50%)",
+                            }}
                         />
+                        <Div
+                            sx={{
+                                position: "absolute",
+                                width: 120,
+                                height: 120,
+                                border: "5px solid transparent",
+                                borderBottomColor: lightColor,
+                                borderRadius: "50%",
+                                animation: `${spiralRotate} 2s linear infinite 0.3s`,
+                                boxShadow: `0 0 10px ${lightColor}80`,
+                                clipPath: "polygon(0 50%, 100% 50%, 100% 100%, 0 100%)",
+                            }}
+                        />
+                        <Div
+                            sx={{
+                                position: "absolute",
+                                width: 100,
+                                height: 100,
+                                border: "5px solid transparent",
+                                borderTopColor: contrastText,
+                                borderRadius: "50%",
+                                animation: `${spiralRotate} 2s linear infinite 0.6s`,
+                                boxShadow: `0 0 10px ${contrastText}80`,
+                                clipPath: "polygon(0 0, 100% 0, 100% 50%, 0 50%)",
+                            }}
+                        />
+                        {/* Static logo in the center */}
+                        <Div
+                            sx={{
+                                width: 100,
+                                height: 100,
+                                borderRadius: "50%",
+                                overflow: "hidden",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                boxShadow: `0 0 10px ${mainColor}30`,
+                                zIndex: 1,
+                            }}
+                        >
+                            <Image
+                                src={`${ASSET_IMAGES}/logos/proserp-blue.png`}
+                                alt="ProsERP"
+                                width={85}
+                                height={85}
+                                style={{ objectFit: "contain" }}
+                                unoptimized
+                            />
+                        </Div>
                     </Div>
                 </JumboListWrapper>
             </JumboListContext.Provider>

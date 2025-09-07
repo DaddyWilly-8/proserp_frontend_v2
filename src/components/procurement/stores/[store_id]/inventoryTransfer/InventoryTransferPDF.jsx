@@ -80,9 +80,13 @@ function InventoryTransferPDF({transfer,organization}) {
                 }
             </View>
             <View style={{ ...pdfStyles.tableRow,marginBottom: 10}}>
-                <View style={{ flex: 0.4}}>
+                <View style={{ flex: 0.6}}>
                     <Text style={{...pdfStyles.minInfo, color: mainColor }}>Narration</Text>
                     <Text style={{...pdfStyles.minInfo }}>{`${transfer.narration}`}</Text>
+                </View>
+                <View style={{ flex: 0.4}}>
+                    <Text style={{...pdfStyles.minInfo, color: mainColor }}>Transfered By</Text>
+                    <Text style={{...pdfStyles.minInfo }}>{`${transfer.creator.name}`}</Text>
                 </View>
             </View>
             <PageFooter/>

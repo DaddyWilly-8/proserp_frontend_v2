@@ -1,4 +1,4 @@
-import { DialogContent, DialogTitle, Grid, LinearProgress, Tab, Tabs, Typography, useMediaQuery } from '@mui/material';
+import { DialogContent, DialogTitle, Grid, LinearProgress, Stack, Tab, Tabs, Typography, useMediaQuery } from '@mui/material';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import React, { useState } from 'react'
@@ -19,7 +19,7 @@ import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 import { Div, Span } from '@jumbo/shared';
-
+import { useSnackbar } from 'notistack';
 
 const ReportDocumet = ({reportData,authOrganization,user}) => {
     const mainColor = authOrganization.organization.settings?.main_color || "#2113AD";
@@ -92,46 +92,77 @@ const ReportDocumet = ({reportData,authOrganization,user}) => {
         </Page>
       </Document>
     ) : ''
-  }
+}
 
 function TrialBalance() {
-    document.title = 'Trial Balance';
-    const css = useProsERPStyles();
-    const { authOrganization, authUser: {user}, checkOrganizationPermission } = useJumboAuth();
-    const validationSchema = yup.object({
-        as_at: yup.string().required('Date is required').typeError('Date is required'),
-    });
+  document.title = 'Trial Balance';
+  const css = useProsERPStyles();
+  const { enqueueSnackbar } = useSnackbar();
+  const { authOrganization, authUser: {user}, checkOrganizationPermission } = useJumboAuth();
+  const validationSchema = yup.object({
+    as_at: yup.string().required('Date is required').typeError('Date is required'),
+  });
 
-    const { setValue, watch, handleSubmit } = useForm({
-        resolver: yupResolver(validationSchema),
-        defaultValues: {
-          as_at: dayjs().toISOString(),
-          cost_center_ids: checkOrganizationPermission(PERMISSIONS.COST_CENTERS_ALL) ? 'all' : authOrganization?.costCenters.map(cost_center => cost_center.id)
-        },
-    });
+  const { setValue, watch, handleSubmit } = useForm({
+    resolver: yupResolver(validationSchema),
+    defaultValues: {
+      as_at: dayjs().toISOString(),
+      cost_center_ids: checkOrganizationPermission(PERMISSIONS.COST_CENTERS_ALL) ? 'all' : authOrganization?.costCenters.map(cost_center => cost_center.id)
+    },
+  });
 
-    const [isFetching, setisFetching] = useState(false);
+  const [isFetching, setisFetching] = useState(false);
+  const [reportData, setReportData] = useState(null);
+  const [activeTab, setActiveTab] = useState(0);
+  const [isDownloadingTemplate, setIsDownloadingTemplate] = React.useState(false);
+  const [uploadFieldsKey, setUploadFieldsKey] = useState(0)
 
-    const [reportData, setReportData] = useState(null);
-    const [activeTab, setActiveTab] = useState(0);
+  //Screen handling constants
+  const {theme} = useJumboTheme();
+  const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
 
-    //Screen handling constants
-    const {theme} = useJumboTheme();
-    const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
+  const handleTabChange = (event, newValue) => {
+    setActiveTab(newValue);
+  };
 
-    const handleTabChange = (event, newValue) => {
-      setActiveTab(newValue);
-    };
+  const downloadExcelTemplate = async () => {
+    try {
+      setIsDownloadingTemplate(true);
+      setUploadFieldsKey((prevKey) => prevKey + 1);
+          
+      // Get all current filter parameters
+      const filters = {
+        as_at: watch('as_at'),
+        cost_center_ids: watch('cost_center_ids')
+      };
 
-    const retrieveReport = async (filters) => {
-        setisFetching(true);
-        const report = await financialReportsServices.trialBalance(filters);
-        
-        setReportData(report);
-        setisFetching(false);
-    };
+      // Pass all filters to the service
+      const responseData = await financialReportsServices.downloadExcelTemplate(filters);
+      
+      const blob = new Blob([responseData], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      });
 
-    const downloadFileName = `Trial Balance as of ${readableDate(watch('as_at'),true)}`;
+      const link = document.createElement('a');
+      link.href = window.URL.createObjectURL(blob);
+      link.download = `Trial Balance ${readableDate(filters.as_at, true)}.xlsx`;
+      link.click();
+      setIsDownloadingTemplate(false);
+    } catch (error) {
+      enqueueSnackbar('Error downloading Excel template', { variant: 'error' });
+      setIsDownloadingTemplate(false);
+    }
+  };
+
+  const retrieveReport = async (filters) => {
+    setisFetching(true);
+    const report = await financialReportsServices.trialBalance(filters);
+    
+    setReportData(report);
+    setisFetching(false);
+  };
+
+  const downloadFileName = `Trial Balance as of ${readableDate(watch('as_at'),true)}`;
 
   return (
     <>
@@ -142,7 +173,7 @@ function TrialBalance() {
           </Grid>
         </Grid>
         <Span className={css.hiddenOnPrint}>
-          <form autoComplete="off" onSubmit={handleSubmit(retrieveReport)}>
+          <form autoComplete="off" key={uploadFieldsKey} onSubmit={handleSubmit(retrieveReport)}>
             <Grid
               container
               columnSpacing={1}
@@ -150,7 +181,7 @@ function TrialBalance() {
               alignItems="center"
               justifyContent="center"
             >
-              <Grid size={{xs: 12, md: 10, lg: 5}}>
+              <Grid size={{xs: 12, md: 8}}>
                 <CostCenterSelector
                   label="Cost Centers"
                   multiple={true}
@@ -161,7 +192,7 @@ function TrialBalance() {
                   }}
                 />
               </Grid>
-              <Grid size={{xs: 12, md: 4, lg: 3}}>
+              <Grid size={{xs: 12, md: 4}}>
                 <Div sx={{ mt: 1, mb: 1 }}>
                   <DateTimePicker
                     label="As at (MM/DD/YYYY)"
@@ -182,10 +213,24 @@ function TrialBalance() {
                   />
                 </Div>
               </Grid>
-              <Grid size={{xs: 12, md: 2, lg: 1}} textAlign="right">
-                <LoadingButton loading={isFetching} type="submit" size="small" variant="contained">
-                  Filter
-                </LoadingButton>
+              <Grid size={{xs: 12}} textAlign="right">
+                <Stack direction="row" spacing={0.5} justifyContent="flex-end" alignItems="center">
+                  <>                                
+                    <LoadingButton
+                      size="small"
+                      onClick={downloadExcelTemplate}
+                      loading={isDownloadingTemplate}
+                      disabled
+                      variant="contained"
+                      color="success"
+                    >
+                      Excel
+                    </LoadingButton>
+                    <LoadingButton loading={isFetching} type='submit' size='small' variant='contained'>
+                      Filter
+                    </LoadingButton>
+                  </>
+                </Stack>
               </Grid>
             </Grid>
           </form>

@@ -1,5 +1,5 @@
 import { Div } from '@jumbo/shared';
-import { Alert, Divider, Grid, LinearProgress, Tooltip, Typography } from '@mui/material';
+import { Alert, Divider, Grid, LinearProgress, ListItemText, Tooltip, Typography } from '@mui/material';
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
 
@@ -7,6 +7,7 @@ interface SaleItem {
   product?: {
     name: string;
   };
+  description: string;
   product_name?: string;
   measurement_unit?: {
     symbol: string;
@@ -63,9 +64,22 @@ function SaleInvoiceItems() {
                     <Grid size={{xs: 11.5, md: 8, lg: 5}}>
                         <Div sx={{ mt: 1.7, mb: 1.7 }}>
                             <Tooltip title='Product'>
-                                <Typography variant="body1">
-                                    {item.product?.name || item.product_name || 'Unknown Product'}
-                                </Typography>
+                                <ListItemText
+                                    primary={
+                                        <Tooltip title={'Product'}>
+                                            <Typography variant={"h5"} fontSize={14} lineHeight={1.25} mb={0} noWrap>
+                                                {item.product?.name || item.product_name}
+                                            </Typography>
+                                        </Tooltip>
+                                    }
+                                    secondary={
+                                        <Tooltip title={'Description'}>
+                                            <Typography component="span" variant="body2" fontSize={14} lineHeight={1.25} mb={0}>
+                                                {item.description}
+                                            </Typography>
+                                        </Tooltip>
+                                    }
+                                />
                             </Tooltip>
                         </Div>
                     </Grid>

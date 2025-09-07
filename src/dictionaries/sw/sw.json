@@ -30,6 +30,7 @@
       "usersManagement": "Usimamizi wa Watumiaji",
       "outlets": "Sehemu za Uuzaji",
       "priceLists": "Orodha za Bei",
+      "nextSMS": "Meseji",
       "settings": "Mipangilio",
       "salesShifts": "Mabadiliko ya Mauzo",
       "dippings": "Kupima Kina cha Mafuta",
@@ -57,6 +58,7 @@
       "measurement_units": "Vipimo",
       "subscriptions": "Usajili",
       "troubleshooting": "Kutatua Matatizo",
+      "prosAfricans": "ProsAfricans",
       "invitations": "Mialiko",
       "organizations": "Mashirika"
     }

@@ -13,7 +13,6 @@ import { Product } from '@/components/productAndServices/products/ProductType';
 
 interface PriceListItemFormProps {
   setClearFormKey: React.Dispatch<React.SetStateAction<number>>;
-  submitMainForm: () => void;
   submitItemForm: boolean;
   setSubmitItemForm: React.Dispatch<React.SetStateAction<boolean>>;
   setIsDirty: React.Dispatch<React.SetStateAction<boolean>>;
@@ -44,7 +43,6 @@ interface Unit {
 
 const PriceListItemForm: React.FC<PriceListItemFormProps> = ({ 
   setClearFormKey, 
-  submitMainForm, 
   submitItemForm, 
   setSubmitItemForm, 
   setIsDirty, 
@@ -94,39 +92,42 @@ const PriceListItemForm: React.FC<PriceListItemFormProps> = ({
     setIsDirty(Object.keys(dirtyFields).length > 0);
   }, [dirtyFields, setIsDirty, watch]);
 
-  const updateItems = async (formData: FormValues) => {
+  const updateItems = async (itemData: FormValues) => {
     setIsAdding(true);
-    const newItem = {
-      ...formData,
-      product_id: formData.product.id,
-      product: formData.product,
-      measurement_unit: productUnits.find(unit => unit.id === formData.measurement_unit_id),
-      sales_outlets: []
-    };
-
-    if (index > -1) {
-      const updatedItems = [...items];
-      updatedItems[index] = newItem;
-      await setItems(updatedItems);
-      setClearFormKey(prevKey => prevKey + 1);
-    } else {
-      await setItems(prevItems => [...prevItems, newItem]);
-      if (submitItemForm) {
-        submitMainForm();
+    
+    try {
+      if (index > -1) {
+        const updatedItems = [...items];
+        updatedItems[index] = itemData;
+        await setItems(updatedItems);
+      } else {
+        await setItems(prevItems => [...prevItems, itemData]);
       }
-      setSubmitItemForm(false);
-      setClearFormKey(prevKey => prevKey + 1);
-    }
 
-    reset();
-    setIsAdding(false);
-    setShowForm?.(false);
+      // Reset form only if not in submitItemForm mode
+      if (!submitItemForm) {
+        reset();
+        setProductUnits([]);
+        setCostAverage(0);
+      }
+      
+      // If this was triggered by the main form's "Add and Submit"
+      if (submitItemForm) {
+        setSubmitItemForm(false);
+        return true;
+      }
+      
+      return false;
+    } finally {
+      setIsAdding(false);
+      setShowForm?.(false);
+    }
   };
 
   useEffect(() => {
     if (submitItemForm) {
       handleSubmit(updateItems, () => {
-        setSubmitItemForm(false);
+        setSubmitItemForm(false); // Reset submitItemForm if there are errors
       })();
     }
   }, [submitItemForm]);

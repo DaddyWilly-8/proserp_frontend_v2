@@ -222,6 +222,7 @@
             },
             "messages": {
               "alreadyQueued": "User is already in the queued list",
+              "alreadyMember": "User is already a member or has pending invitation",
               "notFound": "No user with that email was found. An invitation to register will be sent instead.",
               "error": "An error occurred",
               "success": "Invitation added successfully"

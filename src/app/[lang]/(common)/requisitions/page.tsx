@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import Requisitions from '@/components/processApproval/Requisitions'
 import React from 'react'
 

@@ -82,7 +82,7 @@ const CurrenciesExchangeRate: React.FC<CurrenciesExchangeRateProps> = ({
           </Grid>
         )}
         <Grid size={12}>
-          {isPending ? (
+          {currency.id > 1 && isPending ? (
             <Grid size={12}>
               <LinearProgress />
             </Grid>

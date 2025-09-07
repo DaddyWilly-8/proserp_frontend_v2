@@ -135,7 +135,19 @@ const SalePDF: React.FC<SalePDFProps> = ({ sale, organization, thermalPrinter = 
                     {sale.sale_items?.map((saleItem, index) => (
                         <View key={saleItem.id} style={{ ...pdfStyles.tableRow, borderTop: '1px', borderTopStyle: 'solid', borderTopColor: mainColor }}>
                             <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 0.6}}>{index+1}</Text>
-                            <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 3}}>{saleItem.product?.name || 'N/A'}</Text>
+                            <View
+                                style={{
+                                    ...pdfStyles.tableCell,
+                                    backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor,
+                                    flex: 3,
+                                    flexDirection: 'column',
+                                }}
+                            >
+                                <Text>
+                                    {saleItem.product.name}
+                                </Text>
+                                {saleItem.description && <Text>{`(${saleItem.description})`}</Text>}
+                            </View>
                             <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 1.3, textAlign: 'right' }}>
                                 {`${saleItem.quantity} ${saleItem.measurement_unit?.symbol || ''}`}
                             </Text>
@@ -280,7 +292,19 @@ const SalePDF: React.FC<SalePDFProps> = ({ sale, organization, thermalPrinter = 
                 {sale.sale_items?.map((saleItem, index) => (
                     <View key={saleItem.id} style={pdfStyles.tableRow}>
                         <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 0.4 }}>{index+1}</Text>
-                        <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 3 }}>{saleItem.product?.name || 'N/A'}</Text>
+                        <View
+                            style={{
+                                ...pdfStyles.tableCell,
+                                backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor,
+                                flex: 3,
+                                flexDirection: 'column',
+                            }}
+                        >
+                            <Text>
+                                {saleItem.product.name}
+                            </Text>
+                            {saleItem.description && <Text>{`(${saleItem.description})`}</Text>}
+                        </View>
                         <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 0.6 }}>{saleItem.measurement_unit?.symbol || ''}</Text>
                         <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 0.9, textAlign: 'right'}}>
                             {saleItem.quantity}

@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import AccountsReports from '@/components/accounts/reports/AccountsReports'
 import React from 'react'
 

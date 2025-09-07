@@ -17,6 +17,11 @@ import {
   VerifiedOutlined,
   AccountTreeOutlined,
   EditAttributes,
+  TuneOutlined,
+  ManageAccountsOutlined,
+  TroubleshootOutlined,
+  CardMembershipOutlined,
+  SmsOutlined,
 } from '@mui/icons-material';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -64,6 +69,7 @@ export const iconMap: Record<string, React.ReactNode> = {
   reports: muiIcon(AssessmentOutlined),
   product_categories: muiIcon(Inventory2Outlined),
   products: muiIcon(Inventory2Outlined),
+  manufacturingMasters: muiIcon(TuneOutlined),
   outlets: muiIcon(StoreOutlined),
   settings: muiIcon(StoreOutlined),
   stakeholders: muiIcon(HandshakeOutlined),
@@ -72,7 +78,11 @@ export const iconMap: Record<string, React.ReactNode> = {
   organizations: muiIcon(CorporateFareOutlined),
   invitations: muiIcon(ShareOutlined),
   filesShelf: faIcon(faFolderOpen),
-  prosControl: faIcon(faUsersGear),
+  usersManagement: muiIcon(ManageAccountsOutlined),
+  nextSMS: muiIcon(SmsOutlined),
+  prosAfricans: faIcon(faUsersGear),
+  troubleshooting: muiIcon(TroubleshootOutlined),
+  subscriptions: muiIcon(CardMembershipOutlined),
   projects: faIcon(faBarsProgress),
   consumptions: faIcon(faFillDrip),
   approvedPurchases: muiIcon(ShoppingCartCheckoutOutlined),
@@ -200,7 +210,7 @@ export async function getMenus(locale: string): Promise<MenuEntry[]> {
         {
           label: sidebar.menuItem.masters,
           type: 'collapsible',
-          icon: iconMap.products,
+          icon: iconMap.manufacturingMasters,
           children: [
             {
               uri: `/${locale}/manufacturing/boms`,
@@ -374,10 +384,34 @@ export async function getMenus(locale: string): Promise<MenuEntry[]> {
       type: 'section',
       children: [
         {
+          uri: `/${locale}/prosControl/prosAfricans`,
+          label: sidebar.menuItem.prosAfricans,
+          type: 'nav-item',
+          icon: iconMap.prosAfricans,
+        },
+        {
+          uri: `/${locale}/prosControl/subscriptions`,
+          label: sidebar.menuItem.subscriptions,
+          type: 'nav-item',
+          icon: iconMap.subscriptions,
+        },
+        {
+          uri: `/${locale}/prosControl/troubleshooting`,
+          label: sidebar.menuItem.troubleshooting,
+          type: 'nav-item',
+          icon: iconMap.troubleshooting,
+        },
+        {
           uri: `/${locale}/prosControl/usersManagement`,
           label: sidebar.menuItem.usersManagement,
           type: 'nav-item',
-          icon: iconMap.prosControl,
+          icon: iconMap.usersManagement,
+        },
+        {
+          uri: `/${locale}/prosControl/nextSMS`,
+          label: sidebar.menuItem.nextSMS,
+          type: 'nav-item',
+          icon: iconMap.nextSMS,
         },
       ],
     },

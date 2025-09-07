@@ -32,7 +32,7 @@ productionBatchesServices.addProduction = async(batch) => {
 
 productionBatchesServices.updateProduction = async(batch) => {
     return await axios.get('/sanctum/csrf-cookie').then(async (response) => {
-        const {data} = await axios.put(`/api/manufacturing/batches/${id}/updateProduction`,batch)
+        const {data} = await axios.put(`/api/manufacturing/batches/${batch.id}/updateProduction`,batch)
         return data;    
     })
 }

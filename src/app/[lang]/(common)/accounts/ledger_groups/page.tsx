@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import LedgerGroup from '@/components/accounts/ledgerGroups/LedgerGroup'
 import React from 'react'
 

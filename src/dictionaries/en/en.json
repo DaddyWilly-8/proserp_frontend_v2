@@ -28,6 +28,7 @@
       "fileShelf": "File Shelf",
       "reports": "Reports",
       "outlets": "Outlets",
+      "nextSMS": "SMS",
       "priceLists": "Price Lists",
       "settings": "Settings",
       "salesShifts": "Sales Shifts",
@@ -55,6 +56,7 @@
       "measurement_units": "Measurement Units",
       "subscriptions": "Subscriptions",
       "troubleshooting": "Troubleshooting",
+      "prosAfricans": "ProsAfricans",
       "invitations": "Invitations",
       "organizations": "Organizations"
     }

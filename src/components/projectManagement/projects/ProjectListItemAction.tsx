@@ -6,31 +6,31 @@ import { useJumboDialog } from '@jumbo/components/JumboDialog/hooks/useJumboDial
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { MenuItemProps } from '@jumbo/types';
 import { JumboDdMenu } from '@jumbo/components';
-import projectServices from './project-services';
+import projectsServices from './project-services';
 import { Project } from './ProjectTypes';
 
 const ProjectListItemAction = ({ project }: { project: Project }) => {
-    const { showDialog, hideDialog } = useJumboDialog();
-    const { enqueueSnackbar } = useSnackbar();
-    const queryClient = useQueryClient();
+  const { showDialog, hideDialog } = useJumboDialog();
+  const { enqueueSnackbar } = useSnackbar();
+  const queryClient = useQueryClient();
 
-    const { mutate: deleteProject } = useMutation({
-   mutationFn: (params: { id: number }) => projectServices.delete(params),
-    onSuccess: (data: { message: string }) => {
-    enqueueSnackbar(data.message, { variant: 'success' });
-    queryClient.invalidateQueries({ queryKey: ['projects'] });
-    },
-    onError: (error: any) => {
-    enqueueSnackbar(
+  const { mutate: deleteProject } = useMutation({
+    mutationFn: (params: { id: number }) => projectsServices.deleteProject(params.id),
+      onSuccess: (data: { message: string }) => {
+        enqueueSnackbar(data.message || 'Successfull delete project', { variant: 'success' });
+        queryClient.invalidateQueries({ queryKey: ['projects'] });
+      },
+      onError: (error: any) => {
+      enqueueSnackbar(
         error?.response?.data?.message || 'Failed to delete project',
         { variant: 'error' }
       );
     },
-    });
+  });
 
-   const menuItems: MenuItemProps[] = [
+  const menuItems: MenuItemProps[] = [
     { icon: <DeleteOutlined color="error" />, title: 'Delete', action: 'delete' },
-   ];
+  ];
 
   const handleItemAction = (menuItem: MenuItemProps) => {
     switch (menuItem.action) {

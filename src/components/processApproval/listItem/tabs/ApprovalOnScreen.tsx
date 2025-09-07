@@ -22,7 +22,7 @@ interface ApprovalOnScreenProps {
   belowLargeScreen: boolean;
 }
 
-const FetchRelatableDetails = ({ approval, relatable, toggleOpen }: FetchRelatableDetailsProps) => {
+const FetchRelatableDetails = ({ relatable, toggleOpen }: FetchRelatableDetailsProps) => {
     const { data: orderDetails, isFetching } = useQuery({
         queryKey: ['purchaseOrder', { id: relatable?.id }],
         queryFn: async () => relatable?.id ? purchaseServices.orderDetails(relatable.id) : null
@@ -56,7 +56,7 @@ function ApprovalOnScreen({ approval, organization, belowLargeScreen }: Approval
 
     return (
         <>
-            <Box sx={{ padding: 5 }}>
+            <Box sx={{ padding: 1 }}>
                 <Grid container spacing={1} width={'100%'}>
                     <Grid container spacing={2} width={'100%'}>
                         <Grid size={12} sx={{ textAlign: 'center' }}>
@@ -69,7 +69,7 @@ function ApprovalOnScreen({ approval, organization, belowLargeScreen }: Approval
                         </Grid>
                     </Grid>
 
-                    <Grid container spacing={2} sx={{ mt: 5, mb: 10 }} width={'100%'}>
+                    <Grid container spacing={2} width={'100%'}>
                         <Grid size={6}>
                             <Typography variant="body2" sx={{ color: mainColor }}>Approval Date:</Typography>
                             <Typography variant="body2">{readableDate(approval.approval_date)}</Typography>
@@ -206,7 +206,7 @@ function ApprovalOnScreen({ approval, organization, belowLargeScreen }: Approval
                             </Grid>
                         )}
                     </Grid>
-                    <Grid container spacing={2} sx={{ mt: 5, mb: 10 }} width={'100%'}>
+                    <Grid container spacing={2} sx={{ mt: 5 }} width={'100%'}>
                         <Grid size={6}>
                             <Typography variant="body2" color={mainColor}>Requested By:</Typography>
                             <Typography variant="body2">{approval.requisition?.creator.name}</Typography>
@@ -221,7 +221,7 @@ function ApprovalOnScreen({ approval, organization, belowLargeScreen }: Approval
             <Dialog 
                 open={openViewDialog} 
                 fullScreen={belowLargeScreen} 
-                maxWidth='md' 
+                maxWidth='lg' 
                 fullWidth 
                 onClose={() => setOpenViewDialog(false)}
             >

@@ -1,7 +1,6 @@
 'use client'
 
 import React, { useEffect } from 'react';
-import { CenteredSpinner } from '@/shared/ProgressIndicators/CenteredSpinner';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
 import Head from 'next/head';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
@@ -13,6 +12,7 @@ import { Organization } from '@/types/auth-types';
 import { Typography } from '@mui/material';
 import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import { useLanguage } from '@/app/[lang]/contexts/LanguageContext';
+import { BackdropSpinner } from '@/shared/ProgressIndicators/BackdropSpinner';
 
 interface OrganizationResponse {
   organization: Organization;
@@ -53,7 +53,7 @@ const EditOrganization: React.FC = () => {
   }, [authOrganization, organization_id, checkOrganizationPermission, router]);
 
   if (isLoading) {
-    return <CenteredSpinner message={orgEditDict.messages.loading} />;
+    return <BackdropSpinner message={orgEditDict.messages.loading} />;
   }
 
   if (error) {

@@ -63,7 +63,6 @@ const DocumentDialogContent: React.FC<DocumentDialogContentProps> = ({
   const { data: sale, isFetching } = useQuery({
     queryKey: ['sale', { id: saleId }],
     queryFn: () => posServices.saleDetails(saleId),
-    staleTime: 1000 * 60 * 5 // 5 minutes cache
   });
 
   const { theme } = useJumboTheme();

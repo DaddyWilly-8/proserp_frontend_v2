@@ -8,7 +8,6 @@ export async function POST(req: NextRequest) {
   if (response) return response;
 
   const body = await req.json();
-  console.log(body)
   const res = await fetch(`${API_BASE}/approval-chain-levels`, {
     method: 'POST',
     headers,

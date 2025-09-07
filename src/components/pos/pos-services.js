@@ -208,4 +208,13 @@ posServices.getSalesPerson = async () => {
     return data;
 }
 
+posServices.downloadExcelTemplate = async (filters) => {
+    const { data } = await axios.post(`/stores/1/stock_list_excel`,filters,
+        {
+            responseType: 'blob',
+        }
+    );      
+    return data;
+};
+
 export default posServices;

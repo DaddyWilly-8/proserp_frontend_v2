@@ -39,15 +39,15 @@ function StoreProfileProvider({children}) {
     store.children.forEach(store => populateStoreArrays(store));
   }
 
-React.useEffect(() => {
-  setStoreArrays({ storeIds: [],selectOptions:[]});
-  if(isFetched){
-    populateStoreArrays(mainStore);
-    setActiveStore(mainStore);
-  }
-}, [isFetchingStore])
+  React.useEffect(() => {
+    setStoreArrays({ storeIds: [],selectOptions:[]});
+    if(isFetched){
+      populateStoreArrays(mainStore);
+      setActiveStore(mainStore);
+    }
+  }, [isFetchingStore])
 
-const {organizationHasSubscribed} = useJumboAuth();
+  const {organizationHasSubscribed} = useJumboAuth();
 
   if(isFetchingStore){
     return <LinearProgress/>

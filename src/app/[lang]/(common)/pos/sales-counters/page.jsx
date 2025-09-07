@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import SalesCounter from '@/components/pos/counter/SalesCounter'
 import React from 'react'
 

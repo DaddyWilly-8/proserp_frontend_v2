@@ -99,22 +99,27 @@ function StakeholderSelector(props: StakeholderSelectorProps) {
           return <Chip {...restProps} key={`${option.id}-${key}`} label={option.name} />;
         });
       }}
-      renderOption={(props, option, { selected }) => {
-        const { key, ...restProps } = props;
-        return (
-          <li {...restProps} key={`${option.id}-${key}`}>
-            {multiple && (
+      {...(multiple && { 
+        renderOption: (
+          props: React.HTMLAttributes<HTMLLIElement> & { key?: React.Key },
+          option: Stakeholder,
+          { selected }
+        ) => {
+          const { key, ...otherProps } = props;
+
+          return (
+            <li key={option.id} {...otherProps}>
               <Checkbox
                 icon={<CheckBoxOutlineBlank fontSize="small" />}
                 checkedIcon={<CheckBox fontSize="small" />}
                 style={{ marginRight: 8 }}
                 checked={selected}
               />
-            )}
-            {option.name}
-          </li>
-        );
-      }}
+              {option.name}
+            </li>
+          );
+        }
+      })}
     />
   );
 }

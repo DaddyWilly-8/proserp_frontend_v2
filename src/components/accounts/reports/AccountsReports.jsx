@@ -28,6 +28,7 @@ function AccountsReports() {
     const [openBalanceSheet, setOpenBalanceSheet] = useState(false);
     const [openCashierReport, setOpenCashierReport] = useState(false);
     const [openReceiptDialog, setOpenReceiptDialog] = useState(false);
+    const [openTrialBalance, setOpenTrialBalance] = useState(false);
     const [report, setReport] = useState(null);
     const {checkOrganizationPermission, authOrganization,organizationHasSubscribed} = useJumboAuth();
 
@@ -55,14 +56,14 @@ function AccountsReports() {
             <Dialog 
                 scroll={belowLargeScreen ? 'body' : 'paper'} 
                 fullWidth
-                maxWidth={openCashierReport ? 'lg' : 'md'} 
+                maxWidth={(openCashierReport || openTrialBalance) ? 'lg' : 'md'}
                 fullScreen={(openBalanceSheet || openCashierReport || IncomeStatement) && belowLargeScreen} 
-                open={openDialog || openReceiptDialog || openBalanceSheet || openCashierReport}
+                open={openDialog || openReceiptDialog || openBalanceSheet || openCashierReport || openTrialBalance}
             >
                 {report}
                 {!openCashierReport &&
                     <DialogActions className={css.hiddenOnPrint}>
-                        <Button sx={{ m:1 }} size='small' variant='outlined' onClick={() =>{ setOpenDialog(false) ; setOpenReceiptDialog(false); setOpenBalanceSheet(false); setOpenCashierReport(false);}}>
+                        <Button sx={{ m:1 }} size='small' variant='outlined' onClick={() =>{ setOpenDialog(false) ; setOpenReceiptDialog(false); setOpenBalanceSheet(false); setOpenTrialBalance(false); setOpenCashierReport(false);}}>
                             Close
                         </Button>
                     </DialogActions>
@@ -118,7 +119,7 @@ function AccountsReports() {
                         textAlign={'center'}
                         onClick={() => {
                             setReport(<TrialBalance/>)
-                            setOpenDialog(true);
+                            setOpenTrialBalance(true);
                         }}
                     >
                         <DeckOutlined sx={{ fontSize: '40px' }} />

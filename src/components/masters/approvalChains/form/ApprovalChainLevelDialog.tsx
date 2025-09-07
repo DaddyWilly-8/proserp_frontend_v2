@@ -101,8 +101,6 @@ function ApprovalChainLevelDialog({ approvalChainLevel, toggleOpen, approvalChai
     }
   });
 
-    console.log(errors)
-
   const { data: roles, isLoading: isLoadingRoles, isFetching: isFetchingRoles } = useQuery<Role[]>({
     queryKey: ['organizationRoles', authOrganization?.organization?.id],
     queryFn: () => organizationServices.getRoles(authOrganization?.organization?.id!),

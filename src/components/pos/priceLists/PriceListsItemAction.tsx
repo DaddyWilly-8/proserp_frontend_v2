@@ -137,7 +137,6 @@ const PriceListsItemAction: React.FC<PriceListsItemActionProps> = ({ priceList }
 
   const handleCloseDialog = () => {
     setOpenDocumentDialog(false);
-    setOpenEditDialog(false);
   };
 
   return (

@@ -1,5 +1,5 @@
 import { DisabledByDefault, EditOutlined } from '@mui/icons-material'
-import { Divider, Grid, IconButton, Tooltip, Typography } from '@mui/material'
+import { Divider, Grid, IconButton, ListItemText, Tooltip, Typography } from '@mui/material'
 import React, { useState } from 'react'
 import SaleItemForm from './SaleItemForm';
 import { useFormContext } from 'react-hook-form';
@@ -27,7 +27,22 @@ function SaleItemRow({setClearFormKey, submitMainForm, setSubmitItemForm, submit
                         </Grid>
                         <Grid size={{xs: 11, md: 5, lg: 4}}>
                             <Tooltip title="Product">
-                                <Typography>{product.name}</Typography>
+                                <ListItemText
+                                    primary={
+                                        <Tooltip title={'Product'}>
+                                            <Typography variant={"h5"} fontSize={14} lineHeight={1.25} mb={0} noWrap>
+                                                {product.name}
+                                            </Typography>
+                                        </Tooltip>
+                                    }
+                                    secondary={
+                                        <Tooltip title={'Description'}>
+                                            <Typography component="span" variant="body2" fontSize={14} lineHeight={1.25} mb={0}>
+                                                {item.description}
+                                            </Typography>
+                                        </Tooltip>
+                                    }
+                                />
                             </Tooltip>
                         </Grid>
                         <Grid size={{xs: 1, lg: vat_factor ? 0.5 : 1}}>
@@ -53,7 +68,7 @@ function SaleItemRow({setClearFormKey, submitMainForm, setSubmitItemForm, submit
                                 </Tooltip>
                             </Grid>
                         }
-                        <Grid textAlign={'end'} size={{xs: 4, md: 2}}>
+                        <Grid textAlign={'end'} size={{xs: 4, md: 2, lg: 2.5}}>
                             <Tooltip title="Line Total">
                                 <Typography>{(item.quantity*item.rate*((1+(product?.vat_exempted !== 1 ? vat_factor : 0)))).toLocaleString()}</Typography>
                             </Tooltip>

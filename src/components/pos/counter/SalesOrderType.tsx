@@ -35,6 +35,7 @@ export interface SalesOrder {
       name: string;
       vat_exempted?: boolean;
     };
+    description?: string;
     quantity: number;
     rate: number;
     measurement_unit: {
@@ -48,6 +49,7 @@ export interface SalesOrder {
       name: string;
       vat_exempted?: boolean;
     };
+    description?: string;
     quantity: number;
     rate: number;
     measurement_unit: {

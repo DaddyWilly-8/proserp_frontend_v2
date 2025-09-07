@@ -34,6 +34,7 @@ import { SalesOrder } from '../SalesOrderType';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import UnauthorizedAccess from '@/shared/Information/UnauthorizedAccess';
 import { DispatchReportOnScreen } from './saleDispatchReport/DispatchReportOnScreen';
+import { useCounter } from '../CounterProvider';
 
 // Lazy-loaded components
 const SaleInvoiceForm = lazy(() => import('./invoice/SaleInvoiceForm'));
@@ -192,6 +193,7 @@ const SalesListItemTabs: React.FC<SalesListItemTabsProps> = ({
   const [openDispatchDialog, setOpenDispatchDialog] = useState(false);
   const [openInvoicesDialog, setOpenInvoicesDialog] = useState(false);
   const [openReceiptDialog, setOpenReceiptDialog] = useState(false);
+  const {activeCounter} = useCounter();
   
   const accountsPersonnel = checkOrganizationPermission([
     PERMISSIONS.ACCOUNTS_MASTERS_READ,
@@ -284,7 +286,7 @@ const SalesListItemTabs: React.FC<SalesListItemTabsProps> = ({
        (!sale.is_instant_sale || sale.payment_method === 'On Account') && 
        activeTab === (sale.is_instant_sale ? tabIndex.receipts : 1) && (
         <Grid container spacing={2} sx={{ width: '100%' }}>
-          {!!sale.is_receiptable && (
+          {activeCounter?.id !== 'all' && !!sale.is_receiptable && (
             <Grid size={12} sx={{ textAlign: 'right' }}>
               <Tooltip title={`Receipt For ${sale.saleNo}`}>
                 <IconButton 

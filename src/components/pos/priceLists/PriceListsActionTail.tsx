@@ -19,11 +19,6 @@ const PriceListsActionTail = () => {
     const { theme } = useJumboTheme();
     const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
 
-    const handleClose = () => {
-        setOpenExcelDialog(false);
-        setOpenDialog(false);
-    };
-
     const handleMenuClose = () => {
         setAnchorEl(null);
     };
@@ -33,7 +28,6 @@ const PriceListsActionTail = () => {
             <Dialog 
                 fullWidth 
                 fullScreen={belowLargeScreen} 
-                onClose={handleClose} 
                 scroll={belowLargeScreen ? 'body' : 'paper'} 
                 maxWidth={openExcelDialog ? "md" : "lg"} 
                 open={openDialog || openExcelDialog}

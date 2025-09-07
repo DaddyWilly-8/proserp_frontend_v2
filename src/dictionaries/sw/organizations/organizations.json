@@ -222,6 +222,7 @@
             },
             "messages": {
               "alreadyQueued": "Mtumiaji tayari kwenye orodha ya kusubiri",
+              "alreadyMember": "Mtumiaji tayari ni mwanachama au ana mwaliko unaosubiri",
               "notFound": "Hakuna mtumiaji mwenye barua pepe hiyo. Mialiko ya kujiandikisha itatumwa badala yake.",
               "error": "Hitilafu imetokea",
               "success": "Mialiko imeongezwa kikamilifu"

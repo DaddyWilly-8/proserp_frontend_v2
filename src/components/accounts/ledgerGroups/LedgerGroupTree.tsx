@@ -1,4 +1,3 @@
-
 import React from "react";
 import { ChevronRightOutlined, ExpandMoreOutlined } from "@mui/icons-material";
 import { Button, LinearProgress } from "@mui/material";
@@ -25,28 +24,31 @@ export interface TreeNode {
 export default function LedgerGroupTree() {
   const { ledgerGroups, isLoading, ledgerGroupOptionIds } = useLedgerGroup();
   const [expandedItems, setExpandedItems] = React.useState<string[]>([]);
-  
-  const handleItemToggle = (
-    event: React.SyntheticEvent<Element, Event> | null, 
-    itemIds: string[]
-  ) => {
+
+  const handleItemToggle = (event: React.SyntheticEvent<Element, Event> | null, itemIds: string[]) => {
     setExpandedItems(itemIds);
   };
 
   const handleExpandClick = () => {
-    setExpandedItems((prev) => 
-      prev.length === 0 ? ledgerGroupOptionIds : []
-    );
+    setExpandedItems((prev) => (prev.length === 0 ? ledgerGroupOptionIds : []));
   };
 
   const renderTree = (nodes: TreeNode[] = []) => {
     return nodes.map((node) => (
-      <TreeItem 
+      <TreeItem
         key={node.id.toString()}
         itemId={node.id.toString()}
         label={<TreeItemLabel node={node} />}
+        sx={{
+          '& .MuiTreeItem-content': {
+            paddingLeft: (theme) => theme.spacing(2), // Base indentation
+            '&.Mui-expanded > .MuiTreeItem-content': {
+              paddingLeft: (theme) => theme.spacing(4), // Increased for expanded children
+            },
+          },
+        }}
       >
-        {node.children ? renderTree(node.children) : null}
+        {node.children && node.children.length > 0 ? renderTree(node.children) : null}
       </TreeItem>
     ));
   };
@@ -59,7 +61,7 @@ export default function LedgerGroupTree() {
         <>
           <Div sx={{ mb: 1 }}>
             <Button onClick={handleExpandClick}>
-              {expandedItems.length === 0 ? 'Expand all' : 'Collapse all'}
+              {expandedItems.length === 0 ? "Expand all" : "Collapse all"}
             </Button>
           </Div>
           <SimpleTreeView
@@ -70,13 +72,19 @@ export default function LedgerGroupTree() {
             }}
             expandedItems={expandedItems}
             onExpandedItemsChange={handleItemToggle}
-            sx={{ 
-              flexGrow: 1, 
-              overflowY: 'auto', 
+            sx={{
+              flexGrow: 1,
+              overflowY: "auto",
               minHeight: 230,
+              '& .MuiTreeItem-root': {
+                marginLeft: (theme) => theme.spacing(1),
+                '& .MuiTreeItem-root': {
+                  marginLeft: (theme) => theme.spacing(2),
+                },
+              },
               '& .MuiTreeItem-content': {
-                padding: '4px 8px'
-              }
+                padding: "4px 8px",
+              },
             }}
           >
             {renderTree(ledgerGroups || [])}

@@ -133,7 +133,7 @@ function JumboNavItem({ item, isNested, depth = 0 }: JumboNavItemProps) {
           )}
         </Link>
       </ListItemButton>
-      {isLoading && <BackdropSpinner message="Wait" isRouterTransfer={true}/>}
+      {isLoading && <BackdropSpinner isRouterTransfer={true}/>}
     </>
   );
 }

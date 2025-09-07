@@ -44,13 +44,13 @@ const BomsListItem: React.FC<BomsListItemProps> = ({ bom }) => {
         <Grid size={{xs: 12, md: 6}}>
           <Tooltip title="Quantity & Unit">
             <Typography>
-              {bom.quantity} 
+              {bom.quantity} {bom.measurement_unit?.symbol ?? "—"}
             </Typography>
           </Tooltip>
         </Grid>
          {/* Actions */}
         <Grid size={{xs: 12, md: 2}}textAlign="end">
-          <BomsListItemAction bom={bom} />
+          <BomsListItemAction bom={bom as any} />
         </Grid>
       </Grid>
     </React.Fragment>

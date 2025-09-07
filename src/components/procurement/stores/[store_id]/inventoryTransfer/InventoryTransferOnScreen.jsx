@@ -79,7 +79,7 @@ function InventoryTransferOnScreen({ transfer, organization }) {
 
       {transfer.vehicle_information && (
         <Grid container paddingTop={3}>
-          <Grid size={6}>
+          <Grid size={12}>
             <Tooltip title="Information about the vehicle used for the transfer">
               <Typography variant="body2" color={mainColor}>Vehicle Information:</Typography>
             </Tooltip>
@@ -90,7 +90,7 @@ function InventoryTransferOnScreen({ transfer, organization }) {
 
       {transfer.driver_information && (
         <Grid container paddingTop={3}>
-          <Grid size={6}>
+          <Grid size={12}>
             <Tooltip title="Information about the driver handling the transfer">
               <Typography variant="body2" color={mainColor}>Driver Information:</Typography>
             </Tooltip>
@@ -100,9 +100,16 @@ function InventoryTransferOnScreen({ transfer, organization }) {
       )}
 
       <Grid container paddingTop={3}>
-        <Grid size={6}>
+        <Grid size={12}>
           <Typography variant="body2" color={mainColor}>Narration</Typography>
           <Typography variant="body2">{transfer.narration}</Typography>
+        </Grid>
+      </Grid>
+
+      <Grid container paddingTop={3}>
+        <Grid item xs={12}>
+          <Typography variant="body2" color={mainColor}>Transfered By</Typography>
+          <Typography variant="body2">{transfer.creator.name}</Typography>
         </Grid>
       </Grid>
     </div>

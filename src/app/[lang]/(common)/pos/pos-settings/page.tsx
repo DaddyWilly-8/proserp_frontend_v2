@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import PoSSettings from '@/components/pos/posSettings/PoSSettings'
 import React from 'react'
 

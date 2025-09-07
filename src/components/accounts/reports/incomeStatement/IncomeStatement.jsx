@@ -15,6 +15,7 @@ import {
   RadioGroup,
   FormControlLabel,
   Radio,
+  Stack,
 } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 
@@ -29,6 +30,7 @@ import { readableDate } from '@/app/helpers/input-sanitization-helpers';
 import useProsERPStyles from '@/app/helpers/style-helpers';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { Div, Span } from '@jumbo/shared';
+import { useSnackbar } from 'notistack';
 
 const ReportDocumet = ({reportData,authOrganization,user}) => {
   const mainColor = authOrganization.organization.settings?.main_color || "#2113AD";
@@ -185,11 +187,15 @@ function IncomeStatement({from, to, cost_center_ids}) {
   const { authOrganization, authUser: {user} } = useJumboAuth();
   const [displayAs, setDisplayAs] = useState('on screen');
   const [reportData, setReportData] = useState(null);
+  const { enqueueSnackbar } = useSnackbar();
+  const [isDownloadingTemplate, setIsDownloadingTemplate] = React.useState(false);
+  const [uploadFieldsKey, setUploadFieldsKey] = useState(0)
+
   const validationSchema = yup.object({
     from: yup.string().required('Start Date is required').typeError('Start Date is required'),
   });
 
-  const { setValue, handleSubmit} = useForm({
+  const { setValue, watch, handleSubmit} = useForm({
     resolver: yupResolver(validationSchema),
     defaultValues: {
       from: dayjs(from).startOf('day').toISOString(),
@@ -199,6 +205,37 @@ function IncomeStatement({from, to, cost_center_ids}) {
   });
   
   const [isFetching, setisFetching] = useState(false);
+
+  const downloadExcelTemplate = async () => {
+    try {
+      setIsDownloadingTemplate(true);
+      setUploadFieldsKey((prevKey) => prevKey + 1);
+      
+      // Get all current filter parameters
+      const filters = {
+        from: watch('from'),
+        to: watch('to'),
+        cost_center_ids: watch('cost_center_ids')
+      };
+
+      // Pass all filters to the service
+      const responseData = await financialReportsServices.downloadExcelTemplate(filters);
+      
+      const blob = new Blob([responseData], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      });
+
+      const dateRange = `${readableDate(filters.from)}-${readableDate(filters.to)}`;
+      const link = document.createElement('a');
+      link.href = window.URL.createObjectURL(blob);
+      link.download = `Income Statement ${dateRange}.xlsx`;
+      link.click();
+      setIsDownloadingTemplate(false);
+    } catch (error) {
+      enqueueSnackbar('Error downloading Excel template', { variant: 'error' });
+      setIsDownloadingTemplate(false);
+    }
+  };
 
   const retrieveReport = async (filters) => {
     setisFetching(true);
@@ -230,7 +267,7 @@ function IncomeStatement({from, to, cost_center_ids}) {
           </Grid>
         </Grid>
         <Span className={css.hiddenOnPrint}>
-          <form autoComplete="off" onSubmit={handleSubmit(retrieveReport)}>
+          <form autoComplete="off" key={uploadFieldsKey} onSubmit={handleSubmit(retrieveReport)}>
             <Grid
               container
               columnSpacing={1}
@@ -291,9 +328,23 @@ function IncomeStatement({from, to, cost_center_ids}) {
                 </Div>
               </Grid>
               <Grid size={{xs: 12, md: 2, lg: 12}} textAlign="right">
-                <LoadingButton loading={isFetching} type="submit" size="small" variant="contained">
-                  Filter
-                </LoadingButton>
+                <Stack direction="row" spacing={0.5} justifyContent="flex-end" alignItems="center">
+                  <>                                
+                    <LoadingButton
+                      size="small"
+                      onClick={downloadExcelTemplate}
+                      loading={isDownloadingTemplate}
+                      disabled
+                      variant="contained"
+                      color="success"
+                    >
+                      Excel
+                    </LoadingButton>
+                    <LoadingButton loading={isFetching} type='submit' size='small' variant='contained'>
+                      Filter
+                    </LoadingButton>
+                  </>
+                </Stack>
               </Grid>
               <Grid size={12}>
                 <FormControl>

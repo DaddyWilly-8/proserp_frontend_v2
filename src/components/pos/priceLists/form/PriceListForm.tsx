@@ -107,32 +107,37 @@ const PriceListForm: React.FC<PriceListFormProps> = ({ toggleOpen, priceList = n
     return priceList ? updatePriceList : addPriceList;
   }, [updatePriceList, addPriceList, priceList]);
 
-  const onSubmit = handleSubmit((data) => {
+  const onSubmit = () => {
     if (items.length === 0) {
-      setError("items", {
+      setError(`items`, {
         type: "manual",
         message: "You must add at least one item",
       });
       return;
+    } else if (isDirty) {
+      setShowWarning(true);
+    } else {
+      handleSubmit((data) => saveMutation.mutate(data))();
     }
-    
-    // Prepare the final data to submit
-    const submitData = {
-      ...data,
-      items: items.map(item => ({
-        ...item,
-        sales_outlet_ids: applicableOutlets.map((outlet: Outlet) => outlet.id)
-      }))
-    };
+  };  
 
-    saveMutation.mutate(submitData);
-  });
+const handleMainFormSubmit = async () => {
+  // First trigger the item form submission
+  setSubmitItemForm(true);
+  setShowWarning(false);
+  
+  // Wait a brief moment to allow the item form to process
+  await new Promise(resolve => setTimeout(resolve, 100));
+  
+  // Then submit the main form
+  handleSubmit((data) => saveMutation.mutate(data))();
+};
 
   const handleConfirmSubmitWithoutAdd = () => {
-    onSubmit();
+    handleSubmit((data) => saveMutation.mutate(data))();
     setIsDirty(false);
     setShowWarning(false);
-    setClearFormKey(prev => prev + 1);
+    setClearFormKey(prev => prev + 1)
   };
 
   //Set Item values
@@ -160,7 +165,7 @@ const PriceListForm: React.FC<PriceListFormProps> = ({ toggleOpen, priceList = n
         <Grid size={12} textAlign={"center"} mb={2}>
           {priceList ? `Edit Price List` : `New Price List`}
         </Grid>
-        <form autoComplete='off' id="price-list-form" onSubmit={onSubmit}>
+        <form autoComplete='off'>
           <Grid container spacing={1}>
             <Grid size={{xs: 12, md: 4}}>
               <Div sx={{ mt: 1, mb: 1 }}>
@@ -269,17 +274,7 @@ const PriceListForm: React.FC<PriceListFormProps> = ({ toggleOpen, priceList = n
         <Grid size={12}>
           <Divider />
           <PriceListsItemForm 
-            setClearFormKey={setClearFormKey} 
-            submitMainForm={handleSubmit((data) => saveMutation.mutate(data))} 
-            submitItemForm={submitItemForm} 
-            setSubmitItemForm={setSubmitItemForm} 
-            key={clearFormKey} 
-            setIsDirty={setIsDirty} 
-            costInsights={costInsights} 
-            costCenterId={costCenterId as number} 
-            storeId={storeId as number} 
-            setItems={setItems} 
-            items={items as any} 
+            setClearFormKey={setClearFormKey} submitItemForm={submitItemForm} setSubmitItemForm={setSubmitItemForm} key={clearFormKey} setIsDirty={setIsDirty} costInsights={costInsights} costCenterId={Number(costCenterId)} storeId={Number(storeId)} setItems={setItems} items={items} 
           />
         </Grid>
       </DialogTitle>
@@ -287,18 +282,7 @@ const PriceListForm: React.FC<PriceListFormProps> = ({ toggleOpen, priceList = n
         {errors?.items?.message && items.length < 1 && <Alert severity='error'>{errors.items.message}</Alert>}
         
         {items.map((item, index) => (
-          <PriceListsItemRow 
-            setClearFormKey={setClearFormKey} 
-            submitMainForm={handleSubmit((data) => saveMutation.mutate(data))} 
-            submitItemForm={submitItemForm} 
-            setSubmitItemForm={setSubmitItemForm} 
-            setIsDirty={setIsDirty} 
-            key={index} 
-            index={index} 
-            setItems={setItems} 
-            items={items} 
-            item={item} 
-          />
+          <PriceListsItemRow setClearFormKey={setClearFormKey} submitItemForm={submitItemForm} setSubmitItemForm={setSubmitItemForm} setIsDirty={setIsDirty} key={index} index={index} setItems={setItems} items={items} item={item} />
         ))}
 
         <Dialog open={showWarning} onClose={() => setShowWarning(false)}>
@@ -323,7 +307,7 @@ const PriceListForm: React.FC<PriceListFormProps> = ({ toggleOpen, priceList = n
             Last item was not added to the list
           </DialogContent>
           <DialogActions>
-            <Button size="small" onClick={() => {setSubmitItemForm(true); setShowWarning(false);}}>
+            <Button size="small" onClick={handleMainFormSubmit}>
               Add and Submit
             </Button>
             <Button size="small" onClick={handleConfirmSubmitWithoutAdd} color="secondary">
@@ -340,8 +324,7 @@ const PriceListForm: React.FC<PriceListFormProps> = ({ toggleOpen, priceList = n
           loading={addPriceList.isPending || updatePriceList.isPending}
           variant='contained'
           size='small'
-          type="submit"
-          form="price-list-form"
+          onClick={onSubmit}
         >
           Submit
         </LoadingButton>

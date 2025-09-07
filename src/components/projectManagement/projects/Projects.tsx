@@ -14,7 +14,7 @@ import UnauthorizedAccess from '@/shared/Information/UnauthorizedAccess';
 import ProjectsActionTail from './ProjectActionTail';
 import ProjectListItem from './ProjectListItem';
 import { Project } from './ProjectTypes';
-import projectServices from './project-services';
+import projectsServices from './project-services';
 import StakeholderSelectProvider from '@/components/masters/stakeholders/StakeholderSelectProvider';
 
 const Projects = () => {
@@ -82,7 +82,7 @@ const Projects = () => {
         <JumboRqList
           ref={listRef}
           wrapperComponent={Card}
-          service={projectServices.getList}
+          service={projectsServices.getList}
           primaryKey="id"
           queryOptions={queryOptions}
           itemsPerPage={10}

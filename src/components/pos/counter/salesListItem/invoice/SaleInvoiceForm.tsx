@@ -55,54 +55,40 @@ const SaleInvoiceForm: React.FC<SaleInvoiceFormProps> = ({ toggleOpen, sale = nu
     const [sale_items, setSale_items] = useState(!sale?.is_instant_sale ? [] : sale?.sale_items || []);
     const [isTaxInvoice, setIsTaxInvoice] = useState(false);
 
-    // Mutation methods
     const addInvoiceSale = useMutation({
       mutationFn: posServices.invoiceSale,
       onSuccess: (data) => {
-          toggleOpen(false);
-          enqueueSnackbar(data.message, { variant: 'success' });
-          queryClient.invalidateQueries({ queryKey: ['SaleInvoices'] });
-          queryClient.invalidateQueries({ queryKey: ['counterSales'] });
+        toggleOpen(false);
+        enqueueSnackbar(data.message, { variant: 'success' });
+        queryClient.invalidateQueries({ queryKey: ['SaleInvoices'] });
+        queryClient.invalidateQueries({ queryKey: ['counterSales'] });
       },
       onError: (error: any) => {
-          error?.response?.data?.message && enqueueSnackbar(error.response.data.message, { variant: 'error' });
-      }
-    });
-
-    const updateInvoice = useMutation({
-      mutationFn: posServices.updateSaleInvoice,
-      onSuccess: (data) => {
-          toggleOpen(false);
-          enqueueSnackbar(data.message, { variant: 'success' });
-          queryClient.invalidateQueries({ queryKey: ['SaleInvoices'] });
-          queryClient.invalidateQueries({ queryKey: ['counterSales'] });
-      },
-      onError: (error: any) => {
-          error?.response?.data?.message && enqueueSnackbar(error.response.data.message, { variant: 'error' });
+        error?.response?.data?.message && enqueueSnackbar(error.response.data.message, { variant: 'error' });
       }
     });
 
     const saveMutation = React.useMemo(() => {
-        return addInvoiceSale.mutate;
+      return addInvoiceSale.mutate;
     },[addInvoiceSale]);
 
     const validationSchema = yup.object({
-        transaction_date: yup.string().required('Invoice Date is required').typeError('Invoice Date is required'),
+      transaction_date: yup.string().required('Invoice Date is required').typeError('Invoice Date is required'),
     });
 
     const methods = useForm<FormValues>({
-        resolver: yupResolver(validationSchema) as any,
-        defaultValues: {
-            id: sale?.id,
-            is_instant_sale: sale?.is_instant_sale || false,
-            internal_reference: sale?.saleNo || '',
-            vat_percentage: sale?.vat_percentage,
-            customer_reference: '',
-            delivery_note_ids: [],
-            narration: '',
-            is_tax_invoice: isTaxInvoice,
-            transaction_date: transaction_date.toISOString(),
-        }
+      resolver: yupResolver(validationSchema) as any,
+      defaultValues: {
+        id: sale?.id,
+        is_instant_sale: sale?.is_instant_sale || false,
+        internal_reference: sale?.saleNo || '',
+        vat_percentage: sale?.vat_percentage,
+        customer_reference: '',
+        delivery_note_ids: [],
+        narration: '',
+        is_tax_invoice: isTaxInvoice,
+        transaction_date: transaction_date.toISOString(),
+      }
     });
 
     // Create the context value that combines form methods and our custom props
@@ -136,7 +122,7 @@ const SaleInvoiceForm: React.FC<SaleInvoiceFormProps> = ({ toggleOpen, sale = nu
                   Cancel
               </Button>
               <LoadingButton
-                  loading={addInvoiceSale.isPending || updateInvoice.isPending}
+                  loading={addInvoiceSale.isPending}
                   size='small'
                   type='submit'
                   disabled={!sale?.is_instant_sale && !(sale_items.length > 0)}

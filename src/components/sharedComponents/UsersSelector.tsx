@@ -115,17 +115,27 @@ const UsersSelector: React.FC<UsersSelectorProps> = ({
           />
         ))
       }
-      renderOption={(props: React.HTMLAttributes<HTMLLIElement>, option: User, { selected }: { selected: boolean }) => (
-        <li {...props}>
-          <Checkbox
-            icon={<CheckBoxOutlineBlank fontSize="small" />}
-            checkedIcon={<CheckBox fontSize="small" />}
-            style={{ marginRight: 8 }}
-            checked={selected}
-          />
-          {option.name}
-        </li>
-      )}
+      {...(multiple && { 
+        renderOption: (
+          props: React.HTMLAttributes<HTMLLIElement> & { key?: React.Key },
+          option: User,
+          { selected }
+        ) => {
+          const { key, ...otherProps } = props;
+
+          return (
+            <li key={option.id} {...otherProps}>
+              <Checkbox
+                icon={<CheckBoxOutlineBlank fontSize="small" />}
+                checkedIcon={<CheckBox fontSize="small" />}
+                style={{ marginRight: 8 }}
+                checked={selected}
+              />
+              {option.name}
+            </li>
+          );
+        }
+      })}
       onChange={handleChange}
     />
   );

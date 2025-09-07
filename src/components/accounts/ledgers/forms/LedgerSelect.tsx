@@ -34,7 +34,6 @@ function LedgerSelect(props: LedgerSelectProps) {
     notAllowedGroups = [],
     value = null,
     multiple = false,
-    renderOption,
   } = props;
 
   const { ledgerOptions, extractLedgers } = useLedgerSelect();
@@ -47,24 +46,6 @@ function LedgerSelect(props: LedgerSelectProps) {
     setOptions([]);
     extractLedgers(ledgerOptions, notAllowedGroups, allowedGroups, setOptions);
   }, [ledgerOptions]);
-
-  const defaultRenderOption = (
-    props: React.HTMLAttributes<HTMLLIElement>,
-    option: Ledger,
-    { selected }: { selected: boolean }
-  ) => (
-    <li {...props} key={option.id}>
-      {multiple && (
-        <Checkbox
-          icon={<CheckBoxOutlineBlank fontSize="small" />}
-          checkedIcon={<CheckBox fontSize="small" />}
-          style={{ marginRight: 8 }}
-          checked={selected}
-        />
-      )}
-      {option.name}
-    </li>
-  );
 
   return (
     <Autocomplete
@@ -83,17 +64,37 @@ function LedgerSelect(props: LedgerSelectProps) {
           helperText={frontError?.message}
         />
       )}
-      renderOption={renderOption || defaultRenderOption}
+      {...(multiple && { 
+        renderOption: (
+          props: React.HTMLAttributes<HTMLLIElement> & { key?: React.Key }, // extend type to include key optionally
+          option: Ledger,
+          { selected }
+        ) => {
+          const { key, ...otherProps } = props;
+
+          return (
+            <li key={option.id} {...otherProps}>
+              <Checkbox
+                icon={<CheckBoxOutlineBlank fontSize="small" />}
+                checkedIcon={<CheckBox fontSize="small" />}
+                style={{ marginRight: 8 }}
+                checked={selected}
+              />
+              {option.name}
+            </li>
+          );
+        }
+      })}
       onChange={(event: React.SyntheticEvent, newValue: Ledger | Ledger[] | null) => {
         onChange(newValue);
         setSelectedValue(newValue);
       }}
-      renderTags={(tagValue: Ledger[], getTagProps) =>
-        tagValue.map((option: Ledger, index: number) => {
-          const { key, ...restProps } = getTagProps({ index });
-          return <Chip {...restProps} key={`${option.id}-${key}`} label={option.name} />;
-        })
-      }
+        renderTags={(tagValue: Ledger[], getTagProps) => {
+          return tagValue.map((option: Ledger, index: number) => {
+            const { key, ...restProps } = getTagProps({ index });
+            return <Chip {...restProps} key={`${option.id}-${key}`} label={option.name} />;
+          });
+        }}
     />
   );
 }

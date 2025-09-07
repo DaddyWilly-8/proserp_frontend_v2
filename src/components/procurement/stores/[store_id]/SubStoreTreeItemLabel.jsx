@@ -40,7 +40,7 @@ function SubStoreTreeItemLabel({store}) {
               content: 'If you say yes, this store will be deleted provided it is not related to any transaction',
               onYes: () => {
                 hideDialog();
-                deleteStore.mutate(store);
+                deleteStore.mutate(store.id);
               },
               onNo: () => hideDialog(),
               variant: 'confirm'
@@ -54,7 +54,7 @@ function SubStoreTreeItemLabel({store}) {
             default:
             break;
         }
-      }
+    }
     
   return (
     <Div
@@ -74,9 +74,9 @@ function SubStoreTreeItemLabel({store}) {
         </Tooltip>
         <JumboDdMenu
             icon={
-                <Tooltip title='Actions'>
-                <MoreVertOutlined/>
-                </Tooltip>
+                    <Tooltip title='Actions'>
+                        <MoreVertOutlined/>
+                    </Tooltip>
                 }
             menuItems={menuItems}
             onClickCallback={handleItemAction}

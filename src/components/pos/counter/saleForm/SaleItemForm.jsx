@@ -93,12 +93,13 @@ function SaleItemForm({ setClearFormKey, submitMainForm, submitItemForm, setSubm
         });
     });
 
-    const { setValue, handleSubmit, watch, clearErrors, reset, formState: { errors, dirtyFields } } = useForm({
+    const { setValue, handleSubmit, register, watch, clearErrors, reset, formState: { errors, dirtyFields } } = useForm({
         resolver: yupResolver(validationSchema),
         defaultValues: {
             product: item && productOptions.find(product => product.id === item.product_id),
             available_balance: 'N/A',
             store_id: item ? item?.store_id : (stores.length > 0 && stores[0]?.id),
+            description: item && item.description,
             quantity: item ? item.quantity : null,
             rate: item && item.rate,
             conversion_factor: item ? item.conversion_factor : 1,
@@ -248,15 +249,11 @@ function SaleItemForm({ setClearFormKey, submitMainForm, submitItemForm, setSubm
     
             // Check if there is a selling price
             const selling_price = storeBalances && storeBalances.selling_price;
-            if ( !checkedForSuggestPrice ) {
-                if(!!selling_price){
-                    await setValue(`rate`, selling_price?.price, {
-                        shouldDirty: true,
-                        shouldValidate: true
-                    });
-                } else {
-                    await setValue(`rate`, 0);
-                }
+            if(!!selling_price && !checkedForSuggestPrice){
+                await setValue(`rate`, selling_price?.price, {
+                    shouldDirty: true,
+                    shouldValidate: true
+                });
 
                 setPriceFieldKey(key => key + 1)
                 setVatPriceFieldKey(key => key + 1)
@@ -436,7 +433,7 @@ function SaleItemForm({ setClearFormKey, submitMainForm, submitItemForm, setSubm
                         defaultValue={item ? item?.quantity : null}
                     />
                 </Grid>
-                <Grid size={{xs: 12, md: 6, lg: !!checkedForInstantSale && isInventory ? 2.5 : 2}}>
+                <Grid size={{xs: 12, md: 6, lg: !!checkedForInstantSale && isInventory ? 2.5 : (!vat_factor ? 3 : 2)}}>
                     {
                         isRetrieving ? <LinearProgress/> : 
                             <TextField
@@ -493,7 +490,7 @@ function SaleItemForm({ setClearFormKey, submitMainForm, submitItemForm, setSubm
                         />
                     </Grid>
                 }
-                <Grid size={{xs: 12, md: 6, lg: !!checkedForInstantSale && isInventory ? 3 : 2}}>
+                <Grid size={{xs: 12, md: 6, lg: !!checkedForInstantSale && isInventory ? 3 : (!vat_factor ? 3 : 2)}}>
                     <TextField
                         label="Amount"
                         fullWidth
@@ -505,7 +502,16 @@ function SaleItemForm({ setClearFormKey, submitMainForm, submitItemForm, setSubm
                         }}
                     />
                 </Grid>
-                <Grid textAlign={'end'} size={{xs: 12, lg: vat_factor && !isInventory ? 12 : (vat_factor && isInventory && !checkedForInstantSale) ? 12 : 1}}>
+                <Grid size={{xs: 12, md: vat_factor ? 6 : 12, lg: 11}}>
+                    <TextField
+                        label="Description"
+                        fullWidth
+                        size="small"
+                        defaultValue={item?.description ?? ''}
+                        {...register('description')}
+                    />
+                </Grid>
+                <Grid textAlign={'end'} size={{xs: 12, lg: 1}}>
                     <LoadingButton
                         loading={false}
                         variant='contained'

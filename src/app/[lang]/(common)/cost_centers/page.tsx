@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import CostCenters from '@/components/masters/costCenters/CostCenters'
 import React from 'react'
 

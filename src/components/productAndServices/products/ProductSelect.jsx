@@ -14,6 +14,7 @@ function ProductSelect(props) {
     addedProduct=null,
   } = props;
   const { productOptions } = useProductsSelect();
+
   const [selectedItems, setSelectedItems] = useState(
     props?.defaultValue ? props.defaultValue : (multiple ? [] : null)
   );
@@ -39,7 +40,7 @@ function ProductSelect(props) {
   // Filter options based on requiredProducts
   const filteredOptions = options?.filter(option => requiredProducts?.some(product => product.id === option.id));
 
-  return (
+    return (
     <Autocomplete
       multiple={multiple} // Specify whether multiple selections are allowed
       disabled={props?.disabled}
@@ -97,6 +98,7 @@ function ProductSelect(props) {
         </li>
         )
     }})}
+
       value={selectedItems}
       onChange={handleOnChange}
     />

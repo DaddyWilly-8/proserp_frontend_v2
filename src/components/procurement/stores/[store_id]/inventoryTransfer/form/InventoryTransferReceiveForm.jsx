@@ -106,6 +106,7 @@ function InventoryTransferReceiveForm({ toggleOpen, transfer }) {
                   fullWidth
                   label="Receive Date"
                   defaultValue={date_received}
+                  minDate={dayjs(transfer?.transfer_date)}
                   slotProps={{
                     textField: {
                       size: 'small',

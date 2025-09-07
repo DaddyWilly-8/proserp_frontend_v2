@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import '@/styles/style.css';
 import '@assets/fonts/noir-pro/styles.css';
 import { ReactNode } from 'react';
@@ -25,21 +25,28 @@ export async function generateStaticParams() {
   return [{ lang: 'en-US' }];
 }
 
-export const metadata: Metadata = {
-  title: APP_NAME,
-  description: APP_DESCRIPTION,
-  generator: "Next.js",
-  manifest: "/manifest.json",
-  keywords: ["nextjs", "next14", "pwa", "next-pwa"],
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#2113AD" }
-  ],
-  viewport: 'width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=5, user-scalable=yes',
-  icons: [
-    { rel: "apple-touch-icon", url: "/assets/images/icons/logo-512.png" },
-    { rel: "icon", url: "/assets/images/icons/logo-512.png" },
-  ],
+export const viewport: Viewport = {
+  themeColor: [{ media: '(prefers-color-scheme: light)', color: '#2113AD' }],
+  width: 'device-width',
+  initialScale: 1,
+  minimumScale: 1,
+  maximumScale: 5,
+  userScalable: true,
+};
 
+export const metadata: Metadata = {
+  title: {
+    default: APP_DEFAULT_TITLE,
+    template: APP_TITLE_TEMPLATE,
+  },
+  description: APP_DESCRIPTION,
+  generator: 'Next.js',
+  manifest: '/manifest.json',
+  keywords: ['nextjs', 'next14', 'pwa', 'next-pwa'],
+  icons: [
+    { rel: 'apple-touch-icon', url: '/assets/images/icons/logo-512.png' },
+    { rel: 'icon', url: '/assets/images/icons/logo-512.png' },
+  ],
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
@@ -66,8 +73,7 @@ export const metadata: Metadata = {
     description: APP_DESCRIPTION,
   },
   other: {
-    'msapplication-TileColor': '#6200EE',
-    'theme-color': '#2113AD',
+    'msapplication-TileColor': '#2113AD', // Consistent with themeColor
     keywords:
       'Robust ERP, ProsERP, Accounts, Project Management, Inventory Management, Payroll, Requisitions',
   },
@@ -76,11 +82,11 @@ export const metadata: Metadata = {
 export default async function RootLayout({ children, params }: RootLayoutProps) {
   const { lang } = params;
   const dictionary = await getDictionary(lang);
+  const isProd = process.env.NODE_ENV === 'production';
 
   return (
     <html lang={lang} data-lt-installed="true">
       <head>
-        <meta name="theme-color" content="#6200EE" />
         <link rel="manifest" href={`/api/manifest?lang=${lang}`} />
         <link rel="icon" href="/assets/images/icons/logo-512.png" />
         <link rel="apple-touch-icon" href="/assets/images/icons/logo-512.png" />
@@ -93,30 +99,28 @@ export default async function RootLayout({ children, params }: RootLayoutProps) 
             </DictionaryProvider>
           </LanguageProvider>
         </div>
-        <Script strategy="afterInteractive">
-          {`
-            if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
-              window.addEventListener('load', () => {
-                console.log('Attempting to register service worker...');
-                navigator.serviceWorker.register('/sw.js').then(
-                  (registration) => {
-                    console.log('Service Worker registered:', registration);
-                  },
-                  (err) => {
-                    console.error('Service Worker registration failed:', err);
-                  }
-                );
-              });
-            }
+        {isProd && (
+          <Script strategy="afterInteractive">
+            {`
+              if ('serviceWorker' in navigator) {
+                window.addEventListener('load', () => {
+                  navigator.serviceWorker.register('/sw.js').then(
+                    (registration) => {
+                      console.log('Service Worker registered:', registration);
+                    },
+                    (err) => {
+                      console.error('Service Worker registration failed:', err);
+                    }
+                  );
+                });
+              }
 
-            window.addEventListener('beforeinstallprompt', (e) => {
-              e.preventDefault(); // Prevent the default prompt
-              console.log('beforeinstallprompt triggered', e);
-              // Optionally prompt manually for testing
-              // e.prompt();
-            });
-          `}
-        </Script>
+              window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault(); // Prevent the default prompt
+              });
+            `}
+          </Script>
+        )}
       </body>
     </html>
   );

@@ -141,7 +141,7 @@ function DebtorCreditorReport() {
       <>
         <DialogTitle textAlign={'center'}>
           <Grid container>
-            <Grid xs={12} textAlign={'center'}>
+            <Grid size={12} textAlign={'center'}>
               <Typography variant="h3">{selectedType === 'debtors' ? 'Debtors Report' : 'Creditors Report'}</Typography>
             </Grid>
           </Grid>
@@ -203,7 +203,7 @@ function DebtorCreditorReport() {
                     }}
                   />
                 </Grid>
-                <Grid item xs={12} md={2} lg={1} textAlign="right">
+                <Grid size={{xs: 12, md: 2, lg: 1}} textAlign="right">
                   <LoadingButton loading={isFetching} type="submit" size="small" variant="contained">
                     Filter
                   </LoadingButton>

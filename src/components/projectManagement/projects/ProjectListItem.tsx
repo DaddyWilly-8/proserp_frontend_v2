@@ -7,12 +7,16 @@ import {
 } from '@mui/material';
 import ProjectListItemAction from './ProjectListItemAction';
 import { Project } from './ProjectTypes';
-
-  interface ProjectItemProps {
-    project: Project;
-  }
+import { useRouter } from 'next/navigation';
+import { useLanguage } from '@/app/[lang]/contexts/LanguageContext';
+interface ProjectItemProps {
+  project: Project;
+}
 
 const ProjectListItem: React.FC<ProjectItemProps> = ({ project }) => {
+  const router = useRouter();
+  const lang = useLanguage();
+  
   return (
     <>
       <Divider />
@@ -20,6 +24,7 @@ const ProjectListItem: React.FC<ProjectItemProps> = ({ project }) => {
         container
         alignItems="center"
         columnSpacing={1}
+        width={'100%'}
         px={2}
         py={1}
         sx={{
@@ -29,15 +34,13 @@ const ProjectListItem: React.FC<ProjectItemProps> = ({ project }) => {
           },
         }}
       >
-        {/* Project Name */}
         <Grid size={{xs: 12, md: 4}}>
-          <Tooltip title="Project Name">
+          <Tooltip title="Project Name" onClick={() => router.push(`/${lang}/projectManagement/projects/${project.id}`)}>
             <Typography variant="subtitle1" fontSize={14} noWrap>
               {project.name}
             </Typography>
           </Tooltip>
         </Grid>
-        {/* Project Description */}
         <Grid size={{xs: 12, md: 6}}>
           <Tooltip title="Description">
             <Typography variant="body2" color="text.secondary" noWrap>
@@ -45,7 +48,6 @@ const ProjectListItem: React.FC<ProjectItemProps> = ({ project }) => {
             </Typography>
           </Tooltip>
         </Grid>
-        {/* Actions */}
         <Grid size={{xs: 12, md: 2}}textAlign="end">
           <ProjectListItemAction project={project} />
         </Grid>

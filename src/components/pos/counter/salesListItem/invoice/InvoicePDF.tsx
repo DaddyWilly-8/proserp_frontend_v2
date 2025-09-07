@@ -11,7 +11,8 @@ import { Stakeholder } from '@/components/masters/stakeholders/StakeholderType';
 
 interface InvoiceItem {
   id: number;
-  product: string;
+  product:{ name: string};
+  description: string;
   measurement_unit?: {
     symbol: string;
   } | string;
@@ -136,12 +137,12 @@ function InvoicePDF({ invoice, organization }: InvoicePDFProps) {
                 <View style={{ ...pdfStyles.tableRow, marginBottom:8}}>
                     <View style={{ flex: 1, padding: 2}}>
                         <Text style={{...pdfStyles.minInfo, color: mainColor }}>Invoice Date</Text>
-                        <Text style={{...pdfStyles.minInfo }}>{readableDate(invoice.transaction_date)}</Text>
+                        <Text style={{...pdfStyles.minInfo }}>{readableDate(invoice.transaction_date, false)}</Text>
                     </View>
                     {invoice.due_date && (
                         <View style={{ flex: 1, padding: 2}}>
                             <Text style={{...pdfStyles.minInfo, color: mainColor }}>Due Date</Text>
-                            <Text style={{...pdfStyles.minInfo }}>{readableDate(invoice.due_date)}</Text>
+                            <Text style={{...pdfStyles.minInfo }}>{readableDate(invoice.due_date, false)}</Text>
                         </View>
                     )}
                     {invoice.internal_reference && (
@@ -173,9 +174,19 @@ function InvoicePDF({ invoice, organization }: InvoicePDFProps) {
                             <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 0.3}}>
                                 {index+1}
                             </Text>
-                            <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 3}}>
-                                {invoiceItem.product}
-                            </Text>
+                            <View
+                                style={{
+                                    ...pdfStyles.tableCell,
+                                    backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor,
+                                    flex: 3,
+                                    flexDirection: 'column',
+                                }}
+                            >
+                                <Text>
+                                    {invoiceItem.product.name}
+                                </Text>
+                                {invoiceItem.description && <Text>{`(${invoiceItem.description})`}</Text>}
+                            </View>
                             <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 0.5}}>
                                 {typeof invoiceItem.measurement_unit === 'object' 
                                     ? invoiceItem.measurement_unit?.symbol 

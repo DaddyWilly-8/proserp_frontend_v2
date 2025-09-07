@@ -5,7 +5,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { getToken } from 'firebase/messaging';
 import { messaging } from '@/app/helpers/init-firebase';
 import authServices from '@/services/auth-services';
-import { AuthOrganization } from '@/types/auth-types';
+import { AuthOrganization, User } from '@/types/auth-types';
 import organizationServices from '@/components/Organizations/organizationServices';
 
 interface AuthUser {
@@ -73,6 +73,11 @@ export interface AuthContextType extends AuthState {
   refreshAuth: () => Promise<AuthResponse | null>;
   configAuth: (config: AuthConfig) => Promise<void>;
   resetAuth: () => void;
+  signUp: (
+    userData: User,
+    successCallback: (data: any) => void,
+    errorCallback: (error: any) => void
+  ) => Promise<void>;
   loadOrganization: (
     organization_id: string,
     successCallback: (data: any) => void,
@@ -352,6 +357,24 @@ export const JumboAuthProvider = ({
     }
   }, [configAuth]);
 
+  const signUp = React.useCallback(async (userData: User, successCallback: (data: any) => void, errorCallback: (error: any) => void) => {
+    await authServices.signUp(userData)
+      .then((res) => {
+        if(res.status === 200 || res.status === 201){
+          configAuth({
+            currentUser: res.data.authUser
+          });
+          setAuthValues({
+            authUser: res.data.authUser
+          });
+          successCallback(res?.data);
+        }
+      }).catch(err => {
+        errorCallback(err);
+      }
+    )
+  }, [setAuthValues]);
+
   // Permission checkers (keep existing implementations)
   const checkPermission = useCallback((permissions: string | string[], mustHaveAll = false) => {
     const authPermissions = authData.authUser?.permissions;
@@ -470,6 +493,7 @@ export const JumboAuthProvider = ({
     refreshAuth,
     configAuth,
     resetAuth,
+    signUp,
     loadOrganization
   }), [
     authData,
@@ -486,6 +510,7 @@ export const JumboAuthProvider = ({
     refreshAuth,
     configAuth,
     resetAuth,
+    signUp,
     loadOrganization
   ]);
 

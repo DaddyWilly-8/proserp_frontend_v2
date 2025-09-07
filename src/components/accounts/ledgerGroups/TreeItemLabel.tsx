@@ -1,10 +1,7 @@
 'use client'
 
 import React from "react";
-import {
-    DeleteOutline,
-    EditOutlined,
-} from "@mui/icons-material";
+import { DeleteOutline, EditOutlined} from "@mui/icons-material";
 import {
     Box,
     Button,

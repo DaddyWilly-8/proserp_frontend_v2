@@ -48,38 +48,39 @@ const OutletSelector = ({
     enabled: !!authUser?.user?.id
   });
 
-  const allOutlet: any = useMemo(() => ({
-    id: "all",
-    name: "All Outlets",
-    address: "",
-    status: "active",
-    cost_center: null,
-    counters: [],
-    stores: []
-  }), []);
+  const allOutlet: any = useMemo(
+    () => ({
+      id: "all",
+      name: "All Outlets",
+      address: "",
+      status: "active",
+      cost_center: null,
+      counters: [],
+      stores: []
+    }),
+    []
+  );
 
   const outlets: Outlet[] = useMemo(() => [allOutlet, ...rawOutlets], [rawOutlets, allOutlet]);
 
-  const [selectedOutlet, setSelectedOutlet] = useState<Outlet | Outlet[] | null>(
-    defaultValue !== null
-      ? defaultValue
-      : multiple
-      ? []
-      : allOutlet
-  );
+  const [selectedOutlet, setSelectedOutlet] = useState<Outlet | Outlet[] | null>(null);
 
   useEffect(() => {
+    let newValue: Outlet | Outlet[] | null = null;
+
     if (defaultValue !== null) {
-      setSelectedOutlet(defaultValue);
-      onChange(defaultValue);
+      newValue = defaultValue;
     } else if (rawOutlets.length === 1) {
-      // Automatically select the only outlet
-      setSelectedOutlet(multiple ? [rawOutlets[0]] : rawOutlets[0]);
-      onChange(multiple ? [rawOutlets[0]] : rawOutlets[0]);
+      newValue = multiple ? [rawOutlets[0]] : rawOutlets[0];
     } else {
-      const fallback = multiple ? [allOutlet] : allOutlet;
-      setSelectedOutlet(fallback);
-      onChange(fallback);
+      newValue = multiple ? [allOutlet] : allOutlet;
+    }
+
+    const getId = (v: any) => (Array.isArray(v) ? v.map((o) => o.id).join(",") : v?.id);
+
+    if (getId(selectedOutlet) !== getId(newValue)) {
+      setSelectedOutlet(newValue);
+      onChange(newValue);
     }
   }, [defaultValue, multiple, rawOutlets, allOutlet]);
 
@@ -121,20 +122,23 @@ const OutletSelector = ({
       }
       {...(multiple && {
         renderOption: (
-          props: React.HTMLAttributes<HTMLLIElement>,
+          props: React.HTMLAttributes<HTMLLIElement> & { key?: React.Key },
           option: Outlet,
           { selected }
-        ) => (
-          <li {...props} key={option.id}>
-            <Checkbox
-              icon={<CheckBoxOutlineBlank fontSize="small" />}
-              checkedIcon={<CheckBox fontSize="small" />}
-              style={{ marginRight: 8 }}
-              checked={selected}
-            />
-            {option.name}
-          </li>
-        )
+        ) => {
+          const { key, ...otherProps } = props;
+          return (
+            <li key={option.id} {...otherProps}>
+              <Checkbox
+                icon={<CheckBoxOutlineBlank fontSize="small" />}
+                checkedIcon={<CheckBox fontSize="small" />}
+                style={{ marginRight: 8 }}
+                checked={selected}
+              />
+              {option.name}
+            </li>
+          );
+        }
       })}
       onChange={(e, newValue) => {
         setSelectedOutlet(newValue);

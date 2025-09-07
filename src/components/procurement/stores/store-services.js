@@ -74,4 +74,13 @@ storeServices.getStock = async (params) => {
     return data;
 }
 
+storeServices.downloadExcelTemplate = async (filters) => {
+    const { data } = await axios.post(`/api/stores/${filters.store_id}/downloadExcelTemplate`,filters,
+        {
+            responseType: 'blob',
+        }
+    );      
+    return data;
+};
+
 export default storeServices;

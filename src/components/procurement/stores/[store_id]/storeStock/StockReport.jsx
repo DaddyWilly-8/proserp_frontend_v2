@@ -1,5 +1,5 @@
 import { LoadingButton } from '@mui/lab'
-import { Autocomplete, Box, Button, Checkbox, Chip, DialogActions, DialogContent, DialogTitle, Grid, IconButton, LinearProgress, Tab, Tabs, TextField, Tooltip, Typography, useMediaQuery } from '@mui/material'
+import { Autocomplete, Box, Button, Checkbox, Chip, DialogActions, DialogContent, DialogTitle, Grid, IconButton, LinearProgress, Stack, Tab, Tabs, TextField, Tooltip, Typography, useMediaQuery } from '@mui/material'
 import { DateTimePicker } from '@mui/x-date-pickers'
 import dayjs from 'dayjs'
 import * as yup from 'yup';
@@ -131,6 +131,8 @@ function StockReport({ setOpenDialog, isFromDashboard }) {
     const [costCenter, setCostCenter] = useState(authOrganization.costCenters);
     const [selectedTab, setSelectedTab] = useState(0);
     const [isFetching, setIsFetching] = useState(false);
+    const [isDownloadingTemplate, setIsDownloadingTemplate] = React.useState(false);
+    const [uploadFieldsKey, setUploadFieldsKey] = useState(0)
     const [stockAvailable, setStockAvailable] = useState([]);
 
     //Screen handling constants
@@ -148,12 +150,13 @@ function StockReport({ setOpenDialog, isFromDashboard }) {
         }),
     });
 
-    const { setValue, watch, handleSubmit, formState: { errors } } = useForm({
+    const { setValue, watch, handleSubmit, register, formState: { errors } } = useForm({
         defaultValues: {
             as_at: dayjs().toISOString(),
             isFromDashboard: isFromDashboard || false,
             store_id: isFromDashboard ? null : activeStore?.id,
             cost_center_ids: authOrganization.costCenters.map(cost_center => cost_center.id),
+            show_zero_balance: 0
         },
         resolver: yupResolver(validationSchema),
     });
@@ -163,6 +166,38 @@ function StockReport({ setOpenDialog, isFromDashboard }) {
         const fetchStock = await storeServices.getStock(filters);
         setStockAvailable(fetchStock);
         setIsFetching(false);
+    };
+
+    const downloadExcelTemplate = async () => {
+        try {
+            setIsDownloadingTemplate(true);
+            setUploadFieldsKey((prevKey) => prevKey + 1);
+            
+            // Get all current filter parameters
+            const filters = {
+                as_at: watch('as_at'),
+                store_id: watch('store_id'),
+                cost_center_ids: watch('cost_center_ids'),
+                product_category_ids: watch('product_category_ids'),
+                show_zero_balance: watch('show_zero_balance'),
+            };
+
+            // Pass all filters to the service
+            const responseData = await storeServices.downloadExcelTemplate(filters);
+            
+            const blob = new Blob([responseData], {
+                type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            });
+
+            const link = document.createElement('a');
+            link.href = window.URL.createObjectURL(blob);
+            link.download = 'Stock Report.xlsx';  // More descriptive filename
+            link.click();
+            setIsDownloadingTemplate(false);
+        } catch (error) {
+            enqueueSnackbar('Error downloading Excel template', { variant: 'error' });
+            setIsDownloadingTemplate(false);
+        }
     };
 
     const handleTabChange = (event, newValue) => {
@@ -184,9 +219,9 @@ function StockReport({ setOpenDialog, isFromDashboard }) {
         <React.Fragment>
             <DialogTitle textAlign={'center'}>
                 <Span className={classes.hiddenOnPrint}>
-                    <form autoComplete='off' onSubmit={handleSubmit(getAvailableStock)} >
-                        <Grid container columnSpacing={1} paddingTop={2} rowSpacing={1}>
-                            <Grid container>
+                    <form autoComplete='off' key={uploadFieldsKey} onSubmit={handleSubmit(getAvailableStock)} >
+                        <Grid container columnSpacing={1} rowSpacing={1}>
+                            <Grid container size={12}>
                                 <Grid size={belowLargeScreen ? 11 : 12}>
                                     <Typography textAlign={'center'} variant="h3">Stock Report</Typography>
                                 </Grid>
@@ -222,6 +257,7 @@ function StockReport({ setOpenDialog, isFromDashboard }) {
                                                         as_at: watch('as_at'),
                                                         store_id: newValue.id,
                                                         cost_center_ids: watch('cost_center_ids'),
+                                                        show_zero_balance: watch('show_zero_balance'),
                                                     };
                                                     getAvailableStock(filters);
                                                 }}
@@ -229,7 +265,7 @@ function StockReport({ setOpenDialog, isFromDashboard }) {
                                         </Div>
                                     </Grid>
                             }
-                            <Grid size={{xs: 12}}>
+                            <Grid size={{xs: 12, md: isFromDashboard ? 6 : 4}}>
                                 <Div sx={{ mt: 0.3 }}>
                                     <CostCenterSelector
                                         label="Cost and Profit Centers"
@@ -255,13 +291,14 @@ function StockReport({ setOpenDialog, isFromDashboard }) {
                                                 store_id: watch('store_id'),
                                                 cost_center_ids: selectedCostCenterIds,
                                                 product_category_ids: watch('product_category_ids'),
+                                                show_zero_balance: watch('show_zero_balance'),
                                             };
                                             getAvailableStock(filters);
                                         }}
                                     />
                                 </Div>
                             </Grid>
-                            <Grid size={{xs: 12, md: 6}}>
+                            <Grid size={{xs: 12, md: isFromDashboard ? 6 : 4}}>
                                 <Div sx={{ mt: 0.3 }}>
                                     <Autocomplete
                                         multiple
@@ -313,12 +350,13 @@ function StockReport({ setOpenDialog, isFromDashboard }) {
                                                 store_id: watch('store_id'),
                                                 cost_center_ids: watch('cost_center_ids'),
                                                 product_category_ids: categoryIds,
+                                                show_zero_balance: watch('show_zero_balance'),
                                             });
                                         }}
                                     />
                                 </Div>
                             </Grid>
-                            <Grid size={{xs: 12, md: 6}}>
+                            <Grid size={{xs: 12, md: isFromDashboard ? 6 : 4}}>
                                 <Div sx={{ mt: 0.3 }}>
                                         <DateTimePicker
                                             label="As at (MM/DD/YYYY HH:MM)"
@@ -343,16 +381,52 @@ function StockReport({ setOpenDialog, isFromDashboard }) {
                                                     store_id: watch('store_id'),
                                                     cost_center_ids: watch('cost_center_ids'),
                                                     product_category_ids: watch('product_category_ids'),
+                                                    show_zero_balance: watch('show_zero_balance'),
                                                 };
                                                 getAvailableStock(filters);
                                             }}
                                         />
                                 </Div>
                             </Grid>
+                            <Grid size={{xs: 12, md: isFromDashboard ? 6 : 4}}>
+                                <Div sx={{ mt: 0.3, display: 'flex', alignItems: 'center' }}>
+                                    <Checkbox
+                                        {...register('show_zero_balance')}
+                                        size="small"
+                                        checked={watch('show_zero_balance') === 1}
+                                        onChange={(e) => {
+                                            const value = e.target.checked ? 1 : 0;
+                                            setValue('show_zero_balance', value);
+                                            getAvailableStock({
+                                                as_at: watch('as_at'),
+                                                store_id: watch('store_id'),
+                                                cost_center_ids: watch('cost_center_ids'),
+                                                product_category_ids: watch('product_category_ids'),
+                                                show_zero_balance: value,
+                                            });
+                                        }}
+                                    />
+                                    <Typography variant="body2">Include zero stock</Typography>
+                                </Div>
+                            </Grid>
                             <Grid size={12} textAlign={'right'}>
-                                <LoadingButton loading={isFetching} type='submit' size='small' variant='contained'>
-                                    Filter
-                                </LoadingButton>
+                                <Stack direction="row" spacing={0.5} justifyContent="flex-end" alignItems="center">
+                                    <>                                
+                                        <LoadingButton
+                                            size="small"
+                                            onClick={downloadExcelTemplate}
+                                            loading={isDownloadingTemplate}
+                                            disabled={isFromDashboard && !watch('store_id')}
+                                            variant="contained"
+                                            color="success"
+                                        >
+                                            Excel
+                                        </LoadingButton>
+                                        <LoadingButton loading={isFetching} type='submit' size='small' variant='contained'>
+                                            Filter
+                                        </LoadingButton>
+                                    </>
+                                </Stack>
                             </Grid>
                         </Grid>
                     </form>

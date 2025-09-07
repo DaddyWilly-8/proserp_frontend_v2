@@ -11,7 +11,6 @@ function StoreProfileSidebar() {
   const { mainStore, storeArrays: { storeIds, selectOptions } } = useStoreProfile();
   const storeTree = [mainStore];
   const [openDialog, setOpenDialog] = useState(false);
-
   const [expanded, setExpanded] = useState([String(mainStore?.id)]);
 
   const handleToggle = (event, ids) => {

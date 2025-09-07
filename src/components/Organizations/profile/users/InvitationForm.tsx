@@ -98,6 +98,9 @@ export const InvitationForm: React.FC<InvitationFormProps> = ({ organization }) 
           setInvitees(prev => [...prev, fallbackUser]);
           reset();
         }
+      } else if (error?.response?.status === 400) {
+        enqueueSnackbar(formDict.messages.alreadyMember, { variant: 'error' });
+        reset();
       } else {
         enqueueSnackbar(
           formDict.messages.error, 

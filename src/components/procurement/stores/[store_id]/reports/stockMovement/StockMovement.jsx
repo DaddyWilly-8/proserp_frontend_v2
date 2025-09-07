@@ -184,7 +184,7 @@ function StockMovement({ toggleOpen, dormantStock = false, isFromDashboard }) {
                 <Span className={classes.hiddenOnPrint}>
                     <form autoComplete='off' onSubmit={handleSubmit(getMovements)} >
                         <Grid container columnSpacing={1} paddingTop={2} rowSpacing={1} alignItems={'center'} justifyContent={'center'}>
-                            <Grid container>
+                            <Grid container size={12}>
                                 <Grid size={belowLargeScreen ? 11 : 12}>
                                     <Typography variant="h3">
                                         {dormantStock ? 'Dormant Stock' : 'Stock Movement'}
@@ -223,7 +223,7 @@ function StockMovement({ toggleOpen, dormantStock = false, isFromDashboard }) {
                                     </Div>
                                 </Grid>
                             }
-                            <Grid size={{xs: 12}}>
+                            <Grid size={{xs: 12, md: isFromDashboard ? 6 : 12}}>
                                 <Div sx={{ mt: 1, mb: 1 }}>
                                     <CostCenterSelector
                                         label="Cost and Profit Centers"
@@ -235,7 +235,7 @@ function StockMovement({ toggleOpen, dormantStock = false, isFromDashboard }) {
                                     />
                                 </Div>
                             </Grid>
-                            <Grid size={{ xs: 12, md: isFromDashboard ? 6 : 6, sm: 5 }}>
+                            <Grid size={{ xs: 12, md: 6}}>
                                 <Div sx={{ mt: 1, mb: 1 }}>
                                     <DateTimePicker
                                         label="From (MM/DD/YYYY)"
@@ -258,7 +258,7 @@ function StockMovement({ toggleOpen, dormantStock = false, isFromDashboard }) {
                                     />
                                 </Div>
                             </Grid>
-                            <Grid size={{ xs: 12, md: isFromDashboard ? 5 : 6, sm: 5 }}>
+                            <Grid size={{ xs: 12, md: 6}}>
                                 <Div sx={{ mt: 1, mb: 1 }}>
                                     <DateTimePicker
                                         label="To (MM/DD/YYYY)"

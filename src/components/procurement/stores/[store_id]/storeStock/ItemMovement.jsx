@@ -226,7 +226,7 @@ function ItemMovement({productStock = null, toggleOpen, isFromDashboard}) {
                                 />
                             </Div>
                         </Grid>
-                        <Grid size={{xs: 12, md: 4}}>
+                        <Grid size={{xs: 12, md: 3}}>
                             <Div sx={{mt: 1, mb: 1}}>
                                 <DateTimePicker
                                     label="From (MM/DD/YYYY)"
@@ -248,7 +248,7 @@ function ItemMovement({productStock = null, toggleOpen, isFromDashboard}) {
                                 />
                             </Div>
                         </Grid>
-                        <Grid size={{xs: 12, md: 4}}>
+                        <Grid size={{xs: 12, md: 3}}>
                             <Div sx={{mt: 1, mb: 1}}>
                                 <DateTimePicker
                                     label="To (MM/DD/YYYY)"
@@ -269,7 +269,7 @@ function ItemMovement({productStock = null, toggleOpen, isFromDashboard}) {
                                 />
                             </Div>
                         </Grid>
-                        <Grid size={{xs: 12, md: isFromDashboard ? 5 : 11}}>
+                        <Grid size={{xs: 12, md: isFromDashboard ? 5 : 9}}>
                             <Div sx={{mt: 1, mb: 1}}>
                                 <CostCenterSelector
                                     label="Cost and Profit Centers"

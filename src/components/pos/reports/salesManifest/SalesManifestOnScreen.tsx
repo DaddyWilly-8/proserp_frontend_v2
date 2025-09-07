@@ -314,10 +314,7 @@ const SalesManifestOnScreen: React.FC<SalesManifestOnScreenProps> = ({
             ), 
             0
           );
-          const totalProfit = sale.items.reduce(
-            (total, item) => total + ((item.quantity * item.rate) - (item.cost)), 
-            0
-          );
+          const totalProfit = sale.items.reduce((total, currentItem) => total + ((!!separateVAT ? (currentItem.quantity*currentItem.rate) : ((currentItem.quantity*currentItem.rate) + (!!currentItem.product.vat_exempted ? 0 : (currentItem.quantity*currentItem.rate)*vat_percentage*0.01))) - (currentItem.cost)), 0);
           
           return (
             <Accordion
@@ -493,12 +490,12 @@ const SalesManifestOnScreen: React.FC<SalesManifestOnScreenProps> = ({
                                                         <SalesItemInfo label={'Amount'} color='blue' textAlign={'right'} value={!!separateVAT ? (item.quantity*item.rate).toLocaleString('en-US',{maximumFractionDigits:2,minimumFractionDigits:2}) : ((item.quantity*item.rate) + (!!item.product.vat_exempted ? 0 : (item.quantity*item.rate)*vat_percentage*0.01)).toLocaleString('en-US',{maximumFractionDigits:2,minimumFractionDigits:2})}/>
                                                         {!!separateVAT && !!vat_percentage && <SalesItemInfo label={'VAT'} textAlign={'right'} value={!!item.product.vat_exempted ? 0 : (item.quantity*item.rate*vat_percentage*0.01).toLocaleString('en-US',{maximumFractionDigits:2,minimumFractionDigits:2})}/>}
                                                         {
-                                                            financePersonnel &&
-                                                                <>
-                                                                    <SalesItemInfo label={'P.U Cost'} textAlign={'right'} value={(item.cost / item.quantity).toLocaleString('en-US',{maximumFractionDigits:2,minimumFractionDigits:2})}/>
-                                                                    <SalesItemInfo label={'CoGS'} color='red' textAlign={'right'} value={item.cost.toLocaleString('en-US',{maximumFractionDigits:2,minimumFractionDigits:2})}/>
-                                                                    <SalesItemInfo label={'Profit'} color='green' textAlign={'right'} value={((item.quantity*item.rate) - (item.cost)).toLocaleString('en-US',{maximumFractionDigits:2,minimumFractionDigits:2})} />
-                                                                </>
+                                                          financePersonnel &&
+                                                            <>
+                                                              <SalesItemInfo label={'P.U Cost'} textAlign={'right'} value={(item.cost / item.quantity).toLocaleString('en-US',{maximumFractionDigits:2,minimumFractionDigits:2})}/>
+                                                              <SalesItemInfo label={'CoGS'} color='red' textAlign={'right'} value={item.cost.toLocaleString('en-US',{maximumFractionDigits:2,minimumFractionDigits:2})}/>
+                                                              <SalesItemInfo label={'Profit'} color='green' textAlign={'right'} value={((!!separateVAT ? (item.quantity*item.rate) : ((item.quantity*item.rate) + (!!item.product.vat_exempted ? 0 : (item.quantity*item.rate)*vat_percentage*0.01))) - (item.cost)).toLocaleString('en-US',{maximumFractionDigits:2,minimumFractionDigits:2})} />
+                                                            </>
                                                         }
                                                     </TableRow>
                                                 ))
@@ -526,9 +523,9 @@ const SalesManifestOnScreen: React.FC<SalesManifestOnScreenProps> = ({
                                                 {
                                                     financePersonnel &&
                                                         <>
-                                                            <SalesItemInfo value={''}/>
-                                                            <SalesItemInfo label={'Total CoGS'} textAlign={'right'} color={'red'} value={sale.items.reduce((total, currentItem) => total + currentItem.cost, 0).toLocaleString('en-US',{maximumFractionDigits:2,minimumFractionDigits:2})}/>
-                                                            <SalesItemInfo label={'Total Profit'} textAlign={'right'} color={'green'} value={sale.items.reduce((total, currentItem) => total + ((currentItem.quantity*currentItem.rate) - (currentItem.cost)), 0).toLocaleString('en-US',{maximumFractionDigits:2,minimumFractionDigits:2})} />
+                                                          <SalesItemInfo value={''}/>
+                                                          <SalesItemInfo label={'Total CoGS'} textAlign={'right'} color={'red'} value={sale.items.reduce((total, currentItem) => total + currentItem.cost, 0).toLocaleString('en-US',{maximumFractionDigits:2,minimumFractionDigits:2})}/>
+                                                          <SalesItemInfo label={'Total Profit'} textAlign={'right'} color={'green'} value={sale.items.reduce((total, currentItem) => total + ((!!separateVAT ? (currentItem.quantity*currentItem.rate) : ((currentItem.quantity*currentItem.rate) + (!!currentItem.product.vat_exempted ? 0 : (currentItem.quantity*currentItem.rate)*vat_percentage*0.01))) - (currentItem.cost)), 0).toLocaleString('en-US',{maximumFractionDigits:2,minimumFractionDigits:2})} />
                                                         </>
                                                 }
                                             </TableRow>
@@ -594,13 +591,13 @@ const SalesManifestOnScreen: React.FC<SalesManifestOnScreenProps> = ({
                                         financePersonnel &&
                                             <>
                                                 <Grid size={{xs: 6, md: 4, lg: 3}}>
-                                                    <SalesItemInfo label={'Cost'} value={(sale.cost/sale.quantity).toLocaleString('en-US',{maximumFractionDigits:2,minimumFractionDigits:2})} />
+                                                  <SalesItemInfo label={'Cost'} value={(sale.cost/sale.quantity).toLocaleString('en-US',{maximumFractionDigits:2,minimumFractionDigits:2})} />
                                                 </Grid>
                                                 <Grid size={{xs: 6, md: 4, lg: 3}}>
-                                                    <SalesItemInfo  color={'red'}  label={'CoGS'} value={sale.cost.toLocaleString('en-US',{maximumFractionDigits:2,minimumFractionDigits:2})}/>
+                                                  <SalesItemInfo  color={'red'}  label={'CoGS'} value={sale.cost.toLocaleString('en-US',{maximumFractionDigits:2,minimumFractionDigits:2})}/>
                                                 </Grid>
                                                 <Grid size={{xs: 6, md: 4, lg: 3}}>
-                                                    <SalesItemInfo label={'Profit'} color={'green'} value={((sale.quantity*sale.rate) - (sale.cost)).toLocaleString('en-US',{maximumFractionDigits:2,minimumFractionDigits:2})} />
+                                                  <SalesItemInfo label={'Profit'} color={'green'} value={((!!separateVAT ? (sale.quantity*sale.rate) : ((sale.quantity*sale.rate) + (!!sale.product.vat_exempted ? 0 : (sale.quantity*sale.rate)*vat_percentage*0.01))) - (sale.cost)).toLocaleString('en-US',{maximumFractionDigits:2,minimumFractionDigits:2})}/>
                                                 </Grid>
                                             </>
                                         }
@@ -617,27 +614,27 @@ const SalesManifestOnScreen: React.FC<SalesManifestOnScreenProps> = ({
                                     container
                                 >
                                     <Grid size={12} textAlign={'center'} fontWeight={'bold'} marginBottom={2}>
-                                        Totals
+                                      Totals
                                     </Grid>
                                     <Grid size={{xs: 6, md: 4}}>
-                                        <SalesItemInfo label="Amount" value={sale.items.reduce((total, currentItem) => total + (!!separateVAT ? (currentItem.quantity*currentItem.rate) : ((currentItem.quantity*currentItem.rate) + (!!currentItem.product.vat_exempted ? 0 : (currentItem.quantity*currentItem.rate)*vat_percentage*0.01))), 0).toLocaleString('en-US',{maximumFractionDigits:2,minimumFractionDigits:2})}/>
+                                      <SalesItemInfo label="Amount" value={sale.items.reduce((total, currentItem) => total + (!!separateVAT ? (currentItem.quantity*currentItem.rate) : ((currentItem.quantity*currentItem.rate) + (!!currentItem.product.vat_exempted ? 0 : (currentItem.quantity*currentItem.rate)*vat_percentage*0.01))), 0).toLocaleString('en-US',{maximumFractionDigits:2,minimumFractionDigits:2})}/>
                                     </Grid>
                                     {
-                                        !!separateVAT && !!vat_percentage &&
-                                            <Grid size={{xs: 6, md: 4}}>
-                                                <SalesItemInfo label="VAT" value={sale.items.reduce((total, currentItem) => total + (!!currentItem.product.vat_exempted ? 0 : (currentItem.quantity*currentItem.rate*vat_percentage*0.01)), 0).toLocaleString('en-US',{maximumFractionDigits:2,minimumFractionDigits:2})}/>
-                                            </Grid>
+                                      !!separateVAT && !!vat_percentage &&
+                                        <Grid size={{xs: 6, md: 4}}>
+                                          <SalesItemInfo label="VAT" value={sale.items.reduce((total, currentItem) => total + (!!currentItem.product.vat_exempted ? 0 : (currentItem.quantity*currentItem.rate*vat_percentage*0.01)), 0).toLocaleString('en-US',{maximumFractionDigits:2,minimumFractionDigits:2})}/>
+                                        </Grid>
                                     }
                                     {
-                                        financePersonnel &&
-                                            <>
-                                                <Grid size={{xs: 6, md: 4}}>
-                                                    <SalesItemInfo label="CoGS" value={sale.items.reduce((total, currentItem) => total + currentItem.cost, 0).toLocaleString('en-US',{maximumFractionDigits:2,minimumFractionDigits:2})} color="red" />
-                                                </Grid>
-                                                <Grid size={{xs: 6, md: 4}}>
-                                                    <SalesItemInfo label="Profit" value={sale.items.reduce((total, currentItem) => total + ((currentItem.quantity*currentItem.rate) - (currentItem.cost)), 0).toLocaleString('en-US',{maximumFractionDigits:2,minimumFractionDigits:2})} color="green" />
-                                                </Grid>
-                                            </>
+                                      financePersonnel &&
+                                        <>
+                                          <Grid size={{xs: 6, md: 4}}>
+                                            <SalesItemInfo label="CoGS" value={sale.items.reduce((total, currentItem) => total + currentItem.cost, 0).toLocaleString('en-US',{maximumFractionDigits:2,minimumFractionDigits:2})} color="red" />
+                                          </Grid>
+                                          <Grid size={{xs: 6, md: 4}}>
+                                            <SalesItemInfo label="Profit" value={sale.items.reduce((total, currentItem) => total + ((!!separateVAT ? (currentItem.quantity*currentItem.rate) : ((currentItem.quantity*currentItem.rate) + (!!currentItem.product.vat_exempted ? 0 : (currentItem.quantity*currentItem.rate)*vat_percentage*0.01))) - (currentItem.cost)), 0).toLocaleString('en-US',{maximumFractionDigits:2,minimumFractionDigits:2})}  color="green" />
+                                          </Grid>
+                                        </>
                                     }
                                 </Grid>
                             </Grid>

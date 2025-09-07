@@ -6,7 +6,6 @@ import { PriceListItem } from '../PriceListType';
 
 interface PriceListItemRowProps {
   setClearFormKey: React.Dispatch<React.SetStateAction<number>>;
-  submitMainForm: () => void;
   setSubmitItemForm: React.Dispatch<React.SetStateAction<boolean>>;
   submitItemForm: boolean;
   setIsDirty: React.Dispatch<React.SetStateAction<boolean>>;
@@ -18,7 +17,6 @@ interface PriceListItemRowProps {
 
 const PriceListItemRow: React.FC<PriceListItemRowProps> = ({ 
   setClearFormKey, 
-  submitMainForm, 
   setSubmitItemForm, 
   submitItemForm, 
   setIsDirty, 
@@ -95,7 +93,6 @@ const PriceListItemRow: React.FC<PriceListItemRowProps> = ({
       ) : (
         <PriceListItemForm 
           setClearFormKey={setClearFormKey} 
-          submitMainForm={submitMainForm} 
           setSubmitItemForm={setSubmitItemForm} 
           submitItemForm={submitItemForm} 
           setIsDirty={setIsDirty} 

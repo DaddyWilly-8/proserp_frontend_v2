@@ -7,6 +7,7 @@ import {
   Divider, 
   Grid, 
   LinearProgress, 
+  ListItemText, 
   TextField, 
   Tooltip, 
   Typography 
@@ -30,6 +31,7 @@ interface InvoiceItem {
     name: string;
     vat_exempted?: number;
   };
+  description: string;
   measurement_unit: {
     symbol: string;
   };
@@ -319,9 +321,22 @@ const SalesInvoiceEditForm: React.FC<SalesInvoiceEditFormProps> = ({ invoiceData
                         </Grid>
                         <Grid size={{xs: 11.5, md: 8, lg: 5}}>
                             <Div sx={{ mt: 1.7, mb: 1.7 }}>
-                                <Tooltip title='Product'>
-                                    <Typography>{item.product as any}</Typography>
-                                </Tooltip>
+                                <ListItemText
+                                    primary={
+                                        <Tooltip title={'Product'}>
+                                            <Typography variant={"h5"} fontSize={14} lineHeight={1.25} mb={0} noWrap>
+                                                {item.product.name}
+                                            </Typography>
+                                        </Tooltip>
+                                    }
+                                    secondary={
+                                        <Tooltip title={'Description'}>
+                                            <Typography component="span" variant="body2" fontSize={14} lineHeight={1.25} mb={0}>
+                                                {item.description}
+                                            </Typography>
+                                        </Tooltip>
+                                    }
+                                />
                             </Div>
                         </Grid>
                         <Grid size={{xs: 2, md: 3.5, lg: 1.5}} sx={{ textAlign: 'center' }}>

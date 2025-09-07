@@ -1,5 +1,5 @@
 import { LoadingButton } from '@mui/lab';
-import { Button, Checkbox, DialogActions, DialogContent, DialogTitle, Grid, LinearProgress, Tab, Tabs } from '@mui/material';
+import { Button, Checkbox, DialogActions, DialogContent, DialogTitle, Grid, LinearProgress, Stack, Tab, Tabs } from '@mui/material';
 import { DateTimePicker } from '@mui/x-date-pickers';
 import dayjs, { Dayjs } from 'dayjs';
 import React, { useCallback, useEffect, useState } from 'react';
@@ -19,6 +19,7 @@ import PDFContent from '@/components/pdf/PDFContent';
 import {  Organization } from '@/types/auth-types';
 import { deviceType } from '@/utilities/helpers/user-agent-helpers';
 import { CostCenter } from '@/components/masters/costCenters/CostCenterType';
+import { useSnackbar } from 'notistack';
 
 interface ReportDocumentProps {
   transactionsData: {
@@ -172,12 +173,16 @@ const LedgerStatementDialogContent: React.FC<LedgerStatementDialogContentProps> 
   ledger, 
   incomeStatementfilters = null 
 }) => {
-  const [transactions, setTransactions] = useState<ReportDocumentProps['transactionsData'] | null>(null);
-  const { authOrganization, authUser, checkOrganizationPermission } = useJumboAuth();
-  const user= authUser?.user; 
-  const [withItemDescription, setWithItemDescription] = useState(false);
-  const [activeTab, setActiveTab] = useState(0);
-  const isMobile = deviceType() === 'mobile';
+    const [transactions, setTransactions] = useState<ReportDocumentProps['transactionsData'] | null>(null);
+    const { authOrganization, authUser, checkOrganizationPermission } = useJumboAuth();
+    const user= authUser?.user; 
+    const [withItemDescription, setWithItemDescription] = useState(false);
+    const [activeTab, setActiveTab] = useState(0);
+    const isMobile = deviceType() === 'mobile';
+    const { enqueueSnackbar } = useSnackbar();
+    const [isDownloadingTemplate, setIsDownloadingTemplate] = React.useState(false);
+    const [uploadFieldsKey, setUploadFieldsKey] = useState(0)
+    const [isFetching, setIsFetching] = useState(false);
 
   const { setValue, handleSubmit, watch } = useForm({
     defaultValues: {
@@ -191,8 +196,6 @@ const LedgerStatementDialogContent: React.FC<LedgerStatementDialogContentProps> 
     }
   });
 
-  const [today] = useState<Dayjs>(dayjs());
-  const [isFetching, setIsFetching] = useState(false);
 
   const fetchTransactions = useCallback(async (filters: {
     from: string;
@@ -212,6 +215,38 @@ const LedgerStatementDialogContent: React.FC<LedgerStatementDialogContentProps> 
     }
   }, []);
 
+    const downloadExcelTemplate = async () => {
+        try {
+            setIsDownloadingTemplate(true);
+            setUploadFieldsKey((prevKey) => prevKey + 1);
+            
+            // Get all current filter parameters
+            const filters = {
+                from: watch('from'),
+                to: watch('to'),
+                ledger_id: watch('ledger_id'),
+                cost_center_ids: watch('cost_center_ids'),
+                with_item_description: watch('with_item_description')
+            };
+
+            // Pass all filters to the service
+            const responseData = await ledgerServices.downloadExcelTemplate(filters);
+            
+            const blob = new Blob([responseData], {
+                type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            });
+
+            const link = document.createElement('a');
+            link.href = window.URL.createObjectURL(blob);
+            link.download = `${ledger?.name || ledgerName} Statement.xlsx`;
+            link.click();
+            setIsDownloadingTemplate(false);
+        } catch (error) {
+            enqueueSnackbar('Error downloading Excel template', { variant: 'error' });
+            setIsDownloadingTemplate(false);
+        }
+    };
+
   // Initial data load
   useEffect(() => {
     if (incomeStatementfilters) {
@@ -229,7 +264,7 @@ const LedgerStatementDialogContent: React.FC<LedgerStatementDialogContentProps> 
   return (
         <React.Fragment>
             <DialogTitle textAlign={'center'}>
-                <form autoComplete='off' onSubmit={handleSubmit(fetchTransactions)}>
+                <form autoComplete='off' key={uploadFieldsKey} onSubmit={handleSubmit(fetchTransactions)}>
                     <Grid container columnSpacing={1} rowSpacing={1} alignItems={'center'} justifyContent={'center'}>
                         {!incomeStatementfilters && (
                             <>
@@ -314,9 +349,23 @@ const LedgerStatementDialogContent: React.FC<LedgerStatementDialogContentProps> 
                                     </Div>
                                 </Grid>
                                 <Grid size={{xs: 12, md: 1}} textAlign={'right'}>
-                                    <LoadingButton loading={isFetching} type='submit' size='small' variant='contained'>
-                                        Filter
-                                    </LoadingButton>
+                                    <Stack direction="row" spacing={0.5} justifyContent="flex-end" alignItems="center">
+                                        <>                                
+                                            <LoadingButton
+                                                size="small"
+                                                onClick={downloadExcelTemplate}
+                                                loading={isDownloadingTemplate}
+                                                disabled
+                                                variant="contained"
+                                                color="success"
+                                            >
+                                                Excel
+                                            </LoadingButton>
+                                            <LoadingButton loading={isFetching} type='submit' size='small' variant='contained'>
+                                                Filter
+                                            </LoadingButton>
+                                        </>
+                                    </Stack>
                                 </Grid>
                             </>
                         )}

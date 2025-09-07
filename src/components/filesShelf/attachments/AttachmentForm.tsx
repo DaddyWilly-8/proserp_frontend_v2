@@ -71,13 +71,11 @@ function AttachmentForm({
     register,
     handleSubmit,
     reset,
-    setValue,
     formState: { errors }
   } = useForm<{ name: string, file: FileList}>({
     resolver: yupResolver(validationSchema) as any,
     defaultValues: {
       name: '',
-      file: undefined as unknown as FileList
     }
   });
 
@@ -104,7 +102,7 @@ function AttachmentForm({
   };
 
   const { data: attachments = [] } = useQuery({
-    queryKey: ['attachments', attachmentable_id, attachmentable_type],
+    queryKey: ['attachments', Number(attachmentable_id), attachmentable_type],
     queryFn: fetchAttachments
   });
 
@@ -130,8 +128,8 @@ function AttachmentForm({
           <Grid size={{xs: 12, md: 6}}>
             <TextField
               fullWidth
-              size="small"
-              label="File Name"
+              label="Name"
+              size='small'
               error={!!errors?.name}
               helperText={errors?.name?.message}
               {...register('name')}
@@ -140,17 +138,10 @@ function AttachmentForm({
 
           <Grid size={{xs: 12, md: 6}}>
             <Input
-              id="file-input"
               type="file"
-              inputProps={{ accept: '*/*' }}
-              error={!!errors.file}
-              {...register('file', {
-                required: 'File is required',
-                validate: {
-                  validType: (files) => 
-                    files?.length > 0 || 'Please select a file',
-                }
-              })}
+              id="file"
+              error={!!errors?.file}
+              inputProps={{ ...register("file") }}
             />
             {!errors?.file ? (
               <InputLabel htmlFor="file-input">File Attachment</InputLabel>
