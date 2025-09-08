@@ -166,17 +166,17 @@ const AlternativesForm: React.FC<AlternativesFormProps> = ({
   // Handle form submission
   const onSubmit = (data: BOMItem) => {
     if (!data.product) {
-      setWarning('⚠️ Please select a product.');
+      setWarning(' Please select a product.');
       return;
     }
 
     if (data.product.id === item.product?.id) {
-      setWarning(`⚠️ ${data.product.name} is already the main input product.`);
+      setWarning(` ${data.product.name} is already the main input product.`);
       return;
     }
 
     if (alternatives.some((alt, i) => i !== editingIndex && alt.product?.id === data.product!.id)) {
-      setWarning(`⚠️ ${data.product.name} has already been added as an alternative.`);
+      setWarning(` ${data.product.name} has already been added as an alternative.`);
       return;
     }
 
@@ -212,17 +212,17 @@ const AlternativesForm: React.FC<AlternativesFormProps> = ({
   // Handle updating an alternative
   const handleUpdateAlternative = (updatedItem: BOMItem, altIndex: number) => {
     if (!updatedItem.product) {
-      setWarning('⚠️ Please select a product.');
+      setWarning(' Please select a product.');
       return;
     }
 
     if (updatedItem.product.id === item.product?.id) {
-      setWarning(`⚠️ ${updatedItem.product.name} is already the main input product.`);
+      setWarning(` ${updatedItem.product.name} is already the main input product.`);
       return;
     }
 
     if (alternatives.some((alt, i) => i !== altIndex && alt.product?.id === updatedItem.product!.id)) {
-      setWarning(`⚠️ ${updatedItem.product.name} has already been added as an alternative.`);
+      setWarning(` ${updatedItem.product.name} has already been added as an alternative.`);
       return;
     }
 
