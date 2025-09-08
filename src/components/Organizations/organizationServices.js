@@ -14,7 +14,7 @@ const organizationServices = {
       }
     } catch (err) {
       if (err?.response?.status === 401) {
-        router.push(`/${lang}/auth/login`);
+        router.push(`/${lang}/auth/signin`);
       } else if(err.response.status === 403 && err.response?.data.message === 'Your email address is not verified.') {
           router.push(`/${lang}/auth/verify-email`);
         } else {

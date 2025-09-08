@@ -8,20 +8,18 @@ const withPWA = withPWAInit({
   swcMinify: true,
   disable: false,
   workboxOptions: {
-    disableDevLogs: true
-  }
+    disableDevLogs: true,
+    navigateFallback: '/sw.js',
+  },
 });
 
 const nextConfig = {
   reactStrictMode: true,
-  distDir: "build",
   eslint: {
     ignoreDuringBuilds: true,
   },
   env: {
     REACT_APP_IMAGES_PATH: '/assets/images',
-    NEXTAUTH_SECRET: 'YjByKC1BpoOaRVEgu4kdL98YErK7oA+2tRMaw+x0ino=',
-    NEXT_PUBLIC_GOOGLE_MAP_API: 'AIzaSyCJM0a8oSaRMwxthozENQg1euRI51aNXJQ',
   },
   async redirects() {
     return [
@@ -36,7 +34,7 @@ const nextConfig = {
     return [
       {
         source: '/manifest.json',
-        destination: '/manifest.json',
+        destination: '/api/manifest?lang=en-US',
       },
     ];
   },
