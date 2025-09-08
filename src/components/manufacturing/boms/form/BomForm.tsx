@@ -198,29 +198,30 @@ const BomForm: React.FC<BomFormProps> = ({ open, toggleOpen, bomId, bomData, onS
       setError('items', { type: 'manual', message: 'Please add at least one item' });
       return;
     }
-
-    const payload: BOMPayload = {
-      product_id: Number(data.product_id),
-      quantity: Number(data.quantity),
-      measurement_unit_id: Number(data.measurement_unit_id),
-      symbol: String(data.symbol),
-      conversion_factor: Number(data.conversion_factor),
-      items: items.map(item => ({
-        product_id: Number(item.product?.id ?? item.product_id),
-        quantity: Number(item.quantity),
-        measurement_unit_id: Number(item.measurement_unit_id),
-        conversion_factor: Number(item.conversion_factor) || 1,
-        symbol: item.symbol ?? '',
-        alternatives:
-          item.alternatives?.map(alt => ({
-            product_id: Number(alt.product?.id ?? alt.product_id),
-            quantity: Number(alt.quantity),
-            measurement_unit_id: Number(alt.measurement_unit_id),
-            conversion_factor: Number(alt.conversion_factor) || 1,
-            symbol: alt.symbol ?? '',
-          })) ?? [],
-      })),
-    };
+const payload: BOMPayload = {
+  product_id: Number(data.product_id),
+  quantity: Number(data.quantity),
+  measurement_unit_id: Number(data.measurement_unit_id),
+  symbol: String(data.symbol),
+  conversion_factor: Number(data.conversion_factor),
+  items: items.map(item => ({
+    product_id: Number(item.product?.id ?? item.product_id),
+    quantity: Number(item.quantity),
+    measurement_unit_id: Number(item.measurement_unit_id),
+    conversion_factor: Number(item.conversion_factor) || 1,
+    symbol: item.symbol ?? '',
+    alternatives:
+      item.alternatives?.map(alt => ({
+        product_id: Number(alt.product?.id ?? alt.product_id),
+        quantity: Number(alt.quantity),
+        measurement_unit_id: Number(alt.measurement_unit_id),
+        conversion_factor: Number(alt.conversion_factor) || 1,
+        symbol: alt.symbol ?? '',
+      })) ?? [],
+  })),
+  alternatives: [],  // ✅ Ongeza hii – empty array kama default (required ni BOMAlternative[])
+  // Kama unahitaji id au bomNo, ongeza hapa pia
+};
 
     setIsSubmitting(true);
     bomMutation.mutate(payload);

@@ -10,27 +10,28 @@ import { useJumboDialog } from '@jumbo/components/JumboDialog/hooks/useJumboDial
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import bomsServices from './boms-services';
 import BomsForm from './form/BomForm';
-import BomPDF from './BomPDF'; // New PDF component
 import PDFContent from '../../pdf/PDFContent';
-import BomOnScreen from './BomOnScreen'; // New on-screen preview component (create this separately)
 import { Product } from '@/components/productAndServices/products/ProductType';
 import { BOMItem, BOMPayload } from './BomType';
 import { MeasurementUnit } from '@/components/masters/measurementUnits/MeasurementUnitType';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
 import UnauthorizedAccess from '@/shared/Information/UnauthorizedAccess';
 import { readableDate } from '@/app/helpers/input-sanitization-helpers';
+import BomOnScreen from './preview/BomOnScreen';
+import BomPDF from './preview/BomPDF';
 
 interface BOM {
   id: number;
   product?: Product | null;
-  product_id: number | undefined;
-  quantity: number;
+  product_id: number | null;
+  quantity: number | null;
   measurement_unit_id?: number | null;
   conversion_factor?: number | null;
   measurement_unit?: MeasurementUnit | null;
-  symbol?: string | null;
+  symbol?: string;
   items: BOMItem[];
   alternatives?: BOMItem[];
+  bomNo?: string;
 }
 
 interface DocumentDialogProps {
@@ -41,7 +42,7 @@ interface DocumentDialogProps {
 }
 
 const DocumentDialog: React.FC<DocumentDialogProps> = ({ 
-  bom, 
+  bom,  // <-- This is guaranteed BOM from parent
   authObject, 
   openDocumentDialog, 
   setOpenDocumentDialog 
@@ -63,6 +64,13 @@ const DocumentDialog: React.FC<DocumentDialogProps> = ({
 
   if (isLoading) return <LinearProgress />;
   if (isError) return <Alert severity="error">Error loading BOM data</Alert>;
+  if (!bomDetails) return <Alert severity="error">BOM data not found</Alert>;  // <-- Add this guard
+
+  const organization = authObject?.authOrganization?.organization;
+
+  if (!organization || !authObject.checkOrganizationPermission(PERMISSIONS.BOM_READ)) {
+    return <UnauthorizedAccess />;
+  }
 
   return (
     <Dialog
@@ -100,36 +108,24 @@ const DocumentDialog: React.FC<DocumentDialogProps> = ({
             </Grid>
             <Box>
               {selectedTab === 0 && (
-                authObject.checkOrganizationPermission(PERMISSIONS.BOM_READ) ? (
-                  <BomOnScreen 
-                    bom={bomDetails} 
-                    authObject={authObject} 
-                  />
-                ) : (
-                  <UnauthorizedAccess />
-                )
+                <BomOnScreen 
+                  bom={bomDetails}  // <-- Now guaranteed BOM due to guard above
+                  organization={organization} 
+                />
               )}
               {selectedTab === 1 && (
-                authObject.checkOrganizationPermission(PERMISSIONS.BOM_READ) ? (
-                  <PDFContent
-                    document={<BomPDF authObject={authObject} bom={bomDetails} />}
-                    fileName={`BOM_${bom.id}_${readableDate(new Date().toISOString())}`}
-                  />
-                ) : (
-                  <UnauthorizedAccess />
-                )
+                <PDFContent
+                  document={<BomPDF organization={organization} bom={bomDetails} />}
+                  fileName={`BOM_${bom.id}_${readableDate(new Date().toISOString())}`}  // <-- Use passed bom.id (safe)
+                />
               )}
             </Box>
           </Box>
         ) : (
-          authObject.checkOrganizationPermission(PERMISSIONS.BOM_READ) ? (
-            <PDFContent
-              document={<BomPDF authObject={authObject} bom={bomDetails} />}
-              fileName={`BOM_${bom.id}_${readableDate(new Date().toISOString())}`}
-            />
-          ) : (
-            <UnauthorizedAccess />
-          )
+          <PDFContent
+            document={<BomPDF organization={organization} bom={bomDetails} />}
+            fileName={`BOM_${bom.id}_${readableDate(new Date().toISOString())}`}
+          />
         )}
       </DialogContent>
       {belowLargeScreen && (
