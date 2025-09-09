@@ -308,7 +308,7 @@ const AlternativesRow: React.FC<AlternativesRowProps> = ({
         borderRadius: 1,
       }}
     >
-  <Grid size={{xs: 12, md: 0.5}}>
+  <Grid size={{xs: 1, md: 0.5}}>
     <Typography
       variant="body2"
       sx={{ 
@@ -321,7 +321,7 @@ const AlternativesRow: React.FC<AlternativesRowProps> = ({
     </Typography>
   </Grid>
   
- <Grid size={{xs: 12, md: 6.5}}>
+ <Grid size={{xs: 3, md: 6.5}}>
     <Typography
       variant="body2"
       sx={{ 
@@ -335,7 +335,7 @@ const AlternativesRow: React.FC<AlternativesRowProps> = ({
     </Typography>
   </Grid>
   
-  <Grid size={{xs: 12, md: 2}}>
+  <Grid size={{xs: 1, md: 2}}>
     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
       <Typography variant="body2">{alternative.quantity}</Typography>
       <Typography variant="body2" sx={{ color: 'text.secondary' }}>
@@ -344,8 +344,8 @@ const AlternativesRow: React.FC<AlternativesRowProps> = ({
     </Box>
   </Grid>
   
-   <Grid size={{xs: 12, md: 3}}textAlign="end">
-    <Box sx={{ display: 'flex', gap: 0.2, justifyContent: 'flex-end' }}>
+   <Grid size={{xs: 7, md: 3}}textAlign="end">
+    <Box sx={{ display: 'flex', gap: 0.1, justifyContent: 'flex-end' }}>
       <IconButton size="small" onClick={onStartEdit} color="primary" disabled={isDisabled}>
         <EditOutlined fontSize="small" />
       </IconButton>

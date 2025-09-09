@@ -17,7 +17,6 @@ import BomPDF from './preview/BomPDF';
 import BomForm from './form/BomForm';
 import { Organization } from '@/types/auth-types';
 
-
 interface DocumentDialogProps {
   bom: BOM;
   authObject: ReturnType<typeof useJumboAuth>;

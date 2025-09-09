@@ -76,7 +76,7 @@ const BomItemRow: React.FC<BomItemRowProps> = ({
           sx={{ width: '100%' }}
         >
           {/* Expand/Collapse Indicator - Always visible */}
-          <Grid size={{xs: 12, md: 0.5}}>
+          <Grid size={{xs: 1, md: 0.5}}>
             <Box
               sx={{
                 width: 20,
@@ -99,7 +99,7 @@ const BomItemRow: React.FC<BomItemRowProps> = ({
           {!isEditing ? (
             <>
               {/* Product Name - More space on mobile */}
-              <Grid size={{xs: 12, md: 6.5}}>
+              <Grid size={{xs: 3, md: 6.5}}>
                 <Typography
                   variant="body2"
                   sx={{
@@ -114,11 +114,11 @@ const BomItemRow: React.FC<BomItemRowProps> = ({
               </Grid>
 
               {/* Quantity and Unit - Stack on mobile */}
-              <Grid size={{xs: 12, md: 2}}>
+              <Grid size={{xs: 5, md: 2}}>
                 <Box sx={{ 
                   display: 'flex', 
                   alignItems: 'center', 
-                  gap: 0.5,
+                  gap: 0.1,
                 }}>
                   <Typography variant="body2" fontWeight="medium">
                     {item.quantity}
@@ -130,7 +130,7 @@ const BomItemRow: React.FC<BomItemRowProps> = ({
               </Grid>
 
               {/* Action Buttons */}
-              <Grid size={{xs: 12, md: 3}} sx={{ textAlign: 'end' }}>
+              <Grid size={{xs: 1, md: 3}} sx={{ textAlign: 'end' }}>
                 <Box
                   component="div"
                   onClick={(e) => e.stopPropagation()}
