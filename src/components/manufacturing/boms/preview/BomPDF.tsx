@@ -8,7 +8,7 @@ import { BOM } from '../BomType';
 
 interface BomPDFProps {
   bom: BOM;
-  organization?: Organization | null;
+  organization?: Organization;
 }
 
 const BomPDF: React.FC<BomPDFProps> = ({ bom, organization }) => {

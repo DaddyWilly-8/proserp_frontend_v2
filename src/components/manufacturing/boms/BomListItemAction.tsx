@@ -1,5 +1,5 @@
 import { DeleteOutlined, DownloadOutlined, EditOutlined, HighlightOff, MoreHorizOutlined, VisibilityOutlined } from '@mui/icons-material';
-import { Alert, Box, Button, Dialog, DialogContent, Grid, IconButton, LinearProgress, Tab, Tabs, Tooltip, useMediaQuery } from '@mui/material';
+import { Alert, Box, Button, Dialog, DialogContent, Fade, Grid, IconButton, LinearProgress, Tab, Tabs, Tooltip, useMediaQuery } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { useSnackbar } from 'notistack';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -9,46 +9,31 @@ import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 import { useJumboDialog } from '@jumbo/components/JumboDialog/hooks/useJumboDialog';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import bomsServices from './boms-services';
-import BomsForm from './form/BomForm';
 import PDFContent from '../../pdf/PDFContent';
-import { Product } from '@/components/productAndServices/products/ProductType';
-import { BOMItem, BOMPayload } from './BomType';
-import { MeasurementUnit } from '@/components/masters/measurementUnits/MeasurementUnitType';
+import { BOM } from './BomType';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
-import UnauthorizedAccess from '@/shared/Information/UnauthorizedAccess';
-import { readableDate } from '@/app/helpers/input-sanitization-helpers';
 import BomOnScreen from './preview/BomOnScreen';
 import BomPDF from './preview/BomPDF';
+import BomForm from './form/BomForm';
+import { Organization } from '@/types/auth-types';
 
-interface BOM {
-  id: number;
-  product?: Product | null;
-  product_id: number | null;
-  quantity: number | null;
-  measurement_unit_id?: number | null;
-  conversion_factor?: number | null;
-  measurement_unit?: MeasurementUnit | null;
-  symbol?: string;
-  items: BOMItem[];
-  alternatives?: BOMItem[];
-  bomNo?: string;
-}
 
 interface DocumentDialogProps {
   bom: BOM;
   authObject: ReturnType<typeof useJumboAuth>;
+  organization: Organization;
   openDocumentDialog: boolean;
   setOpenDocumentDialog: (open: boolean) => void;
 }
 
 const DocumentDialog: React.FC<DocumentDialogProps> = ({ 
-  bom,  // <-- This is guaranteed BOM from parent
-  authObject, 
+  bom,  
   openDocumentDialog, 
-  setOpenDocumentDialog 
+  setOpenDocumentDialog,
+  organization 
 }) => {
-  const { data: bomDetails, isLoading, isError } = useQuery({
-    queryKey: ['bom', { id: bom.id }],
+  const { data: bomDetails, isPending} = useQuery({
+    queryKey: ['bomDetails', { id: bom.id }],
     queryFn: () => bomsServices.show(bom.id),
     enabled: true,
   });
@@ -62,15 +47,8 @@ const DocumentDialog: React.FC<DocumentDialogProps> = ({
     setSelectedTab(newValue);
   };
 
-  if (isLoading) return <LinearProgress />;
-  if (isError) return <Alert severity="error">Error loading BOM data</Alert>;
-  if (!bomDetails) return <Alert severity="error">BOM data not found</Alert>;  // <-- Add this guard
+  if (isPending) return <LinearProgress />;
 
-  const organization = authObject?.authOrganization?.organization;
-
-  if (!organization || !authObject.checkOrganizationPermission(PERMISSIONS.BOM_READ)) {
-    return <UnauthorizedAccess />;
-  }
 
   return (
     <Dialog
@@ -109,22 +87,22 @@ const DocumentDialog: React.FC<DocumentDialogProps> = ({
             <Box>
               {selectedTab === 0 && (
                 <BomOnScreen 
-                  bom={bomDetails}  // <-- Now guaranteed BOM due to guard above
+                  bom={bomDetails}
                   organization={organization} 
                 />
               )}
               {selectedTab === 1 && (
                 <PDFContent
-                  document={<BomPDF organization={organization} bom={bomDetails} />}
-                  fileName={`BOM_${bom.id}_${readableDate(new Date().toISOString())}`}  // <-- Use passed bom.id (safe)
+                  document={<BomPDF organization={organization} bom={bomDetails as any} />}
+                  fileName={bom.bomNo}
                 />
               )}
             </Box>
           </Box>
         ) : (
           <PDFContent
-            document={<BomPDF organization={organization} bom={bomDetails} />}
-            fileName={`BOM_${bom.id}_${readableDate(new Date().toISOString())}`}
+            document={<BomPDF organization={organization} bom={bomDetails as any} />}
+            fileName={bom.bomNo}
           />
         )}
       </DialogContent>
@@ -152,7 +130,8 @@ const BomsListItemAction: React.FC<{ bom: BOM }> = ({ bom }) => {
   const { enqueueSnackbar } = useSnackbar();
   const { theme } = useJumboTheme();
   const authObject = useJumboAuth();
-  const { checkOrganizationPermission } = authObject;
+  const { authOrganization, checkOrganizationPermission } = useJumboAuth();
+  const organization = authOrganization?.organization;
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
 
   // Fetch BOM data for editing
@@ -177,21 +156,12 @@ const BomsListItemAction: React.FC<{ bom: BOM }> = ({ bom }) => {
   });
 
   const menuItems: MenuItemProps[] = [
-    {
-      icon: belowLargeScreen ? <DownloadOutlined /> : <VisibilityOutlined />,
-      title: belowLargeScreen ? 'Download' : 'View',
-      action: 'open',
-    },
-    checkOrganizationPermission(PERMISSIONS.BOM_EDIT)
-      ? { icon: <EditOutlined />, title: 'Edit', action: 'edit' }
-      : null,
-    checkOrganizationPermission(PERMISSIONS.BOM_DELETE)
-      ? { icon: <DeleteOutlined color="error" />, title: 'Delete', action: 'delete' }
-      : null,
-  ].filter(Boolean) as MenuItemProps[];
+    { icon: <VisibilityOutlined />, title: 'View', action: 'open' },
+    checkOrganizationPermission(PERMISSIONS.BOM_EDIT) && { icon: <EditOutlined />, title: 'Edit', action: 'edit' },
+    checkOrganizationPermission(PERMISSIONS.BOM_DELETE) && { icon: <DeleteOutlined color="error" />, title: 'Delete', action: 'delete' },
+  ].filter(menuItem => !!menuItem);
 
   const handleItemAction = (menuItem: MenuItemProps) => {
-    if (openEditDialog || openDocumentDialog) return; // Prevent multiple dialogs
     switch (menuItem.action) {
       case 'open':
         setOpenDocumentDialog(true);
@@ -216,35 +186,27 @@ const BomsListItemAction: React.FC<{ bom: BOM }> = ({ bom }) => {
     }
   };
 
-  const handleClose = () => {
-    setOpenEditDialog(false);
-    setOpenDocumentDialog(false);
-  };
-
-  useEffect(() => {
-    return () => {
-      setOpenEditDialog(false);
-      setOpenDocumentDialog(false); // Clean up on unmount
-    };
-  }, []);
-
   return (
-    <>
-      <Dialog
+  <>
+     <Dialog
         open={openEditDialog || openDocumentDialog}
-        fullWidth
-        maxWidth={openDocumentDialog ? 'md' : 'lg'}
-        fullScreen={belowLargeScreen}
+        onClose={() => {
+          setOpenEditDialog(false);
+          setOpenDocumentDialog(false);
+        }}
         scroll={belowLargeScreen ? 'body' : 'paper'}
-        onClose={handleClose}
+        fullWidth
+        fullScreen={belowLargeScreen}
+        maxWidth="lg"
+        aria-modal="true"
       >
-        {openEditDialog && (
+        {!!openEditDialog && (
           isLoading ? (
             <LinearProgress />
           ) : isError ? (
             <Alert severity="error">Error loading BOM data</Alert>
           ) : (
-            <BomsForm
+            <BomForm
               open={openEditDialog}
               bomId={bom.id}
               bomData={bomData}
@@ -256,10 +218,11 @@ const BomsListItemAction: React.FC<{ bom: BOM }> = ({ bom }) => {
             />
           )
         )}
-        {openDocumentDialog && (
+        {!!openDocumentDialog && (
           <DocumentDialog 
             bom={bom} 
             authObject={authObject} 
+            organization={organization as Organization}
             openDocumentDialog={openDocumentDialog}
             setOpenDocumentDialog={setOpenDocumentDialog}
           />

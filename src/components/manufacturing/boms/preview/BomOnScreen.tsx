@@ -1,24 +1,27 @@
 import React from 'react';
-import { Grid, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Alert } from '@mui/material';  // Add Alert if needed
+import { Grid, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Alert } from '@mui/material';
 import { readableDate } from '@/app/helpers/input-sanitization-helpers';
 import { MeasurementUnit } from '@/components/masters/measurementUnits/MeasurementUnitType';
 import { Product } from '@/components/productAndServices/products/ProductType';
 import { Organization } from '@/types/auth-types';
-import { BOM, BOMItem } from '../BomType';  // Import BOM from BomType (remove local interface)
+import { BOM, BOMItem } from '../BomType';
+
+// Define type for readableDate function
+type ReadableDate = (date: string) => string;
 
 interface BomOnScreenProps {
-  bom?: BOM;  // <-- Make optional with ?
-  organization?: Organization;  // Also optional for consistency
+  bom?: BOM;
+  organization?: Organization;
 }
 
-function BomOnScreen({ bom, organization }: BomOnScreenProps) {
+const BomOnScreen: React.FC<BomOnScreenProps> = ({ bom, organization }) => {
   if (!bom) {
-    return <Alert severity="error">BOM data not available</Alert>;  // Guard at top
+    return <Alert severity="error">BOM data not available</Alert>;
   }
 
-  const mainColor = organization?.settings?.main_color || '#2113AD';
-  const lightColor = organization?.settings?.light_color || '#bec5da';
-  const contrastText = organization?.settings?.contrast_text || '#FFFFFF';
+  const mainColor: string = organization?.settings?.main_color || '#2113AD';
+  const lightColor: string = organization?.settings?.light_color || '#bec5da';
+  const contrastText: string = organization?.settings?.contrast_text || '#FFFFFF';
 
   return (
     <div>
@@ -38,7 +41,7 @@ function BomOnScreen({ bom, organization }: BomOnScreenProps) {
           <Typography variant="body2" style={{ color: mainColor }}>
             Date
           </Typography>
-          <Typography variant="body2">{readableDate(new Date().toISOString())}</Typography>
+          <Typography variant="body2">{(readableDate as ReadableDate)(new Date().toISOString())}</Typography>
         </Grid>
         <Grid size={{ xs: 4 }} textAlign="center">
           <Typography variant="body2" style={{ color: mainColor }}>
@@ -60,7 +63,7 @@ function BomOnScreen({ bom, organization }: BomOnScreenProps) {
             Quantity
           </Typography>
           <Typography variant="body2">
-            {bom.quantity || 0} {bom.symbol || bom.measurement_unit?.symbol || ''}  // Add || 0 for null safety
+            {bom.quantity ?? 0} {bom.symbol || bom.measurement_unit?.symbol || ''}
           </Typography>
         </Grid>
       </Grid>
@@ -76,19 +79,21 @@ function BomOnScreen({ bom, organization }: BomOnScreenProps) {
             </TableRow>
           </TableHead>
           <TableBody>
-            {bom.items.map((item, index) => (
-              <TableRow key={item.id || index} sx={{ backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor }}>
-                <TableCell>{index + 1}</TableCell>
-                <TableCell>{item.product?.name || 'N/A'}</TableCell>
-                <TableCell align="right">{item.quantity || 0}</TableCell>  {/* Add null safety */}
-                <TableCell align="right">{item.measurement_unit?.symbol || 'N/A'}</TableCell>
+            {bom.items.map((item: BOMItem, index: number) => (
+              <TableRow key={item.id ?? index} sx={{ backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor }}>
+                <React.Fragment>
+                  <TableCell>{index + 1}</TableCell>
+                  <TableCell>{item.product?.name ?? 'N/A'}</TableCell>
+                  <TableCell align="right">{item.quantity ?? 0}</TableCell>
+                  <TableCell align="right">{item.measurement_unit?.symbol ?? 'N/A'}</TableCell>
+                </React.Fragment>
               </TableRow>
             ))}
           </TableBody>
         </Table>
       </TableContainer>
 
-      {bom.alternatives?.length > 0 && (  // Already safe from previous fix
+      {bom.alternatives?.length > 0 && (
         <>
           <Typography variant="h6" style={{ marginTop: 20, color: mainColor }}>
             Alternative Items
@@ -104,12 +109,14 @@ function BomOnScreen({ bom, organization }: BomOnScreenProps) {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {bom.alternatives.map((item, index) => (
-                  <TableRow key={item.id || index} sx={{ backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor }}>
-                    <TableCell>{index + 1}</TableCell>
-                    <TableCell>{item.product?.name || 'N/A'}</TableCell>
-                    <TableCell align="right">{item.quantity || 0}</TableCell>  {/* Add null safety */}
-                    <TableCell align="right">{item.measurement_unit?.symbol || 'N/A'}</TableCell>
+                {bom.alternatives.map((item: BOMItem, index: number) => (
+                  <TableRow key={item.id ?? index} sx={{ backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor }}>
+                    <React.Fragment>
+                      <TableCell>{index + 1}</TableCell>
+                      <TableCell>{item.product?.name ?? 'N/A'}</TableCell>
+                      <TableCell align="right">{item.quantity ?? 0}</TableCell>
+                      <TableCell align="right">{item.measurement_unit?.symbol ?? 'N/A'}</TableCell>
+                    </React.Fragment>
                   </TableRow>
                 ))}
               </TableBody>
@@ -119,6 +126,6 @@ function BomOnScreen({ bom, organization }: BomOnScreenProps) {
       )}
     </div>
   );
-}
+};
 
 export default BomOnScreen;

@@ -298,47 +298,63 @@ const AlternativesRow: React.FC<AlternativesRowProps> = ({
   }
 
   return (
-    <Box
+    <Grid
+      container
+      alignItems="center"
+      spacing={1}
       sx={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: 1,
         p: 1,
         bgcolor: 'action.hover',
         borderRadius: 1,
       }}
     >
-      <Typography
-        variant="body2"
-        sx={{ fontWeight: 600, minWidth: 24, textAlign: 'center', color: 'text.secondary' }}
-      >
-        {index + 1}.
+  <Grid size={{xs: 12, md: 0.5}}>
+    <Typography
+      variant="body2"
+      sx={{ 
+        fontWeight: 600, 
+        textAlign: 'center', 
+        color: 'text.secondary' 
+      }}
+    >
+      {index + 1}.
+    </Typography>
+  </Grid>
+  
+ <Grid size={{xs: 12, md: 6.5}}>
+    <Typography
+      variant="body2"
+      sx={{ 
+        fontWeight: 500, 
+        overflow: 'hidden', 
+        textOverflow: 'ellipsis',
+        whiteSpace: 'nowrap'
+      }}
+    >
+      {alternative.product?.name}
+    </Typography>
+  </Grid>
+  
+  <Grid size={{xs: 12, md: 2}}>
+    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+      <Typography variant="body2">{alternative.quantity}</Typography>
+      <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+        {alternative.symbol ?? alternative.measurement_unit?.unit_symbol ?? alternative.product?.primary_unit?.unit_symbol ?? ''}
       </Typography>
-      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', gap: 22 }}>
-        <Typography
-          variant="body2"
-          sx={{ fontWeight: 500, minWidth: 120, overflow: 'hidden', textOverflow: 'ellipsis', flex: 1, mr: 2 }}
-        >
-          {alternative.product?.name}
-        </Typography>
-
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, minWidth: 60 }}>
-          <Typography variant="body2">{alternative.quantity}</Typography>
-          <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-            {alternative.symbol ?? alternative.measurement_unit?.unit_symbol ?? alternative.product?.primary_unit?.unit_symbol ?? ''}
-          </Typography>
-        </Box>
-
-        <Box sx={{ display: 'flex', gap: 0.5, ml: 1 }}>
-          <IconButton size="small" onClick={onStartEdit} color="primary" disabled={isDisabled}>
-            <EditOutlined fontSize="small" />
-          </IconButton>
-          <IconButton size="small" onClick={onRemove} color="error" disabled={isDisabled}>
-            <DeleteOutlined fontSize="small" />
-          </IconButton>
-        </Box>
-      </Box>
     </Box>
+  </Grid>
+  
+   <Grid size={{xs: 12, md: 3}}textAlign="end">
+    <Box sx={{ display: 'flex', gap: 0.2, justifyContent: 'flex-end' }}>
+      <IconButton size="small" onClick={onStartEdit} color="primary" disabled={isDisabled}>
+        <EditOutlined fontSize="small" />
+      </IconButton>
+      <IconButton size="small" onClick={onRemove} color="error" disabled={isDisabled}>
+        <DeleteOutlined fontSize="small" />
+      </IconButton>
+    </Box>
+  </Grid>
+</Grid>
   );
 };
 
