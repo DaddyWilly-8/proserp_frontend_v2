@@ -12,6 +12,7 @@ import {
   Grid,
 } from '@mui/material';
 import { BOMAlternative } from '../BomType';
+import { Organization } from '@/types/auth-types';
 
 // Define TypeScript interfaces for the props
 interface MeasurementUnit {
@@ -20,11 +21,6 @@ interface MeasurementUnit {
 
 interface Product {
   name: string;
-}
-
-interface Alternative {
-  product: Product;
-  quantity: number;
 }
 
 interface Item {
@@ -37,16 +33,6 @@ interface Item {
 
 interface Creator {
   name: string;
-}
-
-interface OrganizationSettings {
-  main_color?: string;
-  light_color?: string;
-  contrast_text?: string;
-}
-
-interface Organization {
-  settings?: OrganizationSettings;
 }
 
 interface BOM {

@@ -219,7 +219,7 @@ const payload: BOMPayload = {
         symbol: alt.symbol ?? '',
       })) ?? [],
   })),
-  alternatives: [],  // ✅ Ongeza hii – empty array kama default (required ni BOMAlternative[])
+  alternatives:[],  // ✅ Ongeza hii – empty array kama default (required ni BOMAlternative[])
   // Kama unahitaji id au bomNo, ongeza hapa pia
 };
 

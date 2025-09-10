@@ -85,13 +85,13 @@ const DocumentDialog: React.FC<DocumentDialogProps> = ({
             <Box>
               {selectedTab === 0 && (
                 <BomOnScreen 
-                  bom={bomDetails}
+                  bom={bomDetails as any}
                   organization={organization} 
                 />
               )}
               {selectedTab === 1 && (
                 <PDFContent
-                  document={<BomPDF organization={organization} bom={bomDetails} />}
+                  document={<BomPDF organization={organization} bom={bomDetails as any} />}
                   fileName={bom.bomNo}
                 />
               )}
@@ -99,7 +99,7 @@ const DocumentDialog: React.FC<DocumentDialogProps> = ({
           </Box>
         ) : (
           <PDFContent
-            document={<BomPDF organization={organization} bom={bomDetails} />}
+            document={<BomPDF organization={organization} bom={bomDetails as any} />}
             fileName={bom.bomNo}
           />
         )}

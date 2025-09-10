@@ -3,6 +3,8 @@ import pdfStyles from '@/components/pdf/pdf-styles';
 import PdfLogo from '@/components/pdf/PdfLogo';
 import { Document, Page, Text, View } from '@react-pdf/renderer';
 import React from 'react';
+import { Organization } from '@/types/auth-types';
+import { BOMAlternative } from '../BomType';
 
 // Define interfaces for TypeScript
 interface MeasurementUnit {
@@ -13,32 +15,16 @@ interface Product {
   name: string;
 }
 
-interface Alternative {
-  product: Product;
-  quantity: number;
-}
-
 interface Item {
   id: string;
   product: Product;
   quantity: number;
   measurement_unit: MeasurementUnit;
-  alternatives?: Alternative[];
+  alternatives?: BOMAlternative[];
 }
 
 interface Creator {
   name: string;
-}
-
-interface Settings {
-  main_color?: string;
-  light_color?: string;
-  contrast_text?: string;
-}
-
-interface Organization {
-  logo_path?: string;
-  settings?: Settings;
 }
 
 interface BOM {
@@ -134,7 +120,7 @@ const BomPDF: React.FC<BomPDFProps> = ({ bom, organization }) => {
                   {item.quantity?.toLocaleString()} {item.measurement_unit.symbol}
                 </Text>
               </View>
-              {item.alternatives?.length > 0 && (
+              {item.alternatives && item.alternatives.length > 0 && (
                 <React.Fragment>
                   <View style={pdfStyles.tableRow}>
                     <Text style={{ ...pdfStyles.tableCell, flex: 0.05 }}></Text>
@@ -160,7 +146,7 @@ const BomPDF: React.FC<BomPDFProps> = ({ bom, organization }) => {
                       Quantity
                     </Text>
                   </View>
-                  {item.alternatives?.map((alternative: Alternative, i: number) => (
+                  {item.alternatives?.map((alternative: BOMAlternative, i: number) => (
                     <View key={i} style={{ ...pdfStyles.tableRow }}>
                       <Text style={{ ...pdfStyles.tableCell, flex: 0.05 }}></Text>
                       <View
@@ -171,7 +157,7 @@ const BomPDF: React.FC<BomPDFProps> = ({ bom, organization }) => {
                           flexDirection: 'column',
                         }}
                       >
-                        <Text>{alternative.product.name}</Text>
+                        <Text>{alternative.product?.name || 'N/A'}</Text>
                       </View>
                       <Text
                         style={{
