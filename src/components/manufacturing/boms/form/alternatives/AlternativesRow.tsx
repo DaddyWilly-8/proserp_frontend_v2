@@ -19,7 +19,6 @@ import ProductSelect from '@/components/productAndServices/products/ProductSelec
 import CommaSeparatedField from '@/shared/Inputs/CommaSeparatedField';
 import { BOMItem } from '../../BomType';
 import { Product } from '@/components/productAndServices/products/ProductType';
-import { MeasurementUnit } from '@/components/masters/measurementUnits/MeasurementUnitType';
 import { useProductsSelect } from '@/components/productAndServices/products/ProductsSelectProvider';
 
 // Validation schema for alternative item

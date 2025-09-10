@@ -101,7 +101,6 @@ const AlternativesForm: React.FC<AlternativesFormProps> = ({
   isEditing,
 }) => {
   const { checkOrganizationPermission } = useJumboAuth();
-  const { productOptions } = useProductsSelect();
   const [openProductQuickAdd, setOpenProductQuickAdd] = React.useState(false);
   const [addedProduct, setAddedProduct] = React.useState<Product | null>(null);
   const [editingIndex, setEditingIndex] = React.useState<number | null>(null);

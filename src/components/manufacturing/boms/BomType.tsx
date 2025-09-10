@@ -46,6 +46,7 @@ export interface BOM {
 
 export interface BomFormValues {
   product_id?: number | null;
+  product?: Product | null;
   quantity?: number | null;
   measurement_unit_id?: number | null;
   measurement_unit?: MeasurementUnit | null;

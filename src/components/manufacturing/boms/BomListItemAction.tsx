@@ -1,6 +1,6 @@
-import { DeleteOutlined, DownloadOutlined, EditOutlined, HighlightOff, MoreHorizOutlined, VisibilityOutlined } from '@mui/icons-material';
-import { Alert, Box, Button, Dialog, DialogContent, Fade, Grid, IconButton, LinearProgress, Tab, Tabs, Tooltip, useMediaQuery } from '@mui/material';
-import React, { useEffect, useState } from 'react';
+import { DeleteOutlined, EditOutlined, HighlightOff, MoreHorizOutlined, VisibilityOutlined } from '@mui/icons-material';
+import { Alert, Box, Button, Dialog, DialogContent, Grid, IconButton, LinearProgress, Tab, Tabs, Tooltip, useMediaQuery } from '@mui/material';
+import React, {useState } from 'react';
 import { useSnackbar } from 'notistack';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { MenuItemProps } from '@jumbo/types';
@@ -19,7 +19,6 @@ import { Organization } from '@/types/auth-types';
 
 interface DocumentDialogProps {
   bom: BOM;
-  authObject: ReturnType<typeof useJumboAuth>;
   organization: Organization;
   openDocumentDialog: boolean;
   setOpenDocumentDialog: (open: boolean) => void;
@@ -92,7 +91,7 @@ const DocumentDialog: React.FC<DocumentDialogProps> = ({
               )}
               {selectedTab === 1 && (
                 <PDFContent
-                  document={<BomPDF organization={organization} bom={bomDetails as any} />}
+                  document={<BomPDF organization={organization} bom={bomDetails} />}
                   fileName={bom.bomNo}
                 />
               )}
@@ -100,7 +99,7 @@ const DocumentDialog: React.FC<DocumentDialogProps> = ({
           </Box>
         ) : (
           <PDFContent
-            document={<BomPDF organization={organization} bom={bomDetails as any} />}
+            document={<BomPDF organization={organization} bom={bomDetails} />}
             fileName={bom.bomNo}
           />
         )}
@@ -220,7 +219,6 @@ const BomsListItemAction: React.FC<{ bom: BOM }> = ({ bom }) => {
         {!!openDocumentDialog && (
           <DocumentDialog 
             bom={bom} 
-            authObject={authObject} 
             organization={organization as Organization}
             openDocumentDialog={openDocumentDialog}
             setOpenDocumentDialog={setOpenDocumentDialog}
