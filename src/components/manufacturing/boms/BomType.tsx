@@ -1,30 +1,55 @@
 import { MeasurementUnit } from "@/components/masters/measurementUnits/MeasurementUnitType";
 import { Product } from "@/components/productAndServices/products/ProductType";
 
-export interface BOMItem {
+
+
+export interface BOMItemPayload {
   id?: number;
-  product?: Product | null;
-  bom_id?: number;
   product_id: number | null;
   quantity: number | null;
   conversion_factor: number | null;
-  measurement_unit_id?: number | null | undefined;
+  measurement_unit_id?: number | null;
   measurement_unit?: MeasurementUnit | null;
   symbol?: string | null;
+  product?: Product | null; // Optional for payload
+  alternatives?: BOMAlternativePayload[];
+}
+
+export interface BOMAlternativePayload {
+id?: number;
+  product_id: number | null;
+  quantity: number | null;
+  conversion_factor: number | null;
+  measurement_unit_id?: number | null;
+  measurement_unit?: MeasurementUnit | null;
+  symbol?: string | null;
+  product?: Product | null; // Optional for payload
+}
+
+
+
+
+export interface BOMItem {
+  id?: number;
+  product_id: number | null;
+  quantity: number | null;
+  conversion_factor: number | null;
+  measurement_unit_id?: number | null;
+  measurement_unit?: MeasurementUnit | null;
+  symbol?: string | null;
+  product: Product | null;
   alternatives?: BOMAlternative[];
 }
 
 export interface BOMAlternative {
   id?: number;
-  product: Product;
   product_id: number | null;
   quantity: number | null;
+  conversion_factor: number | null;
   measurement_unit_id?: number | null;
   measurement_unit?: MeasurementUnit | null;
   symbol?: string | null;
-  conversion_factor: number | null;
-  alternatives?: BOMAlternative[];
-  
+  product: Product | null;
 }
 
 export interface BOM {
@@ -37,7 +62,7 @@ export interface BOM {
   measurement_unit?: MeasurementUnit | null;
   symbol?: string | null;
   items: BOMItem[];
-  alternatives: BOMItem[]; // This might be top-level alternatives, but based on PDF, it's per-item
+  alternatives: BOMItem[];
   bomNo?: string;
   creator?: {
     name: string;
@@ -46,17 +71,16 @@ export interface BOM {
 
 export interface BomFormValues {
   product_id?: number | null;
-  product?: Product;
+  product: Product | null;
   quantity?: number | null;
   measurement_unit_id?: number | null;
   measurement_unit?: MeasurementUnit | null;
   symbol: string;
   conversion_factor: number | null;
-  items: BOMItem[];
-  alternatives: BOMAlternative[];
+  items: BOMItem[]; // Use UI version for form
+  alternatives: BOMAlternative[]; // Use UI version for form
 }
 
-// Katika BomType.ts
 export interface BOMPayload {
   id?: number;
   product_id: number | null;
@@ -66,12 +90,11 @@ export interface BOMPayload {
   measurement_unit_id?: number | null;
   symbol?: string | null;
   conversion_factor?: number | null;
-  items: BOMItem[];
-  alternatives?: BOMAlternative[];  // ✅ Ongeza ? ili iwe optional (si required)
+  items: BOMItemPayload[]; // Use payload version for API
+  alternatives?: BOMAlternativePayload[]; // Use payload version for API
   bomNo?: string;
 }
 
-// Response types
 export interface AddBOMResponse {
   message: string;
   data: BOM;

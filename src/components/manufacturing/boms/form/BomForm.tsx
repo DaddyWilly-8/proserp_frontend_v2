@@ -26,7 +26,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Product } from '@/components/productAndServices/products/ProductType';
 import bomsServices from '../boms-services';
 import ProductSelect from '@/components/productAndServices/products/ProductSelect';
-import { BOMPayload, BOMItem } from '../BomType';
+import { BOMPayload, BOMItem, BOMAlternative } from '../BomType';
 import CommaSeparatedField from '@/shared/Inputs/CommaSeparatedField';
 import BomItemForm from './BomItemForm';
 import BomItemRow from './BomItemRow';
@@ -55,6 +55,7 @@ const defaultValues: BOMPayload = {
   items: [],
   alternatives: [],
   bomNo: '',
+  
 };
 
 interface BomFormProps {
@@ -113,36 +114,50 @@ const BomForm: React.FC<BomFormProps> = ({ open, toggleOpen, bomId, bomData, onS
     }
   }, [selectedUnitId]);
 
-  // Sync form with provided BOM data
-  useEffect(() => {
-    if (bomData) {
-      const measurementUnit = bomData.measurement_unit ?? bomData.product?.primary_unit;
-      const symbol = measurementUnit?.unit_symbol ?? bomData.symbol ?? '';
-      
-      reset({
-        ...defaultValues,
-        product_id: bomData.product_id ?? bomData.product?.id ?? null,
-        product: bomData.product && productOptions.find((product: Product) => product.id === (bomData.product_id ?? bomData.product?.id)),
-        quantity: bomData.quantity ?? null,
-        measurement_unit_id: bomData.measurement_unit_id ?? measurementUnit?.id ?? null,
-        measurement_unit: measurementUnit ?? null,
-        symbol: symbol,
-        conversion_factor: bomData.conversion_factor ?? measurementUnit?.conversion_factor ?? 1,
-        items: bomData.items ?? [],
-        alternatives: bomData.alternatives ?? [],
-      });
-      setItems(
-        (bomData.items || []).map(item => ({
-          ...item,
-          symbol: item.symbol ?? item.measurement_unit?.symbol ?? '',
-          alternatives: (item.alternatives || []).map(alt => ({
-            ...alt,
-            symbol: alt.symbol ?? alt.measurement_unit?.symbol ?? '',
-          })),
-        }))
-      );
-    }
-  }, [bomData, reset]);
+ // Sync form with provided BOM data
+useEffect(() => {
+  if (bomData) {
+    const measurementUnit = bomData.measurement_unit ?? bomData.product?.primary_unit;
+    const symbol = measurementUnit?.unit_symbol ?? bomData.symbol ?? '';
+    
+    reset({
+      ...defaultValues,
+      product_id: bomData.product_id ?? bomData.product?.id ?? null,
+      product: bomData.product && productOptions.find((product:Product) =>product.id === (bomData.product_id ?? bomData.product?.id)),
+      quantity: bomData.quantity ?? null,
+      measurement_unit_id: bomData.measurement_unit_id ?? measurementUnit?.id ?? null,
+      measurement_unit: measurementUnit ?? null,
+      symbol: symbol,
+      conversion_factor: bomData.conversion_factor ?? measurementUnit?.conversion_factor ?? 1,
+      items: bomData.items ?? [],
+      alternatives: bomData.alternatives ?? [],
+    });
+    
+    // Convert BOMItemPayload[] to BOMItem[] with proper typing
+    setItems(
+      (bomData.items || []).map(item => ({
+        id: item.id,
+        product_id: item.product_id ?? null,
+        quantity: item.quantity ?? null,
+        conversion_factor: item.conversion_factor ?? null,
+        measurement_unit_id: item.measurement_unit_id ?? null,
+        measurement_unit: item.measurement_unit ?? null,
+        symbol: item.symbol ?? item.measurement_unit?.unit_symbol ?? '',
+        product: item.product && productOptions.find((product:Product) =>product.id === (bomData.product_id ?? bomData.product?.id)),
+        alternatives: (item.alternatives || []).map(alt => ({
+          id: alt.id,
+          product_id: alt.product_id ?? null,
+          quantity: alt.quantity ?? null,
+          conversion_factor: alt.conversion_factor ?? null,
+          measurement_unit_id: alt.measurement_unit_id ?? null,
+          measurement_unit: alt.measurement_unit ?? null,
+          symbol: alt.symbol ?? alt.measurement_unit?.unit_symbol ?? '',
+          product: alt.product && productOptions.find((product:Product) =>product.id === (bomData.product_id ?? bomData.product?.id)),
+        })) as BOMAlternative[], // Cast to the correct type
+      })) as BOMItem[] // Cast to the correct type
+    );
+  }
+}, [bomData, reset, productOptions]);
 
   // Sync items with form state
   useEffect(() => {
@@ -192,40 +207,41 @@ const BomForm: React.FC<BomFormProps> = ({ open, toggleOpen, bomId, bomData, onS
     },
   });
 
-  // Form submission
-  const onSubmit = (data: BOMPayload) => {
-    if (items.length === 0) {
-      setError('items', { type: 'manual', message: 'Please add at least one item' });
-      return;
-    }
-const payload: BOMPayload = {
-  product_id: Number(data.product_id),
-  quantity: Number(data.quantity),
-  measurement_unit_id: Number(data.measurement_unit_id),
-  symbol: String(data.symbol),
-  conversion_factor: Number(data.conversion_factor),
-  items: items.map(item => ({
-    product_id: Number(item.product?.id ?? item.product_id),
-    quantity: Number(item.quantity),
-    measurement_unit_id: Number(item.measurement_unit_id),
-    conversion_factor: Number(item.conversion_factor) || 1,
-    symbol: item.symbol ?? '',
-    alternatives:
-      item.alternatives?.map(alt => ({
-        product_id: Number(alt.product?.id ?? alt.product_id),
+  // In your onSubmit function in BomForm.tsx
+const onSubmit = (data: BOMPayload) => {
+  if (items.length === 0) {
+    setError('items', { type: 'manual', message: 'Please add at least one item' });
+    return;
+  }
+
+  const payload: BOMPayload = {
+    product_id: Number(data.product_id),
+    quantity: Number(data.quantity),
+    measurement_unit_id: Number(data.measurement_unit_id),
+    symbol: String(data.symbol),
+    conversion_factor: Number(data.conversion_factor),
+    items: items.map(item => ({
+      product_id: Number(item.product_id ?? item.product?.id),
+      quantity: Number(item.quantity),
+      measurement_unit_id: Number(item.measurement_unit_id),
+      conversion_factor: Number(item.conversion_factor) || 1,
+      symbol: item.symbol ?? '',
+      product: item.product, // Include product for payload if needed
+      alternatives: item.alternatives?.map(alt => ({
+        product_id: Number(alt.product_id ?? alt.product?.id),
         quantity: Number(alt.quantity),
         measurement_unit_id: Number(alt.measurement_unit_id),
         conversion_factor: Number(alt.conversion_factor) || 1,
         symbol: alt.symbol ?? '',
+        product: alt.product, // Include product for payload if needed
       })) ?? [],
-  })),
-  alternatives:[],  // ✅ Ongeza hii – empty array kama default (required ni BOMAlternative[])
-  // Kama unahitaji id au bomNo, ongeza hapa pia
-};
-
-    setIsSubmitting(true);
-    bomMutation.mutate(payload);
+    })),
+    bomNo: data.bomNo,
   };
+
+  setIsSubmitting(true);
+  bomMutation.mutate(payload);
+};
 
   return (
     <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
