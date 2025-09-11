@@ -76,7 +76,7 @@ const BomItemRow: React.FC<BomItemRowProps> = ({
           sx={{ width: '100%' }}
         >
           {/* Expand/Collapse Indicator - Always visible */}
-          <Grid size={{xs: 1, md: 0.5}}>
+          <Grid size={{xs: 1}}>
             <Box
               sx={{
                 width: 20,
@@ -96,120 +96,107 @@ const BomItemRow: React.FC<BomItemRowProps> = ({
             </Box>
           </Grid>
 
-          {!isEditing ? (
-            <>
-              {/* Product Name - More space on mobile */}
-              <Grid size={{xs:4, md: 6.5}}>
-                <Typography
-                  variant="body2"
-                  sx={{
-                    fontWeight: 500,
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                  }}
-                >
-                  {item.product?.name}
-                </Typography>
-              </Grid>
-
-              {/* Quantity and Unit - Stack on mobile */}
-              <Grid size={{xs:9, md: 2}}>
-                <Box sx={{ 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  gap: 0.1,
-                }}>
-                  <Typography variant="body2" fontWeight="medium">
-                    {item.quantity}
-                  </Typography>
-                  <Typography variant="body2" sx={{ color: 'text.secondary', fontSize: { xs: '0.75rem', md: '0.875rem' } }}>
-                    {item.symbol || item.measurement_unit?.unit_symbol || item.product?.primary_unit?.unit_symbol || ''}
-                  </Typography>
-                </Box>
-              </Grid>
-
-              {/* Action Buttons */}
-              <Grid size={{xs:3, md: 3}} sx={{ textAlign: 'end' }}>
-                <Box
-                  component="div"
-                  onClick={(e) => e.stopPropagation()}
-                  onFocus={(e) => e.stopPropagation()}
-                  sx={{
-                    display: 'flex',
-                    gap: 0.5,
-                    justifyContent: { xs: 'flex-start', md: 'flex-end' },
-                  }}
-                >
-                  <Tooltip title="Edit">
-                    <IconButton
-                      aria-label="Edit item"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setIsEditing(true);
-                        setExpanded(true);
+          <Grid size={11}>
+            <Grid container columnSpacing={1}>
+              {!isEditing ? (
+                <>
+                  {/* Product Name - More space on mobile */}
+                  <Grid size={{xs:12, md: 6.5}}>
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
                       }}
-                      component="div"
-                      role="button"
-                      tabIndex={0}
-                      size="small"
-                      sx={{ minWidth: 'auto' }}
                     >
-                      <EditOutlined fontSize="small" />
-                    </IconButton>
-                  </Tooltip>
-                  <Tooltip title="Delete">
-                    <IconButton
-                      aria-label="Delete item"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleRemove();
+                      {item.product?.name}
+                    </Typography>
+                  </Grid>
+
+                  {/* Quantity and Unit - Stack on mobile */}
+                  <Grid size={{xs:9, md: 2}}>
+                    <Box sx={{ 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      gap: 0.1,
+                    }}>
+                      <Typography variant="body2">
+                        {item.quantity} {item.symbol || item.measurement_unit?.unit_symbol || item.product?.primary_unit?.unit_symbol || ''}
+                      </Typography>
+                    </Box>
+                  </Grid>
+
+                  {/* Action Buttons */}
+                  <Grid size={{xs:3, md: 3}} sx={{ textAlign: 'end' }}>
+                    <Box
+                      component="div"
+                      onClick={(e) => e.stopPropagation()}
+                      onFocus={(e) => e.stopPropagation()}
+                      sx={{
+                        display: 'flex',
+                        gap: 0.5,
+                        justifyContent: { xs: 'flex-start', md: 'flex-end' },
                       }}
-                      component="div"
-                      role="button"
-                      tabIndex={0}
-                      size="small"
-                      color="error"
-                      sx={{ minWidth: 'auto' }}
                     >
-                      <DeleteOutlined fontSize="small" />
-                    </IconButton>
-                  </Tooltip>
+                      <Tooltip title="Edit">
+                        <IconButton
+                          aria-label="Edit item"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setIsEditing(true);
+                            setExpanded(true);
+                          }}
+                          component="div"
+                          role="button"
+                          tabIndex={0}
+                          size="small"
+                          sx={{ minWidth: 'auto' }}
+                        >
+                          <EditOutlined fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
+                      <Tooltip title="Delete">
+                        <IconButton
+                          aria-label="Delete item"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleRemove();
+                          }}
+                          component="div"
+                          role="button"
+                          tabIndex={0}
+                          size="small"
+                          color="error"
+                          sx={{ minWidth: 'auto' }}
+                        >
+                          <DeleteOutlined fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
+                    </Box>
+                  </Grid>
+                </>
+              ) : (
+                /* Editing State - Show form title or status */
+                <Box sx={{ paddingBottom: 1 }}>
+                  <BomItemForm
+                    item={item}
+                    index={index}
+                    setItems={setItems}
+                    items={items}
+                    setShowForm={setIsEditing}
+                    setClearFormKey={setClearFormKey}
+                    submitMainForm={() => {}}
+                    submitItemForm={false}
+                    setSubmitItemForm={() => {}}
+                  />
                 </Box>
-              </Grid>
-            </>
-          ) : (
-            /* Editing State - Show form title or status */
-            <Grid size={{xs: 12, md: 11.5}}>
-              <Typography
-                variant="body2"
-                sx={{
-                  fontWeight: 500,
-                  color: 'primary.main',
-                  fontStyle: 'italic',
-                }}
-              >
-              </Typography>
+              )}
             </Grid>
-          )}
+          </Grid>
         </Grid>
       </AccordionSummary>
       
       <AccordionDetails sx={{ pt: 1, pb: 2 }}>
-        {isEditing && (
-          <Box sx={{ mb: 2 }}>
-            <BomItemForm
-              item={item}
-              index={index}
-              setItems={setItems}
-              items={items}
-              setShowForm={setIsEditing}
-              setClearFormKey={setClearFormKey}
-              submitMainForm={() => {}}
-              submitItemForm={false}
-              setSubmitItemForm={() => {}}
-            />
-          </Box>
-        )}
         <AlternativesForm
           item={item}
           alternatives={alternatives}

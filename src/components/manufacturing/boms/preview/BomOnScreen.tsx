@@ -119,7 +119,7 @@ const BomOnScreen: React.FC<BomOnScreenProps> = ({ bom, organization }) => {
                         key={altIndex}
                       >
                         <TableCell />
-                        <TableCell sx={{ backgroundColor: altIndex % 2 === 0 ? '#FFFFFF' : lightColor }}>{alt.product.name}</TableCell>
+                        <TableCell sx={{ backgroundColor: altIndex % 2 === 0 ? '#FFFFFF' : lightColor }}>{alt.product?.name}</TableCell>
                         <TableCell align="right" sx={{ backgroundColor: altIndex % 2 === 0 ? '#FFFFFF' : lightColor }}>
                           {alt.quantity?.toLocaleString()} {item.measurement_unit.symbol}
                         </TableCell>

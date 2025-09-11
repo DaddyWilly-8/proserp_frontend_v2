@@ -244,7 +244,7 @@ const onSubmit = (data: BOMPayload) => {
 };
 
   return (
-    <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
+    <>
       <DialogTitle sx={{ textAlign: 'center' }}>
         <Typography variant="h4" component="span">
           {bomId ? `Edit ${bomData?.bomNo ?? ''}` : 'New Bill of Material'}
@@ -424,7 +424,7 @@ const onSubmit = (data: BOMPayload) => {
           Submit
         </Button>
       </DialogActions>
-    </Dialog>
+    </>
   );
 };
 

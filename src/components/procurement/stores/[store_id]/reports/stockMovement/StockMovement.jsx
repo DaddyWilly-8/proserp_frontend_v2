@@ -315,7 +315,7 @@ function StockMovement({ toggleOpen, dormantStock = false, isFromDashboard }) {
                                 fileName={
                                     isFromDashboard
                                         ? watch('store')?.name
-                                        : `${activeStore?.name} Stock Movement ${readableDate(watch('from'))}-${readableDate(watch('to'))}`
+                                        : `${activeStore?.name} ${dormantStock ? 'Dormant Stock' : 'Stock Movement'} ${readableDate(watch('from'))}-${readableDate(watch('to'))}`
                                 }
                             />
                         }
