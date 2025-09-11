@@ -34,11 +34,18 @@ posServices.addSale = async(sale) => {
      })
 }
 
+posServices.invoiceAdjustment = async(invoiceAdjustment) => {
+    return await axios.get('/sanctum/csrf-cookie').then(async (response) => {
+         const {data} = await axios.post(`/accounts/adjustment-notes`,invoiceAdjustment);
+         return data;
+    })
+}
+
 posServices.postSaleToVFD = async(saleData) => {
     return await axios.get('/sanctum/csrf-cookie').then(async (response) => {
          const {data} = await axios.post(`/api/pos/counter/postSaleToVFD`,saleData);
          return data;
-     })
+    })
 }
 
 posServices.updateSale = async(sale) => {

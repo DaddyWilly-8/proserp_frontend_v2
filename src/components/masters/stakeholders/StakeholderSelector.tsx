@@ -5,7 +5,7 @@ import { CheckBox, CheckBoxOutlineBlank } from '@mui/icons-material';
 import { Stakeholder, Stakeholders } from './StakeholderType';
 
 interface StakeholderSelectorProps {
-  onChange: (value: Stakeholder | Stakeholder[] | null) => void;
+  onChange?: (value: Stakeholder | Stakeholder[] | null) => void;
   frontError?: { message: string } | null;
   multiple?: boolean;
   label?: string;
@@ -13,6 +13,7 @@ interface StakeholderSelectorProps {
   addedStakeholder?: Stakeholder | null;
   startAdornment?: React.ReactNode;
   readOnly?: boolean;
+  disabled: boolean;
   defaultValue?: number | null;
 }
 
@@ -21,6 +22,7 @@ function StakeholderSelector(props: StakeholderSelectorProps) {
     onChange,
     frontError = null,
     multiple = false,
+    disabled = false,
     label = 'Stakeholder',
     initialOptions = [],
     addedStakeholder = null,
@@ -52,7 +54,7 @@ function StakeholderSelector(props: StakeholderSelectorProps) {
   );
 
   const handleOnChange = (event: React.SyntheticEvent, newValue: Stakeholder | Stakeholder[] | null) => {
-    onChange(newValue);
+    onChange?.(newValue);
     setStakeholderValue(newValue);
   };
 
@@ -61,6 +63,7 @@ function StakeholderSelector(props: StakeholderSelectorProps) {
       multiple={multiple}
       options={options}
       readOnly={readOnly}
+      disabled={disabled}
       disableCloseOnSelect={multiple}
       getOptionLabel={(stakeholder) =>
         `${stakeholder.name}${stakeholder?.phone ? ' (' + stakeholder.phone + ')' : ''}`

@@ -20,6 +20,7 @@ import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 import { Theme } from '@mui/material/styles';
 import { Organization } from '@/types/auth-types';
 import { Invoice } from '../SaleInvoices';
+import SalesInvoiceAdjustment from './SalesInvoiceAdjustment';
 
 interface SaleInvoiceItemActionProps {
   selectedInvoice: Invoice | null;
@@ -27,6 +28,8 @@ interface SaleInvoiceItemActionProps {
   openInvoiceEditDialog: boolean;
   setOpenInvoiceEditDialog: (open: boolean) => void;
   openInvoiceDeleteDialog: boolean;
+  setOpenAdjustmentDialog: (open: boolean) => void;
+  openAdjustmentDialog: boolean;
   setOpenInvoiceDeleteDialog: (open: boolean) => void;
   openDocumentDialog: boolean;
   setOpenDocumentDialog: (open: boolean) => void;
@@ -52,6 +55,21 @@ const DocumentDialog = ({ invoice, organization }: { invoice: Invoice; organizat
   );
 };
 
+function InvoiceAdjustment({ invoice, toggleOpen }: { invoice: Invoice; toggleOpen: (open: boolean) => void }) {
+  const { data: invoiceData, isFetching } = useQuery({
+    queryKey: ['invoice', { id: invoice.id }],
+    queryFn: async () => posServices.invoiceDetails(invoice.id)
+  });
+
+  if (isFetching) {
+    return <LinearProgress />;
+  }
+
+  return (
+    <SalesInvoiceAdjustment toggleOpen={toggleOpen} invoiceData={invoiceData} />
+  );
+}
+
 const EditInvoice = ({ invoice, toggleOpen }: { invoice: Invoice; toggleOpen: (open: boolean) => void }) => {
   const { data: invoiceData, isFetching } = useQuery({
     queryKey: ['invoice', { id: invoice.id }],
@@ -68,6 +86,8 @@ const EditInvoice = ({ invoice, toggleOpen }: { invoice: Invoice; toggleOpen: (o
 };
 
 const SaleInvoiceItemAction: React.FC<SaleInvoiceItemActionProps> = ({
+  setOpenAdjustmentDialog,
+  openAdjustmentDialog,
   selectedInvoice,
   setSelectedInvoice,
   openInvoiceEditDialog,
@@ -135,18 +155,21 @@ const SaleInvoiceItemAction: React.FC<SaleInvoiceItemActionProps> = ({
 
       {/* PDF Dialog */}
       <Dialog
-        open={openDocumentDialog || openInvoiceEditDialog}
+        open={openDocumentDialog || openInvoiceEditDialog || openAdjustmentDialog}
         scroll={(belowLargeScreen || !openDocumentDialog) ? 'body' : 'paper'}
         fullWidth
         fullScreen={!!openInvoiceEditDialog && belowLargeScreen}
         maxWidth={openDocumentDialog ? 'md' : "lg"}
         onClose={() => setOpenDocumentDialog(false)}
       >
-        {openDocumentDialog && selectedInvoice ? (
+        {(openDocumentDialog && selectedInvoice) ?
           <DocumentDialog invoice={selectedInvoice} organization={organization as Organization}/>
-        ) : (
+          :
+          (openAdjustmentDialog && selectedInvoice) ? 
+          <InvoiceAdjustment invoice={selectedInvoice} toggleOpen={setOpenAdjustmentDialog}/> 
+          :
           selectedInvoice && <EditInvoice invoice={selectedInvoice} toggleOpen={setOpenInvoiceEditDialog}/>
-        )}
+        }
       </Dialog>
     </React.Fragment>
   );
