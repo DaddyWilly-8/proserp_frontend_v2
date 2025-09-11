@@ -35,7 +35,7 @@ const validationSchema = yup.object({
 // Default values for the alternative form
 const defaultValues: BOMAlternative = {
   product_id: 0,
-  product: {} as Product, // Will be set via form
+  product:null, 
   quantity: 0,
   measurement_unit_id: 0,
   measurement_unit: null,
@@ -77,7 +77,7 @@ const AlternativesRow: React.FC<AlternativesRowProps> = ({
     resolver: yupResolver(validationSchema) as any,
     defaultValues: {
       ...defaultValues,
-      product: productOptions.find((p: Product) => p.id === (alternative.product_id ?? alternative.product?.id)) ?? ({} as Product),
+      product: alternative.product ?? null,//&& productOptions.find((product:Product) =>product.id === (alternative.product_id ?? alternative.product?.id)),
       product_id: alternative.product_id ?? alternative.product?.id ?? 0,
       quantity: alternative.quantity ?? 0,
       measurement_unit_id:

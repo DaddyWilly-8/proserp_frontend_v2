@@ -191,6 +191,7 @@ const AlternativesForm: React.FC<AlternativesFormProps> = ({
 
     const newItem: BOMItem = {
       ...data,
+      product: data.product ?? null,// && productOptions.find((product:Product) =>product.id === (data.product_id ?? data.product?.id)),
       product_id: data.product.id,
       measurement_unit_id: data.measurement_unit_id ?? data.measurement_unit?.id ?? null,
       symbol: data.symbol ?? data.measurement_unit?.unit_symbol ?? '',
