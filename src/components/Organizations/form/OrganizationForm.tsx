@@ -87,6 +87,8 @@ interface FormValues {
 const OrganizationForm: React.FC<OrganizationFormProps> = ({ organization = null }) => {
     const dictionary = useDictionary();
     const lang = useLanguage();
+    const dictForm = dictionary.organizations.form;
+    const validation = dictForm.errors.validation;
 
     const { enqueueSnackbar } = useSnackbar();
     const { configAuth, authUser, checkPermission, checkOrganizationPermission } = useJumboAuth();
@@ -105,52 +107,52 @@ const OrganizationForm: React.FC<OrganizationFormProps> = ({ organization = null
         id: yup.string().optional(),
         name: yup
             .string()
-            .required(dictionary.organizations.form.errors.validation.name.required)
-            .min(3, dictionary.organizations.form.errors.validation.name.min)
-            .max(100, dictionary.organizations.form.errors.validation.name.max),
+            .required(validation.name.required)
+            .min(3, validation.name.min)
+            .max(100, validation.name.max),
         email: yup
             .string()
-            .email(dictionary.organizations.form.errors.validation.email.invalid)
+            .email(validation.email.invalid)
             .nullable(),
         phone: yup
             .string()
-            .required(dictionary.organizations.form.errors.validation.phone.required)
+            .required(validation.phone.required)
             .matches(
             /^\+?[0-9]{10,15}$/,
-            dictionary.organizations.form.errors.validation.phone.invalid
+            validation.phone.invalid
             ),
         tin: yup.string().nullable(),
         recording_start_date: yup
             .string()
-            .required(dictionary.organizations.form.errors.validation.recordingStart.required),
+            .required(validation.recordingStart.required),
         address: yup.string().nullable(),
         website: yup
             .string()
             .matches(
             /^$|((https?):\/\/)?(www\.)?[a-z0-9]+(\.[a-z]{2,}){1,3}(#?\/?[a-zA-Z0-9#]+)*\/?(\?[a-zA-Z0-9-_]+=[a-zA-Z0-9-%]+&?)?$/,
-            dictionary.organizations.form.errors.validation.website.invalid
+            validation.website.invalid
             )
             .nullable(),
         country_code: yup
             .string()
-            .required(dictionary.organizations.form.errors.validation.country.required),
+            .required(validation.country.required),
         currency_code: yup
             .string()
-            .required(dictionary.organizations.form.errors.validation.currency.required),
+            .required(validation.currency.required),
         vat_registered: yup.boolean(),
         vrn: yup.string().when('vat_registered', {
             is: true,
             then: (schema) =>
-            schema.required(dictionary.organizations.form.errors.validation.vrn.required),
+            schema.required(validation.vrn.required),
             otherwise: (schema) => schema.nullable(),
         }),
         vat_percentage: yup.number().when('vat_registered', {
             is: true,
             then: (schema) =>
             schema
-                .positive(dictionary.organizations.form.errors.validation.vatPercentage.min)
-                .max(100, dictionary.organizations.form.errors.validation.vatPercentage.max)
-                .required(dictionary.organizations.form.errors.validation.vatPercentage.required),
+                .positive(validation.vatPercentage.min)
+                .max(100, validation.vatPercentage.max)
+                .required(validation.vatPercentage.required),
             otherwise: (schema) => schema.positive().optional(),
         }),
         symbol_path: yup.string().nullable(),
@@ -158,33 +160,33 @@ const OrganizationForm: React.FC<OrganizationFormProps> = ({ organization = null
             .string()
             .matches(
                 /^#([0-9A-Fa-f]{3}){1,2}$/i,
-                dictionary.organizations.form.errors.validation.colors.invalid
+                validation.colors.invalid
             )
             .default(theme.palette.primary.main),
         light_color: yup
             .string()
             .matches(
                 /^#([0-9A-Fa-f]{3}){1,2}$/i,
-                dictionary.organizations.form.errors.validation.colors.invalid
+                validation.colors.invalid
             )
             .default('#bec5da'),
         dark_color: yup
             .string()
             .matches(
                 /^#([0-9A-Fa-f]{3}){1,2}$/i,
-                dictionary.organizations.form.errors.validation.colors.invalid
+                validation.colors.invalid
             )
             .default(theme.palette.primary.dark),
         contrast_text: yup
             .string()
             .matches(
                 /^#([0-9A-Fa-f]{3}){1,2}$/i,
-                dictionary.organizations.form.errors.validation.colors.invalid
+                validation.colors.invalid
             )
             .default(theme.palette.primary.contrastText),
         tagline: yup
             .string()
-            .max(50, dictionary.organizations.form.errors.validation.tagline.max)
+            .max(50, validation.tagline.max)
             .nullable(),
     });
 
@@ -244,7 +246,7 @@ const OrganizationForm: React.FC<OrganizationFormProps> = ({ organization = null
         }
         router.push(`/${lang}/organizations/profile/${data.newOrganization.organization.id}`);
         enqueueSnackbar(
-            dictionary.organizations.form.messages.createSuccess,
+            dictForm.messages.createSuccess,
             { variant: 'success' }
         );
         },
@@ -269,7 +271,7 @@ const OrganizationForm: React.FC<OrganizationFormProps> = ({ organization = null
         onSuccess: (data) => {
             queryClient.invalidateQueries({ queryKey: ['organizationDetails'] });
             enqueueSnackbar(
-                dictionary.organizations.form.messages.updateSuccess,
+                dictForm.messages.updateSuccess,
                 { variant: 'success' }
             );
             router.push(`/${lang}/organizations`);
@@ -325,13 +327,13 @@ const OrganizationForm: React.FC<OrganizationFormProps> = ({ organization = null
   return (
     <React.Fragment>
       {(addOrganization.isPending || updateOrganization.isPending) && (
-        <BackdropSpinner message={dictionary.organizations.form.messages.loading} />
+        <BackdropSpinner message={dictForm.messages.loading} />
       )}
       <JumboCardQuick
         title={
           <Typography variant={'h4'}>
             <CorporateFareOutlined />{' '}
-            {dictionary.organizations.form.labels.basicInfo}
+            {dictForm.labels.basicInfo}
           </Typography>
         }
         action={
@@ -340,7 +342,7 @@ const OrganizationForm: React.FC<OrganizationFormProps> = ({ organization = null
               <Link href={`/${lang}/organizations/profile/${organization.id}`} passHref>
                 <IconButton>
                   <Tooltip
-                    title={dictionary.organizations.form.buttons.viewProfile}
+                    title={dictForm.buttons.viewProfile}
                     disableInteractive
                   >
                     <InfoRounded />
@@ -351,7 +353,7 @@ const OrganizationForm: React.FC<OrganizationFormProps> = ({ organization = null
             <Link href={`/${lang}/organizations`} passHref>
               <IconButton>
                 <Tooltip
-                  title={dictionary.organizations.form.buttons.viewList}
+                  title={dictForm.buttons.viewList}
                   disableInteractive
                 >
                   <ListOutlined />
@@ -366,8 +368,8 @@ const OrganizationForm: React.FC<OrganizationFormProps> = ({ organization = null
             <Grid size={{ xs: 12, md: 4 }}>
               <TextField
                 fullWidth
-                label={dictionary.organizations.form.labels.name}
-                placeholder={dictionary.organizations.form.placeholders.name}
+                label={dictForm.labels.name}
+                placeholder={dictForm.placeholders.name}
                 size="small"
                 autoComplete="off"
                 error={!!errors?.name}
@@ -378,8 +380,8 @@ const OrganizationForm: React.FC<OrganizationFormProps> = ({ organization = null
             <Grid size={{ xs: 12, md: 4 }}>
               <TextField
                 fullWidth
-                label={dictionary.organizations.form.labels.email}
-                placeholder={dictionary.organizations.form.placeholders.email}
+                label={dictForm.labels.email}
+                placeholder={dictForm.placeholders.email}
                 size="small"
                 autoComplete="off"
                 error={!!errors?.email}
@@ -390,8 +392,8 @@ const OrganizationForm: React.FC<OrganizationFormProps> = ({ organization = null
             <Grid size={{ xs: 12, md: 4 }}>
               <TextField
                 fullWidth
-                label={dictionary.organizations.form.labels.phone}
-                placeholder={dictionary.organizations.form.placeholders.phone}
+                label={dictForm.labels.phone}
+                placeholder={dictForm.placeholders.phone}
                 size="small"
                 autoComplete="off"
                 error={!!errors?.phone}
@@ -402,8 +404,8 @@ const OrganizationForm: React.FC<OrganizationFormProps> = ({ organization = null
             <Grid size={{ xs: 12, md: 4 }}>
               <TextField
                 fullWidth
-                label={dictionary.organizations.form.labels.website}
-                placeholder={dictionary.organizations.form.placeholders.website}
+                label={dictForm.labels.website}
+                placeholder={dictForm.placeholders.website}
                 size="small"
                 error={!!errors?.website}
                 helperText={errors?.website?.message}
@@ -412,7 +414,7 @@ const OrganizationForm: React.FC<OrganizationFormProps> = ({ organization = null
             </Grid>
             <Grid size={{ xs: 12, md: 4, lg: 4 }}>
               <DatePicker
-                label={dictionary.organizations.form.labels.recordingStart}
+                label={dictForm.labels.recordingStart}
                 defaultValue={
                   organization ? dayjs(organization.recording_start_date) : null
                 }
@@ -423,7 +425,7 @@ const OrganizationForm: React.FC<OrganizationFormProps> = ({ organization = null
                     error: !!errors?.recording_start_date,
                     helperText:
                       errors?.recording_start_date?.message ||
-                      dictionary.organizations.form.helpText.recordingStart,
+                      dictForm.helpText.recordingStart,
                   },
                 }}
                 onChange={(newValue) => {
@@ -441,13 +443,13 @@ const OrganizationForm: React.FC<OrganizationFormProps> = ({ organization = null
             <Grid size={{ xs: 12, md: 4, lg: 4 }}>
               <TextField
                 fullWidth
-                label={dictionary.organizations.form.labels.tin}
-                placeholder={dictionary.organizations.form.placeholders.tin}
+                label={dictForm.labels.tin}
+                placeholder={dictForm.placeholders.tin}
                 size="small"
                 autoComplete="off"
                 error={!!errors?.tin}
                 helperText={
-                  errors?.tin?.message || dictionary.organizations.form.helpText.tin
+                  errors?.tin?.message || dictForm.helpText.tin
                 }
                 {...register('tin')}
               />
@@ -462,7 +464,7 @@ const OrganizationForm: React.FC<OrganizationFormProps> = ({ organization = null
                 renderInput={(params) => (
                   <TextField
                     {...params}
-                    label={dictionary.organizations.form.labels.country}
+                    label={dictForm.labels.country}
                     size="small"
                     autoComplete="off"
                     fullWidth
@@ -498,7 +500,7 @@ const OrganizationForm: React.FC<OrganizationFormProps> = ({ organization = null
                 renderInput={(params) => (
                   <TextField
                     {...params}
-                    label={dictionary.organizations.form.labels.currency}
+                    label={dictForm.labels.currency}
                     size="small"
                     autoComplete="off"
                     fullWidth
@@ -518,8 +520,8 @@ const OrganizationForm: React.FC<OrganizationFormProps> = ({ organization = null
             <Grid size={{ xs: 12, lg: 4 }}>
               <TextField
                 fullWidth
-                label={dictionary.organizations.form.labels.address}
-                placeholder={dictionary.organizations.form.placeholders.address}
+                label={dictForm.labels.address}
+                placeholder={dictForm.placeholders.address}
                 size="small"
                 multiline={true}
                 minRows={2}
@@ -528,13 +530,13 @@ const OrganizationForm: React.FC<OrganizationFormProps> = ({ organization = null
             </Grid>
             <Grid size={{ xs: 12 }} sx={{ m: 1, mt: 3 }}>
               <Typography variant="body1">
-                {dictionary.organizations.form.labels.vatSection}
+                {dictForm.labels.vatSection}
               </Typography>
               <Divider />
             </Grid>
             <Grid size={{ xs: 12, md: 4, lg: 3 }}>
               <Typography variant="body1">
-                {dictionary.organizations.form.labels.vatRegistered}
+                {dictForm.labels.vatRegistered}
               </Typography>
               <Checkbox
                 checked={!!watch('vat_registered')}
@@ -551,12 +553,12 @@ const OrganizationForm: React.FC<OrganizationFormProps> = ({ organization = null
             <Grid size={{ xs: 12, md: 3 }}>
               <TextField
                 fullWidth
-                label={dictionary.organizations.form.labels.vrn}
-                placeholder={dictionary.organizations.form.placeholders.vrn}
+                label={dictForm.labels.vrn}
+                placeholder={dictForm.placeholders.vrn}
                 size="small"
                 error={!!errors?.vrn}
                 helperText={
-                  errors?.vrn?.message || dictionary.organizations.form.helpText.vrn
+                  errors?.vrn?.message || dictForm.helpText.vrn
                 }
                 {...register('vrn')}
               />
@@ -564,8 +566,8 @@ const OrganizationForm: React.FC<OrganizationFormProps> = ({ organization = null
             <Grid size={{ xs: 12, md: 2 }}>
               <TextField
                 fullWidth
-                label={dictionary.organizations.form.labels.vatPercentage}
-                placeholder={dictionary.organizations.form.placeholders.vatPercentage}
+                label={dictForm.labels.vatPercentage}
+                placeholder={dictForm.placeholders.vatPercentage}
                 size="small"
                 error={!!errors?.vat_percentage}
                 helperText={errors?.vat_percentage?.message}
@@ -577,7 +579,7 @@ const OrganizationForm: React.FC<OrganizationFormProps> = ({ organization = null
             </Grid>
             <Grid size={{ xs: 12 }} sx={{ m: 1, mt: 3 }}>
               <Typography variant="body1">
-                {dictionary.organizations.form.labels.brandingSection}
+                {dictForm.labels.brandingSection}
               </Typography>
               <Divider />
             </Grid>
@@ -585,7 +587,7 @@ const OrganizationForm: React.FC<OrganizationFormProps> = ({ organization = null
               <Input type="file" id="logo" error={!!errors?.logo} {...register('logo')} />
               {!errors?.logo ? (
                 <InputLabel sx={{ mb: 1 }} id="logo-label" htmlFor={'logo'}>
-                  {dictionary.organizations.form.labels.logo}
+                  {dictForm.labels.logo}
                 </InputLabel>
               ) : (
                 <FormHelperText error={!!errors?.logo}>
@@ -593,7 +595,7 @@ const OrganizationForm: React.FC<OrganizationFormProps> = ({ organization = null
                 </FormHelperText>
               )}
               <FormHelperText>
-                {dictionary.organizations.form.messages.imageGuide}
+                {dictForm.messages.imageGuide}
               </FormHelperText>
               {organization?.logo_path && (
                 <ListItem
@@ -627,7 +629,7 @@ const OrganizationForm: React.FC<OrganizationFormProps> = ({ organization = null
                   id="symbol-label"
                   htmlFor={'organization_symbol'}
                 >
-                  {dictionary.organizations.form.labels.symbol}
+                  {dictForm.labels.symbol}
                 </InputLabel>
               ) : (
                 <FormHelperText error={!!errors?.organization_symbol}>
@@ -635,7 +637,7 @@ const OrganizationForm: React.FC<OrganizationFormProps> = ({ organization = null
                 </FormHelperText>
               )}
               <FormHelperText>
-                {dictionary.organizations.form.messages.imageGuide}
+                {dictForm.messages.imageGuide}
               </FormHelperText>
               {organization?.settings?.symbol_path && (
                 <ListItem
@@ -659,7 +661,7 @@ const OrganizationForm: React.FC<OrganizationFormProps> = ({ organization = null
             <Grid size={{ xs: 12, md: 4 }}>
                 <Div sx={{ mt: 1, mb: 1 }}>
                     <InputLabel sx={{ mb: 1 }} id="main-color-label" htmlFor={'main_color'}>
-                      {dictionary.organizations.form.labels.mainColor}
+                      {dictForm.labels.mainColor}
                     </InputLabel>
                     <Input
                         fullWidth
@@ -679,12 +681,12 @@ const OrganizationForm: React.FC<OrganizationFormProps> = ({ organization = null
                         </FormHelperText>
                     )}
                     <FormHelperText>
-                         {dictionary.organizations.form.messages.colorGuide}
+                         {dictForm.messages.colorGuide}
                     </FormHelperText>
                 </Div>
                 <Div sx={{ mt: 1, mb: 1 }}>
                     <InputLabel sx={{ mb: 1 }} id="light-color-label" htmlFor={'light_color'}>
-                        {dictionary.organizations.form.labels.lightColor}
+                        {dictForm.labels.lightColor}
                     </InputLabel>
                     <Input
                         fullWidth
@@ -704,12 +706,12 @@ const OrganizationForm: React.FC<OrganizationFormProps> = ({ organization = null
                         </FormHelperText>
                     )}
                     <FormHelperText>
-                       {dictionary.organizations.form.messages.colorGuide}
+                       {dictForm.messages.colorGuide}
                     </FormHelperText>
                 </Div>
                 <Div sx={{ mt: 1, mb: 1 }}>
                     <InputLabel sx={{ mb: 1 }} id="dark-color-label" htmlFor={'dark_color'}>
-                        {dictionary.organizations.form.labels.darkColor}
+                        {dictForm.labels.darkColor}
                     </InputLabel>
                     <Input
                         fullWidth
@@ -729,12 +731,12 @@ const OrganizationForm: React.FC<OrganizationFormProps> = ({ organization = null
                         </FormHelperText>
                     )}
                     <FormHelperText>
-                        {dictionary.organizations.form.messages.colorGuide}
+                        {dictForm.messages.colorGuide}
                     </FormHelperText>
                 </Div>
                 <Div sx={{ mt: 1, mb: 1 }}>
                     <InputLabel sx={{ mb: 1 }} id="contrast-text-label" htmlFor={'contrast_text'}>
-                        {dictionary.organizations.form.labels.contrastText}
+                        {dictForm.labels.contrastText}
                     </InputLabel>
                     <Input
                         fullWidth
@@ -754,14 +756,14 @@ const OrganizationForm: React.FC<OrganizationFormProps> = ({ organization = null
                         </FormHelperText>
                     )}
                     <FormHelperText>
-                         {dictionary.organizations.form.messages.colorGuide}
+                         {dictForm.messages.colorGuide}
                     </FormHelperText>
                 </Div>
                 <Div sx={{ mt: 3, mb: 1 }}>
                     <TextField
                         fullWidth
-                        label={dictionary.organizations.form.labels.tagline}
-                        placeholder={dictionary.organizations.form.placeholders.tagline}
+                        label={dictForm.labels.tagline}
+                        placeholder={dictForm.placeholders.tagline}
                         size="small"
                         error={!!errors?.tagline}
                         helperText={errors?.tagline?.message}
@@ -778,7 +780,7 @@ const OrganizationForm: React.FC<OrganizationFormProps> = ({ organization = null
                   sx={{ mb: 3, display: 'flex' }}
                   loading={addOrganization.isPending || updateOrganization.isPending}
                 >
-                  {dictionary.organizations.form.buttons.submit}
+                  {dictForm.buttons.submit}
                 </LoadingButton>
               </Box>
             </Grid>

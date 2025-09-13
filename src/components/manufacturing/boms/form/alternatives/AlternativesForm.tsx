@@ -13,7 +13,7 @@ import {
 } from '@mui/material';
 import { AddOutlined } from '@mui/icons-material';
 import React, { useEffect, useMemo, useState } from 'react';
-import { useForm, Controller, Resolver } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import ProductSelect from '@/components/productAndServices/products/ProductSelect';
@@ -52,7 +52,7 @@ const resolveUnitDetails = (
   item: BOMItem,
   productOptions: Product[]
 ): Pick<BOMItem, 'product' | 'product_id' | 'measurement_unit_id' | 'measurement_unit' | 'symbol' | 'conversion_factor' | 'alternatives'> => {
-  const product = item.product ?? productOptions.find((product:Product) => product.id === (item.product_id ?? item.product?.id));
+  const product = item.product ?? productOptions.find((product: Product) => product.id === (item.product_id ?? item.product?.id));
   const measurementUnit =
     item.measurement_unit ??
     product?.primary_unit ??
@@ -98,14 +98,8 @@ const AlternativesForm: React.FC<AlternativesFormProps> = ({
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [warning, setWarning] = useState<string | null>(null);
 
-  // Initialize default values with productOptions
+  // Initialize default values with product options
   const defaultValues = useMemo(() => {
-    if (editingIndex !== null && alternatives[editingIndex]) {
-      return {
-        ...resolveUnitDetails(alternatives[editingIndex], productOptions),
-        quantity: alternatives[editingIndex].quantity ?? null,
-      };
-    }
     return {
       product: null,
       product_id: null,
@@ -116,7 +110,7 @@ const AlternativesForm: React.FC<AlternativesFormProps> = ({
       conversion_factor: 1,
       alternatives: [],
     };
-  }, [editingIndex, alternatives, productOptions]);
+  }, []);
 
   const {
     control,
@@ -184,14 +178,14 @@ const AlternativesForm: React.FC<AlternativesFormProps> = ({
       return;
     }
 
-    if (alternatives.some((alt, i) => i !== editingIndex && alt.product?.id === data.product!.id)) {
+    if (alternatives.some((alt) => alt.product?.id === data.product!.id)) {
       setWarning(`${data.product.name} is already an alternative product.`);
       return;
     }
 
     const newItem: BOMItem = {
       ...data,
-      product: data.product ?? null,// && productOptions.find((product:Product) =>product.id === (data.product_id ?? data.product?.id)),
+      product: data.product ?? null,
       product_id: data.product.id,
       measurement_unit_id: data.measurement_unit_id ?? data.measurement_unit?.id ?? null,
       symbol: data.symbol ?? data.measurement_unit?.unit_symbol ?? '',
@@ -200,12 +194,7 @@ const AlternativesForm: React.FC<AlternativesFormProps> = ({
     };
 
     const updatedAlternatives = [...alternatives];
-    if (editingIndex !== null) {
-      updatedAlternatives[editingIndex] = newItem;
-      setEditingIndex(null);
-    } else {
-      updatedAlternatives.push(newItem);
-    }
+    updatedAlternatives.push(newItem);
 
     setAlternatives(updatedAlternatives);
     setItems((prevItems) =>
@@ -219,7 +208,7 @@ const AlternativesForm: React.FC<AlternativesFormProps> = ({
   };
 
   // Handle updating an alternative
-  const handleUpdateAlternative = (updatedItem: BOMItem , altIndex: number) => {
+  const handleUpdateAlternative = (updatedItem: BOMItem, altIndex: number) => {
     if (!updatedItem.product) {
       setWarning('Please select a product.');
       return;
@@ -302,7 +291,8 @@ const AlternativesForm: React.FC<AlternativesFormProps> = ({
         </Alert>
       )}
 
-      {!isEditing && (
+      {/* Conditionally render the form based on editingIndex */}
+      {editingIndex === null ? (
         <form onSubmit={handleSubmit(handleFormSubmit)} autoComplete="off">
           <Grid container spacing={1} alignItems="flex-end" sx={{ mb: 1 }}>
             <Grid size={{ xs: 12, md: 8 }}>
@@ -424,20 +414,21 @@ const AlternativesForm: React.FC<AlternativesFormProps> = ({
               />
             </Grid>
             <Grid size={12} container justifyContent="flex-end">
-              <Button
-                variant="contained"
-                size="small"
-                type="submit"
-                startIcon={<AddOutlined />}
-                sx={{ mt: 1 }}
-                aria-label="Add alternative product"
-              >
-                Add
-              </Button>
+              <Box sx={{ display: 'flex', gap: 1, mt: 1 }}>
+                <Button
+                  variant="contained"
+                  size="small"
+                  type="submit"
+                  startIcon={<AddOutlined />}
+                  aria-label="Add alternative product"
+                >
+                  Add
+                </Button>
+              </Box>
             </Grid>
           </Grid>
         </form>
-      )}
+      ) : null}
 
       {openProductQuickAdd && (
         <ProductQuickAdd setOpen={setOpenProductQuickAdd} setAddedProduct={setAddedProduct} />
