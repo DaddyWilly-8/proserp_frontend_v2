@@ -15,7 +15,7 @@ import dayjs, { Dayjs } from 'dayjs';
 import { useSnackbar } from 'notistack';
 import React, { useEffect, useState } from 'react';
 import * as yup from 'yup';
-import posServices from '../../../pos-services';
+import posServices from '../../../../pos-services';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useForm } from 'react-hook-form';
 import { LoadingButton } from '@mui/lab';
@@ -146,6 +146,7 @@ function SalesInvoiceAdjustment({ invoiceData, toggleOpen }: SalesInvoiceAdjustm
   const validationSchema = yup.object({
     transaction_date: yup.string().required('Invoice Date is required').typeError('Invoice Date is required'),
     note_type: yup.string().required('Note Type is required').typeError('Note Type is required'),
+    narration: yup.string().required('Narration is required').typeError('Narration is required'),
     items: yup.array().of(
       yup.object({
         complement_ledger_id: yup.number().required('Complement Ledger is required').min(1, 'Select a valid Complement Ledger'),
@@ -171,7 +172,6 @@ function SalesInvoiceAdjustment({ invoiceData, toggleOpen }: SalesInvoiceAdjustm
   const { setValue, register, handleSubmit, watch, formState: { errors } } = useForm<FormData>({
     resolver: yupResolver(validationSchema) as any,
     defaultValues: {
-      narration: invoiceData?.narration || '',
       transaction_date: transaction_date.toISOString(),
       note_type: invoiceData?.note_type || '',
       currency_id: invoiceData?.currency?.id || 1,
@@ -330,6 +330,8 @@ function SalesInvoiceAdjustment({ invoiceData, toggleOpen }: SalesInvoiceAdjustm
                       fullWidth
                       multiline={true}
                       minRows={2}
+                      error={!!errors.narration}
+                      helperText={errors.narration?.message}
                       {...register('narration')}
                     />
                   </Div>

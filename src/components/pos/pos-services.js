@@ -36,7 +36,7 @@ posServices.addSale = async(sale) => {
 
 posServices.invoiceAdjustment = async(invoiceAdjustment) => {
     return await axios.get('/sanctum/csrf-cookie').then(async (response) => {
-         const {data} = await axios.post(`/accounts/adjustment-notes`,invoiceAdjustment);
+         const {data} = await axios.post(`/api/pos/counter/invoiceAdjustment`,invoiceAdjustment);
          return data;
     })
 }
@@ -186,6 +186,13 @@ posServices.deleteInvoice = async (id) => {
 posServices.deleteReceipt = async (id) => {
     return await axios.get('/sanctum/csrf-cookie').then(async (response) => {
         const {data} = await axios.delete(`/api/pos/counter/${id}/deleteReceipt`);
+        return data;
+    })
+};
+
+posServices.deleteSaleInvoiceAdjustment = async ({ id, type }) => {
+    return await axios.get('/sanctum/csrf-cookie').then(async (response) => {
+        const {data} = await axios.delete(`/api/accountsAndFinance/transactions/${type}/${id}/deleteSaleInvoiceAdjustment`);
         return data;
     })
 };

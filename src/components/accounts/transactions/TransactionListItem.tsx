@@ -7,6 +7,7 @@ import JumboChipsGroup from '@jumbo/components/JumboChipsGroup/JumboChipsGroup'
 import JournalItemAction from './journals/JournalItemAction'
 import { readableDate } from '@/app/helpers/input-sanitization-helpers'
 import { Transaction, TransactionTypes } from './TransactionTypes'
+import SaleInvoiceAdjustmentItemAction from '@/components/pos/counter/salesListItem/invoice/saleAdjustment/SaleInvoiceAdjustmentItemAction'
 
 function TransactionListItem({ transaction, type }: { transaction: Transaction, type: TransactionTypes }) {
 
@@ -19,6 +20,8 @@ function TransactionListItem({ transaction, type }: { transaction: Transaction, 
             return <TransferItemAction transaction={transaction} />
         } else if (type === 'journal_vouchers') {
             return <JournalItemAction transaction={transaction} />
+        } else if (type === 'debit' || type === 'credit') {
+            return <SaleInvoiceAdjustmentItemAction transaction={transaction} type={type}/>
         }
     }
 

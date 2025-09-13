@@ -49,101 +49,144 @@ const TransactionsList: React.FC = () => {
     const [selectedCostCenter, setSelectedCostCenter] = useState<CostCenter[]>([]);
     const [filterDate, setFilterDate] = useState<FilterDate>({});
 
-    const availableTypes = useMemo(() => {
-        const typeOptions = [
+    const availableTypes = React.useMemo(() => {
+      const typeOptions = [
         { 
-            value: 'payments' as TransactionTypes, 
-            label: 'Payments', 
-            permission: [
+          value: 'payments',
+          label: 'Payments', 
+          permission: [
             PERMISSIONS.ACCOUNTS_TRANSACTIONS_READ,
+            PERMISSIONS.ACCOUNTS_TRANSACTIONS_CREATE,
+            PERMISSIONS.ACCOUNTS_TRANSACTIONS_DELETE,
+            PERMISSIONS.ACCOUNTS_TRANSACTIONS_EDIT,
             PERMISSIONS.PAYMENTS_READ,
-            ] 
+            PERMISSIONS.PAYMENTS_CREATE,
+            PERMISSIONS.PAYMENTS_EDIT,
+            PERMISSIONS.PAYMENTS_DELETE,
+          ] 
         },
         {
-            value: 'receipts' as TransactionTypes, 
-            label: 'Receipts', 
-            permission: [
+          value: 'receipts',
+          label: 'Receipts', 
+          permission: [
             PERMISSIONS.ACCOUNTS_TRANSACTIONS_READ,
+            PERMISSIONS.ACCOUNTS_TRANSACTIONS_CREATE,
+            PERMISSIONS.ACCOUNTS_TRANSACTIONS_DELETE,
+            PERMISSIONS.ACCOUNTS_TRANSACTIONS_EDIT,
             PERMISSIONS.RECEIPTS_READ,
-            ] 
+            PERMISSIONS.RECEIPTS_EDIT,
+            PERMISSIONS.RECEIPTS_CREATE,
+            PERMISSIONS.RECEIPTS_DELETE,
+          ] 
         },
         { 
-            value: 'journal_vouchers' as TransactionTypes, 
-            label: 'Journal Vouchers', 
-            permission: [
+          value: 'journal_vouchers', label: 'Journal Vouchers', 
+          permission: [
             PERMISSIONS.ACCOUNTS_TRANSACTIONS_READ,
+            PERMISSIONS.ACCOUNTS_TRANSACTIONS_CREATE,
+            PERMISSIONS.ACCOUNTS_TRANSACTIONS_DELETE,
+            PERMISSIONS.ACCOUNTS_TRANSACTIONS_EDIT,
             PERMISSIONS.JOURNAL_VOUCHERS_READ,
-            ] 
+            PERMISSIONS.JOURNAL_VOUCHERS_CREATE,
+            PERMISSIONS.JOURNAL_VOUCHERS_DELETE,
+            PERMISSIONS.JOURNAL_VOUCHERS_EDIT
+          ] 
         },
         { 
-            value: 'transfers' as TransactionTypes, 
-            label: 'Transfers', 
-            permission: [
+          value: 'transfers',
+          label: 'Transfers', 
+          permission: [
             PERMISSIONS.ACCOUNTS_TRANSACTIONS_READ,
+            PERMISSIONS.ACCOUNTS_TRANSACTIONS_CREATE,
+            PERMISSIONS.ACCOUNTS_TRANSACTIONS_DELETE,
+            PERMISSIONS.ACCOUNTS_TRANSACTIONS_EDIT,
             PERMISSIONS.FUND_TRANSFERS_READ,
-            ] 
+            PERMISSIONS.FUND_TRANSFERS_CREATE,
+            PERMISSIONS.FUND_TRANSFERS_DELETE,
+            PERMISSIONS.FUND_TRANSFERS_EDIT
+          ] 
         },
-        ];
-        return typeOptions.filter(opt => checkOrganizationPermission(opt?.permission));
+        { 
+          value: 'debit', 
+          label: 'Debit Notes', 
+          permission: [
+            PERMISSIONS.ACCOUNTS_TRANSACTIONS_READ,
+            PERMISSIONS.ACCOUNTS_TRANSACTIONS_CREATE,
+            PERMISSIONS.ACCOUNTS_TRANSACTIONS_DELETE,
+            PERMISSIONS.ACCOUNTS_TRANSACTIONS_EDIT,
+          ] 
+        },
+        { 
+          value: 'credit', 
+          label: 'Credit Notes', 
+          permission: [
+            PERMISSIONS.ACCOUNTS_TRANSACTIONS_READ,
+            PERMISSIONS.ACCOUNTS_TRANSACTIONS_CREATE,
+            PERMISSIONS.ACCOUNTS_TRANSACTIONS_DELETE,
+            PERMISSIONS.ACCOUNTS_TRANSACTIONS_EDIT,
+          ] 
+        },
+      ];
+      return typeOptions.filter(opt => checkOrganizationPermission(opt?.permission));
     }, [checkOrganizationPermission]);
 
     const defaultType = availableTypes[0]?.value ?? 'payments';
 
     const [queryOptions, setQueryOptions] = useState<QueryOptions>({
-        queryKey: "transactions",
-        queryParams: {
-            id: params.id,
-            keyword: '',
-            type: defaultType,
-            cost_center_ids: authOrganization?.costCenters?.map((cost_center: CostCenter) => cost_center.id)
-        },
-        countKey: "total",
-        dataKey: "data",
+      queryKey: "transactions",
+      queryParams: {
+        id: params.id,
+        keyword: '',
+        type: defaultType,
+        cost_center_ids: authOrganization?.costCenters?.map((cost_center: CostCenter) => cost_center.id)
+      },
+      countKey: "total",
+      dataKey: "data",
     });
 
     useEffect(() => {
-        setQueryOptions(prev => ({
-        ...prev,
-        queryParams: {
-            ...prev.queryParams,
-            id: params.id
-        }
-        }));
+      setQueryOptions(prev => ({
+      ...prev,
+      queryParams: {
+        ...prev.queryParams,
+        id: params.id
+      }
+      }));
     }, [params.id]);
 
     useEffect(() => {
-        setQueryOptions(prev => ({
-        ...prev,
-        queryParams: {
-            ...prev.queryParams,
-            cost_center_ids: selectedCostCenter.map(c => c.id)
-        }
-        }));
+      setQueryOptions(prev => ({
+      ...prev,
+      queryParams: {
+        ...prev.queryParams,
+        cost_center_ids: selectedCostCenter.map(c => c.id)
+      }
+      }));
     }, [selectedCostCenter]);
 
     useEffect(() => {
-        if (refreshTransactionsList) {
-            listRef.current?.refresh();
-            setTransactionsListRefresh(false);
-        }
+      if (refreshTransactionsList) {
+        listRef.current?.refresh();
+        setTransactionsListRefresh(false);
+      }
     }, [refreshTransactionsList, setTransactionsListRefresh]);
 
     const renderTransaction = useCallback((transaction: Transaction) => (
-        <TransactionListItem 
-            transaction={transaction} 
-            type={queryOptions.queryParams.type} 
-        />
+      <TransactionListItem 
+        transaction={transaction} 
+        type={queryOptions.queryParams.type} 
+      />
     ), [queryOptions.queryParams.type]);
 
     const handleOnTypeChange = useCallback((type: TransactionTypes) => {
-        setQueryOptions(prev => ({
-        ...prev,
-        queryParams: {
-            ...prev.queryParams,
-            type
-        }
-        }));
-        document.title = type.charAt(0).toUpperCase() + type.slice(1).replace(/_/g, " ");
+      setQueryOptions(prev => ({
+      ...prev,
+      queryParams: {
+        ...prev.queryParams,
+        type
+      }
+      }));
+      document.title = type.charAt(0).toUpperCase() + type.slice(1).replace(/_/g, " ");
     }, []);
 
     const handleOnKeywordChange = useCallback((keyword: string) => {
@@ -186,7 +229,6 @@ const TransactionsList: React.FC = () => {
         }
         }));
     }, []);
-
 
     useEffect(() => {
         setMounted(true);
@@ -296,16 +338,18 @@ const TransactionsList: React.FC = () => {
                   </Tooltip>
                 </Grid>
                 
-                <Grid size={{xs: 10, lg: 5}}>
+                <Grid size={{xs: 10, lg: (queryOptions.queryParams.type !== 'credit' && queryOptions.queryParams.type !== 'debit') ? 5 : 5.5}}>
                   <JumboSearch
                     onChange={handleOnKeywordChange}
                     value={queryOptions.queryParams.keyword}
                   />
                 </Grid>
                 
-                <Grid size={{xs: 1, lg: 0.5}}>
-                  <TransactionsActionTail type={queryOptions.queryParams.type} /> 
-                </Grid>
+                {(queryOptions.queryParams.type !== 'credit' && queryOptions.queryParams.type !== 'debit') &&
+                  <Grid size={{xs: 1, lg: 0.5}}>
+                    <TransactionsActionTail type={queryOptions.queryParams.type} /> 
+                  </Grid>
+                }
               </Grid>
             }
           />
