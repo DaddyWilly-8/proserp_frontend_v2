@@ -60,6 +60,13 @@ posServices.updateSale = async(sale) => {
     })
 }
 
+posServices.updateInvoiceAdjustment = async(adjustmnet) => {
+    return await axios.get('/sanctum/csrf-cookie').then(async (response) => {
+        const {data} = await axios.put(`/api/accountsAndFinance/transactions/${adjustmnet.note_type}/${adjustmnet.id}/updateInvoiceAdjustment`,adjustmnet)
+        return data;
+    })
+}
+
 posServices.getSaleComplements = async (sale) => {
     const {data} = await axios.get(`/api/pos/counter/${sale.id}/getSaleComplements`);
     return data;
