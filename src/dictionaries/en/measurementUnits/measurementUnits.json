@@ -40,17 +40,12 @@
 
   "list": {
     "labels": {
+      "listHeader": "Measurement Units",
       "name": "Name",
       "symbol": "Symbol",
       "description": "Description",
-      "actions":"Actions"
-    },
-     "actionlabels": {
-          "edit": "Edit",
-          "delete": "Delete"
-        },
-    "tooltips": {
-      "addNew": "New Measurement Unit"
+      "actions":"Actions",
+      "newCreateLabel":"New Measurement Unit"
     },       
       "dialog": {
         "confirmDelete": {
