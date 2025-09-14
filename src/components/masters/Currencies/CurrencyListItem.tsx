@@ -7,9 +7,11 @@ import AddIcon from '@mui/icons-material/Add'
 import CurrencyItemAction from './CurrencyItemAction';
 import CurrenciesExchangeRate from './exchangeRates/CurrenciesExchangeRate';
 import { Currency } from './CurrencyType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function CurrencyListItem({currency}: {currency: Currency}) {
   const [expanded, setExpanded] = useState(false);
+  const dictionary = useDictionary();
 
   return (
     <Accordion
@@ -67,24 +69,24 @@ function CurrencyListItem({currency}: {currency: Currency}) {
           container
         >
           <Grid size={{xs: 12, md: 3}}>
-            <Tooltip title='Name'>
+            <Tooltip title={dictionary.currencies.list.labels.currencyName}>
               <Typography variant="h5" fontSize={14} lineHeight={1.25} mb={0} noWrap>
                 {currency.name_plural}
               </Typography>
             </Tooltip>
           </Grid>
           <Grid size={{xs: 6, md: 3}}>
-            <Tooltip title='Code'>
+          <Tooltip title={dictionary.currencies.list.labels.currencyCode}>
               <Typography>{currency.code}</Typography>
             </Tooltip>
           </Grid>
           <Grid size={{xs: 6, md: 3}}>
-            <Tooltip title='Symbol'>
+            <Tooltip title={dictionary.currencies.list.labels.symbol}>
               <Typography textAlign={{xs : 'end', md: 'start'}}>{currency.symbol}</Typography>
             </Tooltip>
           </Grid>
           <Grid size={{xs: 6, md: 2.5}}>
-            <Tooltip title='Symbol Native'>
+            <Tooltip title={dictionary.currencies.list.labels.symbolNative}>
               <Typography>{currency.symbol_native}</Typography>
             </Tooltip>
           </Grid>

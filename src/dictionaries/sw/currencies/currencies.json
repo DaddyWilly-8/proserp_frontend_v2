@@ -1,0 +1,65 @@
+{
+  "form": {
+    "title": "Ongeza Sarafu",
+    "buttons": {
+      "add": "Ongeza",
+      "cancel": "Ghairi"
+    },
+    "labels": {
+      "currencyName": "Jina la Sarafu",
+      "currencyCode": "Msimbo wa Sarafu",
+      "symbol": "Alama"
+    },
+    "placeholders": {
+      "currencyName": "mf. Dola ya Marekani",
+      "currencyCode": "mf. USD",
+      "symbol": "mf. $"
+    },
+    "messages": {
+      "loading": "Inachakata maelezo ya sarafu...",
+      "createSuccess": "Sarafu imesajiliwa kwa mafanikio!",
+      "updateSuccess": "Sarafu imesasishwa kwa mafanikio!",
+      "deleteSuccess": "Sarafu imehifadhiwa kwa mafanikio."
+    },
+    "errors": {
+      "validation": {
+        "currencyName": {
+          "required": "Jina la sarafu linahitajika"
+        },
+        "ExchangeRate": {
+          "required": "Kiwango cha ubadilishaji kinahitajika"
+        }
+      }
+    }
+  },
+  "list": {
+    "labels": {
+      "currencyName": "Jina la Sarafu",
+      "currencyCode": "Msimbo wa Sarafu",
+      "symbol": "Alama",
+      "actions": "Vitendo",
+      "symbolNative": "Alama ya asili"
+    },
+    "actionlabels": {
+      "edit": "Hariri",
+      "delete": "Futa"
+    },
+    "tooltips": {
+      "addNew": "Sarafu Mpya"
+    },
+    "dialog": {
+      "confirmDelete": {
+        "title": "Thibitisha Sarafu",
+        "content": "Je, una uhakika unataka kufuta sarafu hii?"
+      },
+      "buttons": {
+        "cancel": "Ghairi",
+        "confirm": "Thibitisha"
+      }
+    },
+    "messages": {
+      "success": "Mipangilio ya upakiaji wa moja kwa moja imesasishwa kwa mafanikio",
+      "error": "Hitilafu imetokea wakati wa kusasisha mipangilio ya upakiaji wa moja kwa moja"
+    }
+  }
+}

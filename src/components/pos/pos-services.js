@@ -27,6 +27,11 @@ posServices.salesManifest = async(params) => {
     return data;
 }
 
+posServices.invoiceAdjustmentDetails = async(id, type) => {
+    const {data} = await axios.get(`/api/accountsAndFinance/transactions/${type}/${id}/invoiceAdjustmentDetails`);
+    return data;
+}
+
 posServices.addSale = async(sale) => {
     return await axios.get('/sanctum/csrf-cookie').then(async (response) => {
          const {data} = await axios.post(`/api/pos/counter/add`,sale);

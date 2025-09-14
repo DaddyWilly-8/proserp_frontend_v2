@@ -9,6 +9,7 @@ import * as yup from 'yup';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Div } from '@jumbo/shared';
 import { MeasurementUnit } from './MeasurementUnitType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface MeasurementUnitFormProps {
   setOpenDialog: (open: boolean) => void;
@@ -28,6 +29,7 @@ interface ApiResponse {
 }
 
 const MeasurementUnitForm: React.FC<MeasurementUnitFormProps> = ({ setOpenDialog, measurementUnit = null }) => {
+  const dictionary = useDictionary();
   const queryClient = useQueryClient();
   const { enqueueSnackbar } = useSnackbar();
 
@@ -35,7 +37,7 @@ const MeasurementUnitForm: React.FC<MeasurementUnitFormProps> = ({ setOpenDialog
     mutationFn: measurementUnitServices.add,
     onSuccess: (data) => {
       setOpenDialog(false);
-      enqueueSnackbar(data.message, { variant: 'success' });
+      enqueueSnackbar(error.massage, { variant: 'success' });
       queryClient.invalidateQueries({ queryKey: ['measurementUnits'] });
     },
     onError: (error) => {
@@ -49,7 +51,7 @@ const MeasurementUnitForm: React.FC<MeasurementUnitFormProps> = ({ setOpenDialog
     mutationFn: measurementUnitServices.update,
     onSuccess: (data) => {
       setOpenDialog(false);
-      enqueueSnackbar(data.message, { variant: 'success' });
+      enqueueSnackbar(error.message, { variant: 'success' });
       queryClient.invalidateQueries({ queryKey: ['measurementUnits'] });
     },
     onError: (error) => {
@@ -64,8 +66,8 @@ const MeasurementUnitForm: React.FC<MeasurementUnitFormProps> = ({ setOpenDialog
   }, [measurementUnit, updateMeasurementUnit, addMeasurementUnit]);
 
   const validationSchema = yup.object({
-    name: yup.string().required('Unit Name is required'),
-    symbol: yup.string().required('Unit symbol is required').max(10, 'Symbol cannot exceed 10 characters'),
+    name: yup.string().required(),
+    symbol: yup.string().required().max(10, 'Symbol cannot be more than 10 characters'),
     description: yup.string().nullable(),
   });
 
@@ -101,10 +103,11 @@ const MeasurementUnitForm: React.FC<MeasurementUnitFormProps> = ({ setOpenDialog
             <Grid size={{xs: 12, md: 8}}>
               <Div sx={{ mt: 1, mb: 1 }}>
                 <TextField
-                  label='Unit Name'
+                  label={dictionary.measurementUnits.form.labels.name}
+                  placeholder={dictionary.measurementUnits.form.placeholders.name}
                   size='small'
                   fullWidth
-                  error={!!errors.name || !!error?.response?.data?.validation_errors?.name || !!updateError?.response?.data?.validation_errors?.name}
+                  error={!!errors?.name|| !!error?.response?.data?.validation_errors?.name || !!updateError?.response?.data?.validation_errors?.name}
                   helperText={errors.name?.message || error?.response?.data?.validation_errors?.name || updateError?.response?.data?.validation_errors?.name}
                   {...register('name')}
                 />
@@ -113,10 +116,11 @@ const MeasurementUnitForm: React.FC<MeasurementUnitFormProps> = ({ setOpenDialog
             <Grid size={{xs: 12, md: 4}}>
               <Div sx={{ mt: 1, mb: 1 }}>
                 <TextField
-                  label='Unit Symbol'
+                  label={dictionary.measurementUnits.form.labels.symbol}
+                  placeholder={dictionary.measurementUnits.form.placeholders.symbol}
                   size='small'
                   fullWidth
-                  error={!!errors.symbol || !!error?.response?.data?.validation_errors?.symbol || !!updateError?.response?.data?.validation_errors?.symbol}
+                  error={!!errors?.symbol || !!error?.response?.data?.validation_errors?.symbol || !!updateError?.response?.data?.validation_errors?.symbol}
                   helperText={errors.symbol?.message || error?.response?.data?.validation_errors?.symbol || updateError?.response?.data?.validation_errors?.symbol}
                   {...register('symbol')}
                 />
@@ -125,7 +129,8 @@ const MeasurementUnitForm: React.FC<MeasurementUnitFormProps> = ({ setOpenDialog
             <Grid size={12}>
               <Div sx={{ mt: 1, mb: 1 }}>
                 <TextField
-                  label='Description'
+                  label={dictionary.measurementUnits.form.labels.description}
+                  placeholder={dictionary.measurementUnits.form.placeholders.description}
                   size='small'
                   multiline
                   minRows={2}
@@ -137,7 +142,7 @@ const MeasurementUnitForm: React.FC<MeasurementUnitFormProps> = ({ setOpenDialog
           </Grid>
           <DialogActions>
             <Button size='small' onClick={() => setOpenDialog(false)}>
-              Cancel
+              {dictionary.measurementUnits.form.buttons.cancel }
             </Button>
             <LoadingButton  
               type="submit"
@@ -146,7 +151,7 @@ const MeasurementUnitForm: React.FC<MeasurementUnitFormProps> = ({ setOpenDialog
               sx={{ display: 'flex' }}
               loading={isPending || updateIsLoading}
             >
-              Submit
+             {dictionary.measurementUnits.form.buttons.submit }
             </LoadingButton>
           </DialogActions>
         </form>

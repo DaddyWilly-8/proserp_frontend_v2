@@ -10,12 +10,14 @@ import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { MenuItemProps } from '@jumbo/types';
 import { JumboDdMenu } from '@jumbo/components';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const MeasurementUnitItemAction = ({measurementUnit}:{measurementUnit: MeasurementUnit}) => {
   const [openEditDialog,setOpenEditDialog] = useState(false);
   const {showDialog,hideDialog} = useJumboDialog();
   const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
+  const dictionary = useDictionary();
 
   //Screen handling constants
   const {theme} = useJumboTheme();
@@ -25,7 +27,7 @@ const MeasurementUnitItemAction = ({measurementUnit}:{measurementUnit: Measureme
     mutationFn: measurementUnitServices.delete,
     onSuccess: (data: { message: string }) => {
       queryClient.invalidateQueries({ queryKey: ['measurementUnits'] });
-      enqueueSnackbar(data.message, {
+      enqueueSnackbar(dictionary.measurementUnits.form.messages.deleteSuccess, {
         variant: 'success',
       });
     },

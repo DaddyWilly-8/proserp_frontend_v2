@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import {
   Dialog,
+  LinearProgress,
   Tooltip,
   useMediaQuery,
 } from '@mui/material';
@@ -9,7 +10,7 @@ import {
   EditOutlined,
   MoreHorizOutlined,
 } from '@mui/icons-material';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useSnackbar } from 'notistack';
 import { useJumboDialog } from '@jumbo/components/JumboDialog/hooks/useJumboDialog';
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
@@ -26,6 +27,28 @@ interface SaleInvoiceAdjustmentItemActionProps {
   transaction: Transaction;
   type: TransactionTypes
 }
+
+interface EditAdjustmentProps {
+  transaction: Transaction;
+  toggleOpen: (open: boolean) => void;
+  type: TransactionTypes;
+}
+
+const EditAdjustment: React.FC<EditAdjustmentProps> = ({ transaction, toggleOpen, type }) => {
+  const {
+    data: invoiceData,
+    isFetching,
+  } = useQuery({
+    queryKey: ["adjustmentdetails", transaction.id, type],
+    queryFn: () => posServices.invoiceAdjustmentDetails(transaction.id, type),
+  });
+
+  if (isFetching) {
+    return <LinearProgress />;
+  }
+
+  return <SalesInvoiceAdjustment toggleOpen={toggleOpen} invoiceData={invoiceData} />;
+};
 
 const SaleInvoiceAdjustmentItemAction: React.FC<SaleInvoiceAdjustmentItemActionProps> = ({ transaction, type }) => {
     const { enqueueSnackbar } = useSnackbar();
@@ -50,11 +73,11 @@ const SaleInvoiceAdjustmentItemAction: React.FC<SaleInvoiceAdjustmentItemActionP
     });
 
     const menuItems: MenuItemProps[] = [
-        // checkPermission([PERMISSIONS.ACCOUNTS_TRANSACTIONS_EDIT]) && {
-        //     icon: <EditOutlined />,
-        //     title: 'Edit',
-        //     action: 'edit',
-        // },
+        checkPermission([PERMISSIONS.ACCOUNTS_TRANSACTIONS_EDIT]) && {
+            icon: <EditOutlined />,
+            title: 'Edit',
+            action: 'edit',
+        },
         checkPermission([PERMISSIONS.ACCOUNTS_TRANSACTIONS_DELETE]) && {
             icon: <DeleteOutlined color="error" />,
             title: 'Delete',
@@ -96,7 +119,7 @@ const SaleInvoiceAdjustmentItemAction: React.FC<SaleInvoiceAdjustmentItemActionP
       >
         {openEditDialog &&
           (checkPermission([PERMISSIONS.ACCOUNTS_TRANSACTIONS_EDIT]) ? (
-            <SalesInvoiceAdjustment invoiceData={transaction as any} toggleOpen={setOpenEditDialog}/>
+            <EditAdjustment transaction={transaction} type={type} toggleOpen={setOpenEditDialog}/>
           ) : (
             <UnauthorizedAccess />
           ))}

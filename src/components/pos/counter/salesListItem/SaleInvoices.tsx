@@ -111,10 +111,12 @@ const SaleInvoices: React.FC<SaleInvoicesProps> = ({
                 flexDirection={'row'}
                 justifyContent={'flex-end'}
               >
-                <Tooltip title={belowLargeScreen ? 
-                  `Download Invoice ${invoice.invoiceNo}` : 
-                  `View Invoice ${invoice.invoiceNo}`
-                }>
+                <Tooltip 
+                  title={belowLargeScreen ? 
+                    `Download Invoice ${invoice.invoiceNo}` : 
+                    `View Invoice ${invoice.invoiceNo}`
+                  }
+                >
                   <IconButton
                     onClick={() => {
                       setSelectedInvoice(invoice);
