@@ -44,15 +44,8 @@
       "name": "Jina",
       "symbol": "Alama",
       "description": "Maelezo",
-      "actions":"Vitendo"
-    },
-    
-    "actionlabels": {
-          "edit": "Badilisha",
-          "delete": "futa"
-        },
-     "tooltips": {
-      "addNew": "Kipimo kipya "
+      "actions":"Vitendo",
+      "newCreateLabel":"Kipimo kipya  "
     },
       "dialog": {
         "confirmDelete": {

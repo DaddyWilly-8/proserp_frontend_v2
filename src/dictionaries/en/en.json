@@ -14,7 +14,9 @@
       "masters": "Masters",
       "prosControl": "Pros Control",
       "organizations": "Organizations",
-      "manufacturing": "Manufacturing"
+      "manufacturing": "Manufacturing",
+      "measurement_units": "Measurement Units"
+      
     },
     "menuItem": {
       "masters": "Masters",
