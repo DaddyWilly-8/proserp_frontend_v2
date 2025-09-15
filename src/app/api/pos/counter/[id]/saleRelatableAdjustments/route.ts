@@ -8,7 +8,7 @@ export async function GET(request: NextRequest, context: any) {
   const { headers, response } = await getAuthHeaders(request);
   if (response) return response;
 
-  const res = await fetch(`${API_BASE}/relatable-adjustment-notes/sale/${params.id}`, {
+  const res = await fetch(`${API_BASE}/accounts/relatable-adjustment-notes/sale/${params.id}`, {
     headers,
     credentials: 'include',
   });
