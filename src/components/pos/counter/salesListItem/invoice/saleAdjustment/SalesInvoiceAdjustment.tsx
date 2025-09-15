@@ -92,7 +92,7 @@ interface FormData {
 interface SalesInvoiceAdjustmentProps {
   invoiceData: InvoiceData;
   toggleOpen: (open: boolean) => void;
-  isEdit: boolean
+  isEdit?: boolean
 }
 
 function SalesInvoiceAdjustment({ isEdit, invoiceData, toggleOpen }: SalesInvoiceAdjustmentProps) {
