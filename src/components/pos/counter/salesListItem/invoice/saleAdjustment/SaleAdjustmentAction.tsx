@@ -9,44 +9,42 @@ import {
   LinearProgress,
   useMediaQuery,
 } from '@mui/material';
-import { useSnackbar } from 'notistack';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useSnackbar } from 'notistack';
+import StakeholderSelectProvider from '@/components/masters/stakeholders/StakeholderSelectProvider';
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 import posServices from '@/components/pos/pos-services';
 import SalesInvoiceAdjustment from './SalesInvoiceAdjustment';
 
-// ---------- Types ----------
 interface Adjustment {
   id: number;
-  invoiceNo?: string;
-  voucherNo?: string;
-  transaction_date?: string;
-  internal_reference?: string;
-  customer_reference?: string;
-  narration?: string;
-  adjustmentNo?: string;
-  vfd_receipt?: string | null;
+  type: 'debit' | 'credit' | string;
 }
 
 interface EditSaleAdjustmentProps {
   adjustment: Adjustment;
   toggleOpen: (open: boolean) => void;
+  type: Adjustment['type'];
 }
 
 interface SaleAdjustmentActionProps {
   selectedAdjustment: Adjustment | null;
-  setSelectedAdjustment: React.Dispatch<React.SetStateAction<Adjustment | null>>;
+  setSelectedAdjustment: (adj: Adjustment | null) => void;
   openAdjustmentEditDialog: boolean;
-  setOpenAdjustmentEditDialog: React.Dispatch<React.SetStateAction<boolean>>;
+  setOpenAdjustmentEditDialog: (open: boolean) => void;
   openAdjustmentDeleteDialog: boolean;
-  setOpenAdjustmentDeleteDialog: React.Dispatch<React.SetStateAction<boolean>>;
+  setOpenAdjustmentDeleteDialog: (open: boolean) => void;
 }
 
-// ---------- Edit Component ----------
-function EditSaleAdjustment({ adjustment, toggleOpen }: EditSaleAdjustmentProps) {
-  const { data: invoiceData, isFetching } = useQuery({
-    queryKey: ['SaleAdjustments', { id: adjustment.id }],
-    queryFn: () => posServices.invoiceAdjustmentDetails(adjustment.id),
+// ---------- Components ----------
+function EditSaleAdjustment({
+  adjustment,
+  toggleOpen,
+  type,
+}: EditSaleAdjustmentProps) {
+  const { data: adjustmentData, isFetching } = useQuery({
+    queryKey: ['adjustmentdetails', { id: adjustment.id, type }],
+    queryFn: () => posServices.invoiceAdjustmentDetails(adjustment.id, type),
   });
 
   if (isFetching) {
@@ -54,11 +52,16 @@ function EditSaleAdjustment({ adjustment, toggleOpen }: EditSaleAdjustmentProps)
   }
 
   return (
-    <SalesInvoiceAdjustment toggleOpen={toggleOpen} invoiceData={invoiceData} />
+    <StakeholderSelectProvider>
+      <SalesInvoiceAdjustment
+        toggleOpen={toggleOpen}
+        invoiceData={adjustmentData}
+        isEdit
+      />
+    </StakeholderSelectProvider>
   );
 }
 
-// ---------- Action Component ----------
 function SaleAdjustmentAction({
   selectedAdjustment,
   setSelectedAdjustment,
@@ -74,28 +77,26 @@ function SaleAdjustmentAction({
   const { theme } = useJumboTheme();
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
 
-  const { mutate: deleteInvoice } = useMutation({
-    mutationFn: (id: number) => posServices.deleteInvoice(id),
-    onSuccess: (data) => {
+  const deleteSaleInvoiceAdjustment = useMutation({
+    mutationFn: posServices.deleteSaleInvoiceAdjustment,
+    onSuccess: (data: any) => {
       enqueueSnackbar(data.message, { variant: 'success' });
       queryClient.invalidateQueries({ queryKey: ['SaleAdjustments'] });
       queryClient.invalidateQueries({ queryKey: ['counterSales'] });
     },
     onError: (error: any) => {
-      enqueueSnackbar(error?.response?.data?.message ?? 'Failed to delete', {
-        variant: 'error',
-      });
+      enqueueSnackbar(error?.response?.data?.message, { variant: 'error' });
     },
   });
 
   return (
-    <React.Fragment>
+    <>
       {/* Delete Confirmation Dialog */}
       <Dialog open={openAdjustmentDeleteDialog}>
         <DialogTitle>Delete Confirmation</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Are you sure you want to Delete this Adjustment?
+            Are you sure you want to delete this Adjustment?
           </DialogContentText>
         </DialogContent>
         <DialogActions>
@@ -111,7 +112,10 @@ function SaleAdjustmentAction({
           <Button
             onClick={() => {
               if (selectedAdjustment) {
-                deleteInvoice(selectedAdjustment.id);
+                deleteSaleInvoiceAdjustment.mutate({
+                  id: selectedAdjustment.id,
+                  type: selectedAdjustment.type,
+                });
                 setSelectedAdjustment(null);
                 setOpenAdjustmentDeleteDialog(false);
               }
@@ -135,10 +139,11 @@ function SaleAdjustmentAction({
           <EditSaleAdjustment
             adjustment={selectedAdjustment}
             toggleOpen={setOpenAdjustmentEditDialog}
+            type={selectedAdjustment.type}
           />
         )}
       </Dialog>
-    </React.Fragment>
+    </>
   );
 }
 

@@ -14,6 +14,7 @@ import { readableDate } from '@/app/helpers/input-sanitization-helpers';
 import SaleAdjustmentAction from './invoice/saleAdjustment/SaleAdjustmentAction';
 import { useQuery } from '@tanstack/react-query';
 import { SalesOrder } from '../SalesOrderType';
+import { Currency } from '@/components/masters/Currencies/CurrencyType';
 
 interface SaleAdjustmentsProps {
   expanded: boolean;
@@ -23,13 +24,12 @@ interface SaleAdjustmentsProps {
 
 interface Adjustment {
   id: number;
-  invoiceNo: string;
+  adjustmentableNo: string;
   transaction_date: string;
-  internal_reference?: string;
-  customer_reference?: string;
+  type: 'debit' | 'credit';
   narration?: string;
-  vfd_receipt?: string | null;
-  adjustmentNo: string;
+  amount: number;
+  currency: Currency;
 }
 
 const SaleAdjustments: React.FC<SaleAdjustmentsProps> = ({ expanded, sale, activeTab }) => {
@@ -60,64 +60,72 @@ const SaleAdjustments: React.FC<SaleAdjustmentsProps> = ({ expanded, sale, activ
               '&:hover': {
                 bgcolor: 'action.hover',
               },
-              paddingX: 1,
+              px: 1,
             }}
             container
-            columnSpacing={2}
+            spacing={1}
             alignItems="center"
             mb={1}
           >
-            <Grid size={{ xs: 12, md: 4, lg: 4 }}>
-              <Tooltip title="Invoice No.">
-                <Typography fontWeight="bold">{adjustment?.invoiceNo}</Typography>
+            <Grid size={{ xs: 6, md: 3, lg: 3 }}>
+              <Tooltip title="Adjustment No.">
+                <Typography fontWeight="bold">
+                  {adjustment.adjustmentableNo}
+                </Typography>
               </Tooltip>
-              <Tooltip title="Invoice Date">
-                <Typography>{readableDate(adjustment?.transaction_date)}</Typography>
-              </Tooltip>
-            </Grid>
-
-            <Grid size={{ xs: 12, md: 4, lg: 2 }}>
-              <Tooltip title="Internal Reference">
-                <Typography>{adjustment?.internal_reference}</Typography>
-              </Tooltip>
-              <Tooltip title="Customer Reference">
-                <Typography variant="caption">{adjustment?.customer_reference}</Typography>
+              <Tooltip title="Transaction Date">
+                <Typography>{readableDate(adjustment.transaction_date)}</Typography>
               </Tooltip>
             </Grid>
 
-            <Grid size={{ xs: 12, md: 4, lg: 4 }} mt={0.5}>
+            <Grid size={{ xs: 6, md: 2, lg: 2 }}>
+              <Tooltip title="Type">
+                <Typography>
+                  {adjustment.type === 'debit' ? 'Debit Note' : 'Credit Note'}
+                </Typography>
+              </Tooltip>
+            </Grid>
+
+            <Grid size={{ xs: 6, md: 2, lg: 2 }}>
               <Tooltip title="Narration">
-                <Typography>{adjustment?.narration}</Typography>
+                <Typography>{adjustment.narration}</Typography>
               </Tooltip>
             </Grid>
 
-            <Grid size={{ xs: 12, md: 12, lg: 2 }}>
-              <Box display="flex" flexDirection="row" justifyContent="flex-end">
-                {adjustment.vfd_receipt === null && (
-                  <Tooltip title={`Edit ${adjustment.adjustmentNo}`}>
-                    <IconButton
-                      onClick={() => {
-                        setSelectedAdjustment(adjustment);
-                        setOpenAdjustmentEditDialog(true);
-                      }}
-                    >
-                      <EditOutlined fontSize="small" />
-                    </IconButton>
-                  </Tooltip>
-                )}
+            <Grid size={{ xs: 6, md: 3, lg: 3 }} textAlign="end">
+              <Tooltip title="Amount">
+                <Typography>
+                  {adjustment.amount.toLocaleString('en-US', {
+                    style: 'currency',
+                    currency: adjustment.currency.code,
+                  })}
+                </Typography>
+              </Tooltip>
+            </Grid>
 
-                {adjustment.vfd_receipt === null && (
-                  <Tooltip title={`Delete ${adjustment.adjustmentNo}`}>
-                    <IconButton
-                      onClick={() => {
-                        setSelectedAdjustment(adjustment);
-                        setOpenAdjustmentDeleteDialog(true);
-                      }}
-                    >
-                      <DeleteOutlined color="error" fontSize="small" />
-                    </IconButton>
-                  </Tooltip>
-                )}
+            <Grid size={{ xs: 12, md: 2, lg: 2 }}>
+              <Box display="flex" flexDirection="row" justifyContent="flex-end">
+                <Tooltip title={`Edit ${adjustment.adjustmentableNo}`}>
+                  <IconButton
+                    onClick={() => {
+                      setSelectedAdjustment(adjustment);
+                      setOpenAdjustmentEditDialog(true);
+                    }}
+                  >
+                    <EditOutlined fontSize="small" />
+                  </IconButton>
+                </Tooltip>
+
+                <Tooltip title={`Delete ${adjustment.adjustmentableNo}`}>
+                  <IconButton
+                    onClick={() => {
+                      setSelectedAdjustment(adjustment);
+                      setOpenAdjustmentDeleteDialog(true);
+                    }}
+                  >
+                    <DeleteOutlined color="error" fontSize="small" />
+                  </IconButton>
+                </Tooltip>
               </Box>
             </Grid>
           </Grid>
