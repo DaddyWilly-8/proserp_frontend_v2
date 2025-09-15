@@ -5,7 +5,10 @@
       "add": "Ongeza",
       "cancel": "Ghairi"
     },
+    "pageTitle": "Hariri: {JinaLaSarafu}",
+    "heading": "Inahaririwa: {JinaLaSarafu}",
     "labels": {
+      "listHeader": "Sarafu",
       "currencyName": "Jina la Sarafu",
       "currencyCode": "Msimbo wa Sarafu",
       "symbol": "Alama"

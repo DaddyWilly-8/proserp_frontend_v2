@@ -13,12 +13,14 @@ import UnauthorizedAccess from '@/shared/Information/UnauthorizedAccess';
 import { MeasurementUnit } from './MeasurementUnitType';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const MeasurementUnits = () => {
   const params = useParams<{ category?: string; id?: string; keyword?: string }>();
   const listRef = useRef<any>(null);
   const [mounted, setMounted] = useState(false);
   const {checkOrganizationPermission} = useJumboAuth();
+  const dictionary= useDictionary();
 
   const [queryOptions, setQueryOptions] = React.useState({
     queryKey: 'measurementUnits',
@@ -60,7 +62,7 @@ const MeasurementUnits = () => {
 
   return (
     <React.Fragment>
-      <Typography variant={'h4'} mb={2}>Measurement Units</Typography>
+      <Typography variant={'h4'} mb={2}>{dictionary.measurementUnits.form.labels.listHeader}</Typography>
       <JumboRqList
         ref={listRef}
         wrapperComponent={Card}

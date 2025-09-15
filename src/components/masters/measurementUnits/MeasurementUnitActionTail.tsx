@@ -10,8 +10,8 @@ import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 const MeasurementUnitActionTail = () => {
   const { checkOrganizationPermission } = useJumboAuth();
   const [openDialog, setOpenDialog] = useState(false);
-  const {dictionary}= useDictionary();
-
+  const dictionary= useDictionary();
+  
   //Screen handling constants
   const {theme} = useJumboTheme();
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
@@ -23,7 +23,7 @@ const MeasurementUnitActionTail = () => {
       </Dialog>
       <ButtonGroup variant="outlined" size="small" disableElevation sx={{ '& .MuiButton-root': { px: 1 } }}>
         {checkOrganizationPermission(PERMISSIONS.USERS_INVITE) && (
-          <Tooltip title=' New Measurement Unit'>
+          <Tooltip title={dictionary.measurementUnits.list.labels.newCreateLabel}>
             <IconButton onClick={() => setOpenDialog(true)}>
               <AddOutlined />
             </IconButton>

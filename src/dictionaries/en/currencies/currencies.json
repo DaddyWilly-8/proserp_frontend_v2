@@ -5,7 +5,10 @@
       "add": "Add",
       "cancel": "Cancel"
     },
-    "labels": {
+    "pageTitle": "Hariri: {JinaLaKipimo}",
+    "heading": "Inahaririwa: {JinaLaKipimo}",
+    "labels": { 
+      "listHeader": "Currency",
       "currencyName": "Currency Name",
       "currencyCode": "Currency Code",
       "symbol": "Symbol"
@@ -23,8 +26,8 @@
     },
     "errors": {
       "validation": {
-        "currencyName": {
-          "required": "Currency name is required"
+        "currencyCode": {
+          "required": "Currency code is required"
         },
         "ExchangeRate": {
           "required": "Exchange rate is required"

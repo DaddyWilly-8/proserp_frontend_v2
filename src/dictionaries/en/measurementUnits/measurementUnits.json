@@ -8,6 +8,7 @@
     "pageTitle": "Edit: {UnitName}",
     "heading": "Editing: {UnitName}",
     "labels": {
+      "listHeader": "Measurement Units",
       "name": "Unit Name",
       "symbol": "Unit Symbol",
       "description": "Description"
@@ -21,20 +22,20 @@
       "loading": "Processing Measurement details...",
       "createSuccess": "Measurement Unit successfully registered!",
       "updateSuccess": "Measurement Unit successfully updated!",
-      "deleteSuccess": "Measurement Unit successfully archived."
+      "deleteSuccess": "Measurement Unit successfully archived"
     },
     "errors": {
       "validation": {
         "name": {
-          "required": " name is required"
+          "required": "Name is required",
+          "min": "Name must be at least 2 characters",
+          "max": "Name cannot exceed 10 characters"
         },
         "symbol": {
-          "required": " symbol is required",
-          "min": "symbol must be at least 1 characters",
-          "max": "symbol cannot exceed 10 characters"
-     }   
-      }
-      
+          "required": "symbol is required",
+          "invalid": "A valid format is required (e.g. dz)"
+        }
+      } 
     }
   },
 
@@ -51,15 +52,7 @@
         "confirmDelete": {
           "title": "Confirm Measurement Unit",
           "content":" Are you sure you want to delete this measurement Unit?"
-        },       
-        "buttons": {
-          "cancel": "Cancel",
-          "confirm": "Confirm"
-        }
-      },
-      "messages": {
-        "success": "Auto-load setting updated successfully",
-        "error": "An error occurred while updating auto-load setting"
-      }
+        }       
+      }  
   }
 }

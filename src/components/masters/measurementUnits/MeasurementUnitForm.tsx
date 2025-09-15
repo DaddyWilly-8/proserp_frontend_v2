@@ -14,6 +14,7 @@ import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 interface MeasurementUnitFormProps {
   setOpenDialog: (open: boolean) => void;
   measurementUnit?: MeasurementUnit | null;
+
 }
 
 interface FormData extends Omit<MeasurementUnit, 'id'> {
@@ -29,9 +30,10 @@ interface ApiResponse {
 }
 
 const MeasurementUnitForm: React.FC<MeasurementUnitFormProps> = ({ setOpenDialog, measurementUnit = null }) => {
-  const dictionary = useDictionary();
   const queryClient = useQueryClient();
   const { enqueueSnackbar } = useSnackbar();
+  const dictionary = useDictionary();
+console.log(dictionary.measurementUnits.form.errors.validation);
 
   const { mutate: addMeasurementUnit, isPending, error } = useMutation<ApiResponse, any, FormData>({
     mutationFn: measurementUnitServices.add,
@@ -66,11 +68,10 @@ const MeasurementUnitForm: React.FC<MeasurementUnitFormProps> = ({ setOpenDialog
   }, [measurementUnit, updateMeasurementUnit, addMeasurementUnit]);
 
   const validationSchema = yup.object({
-    name: yup.string().required(),
-    symbol: yup.string().required().max(10, 'Symbol cannot be more than 10 characters'),
+    name: yup.string().required(dictionary.measurementUnits.form.errors.validation.name.required),
+    symbol: yup.string().required(dictionary.measurementUnits.form.errors.validation.symbol.required).max(10,dictionary.measurementUnits.form.errors.validation.symbol.invalid),
     description: yup.string().nullable(),
   });
-
   const { register, handleSubmit, setValue, formState: { errors } } = useForm<FormData>({
     resolver: yupResolver(validationSchema) as any,
     defaultValues: {
@@ -94,7 +95,7 @@ const MeasurementUnitForm: React.FC<MeasurementUnitFormProps> = ({ setOpenDialog
     <>
       <DialogTitle>
         <Grid size={12} textAlign={"center"}>
-          {!measurementUnit?.id ? 'New Measurement Unit' : `Edit ${measurementUnit.name}`}
+          {!measurementUnit?.id ?' New MeasurementUnits': `Edit ${measurementUnit.name}`}
         </Grid>
       </DialogTitle>
       <DialogContent>
@@ -103,7 +104,7 @@ const MeasurementUnitForm: React.FC<MeasurementUnitFormProps> = ({ setOpenDialog
             <Grid size={{xs: 12, md: 8}}>
               <Div sx={{ mt: 1, mb: 1 }}>
                 <TextField
-                  label={dictionary.measurementUnits.form.labels.name}
+                  label={dictionary.measurementUnits.list.labels.name}
                   placeholder={dictionary.measurementUnits.form.placeholders.name}
                   size='small'
                   fullWidth
