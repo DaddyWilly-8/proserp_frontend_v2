@@ -10,7 +10,7 @@ grnServices.getGrnsList = async ({ store_id, type, keyword, page, limit, from, t
 };
 
 grnServices.grnValues = async(params) => {
-    const {data} = await axios.get('grn-values',{ params});
+    const {data} = await axios.get('/api/grns/grnValues',{ params});
     return data
 }
 

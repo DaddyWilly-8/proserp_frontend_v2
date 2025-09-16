@@ -18,7 +18,7 @@ import {
 import { getUpdatedSelectedItems } from "./utils/listHelpers";
 import JumboListPagination from './components/JumboListPagination';
 import Image from 'next/image';
-import { keyframes } from "@emotion/react";
+import { keyframes } from '@emotion/react';
 import { useJumboAuth } from "@/app/providers/JumboAuthProvider";
 import { ASSET_IMAGES } from '@/utilities/constants/paths';
 
