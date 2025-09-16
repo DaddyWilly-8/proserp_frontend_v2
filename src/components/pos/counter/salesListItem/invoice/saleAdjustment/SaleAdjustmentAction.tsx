@@ -36,7 +36,6 @@ interface SaleAdjustmentActionProps {
   setOpenAdjustmentDeleteDialog: (open: boolean) => void;
 }
 
-// ---------- Components ----------
 function EditSaleAdjustment({
   adjustment,
   toggleOpen,
