@@ -11,10 +11,12 @@ import CurrencyActionTail from './CurrencyActionTail';
 import CurrencySelectProvider from './CurrencySelectProvider';
 import { useParams } from 'next/navigation';
 import { Currency } from './CurrencyType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const Currencies = () => {
   const params = useParams<{ category?: string; id?: string; keyword?: string }>();
   const listRef = useRef<any>(null);
+  const dictionary =useDictionary()
 
   const [queryOptions, setQueryOptions] = React.useState({
     queryKey: 'currencies',
@@ -56,7 +58,7 @@ const Currencies = () => {
 
   return (
     <CurrencySelectProvider>
-      <Typography variant={'h4'} mb={2}>Currencies</Typography>
+      <Typography variant={'h4'} mb={2}>{dictionary.currencies.form.labels.listHeader}</Typography>
       <JumboRqList
         ref={listRef}
         wrapperComponent={Card}

@@ -6,8 +6,10 @@
       "cancel": "Cancel"
     },
     "labels": {
+      "listHeader": "Currency",
       "currencyName": "Currency Name",
       "currencyCode": "Currency Code",
+      "exchangeRate": "Exchange Rate",
       "symbol": "Symbol"
     },
     "placeholders": {
@@ -23,11 +25,14 @@
     },
     "errors": {
       "validation": {
-        "currencyName": {
-          "required": "Currency name is required"
+        "currencyCode": {
+          "required": "Currency code is required",
+          "typeError": "Currency is required"
         },
-        "ExchangeRate": {
-          "required": "Exchange rate is required"
+        "exchangeRate": {
+          "required": "Exchange rate is required",
+          "min": "The least amount of ExchangeRate is 0.00000000000000000001",
+          "typeError": "Exchange rate is required"
         }
       }
     }
@@ -38,28 +43,61 @@
       "currencyCode": "Currency Code",
       "symbol": "Symbol",
       "actions": "Actions",
-      "symbolNative": "Native Symbol"
+      "newCreateLabel": "New currency",
+      "symbolNative": "Native Symbol",
+      "addExchangeRate": "Add Exchange Rate"
     },
-    "actionlabels": {
-      "edit": "Edit",
+    "actionTittle": {
       "delete": "Delete"
     },
-    "tooltips": {
-      "addNew": "New Currency"
-    },
     "dialog": {
-      "confirmDelete": {
+      "showDialog": {
         "title": "Confirm Currency",
         "content": "Are you sure you want to delete this currency?"
-      },
-      "buttons": {
-        "cancel": "Cancel",
-        "confirm": "Confirm"
       }
     },
-    "messages": {
-      "success": "Auto-load settings updated successfully",
-      "error": "An error occurred while updating auto-load settings"
+    "updateForm": {
+      "title": "Update Exchange Rate{currencyName}",
+      "buttons": {
+        "update": "Update",
+        "cancel": "Cancel"
+      },
+      "pageTitle": "Hariri: {currencyName}",
+      "heading": "Inahaririwa: {currencyName}",
+      "labels": {
+        "asAt": "as_at",
+        "rate": "Rate"
+      },
+      "errors": {
+        "validation": {
+          "asAt": {
+            "required": "Date is required",
+            "typeError": "Date is required"
+          },
+          "rate": {
+            "required": "Exchange rate is required",
+            "min": "The least amount of ExchangeRate is 0.00000000000000000001",
+            "typeError": "Exchange rate is required"
+          }
+        }
+      },
+      "dateTime": {
+        "labels": {
+          "start": "From",
+          "end": "To"
+        }
+      },
+      "actionTittle": {
+        "delete": "Delete",
+        "cancel": "Cancel",
+        "yes": "Yes"
+      },
+      "dialog": {
+        "showDialog": {
+          "title": "Delete Confirmation",
+          "content": "Are you sure you want to delete this Exchange Rate?"
+        }
+      }
     }
   }
 }

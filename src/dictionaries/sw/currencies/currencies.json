@@ -6,8 +6,10 @@
       "cancel": "Ghairi"
     },
     "labels": {
+      "listHeader": "Sarafu",
       "currencyName": "Jina la Sarafu",
       "currencyCode": "Msimbo wa Sarafu",
+      "exchangeRate": "kiwango cha ubadilishaji",
       "symbol": "Alama"
     },
     "placeholders": {
@@ -18,16 +20,19 @@
     "messages": {
       "loading": "Inachakata maelezo ya sarafu...",
       "createSuccess": "Sarafu imesajiliwa kwa mafanikio!",
-      "updateSuccess": "Sarafu imesasishwa kwa mafanikio!",
-      "deleteSuccess": "Sarafu imehifadhiwa kwa mafanikio."
+      "updateSuccess": "Sarafu imesahihishwa kwa mafanikio!",
+      "deleteSuccess": "Sarafu imefutwa kwa mafanikio."
     },
     "errors": {
       "validation": {
-        "currencyName": {
-          "required": "Jina la sarafu linahitajika"
+        "currencyCode": {
+          "required": "Jina la sarafu inahitajika",
+          "typeError": "Sarafu inahitajika"
         },
-        "ExchangeRate": {
-          "required": "Kiwango cha ubadilishaji kinahitajika"
+        "exchangeRate": {
+          "required": "Kiwango cha ubadilishaji kinahitajika",
+          "min": "kiwango cha chini cha ubadilishaji sio chini ya 0.00000000000000000001",
+          "typeError": "Kiwango cha ubadilishaji kinahitajika"
         }
       }
     }
@@ -38,28 +43,61 @@
       "currencyCode": "Msimbo wa Sarafu",
       "symbol": "Alama",
       "actions": "Vitendo",
-      "symbolNative": "Alama ya asili"
+      "newCreateLabel": "Sarafu Mpya",
+      "symbolNative": "Alama ya asili",
+      "addExchangeRate": "Ongeza kiwango cha ubadilishaji"
     },
-    "actionlabels": {
-      "edit": "Hariri",
+    "actionTittle": {
       "delete": "Futa"
     },
-    "tooltips": {
-      "addNew": "Sarafu Mpya"
-    },
     "dialog": {
-      "confirmDelete": {
+      "showDialog": {
         "title": "Thibitisha Sarafu",
         "content": "Je, una uhakika unataka kufuta sarafu hii?"
-      },
-      "buttons": {
-        "cancel": "Ghairi",
-        "confirm": "Thibitisha"
       }
     },
-    "messages": {
-      "success": "Mipangilio ya upakiaji wa moja kwa moja imesasishwa kwa mafanikio",
-      "error": "Hitilafu imetokea wakati wa kusasisha mipangilio ya upakiaji wa moja kwa moja"
+    "updateForm": {
+      "title": "Kiwango Kipya Cha Ubadilishaji{currencyName}",
+      "buttons": {
+        "update": "Sasisha",
+        "cancel": "Ghairi"
+      },
+      "pageTitle": "Hariri: {currencyName}",
+      "heading": "Inahaririwa: {currencyName}",
+      "labels": {
+        "asAt": "Tarehe",
+        "rate": "Kiwango"
+      },
+      "errors": {
+        "validation": {
+          "asAt": {
+            "required": "Tarehe Inahitajika",
+            "typeError": "Tarehe Inahitajika"
+          },
+          "rate": {
+            "required": "Kiwango cha ubadilishaji kinahitajika",
+            "min": "kiwango cha chini cha ubadilishaji sio chini ya 0.00000000000000000001",
+            "typeError": "Kiwango cha ubadilishaji kinahitajika"
+          }
+        }
+      },
+      "dateTime": {
+        "labels": {
+          "start": "Kutoka",
+          "end": "Hadi"
+        }
+      },
+      "actionTittle": {
+        "delete": "Futa",
+        "cancel": "Ghairi",
+        "yes": "ndiyo"
+      },
+      "dialog": {
+        "showDialog": {
+          "title": "Thibitisha ufutaji",
+          "content": "Je, una uhakika unataka kufuta hiki kiwango cha ubadilishaji ?"
+        }
+      }
     }
   }
 }

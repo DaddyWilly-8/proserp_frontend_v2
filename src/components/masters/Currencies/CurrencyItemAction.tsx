@@ -10,12 +10,14 @@ import { Currency } from './CurrencyType';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { MenuItemProps } from '@jumbo/types';
 import { JumboDdMenu } from '@jumbo/components';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const CurrencyItemAction = ({currency}:{currency: Currency}) => {
   const [openEditDialog,setOpenEditDialog] = useState(false);
   const {showDialog,hideDialog} = useJumboDialog();
   const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
+  const dictionary = useDictionary()
 
   const { mutate: deleteCurrency } = useMutation({
     mutationFn: currencyServices.delete,
@@ -31,15 +33,15 @@ const CurrencyItemAction = ({currency}:{currency: Currency}) => {
   });
 
   const menuItems = [
-    {icon: currency.id !== 1 && <DeleteOutlined color='error'/>, title: currency.id !== 1 && 'Delete', action: currency.id !== 1 && 'delete'}
+    {icon: currency.id !== 1 && <DeleteOutlined color='error'/>, title: currency.id !== 1 && dictionary.currencies.list.actionTittle.delete, action: currency.id !== 1 && 'delete'}
   ]
 
   const handleItemAction = (menuItem: MenuItemProps) => {
     switch (menuItem.action) {
       case 'delete':
         showDialog({
-          title: 'Confirm Currency',
-          content: 'Are you sure you want to delete this Currency?',
+          title: dictionary.currencies.list.dialog.showdialog.title,
+          content: dictionary.currencies.list.dialog.showdialog.content ,
           onYes: () =>{ 
             hideDialog();
             deleteCurrency(currency.id)
@@ -64,7 +66,7 @@ const CurrencyItemAction = ({currency}:{currency: Currency}) => {
         </Dialog>
         <JumboDdMenu
           icon={
-            <Tooltip title='Actions'>
+            <Tooltip title={dictionary.currencies.list.labels.actions}>
               <MoreHorizOutlined fontSize='small'/>
             </Tooltip>
         }

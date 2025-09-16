@@ -22,6 +22,7 @@ import { useQuery } from '@tanstack/react-query';
 import { readableDate } from '@/app/helpers/input-sanitization-helpers';
 import UpdateCurrencyExchangeRate from './UpdateCurrencyExchangeRate.';
 import { Currency } from '../CurrencyType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface ExchangeRate {
   id: number;
@@ -50,6 +51,7 @@ const CurrenciesExchangeRate: React.FC<CurrenciesExchangeRateProps> = ({
   );
   const [toDate, setToDate] = useState<Dayjs>(dayjs().endOf('day'));
   const isMobile = deviceType() === 'mobile';
+  const dictionary = useDictionary()
 
   const { data: exchangeRates, isPending, refetch } = useQuery<ExchangeRate[]>({
     queryKey: ['exchangeRates', { id: currency.id, from: fromDate.toISOString(), to: toDate.toISOString() }],
@@ -74,7 +76,7 @@ const CurrenciesExchangeRate: React.FC<CurrenciesExchangeRateProps> = ({
       <Grid container sx={{width: '100%'}}>
         {currency.id > 1 && (
           <Grid size={12} textAlign={'end'}>
-            <Tooltip title={`Add Exchange Rate`}>
+            <Tooltip title={dictionary.currencies.list.labels.addExchangeRate}>
               <IconButton onClick={() => setOpenAddExchangeRate(true)}>
                 <AddOutlined />
               </IconButton>
@@ -91,7 +93,7 @@ const CurrenciesExchangeRate: React.FC<CurrenciesExchangeRateProps> = ({
               <Grid container justifyContent={'center'} spacing={1} marginBottom={1}>
                 <Grid size={{xs: 12, md: 3}}>
                   <DateTimePicker
-                    label="From"
+                    label={dictionary.currencies.list.updateForm.dateTime.labels.start}
                     value={fromDate}
                     onChange={(date) => {
                       if (date) setFromDate(date);
@@ -107,7 +109,7 @@ const CurrenciesExchangeRate: React.FC<CurrenciesExchangeRateProps> = ({
                 </Grid>
                 <Grid size={{xs: 12, md: 3}}>
                   <DateTimePicker
-                    label="To"
+                    label={dictionary.currencies.list.updateForm.dateTime.labels.end}
                     value={toDate}
                     onChange={(date) => {
                       if (date) setToDate(date);
@@ -164,7 +166,7 @@ const CurrenciesExchangeRate: React.FC<CurrenciesExchangeRateProps> = ({
                 </Grid>
                 <Grid size={{xs: 6, md: 2}}>
                   <Box display={'flex'} flexDirection={'row'} justifyContent={'flex-end'}>
-                    <Tooltip title={`Delete`}>
+                    <Tooltip title={dictionary.currencies.list.updateForm.actionTittle.delete}>
                       <IconButton
                         onClick={() => {
                           setSelectedExchangeRate(exchangeRate);
