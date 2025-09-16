@@ -5,6 +5,7 @@ import { Button, Dialog, DialogActions, DialogContent, DialogContentText, Dialog
 import { useSnackbar } from 'notistack';
 import currencyServices from '../currency-services';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface ExchangeRate {
   id: number;
@@ -30,6 +31,7 @@ const ExchangeRatesItemAction: React.FC<ExchangeRatesItemActionProps> = ({
 }) => {
   const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
+  const dictionary = useDictionary();
 
   const { mutate: deleteExchangeRate } = useMutation({
     mutationFn: currencyServices.deleteExchangeRate,
@@ -46,9 +48,9 @@ const ExchangeRatesItemAction: React.FC<ExchangeRatesItemActionProps> = ({
 
   return (
     <Dialog open={openExchangeRateDeleteDialog} onClose={() => setOpenExchangeRateDeleteDialog(false)}>
-      <DialogTitle>Delete Confirmation</DialogTitle>
+      <DialogTitle>{dictionary.currencies.list.updateForm.dialog.showDialog.title}</DialogTitle>
       <DialogContent>
-        <DialogContentText>Are you sure you want to delete this Exchange Rate?</DialogContentText>
+        <DialogContentText>{dictionary.currencies.list.updateForm.dialog.showDialog.content}</DialogContentText>
       </DialogContent>
       <DialogActions>
         <Button
@@ -58,7 +60,7 @@ const ExchangeRatesItemAction: React.FC<ExchangeRatesItemActionProps> = ({
           }}
           color="primary"
         >
-          Cancel
+          {dictionary.currencies.list.updateForm.actionTittle.cancel}
         </Button>
         <Button
           onClick={() => {
@@ -70,7 +72,7 @@ const ExchangeRatesItemAction: React.FC<ExchangeRatesItemActionProps> = ({
           }}
           color="primary"
         >
-          Yes
+          {dictionary.currencies.list.updateForm.actionTittle.yes}
         </Button>
       </DialogActions>
     </Dialog>

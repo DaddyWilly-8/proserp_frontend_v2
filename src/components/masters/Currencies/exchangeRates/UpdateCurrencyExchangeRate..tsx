@@ -15,6 +15,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import CommaSeparatedField from '@/shared/Inputs/CommaSeparatedField';
 import { sanitizedNumber } from '@/app/helpers/input-sanitization-helpers';
 import { Div } from '@jumbo/shared';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface UpdateCurrencyExchangeRateProps {
   currency: {
@@ -38,6 +39,7 @@ const UpdateCurrencyExchangeRate: React.FC<UpdateCurrencyExchangeRateProps> = ({
   const queryClient = useQueryClient();
   const { enqueueSnackbar } = useSnackbar();
   const { authOrganization } = useJumboAuth();
+  const dictionary = useDictionary()
 
   const { mutate: updateCurrencyExchangeRate, isPending } = useMutation<ApiResponse, Error, FormData>({
     mutationFn: currencyServices.updateCurrencyExchangeRate,
@@ -84,7 +86,7 @@ const UpdateCurrencyExchangeRate: React.FC<UpdateCurrencyExchangeRateProps> = ({
     <>
       <DialogTitle>
         <Grid size={12} textAlign={"center"}>
-          {`Update Exchange Rate for ${currency.code}`}
+          {dictionary.currencies.list.updateForm.title.replace ('{currencyName}',currency.code)}
         </Grid>
       </DialogTitle>
       <DialogContent>
@@ -93,7 +95,7 @@ const UpdateCurrencyExchangeRate: React.FC<UpdateCurrencyExchangeRateProps> = ({
             <Grid size={{xs: 12, md: 7}}>
               <Div sx={{ mt: 1, mb: 1 }}>
                 <DateTimePicker
-                  label="As At"
+                  label={dictionary.currencies.list.updateForm.labels.asAt}
                   minDate={dayjs(authOrganization?.organization?.recording_start_date)}
                   defaultValue={dayjs()}
                   slotProps={{
@@ -119,7 +121,7 @@ const UpdateCurrencyExchangeRate: React.FC<UpdateCurrencyExchangeRateProps> = ({
             <Grid size={{xs: 12, md: 5}}>
               <Div sx={{ mt: 1, mb: 1 }}>
                 <TextField
-                  label="Rate"
+                  label={dictionary.currencies.list.updateForm.labels.rate}
                   fullWidth
                   size='small'
                   error={!!errors?.rate}
@@ -139,7 +141,7 @@ const UpdateCurrencyExchangeRate: React.FC<UpdateCurrencyExchangeRateProps> = ({
           </Grid>
           <DialogActions>
             <Button size="small" onClick={() => setOpenDialog(false)}>
-              Cancel
+              {dictionary.currencies.list.updateForm.buttons.cancel}
             </Button>
             <LoadingButton
               type="submit"
@@ -148,7 +150,7 @@ const UpdateCurrencyExchangeRate: React.FC<UpdateCurrencyExchangeRateProps> = ({
               sx={{ display: 'flex' }}
               loading={isPending}
             >
-              Update
+              {dictionary.currencies.list.updateForm.buttons.update}
             </LoadingButton>
           </DialogActions>
         </form>

@@ -95,7 +95,7 @@ console.log(dictionary.measurementUnits.form.errors.validation);
     <>
       <DialogTitle>
         <Grid size={12} textAlign={"center"}>
-          {!measurementUnit?.id ?' New MeasurementUnits': `Edit ${measurementUnit.name}`}
+          {!measurementUnit?.id ? dictionary.measurementUnits.form.title : dictionary.measurementUnits.form.pageTitle.replace('{name}' ,measurementUnit.name)}
         </Grid>
       </DialogTitle>
       <DialogContent>

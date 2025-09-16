@@ -18,7 +18,6 @@ const MeasurementUnitItemAction = ({measurementUnit}:{measurementUnit: Measureme
   const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
   const dictionary = useDictionary();
-
   //Screen handling constants
   const {theme} = useJumboTheme();
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
@@ -39,8 +38,8 @@ const MeasurementUnitItemAction = ({measurementUnit}:{measurementUnit: Measureme
   });
 
   const menuItems = [
-    {icon: <EditOutlined/>, title: 'Edit', action: 'edit'},
-    {icon: <DeleteOutlined color='error'/>, title: 'Delete', action: 'delete'}
+    {icon: <EditOutlined/>, title: dictionary.measurementUnits.list.actionsTittle.edit, action: 'edit'},
+    {icon: <DeleteOutlined color='error'/>, title: dictionary.measurementUnits.list.actionsTittle.delete, action: 'delete'}
   ]
 
   const handleItemAction = (menuItem: MenuItemProps) => {
@@ -50,8 +49,8 @@ const MeasurementUnitItemAction = ({measurementUnit}:{measurementUnit: Measureme
         break;
       case 'delete':
         showDialog({
-          title: 'Confirm Measurement Unit',
-          content: 'Are you sure you want to delete this measurement Unit?',
+          title: dictionary.measurementUnits.list.dialog.showDialog.title,
+          content: dictionary.measurementUnits.list.dialog.showDialog.content,
           onYes: () =>{ 
             hideDialog();
             deleteMeasurementUnit(measurementUnit.id)
@@ -77,7 +76,7 @@ const MeasurementUnitItemAction = ({measurementUnit}:{measurementUnit: Measureme
       </Dialog>
       <JumboDdMenu
         icon={
-          <Tooltip title='Actions'>
+          <Tooltip title={dictionary.measurementUnits.list.labels.actions}>
             <MoreHorizOutlined fontSize='small'/>
           </Tooltip>
       }

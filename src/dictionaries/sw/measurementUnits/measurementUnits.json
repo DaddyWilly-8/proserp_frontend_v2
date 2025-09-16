@@ -1,12 +1,12 @@
 {
   "form": {
-    "title": "Vipimo",
+    "title": "Kipimo Kipya",
     "buttons": {
       "submit": "Wasilisha",
       "cancel": "Ghairi"
     },
-    "pageTitle": "Hariri: {JinaLaKipimo}",
-    "heading": "Inahaririwa: {JinaLaKipimo}",
+    "pageTitle": "Hariri: {name}",
+    "heading": "Inahaririwa: {name}",
     "labels": {
       "listHeader": "Vipimo",
       "name": "Jina la Kipimo",
@@ -20,11 +20,11 @@
     },
     "messages": {
       "loading": "Kushughulikia maelezo ya kipimo...",
-      "createSuccess": "Kipimo cha Kipimo kimesajiliwa kwa mafanikio!",
-      "updateSuccess": "Kipimo cha Badilisha kimefanikiwa kusasishwa!",
-      "deleteSuccess": "Kipimo cha Kipimo kimefutwa kwa mafanikio."
+      "createSuccess": "Kipimo kimesajiliwa kwa mafanikio!",
+      "updateSuccess": "Kipimo Badilisha kimefanikiwa kusasishwa!",
+      "deleteSuccess": "Kipimo kimefutwa kwa mafanikio."
     },
-   "errors": {
+    "errors": {
       "validation": {
         "name": {
           "required": "Jina rasmihitajika",
@@ -35,23 +35,26 @@
           "required": "alama rasmi inahitajika",
           "invalid": "Umbizo sahihi linahitajika (mf. dz)"
         }
+      }
     }
-   }
- },
-
+  },
   "list": {
     "labels": {
       "name": "Jina",
       "symbol": "Alama",
       "description": "Maelezo",
-      "actions":"Vitendo",
-      "newCreateLabel":"Kipimo kipya  "
+      "actions": "Vitendo",
+      "newCreateLabel": "Kipimo kipya"
     },
-      "dialog": {
-        "confirmDelete": {
-          "title": "Thibitisha Kipimo ",
-          "content":"Je, una uhakika unataka kufuta Kipimo hiki ?"
-        }
+    "actionsTittle": {
+      "edit": "Hariri",
+      "delete": "Futa"
+    },
+    "dialog": {
+      "showDialog": {
+        "title": "Thibitisha Kipimo",
+        "content": "Je, una uhakika unataka kufuta Kipimo hiki ?"
       }
-   }
- }
+    }
+  }
+}

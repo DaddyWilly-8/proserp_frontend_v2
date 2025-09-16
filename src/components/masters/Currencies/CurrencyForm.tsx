@@ -14,6 +14,7 @@ import { sanitizedNumber } from '@/app/helpers/input-sanitization-helpers';
 import CommaSeparatedField from '@/shared/Inputs/CommaSeparatedField';
 import { CURRENCIES } from '@/utilities/constants/currencies';
 import { Div } from '@jumbo/shared';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface CurrencyFormProps {
   setOpenDialog: (open: boolean) => void;
@@ -39,6 +40,7 @@ const CurrencyForm: React.FC<CurrencyFormProps> = ({ setOpenDialog }) => {
   const queryClient = useQueryClient();
   const { enqueueSnackbar } = useSnackbar();
   const currencyContext = useCurrencySelect();
+  const dictionary = useDictionary()
 
   const { mutate: addCurrency, isPending } = useMutation<ApiResponse, Error, FormData>({
     mutationFn: (data: FormData) => currencyServices.add(data),
@@ -55,11 +57,11 @@ const CurrencyForm: React.FC<CurrencyFormProps> = ({ setOpenDialog }) => {
   });
 
   const validationSchema = yup.object({
-    currency_code: yup.string().required("Currency is required").typeError('Currency is required'),
+    currency_code: yup.string().required(dictionary.currencies.form.errors.validation.currencyCode.required).typeError(dictionary.currencies.form.errors.validation.currencyCode.typeError),
     exchange_rate: yup.number()
-      .min(0.000000000000000000001)
-      .required('Exchange rate is required')
-      .typeError('Exchange rate is required')
+      .min(0.000000000000000000001,dictionary.currencies.form.errors.validation.exchangeRate.min)
+      .required(dictionary.currencies.form.errors.validation.exchangeRate.required)
+      .typeError(dictionary.currencies.form.errors.validation.exchangeRate.typeError)
   });
 
  // Safely get currencies array
@@ -87,7 +89,7 @@ const CurrencyForm: React.FC<CurrencyFormProps> = ({ setOpenDialog }) => {
     <>
       <DialogTitle>
         <Grid size={12} textAlign={"center"}>
-          {'Add Currency'}
+          {dictionary.currencies.form.title}
         </Grid>
       </DialogTitle>
       <DialogContent>
@@ -103,7 +105,7 @@ const CurrencyForm: React.FC<CurrencyFormProps> = ({ setOpenDialog }) => {
                   renderInput={(params) => (
                     <TextField
                       {...params}
-                      label="Currency"
+                      label={dictionary.currencies.form.labels.currencyName}
                       size="small"
                       fullWidth
                       error={!!errors.currency_code}
@@ -122,7 +124,7 @@ const CurrencyForm: React.FC<CurrencyFormProps> = ({ setOpenDialog }) => {
             <Grid size={{xs: 12, md: 5}}>
               <Div sx={{ mt: 1, mb: 1 }}>
                 <TextField
-                  label="Exchange Rate"
+                  label={dictionary.currencies.form.labels.exchangeRate}
                   fullWidth
                   size='small'
                   error={!!errors?.exchange_rate}
@@ -142,7 +144,7 @@ const CurrencyForm: React.FC<CurrencyFormProps> = ({ setOpenDialog }) => {
           </Grid>
           <DialogActions>
             <Button size="small" onClick={() => setOpenDialog(false)}>
-              Cancel
+              {dictionary.currencies.form.buttons.cancel}
             </Button>
             <LoadingButton
               type="submit"
@@ -151,7 +153,7 @@ const CurrencyForm: React.FC<CurrencyFormProps> = ({ setOpenDialog }) => {
               sx={{ display: 'flex' }}
               loading={isPending}
             >
-              Add
+              {dictionary.currencies.form.buttons.add}
             </LoadingButton>
           </DialogActions>
         </form>
