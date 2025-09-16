@@ -74,10 +74,9 @@ export async function PUT(req: NextRequest) {
     // Set the new session cookie
     response.cookies.set(cookieName, sessionToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: process.env.NODE_ENV === 'production', // only secure in prod (https)
       path: '/',
-      sameSite: 'strict',
-      domain: process.env.NODE_ENV === 'production' ? '.proserp.co.tz' : undefined,
+      sameSite: 'lax', // works better for SSR + API routes
       maxAge: 60 * 60 * 24,
     });
 

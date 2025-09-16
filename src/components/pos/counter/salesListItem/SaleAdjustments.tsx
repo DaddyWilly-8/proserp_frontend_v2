@@ -68,11 +68,6 @@ const SaleAdjustments: React.FC<SaleAdjustmentsProps> = ({ expanded, sale, activ
             mb={1}
           >
             <Grid size={{ xs: 6, md: 3, lg: 3 }}>
-              <Tooltip title="Adjustment No.">
-                <Typography fontWeight="bold">
-                  {adjustment.adjustmentableNo}
-                </Typography>
-              </Tooltip>
               <Tooltip title="Transaction Date">
                 <Typography>{readableDate(adjustment.transaction_date)}</Typography>
               </Tooltip>
@@ -82,6 +77,11 @@ const SaleAdjustments: React.FC<SaleAdjustmentsProps> = ({ expanded, sale, activ
               <Tooltip title="Type">
                 <Typography>
                   {adjustment.type === 'debit' ? 'Debit Note' : 'Credit Note'}
+                </Typography>
+              </Tooltip>
+              <Tooltip title="Adjustment No.">
+                <Typography>
+                  {adjustment.adjustmentableNo}
                 </Typography>
               </Tooltip>
             </Grid>

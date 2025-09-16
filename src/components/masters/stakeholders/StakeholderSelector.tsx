@@ -13,7 +13,7 @@ interface StakeholderSelectorProps {
   addedStakeholder?: Stakeholder | null;
   startAdornment?: React.ReactNode;
   readOnly?: boolean;
-  disabled: boolean;
+  disabled?: boolean;
   defaultValue?: number | null;
 }
 
