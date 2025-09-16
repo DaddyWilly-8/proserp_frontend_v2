@@ -10,14 +10,12 @@ import JumboLayoutProvider from '@jumbo/components/JumboLayout/components/JumboL
 
 interface CommonLayoutProps {
   children: React.ReactNode;
-  params: {
-    lang: string;
-  };
+  params: Promise<{ lang: string }>; // Match Next.js's dynamic params
 }
 
 export default async function CommonLayout({ children, params }: CommonLayoutProps) {
-  const { lang }: any = await params;
-  const menus: any = await getMenus(lang);
+  const { lang } = await params;
+  const menus = await getMenus(lang);
   const dictionary = await getDictionary(lang);
 
   return (

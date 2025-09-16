@@ -13,7 +13,8 @@ import {
 import { 
   ContentPasteSearchOutlined, 
   DeleteOutlined, 
-  EditOutlined 
+  EditOutlined, 
+  TuneOutlined
 } from '@mui/icons-material';
 import SaleInvoiceItemAction from './invoice/SaleInvoiceItemAction';
 import { useQuery } from '@tanstack/react-query';
@@ -44,6 +45,7 @@ const SaleInvoices: React.FC<SaleInvoicesProps> = ({
 }) => {
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
   const [openInvoiceDeleteDialog, setOpenInvoiceDeleteDialog] = useState(false);
+  const [openAdjustmentDialog, setOpenAdjustmentDialog] = useState(false);
   const [openInvoiceEditDialog, setOpenInvoiceEditDialog] = useState(false);
   const [openDocumentDialog, setOpenDocumentDialog] = useState(false);
   
@@ -109,10 +111,12 @@ const SaleInvoices: React.FC<SaleInvoicesProps> = ({
                 flexDirection={'row'}
                 justifyContent={'flex-end'}
               >
-                <Tooltip title={belowLargeScreen ? 
-                  `Download Invoice ${invoice.invoiceNo}` : 
-                  `View Invoice ${invoice.invoiceNo}`
-                }>
+                <Tooltip 
+                  title={belowLargeScreen ? 
+                    `Download Invoice ${invoice.invoiceNo}` : 
+                    `View Invoice ${invoice.invoiceNo}`
+                  }
+                >
                   <IconButton
                     onClick={() => {
                       setSelectedInvoice(invoice);
@@ -122,6 +126,18 @@ const SaleInvoices: React.FC<SaleInvoicesProps> = ({
                     <ContentPasteSearchOutlined fontSize={'small'}/>
                   </IconButton>
                 </Tooltip>
+                {invoice.vfd_receipt === null &&
+                  <Tooltip  title={`Adjustment For ${invoice.invoiceNo}`}>
+                    <IconButton 
+                      onClick={() => {
+                        setSelectedInvoice(invoice);
+                        setOpenAdjustmentDialog(true);
+                      }}
+                    >
+                      <TuneOutlined fontSize={'small'} />
+                    </IconButton>
+                  </Tooltip>
+                }
                 {invoice.vfd_receipt === null && (
                   <Tooltip title={`Edit ${invoice.invoiceNo}`}>
                     <IconButton 
@@ -162,6 +178,8 @@ const SaleInvoices: React.FC<SaleInvoicesProps> = ({
         openInvoiceDeleteDialog={openInvoiceDeleteDialog}
         openInvoiceEditDialog={openInvoiceEditDialog}
         setOpenInvoiceDeleteDialog={setOpenInvoiceDeleteDialog} 
+        setOpenAdjustmentDialog={setOpenAdjustmentDialog}
+        openAdjustmentDialog={openAdjustmentDialog}
         selectedInvoice={selectedInvoice}
         setSelectedInvoice={setSelectedInvoice}
       />

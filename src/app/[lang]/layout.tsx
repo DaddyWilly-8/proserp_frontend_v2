@@ -8,19 +8,16 @@ import { DictionaryProvider } from './contexts/DictionaryContext';
 import { LanguageProvider } from './contexts/LanguageContext';
 import Script from 'next/script';
 
+interface RootLayoutProps {
+  children: ReactNode;
+  params: Promise<{ lang: string }>;
+}
+
 const APP_NAME = 'ProsERP';
 const APP_DEFAULT_TITLE = 'ProsERP';
 const APP_TITLE_TEMPLATE = '%s | ProsERP';
 const APP_DESCRIPTION = 'Robust ERP for accounting, project management, payroll, inventory, and requisitions.';
 
-interface RootLayoutProps {
-  children: ReactNode;
-  params: {
-    lang: string;
-  };
-}
-
-// Generate static params for language routes
 export async function generateStaticParams() {
   return [{ lang: 'en-US' }];
 }
@@ -73,14 +70,14 @@ export const metadata: Metadata = {
     description: APP_DESCRIPTION,
   },
   other: {
-    'msapplication-TileColor': '#2113AD', // Consistent with themeColor
+    'msapplication-TileColor': '#2113AD',
     keywords:
       'Robust ERP, ProsERP, Accounts, Project Management, Inventory Management, Payroll, Requisitions',
   },
 };
 
 export default async function RootLayout({ children, params }: RootLayoutProps) {
-  const { lang } = params;
+  const { lang } = await params;
   const dictionary = await getDictionary(lang);
   const isProd = process.env.NODE_ENV === 'production';
 

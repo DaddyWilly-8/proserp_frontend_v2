@@ -1,0 +1,9 @@
+{
+    "form":{
+    "title": "Stakeholders",
+    "buttons": {
+      "save": "Save",
+      "cancel": "Cancel"
+    }
+  }
+}

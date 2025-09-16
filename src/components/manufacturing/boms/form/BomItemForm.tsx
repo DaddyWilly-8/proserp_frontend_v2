@@ -22,7 +22,6 @@ import ProductQuickAdd from '@/components/productAndServices/products/ProductQui
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { BOMItem } from '../BomType';
 import { Product } from '@/components/productAndServices/products/ProductType';
-import { MeasurementUnit } from '@/components/masters/measurementUnits/MeasurementUnitType';
 import { useProductsSelect } from '@/components/productAndServices/products/ProductsSelectProvider';
 
 interface BomItemFormProps {
@@ -193,7 +192,7 @@ const BomItemForm: React.FC<BomItemFormProps> = ({
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} autoComplete="off">
-      <Grid container spacing={2} alignItems="flex-end" mb={2}>
+      <Grid container spacing={2} mb={3} sx={{ pt: 2 }}>
         <Grid size={{ xs: 12, md: 8 }}>
           <Controller
             name="product"

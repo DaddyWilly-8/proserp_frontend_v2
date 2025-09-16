@@ -17,11 +17,12 @@ function Search(
   const { show, onClose } = props;
   if (!smallScreen) {
     return (
-      <SearchGlobal
-        sx={{
-          maxWidth: { xs: 240, md: 320 },
-        }}
-      />
+      // <SearchGlobal
+      //   sx={{
+      //     maxWidth: { xs: 240, md: 320 },
+      //   }}
+      // />
+      <div></div>
     );
   }
 
@@ -36,7 +37,7 @@ function Search(
           height: '100%',
         }}
       >
-        <SearchGlobal
+        {/* <SearchGlobal
           sx={{
             maxWidth: 'none',
             height: '100%',
@@ -63,7 +64,7 @@ function Search(
           onClick={() => onClose(false)}
         >
           <CloseIcon />
-        </IconButton>
+        </IconButton> */}
       </Div>
     </Slide>
   );

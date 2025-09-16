@@ -23,9 +23,9 @@ export const BackdropSpinner: React.FC<BackdropSpinnerProps> = ({
   isRouterTransfer
 }) => {
   const { authOrganization } = useJumboAuth();
-  const mainColor = authOrganization?.organization.settings?.main_color || "#2113AD";
-  const lightColor = authOrganization?.organization.settings?.light_color || "#bec5da";
-  const contrastText = authOrganization?.organization.settings?.contrast_text || "#FFFFFF";
+  const mainColor = authOrganization?.organization?.settings?.main_color || "#2113AD";
+  const lightColor = authOrganization?.organization?.settings?.light_color || "#bec5da";
+  const contrastText = authOrganization?.organization?.settings?.contrast_text || "#FFFFFF";
 
   return (
     <Backdrop

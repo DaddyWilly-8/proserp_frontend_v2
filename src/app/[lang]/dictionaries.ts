@@ -7,23 +7,31 @@ interface LocaleDictionary {
 
 const dictionaries: LocaleDictionary = {
   'en-US': async () => {
-    const [main, organizations] = await Promise.all([
+    const [main, organizations,measurementUnits,currencies] = await Promise.all([
       import('@/dictionaries/en/en.json').then(m => m.default),
-      import('@/dictionaries/en/organizations/organizations.json').then(m => m.default)
+      import('@/dictionaries/en/organizations/organizations.json').then(m => m.default),
+      import('@/dictionaries/en/measurementUnits/measurementUnits.json').then(m => m.default),
+      import('@/dictionaries/en/currencies/currencies.json').then(m => m.default)
     ]);
     return {
       ...main,
-      organizations
+      organizations,
+      measurementUnits,
+      currencies
     };
   },
   'sw-TZ': async () => {
-    const [main, organizations] = await Promise.all([
+    const [main, organizations,measurementUnits,currencies] = await Promise.all([
       import('@/dictionaries/sw/sw.json').then(m => m.default),
-      import('@/dictionaries/sw/organizations/organizations.json').then(m => m.default)
+      import('@/dictionaries/sw/organizations/organizations.json').then(m => m.default),
+      import('@/dictionaries/sw/measurementUnits/measurementUnits.json').then(m => m.default),
+      import('@/dictionaries/sw/currencies/currencies.json').then(m => m.default)
     ]);
     return {
       ...main,
-      organizations
+      organizations,
+      measurementUnits,
+      currencies
     };
   },
 

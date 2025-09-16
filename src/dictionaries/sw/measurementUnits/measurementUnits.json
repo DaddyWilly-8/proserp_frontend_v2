@@ -1,0 +1,67 @@
+{
+  "form": {
+    "title": "Vipimo",
+    "buttons": {
+      "submit": "Wasilisha",
+      "cancel": "Ghairi"
+    },
+    "pageTitle": "Hariri: {JinaLaKipimo}",
+    "heading": "Inahaririwa: {JinaLaKipimo}",
+    "labels": {
+      "name": "Jina la Kipimo",
+      "symbol": "Alama ya Kipimo",
+      "description": "Maelezo"
+    },
+    "placeholders": {
+      "UnitName": "Mf. dozeni",
+      "unitSymbol": "Mf. dz",
+      "description": "Mf. Kitengo kinachowakilisha vitu kumi na mbili"
+    },
+    "messages": {
+      "loading": "Kushughulikia maelezo ya kipimo...",
+      "createSuccess": "Kipimo cha Kipimo kimesajiliwa kwa mafanikio!",
+      "updateSuccess": "Kipimo cha Badilisha kimefanikiwa kusasishwa!",
+      "deleteSuccess": "Kipimo cha Kipimo kimefutwa kwa mafanikio."
+    },
+    "errors": {
+      "validation": {
+        "name": {
+          "required": "Jina linahitajika"
+        },
+        "symbol": {
+          "required":"Alama inahitajika",
+          "min": "Alama lazima iwe na angalau herufi 1",
+          "max": "Alama haiwezi kuzidi herufi kumi"
+     } 
+        
+      }
+      
+    }
+  },
+
+  "list": {
+    "labels": {
+      "name": "Jina",
+      "symbol": "Alama",
+      "description": "Maelezo",
+      "actions":"Vitendo",
+      "newCreateLabel":"Kipimo kipya  "
+    },
+      "dialog": {
+        "confirmDelete": {
+          "title": "Thibitisha Kipimo ",
+          "content":"Je, una uhakika unataka kufuta Kipimo hiki ?"
+        },
+        
+        "buttons": {
+          "cancel": "Cancel",
+          "confirm": "Confirm"
+        }
+      },
+      "messages": {
+        "success": "Auto-load setting updated successfully",
+        "error": "An error occurred while updating auto-load setting"
+      }
+    
+  }
+}

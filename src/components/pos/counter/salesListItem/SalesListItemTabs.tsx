@@ -35,6 +35,7 @@ import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import UnauthorizedAccess from '@/shared/Information/UnauthorizedAccess';
 import { DispatchReportOnScreen } from './saleDispatchReport/DispatchReportOnScreen';
 import { useCounter } from '../CounterProvider';
+import SaleAdjustments from './SaleAdjustments';
 
 // Lazy-loaded components
 const SaleInvoiceForm = lazy(() => import('./invoice/SaleInvoiceForm'));
@@ -243,6 +244,9 @@ const SalesListItemTabs: React.FC<SalesListItemTabsProps> = ({
           {accountsPersonnel && !sale.vfd_receipt && (!!sale.is_invoiceable || !!sale.is_invoiced) && (
             <Tab label="Invoices" aria-label="invoices tab"/>
           )}
+          {accountsPersonnel && !!sale.is_invoiced &&
+            <Tab label="Adjustments"/>
+          }
         </Tabs>
       </Grid>
 
@@ -327,6 +331,14 @@ const SalesListItemTabs: React.FC<SalesListItemTabsProps> = ({
           </Grid>
         </Grid>
       )}
+
+      {accountsPersonnel && !sale.vfd_receipt && activeTab === (!sale.is_instant_sale ? 3 : (sale.payment_method === 'On Account' ? 2 : 1)) && !!sale.is_invoiced &&
+        <Grid container width={'100%'}>
+          <Grid size={12}>
+            <SaleAdjustments sale={sale} expanded={expanded} activeTab={activeTab}/>
+          </Grid>
+        </Grid>
+      }
       
       {/* Dialogs */}
       <Dialog

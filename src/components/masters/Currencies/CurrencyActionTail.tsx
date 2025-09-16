@@ -6,6 +6,7 @@ import { ButtonGroup, Tooltip, IconButton, Dialog, useMediaQuery} from '@mui/mat
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const CurrencyForm = lazy(() => import('./CurrencyForm'));
 
@@ -16,7 +17,8 @@ const CurrencyActionTail = () => {
   //Screen handling constants
   const {theme} = useJumboTheme();
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
-
+  const dictionary = useDictionary();
+  
   return (
     <React.Fragment>
       <Dialog maxWidth="sm" fullWidth fullScreen={belowLargeScreen} open={openDialog}>

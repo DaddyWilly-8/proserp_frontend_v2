@@ -1,12 +1,12 @@
 import { AddOutlined } from '@mui/icons-material';
-import { ButtonGroup, Tooltip, IconButton, useMediaQuery } from '@mui/material';
+import { ButtonGroup, Tooltip, IconButton, useMediaQuery, Dialog } from '@mui/material';
 import React, { useState } from 'react';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
-import BomsForm from './form/BomForm';
+import BomForm from './form/BomForm';
 
-const BomsActionTail = () => {
+const BomActionTail = () => {
   const { checkOrganizationPermission } = useJumboAuth();
   const [openDialog, setOpenDialog] = useState(false);
   const { theme } = useJumboTheme();
@@ -29,12 +29,11 @@ const BomsActionTail = () => {
         </ButtonGroup>
       )}
 
-      <BomsForm 
-        open={openDialog} 
-        toggleOpen={setOpenDialog} 
-      />
+     <Dialog fullWidth scroll={belowLargeScreen ? 'body' : 'paper'} fullScreen={belowLargeScreen}  maxWidth="lg" open={openDialog}>
+            <BomForm open={openDialog} toggleOpen={setOpenDialog} />
+        </Dialog>
     </React.Fragment>
   );
 };
 
-export default BomsActionTail;
+export default BomActionTail;

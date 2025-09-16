@@ -11,11 +11,20 @@ export async function GET(request: NextRequest, context: any) {
   const url = new URL(request.url);
   const searchParams = url.searchParams;
 
-  searchParams.set('type', params.type);
+  // Remove "type" from query params to avoid duplication
+  searchParams.delete('type');
 
   const query = searchParams.toString();
 
-  const res = await fetch(`${API_BASE}/accounts/${params.type}?${query}`, {
+  // Special handling for debit/credit
+  let endpoint: string;
+  if (params.type === 'debit' || params.type === 'credit') {
+    endpoint = `${API_BASE}/accounts/adjustment-notes/${params.type}`;
+  } else {
+    endpoint = `${API_BASE}/accounts/${params.type}`;
+  }
+
+  const res = await fetch(`${endpoint}${query ? `?${query}` : ''}`, {
     headers,
     credentials: 'include',
   });

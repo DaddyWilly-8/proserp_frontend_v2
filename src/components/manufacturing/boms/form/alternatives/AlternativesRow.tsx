@@ -17,14 +17,13 @@ import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import ProductSelect from '@/components/productAndServices/products/ProductSelect';
 import CommaSeparatedField from '@/shared/Inputs/CommaSeparatedField';
-import { BOMItem } from '../../BomType';
+import { BOMAlternative, BOMItem } from '../../BomType';
 import { Product } from '@/components/productAndServices/products/ProductType';
-import { MeasurementUnit } from '@/components/masters/measurementUnits/MeasurementUnitType';
 import { useProductsSelect } from '@/components/productAndServices/products/ProductsSelectProvider';
 
 // Validation schema for alternative item
 const validationSchema = yup.object({
-  product: yup.object().required('Product is required').nullable(),
+  product: yup.object().required('Product is required').typeError('Product is required'),
   quantity: yup
     .number()
     .required('Quantity is required')
@@ -34,21 +33,20 @@ const validationSchema = yup.object({
 });
 
 // Default values for the alternative form
-const defaultValues: BOMItem = {
-  product_id: null,
-  product: null,
-  quantity: null,
-  measurement_unit_id: null,
+const defaultValues: BOMAlternative = {
+  product_id: 0,
+  product:null, 
+  quantity: 0,
+  measurement_unit_id: 0,
   measurement_unit: null,
   symbol: '',
   conversion_factor: 1,
-  alternatives: [],
 };
 
 interface AlternativesRowProps {
-  alternative: BOMItem;
+  alternative: BOMAlternative;
   index: number;
-  onUpdate: (updatedItem: BOMItem, index: number) => void;
+  onUpdate: (updatedItem: BOMAlternative, index: number) => void;
   onRemove: () => void;
   onStartEdit: () => void;
   onCancelEdit: () => void;
@@ -75,19 +73,19 @@ const AlternativesRow: React.FC<AlternativesRowProps> = ({
     reset,
     setValue,
     formState: { errors },
-  } = useForm<BOMItem>({
+  } = useForm<BOMAlternative>({
     resolver: yupResolver(validationSchema) as any,
     defaultValues: {
       ...defaultValues,
-      product: productOptions.find((p: Product) => p.id === (alternative.product_id ?? alternative.product?.id)) ?? null,
-      product_id: alternative.product_id ?? alternative.product?.id ?? null,
-      quantity: alternative.quantity ?? null,
+      product: alternative.product ?? null,//&& productOptions.find((product:Product) =>product.id === (alternative.product_id ?? alternative.product?.id)),
+      product_id: alternative.product_id ?? alternative.product?.id ?? 0,
+      quantity: alternative.quantity ?? 0,
       measurement_unit_id:
         alternative.measurement_unit_id ??
         alternative.measurement_unit?.id ??
         alternative.product?.primary_unit?.id ??
         alternative.product?.measurement_unit?.id ??
-        null,
+        0,
       measurement_unit:
         alternative.measurement_unit ??
         alternative.product?.primary_unit ??
@@ -105,7 +103,6 @@ const AlternativesRow: React.FC<AlternativesRowProps> = ({
         alternative.product?.primary_unit?.conversion_factor ??
         alternative.product?.measurement_unit?.conversion_factor ??
         1,
-      alternatives: alternative.alternatives ?? [],
     },
   });
 
@@ -136,15 +133,15 @@ const AlternativesRow: React.FC<AlternativesRowProps> = ({
   useEffect(() => {
     reset({
       ...defaultValues,
-      product: productOptions.find((p: Product) => p.id === (alternative.product_id ?? alternative.product?.id)) ?? null,
-      product_id: alternative.product_id ?? alternative.product?.id ?? null,
-      quantity: alternative.quantity ?? null,
+      product: productOptions.find((p: Product) => p.id === (alternative.product_id ?? alternative.product?.id)) ?? ({} as Product),
+      product_id: alternative.product_id ?? alternative.product?.id ?? 0,
+      quantity: alternative.quantity ?? 0,
       measurement_unit_id:
         alternative.measurement_unit_id ??
         alternative.measurement_unit?.id ??
         alternative.product?.primary_unit?.id ??
         alternative.product?.measurement_unit?.id ??
-        null,
+        0,
       measurement_unit:
         alternative.measurement_unit ??
         alternative.product?.primary_unit ??
@@ -162,19 +159,19 @@ const AlternativesRow: React.FC<AlternativesRowProps> = ({
         alternative.product?.primary_unit?.conversion_factor ??
         alternative.product?.measurement_unit?.conversion_factor ??
         1,
-      alternatives: alternative.alternatives ?? [],
     });
   }, [alternative, productOptions, reset]);
 
   // Handle form submission
-  const onSubmit = (data: BOMItem) => {
-    const updatedItem: BOMItem = {
-      ...data,
-      product_id: data.product?.id ?? data.product_id,
-      measurement_unit_id: data.measurement_unit_id ?? data.measurement_unit?.id,
+  const onSubmit = (data: BOMAlternative) => {
+    const updatedItem: BOMAlternative = {
+      product_id: data.product?.product_id ?? data.product?.id ?? 0,
+      product: data.product,
+      quantity: data.quantity,
+      measurement_unit_id: data.measurement_unit_id ?? data.measurement_unit?.id ?? 0,
+      measurement_unit: data.measurement_unit ?? null,
       symbol: data.symbol ?? data.measurement_unit?.unit_symbol ?? '',
       conversion_factor: data.conversion_factor ?? 1,
-      alternatives: data.alternatives ?? [],
     };
     onUpdate(updatedItem, index);
   };
@@ -184,7 +181,7 @@ const AlternativesRow: React.FC<AlternativesRowProps> = ({
       <Box sx={{ mb: 2, p: 2 }}>
         <form onSubmit={handleSubmit(onSubmit)} autoComplete="off">
           <Grid container spacing={2} alignItems="flex-end">
-            <Grid size={{ xs: 12, md: 8}}>
+            <Grid size={{ xs: 12, md: 8 }}>
               <Controller
                 name="product"
                 control={control}
@@ -192,25 +189,25 @@ const AlternativesRow: React.FC<AlternativesRowProps> = ({
                   <ProductSelect
                     label="Alternative Product"
                     frontError={error}
-                    defaultValue={field.value ?? null}
+                    defaultValue={field.value ?? ({} as Product)}
                     onChange={(newValue: Product | null) => {
                       if (newValue) {
                         const unit = newValue.primary_unit ?? newValue.measurement_unit;
                         setValue('product', newValue, { shouldValidate: true });
                         setValue('product_id', newValue.id);
-                        setValue('measurement_unit_id', unit?.id ?? null);
+                        setValue('measurement_unit_id', unit?.id ?? 0);
                         setValue('measurement_unit', unit ?? null);
                         setValue('symbol', unit?.unit_symbol ?? '');
                         setValue('conversion_factor', unit?.conversion_factor ?? 1);
                         field.onChange(newValue);
                       } else {
-                        setValue('product', null);
-                        setValue('product_id', null);
-                        setValue('measurement_unit_id', null);
+                        setValue('product', {} as Product);
+                        setValue('product_id', 0);
+                        setValue('measurement_unit_id', 0);
                         setValue('measurement_unit', null);
                         setValue('symbol', '');
                         setValue('conversion_factor', 1);
-                        field.onChange(null);
+                        field.onChange({} as Product);
                       }
                     }}
                     sx={{ '& .MuiInputBase-root': { paddingRight: '8px' } }}
@@ -231,7 +228,7 @@ const AlternativesRow: React.FC<AlternativesRowProps> = ({
                     value={field.value ?? ''}
                     onChange={(e) => {
                       const value = e.target.value;
-                      const numValue = value ? parseFloat(value.replace(/,/g, '')) : null;
+                      const numValue = value ? parseFloat(value.replace(/,/g, '')) : 0;
                       field.onChange(numValue);
                     }}
                     InputProps={{
@@ -286,10 +283,10 @@ const AlternativesRow: React.FC<AlternativesRowProps> = ({
                 <CheckOutlined fontSize="small" /> Done
               </Button>
               <Tooltip title="Cancel">
-              <IconButton size="small" onClick={onCancelEdit}>
-                <DisabledByDefault fontSize="small" color="success" />
-              </IconButton>
-            </Tooltip>
+                <IconButton size="small" onClick={onCancelEdit}>
+                  <DisabledByDefault fontSize="small" color="success" />
+                </IconButton>
+              </Tooltip>
             </Grid>
           </Grid>
         </form>
@@ -298,38 +295,54 @@ const AlternativesRow: React.FC<AlternativesRowProps> = ({
   }
 
   return (
-    <Box
+    <Grid
+      container
+      alignItems="center"
+      spacing={1}
       sx={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: 1,
         p: 1,
         bgcolor: 'action.hover',
         borderRadius: 1,
       }}
     >
-      <Typography
-        variant="body2"
-        sx={{ fontWeight: 600, minWidth: 24, textAlign: 'center', color: 'text.secondary' }}
-      >
-        {index + 1}.
-      </Typography>
-      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', gap: 22 }}>
+      <Grid size={{ xs: 1, md: 0.5 }}>
         <Typography
           variant="body2"
-          sx={{ fontWeight: 500, minWidth: 120, overflow: 'hidden', textOverflow: 'ellipsis', flex: 1, mr: 2 }}
+          sx={{
+            fontWeight: 600,
+            textAlign: 'center',
+            color: 'text.secondary',
+          }}
+        >
+          {index + 1}.
+        </Typography>
+      </Grid>
+
+      <Grid size={{ xs: 11, md: 6.5 }}>
+        <Typography
+          variant="body2"
+          sx={{
+            fontWeight: 500,
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+          }}
         >
           {alternative.product?.name}
         </Typography>
+      </Grid>
 
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, minWidth: 60 }}>
+      <Grid size={{ xs: 1, md: 2 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
           <Typography variant="body2">{alternative.quantity}</Typography>
           <Typography variant="body2" sx={{ color: 'text.secondary' }}>
             {alternative.symbol ?? alternative.measurement_unit?.unit_symbol ?? alternative.product?.primary_unit?.unit_symbol ?? ''}
           </Typography>
         </Box>
+      </Grid>
 
-        <Box sx={{ display: 'flex', gap: 0.5, ml: 1 }}>
+      <Grid size={{ xs: 11, md: 3 }} textAlign="end">
+        <Box sx={{ display: 'flex', gap: 0.1, justifyContent: 'flex-end' }}>
           <IconButton size="small" onClick={onStartEdit} color="primary" disabled={isDisabled}>
             <EditOutlined fontSize="small" />
           </IconButton>
@@ -337,8 +350,8 @@ const AlternativesRow: React.FC<AlternativesRowProps> = ({
             <DeleteOutlined fontSize="small" />
           </IconButton>
         </Box>
-      </Box>
-    </Box>
+      </Grid>
+    </Grid>
   );
 };
 
