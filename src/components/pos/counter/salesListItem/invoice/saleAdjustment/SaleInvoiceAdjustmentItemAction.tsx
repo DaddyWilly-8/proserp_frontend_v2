@@ -22,6 +22,7 @@ import { MenuItemProps } from '@jumbo/types';
 import { Transaction, TransactionTypes } from '@/components/accounts/transactions/TransactionTypes';
 import SalesInvoiceAdjustment from './SalesInvoiceAdjustment';
 import posServices from '@/components/pos/pos-services';
+import StakeholderSelectProvider from '@/components/masters/stakeholders/StakeholderSelectProvider';
 
 interface SaleInvoiceAdjustmentItemActionProps {
   transaction: Transaction;
@@ -47,7 +48,11 @@ const EditAdjustment: React.FC<EditAdjustmentProps> = ({ transaction, toggleOpen
     return <LinearProgress />;
   }
 
-  return <SalesInvoiceAdjustment toggleOpen={toggleOpen} invoiceData={invoiceData} />;
+  return( 
+    <StakeholderSelectProvider>
+        <SalesInvoiceAdjustment toggleOpen={toggleOpen} invoiceData={invoiceData} isEdit={true}/>;
+    </StakeholderSelectProvider>
+    )
 };
 
 const SaleInvoiceAdjustmentItemAction: React.FC<SaleInvoiceAdjustmentItemActionProps> = ({ transaction, type }) => {

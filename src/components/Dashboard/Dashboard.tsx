@@ -55,17 +55,16 @@ function Dashboard() {
   const { authOrganization, checkOrganizationPermission, organizationHasSubscribed, authUser } = useJumboAuth();
   const active_subscriptions: any = authOrganization?.organization?.active_subscriptions || [];
   const [mounted, setMounted] = useState(false);
+  const router = useRouter();
   const lang = useLanguage();
 
   const [chartFilters, setChartFilters] = useState<ChartFilters>({
     from: dayjs().startOf('month').toISOString(),
     to: dayjs().endOf('day').toISOString(),
-    cost_center_ids: (authUser as AuthUser)?.is_admin ? 'all' : (authOrganization?.costCenters ? authOrganization.costCenters.map((cost_center: CostCenter) => cost_center.id) : []),
-    costCenters: authOrganization?.costCenters
+    cost_center_ids: (authUser as AuthUser)?.user?.is_admin ? 'all' : (authOrganization?.costCenters ? authOrganization.costCenters.map((cost_center: CostCenter) => cost_center.id) : []),
+    costCenters: authOrganization?.costCenters && authOrganization.costCenters
   });
   
-  const router = useRouter();
-
   const alertingSubscriptions = active_subscriptions.filter((subscription: Subscription) => !subscription?.successor && subscription.days_remaining <= 20);
 
   useEffect(() => {

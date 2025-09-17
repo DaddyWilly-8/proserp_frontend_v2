@@ -27,32 +27,12 @@ import CostCenterSelector from '@/components/masters/costCenters/CostCenterSelec
 import StakeholderSelector from '@/components/masters/stakeholders/StakeholderSelector';
 import LedgerSelect from '@/components/accounts/ledgers/forms/LedgerSelect';
 import MeasurementSelector from '@/components/masters/measurementUnits/MeasurementSelector';
-
-interface Product {
-  id: number;
-  name: string;
-  vat_exempted?: number;
-}
-
-interface MeasurementUnit {
-  id: number;
-  symbol: string;
-}
-
-interface Currency {
-  id: number;
-  code: string;
-}
-
-interface Stakeholder {
-  id: number;
-  name: string;
-}
-
-interface CostCenter {
-  id: number;
-  name: string;
-}
+import { useLedgerSelect } from '@/components/accounts/ledgers/forms/LedgerSelectProvider';
+import { Product } from '@/components/productAndServices/products/ProductType';
+import { MeasurementUnit } from '@/components/masters/measurementUnits/MeasurementUnitType';
+import { Currency } from '@/components/masters/Currencies/CurrencyType';
+import { Stakeholder } from '@/components/masters/stakeholders/StakeholderType';
+import { CostCenter } from '@/components/masters/costCenters/CostCenterType';
 
 interface InvoiceItem {
   id: number;
@@ -63,6 +43,7 @@ interface InvoiceItem {
   rate: number;
   vat_amount: number;
   vat_percentage: number;
+  complement_ledger_id?: number;
 }
 
 interface InvoiceData {
@@ -70,6 +51,7 @@ interface InvoiceData {
   invoiceNo: string;
   transaction_date: string;
   due_date: string | null;
+  voucherNo?: string,
   internal_reference: string;
   customer_reference: string;
   narration: string;
@@ -87,6 +69,7 @@ interface NoteTypeOption {
 }
 
 interface FormData {
+  id?: number | null,
   narration: string;
   transaction_date: string;
   note_type: string;
@@ -109,9 +92,10 @@ interface FormData {
 interface SalesInvoiceAdjustmentProps {
   invoiceData: InvoiceData;
   toggleOpen: (open: boolean) => void;
+  isEdit?: boolean
 }
 
-function SalesInvoiceAdjustment({ invoiceData, toggleOpen }: SalesInvoiceAdjustmentProps) {
+function SalesInvoiceAdjustment({ isEdit, invoiceData, toggleOpen }: SalesInvoiceAdjustmentProps) {
   const [transaction_date] = useState<Dayjs>(invoiceData ? dayjs(invoiceData.transaction_date) : dayjs());
   const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
@@ -121,6 +105,7 @@ function SalesInvoiceAdjustment({ invoiceData, toggleOpen }: SalesInvoiceAdjustm
   const [vatableAmount, setVatableAmount] = useState(0);
   const [sale_items, setSale_items] = useState<InvoiceItem[]>(invoiceData ? invoiceData.items : []);
   const currencyCode = invoiceData.currency.code;
+  const { ungroupedLedgerOptions } = useLedgerSelect();
 
   const noteType: NoteTypeOption[] = [
     { name: 'Debit Note', value: 'debit' },
@@ -141,7 +126,23 @@ function SalesInvoiceAdjustment({ invoiceData, toggleOpen }: SalesInvoiceAdjustm
     },
   });
 
-  const saveMutation = React.useMemo(() => invoiceAdjustment.mutate, [invoiceAdjustment.mutate]);
+  const updateInvoiceAdjustment = useMutation({
+    mutationFn: posServices.updateInvoiceAdjustment,
+    onSuccess: (data: { message: string }) => {
+      toggleOpen(false);
+      enqueueSnackbar(data.message, { variant: 'success' });
+      queryClient.invalidateQueries({ queryKey: ['SaleInvoices'] });
+      queryClient.invalidateQueries({ queryKey: ['counterSales'] });
+    },
+    onError: (error: any) => {
+      error?.response?.data?.message &&
+        enqueueSnackbar(error.response.data.message, { variant: 'error' });
+    },
+  });
+
+  const saveMutation = React.useMemo(() => {
+    return isEdit ? updateInvoiceAdjustment.mutate : invoiceAdjustment.mutate;
+  }, [isEdit, updateInvoiceAdjustment.mutate, invoiceAdjustment.mutate]);
 
   const validationSchema = yup.object({
     transaction_date: yup.string().required('Invoice Date is required').typeError('Invoice Date is required'),
@@ -172,8 +173,10 @@ function SalesInvoiceAdjustment({ invoiceData, toggleOpen }: SalesInvoiceAdjustm
   const { setValue, register, handleSubmit, watch, formState: { errors } } = useForm<FormData>({
     resolver: yupResolver(validationSchema) as any,
     defaultValues: {
+      id: isEdit ? invoiceData.id : null,
+      narration: invoiceData?.narration,
       transaction_date: transaction_date.toISOString(),
-      note_type: invoiceData?.note_type || '',
+      note_type: invoiceData?.note_type,
       currency_id: invoiceData?.currency?.id || 1,
       corresponding_to: 'CustomerInvoice',
       corresponding_id: invoiceData?.id,
@@ -185,26 +188,32 @@ function SalesInvoiceAdjustment({ invoiceData, toggleOpen }: SalesInvoiceAdjustm
         quantity: item.quantity || 0,
         rate: item.rate || 0,
         vat_percentage: item.vat_percentage || 0,
-        description: item.description || '',
-        complement_ledger_id: 0,
+        description: item.description,
+        complement_ledger_id: item.complement_ledger_id,
       })),
     },
   });
 
-  const selectedNoteType = watch('note_type');
-  const headerText =
-    selectedNoteType === 'debit'
-      ? `Debit Note to ${invoiceData.invoiceNo}`
-      : selectedNoteType === 'credit'
-      ? `Credit Note to ${invoiceData.invoiceNo}`
-      : `Note For ${invoiceData.invoiceNo}`;
+  const selectedNoteType = watch("note_type");
+  let headerText: string;
+
+  if (invoiceData.voucherNo) {
+    headerText = `Edit ${invoiceData.voucherNo}`;
+  }
+    else if (selectedNoteType === "debit") {
+    headerText = `Debit Note to ${invoiceData.invoiceNo}`;
+  } else if (selectedNoteType === "credit") {
+    headerText = `Credit Note to ${invoiceData.invoiceNo}`;
+  } else {
+    headerText = `Note For ${invoiceData.invoiceNo}`;
+  }
 
   const vat_registered = !!organization?.settings?.vat_registered;
 
   useEffect(() => {
     const total = sale_items.reduce((sum, item) => sum + (item.rate * item.quantity || 0), 0);
     const vatable = sale_items
-      .filter((item) => item.product?.vat_exempted !== 1)
+      .filter((item) => Number(item.product?.vat_exempted) !== 1)
       .reduce((sum, item) => sum + (item.vat_amount || 0), 0);
     setTotalAmount(total);
     setVatableAmount(vatable);
@@ -212,6 +221,7 @@ function SalesInvoiceAdjustment({ invoiceData, toggleOpen }: SalesInvoiceAdjustm
 
   const onSubmit = (data: FormData) => {
     const payload = {
+      id: data.id,
       narration: data.narration,
       transaction_date: data.transaction_date,
       note_type: data.note_type,
@@ -277,6 +287,7 @@ function SalesInvoiceAdjustment({ invoiceData, toggleOpen }: SalesInvoiceAdjustm
                       options={noteType}
                       isOptionEqualToValue={(option: NoteTypeOption, value: NoteTypeOption) => option.value === value.value}
                       getOptionLabel={(option: NoteTypeOption) => option.name}
+                      disabled={isEdit}
                       renderInput={(params) => (
                         <TextField
                           {...params}
@@ -446,6 +457,7 @@ function SalesInvoiceAdjustment({ invoiceData, toggleOpen }: SalesInvoiceAdjustm
                 <Div sx={{ mt: 0.3 }}>
                   <LedgerSelect
                     frontError={errors?.items?.[index]?.complement_ledger_id}
+                    defaultValue={ungroupedLedgerOptions.find(ledger => ledger.id === item?.complement_ledger_id)}
                     onChange={(newValue: any) => {
                       setValue(`items.${index}.complement_ledger_id` as const, newValue ? newValue.id : 0, {
                         shouldValidate: true,
@@ -462,6 +474,7 @@ function SalesInvoiceAdjustment({ invoiceData, toggleOpen }: SalesInvoiceAdjustm
                     <MeasurementSelector
                       label="Unit"
                       frontError={errors?.items?.[index]?.measurement_unit_id as any}
+                      defaultValue={isEdit && item.measurement_unit.id as any}
                       onChange={(newValue: any) => {
                         setValue(`items.${index}.measurement_unit_id`, newValue ? newValue.id : null, {
                           shouldValidate: true,
@@ -530,7 +543,7 @@ function SalesInvoiceAdjustment({ invoiceData, toggleOpen }: SalesInvoiceAdjustm
           Cancel
         </Button>
         <LoadingButton
-          loading={invoiceAdjustment.isPending}
+          loading={invoiceAdjustment.isPending || updateInvoiceAdjustment.isPending}
           size="small"
           type="submit"
           variant="contained"
