@@ -1,5 +1,6 @@
 import React from 'react';
 import { Autocomplete, TextField } from '@mui/material';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 type Option = {
   label: string;
@@ -10,7 +11,6 @@ type AttachmentablesSelectorProps = {
   value: string[];
   onChange: (values: string[]) => void;
 };
-
 const attachmentableOptions: Option[] = [
   { label: "Payment", value: "payment" },
   { label: "Receipt", value: "receipt" },
@@ -26,6 +26,8 @@ const attachmentableOptions: Option[] = [
 ].sort((a, b) => a.label.localeCompare(b.label));
 
 const AttachmentablesSelector: React.FC<AttachmentablesSelectorProps> = ({ value, onChange }) => {
+const dictionary = useDictionary();
+
   const selectedOptions = React.useMemo<Option[]>(
     () => attachmentableOptions.filter(option => value.includes(option.value)),
     [value]
@@ -48,7 +50,7 @@ const AttachmentablesSelector: React.FC<AttachmentablesSelectorProps> = ({ value
       renderInput={(params) => (
         <TextField
           {...params}
-          label="Related To"
+          label={dictionary.filesShelf.list.labels.relatedTo}
           fullWidth
           variant="outlined"
         />

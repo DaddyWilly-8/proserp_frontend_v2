@@ -1,5 +1,6 @@
 import React from 'react';
 import { Box, Autocomplete, TextField } from '@mui/material';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 type FileGroup = {
   label: string;
@@ -19,6 +20,7 @@ interface FileTypesSelectorProps {
 }
 
 const FileTypesSelector: React.FC<FileTypesSelectorProps> = ({ value, onChange }) => {
+  const dictionary = useDictionary();
   // Derive the selected groups from the selected file extensions
   const selectedGroups = options.filter(option =>
     option.value.some(ext => value.includes(ext))
@@ -44,7 +46,7 @@ const FileTypesSelector: React.FC<FileTypesSelectorProps> = ({ value, onChange }
         onChange={handleChange}
         isOptionEqualToValue={(opt, val) => opt.label === val.label}
         renderInput={(params) => (
-          <TextField {...params} label="File Types" variant="outlined" />
+          <TextField {...params} label={dictionary.filesShelf.list.labels.fileType} variant="outlined" />
         )}
       />
     </Box>

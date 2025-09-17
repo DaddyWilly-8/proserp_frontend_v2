@@ -10,6 +10,7 @@ import { Stakeholder } from './StakeholderType';
 import { JumboDdMenu } from '@jumbo/components';
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface StakeholderItemActionProps {
   stakeholder: Stakeholder;
@@ -23,6 +24,7 @@ const StakeholderItemAction: React.FC<StakeholderItemActionProps> = ({ stakehold
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const { enqueueSnackbar } = useSnackbar();
+  const dictionary = useDictionary();
 
   // Screen handling constants
   const { theme } = useJumboTheme();
@@ -34,7 +36,7 @@ const StakeholderItemAction: React.FC<StakeholderItemActionProps> = ({ stakehold
     mutationFn: (id: number) => stakeholderServices.delete(id),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['stakeholders'] });
-      enqueueSnackbar(data.message, {
+      enqueueSnackbar(dictionary.stakeholders.form.messages.deleteSuccess, {
         variant: 'success',
       });
       setOpenDeleteDialog(false);
@@ -48,8 +50,8 @@ const StakeholderItemAction: React.FC<StakeholderItemActionProps> = ({ stakehold
   });
 
   const menuItems: MenuItemProps[] = [
-    { icon: <EditOutlined />, title: 'Edit', action: 'edit' },
-    { icon: <DeleteOutlined color='error' />, title: 'Delete', action: 'delete' }
+    { icon: <EditOutlined />, title: dictionary.stakeholders.list.actionsTittle.edit, action: 'edit' },
+    { icon: <DeleteOutlined color='error' />, title: dictionary.stakeholders.list.actionsTittle.delete, action: 'delete' }
   ];
 
   const handleItemAction = (menuItem: MenuItemProps) => {
@@ -80,7 +82,7 @@ const StakeholderItemAction: React.FC<StakeholderItemActionProps> = ({ stakehold
 
       <JumboDdMenu
         icon={
-          <Tooltip title='Actions'>
+          <Tooltip title={dictionary.stakeholders.list.labels.actions}>
             <MoreHorizOutlined />
           </Tooltip>
         }
@@ -90,22 +92,22 @@ const StakeholderItemAction: React.FC<StakeholderItemActionProps> = ({ stakehold
       
       {/* Dialog for delete confirmation */}
       <Dialog open={openDeleteDialog}>
-        <DialogTitle>Delete Confirmation</DialogTitle>
+        <DialogTitle>{dictionary.stakeholders.list.dialog.showDialog.title}</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Are you sure you want to delete "{stakeholder.name}"?
+          {dictionary.stakeholders.list.dialog.showDialog.content.replace('{name}',stakeholder.name)}
           </DialogContentText>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenDeleteDialog(false)} color="primary">
-            Cancel
+            {dictionary.stakeholders.list.actionsTittle.cancel}
           </Button>
           <LoadingButton
             loading={isPending}
             onClick={() => deleteStakeholder(stakeholder.id)}
             color="primary"
           >
-            Confirm
+          {dictionary.stakeholders.list.actionsTittle.comfirm}
           </LoadingButton>
         </DialogActions>
       </Dialog>

@@ -5,7 +5,7 @@ import { MeasurementUnit } from './MeasurementUnitType';
 import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const measurementUnitListItem = ({ measurementUnit }:{measurementUnit: MeasurementUnit}) => {
-  const dictionary = useDictionary();
+const dictionary = useDictionary();
   return (
     <React.Fragment>
         <Divider/>

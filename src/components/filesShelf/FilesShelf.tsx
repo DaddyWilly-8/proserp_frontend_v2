@@ -18,12 +18,14 @@ import FileTypesSelector from './FileTypesSelector';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import UnsubscribedAccess from '@/shared/Information/UnsubscribedAccess';
 import { Attachment } from './attachments/AttachmentsType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function FilesShelf() {
   const params = useParams<{ category?: string; id?: string; keyword?: string }>();
   const listRef = useRef<any>(null);
   const { authOrganization } = useJumboAuth();
   const [mounted, setMounted] = useState(false);
+  const dictionary = useDictionary();
 
   const [filterDate, setFilterDate] = useState<{ from?: string; to?: string }>({});
   const [queryOptions, setQueryOptions] = useState<{
@@ -155,7 +157,7 @@ function FilesShelf() {
               </Grid>
               <Grid size={{ xs: 11, md: 6, lg: 3.2 }}>
                 <DateTimePicker
-                  label="From"
+                  label={dictionary.filesShelf.list.labels.from}
                   value={filterDate.from ? dayjs(filterDate.from) : null}
                   minDate={dayjs(authOrganization?.organization?.recording_start_date)}
                   onChange={(value) => handleDateChange(value, 'from')}
@@ -166,7 +168,7 @@ function FilesShelf() {
               </Grid>
               <Grid size={{ xs: 11, md: 5, lg: 3.2 }}>
                 <DateTimePicker
-                  label="To"
+                  label={dictionary.filesShelf.list.labels.to}
                   value={filterDate.to ? dayjs(filterDate.to) : null}
                   minDate={filterDate.from ? dayjs(filterDate.from) : undefined}
                   onChange={(value) => handleDateChange(value, 'to')}
@@ -176,7 +178,7 @@ function FilesShelf() {
                 />
               </Grid>
               <Grid size={{ xs: 1, md: 1, lg: 0.4 }}>
-                <Tooltip title="Filter Dates">
+                <Tooltip title={dictionary.filesShelf.list.actionTittle.filterDates}>
                   <IconButton onClick={applyDateFilters}>
                     <EventAvailableOutlined />
                   </IconButton>

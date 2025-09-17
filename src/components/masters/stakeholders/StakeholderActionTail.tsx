@@ -3,9 +3,11 @@ import { Dialog, IconButton, Tooltip, useMediaQuery } from '@mui/material'
 import React, { useState } from 'react'
 import StakeholderDialogForm from './StakeholderDialogForm';
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function StakeholderActionTail() {
     const [openDialog, setOpenDialog] = useState(false);
+    const dictionary = useDictionary();
 
     //Screen handling constants
     const {theme} = useJumboTheme();
@@ -13,7 +15,7 @@ function StakeholderActionTail() {
 
   return (
     <React.Fragment>
-        <Tooltip title='New Stakeholder'>
+        <Tooltip title={dictionary.stakeholders.list.labels.newCreateLabel}>
             <IconButton onClick={() => setOpenDialog(true)}>
                 <AddOutlined/>
             </IconButton>

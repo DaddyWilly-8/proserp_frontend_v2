@@ -9,6 +9,7 @@ import { useSnackbar } from 'notistack';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Stakeholder } from './StakeholderType';
 import { Div } from '@jumbo/shared';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface StakeholderDialogFormProps {
   stakeholder?: Stakeholder | null;
@@ -57,10 +58,11 @@ const stakeholderTypes = [
 ] as const;
 
 const StakeholderDialogForm: React.FC<StakeholderDialogFormProps> = ({ stakeholder, toggleOpen }) => {
+  const dictionary = useDictionary();
   const validationSchema = yup.object({
-    name: yup.string().required('Name is required'),
-    type: yup.string().required('Stakeholder type is required').typeError('Stakeholder type is required'),
-    email: yup.string().email('Please enter a valid email').nullable(),
+    name: yup.string().required(dictionary.stakeholders.form.errors.validation.name.required),
+    type: yup.string().required(dictionary.stakeholders.form.errors.validation.type.required).typeError(dictionary.stakeholders.form.errors.validation.typeError),
+    email: yup.string().email(dictionary.stakeholders.form.errors.validation.email).nullable(),
     website: yup.string()
       .matches(
         /^$|((https?):\/\/)?(www\.)?[a-z0-9]+(\.[a-z]{2,}){1,3}(#?\/?[a-zA-Z0-9#]+)*\/?(\?[a-zA-Z0-9-_]+=[a-zA-Z0-9-%]+&?)?$/,
@@ -72,7 +74,7 @@ const StakeholderDialogForm: React.FC<StakeholderDialogFormProps> = ({ stakehold
   }).test('at-least-one-button', 'Select one ledger type', function (value) {
     const { create_receivable, create_payable } = value;
     if (!create_receivable && !create_payable && !stakeholder) {
-      return this.createError({ path: 'ledger_type', message: 'Select one ledger type' });
+      return this.createError({ path: 'ledger_type', message: dictionary.stakeholders.form.messages.ledgerType });
     }
     return true;
   });
@@ -103,6 +105,7 @@ const StakeholderDialogForm: React.FC<StakeholderDialogFormProps> = ({ stakehold
 
   const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
+ 
 
   const handleRadioChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
@@ -126,7 +129,7 @@ const StakeholderDialogForm: React.FC<StakeholderDialogFormProps> = ({ stakehold
     mutationFn: (formData: FormData) => stakeholderServices.add(formData),
     onSuccess: (data) => {
       toggleOpen(false);
-      enqueueSnackbar(data.message, { variant: 'success' });
+      enqueueSnackbar(dictionary.stakeholders.form.messages.createSuccess, { variant: 'success' });
       queryClient.invalidateQueries({ queryKey: ['stakeholders'] });
     },
     onError: (error) => {
@@ -150,7 +153,7 @@ const StakeholderDialogForm: React.FC<StakeholderDialogFormProps> = ({ stakehold
     mutationFn: (formData: FormData) => stakeholderServices.update(formData),
     onSuccess: (data) => {
       toggleOpen(false);
-      enqueueSnackbar(data.message, { variant: 'success' });
+      enqueueSnackbar(dictionary.stakeholders.form.messages.updateSuccess, { variant: 'success' });
       queryClient.invalidateQueries({ queryKey: ['stakeholders'] });
     },
     onError: (error) => {
@@ -171,7 +174,7 @@ const StakeholderDialogForm: React.FC<StakeholderDialogFormProps> = ({ stakehold
   return (
     <form onSubmit={handleSubmit(onSubmit)} autoComplete='off'>
       <DialogTitle textAlign={'center'}>
-        {!stakeholder?.id ? 'New Stakeholder' : `Edit: ${stakeholder.name}`}
+        {!stakeholder?.id ? dictionary.stakeholders.form.title : dictionary.stakeholders.form.pageTitle.replace('{name}' ,stakeholder.name)}
       </DialogTitle>
       <DialogContent>
         <Grid container columnSpacing={1}>
@@ -179,7 +182,7 @@ const StakeholderDialogForm: React.FC<StakeholderDialogFormProps> = ({ stakehold
             <Div sx={{ mt: 1, mb: 1 }}>
               <TextField
                 size='small'
-                label='Name*'
+                label={dictionary.stakeholders.form.labels.name}
                 fullWidth
                 defaultValue={stakeholder?.name}
                 error={!!errors?.name}
@@ -198,7 +201,7 @@ const StakeholderDialogForm: React.FC<StakeholderDialogFormProps> = ({ stakehold
                 renderInput={(params) => (
                   <TextField
                     {...params}
-                    label="Type*"
+                    label={dictionary.stakeholders.form.labels.type}
                     error={!!errors?.type}
                     helperText={errors?.type?.message}
                   />
@@ -217,7 +220,7 @@ const StakeholderDialogForm: React.FC<StakeholderDialogFormProps> = ({ stakehold
               <Div sx={{ mt: 1, mb: 1 }}>
                 <TextField
                   size='small'
-                  label='Ledger Code'
+                  label={dictionary.stakeholders.form.labels.ledgerCode}
                   fullWidth
                   error={!!errors?.ledger_code}
                   helperText={errors?.ledger_code?.message}
@@ -230,7 +233,7 @@ const StakeholderDialogForm: React.FC<StakeholderDialogFormProps> = ({ stakehold
             <Div sx={{ mt: 1, mb: 1 }}>
               <TextField
                 size='small'
-                label='Email'
+                label={dictionary.stakeholders.form.labels.email}
                 fullWidth
                 defaultValue={stakeholder?.email}
                 error={!!errors?.email}
@@ -243,7 +246,7 @@ const StakeholderDialogForm: React.FC<StakeholderDialogFormProps> = ({ stakehold
             <Div sx={{ mt: 1, mb: 1 }}>
               <TextField
                 size='small'
-                label='Phone'
+                label={dictionary.stakeholders.form.labels.phone}
                 fullWidth
                 defaultValue={stakeholder?.phone}
                 error={!!errors?.phone}
@@ -256,7 +259,7 @@ const StakeholderDialogForm: React.FC<StakeholderDialogFormProps> = ({ stakehold
             <Div sx={{ mt: 1, mb: 1 }}>
               <TextField
                 size='small'
-                label='TIN'
+                label={dictionary.stakeholders.form.labels.tin}
                 fullWidth
                 defaultValue={stakeholder?.tin}
                 error={!!errors?.tin}
@@ -269,7 +272,7 @@ const StakeholderDialogForm: React.FC<StakeholderDialogFormProps> = ({ stakehold
             <Div sx={{ mt: 1, mb: 1 }}>
               <TextField
                 size='small'
-                label='VRN'
+                label={dictionary.stakeholders.form.labels.vrn}
                 fullWidth
                 defaultValue={stakeholder?.vrn}
                 error={!!errors?.vrn}
@@ -282,7 +285,7 @@ const StakeholderDialogForm: React.FC<StakeholderDialogFormProps> = ({ stakehold
             <Div sx={{ mt: 1, mb: 1 }}>
               <TextField
                 size='small'
-                label='Website'
+                label={dictionary.stakeholders.form.labels.website}
                 fullWidth
                 defaultValue={stakeholder?.website}
                 error={!!errors?.website}
@@ -295,7 +298,7 @@ const StakeholderDialogForm: React.FC<StakeholderDialogFormProps> = ({ stakehold
             <Div sx={{ mt: 1, mb: 1 }}>
               <TextField
                 size='small'
-                label='Address'
+                label={dictionary.stakeholders.form.labels.address}
                 fullWidth
                 defaultValue={stakeholder?.address}
                 multiline={true}
@@ -310,15 +313,15 @@ const StakeholderDialogForm: React.FC<StakeholderDialogFormProps> = ({ stakehold
             !stakeholder ? 
             <Grid size={12}>
               <Div sx={{ mt: 1, mb: 1 }}>
-                <FormLabel component="legend">Ledger Type</FormLabel>
+                <FormLabel component="legend">{dictionary.stakeholders.form.labels.ledgerType}</FormLabel>
                 <RadioGroup
                   row
                   aria-label="ledger_type"
                   name="ledger_type"
                   onChange={handleRadioChange}
                 >
-                  <FormControlLabel value="receivable" control={<Radio />} label="Receivable Account" />
-                  <FormControlLabel value="payable" control={<Radio />} label="Payable Ledger" />
+                  <FormControlLabel value="receivable" control={<Radio />} label={dictionary.stakeholders.form.labels.receivableAccount} />
+                  <FormControlLabel value="payable" control={<Radio />} label={dictionary.stakeholders.form.labels.payableLedger} />
                 </RadioGroup>
                 {errors.ledger_type && (
                   <FormHelperText error>{errors.ledger_type?.message}</FormHelperText>
@@ -330,13 +333,13 @@ const StakeholderDialogForm: React.FC<StakeholderDialogFormProps> = ({ stakehold
         </Grid>
       </DialogContent>
       <DialogActions>
-        <Button onClick={() => toggleOpen(false)}>Cancel</Button>
+        <Button onClick={() => toggleOpen(false)}>{dictionary.stakeholders.form.buttons.cancel}</Button>
         <LoadingButton 
           loading={addStakeholder.isPending || updateStakeholder.isPending} 
           type="submit" 
           variant="contained"
         >
-          Save
+          {dictionary.stakeholders.form.buttons.save}
         </LoadingButton>
       </DialogActions>
     </form>

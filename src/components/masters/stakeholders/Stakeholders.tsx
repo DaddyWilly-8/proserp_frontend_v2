@@ -14,12 +14,14 @@ import { PERMISSIONS } from '@/utilities/constants/permissions';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import UnauthorizedAccess from '@/shared/Information/UnauthorizedAccess';
 import { useParams } from 'next/navigation';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function Stakeholders() {
     const params = useParams<{ category?: string; id?: string; keyword?: string }>();
     const listRef = useRef<any>(null);
     const [mounted, setMounted] = useState(false);
     const {checkOrganizationPermission} = useJumboAuth();
+    const dictionary = useDictionary();
 
     const [queryOptions, setQueryOptions] = React.useState({
         queryKey: "stakeholders",
@@ -75,7 +77,7 @@ function Stakeholders() {
 
 return (
     <React.Fragment>
-        <Typography variant={'h4'} mb={2}>Stakeholders</Typography>
+        <Typography variant={'h4'} mb={2}>{dictionary.stakeholders.form.labels.listHeader}</Typography>
         <JumboRqList
             ref={listRef}
             wrapperComponent={Card}

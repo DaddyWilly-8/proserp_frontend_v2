@@ -3,8 +3,10 @@ import { Box, Divider, Grid, ListItemText, Stack, Tooltip, Typography } from '@m
 import React from 'react'
 import StakeholderItemAction from './StakeholderItemAction'
 import { Stakeholder } from './StakeholderType'
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext'
 
 function StakeholderListItem({ stakeholder }:{stakeholder: Stakeholder}) {
+  const dictionary = useDictionary();
   return (
     <React.Fragment>
       <Grid 
@@ -22,12 +24,12 @@ function StakeholderListItem({ stakeholder }:{stakeholder: Stakeholder}) {
           <Grid size={{xs: 12, md: 4, lg: 3}}>
             <ListItemText
               primary={
-                <Tooltip title='Name'>
+                <Tooltip title={dictionary.stakeholders.form.labels.name}>
                   <Typography component={'span'}>{stakeholder.name}</Typography>
                 </Tooltip>
               }
               secondary={
-                <Tooltip title='Type'>
+                <Tooltip title={dictionary.stakeholders.form.labels.type}>
                   <Typography component={'span'}>{stakeholder.type}</Typography>
                 </Tooltip>
               }
@@ -39,7 +41,7 @@ function StakeholderListItem({ stakeholder }:{stakeholder: Stakeholder}) {
                 stakeholder.phone &&
                   <Stack direction={'row'} spacing={1}>
                     <PhoneOutlined fontSize='small' />
-                    <Tooltip title='Phone'>
+                    <Tooltip title={dictionary.stakeholders.form.labels.phone}>
                       <Typography component={'span'}>{stakeholder.phone}</Typography>
                     </Tooltip>
                   </Stack>
@@ -60,7 +62,7 @@ function StakeholderListItem({ stakeholder }:{stakeholder: Stakeholder}) {
               primary={
                 stakeholder.tin &&
                   <Stack direction={'row'} spacing={1}>
-                    <Tooltip title='TIN'>
+                    <Tooltip title={dictionary.stakeholders.form.labels.tin}>
                       <Typography component={'span'}>TIN: {stakeholder.tin}</Typography>
                     </Tooltip>
                   </Stack>
@@ -90,7 +92,7 @@ function StakeholderListItem({ stakeholder }:{stakeholder: Stakeholder}) {
             <ListItemText
               primary={
                 stakeholder.address &&
-                  <Tooltip title='Address'>
+                  <Tooltip title={dictionary.stakeholders.form.labels.address}>
                     <Stack direction={'row'} spacing={1}>
                       <PinDropOutlined fontSize='small' />
                       <Typography component={'span'}>{stakeholder.address}</Typography>
