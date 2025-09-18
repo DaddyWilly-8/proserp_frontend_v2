@@ -4,10 +4,12 @@ import React, { useContext, useState } from 'react'
 import ProductCategoryFormDialogContent from './ProductCategoryFormDialogContent';
 import { ProductCategoriesAppContext } from './ProductCategories';
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const ProductCategoryActionTail = () => {
   const {productCategories} = useContext(ProductCategoriesAppContext);
   const [newProductCategoryFormOpen, setNewProductCategoryFormOpen] = useState(false);
+  const dictionary = useDictionary();
 
   //Screen handling constants
   const {theme} = useJumboTheme();
@@ -15,7 +17,7 @@ const ProductCategoryActionTail = () => {
     
   return (
     <React.Fragment>
-      <Tooltip title={'New Product Category'}>
+      <Tooltip title={dictionary.productCategories.list.labels.newCreateLabel}>
         <IconButton size='small' onClick={() => setNewProductCategoryFormOpen(true)}>
           <AddOutlined/>
         </IconButton>

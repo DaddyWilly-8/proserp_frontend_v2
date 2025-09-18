@@ -29,14 +29,13 @@
   },
   "list": {
     "labels": {
-      "listHeader": "Users",
       "name": "Name",
       "email": "Email",
       "status": "Status",
       "userActions": "User Actions",
       "newCreateLabel": "Verify User"
     },
-     "actionsTittle": {
+     "actionsTitle": {
       "labels": {
       "reactivate": "Reactivate",
       "deactivate": "Deactivate"

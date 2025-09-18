@@ -9,6 +9,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 import productCategoryServices from './productCategoryServices';
 import { JumboDdMenu } from '@jumbo/components';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function ProductCategoryItemAction({productCategory}) {
   const {showDialog,hideDialog} = useJumboDialog();
@@ -16,6 +17,7 @@ function ProductCategoryItemAction({productCategory}) {
   const {productCategories} = useContext(ProductCategoriesAppContext);
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const queryClient = useQueryClient();
+  const dictionary = useDictionary();
 
   //Screen handling constants
   const {theme} = useJumboTheme();
@@ -24,25 +26,25 @@ function ProductCategoryItemAction({productCategory}) {
   const deleteProductCategory = useMutation({
     mutationFn: productCategoryServices.delete,
     onSuccess: (data) => {
-      enqueueSnackbar(data.message, { variant: 'success' });
+      enqueueSnackbar(dictionary.productCategories.form.messages.deleteSuccess, { variant: 'success' });
       queryClient.invalidateQueries({ queryKey: ['productCategories'] });
     },
     onError: (error) => {
-      enqueueSnackbar(error?.response?.data.message, { variant: 'error' });
+      enqueueSnackbar(dictionary.productCategories.form.errors.messages.deleteResponse, { variant: 'error' });
     },
   });
 
   const menuItems = [
-    {icon: <EditOutlined/>, title: 'Edit', action: 'edit'},
-    {icon: <DeleteOutlined color='error'/>, title: 'Delete', action: 'delete'}
+    {icon: <EditOutlined/>, title: dictionary.productCategories.list.actionsTitle.labels.edit, action: 'edit'},
+    {icon: <DeleteOutlined color='error'/>, title: dictionary.productCategories.list.actionsTitle.labels.delete, action: 'delete'}
   ];
 
   const handleItemAction = (menuItem) => {
     switch (menuItem.action) {
       case 'delete':
         showDialog({
-          title : 'Confirm Delete?',
-          content: 'If you say yes, this item will be deleted provided it is not associated with any transactions',
+          title : dictionary.productCategories.list.dialog.showDialog.title,
+          content: dictionary.productCategories.list.dialog.showDialog.content,
           onYes: () => {
             hideDialog();
             deleteProductCategory.mutate(productCategory);
@@ -70,7 +72,7 @@ function ProductCategoryItemAction({productCategory}) {
       </Dialog>
       <JumboDdMenu
         icon={
-          <Tooltip title='Actions'>
+          <Tooltip title={dictionary.productCategories.list.labels.actions}>
             <MoreHorizOutlined/>
           </Tooltip>
         }

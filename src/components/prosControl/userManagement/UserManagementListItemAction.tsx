@@ -71,7 +71,7 @@ console.log(dictionary.userManagement.list)
           const menuItems: MenuItemProps[] = [
             {
               icon: isActive ? <BlockIcon sx={{ color: 'error.main' }} /> : <ReplayIcon sx={{ color: 'primary.main' }} />,
-              title: isActive ? dictionary.userManagement.list.actionsTittle.labels.deactivate : dictionary.userManagement.list.actionsTittle.labels.reactivate,
+              title: isActive ? dictionary.userManagement.list.actionsTitle.labels.deactivate : dictionary.userManagement.list.actionsTitle.labels.reactivate,
               action: isActive ? 'deactivate' : 'reactivate',
             },
           ];

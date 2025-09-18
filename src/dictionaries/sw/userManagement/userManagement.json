@@ -29,7 +29,6 @@
   },
   "list": {
     "labels": {
-      "listHeader": "Watumiaji",
       "name": "Jina",
       "email": "Barua Pepe",
       "status": "Hali",
@@ -37,7 +36,7 @@
       "newCreateLabel": "Thibitisha Mtumiaji"
 
     },
-    "actionsTittle": {
+    "actionsTitle": {
       "labels": {
       "reactivate": "Anzisha tena",
       "deactivate": "Sitisha"

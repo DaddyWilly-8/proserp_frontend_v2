@@ -8,6 +8,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import LedgerSelect from '../../accounts/ledgers/forms/LedgerSelect';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import productCategoryServices from './productCategoryServices';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const ProductCategoryFormDialogContent = ({
   title = 'New Category',
@@ -17,16 +18,17 @@ const ProductCategoryFormDialogContent = ({
 }) => {
   const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
+  const dictionary = useDictionary();
 
   const addProductCategory = useMutation({
     mutationFn: productCategoryServices.add,
     onSuccess: (data) => {
       onClose();
-      enqueueSnackbar(data.message, { variant: 'success' });
+      enqueueSnackbar(dictionary.productCategories.form.messages.createSuccess, { variant: 'success' });
       queryClient.invalidateQueries({ queryKey: ['productCategories'] });
     },
     onError: (error) => {
-      enqueueSnackbar(error.response.data.message, { variant: 'error' });
+      enqueueSnackbar(dictionary.productCategories.form.errors.messages.createResponse, { variant: 'error' });
     },
   });
 
@@ -34,12 +36,12 @@ const ProductCategoryFormDialogContent = ({
     mutationFn: productCategoryServices.update,
     onSuccess: (data) => {
       onClose();
-      enqueueSnackbar(data.message, { variant: 'success' });
+      enqueueSnackbar(dictionary.productCategories.form.messages.updateSuccess, { variant: 'success' });
       queryClient.invalidateQueries({ queryKey: ['productCategoryOptions'] });
       queryClient.invalidateQueries({ queryKey: ['productCategories'] });
     },
     onError: (error) => {
-      enqueueSnackbar(error.response.data.message, { variant: 'error' });
+      enqueueSnackbar(dictionary.productCategories.form.errors.messages.updateResponse, { variant: 'error' });
     },
   });
 
@@ -50,18 +52,18 @@ const ProductCategoryFormDialogContent = ({
   const validationSchema = yup.object({
     name: yup
       .string()
-      .required('Category Name is required'),
+      .required(dictionary.productCategories.form.errors.validation.name.required),
     parent_id: yup
       .number()
       .nullable(),
     income_ledger_id: yup
       .number()
-      .required('Income ledger is required')
-      .positive('Income ledger is required'),
+      .required(dictionary.productCategories.form.errors.validation.income_ledger_id.required)
+      .positive(dictionary.productCategories.form.errors.validation.income_ledger_id.positive),
     expense_ledger_id: yup
       .number()
-      .required('Expense ledger is required')
-      .positive('Expense ledger is required'),
+      .required(dictionary.productCategories.form.errors.validation.expense_ledger_id.required)
+      .positive(dictionary.productCategories.form.errors.validation.expense_ledger_id.positive),
   });
 
   const {
@@ -84,13 +86,13 @@ const ProductCategoryFormDialogContent = ({
 
   return (
     <form autoComplete="off" onSubmit={handleSubmit(saveMutation)}>
-      <DialogTitle>{title}</DialogTitle>
+      <DialogTitle>{dictionary.productCategories.form.title}</DialogTitle>
       <DialogContent>
         <Grid container p={1} spacing={1} rowGap={1}>
           <Grid size={{xs: 12, md: 6}}>
             <TextField
               fullWidth
-              label="Category Name"
+              label={dictionary.productCategories.form.labels.categoryName}
               size="small"
               error={Boolean(
                 errors.name || 
@@ -115,7 +117,7 @@ const ProductCategoryFormDialogContent = ({
               renderInput={(params) => (
                 <TextField
                   {...params}
-                  label="Parent Category"
+                  label={dictionary.productCategories.form.labels.parentCategory}
                   error={Boolean(errors.parent_id)}
                   helperText={errors.parent_id?.message}
                 />
@@ -135,7 +137,7 @@ const ProductCategoryFormDialogContent = ({
           </Grid>
           <Grid size={{xs: 12, md: 6}}>
             <LedgerSelect
-              label="Income Ledger"
+              label={dictionary.productCategories.form.labels.incomeLedger}
               allowedGroups={['Sales and Revenue']}
               frontError={errors.income_ledger_id}
               defaultValue={productCategory?.income_ledger || undefined}
@@ -149,7 +151,7 @@ const ProductCategoryFormDialogContent = ({
           </Grid>
           <Grid size={{xs: 12, md: 6}}>
             <LedgerSelect
-              label="Expense Ledger"
+              label={dictionary.productCategories.form.labels.expenseLedger}
               allowedGroups={['Direct Expenses', 'Indirect Expenses']}
               frontError={errors.expense_ledger_id}
               defaultValue={productCategory?.expense_ledger || undefined}
@@ -164,7 +166,7 @@ const ProductCategoryFormDialogContent = ({
           <Grid size={12}>
             <TextField
               multiline
-              label="Description"
+              label={dictionary.productCategories.form.labels.description}
               fullWidth
               size="small"
               rows={2}
@@ -175,7 +177,7 @@ const ProductCategoryFormDialogContent = ({
       </DialogContent>
       <DialogActions>
         <Button size="small" onClick={onClose}>
-          Cancel
+        {dictionary.productCategories.form.buttons.cancel}
         </Button>
         <LoadingButton
           variant="contained"
@@ -183,7 +185,7 @@ const ProductCategoryFormDialogContent = ({
           loading={addProductCategory.isPending || updateProductCategory.isPending}
           size="small"
         >
-          Save
+          {dictionary.productCategories.form.buttons.save}
         </LoadingButton>
       </DialogActions>
     </form>

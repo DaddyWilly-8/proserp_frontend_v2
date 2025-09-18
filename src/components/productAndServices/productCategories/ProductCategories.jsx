@@ -16,6 +16,7 @@ import UnsubscribedAccess from '@/shared/Information/UnsubscribedAccess';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
 import UnauthorizedAccess from '@/shared/Information/UnauthorizedAccess';
 import { useQuery } from '@tanstack/react-query';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 export const ProductCategoriesAppContext = createContext({});
 
@@ -24,6 +25,7 @@ const ProductCategories = () => {
     const listRef = React.useRef();
     const {organizationHasSubscribed,checkOrganizationPermission} = useJumboAuth();
     const [mounted, setMounted] = useState(false);
+    const dictionary = useDictionary();
 
     const [queryOptions, setQueryOptions] = React.useState({
         queryKey: "productCategories",
@@ -79,7 +81,7 @@ const ProductCategories = () => {
 return (
     <ProductCategoriesAppContext.Provider value={{productCategories}}>
         <LedgerSelectProvider>
-            <Typography variant={'h4'} mb={2}>Product Categories</Typography>
+            <Typography variant={'h4'} mb={2}>{dictionary.productCategories.list.labels.listHeader}</Typography>
             <JumboRqList
                 ref={listRef}
                 wrapperComponent={Card}
