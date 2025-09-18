@@ -15,7 +15,7 @@ const RequisitionsActionTail = () => {
 
   return (
     <React.Fragment>
-      <Dialog maxWidth="xl" scroll={belowLargeScreen ? 'body' : 'paper'} fullWidth fullScreen={belowLargeScreen} open={openDialog}>
+      <Dialog maxWidth="lg" scroll={belowLargeScreen ? 'body' : 'paper'} fullWidth fullScreen={belowLargeScreen} open={openDialog}>
         <RequisitionsForm toggleOpen={setOpenDialog} />
       </Dialog>
       <ButtonGroup variant="outlined" size="small" disableElevation sx={{ '& .MuiButton-root': { px: 1 } }}>

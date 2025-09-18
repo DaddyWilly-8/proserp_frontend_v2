@@ -316,7 +316,7 @@ const CounterSalesListItemAction: React.FC<CounterSalesListItemActionProps> = ({
         open={openEditDialog || openDocumentDialog || openReceiptDialog || attachDialog}
         fullWidth
         fullScreen={belowLargeScreen}
-        maxWidth={openDocumentDialog || attachDialog ? 'md' : openReceiptDialog ? 'sm' : 'xl'}
+        maxWidth={openDocumentDialog || attachDialog ? 'md' : openReceiptDialog ? 'sm' : 'lg'}
         scroll={belowLargeScreen ? 'body' : 'paper'}
         onClose={() => {
           setOpenReceiptDialog(false);

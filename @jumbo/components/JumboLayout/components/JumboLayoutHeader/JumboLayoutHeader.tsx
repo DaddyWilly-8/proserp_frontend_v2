@@ -29,7 +29,7 @@ function JumboLayoutHeader({ children }: { children: React.ReactNode }) {
         position={headerOptions?.fixed ? 'fixed' : 'relative'}
         sx={{ ...appBarSx }}
       >
-        <Toolbar sx={{ height: '100%', px: { lg: 6, sm: 4, xs: 2.5 } }}>
+        <Toolbar sx={{flexShrink: 0, height: '100%', px: { lg: 6, sm: 4, xs: 2.5 } }}>
           {children}
         </Toolbar>
       </AppBar>
