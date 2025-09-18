@@ -33,13 +33,12 @@ const MeasurementUnitForm: React.FC<MeasurementUnitFormProps> = ({ setOpenDialog
   const queryClient = useQueryClient();
   const { enqueueSnackbar } = useSnackbar();
   const dictionary = useDictionary();
-console.log(dictionary.measurementUnits.form.errors.validation);
 
   const { mutate: addMeasurementUnit, isPending, error } = useMutation<ApiResponse, any, FormData>({
     mutationFn: measurementUnitServices.add,
     onSuccess: (data) => {
       setOpenDialog(false);
-      enqueueSnackbar(error.massage, { variant: 'success' });
+      enqueueSnackbar(dictionary.measurementUnits.form.messages.createSuccess, { variant: 'success' });
       queryClient.invalidateQueries({ queryKey: ['measurementUnits'] });
     },
     onError: (error) => {
@@ -53,7 +52,7 @@ console.log(dictionary.measurementUnits.form.errors.validation);
     mutationFn: measurementUnitServices.update,
     onSuccess: (data) => {
       setOpenDialog(false);
-      enqueueSnackbar(error.message, { variant: 'success' });
+      enqueueSnackbar(dictionary.measurementUnits.form.messages.updateSuccess, { variant: 'success' });
       queryClient.invalidateQueries({ queryKey: ['measurementUnits'] });
     },
     onError: (error) => {

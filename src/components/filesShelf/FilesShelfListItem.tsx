@@ -20,6 +20,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { readableDate } from '@/app/helpers/input-sanitization-helpers';
 import { Attachment } from './attachments/AttachmentsType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const iconColors: Record<string, string> = {
   pdf: '#D32F2F',
@@ -77,6 +78,7 @@ const FilesShelfListItem: React.FC<Props> = ({ attachment }) => {
   const fileType = attachment.file_type?.toLowerCase();
   const icon = fileTypeIcon[fileType] || fileTypeIcon.default;
   const iconColor = iconColors[fileType] || iconColors.default;
+  const dictionary = useDictionary();
 
   return (
     <>
@@ -123,14 +125,14 @@ const FilesShelfListItem: React.FC<Props> = ({ attachment }) => {
         <Grid size={{xs: 12, md: 2.5}}>
           <ListItemText
             primary={
-              <Tooltip title="Relatable Type">
+              <Tooltip title={dictionary.filesShelf.list.labels.relatableType}>
                 <Typography variant="body2" noWrap>
                   {attachment.attachmentable_type}
                 </Typography>
               </Tooltip>
             }
             secondary={
-              <Tooltip title="Relatable No">
+              <Tooltip title={dictionary.filesShelf.list.labels.relatableNo}>
                 <Typography variant="caption" noWrap>
                   {attachment.attachmentableNo}
                 </Typography>
@@ -142,7 +144,7 @@ const FilesShelfListItem: React.FC<Props> = ({ attachment }) => {
         <Grid size={{xs: 6, md: 2.5}}>
           <ListItemText
             primary={
-              <Tooltip title="Created">
+              <Tooltip title={dictionary.filesShelf.list.labels.created}>
                 <Typography variant="body2" noWrap>
                   {readableDate(attachment.created_at, true)}
                 </Typography>
@@ -154,7 +156,7 @@ const FilesShelfListItem: React.FC<Props> = ({ attachment }) => {
         <Grid size={{xs: 6, md: 2.5}}>
           <ListItemText
             primary={
-              <Tooltip title="Modified">
+              <Tooltip title={dictionary.filesShelf.list.labels.modified}>
                 <Typography variant="body2" noWrap>
                   {readableDate(attachment.updated_at, true)}
                 </Typography>

@@ -1,5 +1,6 @@
 'use client'
 
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import { Box, FormControl, InputLabel, MenuItem, Select, SelectChangeEvent } from '@mui/material';
 import React, { useState } from 'react';
 
@@ -10,8 +11,9 @@ interface StakeholdersTypeSelectorProps {
   value: StakeholderType;
 }
 
-const StakeholdersTypeSelector: React.FC<StakeholdersTypeSelectorProps> = ({ onChange, value }) => {
-  const [type, setType] = useState<StakeholderType>(value);
+ const StakeholdersTypeSelector: React.FC<StakeholdersTypeSelectorProps> = ({ onChange, value }) => {
+ const [type, setType] = useState<StakeholderType>(value);
+ const dictionary = useDictionary();
 
   const handleChange = (event: SelectChangeEvent<StakeholderType>) => {
     const newValue = event.target.value as StakeholderType;
@@ -26,7 +28,7 @@ const StakeholdersTypeSelector: React.FC<StakeholdersTypeSelectorProps> = ({ onC
   return (
     <Box sx={{ width: '100%' }}>
       <FormControl component="div" fullWidth size='small'>
-        <InputLabel id="stakeholders-types-filter-label">Type</InputLabel>
+        <InputLabel id="stakeholders-types-filter-label">{dictionary.stakeholders.form.labels.type}</InputLabel>
         <Select
           labelId="stakeholders-types-filter-label"
           id="stakeholders-types-filter-select"
