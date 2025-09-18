@@ -1,15 +1,12 @@
 import {
   Accordion,
-  AccordionSummary,
   AccordionDetails,
   Typography,
-  IconButton,
-  Tooltip,
   Box,
   Grid,
 } from '@mui/material';
-import { EditOutlined, DeleteOutlined } from '@mui/icons-material';
-import React, { useState, useEffect, BaseSyntheticEvent } from 'react';
+import { ExpandMore, EditOutlined, DeleteOutlined } from '@mui/icons-material';
+import React, { useState, useEffect } from 'react';
 import { BOMItem } from '../BomType';
 import BomItemForm from './BomItemForm';
 import AlternativesForm from './alternatives/AlternativesForm';
@@ -23,7 +20,7 @@ interface BomItemRowProps {
   setClearFormKey: React.Dispatch<React.SetStateAction<number>>;
   setSubmitItemForm: React.Dispatch<React.SetStateAction<boolean>>;
   submitItemForm: boolean;
-  submitMainForm: (e?: BaseSyntheticEvent<object, any, any> | undefined) => Promise<void>;
+  submitMainForm: (e?: React.BaseSyntheticEvent<object, any, any> | undefined) => Promise<void>;
 }
 
 const BomItemRow: React.FC<BomItemRowProps> = ({
@@ -32,19 +29,28 @@ const BomItemRow: React.FC<BomItemRowProps> = ({
   items,
   setItems,
   setClearFormKey,
+  setSubmitItemForm,
+  submitItemForm,
+  submitMainForm,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [expanded, setExpanded] = useState(false);
   const [alternatives, setAlternatives] = useState<BOMItem[]>(item.alternatives || []);
   const [editingAlternativeIndex, setEditingAlternativeIndex] = useState<number | null>(null);
 
-  // Sync alternatives with item.alternatives when item changes
   useEffect(() => {
     setAlternatives(item.alternatives || []);
   }, [item.alternatives]);
 
   const handleRemove = () => {
     setItems((prevItems) => prevItems.filter((_, i) => i !== index));
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLDivElement>, callback: () => void) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      callback();
+    }
   };
 
   return (
@@ -56,27 +62,26 @@ const BomItemRow: React.FC<BomItemRowProps> = ({
         '&.Mui-expanded': { margin: '8px 0' },
       }}
     >
-      <AccordionSummary
+      <Box
+        role="button"
+        tabIndex={0}
+        onClick={() => setExpanded(!expanded)}
+        onKeyDown={(e) => handleKeyPress(e, () => setExpanded(!expanded))}
         aria-controls={`bom-item-${index}-content`}
         id={`bom-item-${index}-header`}
         sx={{
           minHeight: '48px',
           py: 0,
-          '& .MuiAccordionSummary-content': {
-            m: 0,
-            p: 0,
-            width: '100%',
-          },
+          px: 2,
+          display: 'flex',
+          alignItems: 'center',
+          cursor: 'pointer',
+          bgcolor: 'background.paper',
+          '&:hover': { bgcolor: 'action.hover' },
         }}
       >
-        <Grid
-          container
-          alignItems="center"
-          spacing={1}
-          sx={{ width: '100%' }}
-        >
-          {/* Expand/Collapse Indicator - Always visible */}
-          <Grid size={{xs: 1}}>
+        <Grid container alignItems="center" spacing={1} sx={{ width: '100%' }}>
+          <Grid size={{ xs: 1 }}>
             <Box
               sx={{
                 width: 20,
@@ -100,8 +105,7 @@ const BomItemRow: React.FC<BomItemRowProps> = ({
             <Grid container columnSpacing={1}>
               {!isEditing ? (
                 <>
-                  {/* Product Name - More space on mobile */}
-                  <Grid size={{xs:12, md: 6.5}}>
+                  <Grid size={{ xs: 12, md: 6.5 }}>
                     <Typography
                       variant="body2"
                       sx={{
@@ -112,22 +116,18 @@ const BomItemRow: React.FC<BomItemRowProps> = ({
                       {item.product?.name}
                     </Typography>
                   </Grid>
-
-                  {/* Quantity and Unit - Stack on mobile */}
-                  <Grid size={{xs:9, md: 2}}>
-                    <Box sx={{ 
-                      display: 'flex', 
-                      alignItems: 'center', 
-                      gap: 0.1,
-                    }}>
+                  <Grid size={{ xs: 9, md: 2 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.1 }}>
                       <Typography variant="body2">
-                        {item.quantity} {item.symbol || item.measurement_unit?.unit_symbol || item.product?.primary_unit?.unit_symbol || ''}
+                        {item.quantity}{' '}
+                        {item.symbol ||
+                          item.measurement_unit?.unit_symbol ||
+                          item.product?.primary_unit?.unit_symbol ||
+                          ''}
                       </Typography>
                     </Box>
                   </Grid>
-
-                  {/* Action Buttons */}
-                  <Grid size={{xs:3, md: 3}} sx={{ textAlign: 'end' }}>
+                  <Grid size={{ xs: 3, md: 3 }} sx={{ textAlign: 'end' }}>
                     <Box
                       component="div"
                       onClick={(e) => e.stopPropagation()}
@@ -138,46 +138,48 @@ const BomItemRow: React.FC<BomItemRowProps> = ({
                         justifyContent: { xs: 'flex-start', md: 'flex-end' },
                       }}
                     >
-                      <Tooltip title="Edit">
-                        <IconButton
-                          aria-label="Edit item"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setIsEditing(true);
-                            setExpanded(true);
-                          }}
-                          component="div"
-                          role="button"
-                          tabIndex={0}
-                          size="small"
-                          sx={{ minWidth: 'auto' }}
-                        >
-                          <EditOutlined fontSize="small" />
-                        </IconButton>
-                      </Tooltip>
-                      <Tooltip title="Delete">
-                        <IconButton
-                          aria-label="Delete item"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleRemove();
-                          }}
-                          component="div"
-                          role="button"
-                          tabIndex={0}
-                          size="small"
-                          color="error"
-                          sx={{ minWidth: 'auto' }}
-                        >
-                          <DeleteOutlined fontSize="small" />
-                        </IconButton>
-                      </Tooltip>
+                      <Box
+                        component="div"
+                        role="button"
+                        tabIndex={0}
+                        aria-label="Edit item"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setIsEditing(true);
+                        }}
+                        onKeyDown={(e) => handleKeyPress(e, () => setIsEditing(true))}
+                        sx={{
+                          p: 0.5,
+                          display: 'inline-flex',
+                          cursor: 'pointer',
+                        }}
+                      >
+                        <EditOutlined fontSize="small" />
+                      </Box>
+                      <Box
+                        component="div"
+                        role="button"
+                        tabIndex={0}
+                        aria-label="Delete item"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleRemove();
+                        }}
+                        onKeyDown={(e) => handleKeyPress(e, () => handleRemove())}
+                        sx={{
+                          p: 0.5,
+                          display: 'inline-flex',
+                          cursor: 'pointer',
+                          color: 'error.main',
+                        }}
+                      >
+                        <DeleteOutlined fontSize="small" />
+                      </Box>
                     </Box>
                   </Grid>
                 </>
               ) : (
-                /* Editing State - Show form title or status */
-                <Box sx={{ paddingBottom: 1 }}>
+                <Box sx={{ mb: 2, p: 2 }}>
                   <BomItemForm
                     item={item}
                     index={index}
@@ -185,17 +187,24 @@ const BomItemRow: React.FC<BomItemRowProps> = ({
                     items={items}
                     setShowForm={setIsEditing}
                     setClearFormKey={setClearFormKey}
-                    submitMainForm={() => {}}
-                    submitItemForm={false}
-                    setSubmitItemForm={() => {}}
+                    submitMainForm={submitMainForm}
+                    submitItemForm={submitItemForm}
+                    setSubmitItemForm={setSubmitItemForm}
                   />
                 </Box>
               )}
             </Grid>
           </Grid>
         </Grid>
-      </AccordionSummary>
-      
+        <ExpandMore
+          sx={{
+            transform: expanded ? 'rotate(180deg)' : 'rotate(0deg)',
+            transition: 'transform 0.2s',
+            ml: 1,
+          }}
+        />
+      </Box>
+
       <AccordionDetails sx={{ pt: 1, pb: 2 }}>
         <AlternativesForm
           item={item}
