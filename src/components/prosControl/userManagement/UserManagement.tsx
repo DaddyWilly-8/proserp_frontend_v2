@@ -21,7 +21,6 @@ const UserManagement = () => {
     const { checkPermission } = useJumboAuth();
     const [mounted, setMounted] = useState(false);
     const dictionary = useDictionary();
-    console.log(dictionary.userManagement)
 
     const [queryOptions, setQueryOptions] = useState({
       queryKey: 'userManagement',

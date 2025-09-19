@@ -67,7 +67,7 @@
     "dialog": {
       "showDialog": {
         "title":"Thibitisha kufuta",
-        "content": "Je, una uhakika unataka kufuta{name}?"
+        "content": "Je, una uhakika unataka kufuta {name}?"
       }
     }
   }

@@ -2,9 +2,15 @@ import { Divider, Grid, Tooltip, Typography } from '@mui/material'
 import React from 'react'
 import ProductCategoryItemAction from './ProductCategoryItemAction'
 import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext'
+import { ProductCategory } from './ProductCategoryType';
 
-const ProductCategoryListItem = ({productCategory}) => {
-const dictionary = useDictionary();
+interface ProductCategoryListItemProps {
+  productCategory: ProductCategory;
+}
+
+const ProductCategoryListItem: React.FC<ProductCategoryListItemProps> = ({ productCategory }) => {
+  const dictionary = useDictionary();
+  
   return (
     <React.Fragment>
       <Divider/>      
@@ -38,12 +44,12 @@ const dictionary = useDictionary();
             <Typography>{productCategory.description}</Typography>
           </Tooltip>
         </Grid>
-        <Grid size={{xs: 6, md: 1}}textAlign={"end"}>
+        <Grid size={{xs: 6, md: 1}} textAlign={"end"}>
           <ProductCategoryItemAction productCategory={productCategory} />
         </Grid> 
       </Grid>
     </React.Fragment>
-  )
-}
+  );
+};
 
-export default ProductCategoryListItem
+export default ProductCategoryListItem;

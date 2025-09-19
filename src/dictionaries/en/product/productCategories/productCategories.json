@@ -25,7 +25,7 @@
         "name": {
           "required": "Jina la kategoria ni linahitajika"
         },
-        "income _ledger_id": {
+        "income_ledger_id": {
           "required": "Income ledger is required",
           "positive": " Income ledger id must be positive number"
         },

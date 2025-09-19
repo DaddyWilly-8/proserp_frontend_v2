@@ -9,34 +9,36 @@ import storeServices from './store-services';
 import UsersSelector from '../../sharedComponents/UsersSelector';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Div } from '@jumbo/shared';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const StoreForm = ({ store = null, parentOptions = null, setOpenDialog }) => {
   const queryClient = useQueryClient();
   const { enqueueSnackbar } = useSnackbar();
+  const dictionary = useDictionary();
 
   const addStore = useMutation({
     mutationFn: storeServices.add,
     onSuccess: (data) => {
-      enqueueSnackbar(data.message, { variant: 'success' });
+      enqueueSnackbar(dictionary.stores.form.messages.createSuccess, { variant: 'success' });
       setOpenDialog(false);
       queryClient.invalidateQueries({ queryKey: ['stores'] });
       queryClient.invalidateQueries({ queryKey: ['showStore'] });
     },
     onError: (error) => {
-      enqueueSnackbar(error.response?.data?.message || 'Failed to add store', { variant: 'error' });
+      enqueueSnackbar(dictionary.stores.form.errors.messages.createResponse, { variant: 'error' });
     },
   });
 
   const updateStore = useMutation({
     mutationFn: storeServices.update,
     onSuccess: (data) => {
-      enqueueSnackbar(data.message, { variant: 'success' });
+      enqueueSnackbar(dictionary.stores.form.messages.updateSuccess, { variant: 'success' });
       setOpenDialog(false);
       queryClient.invalidateQueries({ queryKey: ['stores'] });
       queryClient.invalidateQueries({ queryKey: ['showStore'] });
     },
     onError: (error) => {
-      enqueueSnackbar(error.response?.data?.message || 'Failed to update store', { variant: 'error' });
+      enqueueSnackbar(dictionary.stores.form.errors.messages.updateResponse, { variant: 'error' });
     },
   });
 
@@ -55,7 +57,7 @@ const StoreForm = ({ store = null, parentOptions = null, setOpenDialog }) => {
   }, [store, updateStore, addStore]);
 
   const validationObject = {
-    name: yup.string().required('Store Name is required'),
+    name: yup.string().required(dictionary.stores.form.errors.validation.storeName.required),
   };
 
   if (Array.isArray(parentOptions)) {
@@ -103,7 +105,7 @@ const StoreForm = ({ store = null, parentOptions = null, setOpenDialog }) => {
     <>
       <DialogTitle>
         <Grid size={12} textAlign="center">
-          {!store ? (parentOptions ? 'Add Sub-store' : 'New Store') : `Edit ${store.name}`}
+          {!store ? (parentOptions ? 'Add Sub-store' : dictionary.stores.form.title ) : dictionary.stores.form.pageTitle.replace('{storeName}' ,store.name)}
         </Grid>
       </DialogTitle>
       <DialogContent>
@@ -113,7 +115,7 @@ const StoreForm = ({ store = null, parentOptions = null, setOpenDialog }) => {
               <Div sx={{ mt: 1, mb: 1 }}>
                 <TextField
                   name="name"
-                  label="Store Name"
+                  label={dictionary.stores.form.labels.storeName}
                   size="small"
                   fullWidth
                   error={!!getValidationMessage('name')}
@@ -126,7 +128,7 @@ const StoreForm = ({ store = null, parentOptions = null, setOpenDialog }) => {
               <Div sx={{ mt: 1, mb: 1 }}>
                 <TextField
                   name="alias"
-                  label="Store Alias"
+                  label={dictionary.stores.form.labels.storeAlias}
                   size="small"
                   fullWidth
                   error={!!getValidationMessage('alias')}
@@ -171,7 +173,7 @@ const StoreForm = ({ store = null, parentOptions = null, setOpenDialog }) => {
             <Grid size={12}>
               <Div sx={{ mt: 1, mb: 1 }}>
                 <UsersSelector
-                  label="Store Users"
+                  label={dictionary.stores.form.labels.storeUsers}
                   multiple={true}
                   defaultValue={store?.users}
                   frontError={errors && errors.user_ids}
@@ -192,7 +194,7 @@ const StoreForm = ({ store = null, parentOptions = null, setOpenDialog }) => {
               <Div sx={{ mt: 1, mb: 1 }}>
                 <TextField
                   name="description"
-                  label="Description"
+                  label={dictionary.stores.form.labels.description}
                   size="small"
                   multiline={true}
                   minRows={2}
@@ -204,7 +206,7 @@ const StoreForm = ({ store = null, parentOptions = null, setOpenDialog }) => {
             <Grid size={12}>
               <DialogActions>
                 <Button size="small" onClick={() => setOpenDialog(false)}>
-                  Cancel
+                 {dictionary.stores.form.buttons.cancel}
                 </Button>
                 <LoadingButton
                   type="submit"
@@ -213,7 +215,7 @@ const StoreForm = ({ store = null, parentOptions = null, setOpenDialog }) => {
                   sx={{ display: 'flex' }}
                   loading={isAdding || isUpdating}
                 >
-                  Submit
+                 {dictionary.stores.form.buttons.submit}
                 </LoadingButton>
               </DialogActions>
             </Grid>

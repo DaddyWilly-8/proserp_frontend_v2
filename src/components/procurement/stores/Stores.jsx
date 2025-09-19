@@ -14,11 +14,13 @@ import { MODULES } from '@/utilities/constants/modules';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
 import UnauthorizedAccess from '@/shared/Information/UnauthorizedAccess';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const Stores = () => {
     const params = useParams();
     const listRef = React.useRef();
     const [mounted, setMounted] = useState(false);
+    const dictionary = useDictionary();
 
     const [queryOptions, setQueryOptions] = React.useState({
         queryKey: "stores",
@@ -67,7 +69,7 @@ const Stores = () => {
     
 return (
     <React.Fragment>
-        <Typography variant={'h4'} mb={2}>Stores</Typography>
+        <Typography variant={'h4'} mb={2}>{dictionary.stores.form.labels.listHeader}</Typography>
         <JumboRqList
             ref={listRef}
             wrapperComponent={Card}
