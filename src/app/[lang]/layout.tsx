@@ -41,8 +41,8 @@ export const metadata: Metadata = {
   manifest: '/manifest.json',
   keywords: ['nextjs', 'next14', 'pwa', 'next-pwa'],
   icons: [
-    { rel: 'apple-touch-icon', url: '/assets/images/icons/logo-512.png' },
-    { rel: 'icon', url: '/assets/images/icons/logo-512.png' },
+    { rel: 'apple-touch-icon', url: '/assets/images/icons/logo512.png' },
+    { rel: 'icon', url: '/assets/images/icons/logo512.png' },
   ],
   appleWebApp: {
     capable: true,
@@ -85,8 +85,8 @@ export default async function RootLayout({ children, params }: RootLayoutProps) 
     <html lang={lang} data-lt-installed="true">
       <head>
         <link rel="manifest" href={`/api/manifest?lang=${lang}`} />
-        <link rel="icon" href="/assets/images/icons/logo-512.png" />
-        <link rel="apple-touch-icon" href="/assets/images/icons/logo-512.png" />
+        <link rel="icon" href="/assets/images/icons/logo512.png" />
+        <link rel="apple-touch-icon" href="/assets/images/icons/logo512.png" />
       </head>
       <body cz-shortcut-listen="true">
         <div id="root">

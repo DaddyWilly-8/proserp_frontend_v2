@@ -13,9 +13,9 @@ export async function GET(req: NextRequest) {
     scope: "/",
     start_url: `/${lang}/dashboard`,
     icons: [
-      { src: "/assets/images/icons/logo-192.png", type: "image/png", sizes: "192x192" },
+      { src: "/assets/images/icons/logo196.png", type: "image/png", sizes: "192x192" },
       { src: "/assets/images/icons/logo-256.png", type: "image/png", sizes: "256x256" },
-      { src: "/assets/images/icons/logo-512.png", type: "image/png", sizes: "512x512" },
+      { src: "/assets/images/icons/logo512.png", type: "image/png", sizes: "512x512" },
     ],
   });
 }
