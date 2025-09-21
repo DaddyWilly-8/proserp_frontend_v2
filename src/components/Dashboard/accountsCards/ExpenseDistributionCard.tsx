@@ -32,8 +32,9 @@ function ExpenseDistributionCard() {
   }, [from, to, cost_center_ids])
 
   // Screen handling constants
-  const {theme} = useJumboTheme();
+  const { theme } = useJumboTheme();
   const xlScreen = useMediaQuery(theme.breakpoints.up('lg'));
+  const isDark = theme.palette.mode === 'dark';
 
   const { data: expenseDistribution, isLoading } = useQuery({
     queryKey: ['expenseDistribution', params],
@@ -57,11 +58,15 @@ function ExpenseDistributionCard() {
 
   const options: Highcharts.Options = {
     title: {
-      text: '<div style="font-family: NoirPro,Arial; font-size: 1.1rem; line-height:1.2; display:block; font-weight: 400; color: #37373C">Operating Expenses</div>',
+      text: '<div style="font-family: NoirPro,Arial; font-size: 1.1rem; line-height:1.2; display:block; font-weight: 400;">Operating Expenses</div>',
       align: 'left',
-      useHTML: true
+      useHTML: true,
+      style: {
+        color: 'white'
+      }
     },
     chart: {
+      backgroundColor: 'transparent',
       plotBackgroundColor: undefined,
       plotBorderWidth: undefined,
       plotShadow: false,

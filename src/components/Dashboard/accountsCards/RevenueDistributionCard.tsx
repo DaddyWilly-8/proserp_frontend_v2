@@ -1,12 +1,12 @@
-import JumboCardQuick from '@jumbo/components/JumboCardQuick/JumboCardQuick'
-import { HighchartsReact } from 'highcharts-react-official'
-import Highcharts from 'highcharts'
-import React, { useEffect, useState } from 'react'
-import { LinearProgress, useMediaQuery } from '@mui/material'
-import financialReportsServices from '../../accounts/reports/financial-reports-services'
-import { useDashboardSettings } from '../Dashboard'
-import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks'
-import { useQuery } from '@tanstack/react-query'
+import JumboCardQuick from '@jumbo/components/JumboCardQuick/JumboCardQuick';
+import { HighchartsReact } from 'highcharts-react-official';
+import Highcharts from 'highcharts';
+import React, { useEffect, useState } from 'react';
+import { LinearProgress, useMediaQuery } from '@mui/material';
+import financialReportsServices from '../../accounts/reports/financial-reports-services';
+import { useDashboardSettings } from '../Dashboard';
+import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
+import { useQuery } from '@tanstack/react-query';
 
 interface RevenueData {
   ledger_name: string;
@@ -29,11 +29,12 @@ function RevenueDistributionCard() {
 
   useEffect(() => {
     setParams(prevParams => ({...prevParams, from, to, cost_center_ids}));
-  }, [from, to, cost_center_ids])
+  }, [from, to, cost_center_ids]);
 
-  // Screen handling constants
-  const {theme} = useJumboTheme();
+  // Theme awareness
+  const { theme } = useJumboTheme();
   const xlScreen = useMediaQuery(theme.breakpoints.up('lg'));
+  const isDark = theme.palette.mode === 'dark';
 
   const { data: revenueDistribution, isLoading } = useQuery({
     queryKey: ['revenueDistribution', params],
@@ -56,26 +57,33 @@ function RevenueDistributionCard() {
   });
 
   const options: Highcharts.Options = {
-    title: {
-      text: '<div style="font-family: NoirPro,Arial; font-size: 1.1rem; line-height:1.2; display:block; font-weight: 400; color: #37373C">Revenue Composition</div>',
-      align: 'left',
-      useHTML: true
-    },
     chart: {
+      type: 'pie',
+      height: 245,
+      backgroundColor: 'transparent',
       plotBackgroundColor: undefined,
       plotBorderWidth: undefined,
       plotShadow: false,
-      type: 'pie',
-      height: 245
-    },
-    accessibility: {
-      enabled: false,
-      point: {
-        valueSuffix: '%'
+      style: {
+        fontFamily: 'NoirPro, Arial',
+        color: isDark ? '#fff' : '#000'
       }
     },
+    title: {
+      text: '<div style="font-size: 1.1rem; line-height:1.2; font-weight:400;">Revenue Composition</div>',
+      align: 'left',
+      useHTML: true,
+      style: {
+        color: '#fff'
+      }
+    },
+    accessibility: { enabled: false },
     tooltip: {
-      pointFormat: '{point.y}: <b>({point.percentage:.1f}%)</b>'
+      pointFormat: '{point.y}: <b>({point.percentage:.1f}%)</b>',
+      backgroundColor: isDark ? '#2a2a2a' : '#fff',
+      style: {
+        color: isDark ? '#fff' : '#000'
+      }
     },
     plotOptions: {
       pie: {
@@ -83,35 +91,31 @@ function RevenueDistributionCard() {
         cursor: 'pointer',
         dataLabels: {
           enabled: true,
-          format: '<b>{point.name}</b>: {point.percentage:.1f} %'
+          format: '<b>{point.name}</b>: {point.percentage:.1f} %',
+          style: {
+            color: isDark ? '#fff' : '#000',
+            textOutline: 'none'
+          }
         }
       }
     },
     series: [{
       type: 'pie',
-      name: 'Expenses',
+      name: 'Revenue',
       colorByPoint: true,
       data: revenueDistribution || []
     } as Highcharts.SeriesPieOptions]
   };
 
   return (
-    <JumboCardQuick
-      sx={{
-        height: xlScreen ? 310 : null
-      }}
-    >
-      {
-        isLoading ? 
-        <LinearProgress/> 
-        : 
-        <HighchartsReact
-          highcharts={Highcharts}
-          options={options}
-        />
-      }
+    <JumboCardQuick sx={{ height: xlScreen ? 310 : null }}>
+      {isLoading ? (
+        <LinearProgress />
+      ) : (
+        <HighchartsReact highcharts={Highcharts} options={options} />
+      )}
     </JumboCardQuick>
-  )
+  );
 }
 
-export default RevenueDistributionCard
+export default RevenueDistributionCard;
