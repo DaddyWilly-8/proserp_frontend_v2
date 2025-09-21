@@ -135,7 +135,7 @@
     "src/components/procurement/stores/StoreItemAction.jsx",
     "src/components/procurement/stores/StoreListItem.jsx",
     "src/components/procurement/stores/StoreSelector.jsx",
-    "src/components/procurement/stores/Stores.jsx",
+    "src/components/procurement/stores/Stores.tsx",
     "src/components/procurement/stores/[store_id]/StoreProfile.jsx",
     "src/components/procurement/stores/[store_id]/StoreProfileContent.jsx",
     "src/components/procurement/stores/[store_id]/StoreProfileHeader.jsx",

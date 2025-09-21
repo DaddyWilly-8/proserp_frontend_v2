@@ -16,11 +16,13 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider'
 import productServices from './productServices'
 import { Div } from '@jumbo/shared'
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext'
 
 const ProductFormDialogContent = ({title = 'New Product/Service', product = null,toggleOpen}) => {
 
         const DefaultContent = () => {
             const {productCategories,item_names,brands,models,measurementUnits,specifications,storeOptions} = useProductApp();
+            const dictionary = useDictionary();
             const {enqueueSnackbar} = useSnackbar();
             const {authOrganization} = useJumboAuth();
             const costCenters = authOrganization?.costCenters;
@@ -140,7 +142,7 @@ const ProductFormDialogContent = ({title = 'New Product/Service', product = null
             return (
                 <form autoComplete='false'  onSubmit={handleSubmit(saveMutation)}>
                     <DialogTitle sx={{ textAlign: 'center' }}>
-                        {title}
+                        {dictionary.products.form.title}
                     </DialogTitle>
                     <DialogContent>
                         <Grid container spacing={1}>
@@ -155,11 +157,11 @@ const ProductFormDialogContent = ({title = 'New Product/Service', product = null
                                         renderInput={(params) => (
                                             <TextField
                                                 {...params}
-                                                label="Category"
+                                                label={dictionary.products.form.labels.category}
                                                 InputProps={{
                                                     ...params.InputProps, 
                                                     startAdornment: (
-                                                        <Tooltip title={'Quick Add Category'}>
+                                                        <Tooltip title={dictionary.products.quickAddForm.button}>
                                                             <AddOutlined
                                                                 sx={{ 
                                                                     cursor: 'pointer'
@@ -211,7 +213,7 @@ const ProductFormDialogContent = ({title = 'New Product/Service', product = null
                                         renderInput={(params) => (
                                             <TextField
                                                 {...params} 
-                                                label="Type"
+                                                label={dictionary.products.form.labels.type}
                                                 error={!!errors.type}
                                                 helperText={errors.type?.message}
                                             />
@@ -245,7 +247,7 @@ const ProductFormDialogContent = ({title = 'New Product/Service', product = null
                                         renderInput={(params) => (
                                             <TextField 
                                                 {...params} 
-                                                label="Item Name"
+                                                label={dictionary.products.form.labels.itemName}
                                                 error={!!errors.item_name}
                                                 helperText={errors.item_name?.message}
                                             />
@@ -274,7 +276,7 @@ const ProductFormDialogContent = ({title = 'New Product/Service', product = null
                                         isOptionEqualToValue={(option, value) => option === value}
                                         options={brands}
                                         defaultValue={product?.id && product.brand}
-                                        renderInput={(params) => <TextField {...params} label="Brand (Optional)"/>}
+                                        renderInput={(params) => <TextField {...params} label={dictionary.products.form.labels.brand}/>}
                                         onChange={(event, newValue) => {
                                             setValue('brand',newValue,{
                                                 shouldValidate: true,
@@ -300,7 +302,7 @@ const ProductFormDialogContent = ({title = 'New Product/Service', product = null
                                         isOptionEqualToValue={(option, value) => option === value}
                                         options={models}
                                         defaultValue={product?.id && product.model}
-                                        renderInput={(params) => <TextField {...params} label="Model (Optional)"/>}
+                                        renderInput={(params) => <TextField {...params} label={dictionary.products.form.labels.model}/>}
                                         onChange={(event, newValue) => {
                                             setValue('model',newValue,{
                                                 shouldValidate: true,
@@ -323,7 +325,7 @@ const ProductFormDialogContent = ({title = 'New Product/Service', product = null
                                         size='small'
                                         fullWidth
                                         autoComplete='off'
-                                        label='SKU (Optional)'
+                                        label={dictionary.products.form.labels.sku}
                                         defaultValue={product?.id && product.sku}
                                         {...register('sku')}
                                         error={!!errors.sku || !!addProduct.error?.response.data.validation_errors.sku || !!updateProduct.error?.response.data.validation_errors.sku}
@@ -344,7 +346,7 @@ const ProductFormDialogContent = ({title = 'New Product/Service', product = null
                                                 <TextField
                                                     {...params}
                                                     rows={2}
-                                                    label="Specifications (Optional)"
+                                                    label={dictionary.products.form.labels.specifications}
                                                 />
                                             )
                                         }
@@ -377,7 +379,7 @@ const ProductFormDialogContent = ({title = 'New Product/Service', product = null
                                         renderInput={(params) => (
                                             <TextField 
                                             {...params} 
-                                            label="Primary Measurement Unit"
+                                            label={dictionary.products.form.labels.primaryMeasurementUnit}
                                             error={!!errors.measurement_unit_id}
                                             helperText={errors.measurement_unit_id?.message}
                                             />
@@ -404,7 +406,7 @@ const ProductFormDialogContent = ({title = 'New Product/Service', product = null
                                             });
                                         }}
                                     />
-                                    VAT Exempted
+                                    {dictionary.products.form.labels.checkbox}
                                 </Div>
                             </Grid>
                             <Grid size={12}>
@@ -414,7 +416,7 @@ const ProductFormDialogContent = ({title = 'New Product/Service', product = null
                                         fullWidth
                                         multiline={true}
                                         rows={2}
-                                        label='Description (Optional)'
+                                        label={dictionary.products.form.labels.description}
                                         defaultValue={product?.id && product.description}
                                         {...register('description')}
                                     />
@@ -541,12 +543,12 @@ const ProductFormDialogContent = ({title = 'New Product/Service', product = null
                         )}
                     </DialogContent>
                     <DialogActions>
-                        <Button onClick={() => toggleOpen(false)}>Cancel</Button>
+                        <Button onClick={() => toggleOpen(false)}>{dictionary.products.form.buttons.cancel}</Button>
                         <LoadingButton 
                             type='submit'
                             loading={addProduct.isPending || updateProduct.isPending} 
                             variant='contained' size='small' 
-                        >Save</LoadingButton>
+                        >{dictionary.products.form.buttons.save}</LoadingButton>
                     </DialogActions>
                 </form>      
             )

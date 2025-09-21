@@ -23,7 +23,7 @@
     "errors": {
       "validation": {
         "name": {
-          "required": "Jina la kategoria ni linahitajika"
+          "required": "Category name is required"
         },
         "income_ledger_id": {
           "required": "Income ledger is required",
