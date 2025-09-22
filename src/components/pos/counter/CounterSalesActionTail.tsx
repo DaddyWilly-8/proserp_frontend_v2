@@ -19,7 +19,7 @@ function CounterSalesActionTail() {
                 <AddOutlined/>
             </IconButton>
         </Tooltip>
-        <Dialog fullWidth open={openDialog} fullScreen={belowLargeScreen} maxWidth='xl' scroll={belowLargeScreen ? 'body' : 'paper'}>
+        <Dialog fullWidth open={openDialog} fullScreen={belowLargeScreen} maxWidth='lg' scroll={belowLargeScreen ? 'body' : 'paper'}>
             <SaleDialogForm toggleOpen={setOpenDialog}/>
         </Dialog>
     </React.Fragment>

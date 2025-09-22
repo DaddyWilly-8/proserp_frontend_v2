@@ -290,7 +290,7 @@ function ProductSalesCard() {
                                                 }
                                             }}
                                         >
-                                            <Grid container>
+                                            <Grid container width={'100%'}>
                                                 <Grid size={{ xs: 12, md: 6, lg: 3.5 }}>
                                                     <Tooltip title={'Product Name'}>
                                                         <Typography>{product.name}</Typography>

@@ -203,7 +203,7 @@ const RequisitionsItemAction: React.FC<RequisitionsItemActionProps> = ({ requisi
         scroll={belowLargeScreen ? 'body' : 'paper'}
         fullWidth
         fullScreen={belowLargeScreen}
-        maxWidth={openEditDialog ? 'xl' : 'lg'}
+        maxWidth={openEditDialog ? 'lg' : 'md'}
       >
         {openEditDialog && <EditRequisition requisition={requisition} setOpenEditDialog={setOpenEditDialog} />}
         {openDocumentDialog && (

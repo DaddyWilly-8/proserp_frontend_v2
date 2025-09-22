@@ -149,7 +149,7 @@ function LowStockAlerts() {
                       >
                         {
                           store.alerts.map((alert:any, index: number) => (
-                            <Grid container key={index} columnSpacing={1} rowSpacing={1} mt={1}
+                            <Grid container width={'100%'} key={index} columnSpacing={1} rowSpacing={1} mt={1}
                               sx={{
                                 cursor: 'pointer',
                                 borderTop: 2,

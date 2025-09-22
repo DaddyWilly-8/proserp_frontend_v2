@@ -44,25 +44,27 @@ const JumboSearch: React.FC<JumboSearchProps> = React.memo(({ onChange, value = 
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          zIndex: 2
+          zIndex: 2,
+          color: (theme: Theme) => theme.palette.text.secondary,
         }}
       >
         <SearchIcon />
       </Div>
       <InputBase
         sx={{
-          color: 'inherit',
+          color: (theme: Theme) => theme.palette.text.primary,
           display: 'flex',
           borderRadius: 24,
           backgroundColor: (theme: Theme) =>
-            theme.jumboComponents?.JumboSearch?.background ?? 'rgba(180, 177, 177, 0.15)',
-
+            theme.palette.mode === 'dark'
+              ? 'rgba(255, 255, 255, 0.1)'
+              : 'rgba(0, 0, 0, 0.05)',
           '& .MuiInputBase-input': {
             padding: (theme: Theme) => theme.spacing(1, 1, 1, 0),
             paddingLeft: (theme: Theme) => `calc(1em + ${theme.spacing(4)})`,
             transition: (theme: Theme) => theme.transitions.create('width'),
             width: '100%',
-            height: 24
+            height: 24,
           },
         }}
         placeholder={dictionary.rqList.jumboSearch}

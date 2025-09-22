@@ -9,7 +9,9 @@ const withPWA = withPWAInit({
   disable: false,
   workboxOptions: {
     disableDevLogs: true,
-    navigateFallback: '/sw.js',
+    navigateFallback: '/index.html',
+    skipWaiting: true,
+    clientsClaim: true,
   },
 });
 
