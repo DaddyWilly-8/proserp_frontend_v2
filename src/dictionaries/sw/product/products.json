@@ -26,10 +26,10 @@
     },
     "errors": {
       "validation": {
-        "currencyCode": {
-          "required": "Currency code is required",
-          "typeError": "Currency is required"
-        },
+       "itemName": {
+            "required": "Jina la kipengee linahitajika",
+            "string": "Weka jina la kipengee chako"
+          },
         "exchangeRate": {
           "required": "Exchange rate is required",
           "min": "The least amount of ExchangeRate is 0.00000000000000000001",
@@ -77,15 +77,15 @@
         "unitName": "Jina la kipimo",
         "symbol": "Alama",
         "conversionFactor": "Kipimo cha Kubadilisha",
-        "newCreateLabel": "Add Secondary Unit",
-        "secondaryMeasurementUnit": "Secondary Measurement Unit",
+        "newCreateLabel": "Ongeza Kitengo cha Sekondari",
+        "secondaryMeasurementUnit": "Kitengo cha Sekondari cha Kipimo",
         "secondaryTitle": "Vipimo Sekondari"
       },
        "messages": {
-        "loading": "Processing currency details...",
-        "createSuccess": "Currency successfully registered!",
-        "updateSuccess": "Currency successfully updated!",
-        "deleteSuccess": "Currency successfully archived."
+        "loading": "Inachakata maelezo ya Kitengo cha Sekondari...",
+        "createSuccess": "Kitengo cha Sekondari kimesajiliwa kwa mafanikio!",
+        "updateSuccess": "Kitengo cha Sekondari kimesasishwa kwa mafanikiossfully updated!",
+        "deleteSuccess": "Kitengo cha Sekondari kimefutwa kwa mafanikio"
         },
         "actionsTitle": {
         "delete": "Ondoa {unitName}",
@@ -93,14 +93,13 @@
         },
       "errors": {
         "validation": {
-          "asAt": {
-            "required": "Date is required",
-            "typeError": "Date is required"
+         "measurementUnit": {
+            "required": "Kipimo kinahitajika",
+            "typeError": "kipimo kinahitajika"
           },
-          "rate": {
-            "required": "Exchange rate is required",
-            "min": "The least amount of ExchangeRate is 0.00000000000000000001",
-            "typeError": "Exchange rate is required"
+          "conversionFactor": {
+            "required": "Kiwango cha kubadilisha kinahitajika",
+            "typeError": "Kiwango cha kubadilisha"
           }
         }
       }
@@ -121,6 +120,40 @@
       },
       "quickAddForm": {
         "button": "Ongeza Kategoria Haraka"
+      },
+      "excelForm": {
+        "title": "Pakua Kigeuza",
+        "buttons": {
+          "download": "Pakua",
+          "cancel": "Ghairi"
+        }
+      },
+      "mergeForm": {
+        "title": "Kuunganisha Bidhaa",
+        "buttons": {
+          "merge": "Unganisha",
+          "cancel": "Ghairi"
+        },
+         "labels": {
+          "productToRemain": "Bidhaa Itabaki",
+          "productToDissolve": "Bidhaa Itayoondolewa"
+        },
+         "messages": {
+          "loading": "Inachakata Maelezo ya Kuunganisha...",
+          "createSuccess": "Kuunganisha Kimefanikiwa"
+        },
+          "errors": {
+          "validation": {
+            "remaining_product_id": {
+              "required": "Tafadhali chagua bidhaa itakayobaki",
+              "typeError": "Tafadhali chagua bidhaa itakayobaki"
+            },
+            "dissolved_products_ids": {
+              "required": "Tafadhali chagua bidhaa zitakayoondolewa",
+              "min": "Tafadhali chagua angalau bidhaa moja itakayoondolewa"
+            }
+           }
+         }
       }
     }
 

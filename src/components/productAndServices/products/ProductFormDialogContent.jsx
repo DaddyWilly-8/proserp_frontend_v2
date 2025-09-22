@@ -32,8 +32,8 @@ const ProductFormDialogContent = ({title = 'New Product/Service', product = null
             
             const validationObject = {
                 item_name: yup
-                    .string('Enter your item name')
-                    .required('Item name is required'),
+                    .string(dictionary.products.form.errors.validation.itemName.string)
+                    .required(dictionary.products.form.errors.validation.itemName.required),
                 product_category_id: yup
                     .number('Choose a item category').min(1,'Product category is required')
                     .required('Product category is required'),

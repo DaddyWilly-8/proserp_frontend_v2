@@ -27,7 +27,7 @@ const EditSecondaryUnitForm = ({ product, setOpenDialog, unit }) => {
     mutationFn: productServices.updateUnit,
     onSuccess: (data) => {
       setOpenDialog(false);
-      enqueueSnackbar(data.message, { variant: 'success' });
+      enqueueSnackbar(dictionary.products.list.secondaryForm.messages.updateSuccess, { variant: 'success' });
       queryClient.invalidateQueries({ queryKey: ['secondaryUnits'] });
     },
     onError: (error) => {
