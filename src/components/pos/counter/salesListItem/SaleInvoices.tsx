@@ -94,15 +94,15 @@ const SaleInvoices: React.FC<SaleInvoicesProps> = ({
             </Grid>
             <Grid size={{xs: 6, md: 4, lg: 2}}>
               <Tooltip title={'Internal Reference'}>
-                <Typography>{invoice.internal_reference || 'N/A'}</Typography>
+                <Typography>{invoice.internal_reference}</Typography>
               </Tooltip>
               <Tooltip title={'Customer Reference'}>
-                <Typography variant='caption'>{invoice.customer_reference || 'N/A'}</Typography>
+                <Typography variant='caption'>{invoice.customer_reference}</Typography>
               </Tooltip>
             </Grid>
             <Grid size={{xs: 12, md: 4, lg: 4}} mt={0.5}>
               <Tooltip title={'Narration'}>
-                <Typography>{invoice.narration || 'N/A'}</Typography>
+                <Typography>{invoice.narration}</Typography>
               </Tooltip>
             </Grid>
             <Grid size={{xs: 12, md: 12, lg: 2}}>
