@@ -5,11 +5,13 @@ import React, { useState } from 'react'
 import { DownloadOutlined, UploadOutlined } from '@mui/icons-material';
 import ExcelTemplateDownloadTab from './ExcelTemplateDownloadTab';
 import ProductsExcelImport from './ProductsExcelImport';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function ProductRegistrationExcelDownload() {
 
   const [openDialog, setOpenDialog] = useState(false);
   const [content, setContent] = useState(0);
+  const dictionary = useDictionary();
 
   return (
     <React.Fragment>
@@ -35,7 +37,7 @@ function ProductRegistrationExcelDownload() {
           }
         </DialogContent>
       </Dialog>
-      <Tooltip title='Excel Template'>
+      <Tooltip title={dictionary.products.list.labels.excelTamplate}>
         <IconButton size='small' onClick={() => setOpenDialog(true)}>
           <FontAwesomeIcon icon={faFileExcel} color='green' />
         </IconButton>
