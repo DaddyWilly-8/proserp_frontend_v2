@@ -166,7 +166,13 @@ function StockMovement({ toggleOpen, dormantStock = false, isFromDashboard }) {
 
     const getMovements = async (filters) => {
         setisFetching(true);
-        const data = await storeServices.getStockMovement(filters, dormantStock);
+
+        const serializedFilters = {
+            ...filters,
+            cost_center_ids: filters.cost_center_ids?.join(','),
+        };
+
+        const data = await storeServices.getStockMovement(serializedFilters, dormantStock);
         setMovements(data);
         setisFetching(false);
     };
