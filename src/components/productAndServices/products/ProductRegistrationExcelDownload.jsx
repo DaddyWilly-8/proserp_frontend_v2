@@ -21,7 +21,7 @@ function ProductRegistrationExcelDownload() {
         maxWidth={'md'}
         onClose={() => setOpenDialog(false)}
       >
-        <DialogTitle textAlign={'center'}>{content === 0 ? `Download Template` : 'Upload Template'}</DialogTitle>
+        <DialogTitle textAlign={'center'}>{content === 0 ? dictionary.products.excelForm.title : dictionary.products.excelForm.labels.uploadTitle }</DialogTitle>
         <DialogContent>
 
           <Tabs 
@@ -29,8 +29,8 @@ function ProductRegistrationExcelDownload() {
             allowScrollButtonsMobile
             value={content} onChange={(event, newValue) => setContent(newValue)}
           >
-              <Tab label="Download" icon={<DownloadOutlined/>} />
-              <Tab label="Upload" icon={<UploadOutlined/>}/>
+              <Tab label={dictionary.products.excelForm.labels.download} icon={<DownloadOutlined/>} />
+              <Tab label={dictionary.products.excelForm.labels.upload} icon={<UploadOutlined/>}/>
           </Tabs>
           {
             content === 0 ? <ExcelTemplateDownloadTab  setOpenDialog={setOpenDialog} content={content}/> : <ProductsExcelImport setOpenDialog={setOpenDialog} content={content}/>

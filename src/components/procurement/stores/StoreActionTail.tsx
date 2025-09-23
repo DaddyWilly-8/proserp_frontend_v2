@@ -7,7 +7,11 @@ import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
 import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
-const StoreActionTail = () => {
+interface StoreActionTailProps {
+  // Add props if needed
+}
+
+const StoreActionTail: React.FC<StoreActionTailProps> = () => {
   const { checkOrganizationPermission } = useJumboAuth();
   const [openDialog, setOpenDialog] = useState(false);
   const dictionary = useDictionary();
@@ -22,7 +26,7 @@ const StoreActionTail = () => {
         <StoreForm setOpenDialog={setOpenDialog} />
       </Dialog>
       <ButtonGroup variant="outlined" size="small" disableElevation sx={{ '& .MuiButton-root': { px: 1 } }}>
-        {checkOrganizationPermission(PERMISSIONS.USERS_INVITE) && (
+        {checkOrganizationPermission([PERMISSIONS.USERS_INVITE]) && (
           <Tooltip title={dictionary.stores.list.labels.newCreateLabel}>
             <IconButton onClick={() => setOpenDialog(true)}>
               <AddOutlined />

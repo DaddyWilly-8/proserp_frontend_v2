@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, SubmitHandler } from 'react-hook-form';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useSnackbar } from 'notistack';
@@ -10,8 +10,16 @@ import UsersSelector from '../../sharedComponents/UsersSelector';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Div } from '@jumbo/shared';
 import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
+import { Store, StoreOption, StoreFormData } from './storeTypes';
+import type {User} from '@/components/prosControl/userManagement/UserManagementType';
 
-const StoreForm = ({ store = null, parentOptions = null, setOpenDialog }) => {
+interface StoreFormProps {
+  store?: Store | null;
+  parentOptions?: StoreOption[] | null;
+  setOpenDialog: (open: boolean) => void;
+}
+
+const StoreForm: React.FC<StoreFormProps> = ({ store = null, parentOptions = null, setOpenDialog }) => {
   const queryClient = useQueryClient();
   const { enqueueSnackbar } = useSnackbar();
   const dictionary = useDictionary();
@@ -24,7 +32,7 @@ const StoreForm = ({ store = null, parentOptions = null, setOpenDialog }) => {
       queryClient.invalidateQueries({ queryKey: ['stores'] });
       queryClient.invalidateQueries({ queryKey: ['showStore'] });
     },
-    onError: (error) => {
+    onError: (error: any) => {
       enqueueSnackbar(dictionary.stores.form.errors.messages.createResponse, { variant: 'error' });
     },
   });
@@ -37,7 +45,7 @@ const StoreForm = ({ store = null, parentOptions = null, setOpenDialog }) => {
       queryClient.invalidateQueries({ queryKey: ['stores'] });
       queryClient.invalidateQueries({ queryKey: ['showStore'] });
     },
-    onError: (error) => {
+    onError: (error: any) => {
       enqueueSnackbar(dictionary.stores.form.errors.messages.updateResponse, { variant: 'error' });
     },
   });
@@ -53,10 +61,10 @@ const StoreForm = ({ store = null, parentOptions = null, setOpenDialog }) => {
   } = updateStore;
 
   const saveMutation = React.useMemo(() => {
-    return store?.id ? updateStore : addStore;
+    return store?.id ? updateStore.mutate : addStore.mutate;
   }, [store, updateStore, addStore]);
 
-  const validationObject = {
+  const validationObject: Record<string, any> = {
     name: yup.string().required(dictionary.stores.form.errors.validation.storeName.required),
   };
 
@@ -75,8 +83,8 @@ const StoreForm = ({ store = null, parentOptions = null, setOpenDialog }) => {
     setValue,
     setError,
     formState: { errors },
-  } = useForm({
-    resolver: yupResolver(validationSchema),
+  } = useForm<StoreFormData>({
+    resolver: yupResolver(validationSchema as any),
     defaultValues: {
       name: store?.id ? store.name : '',
       alias: store?.id ? store.alias : '',
@@ -92,12 +100,12 @@ const StoreForm = ({ store = null, parentOptions = null, setOpenDialog }) => {
     }
   }, [store, setValue]);
 
-  const onSubmit = handleSubmit((data) => {
-    saveMutation.mutate(data);
-  });
+  const onSubmit: SubmitHandler<StoreFormData> = (data) => {
+    saveMutation(data);
+  };
 
-  const getValidationMessage = (field) =>
-    errors[field]?.message ||
+  const getValidationMessage = (field: string) =>
+    errors[field as keyof StoreFormData]?.message ||
     addError?.response?.data?.validation_errors?.[field] ||
     updateError?.response?.data?.validation_errors?.[field];
 
@@ -109,12 +117,11 @@ const StoreForm = ({ store = null, parentOptions = null, setOpenDialog }) => {
         </Grid>
       </DialogTitle>
       <DialogContent>
-        <form autoComplete="off" onSubmit={onSubmit}>
+        <form autoComplete="off" onSubmit={handleSubmit(onSubmit)}>
           <Grid container columnSpacing={1}>
             <Grid size={12}>
               <Div sx={{ mt: 1, mb: 1 }}>
                 <TextField
-                  name="name"
                   label={dictionary.stores.form.labels.storeName}
                   size="small"
                   fullWidth
@@ -127,7 +134,6 @@ const StoreForm = ({ store = null, parentOptions = null, setOpenDialog }) => {
             <Grid size={12}>
               <Div sx={{ mt: 1, mb: 1 }}>
                 <TextField
-                  name="alias"
                   label={dictionary.stores.form.labels.storeAlias}
                   size="small"
                   fullWidth
@@ -142,9 +148,9 @@ const StoreForm = ({ store = null, parentOptions = null, setOpenDialog }) => {
                 <Div sx={{ mt: 1, mb: 1 }}>
                   <Autocomplete
                     options={parentOptions}
-                    getOptionLabel={(option) => option.name}
-                    isOptionEqualToValue={(option, value) => option.id === value.id}
-                    defaultValue={parentOptions.find((parent) => parent.id === store?.parent_id) || null}
+                    getOptionLabel={(option: StoreOption) => option.name}
+                    isOptionEqualToValue={(option: StoreOption, value: StoreOption) => option.id === value.id}
+                    defaultValue={parentOptions.find((parent: StoreOption) => parent.id === store?.parent_id) || null}
                     renderInput={(params) => (
                       <TextField
                         {...params}
@@ -155,7 +161,7 @@ const StoreForm = ({ store = null, parentOptions = null, setOpenDialog }) => {
                         helperText={errors?.parent_id?.message}
                       />
                     )}
-                    onChange={(event, newValue) => {
+                    onChange={(event, newValue: StoreOption | null) => {
                       if (store && store?.id === newValue?.id) {
                         setValue('parent_id', 0);
                         setError('parent_id', { message: 'Cannot be a parent of its own' });
@@ -180,7 +186,7 @@ const StoreForm = ({ store = null, parentOptions = null, setOpenDialog }) => {
                   onChange={(newValue) => {
                     setValue(
                       'user_ids',
-                      newValue ? newValue.map((user) => user.id) : [],
+                      newValue ? newValue.map((user:User) => user.id) : [],
                       {
                         shouldDirty: true,
                         shouldValidate: true,
@@ -193,7 +199,6 @@ const StoreForm = ({ store = null, parentOptions = null, setOpenDialog }) => {
             <Grid size={12}>
               <Div sx={{ mt: 1, mb: 1 }}>
                 <TextField
-                  name="description"
                   label={dictionary.stores.form.labels.description}
                   size="small"
                   multiline={true}

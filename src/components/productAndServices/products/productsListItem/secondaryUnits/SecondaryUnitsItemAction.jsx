@@ -17,7 +17,7 @@ function SecondaryUnitsItemAction({ product, selectedUnit, setSelectedUnit, open
     const { mutate: deleteUnit } = useMutation({
       mutationFn: productServices.deleteUnit,
       onSuccess: (data) => {
-        enqueueSnackbar(data.message, {
+        enqueueSnackbar(dictionary.products.list.secondaryForm.messages.deleteSuccess, {
           variant: 'success',
         });
         queryClient.invalidateQueries({

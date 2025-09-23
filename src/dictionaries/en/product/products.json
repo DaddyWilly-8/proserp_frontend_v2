@@ -82,10 +82,10 @@
         "secondaryTitle": "Secondary Unit"
       },
        "messages": {
-      "loading": "Processing currency details...",
-      "createSuccess": "Currency successfully registered!",
-      "updateSuccess": "Currency successfully updated!",
-      "deleteSuccess": "Currency successfully archived."
+      "loading": "Inachakata maelezo ya Kitengo cha Sekondari...",
+      "createSuccess": "secondaryUnit successfully registered!",
+      "updateSuccess": "secondaryUnit successfully updated!",
+      "deleteSuccess": "secondaryUnit successfully deleted."
     },
       "actionsTitle": {
       "delete": "Delete {unitName}",
@@ -93,14 +93,13 @@
     },
       "errors": {
         "validation": {
-          "asAt": {
-            "required": "Date is required",
-            "typeError": "Date is required"
+          "measurementUnit": {
+            "required": "Measurement Unit Required",
+            "typeError": "Measurement unit required"
           },
-          "rate": {
-            "required": "Exchange rate is required",
-            "min": "The least amount of ExchangeRate is 0.00000000000000000001",
-            "typeError": "Exchange rate is required"
+          "conversionFactor": {
+            "required": "Conversion factor required",
+            "typeError": "Conversion factor"
           }
         }
       }
@@ -121,6 +120,50 @@
       },
       "quickAddForm": {
         "button": "Quick Add Category"
+      },
+      "excelForm": {
+        "title": "Download Template",
+        "buttons": {
+          "download": "Download",
+          "cancel": "Cancel",
+          "addStore": "Add Store",
+          "upload": "Upload"
+        },
+        "labels": {
+          "download": "Download",
+          "upload": "Upload",
+          "uploadTitle": "Upload Template",
+          "stockComplementtLedger": "Stock Complement Ledger",
+          "stockAsAt": "Stock As At",
+          "withProduct": "With Products"
+        }
+      },
+      "mergeForm": {
+        "title": "Product Merge",
+        "buttons": {
+          "merge": "Merge",
+          "cancel": "Cancel"
+        },
+        "labels": {
+          "productToRemain": "Product To Remain",
+          "productToDissolve": "Product To Dissolve"
+        },
+         "messages": {
+          "loading": "Processing merge details...",
+          "createSuccess": "Merge successful"
+        },
+         "errors": {
+          "validation": {
+            "remaining_product_id": {
+              "required": "Please select a product to remain",
+              "typeError": "Please select a product to remain"
+            },
+            "dissolved_products_ids": {
+              "required": "Please select products to dissolve",
+              "min": "Please select at least one product to dissolve"
+            }
+          }
+        }
       }
     }
 

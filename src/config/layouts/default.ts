@@ -1,3 +1,4 @@
+import { deviceType } from '@/utilities/helpers/user-agent-helpers';
 import { LayoutOptions } from '@jumbo/types';
 import {
   SIDEBAR_ANCHOR_POSITIONS,
@@ -7,9 +8,11 @@ import {
   SIDEBAR_VIEWS,
 } from '@jumbo/utilities/constants';
 
+const isMobile = deviceType() === "mobile";
+
 const defaultLayoutConfig: LayoutOptions = {
   sidebar: {
-    open: true,
+    open: !isMobile,
     hide: false,
     variant: SIDEBAR_VARIANTS.PERSISTENT,
     style: SIDEBAR_STYLES.FULL_HEIGHT,
@@ -19,7 +22,7 @@ const defaultLayoutConfig: LayoutOptions = {
     width: 240,
     minWidth: 80,
     drawer: true,
-    drawerBreakpoint: 'xl',
+    drawerBreakpoint: 'lg',
   },
   header: {
     hide: false,
@@ -27,7 +30,7 @@ const defaultLayoutConfig: LayoutOptions = {
     sx: {
       height: 80,
     },
-    drawerBreakpoint: 'xl',
+    drawerBreakpoint: 'lg',
   },
   footer: {
     hide: false,

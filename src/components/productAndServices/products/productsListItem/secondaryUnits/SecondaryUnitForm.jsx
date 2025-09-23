@@ -34,7 +34,7 @@ const SecondaryUnitForm = ({ product, setOpenDialog }) => {
     mutationFn: productServices.addSecondaryUnit,
     onSuccess: (data) => {
       setOpenDialog(false);
-      enqueueSnackbar(data.message, { variant: 'success' });
+      enqueueSnackbar(dictionary.products.list.secondaryForm.messages.createSuccess, { variant: 'success' });
       queryClient.invalidateQueries({ queryKey: ['secondaryUnits'] });
     },
     onError: (error) => {
@@ -51,8 +51,8 @@ const SecondaryUnitForm = ({ product, setOpenDialog }) => {
   const validationSchema = yup.object({
     secondary_units: yup.array().of(
       yup.object().shape({
-        measurement_unit_id: yup.string().required('Measurement Unit Required').typeError(`Measurement Unit Required`),
-        conversion_factor: yup.number().required('Conversion factor').typeError(`Conversion factor`),
+        measurement_unit_id: yup.string().required(dictionary.products.list.secondaryForm.errors.validation.measurementUnit.required).typeError(dictionary.products.list.secondaryForm.errors.validation.measurementUnit.typeError),
+        conversion_factor: yup.number().required(dictionary.products.list.secondaryForm.errors.validation.conversionFactor.required).typeError(dictionary.products.list.secondaryForm.errors.validation.conversionFactor.typeError),
       })
     )
   })
