@@ -125,7 +125,17 @@
         "title": "Pakua Kigeuza",
         "buttons": {
           "download": "Pakua",
-          "cancel": "Ghairi"
+          "cancel": "Ghairi",
+          "addStore": "Ongeza Duka",
+          "upload": "Pakia"
+        },
+         "labels": {
+          "download": "Pakua",
+          "upload": "Pakia",
+          "uploadTitle": "Pakia Kigeuza",
+          "stockComplementtLedger": "Rekodi ya Hisa za Kumaliza",
+          "stockAsAt": "Hisa Kufikia",
+          "withProduct": "Na Bidhaa"
         }
       },
       "mergeForm": {

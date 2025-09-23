@@ -125,7 +125,17 @@
         "title": "Download Template",
         "buttons": {
           "download": "Download",
-          "cancel": "Cancel"
+          "cancel": "Cancel",
+          "addStore": "Add Store",
+          "upload": "Upload"
+        },
+        "labels": {
+          "download": "Download",
+          "upload": "Upload",
+          "uploadTitle": "Upload Template",
+          "stockComplementtLedger": "Stock Complement Ledger",
+          "stockAsAt": "Stock As At",
+          "withProduct": "With Products"
         }
       },
       "mergeForm": {
