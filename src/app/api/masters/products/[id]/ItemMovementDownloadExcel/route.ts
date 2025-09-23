@@ -10,23 +10,21 @@ export async function POST(req: NextRequest, context: any) {
 
   const body = await req.json();
 
-  const res = await fetch(`${API_BASE}/stores/${params.id}/stock_list_excel`, {
+  const res = await fetch(`${API_BASE}/products/${params.id}/movements`, {
     method: 'POST',
-    headers: {
-      ...headers,
-      'Content-Type': 'application/json',
-    },
+    headers,
     body: JSON.stringify(body),
   });
 
-  const arrayBuffer = await res.arrayBuffer();
+  // ✅ Return blob instead of JSON
+  const buffer = await res.arrayBuffer();
 
-  return new Response(arrayBuffer, {
+  return new Response(buffer, {
     status: res.status,
     headers: {
-      'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-      'Content-Disposition': 'attachment; filename="stock_list.xlsx"',
+      'Content-Type':
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'Content-Disposition': 'attachment; filename="Item Movement.xlsx"',
     },
   });
 }
-
