@@ -1,15 +1,26 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Button, Divider, Grid, Tab, Tabs, useMediaQuery } from '@mui/material';
+import { Divider, Grid, Tab, Tabs, useMediaQuery, Button } from '@mui/material';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
 import ShiftTeamTab, { shiftSchema, ShiftFormData } from './ShiftTeamTab';
-import FuelPumpTab from './FuelPumpTab';
+import FuelPumpTab, { fuelPumpSchema } from './FuelPumpTab';
 import { Station } from './StationType';
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 import { FormProvider, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
+import * as yup from 'yup';
+
+
+// Combine schemas for ShiftTeamTab and FuelPumpTab
+const combinedSchema = yup.object({
+  shifts: shiftSchema.fields.shifts,
+  fuel_pumps: fuelPumpSchema.fields.fuel_pumps,
+});
+
+// Define the combined form data type
+type FormData = yup.InferType<typeof combinedSchema>;
 
 interface StationTabsProps {
   station?: Station;
@@ -25,16 +36,17 @@ const StationTabs: React.FC<StationTabsProps> = ({ station }) => {
     PERMISSIONS.FUEL_STATIONS_UPDATE,
   ]);
 
-  // Initialize the form with TypeScript types
-  const methods = useForm<ShiftFormData>({
-    resolver: yupResolver(shiftSchema as any),
+  // Initialize the form with combined schema and default values
+  const methods = useForm<FormData>({
+    resolver: yupResolver(combinedSchema as any),
     defaultValues: {
       shifts: station?.shifts || [{ name: '', ledger_ids: [], description: '' }],
+      fuel_pumps: station?.fuel_pumps || [{ product_id: null, name: '', tank_id: null }],
     },
   });
 
   // Handle form submission
-  const onSubmit = (data: ShiftFormData) => {
+  const onSubmit = (data: FormData) => {
     console.log('Form Data:', data);
     // Replace with your API call or submission logic
   };
@@ -67,13 +79,6 @@ const StationTabs: React.FC<StationTabsProps> = ({ station }) => {
             <Grid size={12}>
               <FuelPumpTab station={station} />
             </Grid>
-          </Grid>
-        )}
-        {canCreateOrEdit && (
-          <Grid size={12} textAlign="end" sx={{ mt: 2 }}>
-            <Button type="submit" variant="contained" color="primary">
-              Save Changes
-            </Button>
           </Grid>
         )}
       </form>

@@ -1,11 +1,10 @@
 'use client';
 
 import React from 'react';
-import { Grid, TextField, Button, IconButton, Typography } from '@mui/material';
+import { Grid, TextField, Button, IconButton, Typography, Box } from '@mui/material';
 import { Add, Delete } from '@mui/icons-material';
 import { useFieldArray, Controller, useFormContext } from 'react-hook-form';
 import * as yup from 'yup';
-import LedgerSelectProvider from '@/components/accounts/ledgers/forms/LedgerSelectProvider';
 import LedgerSelect from '@/components/accounts/ledgers/forms/LedgerSelect';
 import { Station, Shift } from './StationType';
 
@@ -42,89 +41,98 @@ const ShiftTeamTab: React.FC<ShiftTeamTabProps> = ({ station }) => {
   });
 
   return (
-    <>
-      <Grid container spacing={2}>
-        <Grid size={12}>
-          <Typography variant="h6">Shift Teams</Typography>
-        </Grid>
-        {fields.map((field, index) => (
-          <Grid container spacing={1} key={field.id} sx={{ mb: 2 }} alignItems="center">
-            <Grid size={{ xs: 12, md: 4 }}>
-              <Controller
-                name={`shifts.${index}.name`}
-                control={control}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    fullWidth
-                    label="Team Name"
-                    size="small"
-                    error={!!errors.shifts?.[index]?.name}
-                    helperText={errors.shifts?.[index]?.name?.message}
-                  />
-                )}
-              />
-            </Grid>
-            <Grid size={{ xs: 12, md: 4 }}>
-              <Controller
-                name={`shifts.${index}.ledger_ids`}
-                control={control}
-                render={({ field }) => (
-                  <LedgerSelect
-                    multiple
-                    label="Ledger Accounts"
-                    defaultValue={station?.shifts?.[index]?.ledgers || []}
-                    onChange={(val) => {
-                      if (Array.isArray(val)) {
-                        field.onChange(val.map((v) => v.id));
-                      } else {
-                        field.onChange([]);
-                      }
-                    }}
-                    frontError={errors.shifts?.[index]?.ledger_ids}
-                  />
-                )}
-              />
-            </Grid>
-            <Grid size={{ xs: 12, md: 3 }}>
-              <Controller
-                name={`shifts.${index}.description`}
-                control={control}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    fullWidth
-                    label="Description"
-                    size="small"
-                    multiline
-                    rows={2}
-                    error={!!errors.shifts?.[index]?.description}
-                    helperText={errors.shifts?.[index]?.description?.message}
-                  />
-                )}
-              />
-            </Grid>
-            <Grid size={{ xs: 12, md: 1 }} sx={{ display: 'flex', alignItems: 'center' }}>
-              {fields.length > 1 && (
-                <IconButton onClick={() => remove(index)} color="error">
-                  <Delete />
-                </IconButton>
+    <Box sx={{ width: '100%' }}>
+      <Typography variant="h6" sx={{ mb: 2 }}>Shift Teams</Typography>
+      
+      {fields.map((field, index) => (
+        <Grid container spacing={2} key={field.id} sx={{ mb: 2 }} alignItems="flex-start">
+          {/* Team Name - 4 columns */}
+          <Grid size={{xs: 12, md: 4}}>
+            <Controller
+              name={`shifts.${index}.name`}
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  fullWidth
+                  label="Team Name"
+                  size="small"
+                  error={!!errors.shifts?.[index]?.name}
+                  helperText={errors.shifts?.[index]?.name?.message}
+                />
               )}
-            </Grid>
+            />
           </Grid>
-        ))}
-        <Grid size={12} textAlign="end">
-          <Button
-            variant="outlined"
-            size="small"
-            startIcon={<Add />}
-            onClick={() => append({ name: '', ledger_ids: [], description: '' })}
-          >
-            Add Shift Team
-          </Button>
+
+          {/* Ledger Accounts - 4 columns */}
+          <Grid size={{xs: 12, md: 4}}>
+            <Controller
+              name={`shifts.${index}.ledger_ids`}
+              control={control}
+              render={({ field }) => (
+                <LedgerSelect
+                  multiple
+                  label="Ledger Accounts"
+                  defaultValue={station?.shifts?.[index]?.ledgers || []}
+                  onChange={(val) => {
+                    if (Array.isArray(val)) {
+                      field.onChange(val.map((v) => v.id));
+                    } else {
+                      field.onChange([]);
+                    }
+                  }}
+                  frontError={errors.shifts?.[index]?.ledger_ids}
+                />
+              )}
+            />
+          </Grid>
+
+          {/* Description - 3 columns */}
+         <Grid size={{xs: 12, md: 3}} >
+            <Controller
+              name={`shifts.${index}.description`}
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  fullWidth
+                  label="Description"
+                  size="small"
+                  multiline
+                  rows={1}
+                  error={!!errors.shifts?.[index]?.description}
+                  helperText={errors.shifts?.[index]?.description?.message}
+                />
+              )}
+            />
+          </Grid>
+
+          {/* Delete Button - 1 column */}
+         <Grid size={{xs: 12, md: 1}} sx={{ display: 'flex', justifyContent: 'center', alignItems: 'flex-start' }}>
+            {fields.length > 1 && (
+              <IconButton 
+                onClick={() => remove(index)} 
+                color="error"
+                sx={{ mt: 0.5 }}
+              >
+                <Delete />
+              </IconButton>
+            )}
+          </Grid>
         </Grid>
-      </Grid>
-    </>
+      ))}
+      
+      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
+        <Button
+          variant="outlined"
+          size="small"
+          startIcon={<Add />}
+          onClick={() => append({ name: '', ledger_ids: [], description: '' })}
+        >
+          Add
+        </Button>
+      </Box>
+    </Box>
   );
 };
 
