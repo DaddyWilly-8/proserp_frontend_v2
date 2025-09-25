@@ -1,8 +1,9 @@
+import Stations from '@/components/fuelStations/Stations/Stations'
 import React from 'react'
 
 function page() {
   return (
-    <div>stations</div>
+    <Stations/>
   )
 }
 
