@@ -34,10 +34,19 @@ export interface Unit {
 export interface AddStationResponse {
   message: string;
 }
+export interface DeleteStationResponse {
+  message: string;
+}
 
 export interface UpdateStationResponse {
   message: string;
   
+}
+export interface PaginatedStationResponse {
+  data: Station[];
+  current_page: number;
+  total: number;
+  last_page: number;
 }
 export interface FormData {
   shifts: Array<{

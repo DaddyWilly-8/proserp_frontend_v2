@@ -116,25 +116,25 @@ const FuelPumpTab: React.FC<FuelPumpTabProps> = ({ station }) => {
             />
           </Grid>
 
-          {/* Tank Name - 3 columns */}
+           {/* Tank Name - 3 columns */}
           <Grid size={{xs: 12, md: 3}}>
             <Controller
               name={`fuel_pumps.${index}.tank_id`}
               control={control}
-              render={({ field }) => (
+              render={({ field: controllerField }) => (
                 <StoreSelector
                   label="Tank Name"
+                  value={controllerField.value}
                   frontError={errors.fuel_pumps?.[index]?.tank_id}
-                  defaultValue={station?.fuel_pumps?.[index]?.tankName}
                   onChange={(newValue) => {
                     if (newValue) {
-                      field.onChange(newValue.id);
+                      controllerField.onChange(newValue.id);
                       setValue(`fuel_pumps.${index}.tankName`, newValue, {
                         shouldDirty: true,
                         shouldValidate: true,
                       });
                     } else {
-                      field.onChange(null);
+                      controllerField.onChange(null);
                       setValue(`fuel_pumps.${index}.tankName`, null, {
                         shouldDirty: true,
                         shouldValidate: true,

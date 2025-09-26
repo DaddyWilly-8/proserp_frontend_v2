@@ -129,68 +129,77 @@ const StationForm: React.FC<StationFormProps> = ({ station, setOpenDialog }) => 
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} noValidate>
-      <DialogTitle sx={{ textAlign: 'center' }}>
-        {station ? `Edit ${station.name}` : 'New Fuel Station'}
-        <Grid container spacing={1} sx={{ mt: 2 }}>
-          <Grid size={{ xs: 12, md: 4 }}>
-            <TextField
-              fullWidth
-              label="Station Name"
-              size="small"
-              {...register('name')}
-              error={!!errors.name}
-              helperText={errors.name?.message}
-            />
-          </Grid>
-          <Grid size={{ xs: 12, md: 4 }}>
-            <TextField
-              fullWidth
-              label="Address"
-              size="small"
-              {...register('address')}
-              error={!!errors.address}
-              helperText={errors.address?.message}
-            />
-          </Grid>
-          <Grid size={{ xs: 12, md: 4 }}>
-            <Controller
-              name="users"
-              control={control}
-              render={({ field }) => (
-                <UsersSelector
-                  multiple
-                  defaultValue={station?.user || []}
-                  onChange={field.onChange}
-                  frontError={errors.users}
-                />
-              )}
-            />
-          </Grid>
-        </Grid>
-      </DialogTitle>
-      <DialogContent>
-        <Grid container spacing={1}>
-          <Grid size={12}>
-            <StationTabs station={station} />
-          </Grid>
-        </Grid>
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={() => setOpenDialog(false)} size="small">
-          Cancel
-        </Button>
-        <LoadingButton
-          type="submit"
-          variant="contained"
+   <form onSubmit={handleSubmit(onSubmit)} noValidate>
+  <DialogTitle>
+    <Grid container spacing={1}>
+      {/* Title in its own full-width grid */}
+      <Grid size={12}>
+        <Typography variant="h5" sx={{ textAlign: 'center', mb: 2 }}>
+          {station ? `Edit ${station.name}` : 'New Fuel Station'}
+        </Typography>
+      </Grid>
+      
+      {/* Form fields grid */}
+      <Grid size={{ xs: 12, md: 4 }}>
+        <TextField
+          fullWidth
+          label="Station Name"
           size="small"
-          loading={addLoading || updateLoading}
-          disabled={!canCreateOrEdit}
-        >
-          Submit
-        </LoadingButton>
-      </DialogActions>
-    </form>
+          {...register('name')}
+          error={!!errors.name}
+          helperText={errors.name?.message}
+        />
+      </Grid>
+      <Grid size={{ xs: 12, md: 4 }}>
+        <TextField
+          fullWidth
+          label="Address"
+          size="small"
+          {...register('address')}
+          error={!!errors.address}
+          helperText={errors.address?.message}
+        />
+      </Grid>
+      <Grid size={{ xs: 12, md: 4 }}>
+        <Controller
+          name="users"
+          control={control}
+          render={({ field }) => (
+            <UsersSelector
+              multiple
+              defaultValue={station?.user || []}
+              onChange={field.onChange}
+              frontError={errors.users}
+            />
+          )}
+        />
+      </Grid>
+    </Grid>
+  </DialogTitle>
+  
+  <DialogContent>
+    <Grid container spacing={1}>
+      <Grid size={12}>
+        <StationTabs station={station} />
+      </Grid>
+    </Grid>
+  </DialogContent>
+  
+  <DialogActions>
+    <Button onClick={() => setOpenDialog(false)} size="small">
+      Cancel
+    </Button>
+    <LoadingButton
+      type="submit"
+      variant="contained"
+      size="small"
+      loading={addLoading || updateLoading}
+      disabled={!canCreateOrEdit}
+    >
+      Submit
+    </LoadingButton>
+  </DialogActions>
+</form>
   );
 };
 
