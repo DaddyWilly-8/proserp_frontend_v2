@@ -30,10 +30,8 @@ function BudgetBullet() {
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      // dynamically import the bullet module
       import("highcharts/modules/bullet")
         .then((mod) => {
-          // mod might have default or named export
           const bullet = (mod && (mod.default ?? mod)) as any;
           if (typeof bullet === "function") {
             bullet(Highcharts);
@@ -54,7 +52,6 @@ function BudgetBullet() {
     return <LinearProgress/>;
   }
 
-  // Cast to the specific options type for bullet chart
   const options: BudgetBulletChartOptions = {
     chart: {
       inverted: true,
@@ -110,7 +107,7 @@ function BudgetBullet() {
         targetOptions: {
           width: '200%'
         }
-      } as Highcharts.PlotSeriesOptions, // Type assertion for series plot options
+      } as Highcharts.PlotSeriesOptions,
     },
     exporting: {
       enabled: false,

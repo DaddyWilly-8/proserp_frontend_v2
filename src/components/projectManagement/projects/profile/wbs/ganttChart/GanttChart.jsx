@@ -27,7 +27,6 @@ function GanttChart({ setOpenGanttChart }) {
         const exportDataModule = await import("highcharts/modules/export-data");
         const offlineExportingModule = await import("highcharts/modules/offline-exporting");
 
-        // Some modules export as { default: fn } or just the function itself
         const modules = [ganttModule, exportingModule, exportDataModule, offlineExportingModule];
 
         modules.forEach((mod) => {
@@ -106,13 +105,11 @@ function GanttChart({ setOpenGanttChart }) {
   const day = 24 * 36e5,
   today = Math.floor(Date.now() / day) * day;
 
-  // Calculate minDate (earliest task start date)
   const minDate = ganttData.reduce((earliest, task) => {
     const taskStart = task.start || today;
     return taskStart < earliest ? taskStart : earliest;
   }, today);
 
-  // Calculate maxDate (latest task end date)
   const maxDate = ganttData.reduce((latest, task) => {
     const taskEnd = task.end || today;
     return taskEnd > latest ? taskEnd : latest;

@@ -1,4 +1,3 @@
-// TasksTreeView.tsx
 "use client";
 
 import React, { useEffect, useState } from "react";
@@ -55,7 +54,6 @@ function TasksTreeView({ setOpenTasksTreeView }) {
       }
     }
 
-    // only run client-side
     if (typeof window !== "undefined") load();
 
     return () => {
