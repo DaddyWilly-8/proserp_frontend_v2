@@ -1,5 +1,3 @@
-'use client';
-
 import React, { useState } from 'react';
 import { Divider, Grid, Tab, Tabs, useMediaQuery, Button } from '@mui/material';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
@@ -53,7 +51,6 @@ const StationTabs: React.FC<StationTabsProps> = ({ station }) => {
 
   return (
     <FormProvider {...methods}>
-      <form onSubmit={methods.handleSubmit(onSubmit)}>
         <Grid size={12}>
           <Divider />
           <Tabs
@@ -81,7 +78,6 @@ const StationTabs: React.FC<StationTabsProps> = ({ station }) => {
             </Grid>
           </Grid>
         )}
-      </form>
     </FormProvider>
   );
 };

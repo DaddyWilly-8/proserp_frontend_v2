@@ -52,13 +52,14 @@ const StationForm: React.FC<StationFormProps> = ({ station, setOpenDialog }) => 
   const queryClient = useQueryClient();
   const { enqueueSnackbar } = useSnackbar();
   const { checkOrganizationPermission } = useJumboAuth();
-  const canCreateOrEdit = checkOrganizationPermission([PERMISSIONS.FUEL_STATIONS_CREATE, PERMISSIONS. FUEL_STATIONS_UPDATE]);
+  const canCreateOrEdit = checkOrganizationPermission([PERMISSIONS.FUEL_STATIONS_CREATE, PERMISSIONS.FUEL_STATIONS_UPDATE]);
 
   const {
     register,
     handleSubmit,
     control,
     formState: { errors },
+    watch,
   } = useForm<FormData>({
     defaultValues: {
       id: station?.id,
@@ -68,6 +69,9 @@ const StationForm: React.FC<StationFormProps> = ({ station, setOpenDialog }) => 
     },
     resolver: yupResolver(validationSchema) as any,
   });
+
+  // Watch users field to see current value
+  const usersValue = watch('users');
 
   const { mutate: addStation, isPending: addLoading } = useMutation<AddStationResponse, unknown, Station>({
     mutationFn: stationServices.add,
@@ -120,86 +124,96 @@ const StationForm: React.FC<StationFormProps> = ({ station, setOpenDialog }) => 
   }, [station, updateStation, addStation]);
 
   const onSubmit = (formData: FormData) => {
+    
     const dataToSend = {
       ...formData,
       user_ids: formData.users.map((user: User) => user.id),
       ...(station?.id ? { id: station.id } : {}),
     };
+    
     saveMutation(dataToSend as any);
   };
 
+  // Custom handler for UsersSelector
+  const handleUsersChange = (selectedUsers: User[]) => {
+  };
+
   return (
-   <form onSubmit={handleSubmit(onSubmit)} noValidate>
-  <DialogTitle>
-    <Grid container spacing={1}>
-      {/* Title in its own full-width grid */}
-      <Grid size={12}>
-        <Typography variant="h5" sx={{ textAlign: 'center', mb: 2 }}>
-          {station ? `Edit ${station.name}` : 'New Fuel Station'}
-        </Typography>
-      </Grid>
-      
-      {/* Form fields grid */}
-      <Grid size={{ xs: 12, md: 4 }}>
-        <TextField
-          fullWidth
-          label="Station Name"
-          size="small"
-          {...register('name')}
-          error={!!errors.name}
-          helperText={errors.name?.message}
-        />
-      </Grid>
-      <Grid size={{ xs: 12, md: 4 }}>
-        <TextField
-          fullWidth
-          label="Address"
-          size="small"
-          {...register('address')}
-          error={!!errors.address}
-          helperText={errors.address?.message}
-        />
-      </Grid>
-      <Grid size={{ xs: 12, md: 4 }}>
-        <Controller
-          name="users"
-          control={control}
-          render={({ field }) => (
-            <UsersSelector
-              multiple
-              defaultValue={station?.user || []}
-              onChange={field.onChange}
-              frontError={errors.users}
+    <form onSubmit={handleSubmit(onSubmit)} noValidate>
+      <DialogTitle>
+        <Grid container spacing={1}>
+          <Grid size={12}>
+            <Typography variant="h5" sx={{ textAlign: 'center', mb: 2 }}>
+              {station ? `Edit ${station.name}` : 'New Fuel Station'}
+            </Typography>
+          </Grid>
+          
+          <Grid size={{ xs: 12, md: 4 }}>
+            <TextField
+              fullWidth
+              label="Station Name"
+              size="small"
+              {...register('name')}
+              error={!!errors.name}
+              helperText={errors.name?.message}
             />
-          )}
-        />
-      </Grid>
-    </Grid>
-  </DialogTitle>
-  
-  <DialogContent>
-    <Grid container spacing={1}>
-      <Grid size={12}>
-        <StationTabs station={station} />
-      </Grid>
-    </Grid>
-  </DialogContent>
-  
-  <DialogActions>
-    <Button onClick={() => setOpenDialog(false)} size="small">
-      Cancel
-    </Button>
-    <LoadingButton
-      type="submit"
-      variant="contained"
-      size="small"
-      loading={addLoading || updateLoading}
-      disabled={!canCreateOrEdit}
-    >
-      Submit
-    </LoadingButton>
-  </DialogActions>
-</form>
+          </Grid>
+          
+          <Grid size={{ xs: 12, md: 4 }}>
+            <TextField
+              fullWidth
+              label="Address"
+              size="small"
+              {...register('address')}
+              error={!!errors.address}
+              helperText={errors.address?.message}
+            />
+          </Grid>
+          
+          <Grid size={{ xs: 12, md: 4 }}>
+            <Controller
+              name="users"
+              control={control}
+              render={({ field }) => (
+                <UsersSelector
+                  multiple
+                  defaultValue={field.value || []}
+                  onChange={(users) => {
+                    console.log('UsersSelector onChange:', users);
+                    field.onChange(users || []);
+                  }}
+                  frontError={errors.users}
+                />
+              )}
+            />
+       
+          </Grid>
+        </Grid>
+      </DialogTitle>
+      
+      <DialogContent>
+        <Grid container spacing={1}>
+          <Grid size={12}>
+            <StationTabs station={station} />
+          </Grid>
+        </Grid>
+      </DialogContent>
+      
+      <DialogActions>
+        <Button onClick={() => setOpenDialog(false)} size="small">
+          Cancel
+        </Button>
+        <LoadingButton
+          type="submit"
+          variant="contained"
+          size="small"
+          loading={addLoading || updateLoading}
+          disabled={!canCreateOrEdit}
+        >
+          Submit
+        </LoadingButton>
+      </DialogActions>
+    </form>
   );
 };
 
