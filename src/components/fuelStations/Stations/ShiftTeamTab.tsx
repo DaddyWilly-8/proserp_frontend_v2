@@ -1,31 +1,31 @@
-import React from 'react';
-import { Grid, TextField, Button, IconButton, Typography, Box } from '@mui/material';
-import { Add, Delete } from '@mui/icons-material';
-import { useFieldArray, Controller, useFormContext } from 'react-hook-form';
-import * as yup from 'yup';
-import LedgerSelect from '@/components/accounts/ledgers/forms/LedgerSelect';
-import { Station, Shift } from './StationType';
-import { useLedgerSelect } from '@/components/accounts/ledgers/forms/LedgerSelectProvider';
+"use client";
 
-// Validation schema for shifts
+import React from "react";
+import { Grid, TextField, Button, IconButton, Box } from "@mui/material";
+import { Add, Delete } from "@mui/icons-material";
+import { useFieldArray, Controller, useFormContext } from "react-hook-form";
+import * as yup from "yup";
+import LedgerSelect from "@/components/accounts/ledgers/forms/LedgerSelect";
+import { Station } from "./StationType";
+import { useLedgerSelect } from "@/components/accounts/ledgers/forms/LedgerSelectProvider";
+
 export const shiftSchema = yup.object({
   shifts: yup
     .array()
     .of(
       yup.object({
-        name: yup.string().required('Team name is required'),
+        name: yup.string().required("Team name is required"),
         ledger_ids: yup
           .array()
           .of(yup.number().required())
-          .min(1, 'At least one ledger is required')
-          .required('At least one ledger is required'),
+          .min(1, "At least one ledger is required")
+          .required("At least one ledger is required"),
         description: yup.string().optional(),
       })
     )
-    .min(1, 'At least one shift is required'),
+    .min(1, "At least one shift is required"),
 });
 
-// Define the form data type
 export type ShiftFormData = yup.InferType<typeof shiftSchema>;
 
 interface ShiftTeamTabProps {
@@ -33,41 +33,35 @@ interface ShiftTeamTabProps {
 }
 
 const ShiftTeamTab: React.FC<ShiftTeamTabProps> = ({ station }) => {
-  const { control, formState: { errors }, watch } = useFormContext<ShiftFormData>();
+  const { control, formState: { errors } } = useFormContext<ShiftFormData>();
   const { fields, append, remove } = useFieldArray({
     control,
-    name: 'shifts',
+    name: "shifts",
+    keyName: "id",
   });
-
   const { ledgerOptions, extractLedgers } = useLedgerSelect();
   const [ledgerList, setLedgerList] = React.useState<any[]>([]);
 
-  // Watch all shifts to ensure proper re-rendering
-  const shifts = watch('shifts');
-
-  // Extract ledgers using the same method as LedgerSelect
   React.useEffect(() => {
     if (ledgerOptions) {
       extractLedgers(ledgerOptions, [], [], setLedgerList);
     }
   }, [ledgerOptions, extractLedgers]);
 
-  // Function to convert ledger IDs to Ledger objects
   const convertToLedgerObjects = (ledgerIds: number[]) => {
     if (!ledgerList || !ledgerIds.length) return [];
     return ledgerList.filter(ledger => ledgerIds.includes(ledger.id));
   };
 
   return (
-    <Box sx={{ width: '100%' }}>
+    <Box sx={{ width: "100%" }}>
       {fields.map((field, index) => {
-        const currentLedgerIds = shifts?.[index]?.ledger_ids || [];
+        const currentLedgerIds = field.ledger_ids || [];
         const ledgerObjects = convertToLedgerObjects(currentLedgerIds);
 
         return (
           <Grid container spacing={2} key={field.id} sx={{ mb: 2 }} alignItems="flex-start">
-            {/* Team Name - 4 columns */}
-            <Grid size={{xs: 12, md: 4}}>
+            <Grid size={{ xs: 12, md: 4 }}>
               <Controller
                 name={`shifts.${index}.name`}
                 control={control}
@@ -83,9 +77,7 @@ const ShiftTeamTab: React.FC<ShiftTeamTabProps> = ({ station }) => {
                 )}
               />
             </Grid>
-
-            {/* Ledger Accounts - 4 columns */}
-            <Grid size={{xs: 12, md: 4}}>
+            <Grid size={{ xs: 12, md: 4 }}>
               <Controller
                 name={`shifts.${index}.ledger_ids`}
                 control={control}
@@ -93,7 +85,7 @@ const ShiftTeamTab: React.FC<ShiftTeamTabProps> = ({ station }) => {
                   <LedgerSelect
                     multiple
                     label="Ledger Accounts"
-                    defaultValue={ledgerObjects} // Now passing Ledger[] instead of number[]
+                    defaultValue={ledgerObjects}
                     onChange={(val) => {
                       if (Array.isArray(val)) {
                         field.onChange(val.map((v) => v.id));
@@ -106,9 +98,7 @@ const ShiftTeamTab: React.FC<ShiftTeamTabProps> = ({ station }) => {
                 )}
               />
             </Grid>
-
-            {/* Description - 3 columns */}
-            <Grid size={{xs: 12, md: 3}}>
+            <Grid size={{ xs: 12, md: 3 }}>
               <Controller
                 name={`shifts.${index}.description`}
                 control={control}
@@ -126,15 +116,9 @@ const ShiftTeamTab: React.FC<ShiftTeamTabProps> = ({ station }) => {
                 )}
               />
             </Grid>
-
-            {/* Delete Button - 1 column */}
-            <Grid size={{xs: 12, md: 1}} sx={{ display: 'flex', justifyContent: 'center', alignItems: 'flex-start' }}>
+            <Grid size={{ xs: 12, md: 1 }} sx={{ display: "flex", justifyContent: "center", alignItems: "flex-start" }}>
               {fields.length > 1 && (
-                <IconButton 
-                  onClick={() => remove(index)} 
-                  color="error"
-                  sx={{ mt: 0.5 }}
-                >
+                <IconButton onClick={() => remove(index)} color="error" sx={{ mt: 0.5 }}>
                   <Delete />
                 </IconButton>
               )}
@@ -142,13 +126,12 @@ const ShiftTeamTab: React.FC<ShiftTeamTabProps> = ({ station }) => {
           </Grid>
         );
       })}
-      
-      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
+      <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
         <Button
           variant="outlined"
           size="small"
           startIcon={<Add />}
-          onClick={() => append({ name: '', ledger_ids: [], description: '' })}
+          onClick={() => append({ name: "", ledger_ids: [], description: "" })}
         >
           Add
         </Button>
