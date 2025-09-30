@@ -18,7 +18,7 @@ export const shiftSchema = yup.object({
         ledger_ids: yup
           .array()
           .of(yup.number().required())
-          .min(1, "At least one ledger is required")
+          .min(1)
           .required("At least one ledger is required"),
         description: yup.string().optional(),
       })

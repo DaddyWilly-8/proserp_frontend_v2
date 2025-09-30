@@ -6,9 +6,9 @@ import { User } from "@/components/prosControl/userManagement/UserManagementType
 export interface Station {
   id?: number;
   name: string;
-  user: User[];
+  users: User[];
   shifts?: Shift[];
-  fuel_pumps?: FuelPump[];
+  fuel_pumps?: FuelPump[]  ;
   address?: string;
 }
 
