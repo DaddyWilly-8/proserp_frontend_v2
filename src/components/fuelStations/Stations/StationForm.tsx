@@ -23,7 +23,7 @@ import type { AddStationResponse, Station, UpdateStationResponse } from "./Stati
 import { useJumboAuth } from "@/app/providers/JumboAuthProvider";
 import { PERMISSIONS } from "@/utilities/constants/permissions";
 import { User } from "@/components/prosControl/userManagement/UserManagementType";
-import { shiftSchema } from "./ShiftTeamTab";
+import { shiftTeamSchema } from "./ShiftTeamTab";
 import { fuelPumpSchema } from "./FuelPumpTab";
 
 interface StationFormProps {
@@ -36,7 +36,7 @@ interface FormData {
   name: string;
   address?: string;
   users: User[];
-  shifts: yup.InferType<typeof shiftSchema>["shifts"];
+  shift_teams: yup.InferType<typeof shiftTeamSchema>["shift_teams"];
   fuel_pumps: yup.InferType<typeof fuelPumpSchema>["fuel_pumps"];
 }
 
@@ -44,7 +44,7 @@ const validationSchema = yup.object({
   name: yup.string().required("Station name is required"),
   address: yup.string().optional(),
   users: yup.array().optional(),
-  shifts: yup.array().of(
+  shift_teams: yup.array().of(
     yup.object({
       name: yup.string().required("Team name is required"),
       ledger_ids: yup.array().of(yup.number()).min(1, "At least one ledger is required"),
@@ -75,8 +75,8 @@ const methods = useForm<FormData>({
     name: station?.name ?? "",
     address: station?.address ?? "",
     users: station?.users ?? [],
-    // Start with one valid shift instead of potentially empty ones
-    shifts: station?.shifts?.length ? station.shifts : [{ name: "", ledger_ids: [], description: "" }],
+    // Start with one valid shift_teams instead of potentially empty ones
+    shift_teams: station?.shift_teams?.length ? station.shift_teams : [{ name: "", ledger_ids: [], description: "" }],
     // Start with one valid fuel pump instead of potentially empty ones
     fuel_pumps: station?.fuel_pumps?.length ? station.fuel_pumps.map(fp => ({
       product_id: fp.product_id === null ? undefined : fp.product_id,
@@ -149,12 +149,12 @@ const methods = useForm<FormData>({
   );
 
 const onSubmit = (formData: FormData) => {
-  // Filter out invalid shifts (empty names or no ledger_ids)
-  const validShifts = formData.shifts
-    ?.filter(shift => shift.name?.trim() && shift.ledger_ids?.length > 0)
-    ?.map(shift => ({
-      name: shift.name,
-      ledger_ids: shift.ledger_ids,
+  // Filter out invalid shift_teams (empty names or no ledger_ids)
+  const validShifts = formData.shift_teams
+    ?.filter(shift_teams => shift_teams.name?.trim() && shift_teams.ledger_ids?.length > 0)
+    ?.map(shift_teams => ({
+      name: shift_teams.name,
+      ledger_ids: shift_teams.ledger_ids,
     })) || [];
 
   // Filter out invalid fuel pumps (empty names or null IDs)
@@ -170,7 +170,7 @@ const onSubmit = (formData: FormData) => {
   const dataToSend = {
     name: formData.name,
     user_ids: formData.users?.map((user: User) => user.id) ?? [],
-    shifts: validShifts,
+    shift_teams: validShifts,
     fuel_pumps: validFuelPumps,
     ...(station?.id ? { id: station.id } : {}),
   };

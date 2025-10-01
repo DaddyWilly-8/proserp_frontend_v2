@@ -9,8 +9,8 @@ import LedgerSelect from "@/components/accounts/ledgers/forms/LedgerSelect";
 import { Station } from "./StationType";
 import { useLedgerSelect } from "@/components/accounts/ledgers/forms/LedgerSelectProvider";
 
-export const shiftSchema = yup.object({
-  shifts: yup
+export const shiftTeamSchema = yup.object({
+  shift_teams: yup
     .array()
     .of(
       yup.object({
@@ -26,7 +26,7 @@ export const shiftSchema = yup.object({
     .min(1, "At least one shift is required"),
 });
 
-export type ShiftFormData = yup.InferType<typeof shiftSchema>;
+export type ShiftFormData = yup.InferType<typeof shiftTeamSchema>;
 
 interface ShiftTeamTabProps {
   station?: Station;
@@ -36,7 +36,7 @@ const ShiftTeamTab: React.FC<ShiftTeamTabProps> = ({ station }) => {
   const { control, formState: { errors } } = useFormContext<ShiftFormData>();
   const { fields, append, remove } = useFieldArray({
     control,
-    name: "shifts",
+    name: "shift_teams",
     keyName: "id",
   });
   const { ledgerOptions, extractLedgers } = useLedgerSelect();
@@ -63,23 +63,25 @@ const ShiftTeamTab: React.FC<ShiftTeamTabProps> = ({ station }) => {
           <Grid container spacing={2} key={field.id} sx={{ mb: 2 }} alignItems="flex-start">
             <Grid size={{ xs: 12, md: 4 }}>
               <Controller
-                name={`shifts.${index}.name`}
+                name={`shift_teams.${index}.name`}
                 control={control}
-                render={({ field }) => (
+                render={({ field: { value, onChange, ...fieldProps } }) => (
                   <TextField
-                    {...field}
+                    {...fieldProps}
+                    value={value || ""} // ✅ FIX: Ensure value is never null/undefined
                     fullWidth
                     label="Team Name"
                     size="small"
-                    error={!!errors.shifts?.[index]?.name}
-                    helperText={errors.shifts?.[index]?.name?.message}
+                    error={!!errors.shift_teams?.[index]?.name}
+                    helperText={errors.shift_teams?.[index]?.name?.message}
+                    onChange={onChange}
                   />
                 )}
               />
             </Grid>
             <Grid size={{ xs: 12, md: 4 }}>
               <Controller
-                name={`shifts.${index}.ledger_ids`}
+                name={`shift_teams.${index}.ledger_ids`}
                 control={control}
                 render={({ field }) => (
                   <LedgerSelect
@@ -93,25 +95,27 @@ const ShiftTeamTab: React.FC<ShiftTeamTabProps> = ({ station }) => {
                         field.onChange([]);
                       }
                     }}
-                    frontError={errors.shifts?.[index]?.ledger_ids}
+                    frontError={errors.shift_teams?.[index]?.ledger_ids}
                   />
                 )}
               />
             </Grid>
             <Grid size={{ xs: 12, md: 3 }}>
               <Controller
-                name={`shifts.${index}.description`}
+                name={`shift_teams.${index}.description`}
                 control={control}
-                render={({ field }) => (
+                render={({ field: { value, onChange, ...fieldProps } }) => (
                   <TextField
-                    {...field}
+                    {...fieldProps}
+                    value={value || ""} // ✅ FIX: Ensure value is never null/undefined
                     fullWidth
                     label="Description"
                     size="small"
                     multiline
                     rows={1}
-                    error={!!errors.shifts?.[index]?.description}
-                    helperText={errors.shifts?.[index]?.description?.message}
+                    error={!!errors.shift_teams?.[index]?.description}
+                    helperText={errors.shift_teams?.[index]?.description?.message}
+                    onChange={onChange}
                   />
                 )}
               />

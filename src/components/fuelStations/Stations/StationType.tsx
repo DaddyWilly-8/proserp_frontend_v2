@@ -7,15 +7,15 @@ export interface Station {
   id?: number;
   name: string;
   users: User[];
-  shifts?: Shift[];
+  shift_teams?: ShiftTeam[];
   fuel_pumps?: FuelPump[]  ;
   address?: string;
 }
 
-export interface Shift {
+export interface ShiftTeam {
   name: string;
   ledger_ids: number[];
-  ledgers?: Ledger[];
+  description?: string;
 }
 
 export interface FuelPump {
@@ -49,7 +49,7 @@ export interface PaginatedStationResponse {
   last_page: number;
 }
 export interface FormData {
-  shifts: Array<{
+  shift_teams: Array<{
     name: string;
     ledger_ids: number[];
     description?: string;
