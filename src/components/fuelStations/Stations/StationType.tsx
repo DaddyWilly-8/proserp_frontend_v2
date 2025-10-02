@@ -10,6 +10,9 @@ export interface Station {
   shift_teams?: ShiftTeam[];
   fuel_pumps?: FuelPump[]  ;
   address?: string;
+  ledger?:Ledger[];
+  product?:Product[];
+  description?: string;
 }
 
 export interface ShiftTeam {

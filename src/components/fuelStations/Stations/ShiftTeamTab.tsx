@@ -23,7 +23,6 @@ export const shiftTeamSchema = yup.object({
         description: yup.string().optional(),
       })
     )
-    .min(1, "At least one shift is required"),
 });
 
 export type ShiftFormData = yup.InferType<typeof shiftTeamSchema>;

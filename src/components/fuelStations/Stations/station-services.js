@@ -25,9 +25,9 @@ stationServices.update = async(station) => {
 }
 
 
-stationServices.delete = async (station) => {
+stationServices.delete = async (id) => {
     return await axios.get('/sanctum/csrf-cookie').then(async (response) => {
-        const {data} = await axios.delete(`/api/fuelStations/stations/${station.id}/delete`);
+        const {data} = await axios.delete(`/api/fuelStations/stations/${id}/delete`);
         return data;
     })
 };
