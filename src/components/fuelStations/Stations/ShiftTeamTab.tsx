@@ -18,9 +18,9 @@ export const shiftTeamSchema = yup.object({
         ledger_ids: yup
           .array()
           .of(yup.number().required())
-          .min(1)
+          .min(1, "At least one ledger is required")
           .required("At least one ledger is required"),
-        description: yup.string().optional(),
+        description: yup.string().nullable().optional(),
       })
     )
 });
@@ -32,52 +32,49 @@ interface ShiftTeamTabProps {
 }
 
 const ShiftTeamTab: React.FC<ShiftTeamTabProps> = ({ station }) => {
-  const { control, formState: { errors } } = useFormContext<ShiftFormData>();
+  const { control, formState: { errors }, watch } = useFormContext<ShiftFormData>();
   const { fields, append, remove } = useFieldArray({
     control,
     name: "shift_teams",
-    keyName: "id",
   });
-  const { ledgerOptions, extractLedgers } = useLedgerSelect();
-  const [ledgerList, setLedgerList] = React.useState<any[]>([]);
+  
+  const { ungroupedLedgerOptions } = useLedgerSelect();
 
-  React.useEffect(() => {
-    if (ledgerOptions) {
-      extractLedgers(ledgerOptions, [], [], setLedgerList);
-    }
-  }, [ledgerOptions, extractLedgers]);
+  // Watch the shift_teams array to get current values
+  const shiftTeams = watch("shift_teams");
 
-  const convertToLedgerObjects = (ledgerIds: number[]) => {
-    if (!ledgerList || !ledgerIds.length) return [];
-    return ledgerList.filter(ledger => ledgerIds.includes(ledger.id));
+  const getFieldError = (index: number, fieldName: string) => {
+    return (errors as any)?.shift_teams?.[index]?.[fieldName];
   };
 
   return (
     <Box sx={{ width: "100%" }}>
       {fields.map((field, index) => {
-        const currentLedgerIds = field.ledger_ids || [];
-        const ledgerObjects = convertToLedgerObjects(currentLedgerIds);
+        // Get current ledger_ids for this specific field
+        const currentLedgerIds = shiftTeams?.[index]?.ledger_ids || [];
 
         return (
           <Grid container spacing={2} key={field.id} sx={{ mb: 2 }} alignItems="flex-start">
+            {/* Team Name - 4 columns */}
             <Grid size={{ xs: 12, md: 4 }}>
               <Controller
                 name={`shift_teams.${index}.name`}
                 control={control}
-                render={({ field: { value, onChange, ...fieldProps } }) => (
+                render={({ field }) => (
                   <TextField
-                    {...fieldProps}
-                    value={value || ""} // ✅ FIX: Ensure value is never null/undefined
+                    {...field}
+                    value={field.value || ""}
                     fullWidth
                     label="Team Name"
                     size="small"
-                    error={!!errors.shift_teams?.[index]?.name}
-                    helperText={errors.shift_teams?.[index]?.name?.message}
-                    onChange={onChange}
+                    error={!!getFieldError(index, "name")}
+                    helperText={getFieldError(index, "name")?.message}
                   />
                 )}
               />
             </Grid>
+
+            {/* Ledger Accounts - 4 columns - FIXED */}
             <Grid size={{ xs: 12, md: 4 }}>
               <Controller
                 name={`shift_teams.${index}.ledger_ids`}
@@ -86,39 +83,50 @@ const ShiftTeamTab: React.FC<ShiftTeamTabProps> = ({ station }) => {
                   <LedgerSelect
                     multiple
                     label="Ledger Accounts"
-                    defaultValue={ledgerObjects}
-                    onChange={(val) => {
-                      if (Array.isArray(val)) {
-                        field.onChange(val.map((v) => v.id));
+                    defaultValue={ungroupedLedgerOptions.filter(ledger => 
+                      Array.isArray(currentLedgerIds) && currentLedgerIds.includes(ledger.id)
+                    )}
+                    onChange={(newValue) => {
+                      if (Array.isArray(newValue)) {
+                        field.onChange(newValue.map((v) => v.id));
                       } else {
                         field.onChange([]);
                       }
                     }}
-                    frontError={errors.shift_teams?.[index]?.ledger_ids}
+                    frontError={getFieldError(index, "ledger_ids")}
                   />
                 )}
               />
             </Grid>
+
+            {/* Description - 3 columns */}
             <Grid size={{ xs: 12, md: 3 }}>
               <Controller
                 name={`shift_teams.${index}.description`}
                 control={control}
-                render={({ field: { value, onChange, ...fieldProps } }) => (
+                defaultValue={null}
+                render={({ field }) => (
                   <TextField
-                    {...fieldProps}
-                    value={value || ""} // ✅ FIX: Ensure value is never null/undefined
+                    {...field}
+                    value={field.value || ""}
                     fullWidth
                     label="Description"
                     size="small"
                     multiline
                     rows={1}
-                    error={!!errors.shift_teams?.[index]?.description}
-                    helperText={errors.shift_teams?.[index]?.description?.message}
-                    onChange={onChange}
+                    placeholder="description"
+                    error={!!getFieldError(index, "description")}
+                    helperText={getFieldError(index, "description")?.message}
+                    onChange={(e) => {
+                      const value = e.target.value === "" ? null : e.target.value;
+                      field.onChange(value);
+                    }}
                   />
                 )}
               />
             </Grid>
+
+            {/* Delete Button - 1 column */}
             <Grid size={{ xs: 12, md: 1 }} sx={{ display: "flex", justifyContent: "center", alignItems: "flex-start" }}>
               {fields.length > 1 && (
                 <IconButton onClick={() => remove(index)} color="error" sx={{ mt: 0.5 }}>
@@ -129,12 +137,17 @@ const ShiftTeamTab: React.FC<ShiftTeamTabProps> = ({ station }) => {
           </Grid>
         );
       })}
+      
       <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
         <Button
           variant="outlined"
           size="small"
           startIcon={<Add />}
-          onClick={() => append({ name: "", ledger_ids: [], description: "" })}
+          onClick={() => append({ 
+            name: "", 
+            ledger_ids: [], 
+            description: null
+          })}
         >
           Add
         </Button>

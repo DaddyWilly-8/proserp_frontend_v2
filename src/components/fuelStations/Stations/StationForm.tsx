@@ -23,12 +23,22 @@ import type { AddStationResponse, Station, UpdateStationResponse } from "./Stati
 import { useJumboAuth } from "@/app/providers/JumboAuthProvider";
 import { PERMISSIONS } from "@/utilities/constants/permissions";
 import { User } from "@/components/prosControl/userManagement/UserManagementType";
-import { shiftTeamSchema } from "./ShiftTeamTab";
-import { fuelPumpSchema } from "./FuelPumpTab";
 
 interface StationFormProps {
   station?: Station;
   setOpenDialog: (open: boolean) => void;
+}
+// Define proper interfaces for form data
+interface ShiftTeamFormData {
+  name: string;
+  ledger_ids: number[];
+  description?: string | null;
+}
+
+interface FuelPumpFormData {
+  product_id: number | null;
+  name: string;
+  tank_id: number | null;
 }
 
 interface FormData {
@@ -36,28 +46,43 @@ interface FormData {
   name: string;
   address?: string;
   users: User[];
-  shift_teams: yup.InferType<typeof shiftTeamSchema>["shift_teams"];
-  fuel_pumps: yup.InferType<typeof fuelPumpSchema>["fuel_pumps"];
+  shift_teams: ShiftTeamFormData[];
+  fuel_pumps: FuelPumpFormData[];
 }
 
+// Unified validation schema
 const validationSchema = yup.object({
   name: yup.string().required("Station name is required"),
-  address: yup.string().optional(),
-  users: yup.array().optional(),
+  address: yup.string().nullable().optional(),
+  users: yup.array().of(
+    yup.object({
+      id: yup.number().required(),
+      name: yup.string().required(),
+    })
+  ).optional(),
   shift_teams: yup.array().of(
     yup.object({
       name: yup.string().required("Team name is required"),
-      ledger_ids: yup.array().of(yup.number()).min(1, "At least one ledger is required"),
-      description: yup.string().optional(),
+      ledger_ids: yup.array()
+        .of(yup.number().required())
+        .min(1, "At least one ledger is required")
+        .required("Ledger accounts are required"),
+      description: yup.string().nullable().optional(),
     })
-  ),
+  ).min(1, "At least one shift team is required"),
   fuel_pumps: yup.array().of(
     yup.object({
-      product_id: yup.number().required("Fuel name is required"),
+      product_id: yup.number()
+        .nullable()
+        .required("Fuel name is required")
+        .typeError("Fuel name is required"),
       name: yup.string().required("Pump name is required"),
-      tank_id: yup.number().required("Tank name is required"),
+      tank_id: yup.number()
+        .nullable()
+        .required("Tank name is required")
+        .typeError("Tank name is required"),
     })
-  ),
+  ).min(1, "At least one fuel pump is required"),
 });
 
 const StationForm: React.FC<StationFormProps> = ({ station, setOpenDialog }) => {
@@ -69,23 +94,32 @@ const StationForm: React.FC<StationFormProps> = ({ station, setOpenDialog }) => 
     PERMISSIONS.FUEL_STATIONS_UPDATE,
   ]);
 
-const methods = useForm<FormData>({
-  defaultValues: {
-    id: station?.id,
-    name: station?.name ?? "",
-    address: station?.address ?? "",
-    users: station?.users ?? [],
-    // Start with one valid shift_teams instead of potentially empty ones
-    shift_teams: station?.shift_teams?.length ? station.shift_teams : [{ name: "", ledger_ids: [], description: "" }],
-    // Start with one valid fuel pump instead of potentially empty ones
-    fuel_pumps: station?.fuel_pumps?.length ? station.fuel_pumps.map(fp => ({
-      product_id: fp.product_id === null ? undefined : fp.product_id,
-      name: fp.name,
-      tank_id: fp.tank_id === null ? undefined : fp.tank_id,
-    })) : [{ product_id: undefined, name: "", tank_id: undefined }],
-  },
-  resolver: yupResolver(validationSchema) as any,
-});
+  // Proper default values with fallbacks
+  const defaultValues = useMemo(() => {
+    return {
+      id: station?.id,
+      name: station?.name ?? "",
+      address: station?.address ?? "",
+      users: station?.users ?? [],
+      // Ensure at least one valid shift team
+      shift_teams: station?.shift_teams?.length ? station.shift_teams.map(team => ({
+        name: team.name || "",
+        ledger_ids: team.ledger_ids || [],
+        description: team.description || null,
+      })) : [{ name: "", ledger_ids: [], description: null }],
+      // Ensure at least one valid fuel pump
+      fuel_pumps: station?.fuel_pumps?.length ? station.fuel_pumps.map(pump => ({
+        product_id: pump.product_id ?? null,
+        name: pump.name || "",
+        tank_id: pump.tank_id ?? null,
+      })) : [{ product_id: null, name: "", tank_id: null }],
+    };
+  }, [station]);
+
+  const methods = useForm<FormData>({
+    defaultValues,
+    resolver: yupResolver(validationSchema)as any,
+  });
 
   const { register, handleSubmit, control, formState: { errors } } = methods;
 
@@ -148,37 +182,49 @@ const methods = useForm<FormData>({
     [station, updateStation, addStation]
   );
 
-const onSubmit = (formData: FormData) => {
-  // Filter out invalid shift_teams (empty names or no ledger_ids)
-  const validShifts = formData.shift_teams
-    ?.filter(shift_teams => shift_teams.name?.trim() && shift_teams.ledger_ids?.length > 0)
-    ?.map(shift_teams => ({
-      name: shift_teams.name,
-      ledger_ids: shift_teams.ledger_ids,
-    })) || [];
+  const onSubmit = (formData: FormData) => {
+    // Filter out completely empty shift teams
+    const validShifts = formData.shift_teams
+      ?.filter(team => team.name?.trim() && team.ledger_ids?.length > 0)
+      ?.map(team => ({
+        name: team.name.trim(),
+        ledger_ids: team.ledger_ids,
+        description: team.description?.trim() || null,
+      })) || [];
 
-  // Filter out invalid fuel pumps (empty names or null IDs)
-  const validFuelPumps = formData.fuel_pumps
-    ?.filter(pump => pump.name?.trim() && pump.tank_id && pump.product_id)
-    ?.map(pump => ({
-      name: pump.name,
-      tank_id: pump.tank_id,
-      product_id: pump.product_id,
-      // No extra fields like fuelName, unit_id, tankName
-    })) || [];
+    // Filter out completely empty fuel pumps  
+    const validFuelPumps = formData.fuel_pumps
+      ?.filter(pump => pump.name?.trim() && pump.tank_id && pump.product_id)
+      ?.map(pump => ({
+        name: pump.name.trim(),
+        tank_id: pump.tank_id,
+        product_id: pump.product_id,
+      })) || [];
 
-  const dataToSend = {
-    name: formData.name,
-    user_ids: formData.users?.map((user: User) => user.id) ?? [],
-    shift_teams: validShifts,
-    fuel_pumps: validFuelPumps,
-    ...(station?.id ? { id: station.id } : {}),
+    // Validate that we have at least one valid entry
+    if (validShifts.length === 0) {
+      enqueueSnackbar("At least one valid shift team is required", { variant: "error" });
+      return;
+    }
+
+    if (validFuelPumps.length === 0) {
+      enqueueSnackbar("At least one valid fuel pump is required", { variant: "error" });
+      return;
+    }
+
+    const dataToSend = {
+      name: formData.name.trim(),
+      address: formData.address?.trim() || null,
+      user_ids: formData.users?.map((user: User) => user.id) ?? [],
+      shift_teams: validShifts,
+      fuel_pumps: validFuelPumps,
+      ...(station?.id ? { id: station.id } : {}),
+    };
+
+    console.log('Cleaned payload:', JSON.stringify(dataToSend, null, 2));
+    
+    saveMutation(dataToSend as any);
   };
-
-  console.log('Cleaned payload:', JSON.stringify(dataToSend, null, 2));
-  
-  saveMutation(dataToSend as any);
-};
 
   return (
     <FormProvider {...methods}>
@@ -191,7 +237,7 @@ const onSubmit = (formData: FormData) => {
               </Typography>
             </Grid>
 
-             <Grid size={{xs:12, md:4}}>
+            <Grid size={{xs:12, md:4}}>
               <TextField
                 fullWidth
                 label="Station Name"
@@ -199,10 +245,11 @@ const onSubmit = (formData: FormData) => {
                 {...register("name")}
                 error={!!errors.name}
                 helperText={errors.name?.message}
+                required
               />
             </Grid>
 
-             <Grid size={{xs:12, md:4}}>
+            <Grid size={{xs:12, md:4}}>
               <TextField
                 fullWidth
                 label="Address"
@@ -231,7 +278,7 @@ const onSubmit = (formData: FormData) => {
         </DialogTitle>
 
         <DialogContent>
-          <StationTabs station={station} /> {/* ✅ now hooked to root form */}
+          <StationTabs station={station} />
         </DialogContent>
 
         <DialogActions>
