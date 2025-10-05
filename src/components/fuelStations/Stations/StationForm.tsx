@@ -28,10 +28,17 @@ interface StationFormProps {
   station?: Station;
   setOpenDialog: (open: boolean) => void;
 }
-// Define proper interfaces for form data
+
+interface Ledger {
+  id: number;
+  name: string;
+  alias?: string | null;
+  ledger_group_id: number;
+}
+
 interface ShiftTeamFormData {
   name: string;
-  ledger_ids: number[];
+  Ledger: Ledger[];
   description?: string | null;
 }
 
@@ -50,7 +57,6 @@ interface FormData {
   fuel_pumps: FuelPumpFormData[];
 }
 
-// Unified validation schema
 const validationSchema = yup.object({
   name: yup.string().required("Station name is required"),
   address: yup.string().nullable().optional(),
@@ -63,8 +69,11 @@ const validationSchema = yup.object({
   shift_teams: yup.array().of(
     yup.object({
       name: yup.string().required("Team name is required"),
-      ledger_ids: yup.array()
-        .of(yup.number().required())
+      Ledger: yup.array()
+        .of(yup.object({
+          id: yup.number().required(),
+          name: yup.string().required(),
+        }))
         .min(1, "At least one ledger is required")
         .required("Ledger accounts are required"),
       description: yup.string().nullable().optional(),
@@ -94,31 +103,41 @@ const StationForm: React.FC<StationFormProps> = ({ station, setOpenDialog }) => 
     PERMISSIONS.FUEL_STATIONS_UPDATE,
   ]);
 
-  // Proper default values with fallbacks
   const defaultValues = useMemo(() => {
-    return {
-      id: station?.id,
-      name: station?.name ?? "",
-      address: station?.address ?? "",
-      users: station?.users ?? [],
-      // Ensure at least one valid shift team
-      shift_teams: station?.shift_teams?.length ? station.shift_teams.map(team => ({
+  return {
+    id: station?.id,
+    name: station?.name ?? "",
+    address: station?.address ?? "",
+    users: station?.users ?? [],
+    
+    shift_teams: station?.shift_teams?.length ? station.shift_teams.map(team => {
+      const ledgers = Array.isArray(team.ledgers) ? team.ledgers.map(ledger => ({
+        id: ledger.id,
+        name: ledger.name,
+        code: ledger.code || null,
+        ledger_group_id: ledger.ledger_group_id || 0,
+        alias: ledger.alias || null,
+        nature_id: ledger.nature_id
+      })) : [];
+      
+      return {
         name: team.name || "",
-        ledger_ids: team.ledger_ids || [],
+        Ledger: ledgers,
         description: team.description || null,
-      })) : [{ name: "", ledger_ids: [], description: null }],
-      // Ensure at least one valid fuel pump
-      fuel_pumps: station?.fuel_pumps?.length ? station.fuel_pumps.map(pump => ({
-        product_id: pump.product_id ?? null,
-        name: pump.name || "",
-        tank_id: pump.tank_id ?? null,
-      })) : [{ product_id: null, name: "", tank_id: null }],
-    };
-  }, [station]);
+      };
+    }) : [{ name: "", Ledger: [], description: null }],
+    
+    fuel_pumps: station?.fuel_pumps?.length ? station.fuel_pumps.map(pump => ({
+      product_id: pump.product_id ?? null,
+      name: pump.name || "",
+      tank_id: pump.tank_id ?? null,
+    })) : [{ product_id: null, name: "", tank_id: null }],
+  };
+}, [station]);
 
   const methods = useForm<FormData>({
     defaultValues,
-    resolver: yupResolver(validationSchema)as any,
+    resolver: yupResolver(validationSchema) as any,
   });
 
   const { register, handleSubmit, control, formState: { errors } } = methods;
@@ -183,16 +202,14 @@ const StationForm: React.FC<StationFormProps> = ({ station, setOpenDialog }) => 
   );
 
   const onSubmit = (formData: FormData) => {
-    // Filter out completely empty shift teams
     const validShifts = formData.shift_teams
-      ?.filter(team => team.name?.trim() && team.ledger_ids?.length > 0)
+      ?.filter(team => team.name?.trim() && team.Ledger?.length > 0)
       ?.map(team => ({
         name: team.name.trim(),
-        ledger_ids: team.ledger_ids,
+        ledger_ids: team.Ledger.map(ledger => ledger.id),
         description: team.description?.trim() || null,
       })) || [];
 
-    // Filter out completely empty fuel pumps  
     const validFuelPumps = formData.fuel_pumps
       ?.filter(pump => pump.name?.trim() && pump.tank_id && pump.product_id)
       ?.map(pump => ({
@@ -201,7 +218,6 @@ const StationForm: React.FC<StationFormProps> = ({ station, setOpenDialog }) => 
         product_id: pump.product_id,
       })) || [];
 
-    // Validate that we have at least one valid entry
     if (validShifts.length === 0) {
       enqueueSnackbar("At least one valid shift team is required", { variant: "error" });
       return;
@@ -220,8 +236,6 @@ const StationForm: React.FC<StationFormProps> = ({ station, setOpenDialog }) => 
       fuel_pumps: validFuelPumps,
       ...(station?.id ? { id: station.id } : {}),
     };
-
-    console.log('Cleaned payload:', JSON.stringify(dataToSend, null, 2));
     
     saveMutation(dataToSend as any);
   };
@@ -237,7 +251,7 @@ const StationForm: React.FC<StationFormProps> = ({ station, setOpenDialog }) => 
               </Typography>
             </Grid>
 
-            <Grid size={{xs:12, md:4}}>
+            <Grid size={{xs:12, md:6}}>
               <TextField
                 fullWidth
                 label="Station Name"
@@ -249,7 +263,7 @@ const StationForm: React.FC<StationFormProps> = ({ station, setOpenDialog }) => 
               />
             </Grid>
 
-            <Grid size={{xs:12, md:4}}>
+            <Grid size={{xs:12, md:6}}>
               <TextField
                 fullWidth
                 label="Address"
@@ -260,7 +274,7 @@ const StationForm: React.FC<StationFormProps> = ({ station, setOpenDialog }) => 
               />
             </Grid>
 
-            <Grid size={{xs:12, md:4}}>
+            <Grid size={{xs:12, md:6}}>
               <Controller
                 name="users"
                 control={control}

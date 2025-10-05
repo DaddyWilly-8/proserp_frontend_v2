@@ -16,6 +16,7 @@ export interface Station {
 }
 
 export interface ShiftTeam {
+  ledgers: any;
   name: string;
   ledger_ids: number[];
   description?: string;
