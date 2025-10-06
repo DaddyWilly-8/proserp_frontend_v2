@@ -91,7 +91,7 @@ const FuelPumpTab: React.FC<FuelPumpTabProps> = ({ station }) => {
   return (
     <Box sx={{ width: "100%" }}>
       {fields.map((field, index) => (
-        <Grid container spacing={2} key={field.id} sx={{ mb: 2 }} alignItems="flex-start">
+        <Grid container spacing={1} key={field.id} sx={{ mb: 2 }} alignItems="flex-start">
           {/* Fuel Name - 4 columns */}
           <Grid size={{ xs: 12, md: 6 }}>
             <Controller
@@ -150,7 +150,7 @@ const FuelPumpTab: React.FC<FuelPumpTabProps> = ({ station }) => {
           </Grid>
 
           {/* Tank Name - 3 columns */}
-          <Grid size={{ xs: 12, md: 6 }}>
+          <Grid size={{ xs: 11, md: 6 }}>
             <Controller
               name={`fuel_pumps.${index}.tank_id`}
               control={control}
@@ -180,7 +180,7 @@ const FuelPumpTab: React.FC<FuelPumpTabProps> = ({ station }) => {
           </Grid>
 
           {/* Delete Button - 1 column */}
-          <Grid size={{ xs: 11, md: 1 }} sx={{ display: "flex", justifyContent: "center", alignItems: "flex-start" }}>
+          <Grid size={{ xs: 1, md: 1 }} sx={{ display: "flex", justifyContent: "center", alignItems: "flex-start" }}>
             {fields.length > 1 && (
               <IconButton
                 onClick={() => remove(index)}
