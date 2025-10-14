@@ -95,7 +95,7 @@ function BalanceSheetTrend() {
         height: xlScreen ? 310 : null,
       }}
       action={
-        <Grid container columnSpacing={1} alignItems="center">
+        <Grid container columnSpacing={2} alignItems="center">
           <Grid size={8}>
             {!midScreen && !smallScreen ? (
               <ButtonGroup variant="outlined" size="small" disableElevation>
