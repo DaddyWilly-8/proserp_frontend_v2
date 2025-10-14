@@ -95,7 +95,7 @@ function BalanceSheetTrend() {
         height: xlScreen ? 310 : null,
       }}
       action={
-        <Grid container columnSpacing={2} alignItems="center">
+        <Grid container columnSpacing={1} alignItems="center">
           <Grid size={8}>
             {!midScreen && !smallScreen ? (
               <ButtonGroup variant="outlined" size="small" disableElevation>
@@ -148,7 +148,7 @@ function BalanceSheetTrend() {
               </Div>
             )}
           </Grid>
-          <Grid size={4}>
+          <Grid size={4} textAlign={'end'}>
             <Tooltip title="Open Balance Sheet Report">
               <IconButton onClick={() => setOpenDialog(true)} size="small" color="primary">
                 <BalanceOutlined
