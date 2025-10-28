@@ -62,7 +62,7 @@ const LoginForm = () => {
         setAuthValues({
           authUser: {
             user: session.user,
-            permissions: [],
+            permissions: session.permissions,
           },
           authOrganization: {
             permissions: [],
