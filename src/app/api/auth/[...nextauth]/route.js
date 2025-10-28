@@ -33,7 +33,7 @@ const authOptions = {
             id: data.authUser.user.id,
             name: data.authUser.user.name,
             email: data.authUser.user.email,
-            permissions: data.authOrganization?.organization?.id ? [] : data?.authUser?.permissions,
+            permissions: data?.authUser?.permissions || [],
             token: data.token,
             organization_id: data.authOrganization?.organization?.id,
             organization_name: data.authOrganization?.organization?.name,
