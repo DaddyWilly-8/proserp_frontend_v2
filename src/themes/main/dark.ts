@@ -79,7 +79,7 @@ export const mainTheme: ThemeOptions = {
       secondary: '#8595A6',
       disabled: '#A2B2C3',
     },
-    divider: alpha('#FFFFFF', 0.1),
+    divider: alpha('#FFFFFF', 0.3),
     background: {
       paper: '#26324D',
       default: '#19243B',
@@ -207,21 +207,6 @@ export const mainTheme: ThemeOptions = {
         },
         content: {
           marginBlock: 20,
-        },
-      },
-    },
-    MuiAlert: {
-      styleOverrides: {
-        root: {
-          color: '#C5CDE6',
-          backgroundColor: '#26324D',
-          borderColor: '#2196f3',
-        },
-        message: {
-          color: '#C5CDE6',
-        },
-        icon: {
-          color: '#F39711',
         },
       },
     },
