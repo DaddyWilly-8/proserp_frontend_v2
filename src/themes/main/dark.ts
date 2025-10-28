@@ -210,6 +210,21 @@ export const mainTheme: ThemeOptions = {
         },
       },
     },
+    MuiAlert: {
+      styleOverrides: {
+        root: {
+          color: '#C5CDE6',
+          backgroundColor: '#26324D',
+          borderColor: '#2196f3',
+        },
+        message: {
+          color: '#C5CDE6',
+        },
+        icon: {
+          color: '#F39711',
+        },
+      },
+    },
     MuiCardHeader: {
       styleOverrides: {
         root: {
@@ -254,6 +269,7 @@ export const mainTheme: ThemeOptions = {
     MuiButton: {
       styleOverrides: {
         root: {
+          textTransform: 'capitalize',
           fontWeight: 400,
           letterSpacing: 1,
         },
