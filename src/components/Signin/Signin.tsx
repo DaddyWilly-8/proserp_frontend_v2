@@ -30,7 +30,7 @@ export const Signin = () => {
         width: { xs: '100%', md: 800 },
         maxWidth: '100%',
         margin: 'auto',
-        p: { md: 4 },
+        p: { xs: 2, md: 4 },
         minHeight: '100vh',
         display: 'flex',
         alignItems: 'center',
@@ -82,120 +82,104 @@ export const Signin = () => {
           }}
         >
           <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              color: 'common.white',
-              position: 'relative',
-              zIndex: 2,
-              height: '100%',
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            color: 'common.white',
+            position: 'relative',
+            zIndex: 2,
+            height: '100%',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+        >
+          {/* Header Section - Centered at top */}
+          <Box 
+            sx={{ 
+              display: 'flex', 
+              flexDirection: 'column', 
+              alignItems: 'center',
+              textAlign: 'center',
+              justifyContent: 'center',
+              mb: 3,
             }}
           >
-            {/* Header Section */}
-            <Box 
-              sx={{ 
-                flex: 1,
-                display: 'flex', 
-                flexDirection: 'column', 
-                alignItems: 'center',
-                textAlign: 'center',
-                justifyContent: 'center',
-                mb: 3,
+            <Typography
+              variant={'h4'}
+              color={'inherit'}
+              fontWeight={600}
+              sx={{
+                fontSize: { 
+                  xs: '1.75rem',
+                  sm: '2rem', 
+                  md: '2.5rem',
+                  lg: '3rem'
+                },
+                lineHeight: 1.2,
+                textShadow: '2px 2px 8px rgba(0,0,0,0.3)',
+                mb: 2,
               }}
             >
-              <Typography
-                variant={'h2'}
-                color={'inherit'}
-                fontWeight={600}
-                sx={{
-                  fontSize: { 
-                    xs: '1.75rem',
-                    sm: '2rem', 
-                    md: '2.5rem',
-                    lg: '3rem'
-                  },
-                  lineHeight: 1.2,
-                  textShadow: '2px 2px 8px rgba(0,0,0,0.3)',
-                  mb: 2,
-                }}
-              >
-                {dictionary.signin.header}
-              </Typography>
-              <Typography
-                variant={'h6'}
-                color={'inherit'}
-                sx={{
-                  opacity: 0.9,
-                  fontSize: { xs: '0.9rem', md: '1rem' },
-                  fontWeight: 300,
-                }}
-              >
-                Welcome back to your account
-              </Typography>
-            </Box>
-
-            {/* Logo Section */}
-            <Box 
-              sx={{ 
-                display: 'flex', 
-                justifyContent: 'center',
-                alignItems: 'center',
-                width: '100%',
-                pt: 2,
-              }}
-            >
-              <Link 
-                underline='none' 
-                href='#' 
-                sx={{ 
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                }}
-              >
-                <Image
-                  height={40}
-                  width={120}
-                  src={`${ASSET_IMAGES}/logos/proserp-white.png`}
-                  alt='ProsERP'
-                  style={{
-                    filter: 'drop-shadow(2px 2px 4px rgba(0,0,0,0.3))'
-                  }}
-                />
-              </Link>
-            </Box>
+              {dictionary.signin.header}
+            </Typography>
           </Box>
+
+          {/* Logo Section - Centered below header */}
+          <Box 
+            sx={{ 
+              display: 'flex', 
+              justifyContent: 'center',
+              alignItems: 'center',
+              width: '100%',
+            }}
+          >
+            <Link 
+              underline='none' 
+              href='#' 
+              sx={{ 
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
+            >
+              <Image
+                height={50}
+                width={150}
+                src={`${ASSET_IMAGES}/logos/proserp-white.png`}
+                alt='ProsERP'
+                style={{
+                  filter: 'drop-shadow(2px 2px 4px rgba(0,0,0,0.3))'
+                }}
+              />
+            </Link>
+          </Box>
+        </Box>
         </CardContent>
 
         {/* Right Form Section with Matching Curves */}
-        <CardContent 
+       <CardContent 
           sx={{ 
             flex: 1, 
             p: { xs: 3, md: 4 },
             background: 'white',
             position: 'relative',
-            // Curve for mobile (top edge)
-            '&::before': {
-              content: '""',
-              position: 'absolute',
-              top: { xs: '-20px', md: 'auto' },
-              left: 0,
-              width: { xs: '100%', md: '40px' },
-              height: { xs: '40px', md: '100%' },
-              background: 'white',
-              clipPath: {
-                xs: 'polygon(0 30%, 100% 0, 100% 100%, 0 100%)',
-                md: 'polygon(0 0, 100% 0, 100% 100%, 0 100%)'
-              },
-              zIndex: 1,
-            },
-            // Main curve for desktop (left edge)
+            zIndex: 5, // Higher z-index
+            // Simplify clipPath or remove it
             clipPath: {
-              xs: 'none',
-              md: 'polygon(15% 0, 100% 0, 100% 100%, 0 100%)'
+              xs: 'none', // Disable on mobile completely
+              md: 'polygon(10% 0, 100% 0, 100% 100%, 0 100%)' // Less aggressive curve
             },
-            marginLeft: { xs: 0, md: '-5%' },
-            zIndex: 2,
+            // Remove negative margin
+            marginLeft: 0,
+            overflow: 'visible !important',
+            // Ensure content area is properly positioned
+            '& > div': {
+              position: 'relative',
+              zIndex: 6,
+              backgroundColor: 'white',
+              padding: { xs: 2, md: 0 },
+              borderRadius: '8px',
+            }
           }}
         >
           <Box sx={{ position: 'relative', zIndex: 3 }}>

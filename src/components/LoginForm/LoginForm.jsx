@@ -62,7 +62,7 @@ const LoginForm = () => {
         setAuthValues({
           authUser: {
             user: session.user,
-            permissions: session.permissions,
+            permissions: [],
           },
           authOrganization: {
             permissions: [],
@@ -206,9 +206,9 @@ const LoginForm = () => {
               label={dictionary.signin.form.fields.rememberMe}
               defaultChecked
               sx={{
-                color: '#0267a0',
+                color: '#2196f3',
                 '&.Mui-checked': {
-                  color: '#0267a0',
+                  color: '#2196f3',
                 },
               }}
             />
