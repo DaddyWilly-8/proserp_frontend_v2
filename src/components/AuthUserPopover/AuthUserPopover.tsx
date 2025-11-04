@@ -177,13 +177,6 @@ export const AuthUserPopover: React.FC<AuthUserPopoverProps> = ({ dictionary }) 
           <Button
             onClick={() => setOpenLogoutDialog(false)}
             variant="text"
-            sx={{
-              color: '#380dfaff',
-              backgroundColor: 'transparent',
-              '&:hover': {
-                backgroundColor: 'rgba(25, 118, 210, 0.04)',
-              },
-            }}
           >
             Cancel
           </Button>
@@ -193,13 +186,6 @@ export const AuthUserPopover: React.FC<AuthUserPopoverProps> = ({ dictionary }) 
               logout();
             }}
             variant="text"
-            sx={{
-              color: '#380dfaff',
-              backgroundColor: 'transparent',
-              '&:hover': {
-                backgroundColor: 'rgba(25, 118, 210, 0.04)',
-              },
-            }}
           >
             Logout
           </Button>
