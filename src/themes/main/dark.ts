@@ -76,7 +76,7 @@ export const mainTheme: ThemeOptions = {
     },
     text: {
       primary: '#C5CDE6',
-      secondary: '#8595A6',
+      secondary: '#9da9b7ff',
       disabled: '#A2B2C3',
     },
     divider: alpha('#FFFFFF', 0.3),
