@@ -48,7 +48,7 @@ const ApprovalsActionTail: React.FC<ApprovalsActionTailProps> = ({
   return (
     <>
       <Dialog 
-        maxWidth="lg" 
+        maxWidth="lg"
         fullWidth 
         scroll={belowLargeScreen ? 'body' : 'paper'} 
         fullScreen={belowLargeScreen} 
