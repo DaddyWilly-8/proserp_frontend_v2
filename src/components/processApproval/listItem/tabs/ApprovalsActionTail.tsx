@@ -43,7 +43,7 @@ const ApprovalsActionTail: React.FC<ApprovalsActionTailProps> = ({
   }
 
   const canApprove = hasOrganizationRole(requisition?.next_approval_level?.role?.name as string) &&
-    (requisition.status!== 'suspended');
+    !(requisition.status?.toLowerCase() === 'suspended');
 
   return (
     <>
