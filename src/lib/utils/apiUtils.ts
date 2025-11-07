@@ -26,7 +26,7 @@ export async function getAuthHeaders(req: NextRequest, requireAuth = true) {
     Accept: 'application/json',
     'X-Timezone': getTimezoneOffset(),
   };
-
+ 
   // Only include auth header if token exists
   if (token?.accessToken) {
     headers.Authorization = `Bearer ${token.accessToken}`;
