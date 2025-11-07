@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from 'next/server';
 export async function getAuthHeaders(req: NextRequest, requireAuth = true) {
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
 
-  // ❗Allow anonymous if requireAuth is false
+  // ❗Allow anonymous if requireAuth is false 
   if (requireAuth && !token?.accessToken) {
     return {
       headers: null,
