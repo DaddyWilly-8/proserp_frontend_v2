@@ -85,7 +85,7 @@ function RequisitionLedgerItemForm({
       relatable_id: ledger_item?.relatable_id,
       measurement_unit_id: ledger_item?.measurement_unit_id ?? ledger_item?.measurement_unit?.id,
       unit_symbol: ledger_item?.measurement_unit?.symbol ?? ledger_item?.unit_symbol,
-      remarks: ledger_item?.remarks
+      remarks: ledger_item?.remarks,
     }
   });
 
