@@ -20,7 +20,7 @@ const Updates = () => {
   const listRef = React.useRef();
 
   // State for date filters
-  const [openFilters, setOpenFilters] = React.useState(false);
+  const [openFilters, setOpenFilters] = React.useState(true);
   const [filterDate, setFilterDate] = React.useState({
     from: null,
     to: null
@@ -159,7 +159,7 @@ const Updates = () => {
               
               {/* Main Actions Row */}
               <Grid size={{xs: 1}}>
-                <Tooltip title={!openFilters ? 'Show Filters' : 'Clear Filters'}>
+                <Tooltip title={!openFilters ? 'Show Filters' : 'Cleasr and Hide Filters'}>
                   <IconButton 
                     size='small' 
                     onClick={!openFilters ? () => setOpenFilters(true) : resetFilters}
