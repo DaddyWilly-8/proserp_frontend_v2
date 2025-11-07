@@ -37,7 +37,7 @@ const ApprovalsActionTail: React.FC<ApprovalsActionTailProps> = ({
     enabled: !isEditAction && isExpanded && openDialog,
     refetchOnWindowFocus: true
   });
-
+ 
   if (isPending) {
     return <LinearProgress />;
   }
