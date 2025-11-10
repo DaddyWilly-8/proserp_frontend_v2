@@ -362,7 +362,6 @@ const SalesManifestOnScreen: React.FC<SalesManifestOnScreenProps> = ({
                         },
                         '&:hover': {
                             '.MuiTypography-root': {
-                            // fontWeight: 'bold',
                             },
                         },
                     }}
@@ -522,7 +521,7 @@ const SalesManifestOnScreen: React.FC<SalesManifestOnScreenProps> = ({
                                                 <TableCell size='small'></TableCell>
                                                 <TableCell size='small'></TableCell>
                                                 <TableCell size='small'></TableCell>
-                                                <TableCell size='small' sx={{fontWeight: 'bold'}}>Total</TableCell>
+                                                <TableCell size='small'>Total</TableCell>
                                                 <SalesItemInfo label={'Total Amount'} textAlign={'right'} color='blue' value={sale.items.reduce((total, currentItem) => total + (!!separateVAT ? (currentItem.quantity*currentItem.rate) : ((currentItem.quantity*currentItem.rate) + (!!currentItem.product.vat_exempted ? 0 : (currentItem.quantity*currentItem.rate)*vat_percentage*0.01))), 0).toLocaleString('en-US',{maximumFractionDigits:2,minimumFractionDigits:2})}/>
                                                 {!!separateVAT && !!vat_percentage && <SalesItemInfo textAlign={'right'} value={sale.items.reduce((total, currentItem) => total + (!!currentItem.product.vat_exempted ? 0 : (currentItem.quantity*currentItem.rate*vat_percentage*0.01)), 0).toLocaleString('en-US',{maximumFractionDigits:2,minimumFractionDigits:2})}/>}
                                                 {

@@ -82,19 +82,19 @@ function JournalOnScreen({ transaction, authObject }: JournalOnScreenProps) {
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell sx={{ backgroundColor: mainColor, color: contrastText, fontWeight: 'bold' }}>
+              <TableCell sx={{ backgroundColor: mainColor, color: contrastText }}>
                 S/N
               </TableCell>
-              <TableCell sx={{ backgroundColor: mainColor, color: contrastText, fontWeight: 'bold' }}>
+              <TableCell sx={{ backgroundColor: mainColor, color: contrastText }}>
                 Description
               </TableCell>
-              <TableCell sx={{ backgroundColor: mainColor, color: contrastText, fontWeight: 'bold' }}>
+              <TableCell sx={{ backgroundColor: mainColor, color: contrastText }}>
                 Credit Account
               </TableCell>
-              <TableCell sx={{ backgroundColor: mainColor, color: contrastText, fontWeight: 'bold' }}>
+              <TableCell sx={{ backgroundColor: mainColor, color: contrastText }}>
                 Debit Account
               </TableCell>
-              <TableCell sx={{ backgroundColor: mainColor, color: contrastText, fontWeight: 'bold' }} align="right">
+              <TableCell sx={{ backgroundColor: mainColor, color: contrastText }} align="right">
                 Amount
               </TableCell>
             </TableRow>

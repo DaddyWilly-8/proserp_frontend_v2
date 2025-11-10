@@ -96,7 +96,7 @@ const SalePDF: React.FC<SalePDFProps> = ({ sale, organization, thermalPrinter = 
                         <Text style={{...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, textAlign: 'center'}}>
                             {'CLIENT'}
                         </Text>
-                        <Text style={{...pdfStyles.midInfo, fontWeight: 'bold', textAlign: 'center'}}>{sale.stakeholder?.name || 'N/A'}</Text>
+                        <Text style={{...pdfStyles.midInfo, textAlign: 'center'}}>{sale.stakeholder?.name || 'N/A'}</Text>
                         {sale.stakeholder?.address && <Text style={{...pdfStyles.minInfo, textAlign: 'center'}}>{sale.stakeholder.address}</Text>}
                         {sale.stakeholder?.tin && (
                             <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>

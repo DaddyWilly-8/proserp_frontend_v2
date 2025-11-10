@@ -348,7 +348,6 @@ const CashReconciliationTab: React.FC<CashReconciliationTabProps> = ({ salesShif
                     sx={{ 
                       '& .MuiInputBase-input': { 
                         backgroundColor: 'grey.50',
-                        fontWeight: 'bold'
                       } 
                     }}
                   />
@@ -367,7 +366,6 @@ const CashReconciliationTab: React.FC<CashReconciliationTabProps> = ({ salesShif
                     sx={{ 
                       '& .MuiInputBase-input': { 
                         backgroundColor: 'grey.50',
-                        fontWeight: 'bold',
                         color: adjustmentsTotal >= 0 ? 'success.main' : 'error.main'
                       } 
                     }}

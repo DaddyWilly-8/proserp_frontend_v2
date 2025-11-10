@@ -82,7 +82,7 @@ function TransferOnScreen({ transaction, authObject }: TransferOnScreenProps) {
             <Typography variant="subtitle2" color={headerColor}>
               From (Credit)
             </Typography>
-            <Typography variant="body1" sx={{ fontWeight: 'medium' }}>
+            <Typography variant="body1">
               {transaction.creditLedgerName}
             </Typography>
           </Box>
@@ -151,7 +151,6 @@ function TransferOnScreen({ transaction, authObject }: TransferOnScreenProps) {
                   align="right" 
                   sx={{ 
                     fontFamily: 'monospace',
-                    fontWeight: 'medium',
                   }}
                 >
                   {item.amount.toLocaleString('en-US', {

@@ -187,7 +187,6 @@ const PaymentOnScreenPreview: React.FC<PaymentOnScreenPreviewProps> = ({
                   align="right" 
                   sx={{ 
                     fontFamily: 'monospace',
-                    fontWeight: 'medium',
                     fontSize: '0.875rem'
                   }}
                 >
