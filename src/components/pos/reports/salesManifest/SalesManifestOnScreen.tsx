@@ -421,8 +421,8 @@ const SalesManifestOnScreen: React.FC<SalesManifestOnScreenProps> = ({
                         >
                             <Grid size={12}>
                                 <Stack direction={'row'} p={1} spacing={1} justifyContent={'end'}>
-                                    <Typography  variant='caption' fontWeight={'bold'}>Counter:</Typography>
-                                    <Typography variant='caption'>{sale.counter}</Typography>
+                                  <Typography  variant='caption' fontWeight={'bold'}>Counter:</Typography>
+                                  <Typography variant='caption'>{sale.counter}</Typography>
                                 </Stack>
                                 <TableContainer
                                     sx={{
