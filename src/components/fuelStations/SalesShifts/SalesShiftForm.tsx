@@ -10,7 +10,11 @@ import {
   Button,
   Alert,
   Autocomplete,
-  Paper
+  Paper,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions
 } from '@mui/material';
 import { DateTimePicker } from '@mui/x-date-pickers';
 import { useSnackbar } from 'notistack';
@@ -29,6 +33,7 @@ interface SalesShiftFormProps {
   toggleOpen: (open: boolean) => void;
   salesShift?: SalesShift;
   isClosing?: boolean;
+  open: boolean; // ✅ Added open prop
 }
 
 // Update the SalesShiftFormData interface
@@ -57,7 +62,8 @@ interface SalesShiftFormData {
 const SalesShiftForm: React.FC<SalesShiftFormProps> = ({
   toggleOpen,
   salesShift,
-  isClosing = false
+  isClosing = false,
+  open // ✅ Now receiving open prop
 }) => {
   const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
@@ -162,198 +168,176 @@ const methods = useForm<SalesShiftFormData>({
     }
   };
 
-  if (isPending) {
-    return <LinearProgress />;
-  }
-
-  // Get tab names for display
-  const tabNames = ['Pump Reading', 'Fuel Voucher', 'Dipping', 'Adjustments', 'Cash Reconciliation'];
+  // ✅ Reset form and tabs when dialog closes
+  React.useEffect(() => {
+    if (!open) {
+      setActiveTab(0);
+      methods.reset();
+    }
+  }, [open, methods]);
 
   return (
-    <FormProvider {...methods}>
-      <Box 
-        component="form" 
-        onSubmit={handleSubmit(onSubmit)}
-        sx={{ 
-          maxHeight: '90vh',
-          overflow: 'auto',
-          p: 1.5
-        }}
-      >
-        {/* Header Section - More Compact */}
-        <Paper elevation={1} sx={{ p: 2, mb: 2 }}>
-          <Typography variant="h5" gutterBottom align="center">
-            Fuel Sales Shift
-          </Typography>
-          {/* Current Tab Indicator - Smaller */}
-          <Box sx={{ mb: 1, textAlign: 'center' }}>
-            <Typography variant="body2" color="primary.main" fontWeight="bold">
-              Step {activeTab + 1} of 5: {tabNames[activeTab]}
-            </Typography>
-          </Box>
-
-          {/* Header Fields - More Compact */}
-          <Grid container spacing={1.5}>
-            <Grid size={{ xs: 12, md: 4 }}>
-              <Autocomplete
-                options={shiftTeams}
-                getOptionLabel={(option) => option.name || `Team ${option.id}`}
-                value={shiftTeams.find(team => String(team.id) === formValues.shift_team_id) || null}
-                onChange={(event, newValue) => {
-                  setValue('shift_team_id', String(newValue?.id ?? ''));
-                }}
-                renderInput={(params) => (
-                  <TextField 
-                    {...params} 
-                    label="Shift Team" 
-                    size="small" 
-                    fullWidth 
-                    required
-                    error={!!errors.shift_team_id}
-                    helperText={errors.shift_team_id?.message}
-                  />
-                )}
-              />
-            </Grid>
-            <Grid size={{ xs: 12, md: 4 }}>
-              <DateTimePicker
-                label="Shift Start"
-                value={dayjs(formValues.shift_start)}
-                onChange={(value: Dayjs | null) => 
-                  setValue('shift_start', value?.toISOString() || '')
-                }
-                slotProps={{
-                  textField: {
-                    size: "small",
-                    fullWidth: true,
-                    required: true,
-                    error: !!errors.shift_start,
-                    helperText: errors.shift_start?.message,
-                  }
-                }}
-              />
-            </Grid>
-            <Grid size={{ xs: 12, md: 4 }}>
-              <DateTimePicker
-                label="Shift End"
-                value={formValues.shift_end ? dayjs(formValues.shift_end) : null}
-                minDateTime={dayjs(formValues.shift_start)}
-                onChange={(value: Dayjs | null) => 
-                  setValue('shift_end', value?.toISOString() || null)
-                }
-                slotProps={{
-                  textField: {
-                    size: "small",
-                    fullWidth: true,
-                    error: !!errors.shift_end,
-                    helperText: errors.shift_end?.message,
-                  }
-                }}
-              />
-            </Grid>
-          </Grid>
+    <Dialog 
+      open={open} 
+      onClose={() => toggleOpen(false)} 
+      maxWidth="lg" 
+      fullWidth
+      PaperProps={{
+        sx: { maxHeight: '90vh' }
+      }}
+    >
+      <FormProvider {...methods}>
+        <Box component="form" onSubmit={handleSubmit(onSubmit)}>
           
-        </Paper>
+          {/* DIALOG TITLE - Contains Shift Team info and Tabs */}
+          <DialogTitle sx={{ p: 1 }}>
+            <Paper elevation={1} sx={{ p: 1 }}>
+              <Typography variant="h5" gutterBottom align="center">
+                Fuel Sales Shift
+              </Typography>
 
-        {/* Tabs Section - Reduced Height */}
-        <Box sx={{ maxHeight: '50vh', overflow: 'auto' }}>
-          <SalesShiftTabs
-            salesShift={salesShift}
-            activeTab={activeTab}
-            onTabChange={handleTabChange}
-            isClosing={isClosing}
-          />
-        </Box>
-
-        {/* Action Buttons - More Compact */}
-        <Paper elevation={1} sx={{ p: 1.5, mt: 2 }}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            {/* Previous Button */}
-            <Box>
-              {activeTab > 0 && (
-                <Button 
-                  onClick={handlePrevious}
-                  variant="outlined"
-                  size="small"
-                  startIcon={<ArrowBackIcon />}
-                  disabled={isPending}
-                >
-                  Previous
-                </Button>
-              )}
-            </Box>
-
-            {/* Cancel Button */}
-            <Button 
-              onClick={() => toggleOpen(false)}
-              variant="outlined"
-              size="small"
-              disabled={isPending}
-            >
-              Cancel
-            </Button>
-
-            {/* Next/Submit Buttons */}
-            <Box sx={{ display: 'flex', gap: 1 }}>
-              {activeTab < 4 ? (
-                <Button 
-                  onClick={handleNext}
-                  variant="contained"
-                  size="small"
-                  endIcon={<ArrowForwardIcon />}
-                  disabled={isPending}
-                >
-                  Next
-                </Button>
-              ) : (
-                <Button 
-                  type="submit"
-                  variant="contained"
-                  size="small"
-                  disabled={isPending || !formValues.shift_team_id || !formValues.shift_start}
-                >
-                  {salesShift ? 'Update' : 'Create'} Shift
-                </Button>
-              )}
-            </Box>
-          </Box>
-
-          {/* Progress Indicator - Smaller */}
-          <Box sx={{ mt: 1 }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              {tabNames.map((tabName, index) => (
-                <Box key={index} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1 }}>
-                  <Box
-                    sx={{
-                      width: 8,
-                      height: 8,
-                      borderRadius: '50%',
-                      backgroundColor: index === activeTab 
-                        ? 'primary.main' 
-                        : index < activeTab 
-                          ? 'success.main' 
-                          : 'grey.400',
+              {/* Header Fields and Tabs in Dialog Title */}
+              <Grid container spacing={1.5} sx={{ mb: 0 }}>
+                <Grid size={{ xs: 12, md: 4 }}>
+                  <Autocomplete
+                    options={shiftTeams}
+                    getOptionLabel={(option) => option.name || `Team ${option.id}`}
+                    value={shiftTeams.find(team => String(team.id) === formValues.shift_team_id) || null}
+                    onChange={(event, newValue) => {
+                      setValue('shift_team_id', String(newValue?.id ?? ''));
+                    }}
+                    renderInput={(params) => (
+                      <TextField 
+                        {...params} 
+                        label="Shift Team" 
+                        size="small" 
+                        fullWidth 
+                        required
+                        error={!!errors.shift_team_id}
+                        helperText={errors.shift_team_id?.message}
+                      />
+                    )}
+                  />
+                </Grid>
+                <Grid size={{ xs: 12, md: 4 }}>
+                  <DateTimePicker
+                    label="Shift Start"
+                    value={dayjs(formValues.shift_start)}
+                    onChange={(value: Dayjs | null) => 
+                      setValue('shift_start', value?.toISOString() || '')
+                    }
+                    slotProps={{
+                      textField: {
+                        size: "small",
+                        fullWidth: true,
+                        required: true,
+                        error: !!errors.shift_start,
+                        helperText: errors.shift_start?.message,
+                      }
                     }}
                   />
-                  <Typography 
-                    variant="caption" 
-                    sx={{ 
-                      fontSize: '0.6rem',
-                      fontWeight: index === activeTab ? 'bold' : 'normal',
-                      color: index === activeTab ? 'primary.main' : 'text.secondary',
-                      textAlign: 'center',
-                      lineHeight: 1
+                </Grid>
+                <Grid size={{ xs: 12, md: 4 }}>
+                  <DateTimePicker
+                    label="Shift End"
+                    value={formValues.shift_end ? dayjs(formValues.shift_end) : null}
+                    minDateTime={dayjs(formValues.shift_start)}
+                    onChange={(value: Dayjs | null) => 
+                      setValue('shift_end', value?.toISOString() || null)
+                    }
+                    slotProps={{
+                      textField: {
+                        size: "small",
+                        fullWidth: true,
+                        error: !!errors.shift_end,
+                        helperText: errors.shift_end?.message,
+                      }
                     }}
-                  >
-                    {tabName.split(' ')[0]}
-                  </Typography>
-                </Box>
-              ))}
+                  />
+                </Grid>
+              </Grid>
+
+              {/* Tabs in Dialog Title */}
+              <SalesShiftTabs
+                salesShift={salesShift}
+                activeTab={activeTab}
+                onTabChange={handleTabChange}
+                isClosing={isClosing}
+                showTabsOnly={true}
+              />
+            </Paper>
+          </DialogTitle>
+
+          {/* DIALOG CONTENT - Contains Tab Contents */}
+          <DialogContent sx={{ p: 0, maxHeight: '50vh', overflow: 'auto' }}>
+            <Box sx={{ p: 2 }}>
+              <SalesShiftTabs
+                salesShift={salesShift}
+                activeTab={activeTab}
+                onTabChange={handleTabChange}
+                isClosing={isClosing}
+                showContentOnly={true}
+              />
             </Box>
-          </Box>
-        </Paper>
-      </Box>
-    </FormProvider>
+          </DialogContent>
+
+          {/* DIALOG ACTIONS - Contains Navigation and Submit Buttons */}
+          <DialogActions sx={{ p: 0 }}>
+            <Paper elevation={1} sx={{ p: 1.5, width: '100%' }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                {/* Previous Button */}
+                <Box>
+                  {activeTab > 0 && (
+                    <Button 
+                      onClick={handlePrevious}
+                      variant="outlined"
+                      size="small"
+                      startIcon={<ArrowBackIcon />}
+                      disabled={isPending}
+                    >
+                      Previous
+                    </Button>
+                  )}
+                </Box>
+
+                {/* Cancel and Next/Submit Buttons Grouped Together */}
+                <Box sx={{ display: 'flex', gap: 1 }}>
+                  <Button 
+                    onClick={() => toggleOpen(false)}
+                    variant="outlined"
+                    size="small"
+                    disabled={isPending}
+                  >
+                    Cancel
+                  </Button>
+
+                  {activeTab < 4 ? (
+                    <Button 
+                      onClick={handleNext}
+                      variant="contained"
+                      size="small"
+                      endIcon={<ArrowForwardIcon />}
+                      disabled={isPending}
+                    >
+                      Next
+                    </Button>
+                  ) : (
+                    <Button 
+                      type="submit"
+                      variant="contained"
+                      size="small"
+                      disabled={isPending || !formValues.shift_team_id || !formValues.shift_start}
+                    >
+                      {salesShift ? 'Update' : 'Create'} Shift
+                    </Button>
+                  )}
+                </Box>
+              </Box>
+            </Paper>
+          </DialogActions>
+        </Box>
+      </FormProvider>
+    </Dialog>
   );
 };
 
