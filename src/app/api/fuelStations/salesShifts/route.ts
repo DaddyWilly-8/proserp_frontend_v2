@@ -8,19 +8,20 @@ export async function GET(request: NextRequest) {
   if (response) return response;
 
   const { searchParams } = new URL(request.url);
+  
   const keyword = searchParams.get('keyword') || '';
   const page = searchParams.get('page') || '1';
   const limit = searchParams.get('limit') || '10';
   const stationId = searchParams.get('stationId') || '';
-  
-  const queryParams = new URLSearchParams({
-    keyword,
-    page,
-    limit,
-    ...(stationId && { stationId })
-  }).toString();
 
-  const res = await fetch(`${API_BASE}/fuel-stations/${stationId}/sales-shifts?${queryParams}`, {
+  if (!stationId) {
+    return new Response(
+      JSON.stringify({ error: 'stationId is required' }),
+      { status: 400, headers: { 'Content-Type': 'application/json' } }
+    );
+  }
+
+  const res = await fetch(`${API_BASE}/fuel-stations/${stationId}/sales-shifts`, {
     headers,
     credentials: 'include',
   });
