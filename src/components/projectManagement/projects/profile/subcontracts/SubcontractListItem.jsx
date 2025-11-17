@@ -6,7 +6,7 @@ import SubcontractItemAction from './SubcontractItemAction';
 import SubContractTaskTab from './tabs/tasks/SubContractTaskTab';
 import { readableDate } from '@/app/helpers/input-sanitization-helpers';
 import AttachmentForm from '@/components/filesShelf/attachments/AttachmentForm';
-import SubContractMaterialUsedTab from './tabs/materialUsed/SubContractMaterialUsedTab';
+import SubContractMaterialIssuedTab from './tabs/materialIssued/SubContractMaterialIssuedTab';
 
 function SubcontractListItem({ subContract }) {
     const [expanded, setExpanded] = useState({});
@@ -149,7 +149,7 @@ function SubcontractListItem({ subContract }) {
                         >
                             <Tab label="Tasks" />
                             <Tab label="Certificates" />
-                            <Tab label="Material Used" />
+                            <Tab label="Material Issued" />
                             <Tab label="Attachments" />
                         </Tabs>
                     </Grid>
@@ -163,7 +163,7 @@ function SubcontractListItem({ subContract }) {
                         <Typography sx={{ p: 2 }}>Certificates content goes here.</Typography>
                     )}
                     {activeTab === 2 && (
-                        <SubContractMaterialUsedTab  isExpanded={expanded[subContract.id]} subContract={subContract}/>
+                        <SubContractMaterialIssuedTab  isExpanded={expanded[subContract.id]} subContract={subContract}/>
                     )}
                     {activeTab === 3 && (
                         <Grid container width={'100%'} columnSpacing={1} justifyContent="center" marginTop={1}>
