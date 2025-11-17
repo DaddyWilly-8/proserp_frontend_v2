@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useMemo } from "react";
-import { Grid, Card, CardContent, TextField, Typography, Box, Divider, Paper } from "@mui/material";
+import { Grid, Card, CardContent, TextField, Typography, Box, Divider } from "@mui/material";
 import { useFormContext, useFieldArray } from "react-hook-form";
 import { SalesShift } from "../SalesShiftType";
 import { useSalesStation } from "../../Stations/StationProvider";
@@ -10,6 +10,8 @@ import { useQuery } from "@tanstack/react-query";
 import storeServices from "@/components/procurement/stores/store-services";
 import { StoreOption } from "@/components/procurement/stores/storeTypes";
 import { Product } from "@/components/productAndServices/products/ProductType";
+import CommaSeparatedField from "@/shared/Inputs/CommaSeparatedField"; 
+import { sanitizedNumber } from "@/app/helpers/input-sanitization-helpers"; 
 
 interface PumpReadingTabProps {
   salesShift?: SalesShift;
@@ -21,7 +23,7 @@ interface StoreSummary {
   storeName: string;
   quantity: number;
   amount: number;
-  productIds: number[]; // Multiple products can share the same store
+  productIds: number[];
 }
 
 const PumpReadingTab: React.FC<PumpReadingTabProps> = ({ salesShift, isClosing = false }) => {
@@ -29,7 +31,7 @@ const PumpReadingTab: React.FC<PumpReadingTabProps> = ({ salesShift, isClosing =
   const { activeStation } = useSalesStation();
   const { productOptions } = useProductsSelect();
   
-  // Fetch store options
+  // Fetch store options - SAME PATTERN AS PRODUCT FETCHING
   const { data: storeOptions, isLoading: isFetchingStores } = useQuery<StoreOption[], Error>({
     queryKey: ["storeOptions"],
     queryFn: () => storeServices.getStoreOptions(true),
@@ -37,81 +39,86 @@ const PumpReadingTab: React.FC<PumpReadingTabProps> = ({ salesShift, isClosing =
 
   const fuelPumps = activeStation?.fuel_pumps || [];
 
-  // Get all products from productOptions
+  // PRODUCT PATTERN: Get all products
   const allProducts = useMemo(() => {
     return productOptions || [];
   }, [productOptions]);
 
-  // Get all stores/tanks from storeOptions
+  // STORE PATTERN: Get all stores (same as products)
   const allStores = useMemo(() => {
     if (!storeOptions) return [];
     return storeOptions.filter((store) => {
-      return store.name != null && 
-             typeof store.name === "string" && 
-             store.name.trim() !== "";
+      return store.id != null && typeof store.id === "number";
     });
   }, [storeOptions]);
 
-  // Find product by product_id
+  // PRODUCT PATTERN: Find product by ID
   const findProductById = (productId?: string | number | null): Product | undefined => {
     if (productId == null) return undefined;
-    return allProducts.find(product => product.id === productId);
+    return allProducts.find(product => product.id === Number(productId));
   };
   
-  // Find store/tank by tank_id
+  // STORE PATTERN: Find store by ID (same as product)
   const findStoreById = (storeId?: string | number | null): StoreOption | undefined => {
     if (storeId == null) return undefined;
-    return allStores.find(store => store.id === storeId);
+    return allStores.find(store => store.id === Number(storeId));
   };
 
-  // Use field array for pump readings
   const { fields, update } = useFieldArray({
     control,
     name: "pump_readings"
   });
 
-  // Watch all pump readings and fuel prices
   const pumpReadings = watch("pump_readings") || [];
   const fuelPrices = watch("product_prices") || [];
 
-  // Calculate pump difference
+  // Format number with commas
+  const formatNumberWithCommas = (value: number): string => {
+    return value.toLocaleString();
+  };
+
+  // Parse comma-separated number
+  const parseCommaNumber = (value: string): number => {
+    return sanitizedNumber(value) || 0;
+  };
+
   const calculatePumpDifference = (opening: number, closing: number) => {
     return closing - opening;
   };
 
-  // Update pump reading
-  const updatePumpReading = (pumpIndex: number, field: 'opening' | 'closing', value: number) => {
+  // Handle comma-formatted input
+  const updatePumpReading = (pumpIndex: number, field: 'opening' | 'closing', value: string) => {
+    const numericValue = parseCommaNumber(value);
     update(pumpIndex, {
       ...pumpReadings[pumpIndex],
-      [field]: value
+      [field]: numericValue
     });
   };
 
-  // Update fuel price
-  const updateFuelPrice = (productId: string | number, price: number) => {
+  // Handle comma-formatted input for prices
+  const updateFuelPrice = (productId: string | number, value: string) => {
+    const numericValue = parseCommaNumber(value);
     const existingPriceIndex = fuelPrices.findIndex((fp: any) => fp.product_id === productId);
     
     if (existingPriceIndex >= 0) {
-      // Update existing price
       const updatedPrices = [...fuelPrices];
       updatedPrices[existingPriceIndex] = {
         ...updatedPrices[existingPriceIndex],
-        price: price
+        price: numericValue
       };
       setValue("product_prices", updatedPrices);
     } else {
-      // Add new price
       setValue("product_prices", [
         ...fuelPrices,
         {
           product_id: productId,
-          price: price
+          price: numericValue
         }
       ]);
     }
   };
 
-  // Get unique products from fuel pumps
+  // PRODUCT PATTERN: Get unique products from fuel pumps
   const uniqueProducts = useMemo(() => {
     const productMap = new Map();
     fuelPumps.forEach(pump => {
@@ -123,71 +130,75 @@ const PumpReadingTab: React.FC<PumpReadingTabProps> = ({ salesShift, isClosing =
     return Array.from(productMap.values());
   }, [fuelPumps, allProducts]);
 
-  // Calculate Store Summary - FIXED: Sum all pump differences for each store
+  // STORE PATTERN: Get unique stores from fuel pumps (same as products)
+  const uniqueStores = useMemo(() => {
+    const storeMap = new Map();
+    fuelPumps.forEach(pump => {
+      const store = findStoreById(pump.tank_id);
+      if (store && !storeMap.has(store.id)) {
+        storeMap.set(store.id, store);
+      }
+    });
+    return Array.from(storeMap.values());
+  }, [fuelPumps, allStores]);
+
+  // STORE PATTERN: Calculate store summary (consistent with product logic)
   const storeSummary = useMemo((): StoreSummary[] => {
     const storeMap = new Map<number, StoreSummary>();
 
-     // Initialize all stores from fuel pumps
-  fuelPumps.forEach(pump => {
-    if (pump.tank_id) {
-      const store = findStoreById(pump.tank_id);
-      if (store && !storeMap.has(store.id)) {
-        storeMap.set(store.id, {
-          storeId: store.id,
-          storeName: store.name,
-          quantity: 0,
-          amount: 0,
-          productIds: []
-        });
-      }
-    }
-  });
+    // Initialize store summaries
+    uniqueStores.forEach(store => {
+      storeMap.set(store.id, {
+        storeId: store.id,
+        storeName: store.name,
+        quantity: 0,
+        amount: 0,
+        productIds: []
+      });
+    });
 
-    // Process pump readings to calculate total quantity per store
-    fuelPumps.forEach((pump, pumpIndex) => {
-    if (!pump.tank_id) return;
+    // Calculate quantities and amounts
+    fuelPumps.forEach((pump) => {
+      if (!pump.tank_id) return;
 
       const storeId = pump.tank_id;
-    const reading = pumpReadings.find((r: any) => r.pump_id === pump.id) || {
-      opening: 0,
-      closing: 0
-    };
+      const reading = pumpReadings.find((r: any) => r.pump_id === pump.id) || {
+        opening: 0,
+        closing: 0
+      };
 
-        const pumpDifference = calculatePumpDifference(reading.opening || 0, reading.closing || 0);
+      const pumpDifference = calculatePumpDifference(reading.opening || 0, reading.closing || 0);
       
-       const storeSummary = storeMap.get(storeId);
-    if (storeSummary) {
-      // ADD the pump difference to store quantity
-      storeSummary.quantity += pumpDifference;
+      const storeSummary = storeMap.get(storeId);
+      if (storeSummary) {
+        storeSummary.quantity += pumpDifference;
 
-        
-        // Track product IDs for this store
-      if (pump.product_id && !storeSummary.productIds.includes(pump.product_id)) {
-        storeSummary.productIds.push(pump.product_id);
+        // Track associated products
+        if (pump.product_id && !storeSummary.productIds.includes(pump.product_id)) {
+          storeSummary.productIds.push(pump.product_id);
+        }
       }
-    }
-  });
-   // Calculate amount for each store
-  const summaries = Array.from(storeMap.values());
-  summaries.forEach(summary => {
-    if (summary.productIds.length > 0) {
-      // For stores with multiple products, use average price or first product's price
-      const firstProductId = summary.productIds[0];
-      const fuelPrice = fuelPrices.find((fp: any) => fp.product_id === firstProductId);
-      const price = fuelPrice?.price ? parseFloat(fuelPrice.price) : 0;
-      summary.amount = summary.quantity * price;
-    }
-  });
+    });
 
-     return summaries;
-}, [pumpReadings, fuelPrices, fuelPumps, allStores]); // ADD pumpReadings to dependencies
+    // Calculate amounts based on fuel prices
+    const summaries = Array.from(storeMap.values());
+    summaries.forEach(summary => {
+      if (summary.productIds.length > 0) {
+        // Use the first product's price for calculation
+        const firstProductId = summary.productIds[0];
+        const fuelPrice = fuelPrices.find((fp: any) => fp.product_id === firstProductId);
+        const price = fuelPrice?.price ? parseFloat(String(fuelPrice.price)) : 0;
+        summary.amount = summary.quantity * price;
+      }
+    });
 
-  // Validate opening reading
+    return summaries;
+  }, [pumpReadings, fuelPrices, fuelPumps, uniqueStores]);
+
   const validateOpeningReading = (opening: number, closing: number) => {
     return opening <= closing;
   };
 
-  // Validate closing reading
   const validateClosingReading = (opening: number, closing: number) => {
     return closing >= opening;
   };
@@ -205,13 +216,13 @@ const PumpReadingTab: React.FC<PumpReadingTabProps> = ({ salesShift, isClosing =
           const openingError = !validateOpeningReading(reading.opening, reading.closing);
           const closingError = !validateClosingReading(reading.opening, reading.closing);
 
-          // Find the actual product and store objects by comparing IDs
+          // PRODUCT PATTERN: Find product
           const product = findProductById(pump.product_id);
+          // STORE PATTERN: Find store (same as product)
           const store = findStoreById(pump.tank_id);
 
-          // Get the names from the found objects
-          const productName = product?.name || 'No Product';
-          const tankName = store?.name || 'No Tank';
+          const productName = product?.name || 'Unknown Product';
+          const tankName = store?.name || 'Unknown Tank';
 
           return (
             <Grid key={pump.id} size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
@@ -226,7 +237,7 @@ const PumpReadingTab: React.FC<PumpReadingTabProps> = ({ salesShift, isClosing =
                 }}
               >
                 <CardContent sx={{ flexGrow: 1, p: 2 }}>
-                  {/* Pump Name and Tank Name in same row */}
+                  {/* Header with Pump Name and Tank Name */}
                   <Grid container spacing={1} sx={{ mb: 1 }}>
                     <Grid size={{ xs: 6 }}>
                       <Typography 
@@ -239,49 +250,45 @@ const PumpReadingTab: React.FC<PumpReadingTabProps> = ({ salesShift, isClosing =
                     <Grid size={{ xs: 6 }}>
                       <Typography 
                         variant="body2" 
-                        sx={{ textAlign: 'right' }}
+                        sx={{ 
+                          textAlign: 'right',
+                          color: 'text.secondary'
+                        }}
                       >
                         {tankName}
                       </Typography>
                     </Grid>
                   </Grid>
 
-                  {/* Divider after Pump Name and Tank Name row */}
                   <Divider sx={{ my: 1 }} />
                 
-                  {/* Product/Fuel Name */}
+                  {/* Product Name - CONSISTENT STYLING */}
                   <Typography 
                     variant="body2" 
                     sx={{ 
                       mb: 2,
                       fontStyle: 'italic',
+                      color: 'text.secondary'
                     }}
                   >
                     {productName}
                   </Typography>
+
+                  {/* Readings Inputs */}
                   <Grid container spacing={1}>
                     <Grid size={{ xs: 12 }}>
                       <TextField
                         fullWidth
                         label="Closing Reading"
-                        type="number"
-                        value={reading.closing}
-                        onChange={(e) => updatePumpReading(index, 'closing', parseFloat(e.target.value) || 0)}
+                        value={formatNumberWithCommas(reading.closing)} 
+                        onChange={(e) => updatePumpReading(index, 'closing', e.target.value)} 
                         size="small"
                         error={closingError}
                         helperText={closingError ? "Closing reading should exceed opening reading" : ""}
-                        inputProps={{ 
-                          min: 0,
-                          style: { textAlign: 'center' },
-                          step: "any"
-                        }}
+                        InputProps={{ inputComponent: CommaSeparatedField as any }}
                         sx={{
-                          '& input[type=number]': {
-                            MozAppearance: 'textfield',
-                            '&::-webkit-outer-spin-button, &::-webkit-inner-spin-button': {
-                              WebkitAppearance: 'none',
-                              margin: 0,
-                            },
+                          '& input': {
+                            textAlign: 'left',
                           }
                         }}
                       />
@@ -290,31 +297,22 @@ const PumpReadingTab: React.FC<PumpReadingTabProps> = ({ salesShift, isClosing =
                       <TextField
                         fullWidth
                         label="Opening Reading"
-                        type="number"
-                        value={reading.opening}
-                        onChange={(e) => updatePumpReading(index, 'opening', parseFloat(e.target.value) || 0)}
+                        value={formatNumberWithCommas(reading.opening)}
+                        onChange={(e) => updatePumpReading(index, 'opening', e.target.value)}
                         size="small"
                         error={openingError}
                         helperText={openingError ? "Opening reading should not exceed closing reading" : ""}
-                        inputProps={{ 
-                          min: 0,
-                          style: { textAlign: 'center' },
-                          step: "any"
-                        }}
+                        InputProps={{ inputComponent: CommaSeparatedField as any }}
                         sx={{
-                          '& input[type=number]': {
-                            MozAppearance: 'textfield',
-                            '&::-webkit-outer-spin-button, &::-webkit-inner-spin-button': {
-                              WebkitAppearance: 'none',
-                              margin: 0,
-                            },
+                          '& input': {
+                            textAlign: 'left',
                           }
                         }}
                       />
                     </Grid>
                   </Grid>
 
-                  {/* Pump Difference */}
+                  {/* Pump Difference Display */}
                   <Box 
                     sx={{ 
                       mt: 2,
@@ -330,7 +328,7 @@ const PumpReadingTab: React.FC<PumpReadingTabProps> = ({ salesShift, isClosing =
                         fontWeight: 'normal'
                       }}
                     >
-                      Pump Difference: {difference}
+                      Pump Difference: {formatNumberWithCommas(difference)}
                     </Typography>
                   </Box>
                 </CardContent>
@@ -340,10 +338,9 @@ const PumpReadingTab: React.FC<PumpReadingTabProps> = ({ salesShift, isClosing =
         })}
       </Grid>
 
-      {/* Fuel Prices Section */}
+      {/* Fuel Prices Section - PRODUCT FOCUSED */}
       {uniqueProducts.length > 0 && (
         <Box sx={{ mt: 4 }}>
-          <Divider sx={{ mb: 3 }} />
           <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold' }}>
             Fuel Prices
           </Typography>
@@ -364,25 +361,26 @@ const PumpReadingTab: React.FC<PumpReadingTabProps> = ({ salesShift, isClosing =
                     }}
                   >
                     <CardContent sx={{ flexGrow: 1, p: 2 }}>
+                      <Typography 
+                        variant="body2" 
+                        sx={{ 
+                          mb: 1,
+                          textAlign: 'center',
+                          color: 'text.secondary'
+                        }}
+                      >
+                        {product.name}
+                      </Typography>
                       <TextField
                         fullWidth
-                        label={product.name}
-                        type="number"
-                        value={currentPrice}
-                        onChange={(e) => updateFuelPrice(product.id, parseFloat(e.target.value) || 0)}
+                        label="Price"
+                        value={formatNumberWithCommas(Number(currentPrice))}
+                        onChange={(e) => updateFuelPrice(product.id, e.target.value)}
                         size="small"
-                        inputProps={{ 
-                          min: 0,
-                          step: "0.01",
-                          style: { textAlign: 'center' }
-                        }}
+                        InputProps={{ inputComponent: CommaSeparatedField as any }}
                         sx={{
-                          '& input[type=number]': {
-                            MozAppearance: 'textfield',
-                            '&::-webkit-outer-spin-button, &::-webkit-inner-spin-button': {
-                              WebkitAppearance: 'none',
-                              margin: 0,
-                            },
+                          '& input': {
+                            textAlign: 'center',
                           }
                         }}
                       />
@@ -395,119 +393,115 @@ const PumpReadingTab: React.FC<PumpReadingTabProps> = ({ salesShift, isClosing =
         </Box>
       )}
 
-   {/* Tank Difference Summary Section */}
-    {storeSummary.length > 0 && (
-      <Box sx={{ mt: 4 }}>
-        <Divider sx={{ mb: 3 }} />
-        <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold' }}>
-          Tank Difference Summary
-        </Typography>
-        <Grid container spacing={2}>
-          {storeSummary.map((store) => (
-            <Grid key={store.storeId} size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
-              <Card 
-                sx={{ 
-                  height: '100%',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  '&:hover': {
-                    boxShadow: 2,
-                  }
-                }}
-              >
-                <CardContent sx={{ flexGrow: 1, p: 2 }}>
-                  {/* Store Name as Title */}
-                  <Typography 
-                    variant="subtitle1" 
-                    sx={{ 
-                      fontWeight: 'normal',
-                      textAlign: 'center',
-                      mb: 2
-                    }}
-                  >
-                    {store.storeName}
-                  </Typography>
-                  <Divider/>
+      {/* Tank Summary Section - STORE FOCUSED (SAME PATTERN AS PRODUCTS) */}
+      {storeSummary.length > 0 && (
+        <Box sx={{ mt: 4 }}>
+          <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold' }}>
+            Tank Summary
+          </Typography>
+          <Grid container spacing={2}>
+            {storeSummary.map((store) => (
+              <Grid key={store.storeId} size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
+                <Card 
+                  sx={{ 
+                    height: '100%',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    '&:hover': {
+                      boxShadow: 2,
+                    }
+                  }}
+                >
+                  <CardContent sx={{ flexGrow: 1, p: 2 }}>
+                    {/* Store/Tank Name Header */}
+                    <Typography 
+                      variant="subtitle1" 
+                      sx={{ 
+                        fontWeight: 'bold',
+                        textAlign: 'center',
+                        mb: 2
+                      }}
+                    >
+                      {store.storeName}
+                    </Typography>
+                    <Divider/>
 
-                  {/* Quantity Row - Label and Value in same row */}
-                  <Grid container alignItems="center" spacing={1} sx={{ mb: 2, mt: 2 }}>
-                    <Grid size={{ xs: 6 }}>
-                      <Typography 
-                        variant="body2" 
-                        sx={{ 
-                          fontWeight: 'normal',
-                          color: 'text.primary'
-                        }}
-                      >
-                        Quantity
-                      </Typography>
-                    </Grid>
-                    <Grid size={{ xs: 6 }}>
-                      <Box 
-                        sx={{ 
-                          p: 1,
-                          backgroundColor: 'grey.50',
-                          borderRadius: 1,
-                          textAlign: 'center'
-                        }}
-                      >
+                    {/* Quantity Display - CONSISTENT WITH PRODUCT STYLING */}
+                    <Grid container alignItems="center" spacing={1} sx={{ mb: 2, mt: 2 }}>
+                      <Grid size={{ xs: 6 }}>
                         <Typography 
-                          variant="h6" 
+                          variant="body2" 
                           sx={{ 
                             fontWeight: 'normal',
                             color: 'text.primary'
                           }}
                         >
-                          {store.quantity.toLocaleString()}
+                          Quantity
                         </Typography>
-                      </Box>
+                      </Grid>
+                      <Grid size={{ xs: 6 }}>
+                        <Box 
+                          sx={{ 
+                            p: 1,
+                            backgroundColor: 'grey.50',
+                            borderRadius: 1,
+                            textAlign: 'center'
+                          }}
+                        >
+                          <Typography 
+                            variant="h6" 
+                            sx={{ 
+                              fontWeight: 'normal',
+                              color: 'text.primary'
+                            }}
+                          >
+                            {formatNumberWithCommas(store.quantity)}
+                          </Typography>
+                        </Box>
+                      </Grid>
                     </Grid>
-                  </Grid>
 
-                  {/* Amount Row - Label and Value in same row */}
-                  <Grid container alignItems="center" spacing={1} sx={{ mb: 1 }}>
-                    <Grid size={{ xs: 6 }}>
-                      <Typography 
-                        variant="body2" 
-                        sx={{ 
-                          fontWeight: 'normal',
-                          color: 'text.primary'
-                        }}
-                      >
-                        Amount
-                      </Typography>
-                    </Grid>
-                    <Grid size={{ xs: 6 }}>
-                      <Box 
-                        sx={{ 
-                          p: 1,
-                          backgroundColor: 'grey.50',
-                          borderRadius: 1,
-                          textAlign: 'center'
-                        }}
-                      >
+                    {/* Amount Display - CONSISTENT WITH PRODUCT STYLING */}
+                    <Grid container alignItems="center" spacing={1} sx={{ mb: 1 }}>
+                      <Grid size={{ xs: 6 }}>
                         <Typography 
-                          variant="h6" 
+                          variant="body2" 
                           sx={{ 
                             fontWeight: 'normal',
                             color: 'text.primary'
                           }}
                         >
-                          {store.amount.toLocaleString(undefined, {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2
-                          })}
+                          Amount
                         </Typography>
-                      </Box>
+                      </Grid>
+                      <Grid size={{ xs: 6 }}>
+                        <Box 
+                          sx={{ 
+                            p: 1,
+                            backgroundColor: 'grey.50',
+                            borderRadius: 1,
+                            textAlign: 'center'
+                          }}
+                        >
+                          <Typography 
+                            variant="h6" 
+                            sx={{ 
+                              fontWeight: 'normal',
+                              color: 'text.primary'
+                            }}
+                          >
+                            {formatNumberWithCommas(store.amount)}
+                          </Typography>
+                        </Box>
+                      </Grid>
                     </Grid>
-                  </Grid>
-                </CardContent>
-              </Card>
-            </Grid>
-          ))}
-        </Grid>
-      </Box>
-    )}
+                  </CardContent>
+                </Card>
+              </Grid>
+            ))}
+          </Grid>
+        </Box>
+      )}
     </Box>
   );
 };
