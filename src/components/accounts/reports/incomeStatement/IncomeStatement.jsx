@@ -334,7 +334,6 @@ function IncomeStatement({from, to, cost_center_ids}) {
                       size="small"
                       onClick={downloadExcelTemplate}
                       loading={isDownloadingTemplate}
-                      disabled
                       variant="contained"
                       color="success"
                     >

@@ -39,6 +39,14 @@ projectsServices.getSubContractMaterialIssued = async (params) => {
   return response.data;
 };
 
+projectsServices.getCertificates = async (params) => {
+  const response = await axios.get(
+    `/api/projectManagement/project/${params.subcontract_id}/getCertificates`,
+    { params }
+  );
+  return response.data;
+};
+
 projectsServices.getSubContractDetails = async (id) => {
     const {data} = await axios.get(`/api/projectManagement/project/${id}/getSubContractDetails`);
     return data;
@@ -92,6 +100,13 @@ projectsServices.addProject = async(project) => {
 projectsServices.addSubContractTask = async(tasks) => {
     return await axios.get('/sanctum/csrf-cookie').then(async (response) => {
         const {data} = await axios.post('/api/projectManagement/project/addSubContractTask',tasks)
+        return data;
+    })
+}
+
+projectsServices.addCertificates = async(certificate) => {
+    return await axios.get('/sanctum/csrf-cookie').then(async (response) => {
+        const {data} = await axios.post('/api/projectManagement/project/addCertificates',certificate)
         return data;
     })
 }
@@ -180,6 +195,13 @@ projectsServices.updateSubContractTask = async(subContractTask) => {
     })
 }
 
+projectsServices.updateCertificates = async(certificate) => {
+    return await axios.get('/sanctum/csrf-cookie').then(async (response) => {
+        const {data} = await axios.put(`/api/projectManagement/project/${certificate.id}/updateCertificates`,certificate)
+        return data;    
+    })
+}
+
 projectsServices.updateDeliverables = async(deliverable) => {
     return await axios.get('/sanctum/csrf-cookie').then(async (response) => {
         const {data} = await axios.put(`/api/projectManagement/project/${deliverable.id}/updateDeliverables`,deliverable)
@@ -244,10 +266,22 @@ projectsServices.projectUpdateDetails = async (id) => {
     return data;
 }
 
-projectsServices.showTaskDetails = async (taskId) => {
-    const {data} = await axios.get(`/api/projectManagement/project/${taskId}/showTaskDetails`);
+projectsServices.showProjectTaskDetails = async (taskId) => {
+    const {data} = await axios.get(`/api/projectManagement/project/${taskId}/showProjectTaskDetails`);
     return data;
 }
+
+projectsServices.showSubcontractTaskDetails = async (taskId, certificateDate) => {
+    const { data } = await axios.get(
+        `/api/projectManagement/project/${taskId}/showSubcontractTaskDetails`,
+        {
+            params: {
+                as_at: certificateDate
+            }
+        }
+    );
+    return data;
+};
 
 projectsServices.showDeliverableDetails = async (id) => {
     const {data} = await axios.get(`/api/projectManagement/project/${id}/showDeliverableDetails`);

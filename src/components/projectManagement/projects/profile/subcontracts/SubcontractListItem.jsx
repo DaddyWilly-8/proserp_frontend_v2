@@ -7,6 +7,7 @@ import SubContractTaskTab from './tabs/tasks/SubContractTaskTab';
 import { readableDate } from '@/app/helpers/input-sanitization-helpers';
 import AttachmentForm from '@/components/filesShelf/attachments/AttachmentForm';
 import SubContractMaterialIssuedTab from './tabs/materialIssued/SubContractMaterialIssuedTab';
+import CertificatesTab from './tabs/certificatesTab/CertificatesTab';
 
 function SubcontractListItem({ subContract }) {
     const [expanded, setExpanded] = useState({});
@@ -160,7 +161,7 @@ function SubcontractListItem({ subContract }) {
                         <SubContractTaskTab  isExpanded={expanded[subContract.id]} subContract={subContract}/>
                     )}
                     {activeTab === 1 && (
-                        <Typography sx={{ p: 2 }}>Certificates content goes here.</Typography>
+                        <CertificatesTab  isExpanded={expanded[subContract.id]} subContract={subContract}/>
                     )}
                     {activeTab === 2 && (
                         <SubContractMaterialIssuedTab  isExpanded={expanded[subContract.id]} subContract={subContract}/>
