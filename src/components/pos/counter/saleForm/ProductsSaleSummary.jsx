@@ -58,24 +58,27 @@ function ProductsSaleSummary() {
     loopItemsForVAT();
   }, [items]);
 
-  useEffect(() => {
-    async function updateVFD() {
-        if (!connected) return;
+    useEffect(() => {
+        async function updateVFD() {
+            if (!connected) return;
 
-        const total = (totalAmount + vatAmount).toFixed(2);
+            const total = Number(totalAmount + vatAmount);
 
-        // Clear old content (optional)
-        await sendLine("\x0C");
+            // Clear display
+            await sendLine("\x0C");
 
-        // Display new total
-        await sendLine(total.toLocaleString('en-US', {
-            maximumFractionDigits: 2,
-            minimumFractionDigits: 2
-          }));
-        await sendLine("TOTAL:");
-    }
+            // Display formatted value with commas
+            await sendLine(
+            total.toLocaleString("en-US", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            })
+            );
 
-    updateVFD();
+            await sendLine("TOTAL:");
+        }
+
+        updateVFD();
     }, [totalAmount, vatAmount, connected]);
 
     useEffect(() => {
