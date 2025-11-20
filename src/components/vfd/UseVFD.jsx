@@ -1,82 +1,100 @@
-import { useEffect, useState, useRef } from "react";
+import { useState, useCallback } from "react";
 
-export function UseVFD() {
-  const [connected, setConnected] = useState(false);
-  const portRef = useRef(null);
-  const writerRef = useRef(null);
+export default function useVFD() {
+    const [port, setPort] = useState(null);
+    const [writer, setWriter] = useState(null);
+    const [connected, setConnected] = useState(false);
 
-  // 🔥 AUTO-RECONNECT IF PORT WAS PREVIOUSLY ALLOWED
-  useEffect(() => {
-    (async () => {
-      const ports = await navigator.serial.getPorts();
-      if (ports.length > 0) {
-        const port = ports[0];
+    // -------------------
+    // WRITE TO VFD
+    // -------------------
+    const write = useCallback(async (text) => {
         try {
-          await port.open({ baudRate: 9600 });
-          const writer = port.writable.getWriter();
-
-          portRef.current = port;
-          writerRef.current = writer;
-          setConnected(true);
-        } catch (e) {
-          console.log("Failed auto-reconnect:", e);
+            if (!writer) return;
+            await writer.write(text + "\r\n");
+        } catch (err) {
+            console.log("VFD Write Error:", err);
         }
-      }
-    })();
-  }, []);
+    }, [writer]);
 
-  // ➕ Manual connect (first time only)
-  async function connect() {
-    try {
-      // If already connected, skip
-      if (portRef.current && portRef.current.readable) {
-        setConnected(true);
-        return true;
-      }
+    // -------------------
+    // SEND 0.00
+    // -------------------
+    const sendZero = useCallback(async () => {
+        try {
+            await write("0.00");
+        } catch (err) {
+            console.log("VFD: failed to send zero:", err);
+        }
+    }, [write]);
 
-      const port = await navigator.serial.requestPort();
-      await port.open({ baudRate: 9600 });
-      
-      const writer = port.writable.getWriter();
-      portRef.current = port;
-      writerRef.current = writer;
+    // -------------------
+    // CONNECT
+    // -------------------
+    const connect = useCallback(async () => {
+        try {
+            // Already connected?
+            if (port && writer) return;
 
-      setConnected(true);
-      return true;
-    } catch (err) {
-      console.error("VFD Connection Error:", err);
-      return false;
-    }
-  }
+            // Request serial port
+            const selectedPort = await navigator.serial.requestPort();
+            await selectedPort.open({ baudRate: 9600 });
 
-  async function send(text) {
-    if (!writerRef.current) return;
-    const encoder = new TextEncoder();
-    await writerRef.current.write(encoder.encode(text));
-  }
+            // Create writer safely
+            const textEncoder = new TextEncoderStream();
+            const writableStreamClosed = textEncoder.readable.pipeTo(selectedPort.writable);
+            const newWriter = textEncoder.writable.getWriter();
 
-  async function sendLine(text) {
-    await send(text + "\r\n");
-  }
+            // Save refs
+            setPort(selectedPort);
+            setWriter(newWriter);
+            setConnected(true);
 
-  async function clear() {
-    await send("\x0C");
-  }
+            // Handle device unplug
+            selectedPort.ondisconnect = async () => {
+                console.log("VFD: device unplugged");
+                await sendZero();
 
-  async function disconnect() {
-    try {
-      if (writerRef.current) {
-        await writerRef.current.close();
-        writerRef.current = null;
-      }
-      if (portRef.current) {
-        await portRef.current.close();
-        portRef.current = null;
-      }
-    } finally {
-      setConnected(false);
-    }
-  }
+                setConnected(false);
+                setPort(null);
+                setWriter(null);
+            };
 
-  return { connect, send, sendLine, clear, disconnect, connected };
+            // Clear screen first
+            await sendZero();
+        } catch (err) {
+            console.log("VFD Connection Error:", err);
+        }
+    }, [port, writer, sendZero]);
+
+    // -------------------
+    // DISCONNECT
+    // -------------------
+    const disconnect = useCallback(async () => {
+        try {
+            await sendZero();  // clear screen
+
+            if (writer) {
+                await writer.close().catch(() => {});
+            }
+
+            if (port) {
+                await port.close().catch(() => {});
+            }
+
+        } catch (err) {
+            console.log("VFD Disconnect Error:", err);
+        } finally {
+            setConnected(false);
+            setPort(null);
+            setWriter(null);
+        }
+    }, [writer, port, sendZero]);
+
+    return {
+        connected,
+        connect,
+        disconnect,
+        write
+    };
 }

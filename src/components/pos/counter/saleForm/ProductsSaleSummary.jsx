@@ -1,7 +1,7 @@
-import { UseVFD } from '@/components/vfd/UseVFD';
 import { Checkbox, Divider, Grid, Switch, Typography } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
+import { useVFD } from "@/components/vfd/VFDProvider";
 
 function ProductsSaleSummary() {
   const [totalAmount, setTotalAmount] = useState(0);
@@ -21,7 +21,7 @@ function ProductsSaleSummary() {
   } = useFormContext();
 
   const majorInfoOnly = watch('major_info_only');
-  const { connect, sendLine, connected, disconnect } = UseVFD();
+  const { sendLine, connected, disconnect } = useVFD();
   const vatAmount = (vatableAmount * vat_percentage) / 100;
 
   useEffect(() => {
@@ -206,23 +206,6 @@ function ProductsSaleSummary() {
           </Grid>
         </>
       )}
-
-      {/* VFD SECTION */}
-      <Grid size={12} style={{ marginTop: 20 }}>
-        <button
-          onClick={connect}
-          style={{
-            padding: 10,
-            width: '100%',
-            borderRadius: 8,
-            background: connected ? 'green' : '#444',
-            color: 'white',
-            border: 'none'
-          }}
-        >
-          {connected ? 'VFD Connected' : 'Connect VFD Display'}
-        </button>
-      </Grid>
     </Grid>
   );
 }

@@ -1,5 +1,5 @@
 import { LoadingButton } from '@mui/lab';
-import { Button, DialogActions, DialogContent, DialogTitle, Grid, Alert, Dialog, Tooltip, IconButton} from '@mui/material'
+import { Button, DialogActions, DialogContent, DialogTitle, Grid, Alert, Dialog, Tooltip, IconButton, Switch, Box, useMediaQuery} from '@mui/material'
 import React, { useEffect, useState } from 'react'
 import { useSnackbar } from 'notistack';
 import { FormProvider, useForm } from 'react-hook-form'
@@ -18,6 +18,8 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
 import { MODULE_SETTINGS } from '@/utilities/constants/moduleSettings';
 import stakeholderServices from '@/components/masters/stakeholders/stakeholder-services';
+import { useVFD } from "@/components/vfd/VFDProvider";
+import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 
 function SaleDialogForm({toggleOpen,sale = null}) {
     const [items, setItems] = useState([]);
@@ -32,6 +34,11 @@ function SaleDialogForm({toggleOpen,sale = null}) {
     const [stakeholderQuickAddDisplay, setStakeholderQuickAddDisplay] = useState(false);
     const [addedStakeholder, setAddedStakeholder] = useState(null);
     const [checkedForInstantSale, setCheckedForInstantSale] = useState(sale ? (!sale.is_instant_sale ? false : true) : true);
+
+    const { connected, connect, disconnect, sendZero } = useVFD();
+    
+    const { theme } = useJumboTheme();
+    const isBelowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
 
     const [showWarning, setShowWarning] = useState(false);
     const [isDirty, setIsDirty] = useState(false);
@@ -295,29 +302,65 @@ function SaleDialogForm({toggleOpen,sale = null}) {
                 </Dialog>
             </DialogContent>
         }
-        <DialogActions>
-            <Button size='small' onClick={() => toggleOpen(false)}>
-                Cancel
-            </Button>
-            {
-                !stakeholderQuickAddDisplay &&
+        
+<DialogActions sx={{ display: "flex", width: "100%", alignItems: "center", justifyContent: "space-between", }}>
+
+    {/* LEFT SIDE — VFD SWITCH (hidden on small screens) */}
+    {!isBelowLargeScreen && (
+        <Tooltip
+            title={
+                connected 
+                    ? "Disconnect the customer display"
+                    : "Connect to the customer display (VFD)"
+            }
+        >
+            <Switch
+                checked={connected}
+                onChange={(e) => {
+                    if (e.target.checked) {
+                        connect();
+                    } else {
+                        sendZero().then(() => disconnect());
+                    }
+                }}
+                sx={{
+                    '& .MuiSwitch-switchBase.Mui-checked': {
+                        color: 'white',
+                    },
+                    '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                        backgroundColor: 'green',
+                    },
+                    '& .MuiSwitch-track': {
+                        backgroundColor: '#888',
+                    }
+                }}
+            />
+        </Tooltip>
+    )}
+
+    {/* RIGHT SIDE BUTTONS — always aligned right */}
+    <Box sx={{ display: "flex", gap: 1, marginLeft: "auto" }}>
+        <Button size='small' onClick={() => toggleOpen(false)}>
+            Cancel
+        </Button>
+
+        {!stakeholderQuickAddDisplay && (
             <>
-                {
-                    !majorInfoOnly &&
+                {!majorInfoOnly && (
                     <LoadingButton
                         loading={addSale.isPending || updateSale.isPending}
                         size='small'
                         variant='contained'
                         onClick={(e) => {
                             setValue('submitType','pending');
-                            handleSubmit(onSubmit)(e)
+                            handleSubmit(onSubmit)(e);
                         }}
                     >
                         Suspend
                     </LoadingButton>
-                }
-                {
-                    checkOrganizationPermission(PERMISSIONS.SALES_COMPLETE) &&
+                )}
+
+                {checkOrganizationPermission(PERMISSIONS.SALES_COMPLETE) && (
                     <LoadingButton
                         loading={addSale.isPending || updateSale.isPending}
                         size='small'
@@ -328,10 +371,13 @@ function SaleDialogForm({toggleOpen,sale = null}) {
                     >
                         Checkout
                     </LoadingButton>
-                }
+                )}
             </>
-            }
-        </DialogActions>
+        )}
+    </Box>
+
+</DialogActions>
+
     </FormProvider>
 
 
