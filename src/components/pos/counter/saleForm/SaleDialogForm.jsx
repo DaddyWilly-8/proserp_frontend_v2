@@ -1,5 +1,5 @@
 import { LoadingButton } from '@mui/lab';
-import { Button, DialogActions, DialogContent, DialogTitle, Grid, Alert, Dialog, Tooltip, IconButton, Switch, Box, useMediaQuery} from '@mui/material'
+import { Button, DialogActions, DialogContent, DialogTitle, Grid, Alert, Dialog, Tooltip, IconButton, Box, useMediaQuery} from '@mui/material'
 import React, { useEffect, useState } from 'react'
 import { useSnackbar } from 'notistack';
 import { FormProvider, useForm } from 'react-hook-form'
@@ -12,7 +12,7 @@ import { useCounter } from '../CounterProvider';
 import SaleItemRow from './SaleItemRow';
 import ProductsSaleSummary from './ProductsSaleSummary';
 import SaleTopInformation from './SaleTopInformation';
-import { HighlightOff } from '@mui/icons-material';
+import { HighlightOff, Link, LinkOff } from '@mui/icons-material';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
@@ -303,81 +303,68 @@ function SaleDialogForm({toggleOpen,sale = null}) {
             </DialogContent>
         }
         
-<DialogActions sx={{ display: "flex", width: "100%", alignItems: "center", justifyContent: "space-between", }}>
-
-    {/* LEFT SIDE — VFD SWITCH (hidden on small screens) */}
-    {!isBelowLargeScreen && (
-        <Tooltip
-            title={
-                connected 
-                    ? "Disconnect the customer display"
-                    : "Connect to the customer display (VFD)"
-            }
-        >
-            <Switch
-                checked={connected}
-                onChange={(e) => {
-                    if (e.target.checked) {
-                        connect();
-                    } else {
-                        sendZero().then(() => disconnect());
-                    }
-                }}
-                sx={{
-                    '& .MuiSwitch-switchBase.Mui-checked': {
-                        color: 'white',
-                    },
-                    '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-                        backgroundColor: 'green',
-                    },
-                    '& .MuiSwitch-track': {
-                        backgroundColor: '#888',
-                    }
-                }}
-            />
-        </Tooltip>
-    )}
-
-    {/* RIGHT SIDE BUTTONS — always aligned right */}
-    <Box sx={{ display: "flex", gap: 1, marginLeft: "auto" }}>
-        <Button size='small' onClick={() => toggleOpen(false)}>
-            Cancel
-        </Button>
-
-        {!stakeholderQuickAddDisplay && (
-            <>
-                {!majorInfoOnly && (
-                    <LoadingButton
-                        loading={addSale.isPending || updateSale.isPending}
-                        size='small'
-                        variant='contained'
-                        onClick={(e) => {
-                            setValue('submitType','pending');
-                            handleSubmit(onSubmit)(e);
-                        }}
+        <DialogActions sx={{ display: "flex", width: "100%", alignItems: "center", justifyContent: "space-between" }}>
+            <Box>
+                {!isBelowLargeScreen && (
+                    <Tooltip
+                        title={
+                            connected 
+                                ? "Connected"
+                                : "Serial Display Not Connected, Click to Connect"
+                        }
                     >
-                        Suspend
-                    </LoadingButton>
+                        {connected ? (
+                            <Link
+                                sx={{ color: 'green', cursor: 'pointer' }} 
+                                onClick={() => sendZero().then(() => disconnect())} 
+                            />
+                        ) : (
+                            <LinkOff
+                                sx={{ color: 'gray', cursor: 'pointer' }} 
+                                onClick={connect} 
+                            />
+                        )}
+                    </Tooltip>
                 )}
+            </Box>
+            <Box sx={{ display: "flex", gap: 1, marginLeft: "auto" }}>
+                <Button size='small' onClick={() => toggleOpen(false)}>
+                    Cancel
+                </Button>
 
-                {checkOrganizationPermission(PERMISSIONS.SALES_COMPLETE) && (
-                    <LoadingButton
-                        loading={addSale.isPending || updateSale.isPending}
-                        size='small'
-                        type='submit'
-                        color='success'
-                        variant='contained'
-                        onClick={handleSubmit(onSubmit)}
-                    >
-                        Checkout
-                    </LoadingButton>
+                {!stakeholderQuickAddDisplay && (
+                    <>
+                        {!majorInfoOnly && (
+                            <LoadingButton
+                                loading={addSale.isPending || updateSale.isPending}
+                                size='small'
+                                variant='contained'
+                                onClick={(e) => {
+                                    setValue('submitType','pending');
+                                    handleSubmit(onSubmit)(e);
+                                }}
+                            >
+                                Suspend
+                            </LoadingButton>
+                        )}
+
+                        {checkOrganizationPermission(PERMISSIONS.SALES_COMPLETE) && (
+                            <LoadingButton
+                                loading={addSale.isPending || updateSale.isPending}
+                                size='small'
+                                type='submit'
+                                color='success'
+                                variant='contained'
+                                onClick={handleSubmit(onSubmit)}
+                            >
+                                Checkout
+                            </LoadingButton>
+                        )}
+                    </>
                 )}
-            </>
-        )}
-    </Box>
+            </Box>
 
-</DialogActions>
-
+        </DialogActions>
     </FormProvider>
 
 
