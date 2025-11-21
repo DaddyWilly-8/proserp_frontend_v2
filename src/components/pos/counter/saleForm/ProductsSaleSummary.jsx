@@ -1,7 +1,8 @@
 import { Checkbox, Divider, Grid, Switch, Typography } from '@mui/material';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useFormContext } from 'react-hook-form';
-import { UseVFD } from '@/components/vfd/UseVFD';
+import { useVFD } from "@/components/vfd/VFDProvider";
+import { debounce } from 'lodash';
 
 function ProductsSaleSummary() {
   const [totalAmount, setTotalAmount] = useState(0);
@@ -21,73 +22,86 @@ function ProductsSaleSummary() {
   } = useFormContext();
 
   const majorInfoOnly = watch('major_info_only');
-  const currencyCode = watch('currency')?.code || "TZS";
+  const { displayTotal, connected } = useVFD();
+  const vatAmount = (vatableAmount * vat_percentage) / 100;
+  const currencyCode = watch('currency')?.code;
 
-  // Use old VFD hook
-  const { displayTotal, connected } = UseVFD();
-
-  // Calculate total and vatable amounts
   useEffect(() => {
     let total = 0;
     let vatable = 0;
 
-    items.forEach((item, index) => {
-      total += item.rate * item.quantity;
+    async function loopItems() {
+      await setValue(`items`, null);
+      await items.forEach((item, index) => {
+        total += item.rate * item.quantity;
 
-      // Update form values
-      setValue(`items.${index}.product_id`, item?.product?.id ?? item.product_id);
-      setValue(`items.${index}.quantity`, item.quantity);
-      setValue(`items.${index}.rate`, item.rate);
-      setValue(`items.${index}.store_id`, item.store_id);
+        setValue(`items.${index}.product_id`, item?.product?.id ? item.product.id : item.product_id);
+        setValue(`items.${index}.quantity`, item.quantity);
+        setValue(`items.${index}.rate`, item.rate);
+        setValue(`items.${index}.store_id`, item.store_id);
+      });
 
-      // VAT calculation
-      if (item.product?.vat_exempted !== 1) {
-        vatable += item.rate * item.quantity;
-      }
-    });
+      setTotalAmount(total);
+    }
 
-    setTotalAmount(total);
-    setVatableAmount(vatable);
-  }, [items, setValue]);
+    async function loopItemsForVAT() {
+      await setValue(`items`, null);
 
-  const vatAmount = (vatableAmount * vat_percentage) / 100;
+      await items
+        .filter(item => item.product.vat_exempted !== 1)
+        .forEach(item => {
+          vatable += item.rate * item.quantity;
+        });
+
+      setVatableAmount(vatable);
+    }
+
+    loopItems();
+    loopItemsForVAT();
+  }, [items]);
+
   const grandTotal = totalAmount + vatAmount;
 
-  // Update VFD display when grand total changes
+// Live update with currency
   useEffect(() => {
-    if (connected && displayTotal) {
-      displayTotal(grandTotal, currencyCode);
-    }
+    displayTotal(grandTotal, currencyCode);
   }, [grandTotal, currencyCode, connected, displayTotal]);
 
-  // Reset VFD on unmount
+  // On unmount (dialog close) → show 0.00 with currency
   useEffect(() => {
     return () => {
-      if (displayTotal) displayTotal(0, currencyCode);
+      displayTotal(0, currencyCode);
     };
   }, [displayTotal, currencyCode]);
 
   return (
     <Grid container columnSpacing={1}>
-      <Grid item xs={12}>
-        <Typography align="center" variant="h3">Summary</Typography>
+      <Grid size={12}>
+        <Typography align="center" variant="h3">
+          Summary
+        </Typography>
         <Divider />
       </Grid>
 
       {/* Total */}
-      <Grid item xs={6}>
-        <Typography align="left" variant="body2">Total:</Typography>
+      <Grid size={6}>
+        <Typography align="left" variant="body2">
+          Total:
+        </Typography>
       </Grid>
-      <Grid item xs={6}>
+      <Grid size={6}>
         <Typography align="right" variant="h5">
-          {totalAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          {totalAmount.toLocaleString('en-US', {
+            maximumFractionDigits: 2,
+            minimumFractionDigits: 2
+          })}
         </Typography>
       </Grid>
 
-      {/* VAT */}
+      {/* VAT Section */}
       {watch('vat_registered') && (
-        <>
-          <Grid item xs={6}>
+        <React.Fragment>
+          <Grid size={6}>
             <Typography align="left" variant="body2">
               VAT:
               <Checkbox
@@ -104,53 +118,76 @@ function ProductsSaleSummary() {
               />
             </Typography>
           </Grid>
-          <Grid item xs={6} display="flex" alignItems="center" justifyContent="end">
+
+          <Grid size={6} display="flex" alignItems="center" justifyContent="end">
             <Typography align="right" variant="h5">
-              {vatAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              {vatAmount.toLocaleString('en-US', {
+                maximumFractionDigits: 2,
+                minimumFractionDigits: 2
+              })}
             </Typography>
           </Grid>
 
-          <Grid item xs={6}>
-            <Typography align="left" variant="body2">Grand Total ({currencyCode}):</Typography>
-          </Grid>
-          <Grid item xs={6}>
-            <Typography align="right" variant="h5">
-              {grandTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-            </Typography>
-          </Grid>
-        </>
+            <Grid size={6}>
+                <Typography align="left" variant="body2">
+                    Grand Total ({currencyCode}):
+                </Typography>
+            </Grid>
+            <Grid size={6}>
+                <Typography align="right" variant="h5">
+                    {(totalAmount + vatAmount).toLocaleString('en-US', {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    })}
+                </Typography>
+            </Grid>
+        </React.Fragment>
       )}
 
       {/* Instant Sale & Suggest Price */}
-      {watch('stakeholder_id') !== null && !majorInfoOnly && (
+      {watch(`stakeholder_id`) !== null && !majorInfoOnly && (
         <>
-          <Grid item xs={12}><Divider /></Grid>
-
-          <Grid item xs={7} marginTop={2} marginBottom={2}>
-            <Typography align="left" variant="body2">Instant Sale:</Typography>
+          <Grid size={12}>
+            <Divider />
           </Grid>
-          <Grid item xs={5} display="flex" alignItems="end" justifyContent="end" marginTop={1} marginBottom={2}>
+
+          <Grid size={7} marginTop={2} marginBottom={2}>
+            <Typography align="left" variant="body2">
+              Instant Sale:
+            </Typography>
+          </Grid>
+
+          <Grid size={5} display="flex" alignItems="end" justifyContent="end" marginTop={1} marginBottom={2}>
             <Switch
               checked={checkedForInstantSale}
               size="small"
-              disabled={!!sale && !sale?.is_instant_sale}
+              disabled={!!sale && !sale?.is_instant_sale ? true : false}
               onChange={e => {
                 setCheckedForInstantSale(e.target.checked);
-                setValue('instant_sale', e.target.checked, { shouldDirty: true, shouldValidate: true });
+                setValue('instant_sale', e.target.checked, {
+                  shouldDirty: true,
+                  shouldValidate: true
+                });
               }}
             />
           </Grid>
 
-          <Grid item xs={12}><Divider /></Grid>
-
-          <Grid item xs={7} marginTop={1} marginBottom={2}>
-            <Typography align="left" variant="body2">Suggest Recent Price:</Typography>
+          <Grid size={12}>
+            <Divider />
           </Grid>
-          <Grid item xs={5} display="flex" alignItems="end" justifyContent="end" marginTop={1} marginBottom={2}>
+
+          <Grid size={7} marginTop={1} marginBottom={2}>
+            <Typography align="left" variant="body2">
+              Suggest Recent Price:
+            </Typography>
+          </Grid>
+
+          <Grid size={5} display="flex" alignItems="end" justifyContent="end" marginTop={1} marginBottom={2}>
             <Switch
               checked={checkedForSuggestPrice}
               size="small"
               onChange={e => setCheckedForSuggestPrice(e.target.checked)}
+              inputProps={{ 'aria-label': 'controlled' }}
             />
           </Grid>
         </>
