@@ -89,6 +89,7 @@ function SaleDialogForm({toggleOpen,sale = null}) {
         defaultValues: {
             transaction_date : transaction_date.toISOString(),
             currency_id: sale?.currency_id ? sale.currency_id : 1,
+            currency: sale?.currency ? sale.currency : null,
             exchange_rate: sale?.exchange_rate ? sale.exchange_rate : 1,
             vat_registered: !!organization.settings?.vat_registered,
             vat_percentage: sale ? sale.vat_percentage : !!moduleSetting(MODULE_SETTINGS.POS_DEFAULT_VAT_INCLUSIVE) ? (!!organization.settings?.vat_registered && organization.settings.vat_percentage) : 0,
@@ -309,8 +310,8 @@ function SaleDialogForm({toggleOpen,sale = null}) {
                     <Tooltip
                         title={
                             connected 
-                                ? "Connected"
-                                : "Serial Display Not Connected, Click to Connect"
+                                ? "Connected - Click to disconnect"
+                                : "Serial Display Not Connected - Click to connect"
                         }
                     >
                         {connected ? (

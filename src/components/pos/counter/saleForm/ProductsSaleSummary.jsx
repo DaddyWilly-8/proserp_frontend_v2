@@ -1,7 +1,8 @@
 import { Checkbox, Divider, Grid, Switch, Typography } from '@mui/material';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { useVFD } from "@/components/vfd/VFDProvider";
+import { debounce } from 'lodash';
 
 function ProductsSaleSummary() {
   const [totalAmount, setTotalAmount] = useState(0);
@@ -21,8 +22,9 @@ function ProductsSaleSummary() {
   } = useFormContext();
 
   const majorInfoOnly = watch('major_info_only');
-  const { sendLine, connected, disconnect } = useVFD();
+  const { displayTotal, connected } = useVFD();
   const vatAmount = (vatableAmount * vat_percentage) / 100;
+  const currencyCode = watch('currency')?.code;
 
   useEffect(() => {
     let total = 0;
@@ -58,34 +60,19 @@ function ProductsSaleSummary() {
     loopItemsForVAT();
   }, [items]);
 
-    useEffect(() => {
-        async function updateVFD() {
-            if (!connected) return;
+  const grandTotal = totalAmount + vatAmount;
 
-            const total = Number(totalAmount + vatAmount);
+// Live update with currency
+  useEffect(() => {
+    displayTotal(grandTotal, currencyCode);
+  }, [grandTotal, currencyCode, connected, displayTotal]);
 
-            // Clear display
-            await sendLine("\x0C");
-
-            // Display formatted value with commas
-            await sendLine(
-            total.toLocaleString("en-US", {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-            })
-            );
-
-            await sendLine("TOTAL:");
-        }
-
-        updateVFD();
-    }, [totalAmount, vatAmount, connected]);
-
-    useEffect(() => {
-        return () => {
-            disconnect().catch(() => {});
-        };
-    }, []);
+  // On unmount (dialog close) → show 0.00 with currency
+  useEffect(() => {
+    return () => {
+      displayTotal(0, currencyCode);
+    };
+  }, [displayTotal, currencyCode]);
 
   return (
     <Grid container columnSpacing={1}>
@@ -141,20 +128,19 @@ function ProductsSaleSummary() {
             </Typography>
           </Grid>
 
-          <Grid size={6}>
-            <Typography align="left" variant="body2">
-              Grand Total:
-            </Typography>
-          </Grid>
-
-          <Grid size={6} display="flex" alignItems="center" justifyContent="end">
-            <Typography align="right" variant="h5">
-              {(totalAmount + vatAmount).toLocaleString('en-US', {
-                maximumFractionDigits: 2,
-                minimumFractionDigits: 2
-              })}
-            </Typography>
-          </Grid>
+            <Grid size={6}>
+                <Typography align="left" variant="body2">
+                    Grand Total ({currencyCode}):
+                </Typography>
+            </Grid>
+            <Grid size={6}>
+                <Typography align="right" variant="h5">
+                    {(totalAmount + vatAmount).toLocaleString('en-US', {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    })}
+                </Typography>
+            </Grid>
         </React.Fragment>
       )}
 
