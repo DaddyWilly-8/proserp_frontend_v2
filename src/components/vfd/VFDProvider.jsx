@@ -136,33 +136,75 @@ export function VFDProvider({ children }) {
         }
     }
 
-    /* ----------------------------------------------------------------
-       OPEN PORT (FIXED FOR WINDOWS)
-    ------------------------------------------------------------------ */
-    async function openPort(port) {
-        await cleanup();
+    // Open COM port safely
+    const openPort = useCallback(async () => {
+        if (openingRef.current || connected) return;
+        openingRef.current = true;
 
         try {
-            // On Windows, readable/writable are undefined
-            if (!port.readable || !port.writable) {
-                await port.open({ baudRate: 9600 });
+        // Example: navigator.serial for Web Serial
+        const port = await navigator.serial.requestPort(); 
+        await port.open({ baudRate: 9600 });
+        portRef.current = port;
+        setConnected(true);
+
+        // Example reader loop
+        const reader = port.readable.getReader();
+        readerRef.current = reader;
+
+        // Async reading loop
+        (async () => {
+            while (true) {
+            try {
+                const { value, done } = await reader.read();
+                if (done) break;
+                if (value) console.log('VFD Data:', value);
+            } catch (err) {
+                console.error('Read error:', err);
+                break;
             }
+            }
+        })();
 
-            portRef.current = port;
-            writerRef.current = port.writable.getWriter();
-            readerRef.current = port.readable.getReader();
-
-            setConnected(true);
-            listenForDisconnect(port);
-            readLoop(readerRef.current);
-
-            await sendZero();
-
-        } catch (e) {
-            console.warn("openPort failed:", e);
-            setConnected(false);
+        } catch (err) {
+        console.error('Failed to open VFD port:', err);
+        scheduleReconnect();
+        } finally {
+        openingRef.current = false;
         }
-    }
+    }, [connected]);
+
+    const closePort = useCallback(async () => {
+        if (readerRef.current) {
+        try { await readerRef.current.cancel(); } catch {}
+        readerRef.current = null;
+        }
+
+        if (portRef.current) {
+        try { await portRef.current.close(); } catch {}
+        portRef.current = null;
+        }
+
+        setConnected(false);
+    }, []);
+
+  const scheduleReconnect = () => {
+    if (reconnectTimeout.current) return;
+    reconnectTimeout.current = setTimeout(() => {
+      reconnectTimeout.current = null;
+      openPort();
+    }, 1500); // retry after 1.5s
+  };
+
+  // Attempt to auto-connect on mount
+  useEffect(() => {
+    openPort();
+
+    return () => {
+      if (reconnectTimeout.current) clearTimeout(reconnectTimeout.current);
+      closePort();
+    };
+  }, [openPort, closePort]);
 
     /* ----------------------------------------------------------------
        READ LOOP (NO FREEZE, NO CRASH)
