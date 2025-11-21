@@ -3,6 +3,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { useVFD } from "@/components/vfd/VFDProvider";
 import { debounce } from 'lodash';
+import { UseVFD } from '@/components/vfd/UseVFD';
 
 function ProductsSaleSummary() {
   const [totalAmount, setTotalAmount] = useState(0);
@@ -22,7 +23,7 @@ function ProductsSaleSummary() {
   } = useFormContext();
 
   const majorInfoOnly = watch('major_info_only');
-  const { displayTotal, connected } = useVFD();
+  const { displayTotal, connected } = UseVFD();
   const vatAmount = (vatableAmount * vat_percentage) / 100;
   const currencyCode = watch('currency')?.code;
 

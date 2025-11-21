@@ -5,30 +5,10 @@ export function UseVFD() {
   const portRef = useRef(null);
   const writerRef = useRef(null);
 
-  // 🔥 AUTO-RECONNECT IF PORT WAS PREVIOUSLY ALLOWED
-  useEffect(() => {
-    (async () => {
-      const ports = await navigator.serial.getPorts();
-      if (ports.length > 0) {
-        const port = ports[0];
-        try {
-          await port.open({ baudRate: 9600 });
-          const writer = port.writable.getWriter();
-
-          portRef.current = port;
-          writerRef.current = writer;
-          setConnected(true);
-        } catch (e) {
-          console.log("Failed auto-reconnect:", e);
-        }
-      }
-    })();
-  }, []);
-
-  // ➕ Manual connect (first time only)
+  // 🔹 Connect manually via user gesture
   async function connect() {
     try {
-      // If already connected, skip
+      // If port already connected
       if (portRef.current && portRef.current.readable) {
         setConnected(true);
         return true;
@@ -36,47 +16,84 @@ export function UseVFD() {
 
       const port = await navigator.serial.requestPort();
       await port.open({ baudRate: 9600 });
-      
+
       const writer = port.writable.getWriter();
+
       portRef.current = port;
       writerRef.current = writer;
-
       setConnected(true);
+      console.log("VFD Connected");
+
       return true;
     } catch (err) {
       console.error("VFD Connection Error:", err);
+      setConnected(false);
       return false;
     }
   }
 
+  // 🔹 Send raw text
   async function send(text) {
     if (!writerRef.current) return;
-    const encoder = new TextEncoder();
-    await writerRef.current.write(encoder.encode(text));
+    try {
+      const encoder = new TextEncoder();
+      await writerRef.current.write(encoder.encode(text));
+    } catch (err) {
+      console.error("VFD send error:", err);
+      await disconnect();
+    }
   }
 
+  // 🔹 Send line with newline
   async function sendLine(text) {
     await send(text + "\r\n");
   }
 
+  // 🔹 Clear display
   async function clear() {
     await send("\x0C");
   }
 
+  // 🔹 Send zero total
+  async function sendZero(currency = "TZS") {
+    const formatted = `${currency} 0.00`.padStart(20, " ");
+    await clear();
+    await sendLine("TOTAL:");
+    await sendLine(formatted);
+  }
+
+  // 🔹 Disconnect and cleanup safely
   async function disconnect() {
     try {
       if (writerRef.current) {
-        await writerRef.current.close();
+        try { await writerRef.current.close(); } catch (_) {}
         writerRef.current = null;
       }
       if (portRef.current) {
-        await portRef.current.close();
+        try { await portRef.current.close(); } catch (_) {}
         portRef.current = null;
       }
+    } catch (err) {
+      console.warn("VFD disconnect error:", err);
     } finally {
       setConnected(false);
+      console.log("VFD Disconnected");
     }
   }
 
-  return { connect, send, sendLine, clear, disconnect, connected };
+  // 🔹 Optional: check if VFD is already allowed by browser (no auto-open)
+  useEffect(() => {
+    (async () => {
+      try {
+        const ports = await navigator.serial.getPorts();
+        if (ports.length > 0) {
+          console.log("VFD port already granted, waiting for manual connect...");
+        }
+      } catch (err) {
+        console.warn("VFD port check error:", err);
+      }
+    })();
+  }, []);
+
+  return { connect, disconnect, send, sendLine, clear, sendZero, connected };
 }
