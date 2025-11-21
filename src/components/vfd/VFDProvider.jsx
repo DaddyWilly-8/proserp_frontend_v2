@@ -104,22 +104,29 @@ export function VFDProvider({ children }) {
     ----------------------------- */
     async function connect() {
         try {
-            const port = await navigator.serial.requestPort();
+            let port;
+            const existingPorts = await navigator.serial.getPorts();
+            if (existingPorts.length > 0) {
+                port = existingPorts[0];
+            } else {
+                port = await navigator.serial.requestPort(); // prompts first time
+            }
+
             autoConnectEnabled.current = true;
             await openPort(port);
+
         } catch (e) {
-            console.error("VFD Connect Error:", e);
+            if (e.name !== "NotFoundError") {
+                console.error("VFD Connect Error:", e);
+            }
         }
     }
 
-    /* ----------------------------
-       OPEN PORT
-    ----------------------------- */
     async function openPort(port) {
-        await cleanup();
+        await cleanup(); // ALWAYS cleanup before opening
 
         try {
-            if (port.readable === null || port.writable === null) {
+            if (!port.readable && !port.writable) {
                 await port.open({ baudRate: 9600 });
             }
 
@@ -135,6 +142,12 @@ export function VFDProvider({ children }) {
         } catch (e) {
             console.warn("Open port failed:", e);
             setConnected(false);
+
+            // Required for Windows
+            await cleanup();
+
+            // Avoid connect-spam
+            autoConnectEnabled.current = false;
         }
     }
 
