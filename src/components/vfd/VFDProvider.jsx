@@ -1,4 +1,4 @@
-import { createContext, useContext, useRef, useState, useEffect } from "react";
+import { createContext, useContext, useRef, useState, useEffect, useCallback } from "react";
 
 const VFDContext = createContext(null);
 
@@ -8,29 +8,22 @@ export function VFDProvider({ children }) {
     const portRef = useRef(null);
     const writerRef = useRef(null);
     const readerRef = useRef(null);
-
-    const autoConnectEnabled = useRef(true);
+    const openingRef = useRef(false);
+    const reconnectTimeout = useRef(null);
     const displayTimeoutRef = useRef(null);
+    const autoConnectEnabled = useRef(true);
 
-    /* ----------------------------------------------------------------
-       USB DEVICE FILTER (IMPORTANT FOR WINDOWS!)
-       Replace vendorId/productId with yours if different.
-    ------------------------------------------------------------------ */
     const DEVICE_FILTER = [
         { usbVendorId: 0x067B }, // Prolific PL2303 common VFD USB adapters
     ];
 
-    function isVFD(port) {
+    const isVFD = (port) => {
         const info = port.getInfo();
-        return DEVICE_FILTER.some(
-            f => (!f.usbVendorId || f.usbVendorId === info.usbVendorId)
-        );
-    }
+        return DEVICE_FILTER.some(f => !f.usbVendorId || f.usbVendorId === info.usbVendorId);
+    };
 
-    /* ----------------------------------------------------------------
-       DISPLAY TOTAL
-    ------------------------------------------------------------------ */
-    async function displayTotal(amount = 0, currency = "TZS") {
+    /* ---------------------------- WRITE TO DISPLAY ---------------------------- */
+    const displayTotal = useCallback(async (amount = 0, currency = "TZS") => {
         if (!writerRef.current || !connected) return;
 
         if (displayTimeoutRef.current) clearTimeout(displayTimeoutRef.current);
@@ -40,10 +33,8 @@ export function VFDProvider({ children }) {
 
             try {
                 const encoder = new TextEncoder();
-
-                // Clear + write atomically
-                await writerRef.current.write(encoder.encode("\x0C"));
-                await new Promise(r => setTimeout(r, 60)); // tiny delay for cheap displays
+                await writerRef.current.write(encoder.encode("\x0C")); // Clear display
+                await new Promise(r => setTimeout(r, 60));
 
                 const formatted = Number(amount).toLocaleString("en-US", {
                     minimumFractionDigits: 2,
@@ -55,7 +46,6 @@ export function VFDProvider({ children }) {
 
                 await writerRef.current.write(encoder.encode(line1 + "\r\n"));
                 await writerRef.current.write(encoder.encode(line2 + "\r\n"));
-
             } catch (e) {
                 console.warn("VFD write failed:", e);
                 await cleanup();
@@ -64,13 +54,11 @@ export function VFDProvider({ children }) {
                 displayTimeoutRef.current = null;
             }
         }, 80);
-    }
+    }, [connected]);
 
-    async function sendZero(currency = "TZS") {
-        await displayTotal(0, currency);
-    }
+    const sendZero = useCallback((currency = "TZS") => displayTotal(0, currency), [displayTotal]);
 
-    async function sendLine(text) {
+    const sendLine = useCallback(async (text) => {
         if (!connected || !writerRef.current) return;
         try {
             const encoder = new TextEncoder();
@@ -78,12 +66,10 @@ export function VFDProvider({ children }) {
         } catch (e) {
             console.warn("sendLine error:", e);
         }
-    }
+    }, [connected]);
 
-    /* ----------------------------------------------------------------
-       CLEANUP (NO CRASHES)
-    ------------------------------------------------------------------ */
-    async function cleanup() {
+    /* ---------------------------- CLEANUP ---------------------------- */
+    const cleanup = useCallback(async () => {
         if (displayTimeoutRef.current) {
             clearTimeout(displayTimeoutRef.current);
             displayTimeoutRef.current = null;
@@ -108,195 +94,95 @@ export function VFDProvider({ children }) {
         } catch (err) {
             console.warn("cleanup error:", err);
         }
-    }
 
-    /* ----------------------------------------------------------------
-       CONNECT (WINDOWS SAFE)
-    ------------------------------------------------------------------ */
-    async function connect() {
-        try {
-        // If already connected, skip
-        if (portRef.current && portRef.current.readable) {
-            setConnected(true);
-            return true;
-        }
+        setConnected(false);
+    }, []);
 
-        const port = await navigator.serial.requestPort();
-        await port.open({ baudRate: 9600 });
-        
-        const writer = port.writable.getWriter();
-        portRef.current = port;
-        writerRef.current = writer;
-
-        setConnected(true);
-        return true;
-        } catch (err) {
-           console.error("VFD Connection Error:", err);
-        return false;
-        }
-    }
-
-    // Open COM port safely
-    const openPort = useCallback(async () => {
+    /* ---------------------------- OPEN PORT ---------------------------- */
+    const openPort = useCallback(async (existingPort) => {
         if (openingRef.current || connected) return;
         openingRef.current = true;
 
         try {
-        // Example: navigator.serial for Web Serial
-        const port = await navigator.serial.requestPort(); 
-        await port.open({ baudRate: 9600 });
-        portRef.current = port;
-        setConnected(true);
+            const port = existingPort || await navigator.serial.requestPort();
+            await port.open({ baudRate: 9600 });
 
-        // Example reader loop
-        const reader = port.readable.getReader();
-        readerRef.current = reader;
+            portRef.current = port;
+            writerRef.current = port.writable.getWriter();
 
-        // Async reading loop
-        (async () => {
-            while (true) {
-            try {
-                const { value, done } = await reader.read();
-                if (done) break;
-                if (value) console.log('VFD Data:', value);
-            } catch (err) {
-                console.error('Read error:', err);
-                break;
+            // Optional read loop
+            if (port.readable) {
+                const reader = port.readable.getReader();
+                readerRef.current = reader;
+                (async () => {
+                    while (true) {
+                        try {
+                            const { done, value } = await reader.read();
+                            if (done) break;
+                            if (value) console.log("VFD data:", value);
+                        } catch {
+                            break;
+                        }
+                    }
+                })();
             }
-            }
-        })();
+
+            setConnected(true);
+
+            // Listen for disconnect
+            port.addEventListener("disconnect", async () => {
+                console.log("VFD unplugged");
+                await cleanup();
+                if (autoConnectEnabled.current) scheduleReconnect();
+            });
 
         } catch (err) {
-        console.error('Failed to open VFD port:', err);
-        scheduleReconnect();
+            console.error("Failed to open VFD port:", err);
+            scheduleReconnect();
         } finally {
-        openingRef.current = false;
+            openingRef.current = false;
         }
-    }, [connected]);
+    }, [connected, cleanup]);
 
-    const closePort = useCallback(async () => {
-        if (readerRef.current) {
-        try { await readerRef.current.cancel(); } catch {}
-        readerRef.current = null;
-        }
+    const scheduleReconnect = useCallback(() => {
+        if (reconnectTimeout.current) return;
+        reconnectTimeout.current = setTimeout(async () => {
+            reconnectTimeout.current = null;
+            const ports = await navigator.serial.getPorts();
+            const vfdPort = ports.find(isVFD);
+            if (vfdPort) await openPort(vfdPort);
+        }, 1500);
+    }, [openPort]);
 
-        if (portRef.current) {
-        try { await portRef.current.close(); } catch {}
-        portRef.current = null;
-        }
-
-        setConnected(false);
-    }, []);
-
-  const scheduleReconnect = () => {
-    if (reconnectTimeout.current) return;
-    reconnectTimeout.current = setTimeout(() => {
-      reconnectTimeout.current = null;
-      openPort();
-    }, 1500); // retry after 1.5s
-  };
-
-  // Attempt to auto-connect on mount
-  useEffect(() => {
-    openPort();
-
-    return () => {
-      if (reconnectTimeout.current) clearTimeout(reconnectTimeout.current);
-      closePort();
-    };
-  }, [openPort, closePort]);
-
-    /* ----------------------------------------------------------------
-       READ LOOP (NO FREEZE, NO CRASH)
-    ------------------------------------------------------------------ */
-    async function readLoop(reader) {
-        try {
-            while (connected && reader) {
-                const { done } = await reader.read().catch(() => ({ done: true }));
-                if (done) break;
-            }
-        } catch (_) {
-            // ignore
-        } finally {
-            try { reader.releaseLock(); } catch (_) {}
-            readerRef.current = null;
-        }
-    }
-
-    /* ----------------------------------------------------------------
-       DISCONNECT EVENT (USB UNPLUG)
-    ------------------------------------------------------------------ */
-    function listenForDisconnect(port) {
-        port.addEventListener("disconnect", async () => {
-            console.log("VFD unplugged");
-            setConnected(false);
-            await cleanup();
-
-            if (autoConnectEnabled.current) {
-                setTimeout(() => tryAutoReconnect(), 600);
-            }
-        });
-    }
-
-    /* ----------------------------------------------------------------
-       AUTO RECONNECT WHEN RE-PLUGGED
-    ------------------------------------------------------------------ */
-    async function tryAutoReconnect() {
-        if (!autoConnectEnabled.current || connected) return;
-
-        const ports = await navigator.serial.getPorts();
-        const vfdPort = ports.find(isVFD);
-
-        if (!vfdPort) return;
-
-        try {
-            await openPort(vfdPort);
-            console.log("VFD auto-reconnected!");
-        } catch (err) {
-            console.warn("Auto reconnect error:", err);
-        }
-    }
-
-    useEffect(() => {
-        const timer = setInterval(tryAutoReconnect, 1500);
-        return () => clearInterval(timer);
-    }, [connected]);
-
-    /* ----------------------------------------------------------------
-       MANUAL DISCONNECT (NO AUTO RECONNECT)
-    ------------------------------------------------------------------ */
-    async function disconnect() {
+    /* ---------------------------- DISCONNECT ---------------------------- */
+    const disconnect = useCallback(async () => {
         autoConnectEnabled.current = false;
         await sendZero();
         await cleanup();
-        setConnected(false);
-    }
+    }, [cleanup, sendZero]);
 
-    /* ----------------------------------------------------------------
-       AUTO CONNECT ON PAGE LOAD (ONLY IF ALREADY GRANTED)
-    ------------------------------------------------------------------ */
+    /* ---------------------------- AUTO CONNECT ON LOAD ---------------------------- */
     useEffect(() => {
         autoConnectEnabled.current = true;
 
-        navigator.serial.getPorts().then(async ports => {
+        (async () => {
+            const ports = await navigator.serial.getPorts();
             const vfdPort = ports.find(isVFD);
             if (vfdPort) await openPort(vfdPort);
-        });
+        })();
 
         return () => cleanup();
-    }, []);
+    }, [openPort, cleanup]);
 
     return (
-        <VFDContext.Provider
-            value={{
-                connected,
-                connect,
-                disconnect,
-                displayTotal,
-                sendZero,
-                sendLine,
-            }}
-        >
+        <VFDContext.Provider value={{
+            connected,
+            openPort,
+            disconnect,
+            displayTotal,
+            sendZero,
+            sendLine,
+        }}>
             {children}
         </VFDContext.Provider>
     );
