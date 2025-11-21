@@ -126,8 +126,8 @@ export function VFDProvider({ children }) {
         await cleanup();
 
         try {
-            // Windows sometimes reports readable/writable but still requires open()
-            if (!port.readable || !port.writable) {
+            // FIX: Do NOT reopen a port that is already opened by Chrome
+            if (!port.opened) {
                 await port.open({
                     baudRate: 9600,
                     dataBits: 8,
@@ -150,7 +150,12 @@ export function VFDProvider({ children }) {
 
         } catch (e) {
             console.warn("Open port failed:", e);
+
+            // IMPORTANT FIX:
+            // Windows needs time to fully release the USB device
             await cleanup();
+            await new Promise(r => setTimeout(r, 300));
+
             setConnected(false);
         }
     }
