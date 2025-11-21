@@ -161,20 +161,16 @@ export function VFDProvider({ children }) {
     return () => clearInterval(interval);
   }, [connected]);
 
-    // AUTO CONNECT ON PAGE LOAD
-    useEffect(() => {
-        if (autoConnectEnabled) {
-            autoConnectEnabled.current = true;
-        }
-
-        navigator?.serial?.getPorts?.().then(ports => {
-            if (ports.length > 0) {
-            openPort(ports[0]);
-            }
-        });
-
-        return () => cleanup();
-    }, []);
+  // AUTO CONNECT ON PAGE LOAD
+  useEffect(() => {
+    autoConnectEnabled?.current = true;
+    navigator?.serial?.getPorts()?.then(ports => {
+      if (ports.length > 0) {
+        openPort(ports[0]);
+      }
+    });
+    return () => cleanup();
+  }, []);
 
   return (
     <VFDContext.Provider value={{
