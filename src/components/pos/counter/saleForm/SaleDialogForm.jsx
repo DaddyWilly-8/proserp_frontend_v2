@@ -18,8 +18,8 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
 import { MODULE_SETTINGS } from '@/utilities/constants/moduleSettings';
 import stakeholderServices from '@/components/masters/stakeholders/stakeholder-services';
-import { useVFD } from "@/components/vfd/VFDProvider";
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
+import { UseVFD } from '@/components/vfd/UseVFD';
 
 function SaleDialogForm({toggleOpen,sale = null}) {
     const [items, setItems] = useState([]);
@@ -35,7 +35,7 @@ function SaleDialogForm({toggleOpen,sale = null}) {
     const [addedStakeholder, setAddedStakeholder] = useState(null);
     const [checkedForInstantSale, setCheckedForInstantSale] = useState(sale ? (!sale.is_instant_sale ? false : true) : true);
 
-    const { connected, connect, disconnect, sendZero } = useVFD();
+    const { connected, connect, disconnect, sendZero } = UseVFD();
     
     const { theme } = useJumboTheme();
     const isBelowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));

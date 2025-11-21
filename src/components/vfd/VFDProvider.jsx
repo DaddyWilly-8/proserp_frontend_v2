@@ -175,14 +175,15 @@ export function VFDProvider({ children }) {
     }, [openPort, cleanup]);
 
     return (
-        <VFDContext.Provider value={{
-            connected,
-            openPort,
-            disconnect,
-            displayTotal,
-            sendZero,
-            sendLine,
-        }}>
+        <VFDContext.Provider
+            value={{
+                connected,
+                disconnect,
+                displayTotal,
+                sendZero,
+                sendLine,
+            }}
+        >
             {children}
         </VFDContext.Provider>
     );
