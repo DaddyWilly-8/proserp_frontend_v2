@@ -8,26 +8,19 @@ export function VFDProvider({ children }) {
     const portRef = useRef(null);
     const writerRef = useRef(null);
     const readerRef = useRef(null);
-    const autoConnectEnabled = useRef(true);
-
-    /* ----------------------------
-       DISPLAY TOTAL (consistent format)
-    ----------------------------- */
+    const autoConnectEnabled = useRef(true); // allow auto reconnect
     const displayTimeoutRef = useRef(null);
 
+    /* ----------------------------
+       DISPLAY TOTAL
+    ----------------------------- */
     async function displayTotal(amount = 0, currency = "TZS") {
-        if (!writerRef.current || !connected) {
-            return;
-        }
+        if (!writerRef.current || !connected) return;
 
-        // Cancel previous pending write
-        if (displayTimeoutRef.current) {
-            clearTimeout(displayTimeoutRef.current);
-        }
+        if (displayTimeoutRef.current) clearTimeout(displayTimeoutRef.current);
 
         displayTimeoutRef.current = setTimeout(async () => {
-            // ────── RE-CHECK writer (in case disconnect happened in the meantime) ──────
-            if (!writerRef.current) {
+            if (!writerRef.current || !connected) {
                 displayTimeoutRef.current = null;
                 return;
             }
@@ -51,27 +44,24 @@ export function VFDProvider({ children }) {
                 await writerRef.current.write(encoder.encode(line2 + "\r\n"));
 
             } catch (e) {
-                // Only trigger disconnect if it's a real port error
-                if (e.name !== "AbortError" && e.name !== "NetworkError") {
-                    setConnected(false);
-                    await cleanup();
-                }
+                console.warn("VFD write failed:", e);
+                await cleanup();
+                setConnected(false);
             } finally {
                 displayTimeoutRef.current = null;
             }
         }, 80);
     }
 
-    // ────── SAFE sendZero ──────
+    /* ----------------------------
+       SEND ZERO
+    ----------------------------- */
     async function sendZero(currency = "TZS") {
-        // Only call displayTotal if we have a writer
-        if (writerRef.current && connected) {
-            await displayTotal(0, currency);
-        }
+        await displayTotal(0, currency);
     }
 
     /* ----------------------------
-       SAFE WRITE (kept for future use if needed)
+       SEND ARBITRARY LINE
     ----------------------------- */
     async function sendLine(text) {
         try {
@@ -79,7 +69,7 @@ export function VFDProvider({ children }) {
             const encoder = new TextEncoder();
             await writerRef.current.write(encoder.encode(text + "\r\n"));
         } catch (e) {
-            console.error("Send Error:", e);
+            console.warn("Send error:", e);
         }
     }
 
@@ -87,44 +77,44 @@ export function VFDProvider({ children }) {
        CLEANUP
     ----------------------------- */
     async function cleanup() {
-        try {
-            if (readerRef.current) {
-                await readerRef.current.cancel().catch(() => {});
-                readerRef.current.releaseLock();
-                readerRef.current = null;
-            }
+        if (displayTimeoutRef.current) {
+            clearTimeout(displayTimeoutRef.current);
+            displayTimeoutRef.current = null;
+        }
 
-            if (writerRef.current) {
-                writerRef.current.releaseLock();
-                writerRef.current = null;
-            }
+        if (readerRef.current) {
+            try { await readerRef.current.cancel(); } catch (_) {}
+            try { readerRef.current.releaseLock(); } catch (_) {}
+            readerRef.current = null;
+        }
 
-            if (portRef.current) {
-                await portRef.current.close().catch(() => {});
-                portRef.current = null;
-            }
+        if (writerRef.current) {
+            try { writerRef.current.releaseLock(); } catch (_) {}
+            writerRef.current = null;
+        }
 
-        } catch (e) {
-            console.error("Cleanup error:", e);
+        if (portRef.current) {
+            try { await portRef.current.close(); } catch (_) {}
+            portRef.current = null;
         }
     }
 
     /* ----------------------------
-       MANUAL CONNECT – use already granted port if available (no prompt)
+       MANUAL CONNECT
     ----------------------------- */
     async function connect() {
         try {
             let port;
-
             const existingPorts = await navigator.serial.getPorts();
             if (existingPorts.length > 0) {
                 port = existingPorts[0];
             } else {
-                port = await navigator.serial.requestPort(); // only prompts first time
+                port = await navigator.serial.requestPort(); // prompts first time
             }
 
             autoConnectEnabled.current = true;
             await openPort(port);
+
         } catch (e) {
             if (e.name !== "NotFoundError") {
                 console.error("VFD Connect Error:", e);
@@ -136,14 +126,10 @@ export function VFDProvider({ children }) {
        OPEN PORT
     ----------------------------- */
     async function openPort(port) {
-        // Always cleanup first
         await cleanup();
 
         try {
-            // Double-check if port is already open
-            if (port.readable !== null || port.writable !== null) {
-                console.log("Port already open, skipping open()");
-            } else {
+            if (port.readable === null || port.writable === null) {
                 await port.open({ baudRate: 9600 });
             }
 
@@ -153,75 +139,84 @@ export function VFDProvider({ children }) {
 
             setConnected(true);
             listenForDisconnect(port);
+            readLoop(readerRef.current);
             await sendZero();
 
         } catch (e) {
+            console.warn("Open port failed:", e);
             setConnected(false);
         }
     }
 
     /* ----------------------------
-       USB DISCONNECT LISTENER
+       READ LOOP
+    ----------------------------- */
+    async function readLoop(reader) {
+        try {
+            while (connected && reader) {
+                const { done } = await reader.read();
+                if (done) break;
+            }
+        } catch (e) {
+            console.warn("Read loop error:", e);
+        } finally {
+            if (readerRef.current) {
+                try { readerRef.current.releaseLock(); } catch (_) {}
+                readerRef.current = null;
+            }
+        }
+    }
+
+    /* ----------------------------
+       LISTEN FOR USB DISCONNECT
     ----------------------------- */
     function listenForDisconnect(port) {
         port.addEventListener("disconnect", async () => {
+            console.log("VFD disconnected!");
             setConnected(false);
             await cleanup();
 
-            autoConnectEnabled.current = true; // allow auto-reconnect when replugged
+            // auto reconnect if not manually disabled
+            if (autoConnectEnabled.current) {
+                setTimeout(() => tryAutoReconnect(), 500);
+            }
         });
     }
 
     /* ----------------------------
-    AUTO RECONNECT ON RE-PLUG (FIXED!)
+       AUTO RECONNECT
     ----------------------------- */
+    async function tryAutoReconnect() {
+        if (!autoConnectEnabled.current || connected) return;
+
+        const ports = await navigator.serial.getPorts();
+        if (ports.length === 0) return;
+
+        try {
+            await openPort(ports[0]);
+            console.log("VFD reconnected automatically!");
+        } catch (e) {
+            console.warn("Auto-reconnect failed:", e);
+        }
+    }
+
     useEffect(() => {
-        const interval = setInterval(async () => {
-            if (!autoConnectEnabled.current || connected) return;
-
-            try {
-                const ports = await navigator.serial.getPorts();
-                if (ports.length === 0) return;
-
-                const port = ports[0];
-
-                // CRITICAL: Only try to open if the port is NOT already open
-                if (port.readable || port.writable) {
-                    // Port is already open → just re-use it
-                    portRef.current = port;
-                    writerRef.current = port.writable.getWriter();
-                    readerRef.current = port.readable.getReader();
-                    setConnected(true);
-                    listenForDisconnect(port);
-                    await sendZero();
-                    return;
-                }
-
-                // Port exists but is closed → safe to open
-                await openPort(port);
-
-            } catch (e) {
-                console.error("Auto-reconnect failed:", e);
-            }
-        }, 1200);
-
+        const interval = setInterval(tryAutoReconnect, 1500);
         return () => clearInterval(interval);
     }, [connected]);
 
     /* ----------------------------
-       MANUAL DISCONNECT (NO RECONNECT!)
+       MANUAL DISCONNECT
     ----------------------------- */
     async function disconnect() {
-        autoConnectEnabled.current = false; // <-- disables auto reconnect
-
-        await sendZero(); // clear to 0.00 before closing
+        autoConnectEnabled.current = false; // disable auto reconnect
+        await sendZero();
         await cleanup();
-
         setConnected(false);
     }
 
     /* ----------------------------
-       AUTO CONNECT ON PAGE LOAD (if already granted)
+       AUTO CONNECT ON PAGE LOAD
     ----------------------------- */
     useEffect(() => {
         autoConnectEnabled.current = true;
@@ -243,7 +238,7 @@ export function VFDProvider({ children }) {
                 disconnect,
                 displayTotal,
                 sendZero,
-                sendLine,
+                sendLine
             }}
         >
             {children}
