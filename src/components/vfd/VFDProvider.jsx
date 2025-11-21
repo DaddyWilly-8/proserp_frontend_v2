@@ -150,7 +150,7 @@ export function VFDProvider({ children }) {
   // AUTO-RECONNECT LOOP
   useEffect(() => {
     const interval = setInterval(async () => {
-      if (!autoConnectEnabled?.current || connected) return;
+      if (!autoConnectEnabled.current || connected) return;
       try {
         const ports = await navigator.serial.getPorts();
         if (ports.length > 0) {
@@ -163,8 +163,8 @@ export function VFDProvider({ children }) {
 
   // AUTO CONNECT ON PAGE LOAD
   useEffect(() => {
-    autoConnectEnabled?.current = true;
-    navigator?.serial?.getPorts()?.then(ports => {
+    autoConnectEnabled.current = true;
+    navigator.serial.getPorts().then(ports => {
       if (ports.length > 0) {
         openPort(ports[0]);
       }
