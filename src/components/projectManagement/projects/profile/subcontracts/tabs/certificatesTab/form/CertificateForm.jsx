@@ -193,12 +193,6 @@ const CertificateForm = ({ setOpenDialog, certificate, subContract }) => {
                   setTasksItems={setTasksItems}
                 />
 
-                {errors?.certified_tasks?.message && tasksItems.length < 1 && (
-                  <Alert severity="error" sx={{ mt: 2 }}>
-                    {errors.certified_tasks.message}
-                  </Alert>
-                )}
-
                 {tasksItems.map((taskItem, index) => (
                   <CertifiedTasksItemRow
                     key={index}
@@ -215,6 +209,12 @@ const CertificateForm = ({ setOpenDialog, certificate, subContract }) => {
                   />
                 ))}
               </>
+            )}
+
+            {errors?.certified_tasks?.message && tasksItems.length < 1 && (
+              <Alert severity="error" sx={{ mt: 2 }}>
+                {errors.certified_tasks.message}
+              </Alert>
             )}
 
             {activeTab === 1 && (
