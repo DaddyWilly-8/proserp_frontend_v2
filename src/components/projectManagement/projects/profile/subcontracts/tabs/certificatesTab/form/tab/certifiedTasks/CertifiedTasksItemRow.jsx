@@ -1,29 +1,29 @@
 import { DisabledByDefault, EditOutlined } from '@mui/icons-material';
 import { Divider, Grid, IconButton, Tooltip, Typography } from '@mui/material';
 import React, { useState } from 'react';
-import CertificateItemForm from './CertificateItemForm';
+import CertifiedTasksItemForm from './CertifiedTasksItemForm';
 
-const CertificateItemRow = ({
+const CertifiedTasksItemRow= ({
   setClearFormKey,
   submitMainForm,
   setSubmitItemForm,
   submitItemForm,
   setIsDirty,
-  item,
+  taskItem,
   index,
-  items = [],
+  tasksItems = [],
   CertificateDate,
-  setItems
+  setTasksItems
 }) => {
   const [showForm, setShowForm] = useState(false);
 
-    const handleRemoveItem = () => {
-        setItems(prevItems => {
-            const newItems = [...prevItems];
-            newItems.splice(index, 1);
-            return newItems;
-        });
-    };
+  const handleRemoveItem = () => {
+    setTasksItems(prevItems => {
+      const newItems = [...prevItems];
+      newItems.splice(index, 1);
+      return newItems;
+    });
+  };
 
   return (
     <React.Fragment>
@@ -42,25 +42,25 @@ const CertificateItemRow = ({
             </Grid>
 
             <Grid size={{xs: 11, md: 5.5}}>
-                {item.task?.name}
+                {taskItem.task?.name || taskItem?.task_name}
             </Grid>
 
 
             <Grid size={{xs: 6, md: 2}} paddingLeft={{xs: 3, md: 0}}>
-                {item.certified_quantity} {item.task?.measurement_unit?.symbol}
+                {taskItem.certified_quantity} {taskItem.task?.measurement_unit?.symbol}
             </Grid>
 
             <Grid size={{xs: 6, md: 3}}>
-                {item.remarks}
+                {taskItem.remarks}
             </Grid>
 
             <Grid textAlign={'end'} size={{xs: 12, md: 1}}>
-                <Tooltip title='Edit Item'>
+                <Tooltip title='Edit Certified Task'>
                     <IconButton size='small' onClick={() => setShowForm(true)}>
                         <EditOutlined fontSize='small' />
                     </IconButton>
                 </Tooltip>
-                <Tooltip title='Remove Item'>
+                <Tooltip title='Remove Certified Task'>
                     <IconButton size='small' onClick={handleRemoveItem}>
                         <DisabledByDefault fontSize='small' color='error' />
                     </IconButton>
@@ -68,22 +68,22 @@ const CertificateItemRow = ({
             </Grid>
         </Grid>
       ) : (
-        <CertificateItemForm
+        <CertifiedTasksItemForm
           setClearFormKey={setClearFormKey}
           submitMainForm={submitMainForm}
           setSubmitItemForm={setSubmitItemForm}
           submitItemForm={submitItemForm}
           setIsDirty={setIsDirty}
-          item={item}
+          taskItem={taskItem}
           setShowForm={setShowForm}
           index={index}
-          items={items}
+          tasksItems={tasksItems}
           CertificateDate={CertificateDate}
-          setItems={setItems}
+          setTasksItems={setTasksItems}
         />
       )}
     </React.Fragment>
   );
 };
 
-export default CertificateItemRow;
+export default CertifiedTasksItemRow

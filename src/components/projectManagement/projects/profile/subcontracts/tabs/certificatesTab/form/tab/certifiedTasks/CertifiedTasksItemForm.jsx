@@ -7,12 +7,12 @@ import * as yup from 'yup';
 import dayjs from 'dayjs'
 import { yupResolver } from '@hookform/resolvers/yup';
 import { Div } from '@jumbo/shared';
-import { useProjectProfile } from '../../../../ProjectProfileProvider';
+import { useProjectProfile } from '../../../../../../ProjectProfileProvider';
 import { sanitizedNumber } from '@/app/helpers/input-sanitization-helpers';
 import CommaSeparatedField from '@/shared/Inputs/CommaSeparatedField';
 import projectsServices from '@/components/projectManagement/projects/project-services';
 
-const CertificateItemForm= ({
+const CertifiedTasksItemForm= ({
   setClearFormKey,
   submitMainForm,
   submitItemForm,
@@ -20,15 +20,15 @@ const CertificateItemForm= ({
   setIsDirty,
   index = -1,
   setShowForm = null,
-  item,
-  items = [],
+  taskItem,
+  tasksItems = [],
   CertificateDate,
-  setItems
+  setTasksItems
 }) => {
     const { deliverable_groups, setFetchDeliverables, projectTimelineActivities, setFetchTimelineActivities} = useProjectProfile();
     const [isAdding, setIsAdding] = useState(false);
     const [isRetrievingDetails, setIsRetrievingDetails] = useState(false);
-    const [unitToDisplay, setUnitToDisplay] = useState(item && item.unit_symbol);
+    const [unitToDisplay, setUnitToDisplay] = useState(taskItem && taskItem.unit_symbol);
 
     useEffect(() => {
         if (!deliverable_groups) {
@@ -56,15 +56,15 @@ const CertificateItemForm= ({
             .required("Quantity is required")
             .typeError("Quantity is required")
 
-            // RULE 1: certified ≥ previously certified
+            // RULE 1: certified should not exceed un-certified units
             .test("min-certified", function (value) {
-                const { response_certified_quantity } = this.parent;
+                const { response_uncertified_quantity } = this.parent;
 
-                if (response_certified_quantity == null) return true;
+                if (response_uncertified_quantity == null) return true;
 
-                if (value < response_certified_quantity) {
+                if (value > response_uncertified_quantity) {
                     return this.createError({
-                        message: `Quantity cannot be less than previously certified (${response_certified_quantity})`,
+                        message: `Certified Quantity cannot exceed un-certified (${response_uncertified_quantity})`,
                     });
                 }
 
@@ -79,7 +79,7 @@ const CertificateItemForm= ({
 
                 if (value > response_executed_quantity) {
                     return this.createError({
-                        message: `Quantity cannot exceed executed quantity (${response_executed_quantity})`,
+                        message: `Certified Quantity cannot exceed executed quantity (${response_executed_quantity})`,
                     });
                 }
 
@@ -90,17 +90,17 @@ const CertificateItemForm= ({
     const { handleSubmit, setValue, formState: { errors, dirtyFields }, watch, reset } = useForm({
         resolver: yupResolver(validationSchema),
         defaultValues: {
-            id: item?.id,
-            project_subcontract_id: item ? item.project_subcontract_id : item?.id,
-            project_subcontract_task_id: item?.project_subcontract_task_id,
-            certified_quantity: item?.certified_quantity,
-            remarks: item?.remarks,
-            task: item?.task,
-            response_certified_quantity: item?.response_certified_quantity,
-            response_executed_quantity: item?.response_executed_quantity,
-            unit_symbol: item && item.unit_symbol,
+            id: taskItem?.id,
+            project_subcontract_id: taskItem ? taskItem.project_subcontract_id : taskItem?.id,
+            project_subcontract_task_id: taskItem?.project_subcontract_task_id,
+            certified_quantity: taskItem?.certified_quantity,
+            remarks: taskItem?.remarks,
+            task: taskItem?.task,
+            response_uncertified_quantity: taskItem?.response_uncertified_quantity,
+            response_executed_quantity: taskItem?.response_executed_quantity,
+            unit_symbol: taskItem && taskItem.unit_symbol,
         },
-        context: { item }
+        context: { taskItem }
     });  
 
     useEffect(() => {
@@ -111,24 +111,24 @@ const CertificateItemForm= ({
         setIsAdding(true);
 
         if (index > -1) {
-            const updatedItems = [...items];
+            const updatedItems = [...tasksItems];
 
             updatedItems[index] = {
-                ...items[index],
+                ...tasksItems[index],
                 ...formData 
             };
 
-            await setItems(updatedItems);
+            await setTasksItems(updatedItems);
             setClearFormKey(prevKey => prevKey + 1);
 
         } else {
-            await setItems(prevItems => [...prevItems, formData]);
+            await setTasksItems(prevItems => [...prevItems, formData]);
             if (submitItemForm) submitMainForm();
             setSubmitItemForm(false);
             setClearFormKey(prevKey => prevKey + 1);
         }
 
-        reset(); // now works
+        reset();
         setIsAdding(false);
         setShowForm && setShowForm(false);
     };
@@ -136,7 +136,7 @@ const CertificateItemForm= ({
     const retrieveTaskDetails = async (taskId) => {
         setIsRetrievingDetails(true);
         const details =  await projectsServices.showSubcontractTaskDetails(taskId, CertificateDate)
-        setValue('response_certified_quantity', details?.certified_quantity);
+        setValue('response_uncertified_quantity', details?.uncertified_quantity);
         setValue('response_executed_quantity', details?.executed_quantity);
         setIsRetrievingDetails(false);
     }
@@ -184,16 +184,13 @@ const CertificateItemForm= ({
 
   return (
     <Grid container spacing={1} marginTop={0.5}>
-        <Grid size={12}>
-            <Divider/>
-        </Grid>
         <Grid size={{xs: 12, md: 8}}>
             <Div sx={{ mt: 1 }}>
                 <Autocomplete
                     options={allTasks}
                     isOptionEqualToValue={(option, value) => option.id === value.id}
                     getOptionLabel={(option) => option.name}
-                    defaultValue={item?.task}
+                    defaultValue={taskItem?.task}
                     renderInput={(params) => (
                         <TextField
                             {...params}
@@ -293,13 +290,13 @@ const CertificateItemForm= ({
                 onClick={handleSubmit(updateItems)}
                 sx={{ marginBottom: 0.5 }}
             >
-                {item ? (
+                {taskItem ? (
                     <><CheckOutlined fontSize='small' /> Done</>
                 ) : (
                     <><AddOutlined fontSize='small' /> Add</>
                 )}
             </LoadingButton>
-            {item && setShowForm && (
+            {taskItem && setShowForm && (
                 <Tooltip title='Close Edit'>
                     <IconButton size='small' onClick={() => setShowForm(false)}>
                         <DisabledByDefault fontSize='small' color='success' />
@@ -311,4 +308,4 @@ const CertificateItemForm= ({
   );
 };
 
-export default CertificateItemForm;
+export default CertifiedTasksItemForm;

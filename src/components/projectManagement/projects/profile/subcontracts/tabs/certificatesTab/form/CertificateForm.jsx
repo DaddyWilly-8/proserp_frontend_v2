@@ -1,7 +1,10 @@
 import { LoadingButton } from '@mui/lab';
-import { Alert, Button, Dialog, DialogActions, DialogContent, DialogTitle, Grid, IconButton, TextField, Tooltip, Typography } from '@mui/material';
+import {
+  Alert, Button, Dialog, DialogActions, DialogContent, DialogTitle,
+  Grid, IconButton, TextField, Tooltip, Typography, Box, Tabs, Tab, Paper
+} from '@mui/material';
 import { DateTimePicker } from '@mui/x-date-pickers';
-import dayjs, { Dayjs } from 'dayjs';
+import dayjs from 'dayjs';
 import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as yup from "yup";
@@ -9,251 +12,304 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { useSnackbar } from 'notistack';
 import { HighlightOff } from '@mui/icons-material';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Div } from '@jumbo/shared';
 import projectsServices from '@/components/projectManagement/projects/project-services';
-import CertificateItemForm from './CertificateItemForm';
-import CertificateItemRow from './CertificateItemRow';
+import CertifiedTasksItemForm from './tab/certifiedTasks/CertifiedTasksItemForm';
+import CertifiedTasksItemRow from './tab/certifiedTasks/CertifiedTasksItemRow';
+import CertifiedAdjustments from './tab/adjustments/CertifiedAdjustments';
+import CertifiedAdjustmentsRow from './tab/adjustments/CertifiedAdjustmentsRow';
 
 const CertificateForm = ({ setOpenDialog, certificate, subContract }) => {
-    const queryClient = useQueryClient();
-    const { enqueueSnackbar } = useSnackbar();
-    const [items, setItems] = useState(certificate?.items || []);
+  const queryClient = useQueryClient();
+  const { enqueueSnackbar } = useSnackbar();
+  const [tasksItems, setTasksItems] = useState(certificate?.items || []);
+  const [adjustments, setAdjustments] = useState(certificate?.adjustments  ? certificate.adjustments : []);
+  const [showWarning, setShowWarning] = useState(false);
+  const [isDirty, setIsDirty] = useState(false);
+  const [clearFormKey, setClearFormKey] = useState(0);
+  const [submitItemForm, setSubmitItemForm] = useState(false);
+  const [activeTab, setActiveTab] = useState(0);
 
-    const [showWarning, setShowWarning] = useState(false);
-    const [isDirty, setIsDirty] = useState(false);
-    const [clearFormKey, setClearFormKey] = useState(0);
-    const [submitItemForm, setSubmitItemForm] = useState(false);
-
-    const addCertificate = useMutation({
-      mutationFn: projectsServices.addCertificates,
-      onSuccess: (data) => {
-        data?.message && enqueueSnackbar(data.message, { variant: 'success' });
-        queryClient.invalidateQueries({ queryKey: ['Certificates'] });
-        setOpenDialog(false);
-      },
-      onError: (error) => {
-        if (error instanceof Error && 'response' in error) {
-        const axiosError = error;
-        if (axiosError.response?.status === 400) {
-        } else {
-          enqueueSnackbar(axiosError.response?.data?.message, { variant: 'error' });
-        }
-        }
-      }
-    });
-
-    const updateCertificate = useMutation({
-      mutationFn: projectsServices.updateCertificates,
-      onSuccess: (data) => {
-        data?.message && enqueueSnackbar(data.message, { variant: 'success' });
-        queryClient.invalidateQueries({ queryKey: ['Certificates'] });
-        setOpenDialog(false);
-      },
-      onError: (error) => {
-        if (error instanceof Error && 'response' in error) {
-        const axiosError = error;
-        if (axiosError.response?.status === 400) {
-        } else {
-          enqueueSnackbar(axiosError.response?.data?.message, { variant: 'error' });
-        }
-        }
-      }
-    });
-   
-  const validationSchema = yup.object({
-    remarks: yup
-      .string()
-      .required('Remarks is required')
-      .typeError('Remarks is required'),
-
-    certificate_date: yup
-      .string()
-      .required('Certificate date is required')
-      .typeError('Certificate date is required')
+  const addCertificate = useMutation({
+    mutationFn: projectsServices.addCertificates,
+    onSuccess: (data) => {
+      data?.message && enqueueSnackbar(data.message, { variant: 'success' });
+      queryClient.invalidateQueries({ queryKey: ['Certificates'] });
+      setOpenDialog(false);
+    },
+    onError: (error) => {
+      enqueueSnackbar(error?.response?.data?.message || 'Error saving certificate', { variant: 'error' });
+    }
   });
 
-  const { handleSubmit, setError, setValue, register, clearErrors, formState: { errors }, watch } = useForm(
-    {
-      resolver: yupResolver(validationSchema),
-      defaultValues: {
-        remarks: certificate?.remarks,
-        project_subcontract_id: subContract?.id,
-        certificate_date: certificate?.certificate_date ? dayjs(certificate.certificate_date).toISOString() : dayjs().toISOString(),
-        certified_tasks: certificate?.certified_tasks || items,
-        id: undefined
+  const updateCertificate = useMutation({
+    mutationFn: projectsServices.updateCertificates,
+    onSuccess: (data) => {
+      data?.message && enqueueSnackbar(data.message, { variant: 'success' });
+      queryClient.invalidateQueries({ queryKey: ['Certificates'] });
+      setOpenDialog(false);
+    },
+    onError: (error) => {
+      enqueueSnackbar(error?.response?.data?.message || 'Error updating certificate', { variant: 'error' });
+    }
+  });
+
+  const validationSchema = yup.object({
+    remarks: yup.string().required('Remarks is required'),
+    certificate_date: yup.string().required('Certificate date is required')
+  });
+
+  const {
+    handleSubmit, setError, setValue, register, formState: { errors }, watch
+  } = useForm({
+    resolver: yupResolver(validationSchema),
+    defaultValues: {
+      remarks: certificate?.remarks || '',
+      project_subcontract_id: subContract?.id,
+      certificate_date: certificate?.certificate_date
+        ? dayjs(certificate.certificate_date).toISOString()
+        : dayjs().toISOString(),
+      id: certificate?.id
     }
   });
 
   useEffect(() => {
-      setValue('items', items);
-  }, [items, setValue]);
+    setValue('adjustments', adjustments?.map(adjustment => ({
+      quantity : adjustment.quantity,
+      operator: adjustment.operator,
+      description: adjustment.description,
+    })));
+  }, [adjustments, setValue]);  
+
+  const certificateDate = watch('certificate_date');
 
   const saveCertificate = React.useMemo(() => {
     return certificate ? updateCertificate : addCertificate;
   }, [certificate, updateCertificate, addCertificate]);
 
   const onSubmit = (data) => {
-    if (items.length === 0) {
-      clearErrors("items");
-      setError("items", { type: "manual", message: "You must add at least one item" });
+    if (tasksItems.length === 0) {
+      setError("certified_tasks", { type: "manual", message: "You must add at least one Certified Task" });
       return;
     }
     if (isDirty) {
       setShowWarning(true);
     } else {
-      handleSubmit((data) => handleSubmitForm(data))();
+      handleSubmitForm(data);
     }
-  };
-
-  const handleConfirmSubmitWithoutAdd = async (data) => {
-    handleSubmit((data) => handleSubmitForm(data))();
-    setIsDirty(false);
-    setShowWarning(false);
-    setClearFormKey((prev) => prev + 1);
   };
 
   const handleSubmitForm = async (data) => {
     const updatedData = {
       ...data,
-      certified_tasks: items.map((item) => ({
+      certified_tasks: tasksItems.map((item) => ({
         project_subcontract_task_id: item.project_subcontract_task_id,
         remarks: item.remarks,
         certified_quantity: item.certified_quantity,
+      })),
+      adjustments: adjustments.map((item) => ({
+        description: item.description,
+        type: item.type === '-' ? 'deduction' : 'addition',
+        amount: item.amount,
       })),
     };
     await saveCertificate.mutate(updatedData);
   };
 
-  const CertificateDate = watch('certificate_date')
+  const handleConfirmSubmitWithoutAdd = () => {
+    setIsDirty(false);
+    setShowWarning(false);
+    setClearFormKey(prev => prev + 1);
+    handleSubmit(handleSubmitForm)();
+  };
 
   return (
     <>
-      <DialogTitle textAlign={'center'}>
-        {`New Certificate Form`}
+      <DialogTitle textAlign="center">
+        {certificate ? `Edit Certificate` : 'New Certificate Form'}
       </DialogTitle>
+
       <DialogContent>
-        <form autoComplete='false' onSubmit={handleSubmit(onSubmit)}>
-          <Grid container columnSpacing={1} marginBottom={2}>
-            <Grid size={{xs: 12, md: 4}}>
-              <Div sx={{ mt: 1 }}>
-                <DateTimePicker
-                  label="Certificate Date (MM/DD/YYYY)"
-                  value={dayjs(watch("certificate_date"))}
-                  slotProps={{
-                    textField: {
-                      size: 'small',
-                      fullWidth: true,
-                      InputProps: { readOnly: true },
-                      error: !!errors?.certificate_date,
-                      helperText: errors?.certificate_date?.message
-                    }
-                  }}
-                  onChange={(newValue) => {
-                    setValue(
-                      'certificate_date',
-                      newValue ? newValue.toISOString() : '',
-                      {
-                        shouldValidate: true,
-                        shouldDirty: true
-                      }
-                    );
-                  }}
-                />
-              </Div>
+        <form autoComplete="off" onSubmit={handleSubmit(onSubmit)}>
+          <Grid container columnSpacing={2} mb={3} paddingTop={1}>
+            <Grid size={{ xs: 12, md: 4 }}>
+              <DateTimePicker
+                label="Certificate Date"
+                value={dayjs(watch("certificate_date"))}
+                slotProps={{
+                  textField: {
+                    size: 'small',
+                    fullWidth: true,
+                    InputProps: { readOnly: true },
+                    error: !!errors.certificate_date,
+                    helperText: errors.certificate_date?.message
+                  }
+                }}
+                onChange={(newValue) => {
+                  setValue('certificate_date', newValue?.toISOString() || '', {
+                    shouldValidate: true,
+                    shouldDirty: true
+                  });
+                }}
+              />
             </Grid>
-            <Grid size={{xs: 12, md: 8}}>
-              <Div sx={{mt: 1}}>
-                <TextField
-                  size="small"
-                  label="Remarks"
-                  fullWidth
-                  multiline
-                  rows={2}
-                  {...register('remarks')}
-                  error={!!errors.remarks}
-                  helperText={errors.remarks?.message}
-                />
-              </Div>
+            <Grid size={{ xs: 12, md: 8 }}>
+              <TextField
+                size="small"
+                label="Remarks"
+                fullWidth
+                multiline
+                rows={2}
+                {...register('remarks')}
+                error={!!errors.remarks}
+                helperText={errors.remarks?.message}
+              />
             </Grid>
           </Grid>
 
-          <CertificateItemForm 
-            setClearFormKey={setClearFormKey} 
-            submitMainForm={handleSubmit((data) => saveCertificate.mutate(data))} 
-            submitItemForm={submitItemForm} 
-            setSubmitItemForm={setSubmitItemForm} 
-            key={clearFormKey} 
-            setIsDirty={setIsDirty} 
-            items={items}
-            CertificateDate={CertificateDate} 
-            setItems={setItems} 
-            iscertificate={true}
-          />
+          <Tabs
+            value={activeTab}
+            onChange={(_, newValue) => setActiveTab(newValue)}
+            variant="fullWidth"
+            sx={{
+              borderColor: 'divider'
+            }}
+          >
+            <Tab label="Certified Tasks" />
+            <Tab label="Adjustments" />
+          </Tabs>
 
-          {errors?.items?.message && items.length < 1 && <Alert severity='error'>{errors.items.message}</Alert>}
+          <Box>
+            {activeTab === 0 && (
+              <>
+                <CertifiedTasksItemForm
+                  setClearFormKey={setClearFormKey}
+                  submitMainForm={handleSubmit(() => saveCertificate.mutate(watch()))}
+                  submitItemForm={submitItemForm}
+                  setSubmitItemForm={setSubmitItemForm}
+                  key={clearFormKey}
+                  setIsDirty={setIsDirty}
+                  tasksItems={tasksItems}
+                  CertificateDate={certificateDate}
+                  setTasksItems={setTasksItems}
+                />
 
-          {items.map((item, index) => (
-            <CertificateItemRow 
-              setClearFormKey={setClearFormKey} 
-              submitMainForm={handleSubmit((data) => saveCertificate.mutate(data))} 
-              submitItemForm={submitItemForm} 
-              setSubmitItemForm={setSubmitItemForm} 
-              setIsDirty={setIsDirty} 
-              key={index} 
-              index={index} 
-              item={item} 
-              items={items}
-              CertificateDate={CertificateDate} 
-              setItems={setItems} 
-              iscertificate={true}
-            />
-          ))}
+                {errors?.certified_tasks?.message && tasksItems.length < 1 && (
+                  <Alert severity="error" sx={{ mt: 2 }}>
+                    {errors.certified_tasks.message}
+                  </Alert>
+                )}
+
+                {tasksItems.map((taskItem, index) => (
+                  <CertifiedTasksItemRow
+                    key={index}
+                    index={index}
+                    taskItem={taskItem}
+                    tasksItems={tasksItems}
+                    setTasksItems={setTasksItems}
+                    CertificateDate={certificateDate}
+                    setIsDirty={setIsDirty}
+                    setClearFormKey={setClearFormKey}
+                    submitItemForm={submitItemForm}
+                    setSubmitItemForm={setSubmitItemForm}
+                    submitMainForm={handleSubmit(() => saveCertificate.mutate(watch()))}
+                  />
+                ))}
+              </>
+            )}
+
+            {activeTab === 1 && (
+              <>
+                <CertifiedAdjustments
+                  setClearFormKey={setClearFormKey}
+                  submitMainForm={handleSubmit(() => saveCertificate.mutate(watch()))}
+                  submitItemForm={submitItemForm}
+                  setSubmitItemForm={setSubmitItemForm}
+                  key={clearFormKey}
+                  setIsDirty={setIsDirty}
+                  adjustments={adjustments}
+                  setAdjustments={setAdjustments}
+                />
+                
+                {adjustments.map((adjustment, index) => (
+                  <CertifiedAdjustmentsRow
+                    key={index}
+                    index={index}
+                    adjustment={adjustment}
+                    adjustments={adjustments}
+                    setAdjustments={setAdjustments}
+                    setIsDirty={setIsDirty}
+                    setClearFormKey={setClearFormKey}
+                    submitItemForm={submitItemForm}
+                    setSubmitItemForm={setSubmitItemForm}
+                    submitMainForm={handleSubmit(() => saveCertificate.mutate(watch()))}
+                  />
+                ))}
+              </>
+            )}
+          </Box>
         </form>
 
         <Dialog open={showWarning} onClose={() => setShowWarning(false)}>
-          <DialogTitle>            
+          <DialogTitle>
             <Grid container alignItems="center" justifyContent="space-between">
-              <Grid size={11}>
-                Unsaved Changes
-              </Grid>
+              <Grid size={11}>Unsaved Changes</Grid>
               <Grid size={1} textAlign="right">
                 <Tooltip title="Close">
-                  <IconButton
-                    size="small" 
-                    onClick={() => setShowWarning(false)}
-                  >
+                  <IconButton size="small" onClick={() => setShowWarning(false)}>
                     <HighlightOff color="primary" />
                   </IconButton>
                 </Tooltip>
               </Grid>
             </Grid>
           </DialogTitle>
-          <DialogContent>
-            Last item was not added to the list
-          </DialogContent>
+          <DialogContent>Last item was not added to the list</DialogContent>
           <DialogActions>
             <Button size="small" onClick={() => { setSubmitItemForm(true); setShowWarning(false); }}>
               Add and Submit
             </Button>
-            <Button size="small" onClick={() => handleConfirmSubmitWithoutAdd(watch())} color="secondary">
+            <Button size="small" onClick={handleConfirmSubmitWithoutAdd} color="secondary">
               Submit without add
             </Button>
           </DialogActions>
         </Dialog>
       </DialogContent>
+
       <DialogActions>
-        <Button size='small' onClick={() => setOpenDialog(false)}>
+        <Button size="small" onClick={() => setOpenDialog(false)}>
           Cancel
         </Button>
-        <LoadingButton
-          type='submit'
-          loading={addCertificate.isPending || updateCertificate.isPending}
-          size="small"
-          variant='contained'
-          onClick={handleSubmit(onSubmit)}
-        >
-          Submit
-        </LoadingButton>
+
+        <Box display="flex" gap={1}>
+          {activeTab === 1 &&
+            <Button
+              size="small"
+              variant='outlined'
+              onClick={() => setActiveTab((t) => t - 1)}
+            >
+              Prev
+            </Button>
+          }
+
+          {activeTab < 1 ? (
+            <Button
+              size="small"
+              variant="outlined"
+              onClick={() => setActiveTab((t) => t + 1)}
+            >
+              Next
+            </Button>
+          ) : (
+            <LoadingButton
+              loading={addCertificate.isPending || updateCertificate.isPending}
+              size="small"
+              variant="contained"
+              color="primary"
+              onClick={handleSubmit(onSubmit)}
+            >
+              {certificate ? "Update" : "Submit"}
+            </LoadingButton>
+          )}
+        </Box>
       </DialogActions>
     </>
   );

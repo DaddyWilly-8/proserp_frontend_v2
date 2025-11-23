@@ -52,6 +52,11 @@ projectsServices.getSubContractDetails = async (id) => {
     return data;
 }
 
+projectsServices.getCertificateDetails = async (id) => {
+    const {data} = await axios.get(`/api/projectManagement/project/${id}/getCertificateDetails`);
+    return data;
+}
+
 projectsServices.detachUsers = async (costCenterId, payload) => {
     const { data } = await axios.put(
         `/api/accountsAndFinance/cost-centers/${costCenterId}/detach-users`,
@@ -353,6 +358,13 @@ projectsServices.deleteSubContractTask = async (id) => {
 projectsServices.deleteSubContract = async (id) => {
     return await axios.get('/sanctum/csrf-cookie').then(async (response) => {
         const {data} = await axios.delete(`/api/projectManagement/project/${id}/deleteSubContract`);
+        return data;
+    })
+};
+
+projectsServices.deleteCertificate = async (id) => {
+    return await axios.get('/sanctum/csrf-cookie').then(async (response) => {
+        const {data} = await axios.delete(`/api/projectManagement/project/${id}/deleteCertificate`);
         return data;
     })
 };

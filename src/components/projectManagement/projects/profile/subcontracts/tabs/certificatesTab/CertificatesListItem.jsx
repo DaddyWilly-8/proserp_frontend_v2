@@ -1,6 +1,7 @@
 import { readableDate } from '@/app/helpers/input-sanitization-helpers'
 import { Grid, ListItemText, Tooltip, Typography } from '@mui/material'
 import React from 'react'
+import CertificateItemAction from './CertificateItemAction'
 
 function CertificatesListItem({certificate}) {
     return (
@@ -57,9 +58,9 @@ function CertificatesListItem({certificate}) {
                     </Typography>
                 </Tooltip>
             </Grid>
-            {/* <Grid size={{xs: 6, md: 1, lg: 0.5}} textAlign="end">
-                <certificateItemAction certificate={certificate} />
-            </Grid> */}
+            <Grid size={{xs: 6, md: 1, lg: 0.5}} textAlign="end">
+                <CertificateItemAction certificate={certificate} />
+            </Grid>
         </Grid>
     )
 }
