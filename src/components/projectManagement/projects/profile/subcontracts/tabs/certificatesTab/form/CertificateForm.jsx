@@ -130,7 +130,7 @@ const CertificateForm = ({ setOpenDialog, certificate, subContract }) => {
 
       <DialogContent>
         <form autoComplete="off" onSubmit={handleSubmit(onSubmit)}>
-          <Grid container columnSpacing={2} mb={3} paddingTop={1}>
+          <Grid container spacing={1} mb={3} paddingTop={1}>
             <Grid size={{ xs: 12, md: 4 }}>
               <DateTimePicker
                 label="Certificate Date"
