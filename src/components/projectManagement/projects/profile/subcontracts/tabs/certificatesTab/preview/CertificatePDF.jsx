@@ -30,7 +30,7 @@ function CertificatePDF({certificate, organization}) {
     <Document 
         title={`${certificate.certificateNo}`}
         author={`${certificate.creator?.name}`}
-        subject='Subcontract Material Used'
+        subject='Certificate'
         creator='ProsERP'
         producer='ProsERP'
     >
