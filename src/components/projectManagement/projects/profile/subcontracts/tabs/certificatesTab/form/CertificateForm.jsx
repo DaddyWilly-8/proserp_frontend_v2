@@ -1,7 +1,8 @@
 import { LoadingButton } from '@mui/lab';
 import {
   Alert, Button, Dialog, DialogActions, DialogContent, DialogTitle,
-  Grid, IconButton, TextField, Tooltip, Typography, Box, Tabs, Tab, Paper
+  Grid, IconButton, TextField, Tooltip, Typography, Box, Tabs, Tab, Paper,
+  Divider
 } from '@mui/material';
 import { DateTimePicker } from '@mui/x-date-pickers';
 import dayjs from 'dayjs';
@@ -177,6 +178,8 @@ const CertificateForm = ({ setOpenDialog, certificate, subContract }) => {
             <Tab label="Certified Tasks" />
             <Tab label="Adjustments" />
           </Tabs>
+
+          <Divider/>
 
           <Box>
             {activeTab === 0 && (
