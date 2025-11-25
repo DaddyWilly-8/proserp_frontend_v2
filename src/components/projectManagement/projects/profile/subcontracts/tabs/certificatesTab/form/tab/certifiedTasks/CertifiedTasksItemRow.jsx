@@ -13,7 +13,9 @@ const CertifiedTasksItemRow= ({
   index,
   tasksItems = [],
   CertificateDate,
-  setTasksItems
+  setTasksItems,
+  subContract,
+  certificate
 }) => {
   const [showForm, setShowForm] = useState(false);
 
@@ -77,6 +79,8 @@ const CertifiedTasksItemRow= ({
           taskItem={taskItem}
           setShowForm={setShowForm}
           index={index}
+          subContract={subContract}
+          certificate={certificate}
           tasksItems={tasksItems}
           CertificateDate={CertificateDate}
           setTasksItems={setTasksItems}

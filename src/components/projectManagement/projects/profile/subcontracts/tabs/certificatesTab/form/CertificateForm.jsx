@@ -64,7 +64,7 @@ const CertificateForm = ({ setOpenDialog, certificate, subContract }) => {
     resolver: yupResolver(validationSchema),
     defaultValues: {
       remarks: certificate?.remarks || '',
-      project_subcontract_id: subContract?.id,
+      project_subcontract_id: certificate ? certificate.project_subcontract_id : subContract?.id,
       certificate_date: certificate?.certificate_date
         ? dayjs(certificate.certificate_date).toISOString()
         : dayjs().toISOString(),
@@ -189,6 +189,8 @@ const CertificateForm = ({ setOpenDialog, certificate, subContract }) => {
                   key={clearFormKey}
                   setIsDirty={setIsDirty}
                   tasksItems={tasksItems}
+                  subContract={subContract}
+                  certificate={certificate}
                   CertificateDate={certificateDate}
                   setTasksItems={setTasksItems}
                 />
@@ -202,6 +204,8 @@ const CertificateForm = ({ setOpenDialog, certificate, subContract }) => {
                     setTasksItems={setTasksItems}
                     CertificateDate={certificateDate}
                     setIsDirty={setIsDirty}
+                    subContract={subContract}
+                    certificate={certificate}
                     setClearFormKey={setClearFormKey}
                     submitItemForm={submitItemForm}
                     setSubmitItemForm={setSubmitItemForm}

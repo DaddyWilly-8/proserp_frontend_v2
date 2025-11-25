@@ -7,10 +7,11 @@ import * as yup from 'yup';
 import dayjs from 'dayjs'
 import { yupResolver } from '@hookform/resolvers/yup';
 import { Div } from '@jumbo/shared';
-import { useProjectProfile } from '../../../../../../ProjectProfileProvider';
 import { sanitizedNumber } from '@/app/helpers/input-sanitization-helpers';
 import CommaSeparatedField from '@/shared/Inputs/CommaSeparatedField';
 import projectsServices from '@/components/projectManagement/projects/project-services';
+import { useProjectProfile } from '@/components/projectManagement/projects/profile/ProjectProfileProvider';
+import { useQuery } from '@tanstack/react-query';
 
 const CertifiedTasksItemForm= ({
   setClearFormKey,
@@ -23,7 +24,9 @@ const CertifiedTasksItemForm= ({
   taskItem,
   tasksItems = [],
   CertificateDate,
-  setTasksItems
+  setTasksItems, 
+  subContract,
+  certificate
 }) => {
     const { deliverable_groups, setFetchDeliverables, projectTimelineActivities, setFetchTimelineActivities} = useProjectProfile();
     const [isAdding, setIsAdding] = useState(false);
@@ -50,7 +53,6 @@ const CertifiedTasksItemForm= ({
             .number()
             .required("Project Task is required")
             .typeError("Project Task is required"),
-
         certified_quantity: yup
             .number()
             .required("Quantity is required")
@@ -91,7 +93,6 @@ const CertifiedTasksItemForm= ({
         resolver: yupResolver(validationSchema),
         defaultValues: {
             id: taskItem?.id,
-            project_subcontract_id: taskItem ? taskItem.project_subcontract_id : taskItem?.id,
             project_subcontract_task_id: taskItem?.project_subcontract_task_id,
             certified_quantity: taskItem?.certified_quantity,
             remarks: taskItem?.remarks,
@@ -141,35 +142,6 @@ const CertifiedTasksItemForm= ({
         setIsRetrievingDetails(false);
     }
 
-    const getTaskOptions = (activities, depth = 0) => {
-        if (!Array.isArray(activities)) {
-            return [];
-        }
-    
-        return activities.flatMap(activity => {
-            const { children, tasks } = activity;
-        
-            const tasksOptions = (tasks || []).map(task => ({
-                id: task.id,
-                name: task.name,
-                handlers: task.handlers,
-                dependencies: task.dependencies,
-                quantity: task.quantity,
-                measurement_unit: task.measurement_unit,
-                start_date: dayjs(task.start_date).format('YYYY-MM-DD'),
-                end_date: dayjs(task.end_date).format('YYYY-MM-DD'),
-                weighted_percentage: task.weighted_percentage,
-                project_deliverable_id: task.project_deliverable_id
-            }));
-    
-            const tasksFromgroupChildren = getTaskOptions(children, depth + 1);
-        
-            return [...tasksOptions, ...tasksFromgroupChildren];
-        });
-    };
-
-    const allTasks = getTaskOptions(projectTimelineActivities);
-
     useEffect(() => {
         if (submitItemForm) {
             handleSubmit(updateItems, () => {
@@ -177,6 +149,11 @@ const CertifiedTasksItemForm= ({
             })();
         }
     }, [submitItemForm]);
+
+    const { data: subContractTasks, isLoading } = useQuery({
+        queryKey: ['subContractTasks', { id: certificate ? certificate.project_subcontract_id : subContract?.id }],
+        queryFn: async () => projectsServices.getSubContractTasks(certificate ? certificate.project_subcontract_id : subContract?.id),
+    });
 
     if (isAdding) {
         return <LinearProgress />;
@@ -186,47 +163,51 @@ const CertifiedTasksItemForm= ({
     <Grid container spacing={1} marginTop={0.5}>
         <Grid size={{xs: 12, md: 8}}>
             <Div sx={{ mt: 1 }}>
-                <Autocomplete
-                    options={allTasks}
-                    isOptionEqualToValue={(option, value) => option.id === value.id}
-                    getOptionLabel={(option) => option.name}
-                    defaultValue={taskItem?.task}
-                    renderInput={(params) => (
-                        <TextField
-                            {...params}
-                            label="Project Task"
-                            size="small"
-                            fullWidth
-                            error={!!errors?.project_subcontract_task_id}
-                            helperText={errors?.project_subcontract_task_id?.message}
-                        />
-                    )}
-                    onChange={(e, newValue) => {
-                        if (!!newValue) {
-                        setUnitToDisplay(newValue.measurement_unit?.symbol)
-                        setValue('task', newValue)
-                        setValue('project_subcontract_task_id', newValue?.id, {
-                            shouldValidate: true,
-                            shouldDirty: true,
-                        });
+                {   isLoading ? 
+                    <LinearProgress/>
+                    :
+                    <Autocomplete
+                        options={subContractTasks || []}
+                        loading={isLoading}
+                        isOptionEqualToValue={(option, value) => option.id === value?.id}
+                        getOptionLabel={(option) => option.project_task?.name || option.name}
+                        defaultValue={taskItem?.task || null}
+                        onChange={(e, newValue) => {
+                            if (newValue) {
+                                setUnitToDisplay(newValue.measurement_unit?.symbol);
+                                setValue("task", newValue?.project_task);
+                                setValue("project_subcontract_task_id", newValue.project_task_id, {
+                                    shouldValidate: true,
+                                    shouldDirty: true,
+                                });
 
-                        retrieveTaskDetails(newValue.id);
-                        } else {
-                        setUnitToDisplay(null)
-                        setValue('task', null)
-                        setValue('unit_symbol', null)
-                        setValue('project_subcontract_task_id', null, {
-                            shouldValidate: true,
-                            shouldDirty: true,
-                        });
-                        }
-                    }}
-                    renderOption={(props, option) => (
-                        <li {...props} key={option.id}>
-                            {option.name}
-                        </li>
-                    )}
-                />
+                                retrieveTaskDetails(newValue.project_task_id);
+                            } else {
+                                setUnitToDisplay(null);
+                                setValue("task", null);
+                                setValue("project_subcontract_task_id", null, {
+                                    shouldValidate: true,
+                                    shouldDirty: true,
+                                });
+                            }
+                        }}
+                        renderOption={(props, option) => (
+                            <li {...props} key={option.id}>
+                                {option.project_task?.name}
+                            </li>
+                        )}
+                        renderInput={(params) => (
+                            <TextField
+                                {...params}
+                                label="Project Task"
+                                size="small"
+                                fullWidth
+                                error={!!errors?.project_subcontract_task_id}
+                                helperText={errors?.project_subcontract_task_id?.message}
+                            />
+                        )}
+                    />
+                }
             </Div>
         </Grid>
 
