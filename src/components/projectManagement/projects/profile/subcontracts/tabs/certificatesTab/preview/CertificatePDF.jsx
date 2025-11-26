@@ -18,7 +18,7 @@ function CertificatePDF({certificate, organization}) {
 
   const adjustmentItems = (certificate.adjustments || []).map(adj => ({
     id: adj.id,
-    particular: adj.description + (adj.type === 'deduction' ? ' (Deduction)' : ' (Addition)'),
+    particular: adj.description,
     amount: adj.type === 'deduction' ? -adj.amount : adj.amount,
   }));
 

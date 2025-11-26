@@ -13,6 +13,11 @@ import { Div } from '@jumbo/shared';
 function CertifiedAdjustments({  setClearFormKey, submitMainForm, submitItemForm, setSubmitItemForm, setIsDirty, index = -1, setShowForm = null, adjustment, adjustments, setAdjustments}) {
   const [isAdding, setIsAdding] = useState(false);
 
+  const normalizeType = (type) => {
+    if (!type) return '-';
+    return type === 'addition' || type === '+' ? '+' : '-';
+  };
+
   // Define validation Schema
   const validationSchema = yup.object({
     type: yup.string().required("Type is required").typeError('Type is required'),
@@ -25,7 +30,7 @@ function CertifiedAdjustments({  setClearFormKey, submitMainForm, submitItemForm
     defaultValues: {
       amount: adjustment && adjustment.amount, 
       description: adjustment && adjustment.description,
-      type: adjustment && adjustment.type,
+      type: normalizeType(adjustment?.type),
       type_name: adjustment && adjustment.type_name
     }
   });
@@ -65,7 +70,7 @@ function CertifiedAdjustments({  setClearFormKey, submitMainForm, submitItemForm
           <OperationSelector
             label='Type'
             frontError={errors?.type}
-            defaultValue={adjustment && adjustment.type }
+            defaultValue={adjustment && normalizeType(adjustment?.type)}
             onChange={(newValue) => {
               setValue(`type_name`, newValue.label);
               setValue(`type`, newValue ? newValue.value : '', {
