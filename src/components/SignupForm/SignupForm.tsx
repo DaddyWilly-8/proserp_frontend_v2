@@ -15,7 +15,6 @@ import {
   Link,
   Stack,
   Typography,
-  useMediaQuery,
   Box,
 } from '@mui/material';
 import LoadingButton from '@mui/lab/LoadingButton';
@@ -31,7 +30,6 @@ const SignupForm = () => {
   const { enqueueSnackbar } = useSnackbar();
   const { stopAuthLoading, signUp } = useJumboAuth();
   const { theme } = useJumboTheme();
-  const smallScreen = useMediaQuery(theme.breakpoints.down('md'));
   const router = useRouter();
   const lang = useLanguage();
 
@@ -82,7 +80,7 @@ const SignupForm = () => {
         <CardContent
           sx={{
             flex: 0.45,
-            background: '#fafbff',
+            background: 'white',
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'center',
@@ -122,7 +120,7 @@ const SignupForm = () => {
             mb={4}
             color="text.secondary"
           >
-            Join us today and experience simplified management
+            Join us today
           </Typography>
 
           <JumboForm validationSchema={validationSchema} onSubmit={onSubmit}>
