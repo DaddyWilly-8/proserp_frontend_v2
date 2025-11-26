@@ -50,7 +50,7 @@ const DocumentDialog = ({ open, onClose, certificateId, organization }) => {
   );
 
   return (
-    <Dialog open={open} onClose={onClose} fullScreen={belowLargeScreen} maxWidth="md" fullWidth>
+    <Dialog open={open} onClose={onClose} fullScreen={belowLargeScreen} maxWidth="lg" fullWidth>
       <DialogContent>
         {belowLargeScreen && (
           <Grid container alignItems="center" justifyContent="space-between" mb={2}>

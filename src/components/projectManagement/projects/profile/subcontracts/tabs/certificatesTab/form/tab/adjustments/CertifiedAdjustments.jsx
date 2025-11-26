@@ -18,7 +18,6 @@ function CertifiedAdjustments({  setClearFormKey, submitMainForm, submitItemForm
     return type === 'addition' || type === '+' ? '+' : '-';
   };
 
-  // Define validation Schema
   const validationSchema = yup.object({
     type: yup.string().required("Type is required").typeError('Type is required'),
     description: yup.string().required("Description is required").typeError('Description is required'),
