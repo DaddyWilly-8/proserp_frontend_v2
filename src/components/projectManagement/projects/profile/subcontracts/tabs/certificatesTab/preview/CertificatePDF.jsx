@@ -185,7 +185,7 @@ function CertificatePDF({ certificate, organization }) {
                 {/* GRAND TOTAL - STILL BOLD & VISIBLE */}
                 <View style={{ ...pdfStyles.tableRow, marginTop: 12 }}>
                   <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 5.9, textAlign: 'right', fontSize: 7 }}>
-                    GRAND TOTAL {currencyCode}
+                    GRAND TOTAL ({currencyCode})
                   </Text>
                   <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 1, textAlign: 'right', fontSize: 7 }}>
                     {totals.contractAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
