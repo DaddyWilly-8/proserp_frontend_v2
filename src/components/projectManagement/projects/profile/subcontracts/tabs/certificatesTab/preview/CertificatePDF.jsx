@@ -12,16 +12,46 @@ function CertificatePDF({ certificate, organization }) {
   const currencyCode = certificate.currency?.code || 'TZS';
 
   // Summary Items
-  const grossItem = { id: 'gross', particular: 'Gross Amount Certified', amount: certificate.amount };
+  const grossItem = {
+    id: 'gross',
+    particular: 'Gross Amount Certified',
+    amount: certificate.amount
+  };
+
+  // build adjustments so action (Add / Less) is separate from description
   const adjustmentItems = (certificate.adjustments || []).map((adj) => ({
     id: adj.id,
-    particular: adj.description,
+    // particular is an object when we need to style the action word
+    particular: {
+      action: adj.type === 'deduction' ? 'Less' : 'Add',
+      text: adj.description
+    },
     amount: adj.type === 'deduction' ? -adj.amount : adj.amount,
   }));
-  const summaryItems = [grossItem, ...adjustmentItems];
+
+  // VAT
+  const vatAmount = certificate.vat_percentage
+    ? (certificate.amount * certificate.vat_percentage) / 100
+    : 0;
+
+  const vatItem = certificate.vat_percentage
+    ? {
+        id: 'vat',
+        particular: {
+          action: 'Add',
+          text: `${certificate.vat_percentage}% VAT`
+        },
+        amount: vatAmount
+      }
+    : null;
+
+  const summaryItems = vatItem
+    ? [grossItem, ...adjustmentItems, vatItem]
+    : [grossItem, ...adjustmentItems];
+
   const grandTotal = summaryItems.reduce((sum, item) => sum + Number(item.amount), 0);
 
-  // Transform certified items
+  // Transform certified items (unchanged)
   const transformCertifiedItems = (certificate) => {
     return certificate.items.map((it) => {
       const previousQty = it.previous_certified_quantity || 0;
@@ -76,7 +106,7 @@ function CertificatePDF({ certificate, organization }) {
           )}
         </View>
 
-        {/* ==================== SUMMARY SECTION ==================== */}
+        {/* SUMMARY */}
         <View style={{ marginBottom: 30, alignItems: 'flex-end' }}>
           <Text style={{ fontSize: 12, color: mainColor, marginBottom: 8, marginLeft: 40 }}>
             Summary
@@ -93,7 +123,21 @@ function CertificatePDF({ certificate, organization }) {
               {summaryItems.map((item, index) => (
                 <View key={item.id} style={pdfStyles.tableRow}>
                   <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFF' : lightColor, flex: 0.4 }}>{index + 1}.</Text>
-                  <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFF' : lightColor, flex: 2.6 }}>{item.particular}</Text>
+
+                  {/* Render particular: handle object (action + text) or plain string */}
+                  <View style={{ flex: 2.6 }}>
+                    {typeof item.particular === 'string' ? (
+                      <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFF' : lightColor }}>
+                        {item.particular}
+                      </Text>
+                    ) : (
+                      <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFF' : lightColor }}>
+                        <Text style={{ fontStyle: 'italic' }}>{item.particular.action}</Text>
+                        <Text> {item.particular.text}</Text>
+                      </Text>
+                    )}
+                  </View>
+
                   <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFF' : lightColor, flex: 1, textAlign: 'right', fontSize: 7.5 }}>
                     {Number(item.amount).toLocaleString(undefined, { minimumFractionDigits: 2 })}
                   </Text>
@@ -121,7 +165,7 @@ function CertificatePDF({ certificate, organization }) {
           </View>
         </View>
 
-        {/* ==================== CERTIFIED ITEMS WITH SMALLER AMOUNT FONT ==================== */}
+        {/* CERTIFIED ITEMS (unchanged rendering) */}
         <View style={{ marginTop: 20 }}>
           <Text style={{ fontSize: 12, color: mainColor, textAlign: 'center', marginBottom: 10 }}>
             Certified Items
@@ -164,7 +208,7 @@ function CertificatePDF({ certificate, organization }) {
                   <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 1.2 }}>Cumulative</Text>
                 </View>
 
-                {/* Body Rows - ALL AMOUNTS NOW SMALLER */}
+                {/* Body Rows */}
                 {certifiedItems.map((item, index) => (
                   <View key={item.id} style={pdfStyles.tableRow}>
                     <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFF' : lightColor, flex: 0.5 }}>{index + 1}.</Text>
@@ -182,7 +226,7 @@ function CertificatePDF({ certificate, organization }) {
                   </View>
                 ))}
 
-                {/* GRAND TOTAL - STILL BOLD & VISIBLE */}
+                {/* GRAND TOTAL */}
                 <View style={{ ...pdfStyles.tableRow, marginTop: 12 }}>
                   <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 5.9, textAlign: 'right', fontSize: 7 }}>
                     GRAND TOTAL ({currencyCode})

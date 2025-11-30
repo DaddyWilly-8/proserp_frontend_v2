@@ -16,23 +16,34 @@ import {
 
 function CertificateOnScreen({ certificate, organization }) {
   const theme = useTheme();
-  const mainColor = organization?.settings?.main_color || "#2113AD";
-  const headerColor = theme.type === 'dark' ? '#29f096' : (organization?.settings?.main_color || "#2113AD");
-  const contrastText = organization?.settings?.contrast_text || "#FFFFFF";
+  const mainColor = organization?.settings?.main_color || '#2113AD';
+  const headerColor = theme.palette.mode === 'dark' ? '#29f096' : mainColor;
+  const contrastText = organization?.settings?.contrast_text || '#FFFFFF';
   const currencyCode = certificate.currency?.code || 'TZS';
 
   // Summary Items
   const grossItem = { id: 'gross', particular: 'Gross Amount Certified', amount: certificate.amount };
   const adjustmentItems = (certificate.adjustments || []).map((adj) => ({
     id: adj.id,
-    particular: adj.description,
+    particular: { action: adj.type === 'deduction' ? 'Less' : 'Add', text: adj.description },
     amount: adj.type === 'deduction' ? -adj.amount : adj.amount,
   }));
-  const summaryItems = [grossItem, ...adjustmentItems];
+
+  // VAT
+  const vatAmount = certificate.vat_percentage ? (certificate.amount * certificate.vat_percentage) / 100 : 0;
+  const vatItem = certificate.vat_percentage
+    ? {
+        id: 'vat',
+        particular: { action: 'Add', text: `${certificate.vat_percentage}% VAT` },
+        amount: vatAmount,
+      }
+    : null;
+
+  const summaryItems = vatItem ? [grossItem, ...adjustmentItems, vatItem] : [grossItem, ...adjustmentItems];
   const grandTotal = summaryItems.reduce((sum, item) => sum + Number(item.amount), 0);
 
-  // Certified Items with calculations
-  const certifiedItems = certificate.items ?.map((it) => {
+  // Certified Items
+  const certifiedItems = certificate.items?.map((it) => {
     const previousQty = it.previous_certified_quantity || 0;
     const presentQty = it.certified_quantity || 0;
     const cumulativeQty = previousQty + presentQty;
@@ -54,6 +65,7 @@ function CertificateOnScreen({ certificate, organization }) {
     };
   }) || [];
 
+  // Format helpers
   const formatCurrency = (v) => Number(v || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   const formatQty = (v) => Number(v || 0).toLocaleString('en-US', { maximumFractionDigits: 4 });
 
@@ -80,23 +92,45 @@ function CertificateOnScreen({ certificate, organization }) {
       </Grid>
 
       {/* Payment Summary */}
-      <Grid size={{ xs: 12 }}>
-        <Typography variant="h6" sx={{ color: headerColor, mb: 2, textAlign: 'center' }}>Payment Summary</Typography>
+      <Grid size={{ xs: 12, md: 7 }} ml="auto">
+        <Typography variant="h6" sx={{ color: headerColor, mb: 2, textAlign: 'center' }}>
+          Payment Summary
+        </Typography>
         <TableContainer component={Paper} elevation={4}>
           <Table size="small">
             <TableHead>
               <TableRow sx={{ backgroundColor: mainColor }}>
-                <TableCell sx={{ color: contrastText }}>S/N</TableCell>
-                <TableCell sx={{ color: contrastText }}>Particulars</TableCell>
-                <TableCell sx={{ color: contrastText }} align="right">Amount ({currencyCode})</TableCell>
+                <TableCell sx={{ color: contrastText, fontSize: '0.9rem' }}>S/N</TableCell>
+                <TableCell sx={{ color: contrastText, fontSize: '0.9rem' }}>Particulars</TableCell>
+                <TableCell sx={{ color: contrastText, fontSize: '0.9rem' }} align="right">
+                  Amount ({currencyCode})
+                </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {summaryItems.map((item, i) => (
                 <TableRow key={item.id} sx={zebraRowSx}>
                   <TableCell>{i + 1}.</TableCell>
-                  <TableCell>{item.particular}</TableCell>
-                  <TableCell align="right" sx={{ fontFamily: 'monospace', color: item.amount < 0 ? '#ff4444' : 'inherit' }}>
+                  <TableCell>
+                    {typeof item.particular === 'string' ? (
+                      item.particular
+                    ) : (
+                      <>
+                        <Typography component="span" sx={{ fontStyle: 'italic', mr: 1 }}>
+                          {item.particular.action}
+                        </Typography>
+                        {item.particular.text}
+                      </>
+                    )}
+                  </TableCell>
+                  <TableCell
+                    align="right"
+                    sx={{
+                      fontFamily: 'monospace',
+                      color: item.amount < 0 ? '#ff4444' : 'inherit',
+                      fontWeight: item.amount < 0 || item.id === 'vat' ? 'bold' : 'normal',
+                    }}
+                  >
                     {formatCurrency(item.amount)}
                   </TableCell>
                 </TableRow>
@@ -105,7 +139,10 @@ function CertificateOnScreen({ certificate, organization }) {
                 <TableCell colSpan={2} align="center" sx={{ backgroundColor: mainColor, color: contrastText }}>
                   GRAND TOTAL ({currencyCode})
                 </TableCell>
-                <TableCell align="right" sx={{ backgroundColor: mainColor, color: contrastText, fontFamily: 'monospace' }}>
+                <TableCell
+                  align="right"
+                  sx={{ backgroundColor: mainColor, color: contrastText, fontFamily: 'monospace' }}
+                >
                   {formatCurrency(grandTotal)}
                 </TableCell>
               </TableRow>
@@ -114,7 +151,7 @@ function CertificateOnScreen({ certificate, organization }) {
         </TableContainer>
       </Grid>
 
-      {/* Certified Items - EXACTLY LIKE PDF */}
+      {/* Certified Items */}
       <Grid size={12} mt={5}>
         <Typography variant="h5" sx={{ color: headerColor, textAlign: 'center', mb: 3 }}>
           Certified Items
@@ -126,25 +163,49 @@ function CertificateOnScreen({ certificate, organization }) {
             <TableHead>
               <TableRow sx={{ backgroundColor: mainColor }}>
                 <TableCell colSpan={4} sx={{ color: contrastText, textAlign: 'center' }}></TableCell>
-                <TableCell colSpan={2} sx={{ color: contrastText, textAlign: 'center' }}>Price Schedule</TableCell>
-                <TableCell colSpan={3} sx={{ color: contrastText, textAlign: 'center' }}>Quantity</TableCell>
-                <TableCell colSpan={3} sx={{ color: contrastText, textAlign: 'center' }}>Amount ({currencyCode})</TableCell>
+                <TableCell colSpan={2} sx={{ color: contrastText, textAlign: 'center' }}>
+                  Price Schedule
+                </TableCell>
+                <TableCell colSpan={3} sx={{ color: contrastText, textAlign: 'center' }}>
+                  Quantity
+                </TableCell>
+                <TableCell colSpan={3} sx={{ color: contrastText, textAlign: 'center' }}>
+                  Amount ({currencyCode})
+                </TableCell>
               </TableRow>
 
               {/* SUB HEADER */}
               <TableRow sx={{ backgroundColor: mainColor + 'e0' }}>
-                <TableCell sx={{ color: contrastText }}>S/N</TableCell>
-                <TableCell sx={{ color: contrastText }}>Description</TableCell>
-                <TableCell sx={{ color: contrastText }}>Unit</TableCell>
-                <TableCell sx={{ color: contrastText }} align="right">Qty</TableCell>
-                <TableCell sx={{ color: contrastText }} align="right">Unit Rate</TableCell>
-                <TableCell sx={{ color: contrastText }} align="right">Amount</TableCell>
-                <TableCell sx={{ color: contrastText }} align="right">Previous</TableCell>
-                <TableCell sx={{ color: contrastText }} align="right">Present</TableCell>
-                <TableCell sx={{ color: contrastText }} align="right">Cumulative</TableCell>
-                <TableCell sx={{ color: contrastText }} align="right">Previous</TableCell>
-                <TableCell sx={{ color: contrastText }} align="right">Present</TableCell>
-                <TableCell sx={{ color: contrastText }} align="right">Cumulative</TableCell>
+                <TableCell sx={{ color: contrastText, fontSize: '0.8rem' }}>S/N</TableCell>
+                <TableCell sx={{ color: contrastText, fontSize: '0.8rem' }}>Description</TableCell>
+                <TableCell sx={{ color: contrastText, fontSize: '0.8rem' }}>Unit</TableCell>
+                <TableCell sx={{ color: contrastText, fontSize: '0.8rem' }} align="right">
+                  Qty
+                </TableCell>
+                <TableCell sx={{ color: contrastText, fontSize: '0.8rem' }} align="right">
+                  Unit Rate
+                </TableCell>
+                <TableCell sx={{ color: contrastText, fontSize: '0.8rem' }} align="right">
+                  Amount
+                </TableCell>
+                <TableCell sx={{ color: contrastText, fontSize: '0.8rem' }} align="right">
+                  Previous
+                </TableCell>
+                <TableCell sx={{ color: contrastText, fontSize: '0.8rem' }} align="right">
+                  Present
+                </TableCell>
+                <TableCell sx={{ color: contrastText, fontSize: '0.8rem' }} align="right">
+                  Cumulative
+                </TableCell>
+                <TableCell sx={{ color: contrastText, fontSize: '0.8rem' }} align="right">
+                  Previous
+                </TableCell>
+                <TableCell sx={{ color: contrastText, fontSize: '0.8rem' }} align="right">
+                  Present
+                </TableCell>
+                <TableCell sx={{ color: contrastText, fontSize: '0.8rem' }} align="right">
+                  Cumulative
+                </TableCell>
               </TableRow>
             </TableHead>
 
@@ -155,24 +216,24 @@ function CertificateOnScreen({ certificate, organization }) {
                   <TableCell>{item.description}</TableCell>
                   <TableCell align="center">{item.unit}</TableCell>
                   <TableCell align="right">{formatQty(item.contractQty)}</TableCell>
-                  <TableCell align="right" sx={{ fontFamily: 'monospace' }}>
+                  <TableCell align="right" sx={{ fontFamily: 'monospace', fontSize: '0.9rem' }}>
                     {formatCurrency(item.unitRate)}
                   </TableCell>
-                  <TableCell align="right" sx={{ fontFamily: 'monospace' }}>
+                  <TableCell align="right" sx={{ fontFamily: 'monospace', fontSize: '0.9rem' }}>
                     {formatCurrency(item.contractAmount)}
                   </TableCell>
                   <TableCell align="right">{formatQty(item.previousQty)}</TableCell>
-                  <TableCell align="right">
+                  <TableCell align="right" sx={{ color: headerColor }}>
                     {formatQty(item.presentQty)}
                   </TableCell>
                   <TableCell align="right">{formatQty(item.cumulativeQty)}</TableCell>
-                  <TableCell align="right" sx={{ fontFamily: 'monospace' }}>
+                  <TableCell align="right" sx={{ fontFamily: 'monospace', fontSize: '0.9rem' }}>
                     {formatCurrency(item.previousAmount)}
                   </TableCell>
-                  <TableCell align="right" sx={{ fontFamily: 'monospace' }}>
+                  <TableCell align="right" sx={{ color: headerColor, fontFamily: 'monospace', fontSize: '0.9rem' }}>
                     {formatCurrency(item.presentAmount)}
                   </TableCell>
-                  <TableCell align="right" sx={{ fontFamily: 'monospace' }}>
+                  <TableCell align="right" sx={{ fontFamily: 'monospace', fontSize: '0.9rem' }}>
                     {formatCurrency(item.cumulativeAmount)}
                   </TableCell>
                 </TableRow>
@@ -202,15 +263,6 @@ function CertificateOnScreen({ certificate, organization }) {
             </TableBody>
           </Table>
         </TableContainer>
-      </Grid>
-
-      {/* Final Amount Box */}
-      <Grid size={12} mt={6}>
-        <Box sx={{ backgroundColor: mainColor, color: contrastText, p: 4, borderRadius: 2, textAlign: 'center', boxShadow: 8 }}>
-          <Typography variant="h5" fontWeight="bold">
-            Final Amount Payable: {currencyCode} {formatCurrency(grandTotal)}
-          </Typography>
-        </Box>
       </Grid>
     </Grid>
   );

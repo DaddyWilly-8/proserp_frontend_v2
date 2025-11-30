@@ -2,7 +2,8 @@ import { LoadingButton } from '@mui/lab';
 import {
   Alert, Button, Dialog, DialogActions, DialogContent, DialogTitle,
   Grid, IconButton, TextField, Tooltip, Typography, Box, Tabs, Tab, Paper,
-  Divider
+  Divider,
+  Checkbox
 } from '@mui/material';
 import { DateTimePicker } from '@mui/x-date-pickers';
 import dayjs from 'dayjs';
@@ -20,11 +21,13 @@ import CertifiedAdjustments from './tab/adjustments/CertifiedAdjustments';
 import CertifiedAdjustmentsRow from './tab/adjustments/CertifiedAdjustmentsRow';
 import CommaSeparatedField from '@/shared/Inputs/CommaSeparatedField';
 import { sanitizedNumber } from '@/app/helpers/input-sanitization-helpers';
+import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 
 const CertificateForm = ({ setOpenDialog, certificate, subContract }) => {
   const queryClient = useQueryClient();
   const { enqueueSnackbar } = useSnackbar();
   const [tasksItems, setTasksItems] = useState(certificate?.items || []);
+  const {authOrganization : {organization}} = useJumboAuth();
   const [adjustments, setAdjustments] = useState(certificate?.adjustments  ? certificate.adjustments : []);
   const [showWarning, setShowWarning] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
@@ -73,6 +76,8 @@ const CertificateForm = ({ setOpenDialog, certificate, subContract }) => {
     defaultValues: {
       remarks: certificate?.remarks || '',
       project_subcontract_id: certificate ? certificate.project_subcontract_id : subContract?.id,
+      vat_registered: !!organization.settings?.vat_registered,
+      vat_percentage: !!organization.settings?.vat_registered ? organization.settings.vat_percentage : 0,
       certificate_date: certificate?.certificate_date
         ? dayjs(certificate.certificate_date).toISOString()
         : dayjs().toISOString(),
@@ -90,6 +95,7 @@ const CertificateForm = ({ setOpenDialog, certificate, subContract }) => {
   }, [adjustments, setValue]);  
 
   const certificateDate = watch('certificate_date');
+  const vat_percentage = watch('vat_percentage');
 
   const saveCertificate = React.useMemo(() => {
     return certificate ? updateCertificate : addCertificate;
@@ -182,18 +188,34 @@ const CertificateForm = ({ setOpenDialog, certificate, subContract }) => {
                 />
               </Grid>
             )}
-            <Grid size={{ xs: 12, md: (certificate ? certificate.currency?.exchangeRate : subContract?.exchange_rate) > 1 ? 4 : 8 }}>
-              <TextField
-                size="small"
-                label="Remarks"
-                fullWidth
-                multiline
-                rows={2}
-                {...register('remarks')}
-                error={!!errors.remarks}
-                helperText={errors.remarks?.message}
-              />
+            <Grid size={{xs: 12, md: 3}}>
+              <Typography align="left" variant="body2">
+                VAT:
+                <Checkbox
+                  size="small"
+                  checked={!!vat_percentage}
+                  onChange={e => {
+                    const checked = e.target.checked;
+                    setValue('vat_percentage', checked ? organization.settings.vat_percentage : 0, {
+                      shouldDirty: true,
+                      shouldValidate: true
+                    });
+                  }}
+                />
+              </Typography>
             </Grid>
+              <Grid size={{ xs: 12, md: watch('exchange_rate') == 1 ? 5 : 12 }}>
+                <TextField
+                  size="small"
+                  label="Remarks"
+                  fullWidth
+                  multiline
+                  rows={2}
+                  {...register('remarks')}
+                  error={!!errors.remarks}
+                  helperText={errors.remarks?.message}
+                />
+              </Grid>
           </Grid>
 
           <Tabs
