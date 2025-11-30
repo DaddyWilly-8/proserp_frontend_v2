@@ -3,7 +3,7 @@ import { Grid, ListItemText, Tooltip, Typography } from '@mui/material'
 import React from 'react'
 import CertificateItemAction from './CertificateItemAction'
 
-function CertificatesListItem({certificate}) {
+function CertificatesListItem({certificate, subContract}) {
     return (
         <Grid             
             sx={{
@@ -59,7 +59,7 @@ function CertificatesListItem({certificate}) {
                 </Tooltip>
             </Grid>
             <Grid size={{xs: 6, md: 1, lg: 0.5}} textAlign="end">
-                <CertificateItemAction certificate={certificate} />
+                <CertificateItemAction certificate={certificate} subContract={subContract}/>
             </Grid>
         </Grid>
     )

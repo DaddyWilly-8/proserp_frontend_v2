@@ -18,6 +18,8 @@ import CertifiedTasksItemForm from './tab/certifiedTasks/CertifiedTasksItemForm'
 import CertifiedTasksItemRow from './tab/certifiedTasks/CertifiedTasksItemRow';
 import CertifiedAdjustments from './tab/adjustments/CertifiedAdjustments';
 import CertifiedAdjustmentsRow from './tab/adjustments/CertifiedAdjustmentsRow';
+import CommaSeparatedField from '@/shared/Inputs/CommaSeparatedField';
+import { sanitizedNumber } from '@/app/helpers/input-sanitization-helpers';
 
 const CertificateForm = ({ setOpenDialog, certificate, subContract }) => {
   const queryClient = useQueryClient();
@@ -56,7 +58,12 @@ const CertificateForm = ({ setOpenDialog, certificate, subContract }) => {
 
   const validationSchema = yup.object({
     remarks: yup.string().required('Remarks is required'),
-    certificate_date: yup.string().required('Certificate date is required')
+    certificate_date: yup.string().required('Certificate date is required'),
+    exchange_rate: yup
+      .number()
+      .positive('Exchange rate is required')
+      .required('Exchange rate is required')
+      .typeError('Exchange rate is required'),
   });
 
   const {
@@ -69,7 +76,8 @@ const CertificateForm = ({ setOpenDialog, certificate, subContract }) => {
       certificate_date: certificate?.certificate_date
         ? dayjs(certificate.certificate_date).toISOString()
         : dayjs().toISOString(),
-      id: certificate?.id
+      id: certificate?.id,
+      exchange_rate: certificate ? certificate.currency?.exchangeRate : subContract?.exchange_rate,
     }
   });
 
@@ -153,7 +161,28 @@ const CertificateForm = ({ setOpenDialog, certificate, subContract }) => {
                 }}
               />
             </Grid>
-            <Grid size={{ xs: 12, md: 8 }}>
+            {(certificate ? certificate.currency?.exchangeRate : subContract?.exchange_rate) > 1 && (
+              <Grid size={{xs: 12, md: 4}}>
+                <TextField
+                  label="Exchange Rate"
+                  fullWidth
+                  size='small'
+                  error={!!errors?.exchange_rate}
+                  helperText={errors?.exchange_rate?.message}
+                  InputProps={{
+                    inputComponent: CommaSeparatedField,
+                  }}
+                  value={watch('exchange_rate')}
+                  onChange={(e) => {
+                    setValue('exchange_rate', e.target.value ? sanitizedNumber(e.target.value) : null, {
+                      shouldValidate: true,
+                      shouldDirty: true
+                    });
+                  }}
+                />
+              </Grid>
+            )}
+            <Grid size={{ xs: 12, md: (certificate ? certificate.currency?.exchangeRate : subContract?.exchange_rate) > 1 ? 4 : 8 }}>
               <TextField
                 size="small"
                 label="Remarks"
