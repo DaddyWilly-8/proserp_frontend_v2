@@ -1,20 +1,24 @@
 import { getAuthHeaders, handleJsonResponse } from '@/lib/utils/apiUtils';
 import { NextRequest } from 'next/server';
 
-const API_BASE = process.env.API_BASE_URL
+const API_BASE = process.env.API_BASE_URL;
 
-export async function GET(req: NextRequest, context: any) {
-const { params } = context as { params: { id: string } };
+export async function GET(req: NextRequest) {
   const { headers, response } = await getAuthHeaders(req);
   if (response) return response;
 
-  const url = new URL(`${API_BASE}/accounts/profit-and-loss-figures`);
-  req.nextUrl.searchParams.forEach((value, key) => url.searchParams.set(key, value));
+  const apiUrl = new URL(`${API_BASE}/accounts/profit-and-loss-figures`);
 
-  const res = await fetch(url.toString(), {
+  const incoming = new URL(req.url);
+
+  incoming.searchParams.forEach((value, key) => {
+    apiUrl.searchParams.append(key, value);
+  });
+
+  const res = await fetch(apiUrl.toString(), {
     headers,
     credentials: 'include',
   });
 
-   return handleJsonResponse(res);
+  return handleJsonResponse(res);
 }
