@@ -395,7 +395,7 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
                 <DateTimePicker
                   label='Shift Start'
                   fullWidth
-                  defaultValue={SalesShift ? dayjs(SalesShift?.shift_start) : null}
+                  value={watch('shift_start') ? dayjs(watch('shift_start')) : null}
                   minDate={dayjs(organization.recording_start_date)}
                   slotProps={{
                     textField : {
@@ -421,7 +421,7 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
                 <DateTimePicker
                   label='Shift End'
                   fullWidth
-                  defaultValue={SalesShift ? dayjs(SalesShift?.shift_end) : null}
+                  value={watch('shift_end') ? dayjs(watch('shift_end')) : null}
                   minDate={dayjs(organization.recording_start_date)}
                   slotProps={{
                     textField : {
