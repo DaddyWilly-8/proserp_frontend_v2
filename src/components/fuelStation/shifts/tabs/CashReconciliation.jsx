@@ -349,7 +349,7 @@ function CashReconciliation() {
                     </Div>
                   </Grid>
                   {cashReconciliationFields.map((field, index) => (
-                    <Grid key={field.id} container columnSpacing={1} paddingLeft={1}>
+                    <Grid key={field.id} container columnSpacing={1} paddingLeft={1} width={'100%'}>
                       <Grid size={11} marginBottom={0.5}>
                         <Divider />
                         <Grid container columnSpacing={1}>
