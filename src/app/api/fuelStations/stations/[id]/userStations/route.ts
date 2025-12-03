@@ -1,27 +1,20 @@
 import { getAuthHeaders, handleJsonResponse } from '@/lib/utils/apiUtils';
 import { NextRequest } from 'next/server';
 
-const API_BASE = process.env.API_BASE_URL!;
+const API_BASE = process.env.API_BASE_URL
 
-export async function GET(request: NextRequest) {
+export async function GET(request: NextRequest, context: any) {
+const { params } = context as { params: { id: string } };
   const { headers, response } = await getAuthHeaders(request);
   if (response) return response;
 
-  // Declare searchParams FIRST before using it
   const { searchParams } = new URL(request.url);
-  const stationId = searchParams.get('stationId') || '';
   const keyword = searchParams.get('keyword') || '';
   const page = searchParams.get('page') || '1';
   const limit = searchParams.get('limit') || '10';
-  
-  // Build query parameters including all necessary params
-  const queryParams = new URLSearchParams({
-    keyword,
-    page,
-    limit,
-  }).toString();
+  const query = new URLSearchParams({ keyword, page, limit }).toString();
 
-  const res = await fetch(`${API_BASE}/fuel-stations/${stationId}/sales-shifts?${queryParams}`, {
+  const res = await fetch(`${API_BASE}/fuel-stations/user-stations/${params.id}/?${query}`, {
     headers,
     credentials: 'include',
   });
