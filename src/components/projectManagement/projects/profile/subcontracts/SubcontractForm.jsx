@@ -48,7 +48,6 @@ function SubcontractForm({setOpenDialog, subContract = null }) {
             setOpenDialog(false);
             enqueueSnackbar(data.message, { variant: 'success' });
             queryClient.invalidateQueries({queryKey: ['subcontracts']});
-            queryClient.invalidateQueries({queryKey: ['Certificates']});
         },
         onError: (error) => {
             enqueueSnackbar(error.response.data.message, {

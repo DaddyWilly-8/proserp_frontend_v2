@@ -92,7 +92,7 @@ const DocumentDialog = ({ open, onClose, certificateId, organization }) => {
   );
 };
 
-const EditCertificate = ({ certificate, subContract, setOpenDialog }) => {
+const EditCertificate = ({ certificate, setOpenDialog }) => {
   const { data: CertificateDetails, isFetching } = useQuery({
     queryKey: ['CertificateDetails', { id: certificate.id }],
     queryFn: () => projectsServices.getCertificateDetails(certificate.id),
@@ -104,12 +104,11 @@ const EditCertificate = ({ certificate, subContract, setOpenDialog }) => {
     <CertificateForm
       setOpenDialog={setOpenDialog}
       certificate={CertificateDetails}
-      subContract={subContract}
     />
   );
 };
 
-const CertificateItemAction = ({ certificate, subContract }) => {
+const CertificateItemAction = ({ certificate }) => {
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const [openPreviewDialog, setOpenPreviewDialog] = useState(false);
   const { showDialog, hideDialog } = useJumboDialog();
@@ -178,7 +177,6 @@ const CertificateItemAction = ({ certificate, subContract }) => {
         {openEditDialog && (
           <EditCertificate
             certificate={certificate}
-            subContract={subContract}
             setOpenDialog={setOpenEditDialog}
           />
         )}

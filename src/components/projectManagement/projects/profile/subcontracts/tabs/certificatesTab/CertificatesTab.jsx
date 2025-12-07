@@ -32,7 +32,7 @@ const CertificatesTab = ({ subContract }) => {
   }, [params]);
 
   const renderCertificates = React.useCallback((certificate) => {
-    return <CertificatesListItem certificate={certificate} subContract={subContract}/>;
+    return <CertificatesListItem certificate={certificate} />;
   }, []);
 
   const handleOnChange = React.useCallback(
