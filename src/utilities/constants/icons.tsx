@@ -1,4 +1,3 @@
-// src/components/icons.tsx   (or wherever you store it)
 import React from 'react';
 import {
   DashboardCustomizeOutlined,
