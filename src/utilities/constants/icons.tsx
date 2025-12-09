@@ -1,4 +1,4 @@
-// icons.tsx
+// src/components/icons.tsx   (or wherever you store it)
 import React from 'react';
 import {
   DashboardCustomizeOutlined,
@@ -32,7 +32,7 @@ import {
   LocalGasStation,
 } from '@mui/icons-material';
 
-import { Box } from '@mui/material';
+import { Box, SvgIconProps } from '@mui/material';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faFolderOpen,
@@ -41,98 +41,94 @@ import {
   faRulerVertical,
 } from '@fortawesome/free-solid-svg-icons';
 
-import type { SvgIconProps } from '@mui/material';
-import type { SxProps, Theme } from '@mui/material/styles';
+const ICON_SIZE = 20;
 
-type MuiIconComponent = React.ComponentType<SvgIconProps>;
+// ---------------------------------------------------------------------
+// 1. Every icon now has a real React component (what Jumbo expects)
+// ---------------------------------------------------------------------
+type IconDef = {
+  name: string;
+  Component: React.ComponentType<SvgIconProps>;
+};
 
-type NormalizedIcon =
-  | {
-      name: string;
-      type: 'mui';
-      Component: MuiIconComponent;
-      sx: SxProps<Theme>;
-    }
-  | {
-      name: string;
-      type: 'fa';
-      icon: any;
-      sx: SxProps<Theme>;
-    };
-
-const defaultIconSize = 20;
-const defaultSx: SxProps<Theme> = { fontSize: defaultIconSize };
-
-const rawIcons = [
-  { name: 'quickLaunch', type: 'mui' as const, Component: RocketLaunchOutlined },
-  { name: 'dashboard', type: 'mui' as const, Component: DashboardCustomizeOutlined },
-  { name: 'requisitions', type: 'mui' as const, Component: FormatListNumberedOutlined },
-  { name: 'approvals', type: 'mui' as const, Component: ChecklistRtlOutlined },
-  { name: 'approvedPayments', type: 'mui' as const, Component: VerifiedOutlined },
-  { name: 'approvedPurchases', type: 'mui' as const, Component: ShoppingCartCheckout },
-  { name: 'counter', type: 'mui' as const, Component: PointOfSaleOutlined },
-  { name: 'proforma', type: 'mui' as const, Component: RequestQuoteOutlined },
-  { name: 'projects', type: 'mui' as const, Component: ViewAgendaOutlined },
-  { name: 'transactions', type: 'mui' as const, Component: ReceiptOutlined },
-  { name: 'purchases', type: 'mui' as const, Component: ShoppingCartOutlined },
-  { name: 'consumptions', type: 'fa' as const, icon: faFillDrip },
-  { name: 'barcharts', type: 'mui' as const, Component: AssessmentOutlined },
-  { name: 'organizations', type: 'mui' as const, Component: CorporateFareOutlined },
-  { name: 'batches', type: 'mui' as const, Component: QrCode },
-  { name: 'invitations', type: 'mui' as const, Component: ShareOutlined },
-  { name: 'stakeholders', type: 'mui' as const, Component: HandshakeOutlined },
-  { name: 'currencies', type: 'mui' as const, Component: CurrencyExchangeOutlined },
-  { name: 'measurement_units', type: 'mui' as const, Component: StraightenOutlined },
-  { name: 'filesShelf', type: 'fa' as const, icon: faFolderOpen },
-  { name: 'usersManagement', type: 'mui' as const, Component: ManageAccountsOutlined },
-  { name: 'reports', type: 'mui' as const, Component: AssessmentOutlined },
-  { name: 'product_categories', type: 'mui' as const, Component: Inventory2Outlined },
-  { name: 'products', type: 'mui' as const, Component: Inventory2Outlined },
-  { name: 'manufacturingMasters', type: 'mui' as const, Component: TuneOutlined },
-  { name: 'outlets', type: 'mui' as const, Component: StoreOutlined },
-  { name: 'settings', type: 'mui' as const, Component: StoreOutlined },
-  { name: 'nextSMS', type: 'mui' as const, Component: SmsOutlined },
-  { name: 'troubleshooting', type: 'mui' as const, Component: TroubleshootOutlined },
-  { name: 'subscriptions', type: 'mui' as const, Component: CardMembershipOutlined },
-  { name: 'salesShifts', type: 'mui' as const, Component: LocalGasStation },
-  { name: 'dippings', type: 'fa' as const, icon: faRulerVertical },
-  { name: 'fuelMasters', type: 'mui' as const, Component: RoomPreferencesOutlined },
-  { name: 'prosAfricans', type: 'fa' as const, icon: faUsersGear },
-  { name: 'editAttributes', type: 'mui' as const, Component: EditAttributesOutlined },
-  { name: 'accountTree', type: 'mui' as const, Component: AccountTreeOutlined },
-] as const;
-
-export const APP_ICONS: NormalizedIcon[] = rawIcons.map((icon) => ({
-  ...icon,
-  sx: ('sx' in icon && icon.sx) ? icon.sx : defaultSx,
-}));
-
-const MuiIcon = ({ Component, sx }: { Component: MuiIconComponent; sx: SxProps<Theme> }) => (
-  <Component sx={sx} />
-);
-
-const FaIcon = ({ icon }: { icon: any }) => (
-  <Box sx={{ display: 'flex', alignItems: 'center', width: defaultIconSize, height: defaultIconSize }}>
+// Helper that turns a FontAwesome icon into an MUI-compatible component
+const FaWrapper = ({ icon }: { icon: any }) => (
+  <Box
+    sx={{
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      width: ICON_SIZE,
+      height: ICON_SIZE,
+    }}
+  >
     <FontAwesomeIcon
       icon={icon}
-      style={{
-        width: defaultIconSize - 2,
-        height: defaultIconSize - 2,
-        position: 'relative',
-        top: 1,
-      }}
+      style={{ width: ICON_SIZE - 2, height: ICON_SIZE - 2 }}
     />
   </Box>
 );
 
+// ---------------------------------------------------------------------
+// 2. Central list – add a new icon here and it instantly works everywhere
+// ---------------------------------------------------------------------
+const rawIcons: IconDef[] = [
+  { name: 'quickLaunch', Component: RocketLaunchOutlined },
+  { name: 'dashboard', Component: DashboardCustomizeOutlined },
+  { name: 'requisitions', Component: FormatListNumberedOutlined },
+  { name: 'approvals', Component: ChecklistRtlOutlined },
+  { name: 'approvedPayments', Component: VerifiedOutlined },
+  { name: 'approvedPurchases', Component: ShoppingCartCheckout },
+  { name: 'counter', Component: PointOfSaleOutlined },
+  { name: 'proforma', Component: RequestQuoteOutlined },
+  { name: 'projects', Component: ViewAgendaOutlined },
+  { name: 'transactions', Component: ReceiptOutlined },
+  { name: 'purchases', Component: ShoppingCartOutlined },
+  { name: 'barcharts', Component: AssessmentOutlined },
+  { name: 'organizations', Component: CorporateFareOutlined },
+  { name: 'batches', Component: QrCode },
+  { name: 'invitations', Component: ShareOutlined },
+  { name: 'stakeholders', Component: HandshakeOutlined },
+  { name: 'currencies', Component: CurrencyExchangeOutlined },
+  { name: 'measurement_units', Component: StraightenOutlined },
+  { name: 'usersManagement', Component: ManageAccountsOutlined },
+
+  // FontAwesome icons (wrapped)
+  { name: 'consumptions', Component: (props: SvgIconProps) => <FaWrapper icon={faFillDrip} {...props} /> },
+  { name: 'filesShelf', Component: (props: SvgIconProps) => <FaWrapper icon={faFolderOpen} {...props} /> },
+  { name: 'dippings', Component: (props: SvgIconProps) => <FaWrapper icon={faRulerVertical} {...props} /> },
+  { name: 'prosAfricans', Component: (props: SvgIconProps) => <FaWrapper icon={faUsersGear} {...props} /> },
+
+  // The rest (previously only in the old map)
+  { name: 'reports', Component: AssessmentOutlined },
+  { name: 'product_categories', Component: Inventory2Outlined },
+  { name: 'products', Component: Inventory2Outlined },
+  { name: 'manufacturingMasters', Component: TuneOutlined },
+  { name: 'outlets', Component: StoreOutlined },
+  { name: 'settings', Component: StoreOutlined },
+  { name: 'nextSMS', Component: SmsOutlined },
+  { name: 'troubleshooting', Component: TroubleshootOutlined },
+  { name: 'subscriptions', Component: CardMembershipOutlined },
+  { name: 'salesShifts', Component: LocalGasStation },
+  { name: 'fuelMasters', Component: RoomPreferencesOutlined },
+  { name: 'editAttributes', Component: EditAttributesOutlined },
+  { name: 'accountTree', Component: AccountTreeOutlined },
+].map((icon) => ({
+  ...icon,
+  // Force the default size – you can override per-icon if you ever need to
+  Component: (props: SvgIconProps) => (
+    <icon.Component {...props} sx={{ fontSize: ICON_SIZE, ...props.sx }} />
+  ),
+}));
+
+// ---------------------------------------------------------------------
+// 3. Exported values
+// ---------------------------------------------------------------------
+export const APP_ICONS = rawIcons;
+
 export const iconMap = Object.fromEntries(
-  APP_ICONS.map(({ name, type, ...rest }) => {
-    if (type === 'mui') {
-      const { Component, sx } = rest as { Component: MuiIconComponent; sx: SxProps<Theme> };
-      return [name, <MuiIcon key={name} Component={Component} sx={sx} />];
-    } else {
-      const { icon } = rest as { icon: any };
-      return [name, <FaIcon key={name} icon={icon} />];
-    }
-  })
+  rawIcons.map(({ name, Component }) => [name, <Component key={name} />])
 ) as Record<string, React.ReactNode>;
+
+// Optional: helper for menus (exactly what you were using before)
+export const icon = (name: keyof typeof iconMap) => iconMap[name];
