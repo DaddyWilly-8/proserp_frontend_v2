@@ -1,20 +1,11 @@
-import React from 'react';
 import { getDictionary } from '@/app/[lang]/dictionaries';
-import { iconMap } from './icons';
+import { IconName } from './icons';
 
-type MenuEntry = {
-  label: string;
-  type: 'section' | 'nav-item' | 'collapsible';
-  uri?: string;
-  icon?: React.ReactNode;
-  children?: MenuEntry[];
-};
-
-const icon = (name: keyof typeof iconMap) => iconMap[name];
-
-export async function getMenus(locale: string): Promise<MenuEntry[]> {
+export async function getMenus(locale: string) {
   const dictionary = await getDictionary(locale);
   const { sidebar } = dictionary;
+
+  const icon = (name: IconName): IconName => name;
 
   return [
     {
@@ -154,7 +145,7 @@ export async function getMenus(locale: string): Promise<MenuEntry[]> {
           uri: `/${locale}/manufacturing/batches`,
           label: sidebar.menuItem.batches,
           type: 'nav-item',
-          icon: icon('requisitions'), // reusing requisitions icon as placeholder
+          icon: icon('requisitions'),
         },
         {
           label: sidebar.menuItem.masters,
@@ -300,7 +291,7 @@ export async function getMenus(locale: string): Promise<MenuEntry[]> {
           uri: `/${locale}/filesShelf`,
           label: sidebar.menuItem.filesShelf,
           type: 'nav-item',
-          icon: icon('filesShelf'), // FontAwesome
+          icon: icon('filesShelf'),
         },
       ],
     },
@@ -336,7 +327,7 @@ export async function getMenus(locale: string): Promise<MenuEntry[]> {
           uri: `/${locale}/prosControl/prosAfricans`,
           label: sidebar.menuItem.prosAfricans,
           type: 'nav-item',
-          icon: icon('prosAfricans'), // FontAwesome
+          icon: icon('prosAfricans'),
         },
         {
           uri: `/${locale}/prosControl/subscriptions`,
