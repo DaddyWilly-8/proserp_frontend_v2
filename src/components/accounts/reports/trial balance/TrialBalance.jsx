@@ -1,3 +1,4 @@
+'use client'
 import { DialogContent, DialogTitle, Grid, LinearProgress, Stack, Tab, Tabs, Typography, useMediaQuery } from '@mui/material';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';

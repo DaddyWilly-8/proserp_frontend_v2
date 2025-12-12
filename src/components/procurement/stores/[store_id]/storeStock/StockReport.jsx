@@ -1,3 +1,4 @@
+'use client'
 import { LoadingButton } from '@mui/lab'
 import { Autocomplete, Box, Button, Checkbox, Chip, DialogActions, DialogContent, DialogTitle, Grid, IconButton, LinearProgress, Stack, Tab, Tabs, TextField, Tooltip, Typography, useMediaQuery } from '@mui/material'
 import { DateTimePicker } from '@mui/x-date-pickers'

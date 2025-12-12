@@ -1,3 +1,4 @@
+'use client'
 import JumboCardQuick from '@jumbo/components/JumboCardQuick';
 import { Autocomplete, Grid, LinearProgress, Typography, TextField, Checkbox, Chip, useMediaQuery, FormControl, InputLabel, Select, MenuItem, ButtonGroup, Tooltip, Button } from '@mui/material';
 import React, { useEffect, useState } from 'react';
