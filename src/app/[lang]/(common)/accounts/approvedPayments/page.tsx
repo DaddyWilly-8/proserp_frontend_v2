@@ -1,5 +1,3 @@
-'use client';
-
 export const dynamic = "force-dynamic";
 import ApprovedPayments from '@/components/processApproval/approvedRequisitions/ApprovedPayments'
 import React from 'react'
