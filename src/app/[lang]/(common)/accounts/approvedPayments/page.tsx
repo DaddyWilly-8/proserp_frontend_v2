@@ -1,15 +1,11 @@
-import DynamicImport from 'next/dynamic';
-import { Suspense } from 'react';
+export const dynamic = "force-dynamic";
+import ApprovedPayments from '@/components/processApproval/approvedRequisitions/ApprovedPayments'
+import React from 'react'
 
-const ApprovedPayments = DynamicImport(
-  () => import('@/components/processApproval/approvedRequisitions/ApprovedPayments'),
-  { ssr: false }
-);
-
-export default function Page() {
+function page() {
   return (
-    <Suspense>
-      <ApprovedPayments />
-    </Suspense>
-  );
+    <ApprovedPayments/>
+  )
 }
+
+export default page
