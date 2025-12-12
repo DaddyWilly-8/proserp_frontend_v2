@@ -1,13 +1,17 @@
-'use client';
+import DynamicImport from 'next/dynamic';
+import { Suspense } from 'react';
 
-export const dynamic = "force-dynamic";
-import ApprovedPayments from '@/components/processApproval/approvedRequisitions/ApprovedPayments'
-import React from 'react'
+export const dynamic = 'force-dynamic';
 
-function page() {
+const ApprovedPayments = DynamicImport(
+  () => import('@/components/processApproval/approvedRequisitions/ApprovedPayments'),
+  { ssr: false }
+);
+
+export default function Page() {
   return (
-    <ApprovedPayments/>
-  )
+    <Suspense>
+      <ApprovedPayments />
+    </Suspense>
+  );
 }
-
-export default page
