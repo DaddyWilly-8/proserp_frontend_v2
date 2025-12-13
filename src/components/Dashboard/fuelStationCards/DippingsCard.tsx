@@ -11,6 +11,7 @@ import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 import { useQuery } from '@tanstack/react-query';
 import { Div } from '@jumbo/shared';
 import { CostCenter } from '@/components/masters/costCenters/CostCenterType';
+import fuelStationServices from '@/components/fuelStation/fuelStationServices';
 
 interface DippingReportParams {
   from: string;
@@ -64,7 +65,7 @@ function DippingsCard() {
     const { data: reportData, isLoading } = useQuery({
         queryKey: ['dippingsReport', params],
         queryFn: async () => {
-            // return await fuelStationServices.dippingReport(params);
+            return await fuelStationServices.dippingReport(params);
             return null;
         }
     });
