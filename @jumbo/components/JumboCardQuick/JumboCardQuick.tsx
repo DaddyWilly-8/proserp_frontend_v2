@@ -8,6 +8,8 @@ import {
   CardProps,
   CardHeaderProps,
   CardContentProps,
+  SxProps,
+  Theme,
 } from '@mui/material';
 import { getBgColorStyle, getBgImageStyle } from '@jumbo/utilities/styleHelpers';
 import { JumboBackdrop } from '../JumboBackdrop';
@@ -17,16 +19,21 @@ interface JumboCardQuickProps extends Omit<CardProps, 'title'> {
   subheader?: React.ReactNode;
   avatar?: React.ReactNode;
   action?: React.ReactNode;
+
   bgColor?: string | string[];
   bgImage?: string;
   bgGradientDir?: string;
-  headerSx?: CardHeaderProps['sx'];
-  footerProps?: any;
+
+  headerSx?: SxProps<Theme>;
+  footerProps?: unknown;
+
   noWrapper?: boolean;
-  wrapperSx?: CardContentProps['sx'];
+  wrapperSx?: SxProps<Theme>;
+
   backdrop?: boolean;
   backdropColor?: string;
   backdropOpacity?: string | number;
+
   reverse?: boolean;
   divider?: boolean;
 }
@@ -36,33 +43,40 @@ const JumboCardQuick: React.FC<JumboCardQuickProps> = ({
   subheader,
   avatar,
   action,
+
   bgColor,
   bgImage,
   bgGradientDir,
-  headerSx = {},
+
+  headerSx,
   footerProps,
   noWrapper = false,
   wrapperSx,
+
   backdrop = false,
   backdropColor = '#000000',
-  backdropOpacity = '0.7',
+  backdropOpacity = 0.7,
+
   reverse = false,
   divider = false,
+
   sx,
   children,
   ...restProps
 }) => {
-  const [bgStyle, setBgStyle] = React.useState<React.CSSProperties>({});
-
-  React.useEffect(() => {
-    let newStyle: React.CSSProperties = {};
+  /**
+   * IMPORTANT:
+   * bgStyle is PURE CSSProperties
+   * It MUST go to `style`, NOT `sx`
+   */
+  const bgStyle = React.useMemo<React.CSSProperties>(() => {
+    let style: React.CSSProperties = {};
 
     if (bgImage) {
-      const imageStyle = getBgImageStyle(bgImage);
-      if (imageStyle) {
-        newStyle = { ...newStyle, ...imageStyle };
-      }
-    } else if (bgColor) {
+      Object.assign(style, getBgImageStyle(bgImage));
+    }
+
+    if (!bgImage && bgColor) {
       const colors = Array.isArray(bgColor) ? bgColor.join(', ') : bgColor;
       const colorStyle = getBgColorStyle({
         colors,
@@ -70,43 +84,41 @@ const JumboCardQuick: React.FC<JumboCardQuickProps> = ({
       });
 
       if (colorStyle) {
-        const safeStyle: React.CSSProperties = {
-          ...colorStyle,
-          background: colorStyle.backgroundImage as string | undefined,
-          backgroundColor: colorStyle.backgroundColor as React.CSSProperties['backgroundColor'],
-          backgroundImage: colorStyle.backgroundImage as React.CSSProperties['backgroundImage'],
-        };
-        newStyle = { ...newStyle, ...safeStyle };
+        style.background = colorStyle.backgroundImage ?? colorStyle.backgroundColor as React.CSSProperties['backgroundColor'];
       }
     }
 
-    setBgStyle(newStyle);
+    return style;
   }, [bgColor, bgImage, bgGradientDir]);
 
   return (
     <Card
-      sx={{
-        ...bgStyle,
-        position: 'relative',   // ← Fixed: Now properly typed inside sx object
-        ...sx,
-      }}
       {...restProps}
+      style={bgStyle} // ✅ CSS here
+      sx={{
+        position: 'relative',
+        ...sx, // ✅ sx ONLY system styles
+      }}
     >
       <JumboBackdrop
+        open={backdrop}
         color={backdropColor}
         opacity={backdropOpacity}
-        open={backdrop}
       />
 
-      {(action || title || avatar || subheader) && !reverse && (
+      {(title || subheader || avatar || action) && !reverse && (
         <CardHeader
           title={title}
           subheader={subheader}
-          action={action}
           avatar={avatar}
+          action={action}
           sx={{
-            zIndex: 2,
             position: 'relative',
+            zIndex: 2,
+            ...(divider && {
+              borderBottom: 1,
+              borderColor: 'divider',
+            }),
             ...headerSx,
           }}
         />
@@ -117,26 +129,28 @@ const JumboCardQuick: React.FC<JumboCardQuickProps> = ({
       ) : (
         <CardContent
           sx={{
-            ...wrapperSx,
-            zIndex: 2,
             position: 'relative',
+            zIndex: 2,
+            ...wrapperSx,
           }}
         >
           {children}
         </CardContent>
       )}
 
-      {(action || title || avatar || subheader) && reverse && (
+      {(title || subheader || avatar || action) && reverse && (
         <CardHeader
           title={title}
           subheader={subheader}
-          action={action}
           avatar={avatar}
+          action={action}
           sx={{
-            zIndex: 2,
             position: 'relative',
-            borderTop: divider ? 1 : 0,
-            borderTopColor: 'divider',
+            zIndex: 2,
+            ...(divider && {
+              borderTop: 1,
+              borderColor: 'divider',
+            }),
             ...headerSx,
           }}
         />
