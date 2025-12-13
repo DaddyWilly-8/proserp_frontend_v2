@@ -146,7 +146,7 @@ const ReportDocument: React.FC<ReportDocumentProps> = ({ reportData, authOrganiz
                 {/* Totals Row for Payments Collected */}
                 <View style={{ ...pdfStyles.tableRow, flexDirection: 'row' }}>
                   <Text style={{ ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex : 0.7 }}>Total</Text>
-                  <Text style={{ ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex : 0.3, textAlign: 'right' }}>{totalCollectedamount?.toLocaleString('en-US',{maximumFractionDigits:2,minimumFractionDigits:2})}</Text>
+                  <Text style={{ ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex : 0.3, textAlign: 'right' }}>{totalCollectedAmount?.toLocaleString('en-US',{maximumFractionDigits:2,minimumFractionDigits:2})}</Text>
                 </View>
               </View>
             }

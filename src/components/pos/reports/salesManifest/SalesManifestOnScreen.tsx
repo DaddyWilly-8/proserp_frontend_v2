@@ -297,7 +297,7 @@ const SalesManifestOnScreen: React.FC<SalesManifestOnScreenProps> = ({
                       flex: 0.3, 
                       textAlign: 'right' 
                     }}>
-                      {totalCollectedamount?.toLocaleString('en-US', { 
+                      {totalCollectedAmount?.toLocaleString('en-US', { 
                         maximumFractionDigits: 2, 
                         minimumFractionDigits: 2 
                       })}
