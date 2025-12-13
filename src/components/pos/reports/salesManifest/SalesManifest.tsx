@@ -361,7 +361,7 @@ const SalesManifestPDF: React.FC<SalesManifestPDFProps> = ({
                         flex: 0.3, 
                         textAlign: 'right' 
                       }}>
-                        {cd.amount.toLocaleString('en-US', {
+                        {cd.amount?.toLocaleString('en-US', {
                           maximumFractionDigits: 2,
                           minimumFractionDigits: 2
                         })}
@@ -384,7 +384,7 @@ const SalesManifestPDF: React.FC<SalesManifestPDFProps> = ({
                       flex: 0.3, 
                       textAlign: 'right' 
                     }}>
-                      {totalCollectedAmount.toLocaleString('en-US', {
+                      {totalCollectedamount?.toLocaleString('en-US', {
                         maximumFractionDigits: 2,
                         minimumFractionDigits: 2
                       })}

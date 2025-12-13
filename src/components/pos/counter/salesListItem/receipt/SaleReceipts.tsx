@@ -103,7 +103,7 @@ const SaleReceipts: React.FC<SaleReceiptsProps> = ({ expanded, sale, activeTab }
             <Grid size={{xs: 6, md: 2, lg: 2}} textAlign={'end'}>
               <Tooltip title={'Amount'}>
                 <Typography fontWeight={'bold'}>
-                  {receipt.amount.toLocaleString("en-US", {
+                  {receipt.amount?.toLocaleString("en-US", {
                     style: "currency", 
                     currency: receipt.currency.code
                   })}

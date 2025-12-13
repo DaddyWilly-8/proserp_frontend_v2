@@ -102,7 +102,7 @@ const SaleAdjustments: React.FC<SaleAdjustmentsProps> = ({ expanded, sale, activ
             <Grid size={{ xs: 6, md: 3, lg: 3 }} textAlign="end">
               <Tooltip title="Amount">
                 <Typography>
-                  {adjustment.amount.toLocaleString('en-US', {
+                  {adjustment.amount?.toLocaleString('en-US', {
                     style: 'currency',
                     currency: adjustment.currency.code,
                   })}

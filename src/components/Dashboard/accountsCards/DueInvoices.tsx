@@ -122,7 +122,7 @@ function DueInvoices() {
                       <Grid size={{ xs: 6, md: 4 }} textAlign={'end'}>
                         <Tooltip title={'Amount'}>
                           <Chip 
-                            label={invoice.amount.toLocaleString("en-US", {
+                            label={invoice.amount?.toLocaleString("en-US", {
                               style: "currency", 
                               currency: invoice.currencyCode
                             })}
@@ -186,7 +186,7 @@ function DueInvoices() {
                       <Grid size={{ xs: 6, md: 4 }} textAlign={'end'}>
                         <Tooltip title={'Amount'}>
                           <Chip 
-                            label={invoice.amount.toLocaleString("en-US", {
+                            label={invoice.amount?.toLocaleString("en-US", {
                               style: "currency", 
                               currency: invoice.currencyCode
                             })}

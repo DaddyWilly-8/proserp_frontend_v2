@@ -275,7 +275,7 @@ const SalesManifestOnScreen: React.FC<SalesManifestOnScreenProps> = ({
                       >
                         <TableCell sx={{ flex: 0.7 }}>{cd.name}</TableCell>
                         <TableCell sx={{ flex: 0.3, textAlign: 'right' }}>
-                          {cd.amount.toLocaleString('en-US', { 
+                          {cd.amount?.toLocaleString('en-US', { 
                             maximumFractionDigits: 2, 
                             minimumFractionDigits: 2 
                           })}
@@ -297,7 +297,7 @@ const SalesManifestOnScreen: React.FC<SalesManifestOnScreenProps> = ({
                       flex: 0.3, 
                       textAlign: 'right' 
                     }}>
-                      {totalCollectedAmount.toLocaleString('en-US', { 
+                      {totalCollectedamount?.toLocaleString('en-US', { 
                         maximumFractionDigits: 2, 
                         minimumFractionDigits: 2 
                       })}
