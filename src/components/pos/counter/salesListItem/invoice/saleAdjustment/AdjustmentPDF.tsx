@@ -288,7 +288,7 @@ const AdjustmentPDF: React.FC<AdjustmentPDFProps> = ({ adjustment, authObject })
                     textAlign: 'right',
                   }}
                 >
-                  {itemamount?.toLocaleString('en-US', {
+                  {itemAmount?.toLocaleString('en-US', {
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2,
                   })}
