@@ -181,7 +181,7 @@ const ReportDocument: React.FC<ReportDocumentProps> = ({ reportData, authOrganiz
             <View style={pdfStyles.tableRow}>
               <Text style={{ ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 0.41, textAlign: 'center' }}>Total</Text>
               <Text style={{ ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 0.2, textAlign: 'right' }}>{totalDebitAmount?.toLocaleString('en-US',{maximumFractionDigits:2,minimumFractionDigits:2})}</Text>
-              <Text style={{ ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 0.2, textAlign: 'right' }}>{totalCreditamount?.toLocaleString('en-US',{maximumFractionDigits:2,minimumFractionDigits:2})}</Text>
+              <Text style={{ ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 0.2, textAlign: 'right' }}>{totalCreditAmount?.toLocaleString('en-US',{maximumFractionDigits:2,minimumFractionDigits:2})}</Text>
               <Text style={{ ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 0.2, textAlign: 'right' }}>{totalBalance.toLocaleString('en-US',{maximumFractionDigits:2,minimumFractionDigits:2})}</Text>
             </View>
           </View>
