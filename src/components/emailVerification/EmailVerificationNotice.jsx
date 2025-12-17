@@ -10,13 +10,14 @@ import {
   CardContent,
   TextField,
   Typography,
-  Button,
   Divider,
+  CircularProgress,
 } from "@mui/material";
 import Link from "next/link";
 import { useSnackbar } from "notistack";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { signOut } from "next-auth/react";
 
 const EmailVerificationNotice = () => {
   const { authUser } = useJumboAuth();
@@ -25,9 +26,24 @@ const EmailVerificationNotice = () => {
   const { enqueueSnackbar } = useSnackbar();
   const router = useRouter();
 
+  if (!authUser) {
+    return (
+      <Div
+        sx={{
+          minHeight: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <CircularProgress />
+      </Div>
+    );
+  }
+
   useEffect(() => {
     if (authUser?.user?.email_verified_at) {
-      router.push("/");
+      router.replace("/");
     }
   }, [authUser, router]);
 
@@ -35,25 +51,20 @@ const EmailVerificationNotice = () => {
     if (!authUser?.user?.email) return;
 
     setIsSending(true);
-
     try {
       const response = await axios.post(
-        `/api/auth/verification-notification`,
+        "/api/auth/verification-notification",
         { email: authUser.user.email }
       );
 
-      if (response.status === 200) {
-        enqueueSnackbar(response.data.message, { variant: "success" });
-      }
+      enqueueSnackbar(response.data?.message || "Verification link sent", {
+        variant: "success",
+      });
     } catch (err) {
-      if (err.response?.status === 401) {
-        router.push("/login");
-      } else {
-        enqueueSnackbar(
-          err?.response?.data?.message || "Something went wrong",
-          { variant: "error" }
-        );
-      }
+      enqueueSnackbar(
+        err?.response?.data?.message || "Failed to resend verification email",
+        { variant: "error" }
+      );
     } finally {
       setIsSending(false);
     }
@@ -61,16 +72,10 @@ const EmailVerificationNotice = () => {
 
   const handleLogout = async () => {
     setIsLoggingOut(true);
-
-    try {
-      router.push("/signin");
-    } catch (err) {
-      enqueueSnackbar("Failed to logout. Please try again.", {
-        variant: "error",
-      });
-    } finally {
-      setIsLoggingOut(false);
-    }
+    await signOut({
+      redirect: true,
+      callbackUrl: "/auth/signin",
+    });
   };
 
   return (
