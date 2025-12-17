@@ -330,7 +330,6 @@ function StockMovement({ toggleOpen, dormantStock = false, isFromDashboard }) {
                                             size="small"
                                             onClick={downloadExcelTemplate}
                                             loading={isDownloadingTemplate}
-                                            disabled
                                             variant="contained"
                                             color="success"
                                         >
