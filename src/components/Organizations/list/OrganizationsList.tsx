@@ -50,7 +50,7 @@ const OrganizationsList: React.FC<OrganizationsListProps> = ({ user }) => {
 
   const router = useRouter();
   const listRef = useRef<{ refresh: () => Promise<void> }>(null);
-  const { checkPermission, authUser } = useJumboAuth();
+  const { checkPermission, authUser, resetAuth } = useJumboAuth();
 
   const [mounted, setMounted] = React.useState(false);
   React.useEffect(() => {
@@ -105,8 +105,10 @@ const OrganizationsList: React.FC<OrganizationsListProps> = ({ user }) => {
 
   React.useEffect(() => {
     if (authUser?.user === null) {
-      signOut();
-      router.replace(`/${lang}/auth/signin`);
+      signOut({
+        callbackUrl: `http://localhost:3000/${lang}/auth/signin`,
+      });
+      resetAuth();
     }
   }, [authUser?.user, signOut, router, lang]);
 
