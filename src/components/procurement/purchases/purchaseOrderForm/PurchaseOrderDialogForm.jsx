@@ -162,7 +162,7 @@ function PurchaseOrderDialogForm({toggleOpen, order = null}) {
   },[items]);
 
   const stakeholder_id = watch('stakeholder_id');
-  const { data: stakeholderPayableLedgers = [], isLoading } = useQuery({
+  const { data: stakeholderPayableLedgers = [] } = useQuery({
     queryKey: ['stakeholderPayableLedgers', stakeholder_id],
     queryFn: async () => {
       if (!stakeholder_id) return [];
@@ -179,12 +179,8 @@ function PurchaseOrderDialogForm({toggleOpen, order = null}) {
   const watchInstantReceive = watch('instant_receive');
 
   useEffect(() => {
-    const shouldRequireLedger =
-      watchInstantPay &&
-      stakeholder_id &&
-      !watchInstantReceive;
-
-    if (!shouldRequireLedger) {
+    // 1. No stakeholder → no ledger
+    if (!stakeholder_id) {
       const current = getValues('stakeholder_ledger_id');
       if (current !== null) {
         setValue('stakeholder_ledger_id', null, {
@@ -195,18 +191,30 @@ function PurchaseOrderDialogForm({toggleOpen, order = null}) {
       return;
     }
 
-    if (stakeholderPayableLedgers.length > 0) {
-      const firstLedgerId = stakeholderPayableLedgers[0].id;
+    // 2. Stakeholder exists but no ledgers
+    if (stakeholderPayableLedgers.length === 0) {
       const current = getValues('stakeholder_ledger_id');
-
-      if (current !== firstLedgerId) {
-        setValue('stakeholder_ledger_id', firstLedgerId, {
+      if (current !== null) {
+        setValue('stakeholder_ledger_id', null, {
           shouldValidate: true,
           shouldDirty: true,
-          shouldTouch: true,
         });
       }
+      return;
     }
+
+    // 3. Ledgers fetched → always set default ledger
+    const firstLedgerId = stakeholderPayableLedgers[0].id;
+    const current = getValues('stakeholder_ledger_id');
+
+    if (current !== firstLedgerId) {
+      setValue('stakeholder_ledger_id', firstLedgerId, {
+        shouldValidate: true,
+        shouldDirty: true,
+        shouldTouch: true,
+      });
+    }
+
   }, [
     watchInstantPay,
     watchInstantReceive,
