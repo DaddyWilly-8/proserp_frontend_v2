@@ -94,7 +94,7 @@ function PurchaseOrderDialogForm({toggleOpen, order = null}) {
       ),
   });
 
-  const {register,setValue, setError, handleSubmit, clearErrors, watch, formState : {errors}} = useForm({
+  const {register,setValue, setError, getValues, handleSubmit, clearErrors, watch, formState : {errors}} = useForm({
     resolver: yupResolver(validationSchema),
     defaultValues: {
       id: order && order.id,
@@ -162,7 +162,7 @@ function PurchaseOrderDialogForm({toggleOpen, order = null}) {
   },[items]);
 
   const stakeholder_id = watch('stakeholder_id');
-  const { data: stakeholderPayableLedgers = [] } = useQuery({
+  const { data: stakeholderPayableLedgers = [], isLoading } = useQuery({
     queryKey: ['stakeholderPayableLedgers', stakeholder_id],
     queryFn: async () => {
       if (!stakeholder_id) return [];
@@ -179,36 +179,39 @@ function PurchaseOrderDialogForm({toggleOpen, order = null}) {
   const watchInstantReceive = watch('instant_receive');
 
   useEffect(() => {
-    const shouldRequireLedger = watchInstantPay && stakeholder_id && !watchInstantReceive;
+    const shouldRequireLedger =
+      watchInstantPay &&
+      stakeholder_id &&
+      !watchInstantReceive;
 
     if (!shouldRequireLedger) {
-      setValue('stakeholder_ledger_id', null, { 
-        shouldValidate: true, 
-        shouldDirty: true 
-      });
+      const current = getValues('stakeholder_ledger_id');
+      if (current !== null) {
+        setValue('stakeholder_ledger_id', null, {
+          shouldValidate: true,
+          shouldDirty: true,
+        });
+      }
       return;
     }
 
     if (stakeholderPayableLedgers.length > 0) {
       const firstLedgerId = stakeholderPayableLedgers[0].id;
+      const current = getValues('stakeholder_ledger_id');
 
-      const currentValue = watch('stakeholder_ledger_id');
-      if (currentValue !== firstLedgerId) {
+      if (current !== firstLedgerId) {
         setValue('stakeholder_ledger_id', firstLedgerId, {
           shouldValidate: true,
           shouldDirty: true,
           shouldTouch: true,
         });
       }
-    } else {
-      setValue('stakeholder_ledger_id', null, { 
-        shouldValidate: true, 
-        shouldDirty: true 
-      });
     }
   }, [
     watchInstantPay,
     watchInstantReceive,
+    stakeholder_id,
+    stakeholderPayableLedgers,
   ]);
 
   const addPurchaseOrder = useMutation({
