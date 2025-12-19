@@ -209,8 +209,6 @@ function PurchaseOrderDialogForm({toggleOpen, order = null}) {
   }, [
     watchInstantPay,
     watchInstantReceive,
-    stakeholder_id,
-    stakeholderPayableLedgers,
   ]);
 
   const addPurchaseOrder = useMutation({
