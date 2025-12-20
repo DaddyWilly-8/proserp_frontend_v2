@@ -7,31 +7,43 @@ import {
   Box,
   Typography,
   Avatar,
+  useTheme,
 } from '@mui/material';
 import { CheckBox, CheckBoxOutlineBlank } from '@mui/icons-material';
 import { useProductsSelect } from './ProductsSelectProvider';
 
 const ProductThumbnail = ({ name, imageUrl, size = 36 }) => {
-  const [error, setError] = useState(false);
+  const theme = useTheme();
   const letter = name?.charAt(0)?.toUpperCase() || "?";
 
   return (
     <Avatar
       variant="square"
-      src={!error ? imageUrl : undefined}
+      src={imageUrl}
       alt={name}
-      onError={() => setError(true)}
       sx={{
         width: size,
         height: size,
         mr: 1,
-        bgcolor: "#e0e0e0",
-        color: "#555",
         fontSize: 14,
-        border: "1px solid #d0d0d0",
+        bgcolor:
+          theme.type === "dark"
+            ? theme.palette.grey[800]
+            : theme.palette.grey[200],
+        color:
+          theme.type === "dark"
+            ? theme.palette.grey[100]
+            : theme.palette.grey[800],
+        border: "1px solid",
+        borderColor: theme.palette.divider,
+      }}
+      imgProps={{
+        onError: (e) => {
+          e.currentTarget.style.display = "none";
+        },
       }}
     >
-      {(!imageUrl || error) && letter}
+      {letter}
     </Avatar>
   );
 };
