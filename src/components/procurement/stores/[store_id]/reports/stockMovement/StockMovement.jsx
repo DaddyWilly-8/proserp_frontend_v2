@@ -41,7 +41,7 @@ const ReportDocument = ({productCategories, organizationHasSubscribed, movements
             producer='ProsERP'
             title={`${store.name} ${reportTitle} ${readableDate(movementsData.filters.from,true)} to ${readableDate(movementsData.filters.to,true)}`}
         >
-            <Page size="A3" orientation={'portrait'} style={pdfStyles.page}>
+            <Page size="A3" orientation={'landscape'} style={pdfStyles.page}>
                 <View style={pdfStyles.table}>
                     <View style={{ ...pdfStyles.tableRow, marginBottom: 20 }}>
                         <View style={{ flex: 1, maxWidth: 120}}>
@@ -108,7 +108,7 @@ const ReportDocument = ({productCategories, organizationHasSubscribed, movements
                             checkOrganizationPermission(PERMISSIONS.ACCOUNTS_REPORTS) &&
                             <React.Fragment>
                                 <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 1.5 }}>Latest Rate</Text>
-                                <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 1.5 }}>Estimated Closing Value</Text>
+                                <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 1.5 }}>Est. Closing Value</Text>
                             </React.Fragment>
                         }
                     </View>
