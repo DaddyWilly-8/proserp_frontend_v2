@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from "react";
 import {
   Autocomplete,
   Checkbox,
@@ -8,50 +8,76 @@ import {
   Typography,
   Avatar,
   useTheme,
-} from '@mui/material';
-import { CheckBox, CheckBoxOutlineBlank } from '@mui/icons-material';
-import { useProductsSelect } from './ProductsSelectProvider';
+} from "@mui/material";
+import { CheckBox, CheckBoxOutlineBlank } from "@mui/icons-material";
+import { useProductsSelect } from "./ProductsSelectProvider";
 
-const ProductThumbnail = ({ name, imageUrl, size = 36 }) => {
+const ProductThumbnail = ({ name, imageUrl, size = 64 }) => {
   const theme = useTheme();
   const letter = name?.charAt(0)?.toUpperCase() || "?";
+  const [hovered, setHovered] = useState(false);
+
+  const canHover = Boolean(imageUrl);
 
   return (
-    <Avatar
-      variant="square"
-      src={imageUrl}
-      alt={name}
+    <Box
       sx={{
-        width: size,
-        height: size,
-        mr: 1,
-        fontSize: 14,
-        bgcolor:
-          theme.type === "dark"
-            ? theme.palette.grey[800]
-            : theme.palette.grey[200],
-        color:
-          theme.type === "dark"
-            ? theme.palette.grey[100]
-            : theme.palette.grey[800],
-        border: "1px solid",
-        borderColor: theme.palette.divider,
-      }}
-      imgProps={{
-        onError: (e) => {
-          e.currentTarget.style.display = "none";
-        },
+        width: hovered && canHover ? size + 50 : size,
+        height: hovered && canHover ? size + 50 : size,
+        mr: 2,
+        transition: "all 0.25s ease",
+        flexShrink: 0,
       }}
     >
-      {letter}
-    </Avatar>
+      <Avatar
+        variant="square"
+        alt={name}
+        src={imageUrl || undefined}
+        onMouseEnter={() => canHover && setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+        sx={{
+          width: "100%",
+          height: "100%",
+          overflow: "hidden",
+
+          cursor: canHover ? "pointer" : "default",
+
+          bgcolor:
+            theme.type === "dark"
+              ? theme.palette.grey[800]
+              : theme.palette.grey[200],
+
+          color:
+            theme.type === "dark"
+              ? theme.palette.grey[100]
+              : theme.palette.grey[800],
+
+          border: "1px solid",
+          borderColor: theme.palette.divider,
+          fontSize: size * 0.45,
+
+          "& img": {
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+          },
+        }}
+        imgProps={{
+          onError: (e) => {
+            e.currentTarget.style.display = "none";
+          },
+        }}
+      >
+        {!imageUrl && letter}
+      </Avatar>
+    </Box>
   );
 };
 
 function ProductSelect(props) {
   const {
     frontError = null,
-    label = 'Select Product',
+    label = "Select Product",
     excludeIds = [],
     multiple = false,
     startAdornment,
@@ -62,7 +88,6 @@ function ProductSelect(props) {
     readOnly = false,
     onChange,
   } = props;
-
   const { productOptions } = useProductsSelect();
 
   const [selectedItems, setSelectedItems] = useState(
@@ -117,40 +142,50 @@ function ProductSelect(props) {
       value={selectedItems}
       disableCloseOnSelect={multiple}
       onChange={handleOnChange}
+      getOptionLabel={(o) => o?.name || ""}
       isOptionEqualToValue={(o, v) => o.id === v.id}
-      getOptionLabel={(o) => o?.name || ''}
-
       renderOption={(props, option, { selected }) => {
         const { key, ...rest } = props;
 
         return (
           <li {...rest} key={`${option.id}-${key}`}>
-            {multiple && (
-              <Checkbox
-                icon={<CheckBoxOutlineBlank fontSize="small" />}
-                checkedIcon={<CheckBox fontSize="small" />}
-                checked={selected}
-                sx={{ mr: 1 }}
-              />
-            )}
-
-            <ProductThumbnail
-              name={option.name}
-              imageUrl={option.image_url}
-            />
-
-            <Box>
-              <Typography variant="body2">
-                {option.name}
-              </Typography>
-              {option.type && (
-                <Typography
-                  variant="caption"
-                  color="text.secondary"
-                >
-                  {option.type}
-                </Typography>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                minHeight: 80,
+                py: 1,
+              }}
+            >
+              {multiple && (
+                <Checkbox
+                  icon={<CheckBoxOutlineBlank fontSize="small" />}
+                  checkedIcon={<CheckBox fontSize="small" />}
+                  checked={selected}
+                  sx={{ mr: 1 }}
+                />
               )}
+
+              <ProductThumbnail
+                name={option.name}
+                imageUrl={option.image_url}
+                size={64}
+              />
+
+              <Box>
+                <Typography variant="body1" fontWeight={500}>
+                  {option.name}
+                </Typography>
+
+                {option.type && (
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                  >
+                    {option.type}
+                  </Typography>
+                )}
+              </Box>
             </Box>
           </li>
         );
@@ -168,12 +203,12 @@ function ProductSelect(props) {
                   <ProductThumbnail
                     name={option.name}
                     imageUrl={option.image_url}
-                    size={24}
+                    size={36}
                   />
                   {option.name}
                 </Box>
               }
-              size="small"
+              size="medium"
               sx={{
                 borderRadius: 1,
                 "& .MuiChip-label": {
