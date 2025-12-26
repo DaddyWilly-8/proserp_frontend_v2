@@ -5,6 +5,7 @@ const withPWA = withPWAInit({
   cacheOnFrontEndNav: true,
   aggressiveFrontEndNavCaching: true,
   reloadOnOnline: true,
+  swcMinify: true,
   disable: false,
   workboxOptions: {
     disableDevLogs: true,
@@ -15,18 +16,13 @@ const withPWA = withPWAInit({
 });
 
 const nextConfig = {
-  output: 'standalone', 
-
   reactStrictMode: true,
-
   eslint: {
     ignoreDuringBuilds: true,
   },
-
   env: {
     REACT_APP_IMAGES_PATH: '/assets/images',
   },
-
   async redirects() {
     return [
       {
@@ -36,7 +32,6 @@ const nextConfig = {
       },
     ];
   },
-
   async rewrites() {
     return [
       {
@@ -45,12 +40,13 @@ const nextConfig = {
       },
     ];
   },
-
+  turbopack: {},
   images: {
     remotePatterns: [
       {
         protocol: 'https',
         hostname: 'images.unsplash.com',
+        port: '',
         pathname: '/**',
       },
     ],
