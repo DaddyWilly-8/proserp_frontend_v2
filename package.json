@@ -67,6 +67,7 @@
     "autosuggest-highlight": "^3.3.4",
     "axios": "^1.8.4",
     "beautiful-react-hooks": "^5.0.3",
+    "ckeditor5": "^43",
     "fa-icons": "^0.2.0",
     "firebase": "^11.6.1",
     "font-awesome": "^4.7.0",
