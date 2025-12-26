@@ -4922,7 +4922,7 @@ chrome-trace-event@^1.0.2:
   resolved "https://registry.npmjs.org/chrome-trace-event/-/chrome-trace-event-1.0.4.tgz#05bffd7ff928465093314708c93bdfa9bd1f0f5b"
   integrity sha512-rNjApaLzuwaOTjCiT8lSDdGN1APCiqkChLMJxJPWLunPAt5fy8xgU9/jNOchV84wfIxrA0lRQB7oCT8jrn/wrQ==
 
-ckeditor5@43.3.1:
+ckeditor5@43.3.1, ckeditor5@^43:
   version "43.3.1"
   resolved "https://registry.npmjs.org/ckeditor5/-/ckeditor5-43.3.1.tgz#95db2b8f793191987bf2fc01e22b0a9a4d62250c"
   integrity sha512-ZZ6nIdlr9rCCp21o9d5/mVUeVPwpQKEVxkeq1MU/Jax1w8U6rnMiQWxB954Ky/HNjhZ1v1ll2+VRzb7XA+1emA==
