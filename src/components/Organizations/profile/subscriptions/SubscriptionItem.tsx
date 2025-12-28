@@ -250,7 +250,7 @@ function SubscriptionItem({ subscription, isFromProsAfricanSubscriptions }: { su
       >
         <JumboCardQuick sx={{ bgcolor: 'transparent' }}>
           <Grid container spacing={1}>
-            {isFromProsAfricanSubscriptions && (
+            {(
               <Grid size={12} textAlign={'end'}>
                 <SubscriptionItemAction subscription={subscription} />
                 <Divider />
