@@ -77,7 +77,7 @@ const JumboSearch: React.FC<JumboSearchProps> = React.memo(({ onChange, value = 
           display: 'flex',
           borderRadius: 24,
           backgroundColor: (theme: Theme) =>
-            theme.palette.mode === 'dark'
+            theme.type === 'dark'
               ? 'rgba(255, 255, 255, 0.1)'
               : 'rgba(0, 0, 0, 0.05)',
           '& .MuiInputBase-input': {
@@ -113,7 +113,7 @@ const JumboSearch: React.FC<JumboSearchProps> = React.memo(({ onChange, value = 
               padding: 0.5,
               color: (theme: Theme) => theme.palette.text.secondary,
               backgroundColor: (theme: Theme) => 
-                theme.palette.mode === 'dark'
+                theme.type === 'dark'
                   ? 'rgba(255, 255, 255, 0.1)'
                   : 'rgba(0, 0, 0, 0.05)',
               borderRadius: '50%',
@@ -122,7 +122,7 @@ const JumboSearch: React.FC<JumboSearchProps> = React.memo(({ onChange, value = 
               '&:hover': {
                 color: (theme: Theme) => theme.palette.text.primary,
                 backgroundColor: (theme: Theme) => 
-                  theme.palette.mode === 'dark'
+                  theme.type === 'dark'
                     ? 'rgba(255, 255, 255, 0.2)'
                     : 'rgba(0, 0, 0, 0.1)',
               },

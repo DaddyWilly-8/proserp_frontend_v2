@@ -360,9 +360,9 @@ function WBSListItem() {
 
   return (
     <>
-      <Grid container columnSpacing={1} justifyContent="flex-end" alignItems="center">
+      <Grid container columnSpacing={1} justifyContent="flex-end" alignItems="center" width={'100%'}>
         {projectTimelineActivities?.length > 0 && (
-          <Grid>
+          <Grid size={{xs: 11, md: 4}}>
             <JumboSearch
               value={searchQuery}
               onChange={(value) => setSearchQuery(value)}
@@ -371,15 +371,15 @@ function WBSListItem() {
         )}
         {isLargeScreen && (
           <>
-            <Grid>
+            <Grid size={0.5}>
               <GanttChartActionTail />
             </Grid>
-            <Grid>
+            <Grid size={0.5}>
               <TasksTreeViewActionTail />
             </Grid>
           </>
         )}
-        <Grid>
+        <Grid size={{xs: 1, md: 0.5}}>
           <WBSActionTail
             openDialog={openDialog}
             setOpenDialog={setOpenDialog}
