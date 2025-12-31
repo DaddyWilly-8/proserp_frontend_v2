@@ -8,6 +8,7 @@ import { MeasurementUnit } from '@/components/masters/measurementUnits/Measureme
 import { Stakeholder } from '@/components/masters/stakeholders/StakeholderType';
 import { Organization, User } from '@/types/auth-types';
 import { Currency } from '@/components/masters/Currencies/CurrencyType';
+import PageFooter from '@/components/pdf/PageFooter';
 
 interface Product {
   name: string;
@@ -378,24 +379,20 @@ const SaleReceiptPDF: React.FC<SaleReceiptPDFProps> = ({ user, organization, sal
         {renderTotals()}
         {renderVerification()}
 
-        <View style={{ ...pdfStyles.tableRow, textAlign: 'center', marginBottom: 10 }}>
+        <View style={{ ...pdfStyles.tableRow, textAlign: 'center', marginBottom: 15}}>
           <View style={{ flex: 1 }}>
             <Text style={pdfStyles.minInfo}>Served by: {sale.creator.name}</Text>
           </View>
         </View>
-        <View style={{ ...pdfStyles.tableRow, textAlign: 'center', marginBottom: 15 }}>
-          <View style={{ flex: 1 }}>
-            <Text style={pdfStyles.microInfo}>Powered by: proserp.co.tz</Text>
-          </View>
-        </View>
-
         {sale.vfd_receipt && (
-          <View style={{ ...pdfStyles.tableRow, textAlign: 'center' }}>
+          <View style={{ ...pdfStyles.tableRow, textAlign: 'center', marginTop: 15 }}>
             <View style={{ flex: 1 }}>
               <Text style={{ ...pdfStyles.minInfo, fontFamily: 'Helvetica-Bold' }}>*** END OF LEGAL RECEIPT ***</Text>
             </View>
           </View>
         )}
+        
+        <PageFooter/>
       </Page>
     </Document>
   );
