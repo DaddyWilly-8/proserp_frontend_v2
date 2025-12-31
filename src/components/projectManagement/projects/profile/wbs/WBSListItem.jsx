@@ -266,12 +266,13 @@ const TimelineActivityAccordion = ({ activity, expanded, handleChange }) => {
           <Grid
             size={12}
             textAlign="end"
+            paddingTop={1}
             display="flex"
             justifyContent="flex-end"
             alignItems="center"
           >
             {(activity.children?.length > 0 || activity.tasks.length > 0) && (
-              <Grid item pb={1}>
+              <Grid size={{xs: 12, md: 4}} pb={1}>
                 <Tooltip title="Search Tasks or Activities">
                   <div>
                     <JumboSearch
