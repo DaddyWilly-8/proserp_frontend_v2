@@ -247,7 +247,7 @@
     "src/components/productAndServices/products/ProductsCategorySelector.jsx",
     "src/components/prosControl/support/support-services.js",
     "src/components/Invitations/invitationsServices.js",
-    "src/components/projectManagement/projects/profile/ProjectProfile.jsx",
+    "src/components/projectManagement/projects/profile/ProjectProfile.tsx",
     "src/components/projectManagement/projects/profile/ProjectDeliverablesSelector.jsx",
     "src/components/projectManagement/projects/profile/ProjectProfileProvider.jsx",
     "src/components/projectManagement/projects/profile/wbs/WBSListItem.jsx",
@@ -341,7 +341,7 @@
     "src/components/projectManagement/projects/profile/subcontracts/tabs/certificatesTab/preview/CertificatePDF.jsx",
     "src/components/projectManagement/projects/profile/subcontracts/tabs/certificatesTab/preview/CertificateOnScreen.jsx",
     ".next/dev/types/**/*.ts"
-  ],
+, "src/components/projectManagement/projects/profile/claims/form/tab/adjustments/ProjectClaimsAdjustments.tsx"  ],
   "exclude": [
     "node_modules"
   ]

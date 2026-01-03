@@ -21,7 +21,7 @@ const Updates = () => {
   const listRef = React.useRef();
 
   // State for date filters
-  const [openFilters, setOpenFilters] = React.useState(true);
+  const [openFilters, setOpenFilters] = React.useState(false);
   const [filterDate, setFilterDate] = React.useState({
     from: null,
     to: null
@@ -121,7 +121,7 @@ const Updates = () => {
                 {openFilters && (
                   <Grid size={{xs: 10, md: 6}}>
                     <Grid container spacing={1} alignItems={'center'} width={'100%'}>
-                      <Grid size={{xs: 11, md: 5.5}}>
+                      <Grid size={{xs: 11, md: 5}}>
                         <DateTimePicker
                           label="From Date"
                           value={filterDate.from ? dayjs(filterDate.from) : null}
@@ -134,7 +134,7 @@ const Updates = () => {
                           onChange={(value) => handleDateChange(value, 'from')}
                         />
                       </Grid>
-                      <Grid size={{xs: 11, md: 5.5}}>
+                      <Grid size={{xs: 11, md: 5}}>
                         <DateTimePicker
                           label="To Date"
                           value={filterDate.to ? dayjs(filterDate.to) : null}
