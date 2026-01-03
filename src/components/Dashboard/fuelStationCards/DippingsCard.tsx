@@ -66,7 +66,6 @@ function DippingsCard() {
         queryKey: ['dippingsReport', params],
         queryFn: async () => {
             return await fuelStationServices.dippingReport(params);
-            return null;
         }
     });
 
