@@ -30,6 +30,7 @@ import projectsServices from '@/components/projectManagement/projects/project-se
 import PDFContent from '@/components/pdf/PDFContent';
 import ProjectClaimsForm from './form/ProjectClaimsForm';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
+import { MenuItemProps } from '@jumbo/types';
 
 interface DocumentDialogProps {
   open: boolean;
@@ -170,7 +171,7 @@ const ProjectClaimItemAction: React.FC<ProjectClaimItemActionProps> = ({
     { icon: <DeleteOutlined color="error" />, title: 'Delete', action: 'delete' },
   ];
 
-  const handleItemAction = (menu: { action: string }) => {
+  const handleItemAction = (menu: MenuItemProps) => {
     switch (menu.action) {
       case 'view':
         setOpenPreviewDialog(true);
