@@ -13,7 +13,6 @@ import { AddOutlined, CheckOutlined, DisabledByDefaultOutlined } from '@mui/icon
 import { Button, CircularProgress } from '@mui/material';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { Div } from '@jumbo/shared';
 import { sanitizedNumber } from '@/app/helpers/input-sanitization-helpers';
 import CommaSeparatedField from '@/shared/Inputs/CommaSeparatedField';
 import { useProjectProfile } from '@/components/projectManagement/projects/profile/ProjectProfileProvider';
@@ -95,7 +94,7 @@ const ClaimedDeliverablesItemForm = ({
     reset,
     trigger,
   } = useForm({
-    resolver: yupResolver(validationSchema),
+    resolver: yupResolver(validationSchema) as any,
     defaultValues: {
       project_deliverable_id: deliverableItem?.project_deliverable_id || null,
       revenue_ledger_id: deliverableItem?.revenue_ledger_id || null,
@@ -177,7 +176,7 @@ const ClaimedDeliverablesItemForm = ({
           isOptionEqualToValue={(option, value) => option.id === value?.id}
           value={deliverables.find((d) => d.id === watch('project_deliverable_id')) || null}
           onChange={(_, newValue) => {
-            setValue(`deliverable`, newValue)
+            setValue(`deliverable` as any, newValue)
             setValue('project_deliverable_id', newValue?.id || null, {
               shouldDirty: true,
               shouldValidate: true,
@@ -190,7 +189,7 @@ const ClaimedDeliverablesItemForm = ({
               size="small"
               fullWidth
               error={!!errors.project_deliverable_id}
-              helperText={errors.project_deliverable_id?.message}
+              helperText={errors.project_deliverable_id?.message as any}
             />
           )}
         />
@@ -203,7 +202,7 @@ const ClaimedDeliverablesItemForm = ({
           defaultValue={ungroupedLedgerOptions?.find((l) => l.id === watch('revenue_ledger_id'))}
           allowedGroups={['Revenue']}
           frontError={errors.revenue_ledger_id}
-          onChange={(newValue) => {
+          onChange={(newValue: any) => {
             setValue('revenue_ledger_id', newValue?.id || null, {
               shouldDirty: true,
               shouldValidate: true,
@@ -222,7 +221,7 @@ const ClaimedDeliverablesItemForm = ({
             inputComponent: CommaSeparatedField as any
           }}
           error={!!errors.certified_quantity}
-          helperText={errors.certified_quantity?.message}
+          helperText={errors.certified_quantity?.message as any}
           onChange={(e) => {
             const num = e.target.value ? sanitizedNumber(e.target.value) : '';
             setValue('certified_quantity', num, { shouldDirty: true, shouldValidate: true });

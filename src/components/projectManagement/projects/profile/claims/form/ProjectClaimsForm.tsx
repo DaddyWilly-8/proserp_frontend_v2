@@ -14,11 +14,12 @@ import {
   Tabs,
   Tab,
   Divider,
+  Typography,
 } from '@mui/material';
 import { DateTimePicker } from '@mui/x-date-pickers';
 import dayjs from 'dayjs';
 import React, { useEffect, useMemo, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, FieldErrors } from 'react-hook-form';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useSnackbar } from 'notistack';
@@ -37,9 +38,7 @@ interface Adjustment {
   description?: string;
   amount?: number;
   complement_ledger_id?: number;
-  complement_ledger?: {
-    id: number;
-  };
+  complement_ledger?: { id: number };
 }
 
 interface ClaimedDeliverable {
@@ -65,13 +64,25 @@ interface ProjectClaimsFormProps {
   subContract?: any;
 }
 
+// Extend form values to include manual error field
 interface FormValues {
   id?: number;
   project_id: number;
   remarks: string;
   claim_date: string;
   currency_id: number;
+  // Manual error field (not submitted)
+  claimed_deliverables?: string;
 }
+
+const validationSchema = yup.object({
+  remarks: yup.string().required('Remarks is required'),
+  claim_date: yup.string().required('Claim date is required'),
+  currency_id: yup
+    .number()
+    .required('Currency is required')
+    .positive('Invalid currency'),
+});
 
 const ProjectClaimsForm: React.FC<ProjectClaimsFormProps> = ({
   setOpenDialog,
@@ -79,7 +90,7 @@ const ProjectClaimsForm: React.FC<ProjectClaimsFormProps> = ({
   subContract,
 }) => {
   const queryClient = useQueryClient();
-  const { project }: any = useProjectProfile();
+  const { project } = useProjectProfile() as any;
   const { enqueueSnackbar } = useSnackbar();
 
   const [deliverableItems, setDeliverablesItems] = useState<ClaimedDeliverable[]>(
@@ -102,10 +113,9 @@ const ProjectClaimsForm: React.FC<ProjectClaimsFormProps> = ({
       setOpenDialog(false);
     },
     onError: (error: any) => {
-      enqueueSnackbar(
-        error?.response?.data?.message || 'Error saving claim',
-        { variant: 'error' }
-      );
+      enqueueSnackbar(error?.response?.data?.message || 'Error saving claim', {
+        variant: 'error',
+      });
     },
   });
 
@@ -117,20 +127,10 @@ const ProjectClaimsForm: React.FC<ProjectClaimsFormProps> = ({
       setOpenDialog(false);
     },
     onError: (error: any) => {
-      enqueueSnackbar(
-        error?.response?.data?.message || 'Error updating claim',
-        { variant: 'error' }
-      );
+      enqueueSnackbar(error?.response?.data?.message || 'Error updating claim', {
+        variant: 'error',
+      });
     },
-  });
-
-  const validationSchema = yup.object({
-    remarks: yup.string().required('Remarks is required'),
-    claim_date: yup.string().required('Claim date is required'),
-    currency_id: yup
-      .number()
-      .required('Currency is required')
-      .positive('Currency is required'),
   });
 
   const {
@@ -163,7 +163,7 @@ const ProjectClaimsForm: React.FC<ProjectClaimsFormProps> = ({
 
   const onSubmit = (data: FormValues) => {
     if (deliverableItems.length === 0) {
-      setError('claimed_deliverables' as any, {
+      setError('claimed_deliverables', {
         type: 'manual',
         message: 'You must add at least one Certified Task',
       });
@@ -244,7 +244,7 @@ const ProjectClaimsForm: React.FC<ProjectClaimsFormProps> = ({
               />
             </Grid>
 
-            <Grid size={{ xs: 12 }}>
+            <Grid size={12}>
               <TextField
                 size="small"
                 label="Remarks"
@@ -258,14 +258,20 @@ const ProjectClaimsForm: React.FC<ProjectClaimsFormProps> = ({
             </Grid>
           </Grid>
 
-          <Tabs value={activeTab} onChange={(_, v) => setActiveTab(v)} fullWidth>
+          {/* Fixed Tabs – removed fullWidth, added variant */}
+          <Tabs
+            value={activeTab}
+            onChange={(_, v) => setActiveTab(v)}
+            variant="fullWidth"
+            sx={{ mb: 2 }}
+          >
             <Tab label="Claimed Deliverables" />
             <Tab label="Adjustments" />
           </Tabs>
 
           <Divider />
 
-          <Box>
+          <Box mt={2}>
             {activeTab === 0 && (
               <>
                 <ClaimedDeliverablesItemForm
@@ -341,9 +347,10 @@ const ProjectClaimsForm: React.FC<ProjectClaimsFormProps> = ({
               </>
             )}
 
-            {errors?.claimed_deliverables && deliverableItems.length < 1 && (
+            {/* Fixed error display */}
+            {'claimed_deliverables' in errors && deliverableItems.length === 0 && (
               <Alert severity="error" sx={{ mt: 2 }}>
-                {errors.claimed_deliverables.message as string}
+                {(errors as any).claimed_deliverables?.message}
               </Alert>
             )}
           </Box>
@@ -362,11 +369,7 @@ const ProjectClaimsForm: React.FC<ProjectClaimsFormProps> = ({
             >
               Add and Submit
             </Button>
-            <Button
-              size="small"
-              color="secondary"
-              onClick={handleConfirmSubmitWithoutAdd}
-            >
+            <Button size="small" color="secondary" onClick={handleConfirmSubmitWithoutAdd}>
               Submit without add
             </Button>
           </DialogActions>
@@ -378,24 +381,29 @@ const ProjectClaimsForm: React.FC<ProjectClaimsFormProps> = ({
           Cancel
         </Button>
 
-        {activeTab < 1 ? (
-          <Button
-            size="small"
-            variant="outlined"
-            onClick={() => setActiveTab((t) => t + 1)}
-          >
-            Next
-          </Button>
-        ) : (
-          <LoadingButton
-            loading={addClaim.isPending || updateClaim.isPending}
-            size="small"
-            variant="contained"
-            onClick={handleSubmit(onSubmit)}
-          >
-            {claim ? 'Update' : 'Submit'}
-          </LoadingButton>
-        )}
+        <Box display="flex" gap={1}>
+          {activeTab === 0 && (
+            <Button
+              size="small"
+              variant="outlined"
+              onClick={() => setActiveTab(1)}
+            >
+              Next
+            </Button>
+          )}
+
+          {activeTab === 1 && (
+            <LoadingButton
+              loading={addClaim.isPending || updateClaim.isPending}
+              size="small"
+              variant="contained"
+              color="primary"
+              onClick={handleSubmit(onSubmit)}
+            >
+              {claim ? 'Update' : 'Submit'}
+            </LoadingButton>
+          )}
+        </Box>
       </DialogActions>
     </>
   );
