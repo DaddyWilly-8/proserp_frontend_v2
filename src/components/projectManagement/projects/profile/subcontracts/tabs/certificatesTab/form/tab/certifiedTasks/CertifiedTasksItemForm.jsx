@@ -9,7 +9,6 @@ import { Div } from '@jumbo/shared';
 import { sanitizedNumber } from '@/app/helpers/input-sanitization-helpers';
 import CommaSeparatedField from '@/shared/Inputs/CommaSeparatedField';
 import projectsServices from '@/components/projectManagement/projects/project-services';
-import { useProjectProfile } from '@/components/projectManagement/projects/profile/ProjectProfileProvider';
 import { useQuery } from '@tanstack/react-query';
 
 const CertifiedTasksItemForm= ({
@@ -27,25 +26,9 @@ const CertifiedTasksItemForm= ({
   subContract,
   certificate
 }) => {
-    const { deliverable_groups, setFetchDeliverables, projectTimelineActivities, setFetchTimelineActivities} = useProjectProfile();
     const [isAdding, setIsAdding] = useState(false);
     const [isRetrievingDetails, setIsRetrievingDetails] = useState(false);
     const [unitToDisplay, setUnitToDisplay] = useState(taskItem && taskItem.unit_symbol);
-
-    useEffect(() => {
-        if (!deliverable_groups) {
-            setFetchDeliverables(true);
-        } else {
-            setFetchDeliverables(false)
-        }
-
-        if (!projectTimelineActivities) {
-            setFetchTimelineActivities(true);
-        } else {
-            setFetchTimelineActivities(false)
-        }
-
-    }, [projectTimelineActivities, deliverable_groups, setFetchDeliverables, setFetchTimelineActivities]);
 
     const validationSchema = yup.object({
         project_subcontract_task_id: yup

@@ -41,15 +41,9 @@ const ClaimedDeliverablesItemForm = ({
   setDeliverablesItems,
   selectedCurrencyId,
 }: any) => {
-  const { deliverable_groups, setFetchDeliverables }: any = useProjectProfile();
+  const { deliverable_groups }: any = useProjectProfile();
   const { ungroupedLedgerOptions } = useLedgerSelect();
   const [isAdding, setIsAdding] = useState(false);
-
-  useEffect(() => {
-    if (!deliverable_groups) {
-      setFetchDeliverables(true);
-    }
-  }, [deliverable_groups, setFetchDeliverables]);
 
   const validationSchema = yup.object({
     project_deliverable_id: yup
