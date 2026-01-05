@@ -68,7 +68,7 @@ const DocumentDialog: React.FC<DocumentDialogProps> = ({
 
   if (isFetching) {
     return (
-      <Dialog open fullWidth fullScreen={belowLargeScreen} maxWidth="sm">
+      <Dialog open fullWidth fullScreen={belowLargeScreen} maxWidth="md">
         <LinearProgress />
       </Dialog>
     );
@@ -79,7 +79,7 @@ const DocumentDialog: React.FC<DocumentDialogProps> = ({
       open={open}
       onClose={onClose}
       fullWidth
-      maxWidth="lg"
+      maxWidth="md"
       fullScreen={belowLargeScreen}
     >
       <DialogContent>

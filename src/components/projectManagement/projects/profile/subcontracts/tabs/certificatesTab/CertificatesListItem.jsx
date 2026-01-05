@@ -51,7 +51,7 @@ function CertificatesListItem({certificate}) {
             <Grid size={{xs: 6, md: 3, lg: 3}}>
                 <Tooltip title="Amount">
                     <Typography variant="h6">
-                        {certificate?.amount?.toLocaleString('en-US', {
+                        {certificate?.total_amount?.toLocaleString('en-US', {
                             style: 'currency',
                             currency: certificate.currency?.code,
                         })}

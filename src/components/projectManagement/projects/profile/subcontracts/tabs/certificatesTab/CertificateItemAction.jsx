@@ -45,13 +45,13 @@ const DocumentDialog = ({ open, onClose, certificateId, organization }) => {
 
   if (isFetching)
   return (
-    <Dialog open fullWidth fullScreen={belowLargeScreen} maxWidth="sm">
+    <Dialog open fullWidth fullScreen={belowLargeScreen} maxWidth="md">
         <LinearProgress/>
     </Dialog>
   );
 
   return (
-    <Dialog open={open} onClose={onClose} fullScreen={belowLargeScreen} maxWidth="lg" fullWidth>
+    <Dialog open={open} onClose={onClose} fullScreen={belowLargeScreen} maxWidth="md" fullWidth>
       <DialogContent>
         {belowLargeScreen && (
           <Grid container alignItems="center" justifyContent="space-between" mb={2}>

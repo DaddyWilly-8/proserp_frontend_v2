@@ -59,43 +59,64 @@ const ClaimPDF: React.FC<{ claim: Claim; organization: Organization }> = ({
   const contrastText = organization.settings?.contrast_text || '#FFFFFF';
   const currencyCode = claim.currency?.code || 'TZS';
 
-  const claimedItems = claim.claim_items.map((it, index) => {
-    const rate = it.project_deliverable?.contract_rate || 0;
-    const contractQty = it.project_deliverable?.quantity || 0;
-    const unit = it.project_deliverable?.measurement_unit?.symbol || '';
+  const vatPercentage = claim.vat_percentage || 0;
+  const grossAmount = Number(claim.amount) || 0;
+  const vatAmount = (grossAmount * vatPercentage) / 100;
 
-    return {
-      sn: index + 1,
-      description: it.project_deliverable?.description || '',
-      unit,
-      contractQty,
-      unitRate: rate,
-      contractAmount: contractQty * rate,
-      ledger: it.revenue_ledger?.name || '',
-      remarks: it.remarks || '',
-    };
-  });
+  const grossItem = {
+    id: 'gross',
+    particular: 'Gross Amount Certified',
+    amount: grossAmount,
+  };
 
-  const claimedTotal = claimedItems.reduce(
-    (sum, item) => sum + item.contractAmount,
-    0
-  );
+  const vatItem = vatPercentage
+    ? {
+        id: 'vat',
+        particular: `VAT (${vatPercentage}%)`,
+        amount: vatAmount,
+      }
+    : null;
 
-  const grossAmount = claimedTotal; 
-
-  const adjustmentItems = (claim.adjustments || []).map((adj, index) => ({
-    sn: index + 1,
-    description: adj.description,
+  const adjustmentItems = (claim.adjustments || []).map((adj) => ({
+    id: adj.id,
+    particular: adj.description,
+    complement_ledger: adj.complement_ledger,
     type: adj.type,
-    amount: Number(adj.amount) || 0,
-    ledger: adj.complement_ledger?.name || '',
+    amount: adj.type === 'deduction' ? -adj.amount :  adj.amount
   }));
 
-  const netAdjustments = adjustmentItems.reduce(
-    (sum, adj) => sum + (adj.type === 'addition' ? adj.amount : -adj.amount),
-    0
-  );
+  const summaryItems = [
+    grossItem,
+    ...(vatItem ? [vatItem] : []),
+    ...adjustmentItems,
+  ];
 
+  const grandTotal = summaryItems.reduce((sum, item) => sum + Number(item.amount),0);
+
+  const claimedItems = claim.claim_items.map((it) => {
+    const previousQty = it.previous_certified_quantity || 0;
+    const presentQty = it.certified_quantity || 0;
+    const cumulativeQty = previousQty + presentQty;
+    const rate = it.project_deliverable.contract_rate || 0;
+
+    return {
+      id: `T${it?.id}`,
+      description: it.project_deliverable?.description || '',
+      unit: it.measurement_unit?.symbol,
+      certifiedQty: it.certified_quantity,
+      unitRate: rate,
+      ledger: it.revenue_ledger?.name || '',
+      contractAmount: presentQty * rate,
+      previousQty,
+      presentQty,
+      cumulativeQty,
+      remarks: it.remarks || '',
+      previousAmount: previousQty * rate,
+      presentAmount: presentQty * rate,
+      cumulativeAmount: cumulativeQty * rate,
+      revenue_ledger: it.revenue_ledger
+    };
+  });
 
   return (
     <Document title={claim.claimNo} author={claim.creator?.name}>
@@ -105,8 +126,9 @@ const ClaimPDF: React.FC<{ claim: Claim; organization: Organization }> = ({
             <PdfLogo organization={organization} />
           </View>
           <View style={{ textAlign: 'right' }}>
-            <Text style={{ ...pdfStyles.majorInfo, color: mainColor }}>CLAIM</Text>
+            <Text style={{ ...pdfStyles.majorInfo, color: mainColor }}>Payment Claim</Text>
             <Text style={pdfStyles.minInfo}>{claim.claimNo}</Text>
+            <Text style={pdfStyles.minInfo}>{claim.project.name}</Text>
           </View>
         </View>
 
@@ -123,191 +145,179 @@ const ClaimPDF: React.FC<{ claim: Claim; organization: Organization }> = ({
           )}
         </View>
 
-        {adjustmentItems.length > 0 && (
-          <View style={{ marginBottom: 40, alignItems: 'flex-end' }}>
-            <Text style={{ fontSize: 12, color: mainColor, marginBottom: 10 }}>
-              Adjustments
-            </Text>
-
-            <View style={{ width: '50%', minWidth: 380 }}>
-              <View style={pdfStyles.table}>
-                <View style={pdfStyles.tableRow}>
-                  <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 0.4 }}>
-                    S/N
-                  </Text>
-                  <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 2 }}>
-                    Description
-                  </Text>
-                  <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 1 }}>
-                    Complement Ledger
-                  </Text>
-                  <Text
-                    style={{
-                      ...pdfStyles.tableHeader,
-                      backgroundColor: mainColor,
-                      color: contrastText,
-                      flex: 1,
-                      textAlign: 'right',
-                    }}
-                  >
-                    Amount ({currencyCode})
-                  </Text>
-                </View>
-
-                {adjustmentItems.map((item, index) => (
-                  <View key={item.sn} style={pdfStyles.tableRow}>
-                    <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 ? lightColor : '#FFF', flex: 0.4 }}>
-                      {item.sn}.
-                    </Text>
-                    <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 ? lightColor : '#FFF', flex: 2 }}>
-                      {item.description}
-                    </Text>
-                    <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 ? lightColor : '#FFF', flex: 1, fontSize: 7 }}>
-                      {item.ledger}
-                    </Text>
-                    <Text
-                      style={{
-                        ...pdfStyles.tableCell,
-                        backgroundColor: index % 2 ? lightColor : '#FFF',
-                        flex: 1,
-                        textAlign: 'right',
-                        color: item.type === 'deduction' ? '#B00020' : '#000',
-                      }}
-                    >
-                      {item.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
-                    </Text>
-                  </View>
-                ))}
-
-                <View style={pdfStyles.tableRow}>
-                  <Text
-                    style={{
-                      ...pdfStyles.tableHeader,
-                      backgroundColor: mainColor,
-                      color: contrastText,
-                      flex: 3.4,
-                      textAlign: 'right',
-                    }}
-                  >
-                    Total Amount ({currencyCode})
-                  </Text>
-                  <Text
-                    style={{
-                      ...pdfStyles.tableHeader,
-                      backgroundColor: mainColor,
-                      color: contrastText,
-                      flex: 1,
-                      textAlign: 'right',
-                    }}
-                  >
-                    {netAdjustments.toLocaleString(undefined, { minimumFractionDigits: 2 })}
-                  </Text>
-                </View>
-              </View>
-            </View>
-          </View>
-        )}
-
-        <View style={{ marginBottom: 40 }}>
-          <Text style={{ fontSize: 12, color: mainColor, textAlign: 'center', marginBottom: 10 }}>
-            Claimed Deliverables
+        {/* ================= SUMMARY ================= */}
+        <View style={{ marginBottom: 30, alignItems: 'flex-end' }}>
+          <Text style={{ fontSize: 12, color: mainColor, marginBottom: 8 }}>
+            Summary
           </Text>
 
-          <View style={pdfStyles.table}>
-            <View style={pdfStyles.tableRow}>
-              <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 0.5 }}>
-                S/N
-              </Text>
-              <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 2 }}>
-                Description
-              </Text>
-              <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 1 }}>
-                Revenue
-              </Text>
-              <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 1 }}>
-                Qty
-              </Text>
-              <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 1 }}>
-                Rate
-              </Text>
-              <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 1 }}>
-                Amount
-              </Text>
-            </View>
-
-            {claimedItems.map((item, index) => (
-              <View key={item.sn} style={pdfStyles.tableRow}>
-                <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 ? lightColor : '#FFF', flex: 0.5 }}>
-                  {item.sn}.
-                </Text>
-                <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 ? lightColor : '#FFF', flex: 2 }}>
-                  {item.description}
-                </Text>
-                <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 ? lightColor : '#FFF', flex: 1, fontSize: 7 }}>
-                  {item.ledger}
-                </Text>
-                <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 ? lightColor : '#FFF', flex: 1, textAlign: 'right' }}>
-                  {item.contractQty}
-                </Text>
-                <Text
-                  style={{
-                    ...pdfStyles.tableCell,
-                    backgroundColor: index % 2 ? lightColor : '#FFF',
-                    flex: 1,
-                    textAlign: 'right',
-                    fontSize: 7.5,
-                  }}
-                >
-                  {item.unitRate.toLocaleString()}
-                </Text>
-                <Text
-                  style={{
-                    ...pdfStyles.tableCell,
-                    backgroundColor: index % 2 ? lightColor : '#FFF',
-                    flex: 1,
-                    textAlign: 'right',
-                    fontSize: 7.5,
-                  }}
-                >
-                  {item.contractAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+          <View style={{ width: '50%', minWidth: 380 }}>
+            <View style={pdfStyles.table}>
+              <View style={pdfStyles.tableRow}>
+                <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 0.4 }}>S/N</Text>
+                <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 2.6 }}>Particulars</Text>
+                <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 1, textAlign: 'right' }}>
+                  Amount ({currencyCode})
                 </Text>
               </View>
-            ))}
 
-            <View style={{ ...pdfStyles.tableRow, marginTop: 10 }}>
-              <Text
-                style={{
-                  ...pdfStyles.tableHeader,
-                  backgroundColor: mainColor,
-                  color: contrastText,
-                  flex: 5.6,
-                  textAlign: 'right',
-                }}
-              >
-                TOTAL ({currencyCode})
-              </Text>
-              <Text
-                style={{
-                  ...pdfStyles.tableHeader,
-                  backgroundColor: mainColor,
-                  color: contrastText,
-                  flex: 1,
-                  textAlign: 'right',
-                }}
-              >
-                {claimedTotal.toLocaleString(undefined, { minimumFractionDigits: 2 })}
-              </Text>
+              {summaryItems.map((item, index) => (
+                <View key={item.id} style={pdfStyles.tableRow}>
+                  <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 ? lightColor : '#FFF', flex: 0.4 }}>
+                    {index + 1}.
+                  </Text>
+
+                <View
+                  style={{
+                    ...pdfStyles.tableCell,
+                    backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor,
+                    flex: 2.6,
+                    flexDirection: 'column',
+                  }}
+                >
+                  <Text style={{ fontSize: 8 }}>
+                    {item.particular}
+                  </Text>
+
+                  {item.complement_ledger?.name && (
+                    <Text style={{ fontSize: 6.5, color: '#555' }}>
+                      ({item.complement_ledger.name})
+                    </Text>
+                  )}
+                </View>
+
+                  <Text
+                    style={{
+                      ...pdfStyles.tableCell,
+                      backgroundColor: index % 2 ? lightColor : '#FFF',
+                      flex: 1,
+                      textAlign: 'right',
+                      fontSize: 7.5,
+                      color: item.type === 'deduction' ? '#B00020' : '#000',
+                    }}
+                  >
+                    {Number(item.amount).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                  </Text>
+                </View>
+              ))}
+
+              <View style={{ ...pdfStyles.tableRow, marginTop: 6 }}>
+                <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 3.2, textAlign: 'center' }}>
+                  Grand Total ({currencyCode})
+                </Text>
+                <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 1, textAlign: 'right' }}>
+                  {grandTotal.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                </Text>
+              </View>
             </View>
           </View>
         </View>
 
+        <View style={{ marginBottom: 40 }}>
+          <Text style={{ fontSize: 12, color: mainColor, textAlign: 'center', marginBottom: 10 }}>
+            Claim Derivations
+          </Text>
+
+          {(() => {
+            const totals = claimedItems.reduce(
+              (acc, item) => ({
+                contractAmount: acc.contractAmount + Number(item.contractAmount || 0),
+                previousAmount: acc.previousAmount + Number(item.previousAmount || 0),
+                presentAmount: acc.presentAmount + Number(item.presentAmount || 0),
+                cumulativeAmount: acc.cumulativeAmount + Number(item.cumulativeAmount || 0),
+              }),
+              { contractAmount: 0, previousAmount: 0, presentAmount: 0, cumulativeAmount: 0 }
+            );
+
+            return (
+              <View style={pdfStyles.table}>
+                <View style={pdfStyles.tableRow}>
+                  <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 4.32 }}></Text>
+                  <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 1.97, textAlign: 'center' }}>Price Schedule</Text>
+                  <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 3.6, textAlign: 'center' }}>Quantity</Text>
+                  <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 3.6, textAlign: 'center' }}>Amount ({currencyCode})</Text>
+                </View>
+
+                <View style={pdfStyles.tableRow}>
+                  <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 0.5 }}>S/N</Text>
+                  <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 2 }}>Description</Text>
+                  <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 0.7 }}>Unit</Text>
+                  <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 1 }}>Qty</Text>
+                  <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 1 }}>Unit Rate ({currencyCode})</Text>
+                  <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 1 }}>Amount ({currencyCode})</Text>
+                  <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 1.2 }}>Previous</Text>
+                  <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 1.2 }}>Present</Text>
+                  <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 1.2 }}>Cumulative</Text>
+                  <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 1.2 }}>Previous</Text>
+                  <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 1.2 }}>Present</Text>
+                  <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 1.2 }}>Cumulative</Text>
+                </View>
+
+                {claimedItems.map((item, index) => (
+                  <View key={item.id} style={pdfStyles.tableRow}>
+                    <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFF' : lightColor, flex: 0.5 }}>{index + 1}.</Text>
+                    <View style={{...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 2, flexDirection: 'column'}}
+                    >
+                      <Text style={{ fontSize: 8 }}>
+                        {item.description}
+                      </Text>
+
+                      {item.revenue_ledger && (
+                        <Text style={{ fontSize: 6.5 }}>
+                          ({item.revenue_ledger.name})
+                        </Text>
+                      )}
+
+                      {item.remarks && (
+                        <Text style={{ fontSize: 6.5, color: '#555' }}>
+                          ({item.remarks})
+                        </Text>
+                      )}
+                    </View>
+                    <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFF' : lightColor, flex: 0.7, textAlign: 'center' }}>{item.unit}</Text>
+                    <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFF' : lightColor, flex: 1, textAlign: 'right' }}>{item.certifiedQty}</Text>
+                    <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFF' : lightColor, flex: 1, textAlign: 'right', fontSize: 7.5 }}>{item.unitRate.toLocaleString()}</Text>
+                    <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFF' : lightColor, flex: 1, textAlign: 'right', fontSize: 7.5 }}>{item.contractAmount?.toLocaleString()}</Text>
+                    <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFF' : lightColor, flex: 1.2, textAlign: 'right' }}>{item.previousQty}</Text>
+                    <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFF' : lightColor, flex: 1.2, textAlign: 'right' }}>{item.presentQty}</Text>
+                    <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFF' : lightColor, flex: 1.2, textAlign: 'right' }}>{item.cumulativeQty}</Text>
+                    <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFF' : lightColor, flex: 1.2, textAlign: 'right', fontSize: 7.5 }}>{item.previousAmount?.toLocaleString()}</Text>
+                    <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFF' : lightColor, flex: 1.2, textAlign: 'right', fontSize: 7.5 }}>{item.presentAmount?.toLocaleString()}</Text>
+                    <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFF' : lightColor, flex: 1.2, textAlign: 'right', fontSize: 7.5 }}>{item.cumulativeAmount?.toLocaleString()}</Text>
+                  </View>
+                ))}
+
+                {/* GRAND TOTAL - STILL BOLD & VISIBLE */}
+                <View style={{ ...pdfStyles.tableRow, marginTop: 12 }}>
+                  <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 5.9, textAlign: 'right', fontSize: 7 }}>
+                    GRAND TOTAL {currencyCode}
+                  </Text>
+                  <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 1, textAlign: 'right', fontSize: 7 }}>
+                    {totals.contractAmount?.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                  </Text>
+                  <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 3.9 }}></Text>
+                  <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 1.2, textAlign: 'right', fontSize: 7 }}>
+                    {totals.previousAmount?.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                  </Text>
+                  <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 1.2, textAlign: 'right', fontSize: 7 }}>
+                    {totals.presentAmount?.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                  </Text>
+                  <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 1.2, textAlign: 'right', fontSize: 7 }}>
+                    {totals.cumulativeAmount?.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                  </Text>
+                </View>
+              </View>
+            );
+          })()}
+        </View>
+
         {/* Signature */}
         <View style={{ marginTop: 40, flexDirection: 'row', justifyContent: 'flex-end' }}>
-          <View style={{ width: 300 }}>
-            <Text style={{ ...pdfStyles.minInfo, color: mainColor, marginBottom: 10 }}>
+          <View style={{ maxWidth: 300 }}>
+            <Text style={{ ...pdfStyles.minInfo, color: mainColor, marginBottom: 2 }}>
               Prepared By:
             </Text>
-            <Text style={{ ...pdfStyles.minInfo, borderTop: '1pt solid #000', paddingTop: 30 }}>
+            <Text style={{ ...pdfStyles.minInfo }}>
               {claim.creator?.name || ''}
             </Text>
           </View>
