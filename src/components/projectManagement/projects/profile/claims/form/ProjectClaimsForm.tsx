@@ -421,6 +421,7 @@ const ProjectClaimsForm: React.FC<ProjectClaimsFormProps> = ({
                   setDeliverablesItems={setDeliverablesItems}
                   setIsDirty={setIsDirty}
                   setClearFormKey={setClearFormKey}
+                  vat_percentage={watchVatPercentage}
                   submitItemForm={submitItemForm}
                   setSubmitItemForm={setSubmitItemForm}
                   submitMainForm={handleSubmit(submitForm)}

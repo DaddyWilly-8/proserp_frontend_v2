@@ -3,7 +3,6 @@ import {
   Autocomplete,
   Grid,
   IconButton,
-  InputAdornment,
   TextField,
   Tooltip,
   LinearProgress,
@@ -26,6 +25,8 @@ interface DeliverableOption {
   response_uncertified_quantity?: number;
   response_executed_quantity?: number;
   unit_symbol?: string;
+  rate: number
+  certified_quantity: number
 }
 
 const ClaimedDeliverablesItemForm = ({
@@ -93,6 +94,7 @@ const ClaimedDeliverablesItemForm = ({
       project_deliverable_id: deliverableItem?.project_deliverable_id || null,
       revenue_ledger_id: deliverableItem?.revenue_ledger_id || null,
       certified_quantity: deliverableItem?.certified_quantity || '',
+      rate: deliverableItem?.rate,
       remarks: deliverableItem?.remarks || '',
     },
   });
@@ -113,6 +115,12 @@ const ClaimedDeliverablesItemForm = ({
     }
   }, [submitItemForm, trigger, handleSubmit, setSubmitItemForm]);
 
+  const amount = () => { 
+    const quantity = parseFloat(watch(`certified_quantity`)) || 0;
+    const rate = parseFloat(watch(`rate`));
+    return quantity * rate;
+  }
+
   const updateItems = async (formData: any) => {
     setIsAdding(true);
 
@@ -122,12 +130,10 @@ const ClaimedDeliverablesItemForm = ({
     };
 
     if (index > -1) {
-      // Edit existing
       const updated = [...deliverableItems];
       updated[index] = { ...updated[index], ...itemToAdd };
       setDeliverablesItems(updated);
     } else {
-      // Add new
       setDeliverablesItems((prev: any[]) => [...prev, itemToAdd]);
       if (submitItemForm) submitMainForm();
     }
@@ -157,7 +163,6 @@ const ClaimedDeliverablesItemForm = ({
   };
 
   const deliverables = getDeliverablesOptions(deliverable_groups || []);
-  console.log(deliverable_groups)
 
   if (isAdding) return <LinearProgress />;
 
@@ -171,6 +176,7 @@ const ClaimedDeliverablesItemForm = ({
           value={deliverables.find((d) => d.id === watch('project_deliverable_id')) || null}
           onChange={(_, newValue) => {
             setValue(`deliverable` as any, newValue)
+            setValue(`rate`, newValue?.rate)
             setValue('project_deliverable_id', newValue?.id || null, {
               shouldDirty: true,
               shouldValidate: true,
@@ -205,7 +211,7 @@ const ClaimedDeliverablesItemForm = ({
         />
       </Grid>
 
-      <Grid size={{ xs: 12, md: 4 }}>
+      <Grid size={{ xs: 12, md: 2 }}>
         <TextField
           label="Certified Quantity"
           fullWidth
@@ -221,6 +227,18 @@ const ClaimedDeliverablesItemForm = ({
             setValue('certified_quantity', num, { shouldDirty: true, shouldValidate: true });
           }}
         />
+      </Grid>
+      <Grid size={{xs: 12, md: 2, lg: 2}}>
+          <TextField
+              label="Amount"
+              fullWidth
+              size='small'
+              value={amount()}
+              InputProps={{
+                  inputComponent: CommaSeparatedField,
+                  readOnly: true
+              }}
+          />
       </Grid>
 
       <Grid size={12}>
