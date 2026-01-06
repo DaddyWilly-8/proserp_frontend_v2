@@ -130,7 +130,7 @@ const CertifiedTasksItemForm: React.FC<CertifiedTasksItemFormProps> = ({
     setValue,
     watch,
     reset,
-    formState: { errors, dirtyFields, isDirty: formIsDirty },
+    formState: { errors, isDirty: formIsDirty },
   } = useForm<FormValues>({
     resolver: yupResolver(validationSchema) as any,
     defaultValues: {
@@ -230,7 +230,6 @@ const CertifiedTasksItemForm: React.FC<CertifiedTasksItemFormProps> = ({
 
   return (
     <Grid container spacing={1} mt={0.5}>
-      {/* Project Task Autocomplete */}
       <Grid size={{ xs: 12, md: 4 }}>
         <Div sx={{ mt: 0.3 }}>
           {isLoading ? (
@@ -287,8 +286,6 @@ const CertifiedTasksItemForm: React.FC<CertifiedTasksItemFormProps> = ({
           )}
         </Div>
       </Grid>
-
-      {/* Certified Quantity */}
       <Grid size={{ xs: 12, md: 4 }}>
         <Div sx={{ mt: 0.3 }}>
           {isRetrievingDetails ? (
@@ -318,8 +315,6 @@ const CertifiedTasksItemForm: React.FC<CertifiedTasksItemFormProps> = ({
           )}
         </Div>
       </Grid>
-
-      {/* Calculated Amount */}
       <Grid size={{ xs: 12, md: 4 }}>
         <Div sx={{ mt: 0.3 }}>
           <TextField
@@ -337,8 +332,6 @@ const CertifiedTasksItemForm: React.FC<CertifiedTasksItemFormProps> = ({
           />
         </Div>
       </Grid>
-
-      {/* Remarks */}
       <Grid size={12}>
         <Div sx={{ mt: 0.3 }}>
           <TextField
@@ -354,8 +347,6 @@ const CertifiedTasksItemForm: React.FC<CertifiedTasksItemFormProps> = ({
           />
         </Div>
       </Grid>
-
-      {/* Actions */}
       <Grid size={12} textAlign="end">
         <LoadingButton
           loading={isAdding}
@@ -367,7 +358,6 @@ const CertifiedTasksItemForm: React.FC<CertifiedTasksItemFormProps> = ({
         >
           {taskItem ? 'Done' : 'Add'}
         </LoadingButton>
-
         {taskItem && setShowForm && (
           <Tooltip title="Cancel Edit">
             <IconButton

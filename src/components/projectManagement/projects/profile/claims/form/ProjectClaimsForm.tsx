@@ -404,10 +404,9 @@ const ProjectClaimsForm: React.FC<ProjectClaimsFormProps> = ({
                 submitItemForm={submitItemForm}
                 setSubmitItemForm={setSubmitItemForm}
                 setIsDirty={setIsDirty}
-                deliverableItems={deliverableItems}
-                setDeliverablesItems={setDeliverablesItems}
-                subContract={subContract}
-                ClaimDate={watch('claim_date')}
+                deliverableItems={deliverableItems as any}
+                setDeliverablesItems={setDeliverablesItems as any}
+                claimDate={watch('claim_date')}
                 selectedCurrencyId={watch('currency_id')}
               />
 
@@ -425,7 +424,7 @@ const ProjectClaimsForm: React.FC<ProjectClaimsFormProps> = ({
                   setSubmitItemForm={setSubmitItemForm}
                   submitMainForm={handleSubmit(submitForm)}
                   selectedCurrencyId={watch('currency_id')}
-                  ClaimDate={watch('claim_date')}
+                  claimDate={watch('claim_date')}
                   subContract={subContract}
                   claim={claim}
                 />

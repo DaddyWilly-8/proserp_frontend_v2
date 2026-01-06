@@ -20,7 +20,7 @@ interface ClaimedDeliverablesItemRowProps {
   deliverableItem: any;
   index: number;
   deliverableItems?: any[];
-  ClaimDate: string;
+  claimDate: string;
   setDeliverablesItems: React.Dispatch<React.SetStateAction<any[]>>;
   subContract?: any;
   claim?: any;
@@ -37,10 +37,8 @@ const ClaimedDeliverablesItemRow: React.FC<ClaimedDeliverablesItemRowProps> = ({
   deliverableItem,
   index,
   deliverableItems = [],
-  ClaimDate,
+  claimDate,
   setDeliverablesItems,
-  subContract,
-  claim,
   vat_percentage = 0
 }) => {
   const [showForm, setShowForm] = useState<boolean>(false);
@@ -155,15 +153,13 @@ const ClaimedDeliverablesItemRow: React.FC<ClaimedDeliverablesItemRowProps> = ({
           submitMainForm={submitMainForm}
           setSubmitItemForm={setSubmitItemForm}
           submitItemForm={submitItemForm}
-          selectedCurrencyId={selectedCurrencyId}
+          selectedCurrencyId={selectedCurrencyId as any}
           setIsDirty={setIsDirty}
           deliverableItem={deliverableItem}
           setShowForm={setShowForm}
           index={index}
-          subContract={subContract}
-          claim={claim}
           deliverableItems={deliverableItems}
-          ClaimDate={ClaimDate}
+          claimDate={claimDate}
           setDeliverablesItems={setDeliverablesItems}
         />
       )}
