@@ -21,15 +21,15 @@ const CertificatesActionTail: React.FC<CertificatesActionTailProps> = ({ subCont
 
   return (
     <>
-        <Dialog maxWidth="lg" fullWidth fullScreen={belowLargeScreen} open={openDialog} onClose={() => setOpenDialog(false)}>
-            <CertificateForm setOpenDialog={setOpenDialog} subContract={subContract} />
-        </Dialog>
+      <Dialog maxWidth="lg" fullWidth fullScreen={belowLargeScreen} open={openDialog} onClose={() => setOpenDialog(false)}>
+        <CertificateForm setOpenDialog={setOpenDialog} subContract={subContract} />
+      </Dialog>
 
-        <Tooltip title="Add Certificate">
-            <IconButton onClick={() => setOpenDialog(true)} size="small">
-                <AddOutlined fontSize="small" />
-            </IconButton>
-        </Tooltip>
+      <Tooltip title="Add Certificate">
+        <IconButton onClick={() => setOpenDialog(true)} size="small">
+          <AddOutlined fontSize="small" />
+        </IconButton>
+      </Tooltip>
     </>
   );
 };

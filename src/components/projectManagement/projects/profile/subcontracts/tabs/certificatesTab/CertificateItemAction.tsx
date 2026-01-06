@@ -34,13 +34,17 @@ import PDFContent from '@/components/pdf/PDFContent';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { Organization } from '@/types/auth-types';
 import { MenuItemProps } from '@jumbo/types';
+import { Currency } from '@/components/masters/Currencies/CurrencyType';
 
 interface Certificate {
-  id: number | string;
+  id?: number | string;
   certificateNo?: string;
+  certificate_date?: string | null;
+  remarks?: string | null;
+  total_amount?: number | null;
+  currency?: Currency | null;
 }
 
-// DocumentDialog moved inside the file
 const DocumentDialog: React.FC<{
   open: boolean;
   onClose: () => void;
@@ -193,7 +197,7 @@ const CertificateItemAction: React.FC<{ certificate: Certificate }> = ({ certifi
       <DocumentDialog
         open={openPreviewDialog}
         onClose={() => setOpenPreviewDialog(false)}
-        certificateId={certificate.id}
+        certificateId={certificate.id as number}
         organization={organization}
       />
 
