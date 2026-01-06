@@ -146,8 +146,7 @@ const ClaimedDeliverablesItemForm = ({
         id: del.id,
         description: del.description,
         currency_id: del.currency_id,
-        response_uncertified_quantity: del.response_uncertified_quantity,
-        response_executed_quantity: del.response_executed_quantity,
+        rate: del.contract_rate,
         unit_symbol: del.unit_symbol,
       }));
 
@@ -158,6 +157,7 @@ const ClaimedDeliverablesItemForm = ({
   };
 
   const deliverables = getDeliverablesOptions(deliverable_groups || []);
+  console.log(deliverable_groups)
 
   if (isAdding) return <LinearProgress />;
 

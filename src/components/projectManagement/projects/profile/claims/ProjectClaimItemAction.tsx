@@ -210,7 +210,7 @@ const ProjectClaimItemAction: React.FC<ProjectClaimItemActionProps> = ({
       <Dialog
         open={openEditDialog}
         fullWidth
-        maxWidth="md"
+        maxWidth="lg"
         fullScreen={belowLargeScreen}
         scroll={belowLargeScreen ? 'body' : 'paper'}
       >

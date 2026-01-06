@@ -1,3 +1,5 @@
+'use client';
+
 import { LoadingButton } from '@mui/lab';
 import {
   Alert,
@@ -7,19 +9,18 @@ import {
   DialogContent,
   DialogTitle,
   Grid,
-  IconButton,
   TextField,
-  Tooltip,
   Box,
   Tabs,
   Tab,
   Divider,
   Typography,
+  Checkbox,
 } from '@mui/material';
 import { DateTimePicker } from '@mui/x-date-pickers';
 import dayjs from 'dayjs';
 import React, { useEffect, useMemo, useState } from 'react';
-import { useForm, FieldErrors } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useSnackbar } from 'notistack';
@@ -31,30 +32,46 @@ import ClaimedDeliverablesItemForm from './tab/claimedDeliverables/ClaimedDelive
 import ClaimedDeliverablesItemRow from './tab/claimedDeliverables/ClaimedDeliverablesItemRow';
 import { useProjectProfile } from '../../ProjectProfileProvider';
 import CurrencySelector from '@/components/masters/Currencies/CurrencySelector';
+import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
+import { Div } from '@jumbo/shared';
+
+interface ProjectDeliverable {
+  id: number;
+  contract_rate?: number;
+  rate?: number;
+}
 
 interface Adjustment {
-  type?: string;
+  id?: number;
+  type?: 'addition' | 'deduction' | '+ ' | '-' | string;
   type_name?: string;
   description?: string;
-  amount?: number;
+  amount?: number | string;
   complement_ledger_id?: number;
-  complement_ledger?: { id: number };
+  complement_ledger?: { id: number; name: string };
 }
 
 interface ClaimedDeliverable {
+  id?: number;
   project_deliverable_id: number;
-  remarks?: string;
-  certified_quantity: number;
+  project_deliverable?: ProjectDeliverable;
+  deliverable?: ProjectDeliverable;
+  remarks?: string | null;
+  certified_quantity: number | string;
   revenue_ledger_id?: number;
+  revenue_ledger?: { id: number };
 }
 
 interface Claim {
   id?: number;
   project_id?: number;
+  claimNo?: string;
   remarks?: string;
   claim_date?: string;
   currency_id?: number;
+  vat_percentage?: number;
   claim_items?: ClaimedDeliverable[];
+  claimed_deliverables?: ClaimedDeliverable[]
   adjustments?: Adjustment[];
 }
 
@@ -64,24 +81,19 @@ interface ProjectClaimsFormProps {
   subContract?: any;
 }
 
-// Extend form values to include manual error field
 interface FormValues {
   id?: number;
   project_id: number;
   remarks: string;
   claim_date: string;
   currency_id: number;
-  // Manual error field (not submitted)
-  claimed_deliverables?: string;
+  vat_percentage?: number;
 }
 
 const validationSchema = yup.object({
   remarks: yup.string().required('Remarks is required'),
   claim_date: yup.string().required('Claim date is required'),
-  currency_id: yup
-    .number()
-    .required('Currency is required')
-    .positive('Invalid currency'),
+  currency_id: yup.number().required('Currency is required').positive('Invalid currency'),
 });
 
 const ProjectClaimsForm: React.FC<ProjectClaimsFormProps> = ({
@@ -89,6 +101,8 @@ const ProjectClaimsForm: React.FC<ProjectClaimsFormProps> = ({
   claim,
   subContract,
 }) => {
+  const { authOrganization } = useJumboAuth();
+  const organization = authOrganization?.organization;
   const queryClient = useQueryClient();
   const { project } = useProjectProfile() as any;
   const { enqueueSnackbar } = useSnackbar();
@@ -107,29 +121,25 @@ const ProjectClaimsForm: React.FC<ProjectClaimsFormProps> = ({
 
   const addClaim = useMutation({
     mutationFn: projectsServices.addClaim,
-    onSuccess: (data: any) => {
-      data?.message && enqueueSnackbar(data.message, { variant: 'success' });
+    onSuccess: () => {
+      enqueueSnackbar('Claim created successfully', { variant: 'success' });
       queryClient.invalidateQueries({ queryKey: ['projectProjectClaims'] });
       setOpenDialog(false);
     },
     onError: (error: any) => {
-      enqueueSnackbar(error?.response?.data?.message || 'Error saving claim', {
-        variant: 'error',
-      });
+      enqueueSnackbar(error?.response?.data?.message || 'Error saving claim', { variant: 'error' });
     },
   });
 
   const updateClaim = useMutation({
     mutationFn: projectsServices.updateClaim,
-    onSuccess: (data: any) => {
-      data?.message && enqueueSnackbar(data.message, { variant: 'success' });
+    onSuccess: () => {
+      enqueueSnackbar('Claim updated successfully', { variant: 'success' });
       queryClient.invalidateQueries({ queryKey: ['projectProjectClaims'] });
       setOpenDialog(false);
     },
     onError: (error: any) => {
-      enqueueSnackbar(error?.response?.data?.message || 'Error updating claim', {
-        variant: 'error',
-      });
+      enqueueSnackbar(error?.response?.data?.message || 'Error updating claim', { variant: 'error' });
     },
   });
 
@@ -143,29 +153,51 @@ const ProjectClaimsForm: React.FC<ProjectClaimsFormProps> = ({
   } = useForm<FormValues>({
     resolver: yupResolver(validationSchema) as any,
     defaultValues: {
-      remarks: claim?.remarks || '',
-      project_id: claim?.project_id || project.id,
-      currency_id: claim?.currency_id || 1,
-      claim_date: claim?.claim_date
-        ? dayjs(claim.claim_date).toISOString()
-        : dayjs().toISOString(),
       id: claim?.id,
+      project_id: claim?.project_id || project?.id,
+      remarks: claim?.remarks || '',
+      currency_id: claim?.currency_id || 1,
+      vat_percentage: claim ?  claim.vat_percentage : (organization?.settings?.vat_registered
+        ? organization.settings.vat_percentage || 0
+        : 0),
+      claim_date: claim?.claim_date ? dayjs(claim.claim_date).toISOString() : dayjs().toISOString(),
     },
   });
 
-  const selectedCurrencyId = watch('currency_id');
-  const ClaimDate = watch('claim_date');
+  const watchVatPercentage = watch('vat_percentage') || 0;
 
-  const saveClaim = useMemo(
-    () => (claim ? updateClaim : addClaim),
-    [claim, updateClaim, addClaim]
-  );
+  const saveClaim = useMemo(() => (claim ? updateClaim : addClaim), [claim, updateClaim, addClaim]);
+
+  // ==================== ACCURATE AMOUNT CALCULATION ====================
+  const { grossAmount, netAdjustments, subtotal, vatAmount, grandTotal } = useMemo(() => {
+    const gross = deliverableItems.reduce((sum, item) => {
+      const rate = item.project_deliverable?.contract_rate || 0 || item.deliverable?.rate;
+      const qty = Number(item.certified_quantity) || 0;
+      return sum + (rate || 0) * qty;
+    }, 0);
+
+  const netAdj = adjustments.reduce((sum, adj) => {
+    const amount = Number(adj.amount) || 0;
+    return adj.type === 'deduction' || adj.type === '-' ? sum - amount : sum + amount;
+  }, 0);
+
+    const sub = gross + netAdj;
+    const vat = (sub * Number(watchVatPercentage)) / 100;
+
+    return {
+      grossAmount: gross,
+      netAdjustments: netAdj,
+      subtotal: sub,
+      vatAmount: vat,
+      grandTotal: sub + vat,
+    };
+  }, [deliverableItems, adjustments, watchVatPercentage]);
 
   const onSubmit = (data: FormValues) => {
     if (deliverableItems.length === 0) {
-      setError('claimed_deliverables', {
+      setError('claimed_deliverables' as any, {
         type: 'manual',
-        message: 'You must add at least one Certified Task',
+        message: 'You must add at least one certified deliverable',
       });
       return;
     }
@@ -173,20 +205,24 @@ const ProjectClaimsForm: React.FC<ProjectClaimsFormProps> = ({
     if (isDirty) {
       setShowWarning(true);
     } else {
-      handleSubmitForm(data);
+      submitForm(data);
     }
   };
 
-  const handleSubmitForm = async (data: FormValues) => {
+  const submitForm = (data: FormValues) => {
     const payload = {
       ...data,
-      claimed_deliverables: deliverableItems,
-      adjustments: adjustments.map((item) => ({
-        description: item.description,
-        complement_ledger_id:
-          item.complement_ledger_id || item.complement_ledger?.id,
-        type: item.type === '-' ? 'deduction' : 'addition',
-        amount: item.amount,
+      claimed_deliverables: deliverableItems.map((item) => ({
+        project_deliverable_id: item.project_deliverable_id || item.project_deliverable?.id,
+        certified_quantity: Number(item.certified_quantity),
+        revenue_ledger_id: item.revenue_ledger_id || item.revenue_ledger?.id,
+        remarks: item.remarks || null,
+      })),
+      adjustments: adjustments.map((adj) => ({
+        description: adj.description,
+        complement_ledger_id: adj.complement_ledger_id || adj.complement_ledger?.id,
+        type: adj.type === '-' ? 'deduction' : 'addition',
+        amount: Number(adj.amount),
       })),
     };
 
@@ -197,213 +233,289 @@ const ProjectClaimsForm: React.FC<ProjectClaimsFormProps> = ({
     setIsDirty(false);
     setShowWarning(false);
     setClearFormKey((k) => k + 1);
-    handleSubmit(handleSubmitForm)();
+    handleSubmit(submitForm)();
   };
 
   return (
     <>
-      <DialogTitle textAlign="center">
-        {claim ? 'Edit Claim' : 'New Claim Form'}
-      </DialogTitle>
+      <DialogTitle textAlign="center">{claim ? `Edit ${claim?.claimNo}` : 'New Claim'}</DialogTitle>
 
-      <DialogContent>
-        <form autoComplete="off" onSubmit={handleSubmit(onSubmit)}>
-          <Grid container spacing={1} mb={3} pt={1}>
-            <Grid size={{ xs: 12, md: 6 }}>
-              <DateTimePicker
-                label="Claim Date"
-                value={dayjs(ClaimDate)}
-                slotProps={{
-                  textField: {
-                    size: 'small',
-                    fullWidth: true,
-                    InputProps: { readOnly: true },
-                    error: !!errors.claim_date,
-                    helperText: errors.claim_date?.message,
-                  },
-                }}
-                onChange={(newValue) =>
-                  setValue('claim_date', newValue?.toISOString() || '', {
-                    shouldValidate: true,
-                    shouldDirty: true,
-                  })
-                }
-              />
-            </Grid>
+      <DialogContent dividers>
+        <Grid container spacing={3}>
+          <Grid size={{ xs: 12, md: 9 }}>
+            <form autoComplete="off" onSubmit={handleSubmit(onSubmit)}>
+              <Grid container spacing={2} mb={3}>
+                <Grid size={{ xs: 12, md: 6 }}>
+                  <DateTimePicker
+                    label="Claim Date"
+                    value={dayjs(watch('claim_date'))}
+                    maxDate={dayjs()}
+                    slotProps={{
+                      textField: {
+                        size: 'small',
+                        fullWidth: true,
+                        error: !!errors.claim_date,
+                        helperText: errors.claim_date?.message,
+                      },
+                    }}
+                    onChange={(newValue) =>
+                      setValue('claim_date', newValue?.toISOString() || '', {
+                        shouldValidate: true,
+                        shouldDirty: true,
+                      })
+                    }
+                  />
+                </Grid>
 
-            <Grid size={{ xs: 12, md: 6 }}>
-              <CurrencySelector
-                frontError={errors.currency_id as any}
-                defaultValue={selectedCurrencyId}
-                onChange={(newValue: any) =>
-                  setValue('currency_id', newValue?.id ?? null, {
-                    shouldDirty: true,
-                    shouldValidate: true,
-                  })
-                }
-              />
-            </Grid>
+                <Grid size={{ xs: 12, md: 6 }}>
+                  <CurrencySelector
+                    frontError={errors.currency_id as any}
+                    defaultValue={watch('currency_id')}
+                    onChange={(newValue: any) =>
+                      setValue('currency_id', newValue?.id ?? null, {
+                        shouldDirty: true,
+                        shouldValidate: true,
+                      })
+                    }
+                  />
+                </Grid>
 
-            <Grid size={12}>
-              <TextField
-                size="small"
-                label="Remarks"
-                fullWidth
-                multiline
-                rows={2}
-                {...register('remarks')}
-                error={!!errors.remarks}
-                helperText={errors.remarks?.message}
-              />
-            </Grid>
+                <Grid size={12}>
+                  <TextField
+                    size="small"
+                    label="Remarks"
+                    fullWidth
+                    multiline
+                    rows={2}
+                    {...register('remarks')}
+                    error={!!errors.remarks}
+                    helperText={errors.remarks?.message}
+                  />
+                </Grid>
+              </Grid>
+            </form>
           </Grid>
 
-          {/* Fixed Tabs – removed fullWidth, added variant */}
-          <Tabs
-            value={activeTab}
-            onChange={(_, v) => setActiveTab(v)}
-            variant="fullWidth"
-            sx={{ mb: 2 }}
-          >
+          <Grid size={{xs: 12, md: 3}}>
+            <Div
+              sx={{
+                position: 'sticky',
+                top: 20,
+                bgcolor: 'background.paper',
+                borderRadius: 2,
+                boxShadow: 3,
+                p: 2,
+                height: 'fit-content',
+              }}
+            >
+              <Typography variant="h6" align="center" gutterBottom sx={{ fontWeight: 'bold' }}>
+                Summary
+              </Typography>
+              <Divider sx={{ my: 2 }} />
+
+              <Grid container spacing={1.5}>
+                <Grid size={7}>
+                  <Typography variant="body2">Gross Amount:</Typography>
+                </Grid>
+                <Grid size={5}>
+                  <Typography variant="body1" align="right" sx={{ fontFamily: 'monospace' }}>
+                    {grossAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                  </Typography>
+                </Grid>
+
+                {adjustments.length > 0 && (
+                  <>
+                    <Grid size={7}>
+                      <Typography variant="body2">Net Adjustments:</Typography>
+                    </Grid>
+                    <Grid size={5}>
+                      <Typography
+                        variant="body1"
+                        align="right"
+                        sx={{
+                          fontFamily: 'monospace',
+                          color: netAdjustments < 0 ? 'error.main' : 'success.main',
+                        }}
+                      >
+                        {netAdjustments.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                      </Typography>
+                    </Grid>
+                  </>
+                )}
+
+                <Grid size={7}>
+                  <Typography variant="body2" fontWeight="bold">Subtotal:</Typography>
+                </Grid>
+                <Grid size={5}>
+                  <Typography variant="body1" align="right" fontWeight="bold" sx={{ fontFamily: 'monospace' }}>
+                    {subtotal.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                  </Typography>
+                </Grid>
+
+                <Grid size={7}>
+                  <Typography variant="body2">
+                    VAT ({watchVatPercentage}%):
+                    <Checkbox
+                      size="small"
+                      checked={watchVatPercentage > 0}
+                      onChange={(e) => {
+                        const checked = e.target.checked;
+                        const rate = checked ? (organization?.settings?.vat_percentage ?? 18) : 0;
+                        setValue('vat_percentage', rate, { shouldDirty: true });
+                      }}
+                    />
+                  </Typography>
+                </Grid>
+                <Grid size={5}>
+                  <Typography variant="body1" align="right" sx={{ fontFamily: 'monospace' }}>
+                    {vatAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                  </Typography>
+                </Grid>
+
+                <Grid size={7}>
+                  <Typography variant="h6" fontWeight="bold">Grand Total:</Typography>
+                </Grid>
+                <Grid size={5}>
+                  <Typography
+                    variant="h6"
+                    align="right"
+                    sx={{ fontFamily: 'monospace', color: 'primary.main', fontWeight: 'bold' }}
+                  >
+                    {grandTotal.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                  </Typography>
+                </Grid>
+              </Grid>
+            </Div>
+          </Grid>
+        </Grid>
+
+        <Divider sx={{paddingTop: 1}}/>
+
+        <Box mt={2}>
+          <Tabs value={activeTab} onChange={(_, v) => setActiveTab(v)} variant="fullWidth" sx={{ mb: 3 }}>
             <Tab label="Claimed Deliverables" />
             <Tab label="Adjustments" />
           </Tabs>
+          {activeTab === 0 && (
+            <>
+              <ClaimedDeliverablesItemForm
+                key={`deliverable-form-${clearFormKey}`}
+                setClearFormKey={setClearFormKey}
+                submitMainForm={handleSubmit(submitForm)}
+                submitItemForm={submitItemForm}
+                setSubmitItemForm={setSubmitItemForm}
+                setIsDirty={setIsDirty}
+                deliverableItems={deliverableItems}
+                setDeliverablesItems={setDeliverablesItems}
+                subContract={subContract}
+                ClaimDate={watch('claim_date')}
+                selectedCurrencyId={watch('currency_id')}
+              />
 
-          <Divider />
-
-          <Box mt={2}>
-            {activeTab === 0 && (
-              <>
-                <ClaimedDeliverablesItemForm
-                  key={clearFormKey}
-                  setClearFormKey={setClearFormKey}
-                  submitMainForm={handleSubmit(() =>
-                    saveClaim.mutate(watch() as any)
-                  )}
-                  submitItemForm={submitItemForm}
-                  setSubmitItemForm={setSubmitItemForm}
-                  selectedCurrencyId={selectedCurrencyId}
-                  setIsDirty={setIsDirty}
+              {deliverableItems.map((item, index) => (
+                <ClaimedDeliverablesItemRow
+                  key={item.id || index}
+                  index={index}
+                  deliverableItem={item}
                   deliverableItems={deliverableItems}
-                  subContract={subContract}
-                  ClaimDate={ClaimDate}
                   setDeliverablesItems={setDeliverablesItems}
-                />
-
-                {deliverableItems.map((item, index) => (
-                  <ClaimedDeliverablesItemRow
-                    key={index}
-                    index={index}
-                    deliverableItem={item}
-                    deliverableItems={deliverableItems}
-                    setDeliverablesItems={setDeliverablesItems}
-                    ClaimDate={ClaimDate}
-                    setIsDirty={setIsDirty}
-                    selectedCurrencyId={selectedCurrencyId}
-                    subContract={subContract}
-                    claim={claim}
-                    setClearFormKey={setClearFormKey}
-                    submitItemForm={submitItemForm}
-                    setSubmitItemForm={setSubmitItemForm}
-                    submitMainForm={handleSubmit(() =>
-                      saveClaim.mutate(watch() as any)
-                    )}
-                  />
-                ))}
-              </>
-            )}
-
-            {activeTab === 1 && (
-              <>
-                <ProjectClaimsAdjustments
-                  key={clearFormKey}
+                  setIsDirty={setIsDirty}
                   setClearFormKey={setClearFormKey}
-                  submitMainForm={handleSubmit(() =>
-                    saveClaim.mutate(watch() as any)
-                  )}
                   submitItemForm={submitItemForm}
                   setSubmitItemForm={setSubmitItemForm}
-                  setIsDirty={setIsDirty}
+                  submitMainForm={handleSubmit(submitForm)}
+                  selectedCurrencyId={watch('currency_id')}
+                  ClaimDate={watch('claim_date')}
+                  subContract={subContract}
+                  claim={claim}
+                />
+              ))}
+            </>
+          )}
+
+          {activeTab === 1 && (
+            <>
+              <ProjectClaimsAdjustments
+                key={clearFormKey}
+                setClearFormKey={setClearFormKey}
+                submitMainForm={handleSubmit(() =>
+                  saveClaim.mutate(watch() as any)
+                )}
+                submitItemForm={submitItemForm}
+                setSubmitItemForm={setSubmitItemForm}
+                setIsDirty={setIsDirty}
+                adjustments={adjustments as any}
+                setAdjustments={setAdjustments as any}
+              />
+
+              {adjustments.map((adjustment, index) => (
+                <ProjectClaimsAdjustmentsRow
+                  key={index}
+                  index={index}
+                  adjustment={adjustment}
                   adjustments={adjustments}
                   setAdjustments={setAdjustments}
+                  setIsDirty={setIsDirty}
+                  setClearFormKey={setClearFormKey}
+                  submitItemForm={submitItemForm}
+                  setSubmitItemForm={setSubmitItemForm}
+                  submitMainForm={handleSubmit(() =>
+                    saveClaim.mutate(watch() as any)
+                  )}
                 />
+              ))}
+            </>
+          )}
 
-                {adjustments.map((adjustment, index) => (
-                  <ProjectClaimsAdjustmentsRow
-                    key={index}
-                    index={index}
-                    adjustment={adjustment}
-                    adjustments={adjustments}
-                    setAdjustments={setAdjustments}
-                    setIsDirty={setIsDirty}
-                    setClearFormKey={setClearFormKey}
-                    submitItemForm={submitItemForm}
-                    setSubmitItemForm={setSubmitItemForm}
-                    submitMainForm={handleSubmit(() =>
-                      saveClaim.mutate(watch() as any)
-                    )}
-                  />
-                ))}
-              </>
-            )}
+          {/* Fixed error display */}
+          {'claimed_deliverables' in errors && deliverableItems.length === 0 && (
+            <Alert severity="error" sx={{ mt: 2 }}>
+              {(errors as any).claimed_deliverables?.message}
+            </Alert>
+          )}
+        </Box>
 
-            {/* Fixed error display */}
-            {'claimed_deliverables' in errors && deliverableItems.length === 0 && (
-              <Alert severity="error" sx={{ mt: 2 }}>
-                {(errors as any).claimed_deliverables?.message}
-              </Alert>
-            )}
-          </Box>
-        </form>
-
+        {/* Warning Dialog */}
         <Dialog open={showWarning} onClose={() => setShowWarning(false)}>
           <DialogTitle>Unsaved Changes</DialogTitle>
-          <DialogContent>Last item was not added to the list</DialogContent>
+          <DialogContent>
+            <Typography>The last added item has not been saved to the list yet.</Typography>
+          </DialogContent>
           <DialogActions>
+            <Button onClick={() => setShowWarning(false)}>Cancel</Button>
             <Button
-              size="small"
               onClick={() => {
                 setSubmitItemForm(true);
                 setShowWarning(false);
               }}
             >
-              Add and Submit
+              Add Item & Submit
             </Button>
-            <Button size="small" color="secondary" onClick={handleConfirmSubmitWithoutAdd}>
-              Submit without add
+            <Button onClick={handleConfirmSubmitWithoutAdd} color="primary">
+              Submit Without Adding
             </Button>
           </DialogActions>
         </Dialog>
       </DialogContent>
 
       <DialogActions>
-        <Button size="small" onClick={() => setOpenDialog(false)}>
-          Cancel
-        </Button>
+        <Button onClick={() => setOpenDialog(false)}>Cancel</Button>
 
-        <Box display="flex" gap={1}>
-          {activeTab === 0 && (
-            <Button
-              size="small"
-              variant="outlined"
-              onClick={() => setActiveTab(1)}
-            >
-              Next
-            </Button>
-          )}
+        {activeTab === 0 && (
+          <Button variant="outlined" onClick={() => setActiveTab(1)}>
+            Next
+          </Button>
+        )}
 
-          {activeTab === 1 && (
-            <LoadingButton
-              loading={addClaim.isPending || updateClaim.isPending}
-              size="small"
-              variant="contained"
-              color="primary"
-              onClick={handleSubmit(onSubmit)}
-            >
-              {claim ? 'Update' : 'Submit'}
-            </LoadingButton>
-          )}
-        </Box>
+        {activeTab === 1 && (
+          <LoadingButton
+            loading={addClaim.isPending || updateClaim.isPending}
+            variant="contained"
+            onClick={handleSubmit(onSubmit)}
+          >
+            {claim ? 'Update Claim' : 'Create Claim'}
+          </LoadingButton>
+        )}
       </DialogActions>
     </>
   );

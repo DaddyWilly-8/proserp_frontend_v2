@@ -23,7 +23,7 @@ import LedgerSelect from '@/components/accounts/ledgers/forms/LedgerSelect';
 import { useLedgerSelect } from '@/components/accounts/ledgers/forms/LedgerSelectProvider';
 
 interface Adjustment {
-  type?: string;
+  type?: 'addition' | 'deduction' | '+ ' | '-' | string;
   type_name?: string;
   description?: string;
   amount?: number;
