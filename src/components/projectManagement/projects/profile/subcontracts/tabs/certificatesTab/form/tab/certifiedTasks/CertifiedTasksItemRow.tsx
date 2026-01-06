@@ -1,3 +1,5 @@
+'use client';
+
 import { DisabledByDefault, EditOutlined } from '@mui/icons-material';
 import {
   Divider,
@@ -9,15 +11,57 @@ import {
 import React, { useState } from 'react';
 import CertifiedTasksItemForm from './CertifiedTasksItemForm';
 
-const CertifiedTasksItemRow = ({
+interface Task {
+  id?: number | string;
+  name?: string;
+  measurement_unit?: {
+    symbol?: string;
+  };
+}
+
+interface CertifiedTaskItem {
+  id?: number | string;
+  task?: Task;
+  task_name?: string;
+  certified_quantity?: number | string;
+  remarks?: string;
+  measurement_unit?: {
+    symbol?: string;
+  };
+}
+
+interface SubContract {
+  id?: number | string;
+}
+
+interface Certificate {
+  project_subcontract_id?: number | string;
+}
+
+interface CertifiedTasksItemRowProps {
+  setClearFormKey: React.Dispatch<React.SetStateAction<number>>;
+  submitMainForm: () => void;
+  submitItemForm: boolean;
+  setSubmitItemForm: React.Dispatch<React.SetStateAction<boolean>>;
+  setIsDirty: React.Dispatch<React.SetStateAction<boolean>>;
+  taskItem: CertifiedTaskItem;
+  index: number;
+  tasksItems: CertifiedTaskItem[];
+  CertificateDate: string;
+  setTasksItems: React.Dispatch<React.SetStateAction<CertifiedTaskItem[]>>;
+  subContract?: SubContract;
+  certificate?: Certificate;
+}
+
+const CertifiedTasksItemRow: React.FC<CertifiedTasksItemRowProps> = ({
   setClearFormKey,
   submitMainForm,
-  setSubmitItemForm,
   submitItemForm,
+  setSubmitItemForm,
   setIsDirty,
   taskItem,
   index,
-  tasksItems = [],
+  tasksItems,
   CertificateDate,
   setTasksItems,
   subContract,
@@ -33,10 +77,8 @@ const CertifiedTasksItemRow = ({
     });
   };
 
-  const taskName = taskItem.task?.name || taskItem?.task_name || '-';
-  const quantity =
-    `${taskItem.certified_quantity ?? 0} ` +
-    `${taskItem.task?.measurement_unit?.symbol || ''}`;
+  const taskName = taskItem.task?.name || taskItem.task_name || '-';
+  const quantity = `${taskItem.certified_quantity ?? 0} ${taskItem.task?.measurement_unit?.symbol || taskItem.measurement_unit?.symbol}`.trim();
   const remarks = taskItem.remarks || '-';
 
   return (
@@ -49,6 +91,7 @@ const CertifiedTasksItemRow = ({
           alignItems="center"
           sx={{
             '&:hover': { bgcolor: 'action.hover' },
+            py: 1,
           }}
         >
           <Grid size={{ xs: 1, md: 0.5 }}>
@@ -56,37 +99,35 @@ const CertifiedTasksItemRow = ({
           </Grid>
 
           <Grid size={{ xs: 11, md: 5.5 }}>
-            <Tooltip title={'Project Task'} arrow placement="top-start">
+            <Tooltip title="Project Task" arrow placement="top-start">
               <Typography variant="body2" noWrap>
                 {taskName}
               </Typography>
             </Tooltip>
           </Grid>
 
-          <Grid size={{ xs: 6, md: 2 }} paddingLeft={{ xs: 3, md: 0 }}>
+          <Grid size={{ xs: 6, md: 2 }} sx={{ pl: { xs: 3, md: 0 } }}>
             <Tooltip title="Quantity" arrow>
-              <Typography variant="body2">
-                {quantity}
-              </Typography>
+              <Typography variant="body2">{quantity || '0'}</Typography>
             </Tooltip>
           </Grid>
 
           <Grid size={{ xs: 6, md: 3 }}>
-            <Tooltip title={'Remarks'} arrow placement="top-start">
+            <Tooltip title="Remarks" arrow placement="top-start">
               <Typography variant="body2" noWrap>
                 {remarks}
               </Typography>
             </Tooltip>
           </Grid>
 
-          <Grid textAlign="end" size={{ xs: 12, md: 1 }}>
-            <Tooltip title="Edit Task" arrow>
+          <Grid size={{ xs: 12, md: 1 }} textAlign="end">
+            <Tooltip title="Edit Task">
               <IconButton size="small" onClick={() => setShowForm(true)}>
                 <EditOutlined fontSize="small" />
               </IconButton>
             </Tooltip>
 
-            <Tooltip title="Remove Task" arrow>
+            <Tooltip title="Remove Task">
               <IconButton size="small" onClick={handleRemoveItem}>
                 <DisabledByDefault fontSize="small" color="error" />
               </IconButton>
@@ -97,17 +138,17 @@ const CertifiedTasksItemRow = ({
         <CertifiedTasksItemForm
           setClearFormKey={setClearFormKey}
           submitMainForm={submitMainForm}
-          setSubmitItemForm={setSubmitItemForm}
           submitItemForm={submitItemForm}
+          setSubmitItemForm={setSubmitItemForm}
           setIsDirty={setIsDirty}
           taskItem={taskItem}
           setShowForm={setShowForm}
           index={index}
+          tasksItems={tasksItems}
+          setTasksItems={setTasksItems}
           subContract={subContract}
           certificate={certificate}
-          tasksItems={tasksItems}
           CertificateDate={CertificateDate}
-          setTasksItems={setTasksItems}
         />
       )}
     </React.Fragment>

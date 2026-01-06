@@ -229,16 +229,16 @@ const ClaimedDeliverablesItemForm = ({
         />
       </Grid>
       <Grid size={{xs: 12, md: 2, lg: 2}}>
-          <TextField
-              label="Amount"
-              fullWidth
-              size='small'
-              value={amount()}
-              InputProps={{
-                  inputComponent: CommaSeparatedField,
-                  readOnly: true
-              }}
-          />
+        <TextField
+          label="Amount"
+          fullWidth
+          size='small'
+          value={amount()}
+          InputProps={{
+            inputComponent: CommaSeparatedField,
+            readOnly: true
+          }}
+        />
       </Grid>
 
       <Grid size={12}>

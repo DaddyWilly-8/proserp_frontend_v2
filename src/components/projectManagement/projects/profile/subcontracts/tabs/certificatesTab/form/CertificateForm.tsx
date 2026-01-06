@@ -19,7 +19,7 @@ import {
 } from '@mui/material';
 import { DateTimePicker } from '@mui/x-date-pickers';
 import dayjs from 'dayjs';
-import { useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -33,14 +33,87 @@ import CertifiedAdjustmentsRow from './tab/adjustments/CertifiedAdjustmentsRow';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { Div } from '@jumbo/shared';
 
-const CertificateForm = ({ setOpenDialog, certificate, subContract }) => {
+interface Task {
+  id?: number | string;
+  rate?: number;
+}
+
+interface CertifiedTaskItem {
+  id?: number | string;
+  task?: Task;
+  project_subcontract_task_id?: number | string;
+  remarks?: string;
+  certified_quantity?: number | string;
+  rate?: number;
+}
+
+interface Adjustment {
+  id?: number | string;
+  description?: string;
+  type?: string;
+  type_name?: string;
+  amount?: number | string;
+  complement_ledger_id?: number;
+  complement_ledger?: { id: number; name: string };
+}
+
+interface CertificateData {
+  id?: number | string;
+  certificateNo?: string;
+  certificate_date?: string;
+  remarks?: string;
+  vat_percentage?: number;
+  project_subcontract_id?: number | string;
+  items?: CertifiedTaskItem[];
+  adjustments?: Adjustment[];
+}
+
+interface SubContract {
+  id?: number | string;
+}
+
+interface Organization {
+  settings?: {
+    vat_registered?: boolean;
+    vat_percentage?: number;
+  };
+}
+
+interface CertificateFormProps {
+  setOpenDialog: (open: boolean) => void;
+  certificate?: CertificateData;
+  subContract?: SubContract;
+}
+
+interface FormValues {
+  id?: number | string;
+  project_subcontract_id?: number | string;
+  remarks: string;
+  certificate_date: string;
+  vat_percentage?: number;
+}
+
+const validationSchema = yup.object({
+  remarks: yup.string().required('Remarks is required'),
+  certificate_date: yup.string().required('Certificate date is required'),
+});
+
+const CertificateForm: React.FC<CertificateFormProps> = ({
+  setOpenDialog,
+  certificate,
+  subContract,
+}) => {
   const queryClient = useQueryClient();
   const { enqueueSnackbar } = useSnackbar();
   const { authOrganization } = useJumboAuth();
-  const organization = authOrganization?.organization;
+  const organization = authOrganization?.organization as Organization | undefined;
 
-  const [tasksItems, setTasksItems] = useState(certificate?.items || []);
-  const [adjustments, setAdjustments] = useState(certificate?.adjustments || []);
+  const [tasksItems, setTasksItems] = useState<CertifiedTaskItem[]>(
+    certificate?.items || []
+  );
+  const [adjustments, setAdjustments] = useState<Adjustment[]>(
+    certificate?.adjustments || []
+  );
   const [showWarning, setShowWarning] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
   const [clearFormKey, setClearFormKey] = useState(0);
@@ -49,31 +122,32 @@ const CertificateForm = ({ setOpenDialog, certificate, subContract }) => {
 
   const addCertificate = useMutation({
     mutationFn: projectsServices.addCertificates,
-    onSuccess: (data) => {
+    onSuccess: (data: any) => {
       enqueueSnackbar(data?.message || 'Certificate created', { variant: 'success' });
       queryClient.invalidateQueries({ queryKey: ['Certificates'] });
       setOpenDialog(false);
     },
-    onError: (error) => {
-      enqueueSnackbar(error?.response?.data?.message || 'Error saving certificate', { variant: 'error' });
+    onError: (error: any) => {
+      enqueueSnackbar(
+        error?.response?.data?.message || 'Error saving certificate',
+        { variant: 'error' }
+      );
     },
   });
 
   const updateCertificate = useMutation({
     mutationFn: projectsServices.updateCertificates,
-    onSuccess: (data) => {
+    onSuccess: (data: any) => {
       enqueueSnackbar(data?.message || 'Certificate updated', { variant: 'success' });
       queryClient.invalidateQueries({ queryKey: ['Certificates'] });
       setOpenDialog(false);
     },
-    onError: (error) => {
-      enqueueSnackbar(error?.response?.data?.message || 'Error updating certificate', { variant: 'error' });
+    onError: (error: any) => {
+      enqueueSnackbar(
+        error?.response?.data?.message || 'Error updating certificate',
+        { variant: 'error' }
+      );
     },
-  });
-
-  const validationSchema = yup.object({
-    remarks: yup.string().required('Remarks is required'),
-    certificate_date: yup.string().required('Certificate date is required'),
   });
 
   const {
@@ -83,25 +157,35 @@ const CertificateForm = ({ setOpenDialog, certificate, subContract }) => {
     register,
     watch,
     formState: { errors },
-  } = useForm({
+  } = useForm<FormValues>({
     resolver: yupResolver(validationSchema),
     defaultValues: {
       id: certificate?.id,
-      project_subcontract_id: subContract?.id,
+      project_subcontract_id: subContract?.id || certificate?.project_subcontract_id,
       remarks: certificate?.remarks || '',
-      vat_percentage: certificate?.vat_percentage ?? (organization?.settings?.vat_registered ? organization.settings.vat_percentage || 0 : 0),
-      certificate_date: certificate?.certificate_date ? dayjs(certificate.certificate_date).toISOString() : dayjs().toISOString(),
+      vat_percentage:
+        certificate?.vat_percentage ??
+        (organization?.settings?.vat_registered
+          ? organization.settings.vat_percentage || 0
+          : 0),
+      certificate_date: certificate?.certificate_date
+        ? dayjs(certificate.certificate_date).toISOString()
+        : dayjs().toISOString(),
     },
   });
 
   const vatPercentage = watch('vat_percentage') || 0;
+  const certificateDate = watch('certificate_date');
 
-  const saveCertificate = useMemo(() => certificate ? updateCertificate : addCertificate, [certificate]);
+  const saveCertificate = useMemo(
+    () => (certificate ? updateCertificate : addCertificate),
+    [certificate, updateCertificate, addCertificate]
+  );
 
   // ==================== REAL-TIME CALCULATIONS ====================
   const { grossAmount, netAdjustments, subtotal, vatAmount, grandTotal } = useMemo(() => {
     const gross = tasksItems.reduce((sum, item) => {
-      const rate = item.rate || item.task?.rate || 0;
+      const rate = item.rate ?? item.task?.rate ?? 0;
       const qty = Number(item.certified_quantity) || 0;
       return sum + rate * qty;
     }, 0);
@@ -123,9 +207,12 @@ const CertificateForm = ({ setOpenDialog, certificate, subContract }) => {
     };
   }, [tasksItems, adjustments, vatPercentage]);
 
-  const onSubmit = (data) => {
+  const onSubmit = (data: FormValues) => {
     if (tasksItems.length === 0) {
-      setError('certified_tasks', { type: 'manual', message: 'You must add at least one Certified Task' });
+      setError('certified_tasks' as any, {
+        type: 'manual',
+        message: 'You must add at least one Certified Task',
+      });
       return;
     }
 
@@ -136,16 +223,17 @@ const CertificateForm = ({ setOpenDialog, certificate, subContract }) => {
     }
   };
 
-  const submitForm = (data) => {
+  const submitForm = (data: FormValues) => {
     const payload = {
       ...data,
       certified_tasks: tasksItems.map((item) => ({
-        project_subcontract_task_id: item.project_subcontract_task_id || item.task?.id,
+        project_subcontract_task_id: item.project_subcontract_task_id ?? item.task?.id,
         remarks: item.remarks,
         certified_quantity: Number(item.certified_quantity),
       })),
       adjustments: adjustments.map((adj) => ({
         description: adj.description,
+        complement_ledger_id: adj.complement_ledger_id || adj.complement_ledger?.id,
         type: adj.type === '-' ? 'deduction' : 'addition',
         amount: Number(adj.amount),
       })),
@@ -169,14 +257,13 @@ const CertificateForm = ({ setOpenDialog, certificate, subContract }) => {
 
       <DialogContent dividers>
         <Grid container spacing={3}>
-          {/* Left: Main Form */}
           <Grid size={{ xs: 12, md: 9 }}>
             <form autoComplete="off" onSubmit={handleSubmit(onSubmit)}>
               <Grid container spacing={2} mb={3}>
                 <Grid size={{ xs: 12, md: 4 }}>
                   <DateTimePicker
                     label="Certificate Date"
-                    value={dayjs(watch('certificate_date'))}
+                    value={dayjs(certificateDate)}
                     slotProps={{
                       textField: {
                         size: 'small',
@@ -185,10 +272,13 @@ const CertificateForm = ({ setOpenDialog, certificate, subContract }) => {
                         helperText: errors.certificate_date?.message,
                       },
                     }}
-                    onChange={(v) => setValue('certificate_date', v?.toISOString() || '', { shouldValidate: true })}
+                    onChange={(v) =>
+                      setValue('certificate_date', v?.toISOString() || '', {
+                        shouldValidate: true,
+                      })
+                    }
                   />
                 </Grid>
-
                 <Grid size={{ xs: 12, md: 8 }}>
                   <TextField
                     size="small"
@@ -205,7 +295,6 @@ const CertificateForm = ({ setOpenDialog, certificate, subContract }) => {
             </form>
           </Grid>
 
-          {/* Right: Sticky Summary with VAT Checkbox */}
           <Grid size={{ xs: 12, md: 3 }}>
             <Div
               sx={{
@@ -222,9 +311,10 @@ const CertificateForm = ({ setOpenDialog, certificate, subContract }) => {
                 Summary
               </Typography>
               <Divider sx={{ my: 2 }} />
-
               <Grid container spacing={1.5}>
-                <Grid size={7}><Typography variant="body2">Gross Amount:</Typography></Grid>
+                <Grid size={7}>
+                  <Typography variant="body2">Gross Amount:</Typography>
+                </Grid>
                 <Grid size={5}>
                   <Typography variant="body1" align="right" sx={{ fontFamily: 'monospace' }}>
                     {grossAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
@@ -233,7 +323,9 @@ const CertificateForm = ({ setOpenDialog, certificate, subContract }) => {
 
                 {adjustments.length > 0 && (
                   <>
-                    <Grid size={7}><Typography variant="body2">Net Adjustments:</Typography></Grid>
+                    <Grid size={7}>
+                      <Typography variant="body2">Net Adjustments:</Typography>
+                    </Grid>
                     <Grid size={5}>
                       <Typography
                         variant="body1"
@@ -249,14 +341,20 @@ const CertificateForm = ({ setOpenDialog, certificate, subContract }) => {
                   </>
                 )}
 
-                <Grid size={7}><Typography variant="body2" fontWeight="bold">Subtotal:</Typography></Grid>
+                <Grid size={7}>
+                  <Typography variant="body2" fontWeight="bold">Subtotal:</Typography>
+                </Grid>
                 <Grid size={5}>
-                  <Typography variant="body1" align="right" fontWeight="bold" sx={{ fontFamily: 'monospace' }}>
+                  <Typography
+                    variant="body1"
+                    align="right"
+                    fontWeight="bold"
+                    sx={{ fontFamily: 'monospace' }}
+                  >
                     {subtotal.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                   </Typography>
                 </Grid>
 
-                {/* VAT Row with Checkbox */}
                 <Grid size={7}>
                   <Typography variant="body2">
                     VAT ({organization?.settings?.vat_percentage ?? 0}%):
@@ -264,7 +362,9 @@ const CertificateForm = ({ setOpenDialog, certificate, subContract }) => {
                       size="small"
                       checked={vatPercentage > 0}
                       onChange={(e) => {
-                        const rate = e.target.checked ? (organization?.settings?.vat_percentage ?? 0) : 0;
+                        const rate = e.target.checked
+                          ? organization?.settings?.vat_percentage ?? 0
+                          : 0;
                         setValue('vat_percentage', rate, { shouldDirty: true });
                       }}
                     />
@@ -276,12 +376,18 @@ const CertificateForm = ({ setOpenDialog, certificate, subContract }) => {
                   </Typography>
                 </Grid>
 
-                <Grid size={7}><Typography variant="h6" fontWeight="bold">Grand Total:</Typography></Grid>
+                <Grid size={7}>
+                  <Typography variant="h6" fontWeight="bold">Grand Total:</Typography>
+                </Grid>
                 <Grid size={5}>
                   <Typography
                     variant="h6"
                     align="right"
-                    sx={{ fontFamily: 'monospace', color: 'primary.main', fontWeight: 'bold' }}
+                    sx={{
+                      fontFamily: 'monospace',
+                      color: 'primary.main',
+                      fontWeight: 'bold',
+                    }}
                   >
                     {grandTotal.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                   </Typography>
@@ -293,13 +399,11 @@ const CertificateForm = ({ setOpenDialog, certificate, subContract }) => {
 
         <Divider sx={{ my: 3 }} />
 
-        {/* Tabs */}
         <Tabs value={activeTab} onChange={(_, v) => setActiveTab(v)} variant="fullWidth" sx={{ mb: 3 }}>
           <Tab label="Certified Tasks" />
           <Tab label="Adjustments" />
         </Tabs>
 
-        {/* Content */}
         <Box>
           {activeTab === 0 && (
             <>
@@ -314,12 +418,12 @@ const CertificateForm = ({ setOpenDialog, certificate, subContract }) => {
                 setTasksItems={setTasksItems}
                 subContract={subContract}
                 certificate={certificate}
-                CertificateDate={watch('certificate_date')}
+                CertificateDate={certificateDate}
               />
 
               {tasksItems.map((item, index) => (
                 <CertifiedTasksItemRow
-                  key={index}
+                  key={item.id ?? index}
                   index={index}
                   taskItem={item}
                   tasksItems={tasksItems}
@@ -331,7 +435,7 @@ const CertificateForm = ({ setOpenDialog, certificate, subContract }) => {
                   submitMainForm={handleSubmit(submitForm)}
                   subContract={subContract}
                   certificate={certificate}
-                  CertificateDate={watch('certificate_date')}
+                  CertificateDate={certificateDate}
                 />
               ))}
             </>
@@ -352,7 +456,7 @@ const CertificateForm = ({ setOpenDialog, certificate, subContract }) => {
 
               {adjustments.map((adjustment, index) => (
                 <CertifiedAdjustmentsRow
-                  key={index}
+                  key={adjustment.id ?? index}
                   index={index}
                   adjustment={adjustment}
                   adjustments={adjustments}
@@ -367,14 +471,13 @@ const CertificateForm = ({ setOpenDialog, certificate, subContract }) => {
             </>
           )}
 
-          {errors.certified_tasks && tasksItems.length === 0 && (
+          {(errors as any).certified_tasks && tasksItems.length === 0 && (
             <Alert severity="error" sx={{ mt: 2 }}>
-              {errors.certified_tasks.message}
+              {(errors as any).certified_tasks.message}
             </Alert>
           )}
         </Box>
 
-        {/* Warning Dialog */}
         <Dialog open={showWarning} onClose={() => setShowWarning(false)}>
           <DialogTitle>Unsaved Changes</DialogTitle>
           <DialogContent>
@@ -382,7 +485,12 @@ const CertificateForm = ({ setOpenDialog, certificate, subContract }) => {
           </DialogContent>
           <DialogActions>
             <Button onClick={() => setShowWarning(false)}>Cancel</Button>
-            <Button onClick={() => { setSubmitItemForm(true); setShowWarning(false); }}>
+            <Button
+              onClick={() => {
+                setSubmitItemForm(true);
+                setShowWarning(false);
+              }}
+            >
               Add & Submit
             </Button>
             <Button onClick={handleConfirmSubmitWithoutAdd} color="primary">
@@ -392,23 +500,19 @@ const CertificateForm = ({ setOpenDialog, certificate, subContract }) => {
         </Dialog>
       </DialogContent>
 
-      {/* Actions */}
       <DialogActions>
         <Button onClick={() => setOpenDialog(false)}>Cancel</Button>
-
         <Box display="flex" gap={1}>
           {activeTab === 1 && (
             <Button variant="outlined" onClick={() => setActiveTab(0)}>
               Previous
             </Button>
           )}
-
           {activeTab === 0 && (
             <Button variant="outlined" onClick={() => setActiveTab(1)}>
               Next
             </Button>
           )}
-
           {activeTab === 1 && (
             <LoadingButton
               loading={addCertificate.isPending || updateCertificate.isPending}
