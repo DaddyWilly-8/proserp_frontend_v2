@@ -232,6 +232,8 @@ const CertifiedTasksItemForm= ({
                     fullWidth
                     defaultValue={watch('remarks')}
                     label="Remarks"
+                    multiline={true}
+                    rows={2}
                     error={!!errors.description}
                     helperText={errors.description?.message}
                     onChange={(e) => {

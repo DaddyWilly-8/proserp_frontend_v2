@@ -17,7 +17,7 @@ const CertificatesActionTail = ({subContract}) => {
 
   return (
     <React.Fragment>
-        <Dialog maxWidth="md" fullWidth fullScreen={belowLargeScreen} open={openDialog}>
+        <Dialog maxWidth="lg" fullWidth fullScreen={belowLargeScreen} open={openDialog}>
             <CertificateForm setOpenDialog={setOpenDialog} subContract={subContract}/>
         </Dialog>
 

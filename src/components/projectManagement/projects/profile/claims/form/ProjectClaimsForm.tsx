@@ -106,7 +106,6 @@ const ProjectClaimsForm: React.FC<ProjectClaimsFormProps> = ({
   const queryClient = useQueryClient();
   const { project } = useProjectProfile() as any;
   const { enqueueSnackbar } = useSnackbar();
-
   const [deliverableItems, setDeliverablesItems] = useState<ClaimedDeliverable[]>(
     claim?.claim_items || []
   );
@@ -468,7 +467,6 @@ const ProjectClaimsForm: React.FC<ProjectClaimsFormProps> = ({
             </>
           )}
 
-          {/* Fixed error display */}
           {'claimed_deliverables' in errors && deliverableItems.length === 0 && (
             <Alert severity="error" sx={{ mt: 2 }}>
               {(errors as any).claimed_deliverables?.message}
@@ -476,7 +474,6 @@ const ProjectClaimsForm: React.FC<ProjectClaimsFormProps> = ({
           )}
         </Box>
 
-        {/* Warning Dialog */}
         <Dialog open={showWarning} onClose={() => setShowWarning(false)}>
           <DialogTitle>Unsaved Changes</DialogTitle>
           <DialogContent>

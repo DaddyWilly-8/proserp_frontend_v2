@@ -1,18 +1,29 @@
+'use client';
+
 import { LoadingButton } from '@mui/lab';
 import {
-  Alert, Button, Dialog, DialogActions, DialogContent, DialogTitle,
-  Grid, IconButton, TextField, Tooltip, Typography, Box, Tabs, Tab, Paper,
+  Alert,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Grid,
+  TextField,
+  Box,
+  Tabs,
+  Tab,
   Divider,
-  Checkbox
+  Typography,
+  Checkbox,
 } from '@mui/material';
 import { DateTimePicker } from '@mui/x-date-pickers';
 import dayjs from 'dayjs';
-import React, { useEffect, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import * as yup from "yup";
+import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useSnackbar } from 'notistack';
-import { HighlightOff } from '@mui/icons-material';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import projectsServices from '@/components/projectManagement/projects/project-services';
 import CertifiedTasksItemForm from './tab/certifiedTasks/CertifiedTasksItemForm';
@@ -20,330 +31,392 @@ import CertifiedTasksItemRow from './tab/certifiedTasks/CertifiedTasksItemRow';
 import CertifiedAdjustments from './tab/adjustments/CertifiedAdjustments';
 import CertifiedAdjustmentsRow from './tab/adjustments/CertifiedAdjustmentsRow';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
+import { Div } from '@jumbo/shared';
 
 const CertificateForm = ({ setOpenDialog, certificate, subContract }) => {
   const queryClient = useQueryClient();
   const { enqueueSnackbar } = useSnackbar();
   const { authOrganization } = useJumboAuth();
+  const organization = authOrganization?.organization;
+
   const [tasksItems, setTasksItems] = useState(certificate?.items || []);
-  const [adjustments, setAdjustments] = useState(certificate?.adjustments  ? certificate.adjustments : []);
+  const [adjustments, setAdjustments] = useState(certificate?.adjustments || []);
   const [showWarning, setShowWarning] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
   const [clearFormKey, setClearFormKey] = useState(0);
   const [submitItemForm, setSubmitItemForm] = useState(false);
   const [activeTab, setActiveTab] = useState(0);
-  const [vatChecked, setVatChecked] = useState(certificate?.vat_percentage ? certificate.vat_percentage > 0 : false);
 
   const addCertificate = useMutation({
     mutationFn: projectsServices.addCertificates,
     onSuccess: (data) => {
-      data?.message && enqueueSnackbar(data.message, { variant: 'success' });
+      enqueueSnackbar(data?.message || 'Certificate created', { variant: 'success' });
       queryClient.invalidateQueries({ queryKey: ['Certificates'] });
       setOpenDialog(false);
     },
     onError: (error) => {
       enqueueSnackbar(error?.response?.data?.message || 'Error saving certificate', { variant: 'error' });
-    }
+    },
   });
 
   const updateCertificate = useMutation({
     mutationFn: projectsServices.updateCertificates,
     onSuccess: (data) => {
-      data?.message && enqueueSnackbar(data.message, { variant: 'success' });
+      enqueueSnackbar(data?.message || 'Certificate updated', { variant: 'success' });
       queryClient.invalidateQueries({ queryKey: ['Certificates'] });
       setOpenDialog(false);
     },
     onError: (error) => {
       enqueueSnackbar(error?.response?.data?.message || 'Error updating certificate', { variant: 'error' });
-    }
+    },
   });
 
   const validationSchema = yup.object({
     remarks: yup.string().required('Remarks is required'),
-    certificate_date: yup.string().required('Certificate date is required')
+    certificate_date: yup.string().required('Certificate date is required'),
   });
 
   const {
-    handleSubmit, setError, setValue, register, formState: { errors }, watch
+    handleSubmit,
+    setError,
+    setValue,
+    register,
+    watch,
+    formState: { errors },
   } = useForm({
     resolver: yupResolver(validationSchema),
     defaultValues: {
+      id: certificate?.id,
+      project_subcontract_id: subContract?.id,
       remarks: certificate?.remarks || '',
-      vat_percentage: certificate?.vat_percentage,
-      project_subcontract_id: certificate ? certificate.project_subcontract_id : subContract?.id,
-      certificate_date: certificate?.certificate_date
-        ? dayjs(certificate.certificate_date).toISOString()
-        : dayjs().toISOString(),
-      id: certificate?.id
-    }
+      vat_percentage: certificate?.vat_percentage ?? (organization?.settings?.vat_registered ? organization.settings.vat_percentage || 0 : 0),
+      certificate_date: certificate?.certificate_date ? dayjs(certificate.certificate_date).toISOString() : dayjs().toISOString(),
+    },
   });
 
-  const vat_percentage = watch('vat_percentage') || 0;
+  const vatPercentage = watch('vat_percentage') || 0;
 
-  useEffect(() => {
-    setValue('vat_percentage', vat_percentage);
-    setVatChecked(vatChecked);
-  }, [certificate]);
+  const saveCertificate = useMemo(() => certificate ? updateCertificate : addCertificate, [certificate]);
 
-  useEffect(() => {
-    setValue('adjustments', adjustments?.map(adjustment => ({
-      quantity : adjustment.quantity,
-      operator: adjustment.operator,
-      description: adjustment.description,
-    })));
-  }, [adjustments, setValue]);  
+  // ==================== REAL-TIME CALCULATIONS ====================
+  const { grossAmount, netAdjustments, subtotal, vatAmount, grandTotal } = useMemo(() => {
+    const gross = tasksItems.reduce((sum, item) => {
+      const rate = item.rate || item.task?.rate || 0;
+      const qty = Number(item.certified_quantity) || 0;
+      return sum + rate * qty;
+    }, 0);
 
-  const certificateDate = watch('certificate_date');
+    const netAdj = adjustments.reduce((sum, adj) => {
+      const amount = Number(adj.amount) || 0;
+      return adj.type === 'deduction' || adj.type === '-' ? sum - amount : sum + amount;
+    }, 0);
 
-  const saveCertificate = React.useMemo(() => {
-    return certificate ? updateCertificate : addCertificate;
-  }, [certificate, updateCertificate, addCertificate]);
+    const sub = gross + netAdj;
+    const vat = (sub * vatPercentage) / 100;
+
+    return {
+      grossAmount: gross,
+      netAdjustments: netAdj,
+      subtotal: sub,
+      vatAmount: vat,
+      grandTotal: sub + vat,
+    };
+  }, [tasksItems, adjustments, vatPercentage]);
 
   const onSubmit = (data) => {
     if (tasksItems.length === 0) {
-      setError("certified_tasks", { type: "manual", message: "You must add at least one Certified Task" });
+      setError('certified_tasks', { type: 'manual', message: 'You must add at least one Certified Task' });
       return;
     }
+
     if (isDirty) {
       setShowWarning(true);
     } else {
-      handleSubmitForm(data);
+      submitForm(data);
     }
   };
 
-  const handleSubmitForm = async (data) => {
-    const updatedData = {
+  const submitForm = (data) => {
+    const payload = {
       ...data,
       certified_tasks: tasksItems.map((item) => ({
-        project_subcontract_task_id: item.project_subcontract_task_id,
+        project_subcontract_task_id: item.project_subcontract_task_id || item.task?.id,
         remarks: item.remarks,
-        certified_quantity: item.certified_quantity,
+        certified_quantity: Number(item.certified_quantity),
       })),
-      adjustments: adjustments.map((item) => ({
-        description: item.description,
-        complement_ledger_id: item.complement_ledger_id || item?.complement_ledger?.id,
-        type: item.type === '-' ? 'deduction' : 'addition',
-        amount: item.amount,
+      adjustments: adjustments.map((adj) => ({
+        description: adj.description,
+        type: adj.type === '-' ? 'deduction' : 'addition',
+        amount: Number(adj.amount),
       })),
     };
-    await saveCertificate.mutate(updatedData);
+
+    saveCertificate.mutate(payload);
   };
 
   const handleConfirmSubmitWithoutAdd = () => {
     setIsDirty(false);
     setShowWarning(false);
-    setClearFormKey(prev => prev + 1);
-    handleSubmit(handleSubmitForm)();
+    setClearFormKey((k) => k + 1);
+    handleSubmit(submitForm)();
   };
 
   return (
     <>
       <DialogTitle textAlign="center">
-        {certificate ? `Edit Certificate` : 'New Certificate Form'}
+        {certificate ? `Edit ${certificate.certificateNo}` : 'New Certificate Form'}
       </DialogTitle>
 
-      <DialogContent>
-        <form autoComplete="off" onSubmit={handleSubmit(onSubmit)}>
-          <Grid container spacing={1} mb={3} paddingTop={1}>
-            <Grid size={{ xs: 12, md: 4 }}>
-              <DateTimePicker
-                label="Certificate Date"
-                value={dayjs(watch("certificate_date"))}
-                slotProps={{
-                  textField: {
-                    size: 'small',
-                    fullWidth: true,
-                    InputProps: { readOnly: true },
-                    error: !!errors.certificate_date,
-                    helperText: errors.certificate_date?.message
-                  }
-                }}
-                onChange={(newValue) => {
-                  setValue('certificate_date', newValue?.toISOString() || '', {
-                    shouldValidate: true,
-                    shouldDirty: true
-                  });
-                }}
-              />
-            </Grid>
-            <Grid size={{ xs: 12, md: 8 }}>
-              <TextField
-                size="small"
-                label="Remarks"
-                fullWidth
-                multiline
-                rows={2}
-                {...register('remarks')}
-                error={!!errors.remarks}
-                helperText={errors.remarks?.message}
-              />
-            </Grid>
-            <Grid size={{xs: 12, md: 12}}>
-              <Typography align='left' variant='body2'>
-                VAT
-                <Checkbox
-                  size='small'
-                  checked={vatChecked}
-                  onChange={(e) => {
-                    const checked = e.target.checked;
-                    setVatChecked(checked);
-                    setValue('vat_percentage', checked ? authOrganization?.organization?.settings?.vat_percentage ?? 0 : 0, {
-                      shouldDirty: true,
-                      shouldValidate: true,
-                    });
-                  }}
-                />
-              </Typography>
-            </Grid>
+      <DialogContent dividers>
+        <Grid container spacing={3}>
+          {/* Left: Main Form */}
+          <Grid size={{ xs: 12, md: 9 }}>
+            <form autoComplete="off" onSubmit={handleSubmit(onSubmit)}>
+              <Grid container spacing={2} mb={3}>
+                <Grid size={{ xs: 12, md: 4 }}>
+                  <DateTimePicker
+                    label="Certificate Date"
+                    value={dayjs(watch('certificate_date'))}
+                    slotProps={{
+                      textField: {
+                        size: 'small',
+                        fullWidth: true,
+                        error: !!errors.certificate_date,
+                        helperText: errors.certificate_date?.message,
+                      },
+                    }}
+                    onChange={(v) => setValue('certificate_date', v?.toISOString() || '', { shouldValidate: true })}
+                  />
+                </Grid>
+
+                <Grid size={{ xs: 12, md: 8 }}>
+                  <TextField
+                    size="small"
+                    label="Remarks"
+                    fullWidth
+                    multiline
+                    rows={2}
+                    {...register('remarks')}
+                    error={!!errors.remarks}
+                    helperText={errors.remarks?.message}
+                  />
+                </Grid>
+              </Grid>
+            </form>
           </Grid>
 
-          <Tabs
-            value={activeTab}
-            onChange={(_, newValue) => setActiveTab(newValue)}
-            variant="fullWidth"
-            sx={{
-              borderColor: 'divider'
-            }}
-          >
-            <Tab label="Certified Tasks" />
-            <Tab label="Adjustments" />
-          </Tabs>
+          {/* Right: Sticky Summary with VAT Checkbox */}
+          <Grid size={{ xs: 12, md: 3 }}>
+            <Div
+              sx={{
+                position: 'sticky',
+                top: 20,
+                bgcolor: 'background.paper',
+                borderRadius: 2,
+                boxShadow: 3,
+                p: 3,
+                height: 'fit-content',
+              }}
+            >
+              <Typography variant="h6" align="center" gutterBottom fontWeight="bold">
+                Summary
+              </Typography>
+              <Divider sx={{ my: 2 }} />
 
-          <Divider/>
+              <Grid container spacing={1.5}>
+                <Grid size={7}><Typography variant="body2">Gross Amount:</Typography></Grid>
+                <Grid size={5}>
+                  <Typography variant="body1" align="right" sx={{ fontFamily: 'monospace' }}>
+                    {grossAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                  </Typography>
+                </Grid>
 
-          <Box>
-            {activeTab === 0 && (
-              <>
-                <CertifiedTasksItemForm
+                {adjustments.length > 0 && (
+                  <>
+                    <Grid size={7}><Typography variant="body2">Net Adjustments:</Typography></Grid>
+                    <Grid size={5}>
+                      <Typography
+                        variant="body1"
+                        align="right"
+                        sx={{
+                          fontFamily: 'monospace',
+                          color: netAdjustments < 0 ? 'error.main' : 'success.main',
+                        }}
+                      >
+                        {netAdjustments.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                      </Typography>
+                    </Grid>
+                  </>
+                )}
+
+                <Grid size={7}><Typography variant="body2" fontWeight="bold">Subtotal:</Typography></Grid>
+                <Grid size={5}>
+                  <Typography variant="body1" align="right" fontWeight="bold" sx={{ fontFamily: 'monospace' }}>
+                    {subtotal.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                  </Typography>
+                </Grid>
+
+                {/* VAT Row with Checkbox */}
+                <Grid size={7}>
+                  <Typography variant="body2">
+                    VAT ({organization?.settings?.vat_percentage ?? 0}%):
+                    <Checkbox
+                      size="small"
+                      checked={vatPercentage > 0}
+                      onChange={(e) => {
+                        const rate = e.target.checked ? (organization?.settings?.vat_percentage ?? 0) : 0;
+                        setValue('vat_percentage', rate, { shouldDirty: true });
+                      }}
+                    />
+                  </Typography>
+                </Grid>
+                <Grid size={5}>
+                  <Typography variant="body1" align="right" sx={{ fontFamily: 'monospace' }}>
+                    {vatAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                  </Typography>
+                </Grid>
+
+                <Grid size={7}><Typography variant="h6" fontWeight="bold">Grand Total:</Typography></Grid>
+                <Grid size={5}>
+                  <Typography
+                    variant="h6"
+                    align="right"
+                    sx={{ fontFamily: 'monospace', color: 'primary.main', fontWeight: 'bold' }}
+                  >
+                    {grandTotal.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                  </Typography>
+                </Grid>
+              </Grid>
+            </Div>
+          </Grid>
+        </Grid>
+
+        <Divider sx={{ my: 3 }} />
+
+        {/* Tabs */}
+        <Tabs value={activeTab} onChange={(_, v) => setActiveTab(v)} variant="fullWidth" sx={{ mb: 3 }}>
+          <Tab label="Certified Tasks" />
+          <Tab label="Adjustments" />
+        </Tabs>
+
+        {/* Content */}
+        <Box>
+          {activeTab === 0 && (
+            <>
+              <CertifiedTasksItemForm
+                key={`tasks-form-${clearFormKey}`}
+                setClearFormKey={setClearFormKey}
+                submitMainForm={handleSubmit(submitForm)}
+                submitItemForm={submitItemForm}
+                setSubmitItemForm={setSubmitItemForm}
+                setIsDirty={setIsDirty}
+                tasksItems={tasksItems}
+                setTasksItems={setTasksItems}
+                subContract={subContract}
+                certificate={certificate}
+                CertificateDate={watch('certificate_date')}
+              />
+
+              {tasksItems.map((item, index) => (
+                <CertifiedTasksItemRow
+                  key={index}
+                  index={index}
+                  taskItem={item}
+                  tasksItems={tasksItems}
+                  setTasksItems={setTasksItems}
+                  setIsDirty={setIsDirty}
                   setClearFormKey={setClearFormKey}
-                  submitMainForm={handleSubmit(() => saveCertificate.mutate(watch()))}
                   submitItemForm={submitItemForm}
                   setSubmitItemForm={setSubmitItemForm}
-                  key={clearFormKey}
-                  setIsDirty={setIsDirty}
-                  tasksItems={tasksItems}
+                  submitMainForm={handleSubmit(submitForm)}
                   subContract={subContract}
                   certificate={certificate}
-                  CertificateDate={certificateDate}
-                  setTasksItems={setTasksItems}
+                  CertificateDate={watch('certificate_date')}
                 />
+              ))}
+            </>
+          )}
 
-                {tasksItems.map((taskItem, index) => (
-                  <CertifiedTasksItemRow
-                    key={index}
-                    index={index}
-                    taskItem={taskItem}
-                    tasksItems={tasksItems}
-                    setTasksItems={setTasksItems}
-                    CertificateDate={certificateDate}
-                    setIsDirty={setIsDirty}
-                    subContract={subContract}
-                    certificate={certificate}
-                    setClearFormKey={setClearFormKey}
-                    submitItemForm={submitItemForm}
-                    setSubmitItemForm={setSubmitItemForm}
-                    submitMainForm={handleSubmit(() => saveCertificate.mutate(watch()))}
-                  />
-                ))}
-              </>
-            )}
+          {activeTab === 1 && (
+            <>
+              <CertifiedAdjustments
+                key={clearFormKey}
+                setClearFormKey={setClearFormKey}
+                submitMainForm={handleSubmit(submitForm)}
+                submitItemForm={submitItemForm}
+                setSubmitItemForm={setSubmitItemForm}
+                setIsDirty={setIsDirty}
+                adjustments={adjustments}
+                setAdjustments={setAdjustments}
+              />
 
-            {activeTab === 1 && (
-              <>
-                <CertifiedAdjustments
-                  setClearFormKey={setClearFormKey}
-                  submitMainForm={handleSubmit(() => saveCertificate.mutate(watch()))}
-                  submitItemForm={submitItemForm}
-                  setSubmitItemForm={setSubmitItemForm}
-                  key={clearFormKey}
-                  setIsDirty={setIsDirty}
+              {adjustments.map((adjustment, index) => (
+                <CertifiedAdjustmentsRow
+                  key={index}
+                  index={index}
+                  adjustment={adjustment}
                   adjustments={adjustments}
                   setAdjustments={setAdjustments}
+                  setIsDirty={setIsDirty}
+                  setClearFormKey={setClearFormKey}
+                  submitItemForm={submitItemForm}
+                  setSubmitItemForm={setSubmitItemForm}
+                  submitMainForm={handleSubmit(submitForm)}
                 />
-                
-                {adjustments.map((adjustment, index) => (
-                  <CertifiedAdjustmentsRow
-                    key={index}
-                    index={index}
-                    adjustment={adjustment}
-                    adjustments={adjustments}
-                    setAdjustments={setAdjustments}
-                    setIsDirty={setIsDirty}
-                    setClearFormKey={setClearFormKey}
-                    submitItemForm={submitItemForm}
-                    setSubmitItemForm={setSubmitItemForm}
-                    submitMainForm={handleSubmit(() => saveCertificate.mutate(watch()))}
-                  />
-                ))}
-              </>
-            )}
+              ))}
+            </>
+          )}
 
-            {errors?.certified_tasks?.message && tasksItems.length < 1 && (
-              <Alert severity="error" sx={{ mt: 2 }}>
-                {errors.certified_tasks.message}
-              </Alert>
-            )}
-          </Box>
-        </form>
+          {errors.certified_tasks && tasksItems.length === 0 && (
+            <Alert severity="error" sx={{ mt: 2 }}>
+              {errors.certified_tasks.message}
+            </Alert>
+          )}
+        </Box>
 
+        {/* Warning Dialog */}
         <Dialog open={showWarning} onClose={() => setShowWarning(false)}>
-          <DialogTitle>
-            <Grid container alignItems="center" justifyContent="space-between">
-              <Grid size={11}>Unsaved Changes</Grid>
-              <Grid size={1} textAlign="right">
-                <Tooltip title="Close">
-                  <IconButton size="small" onClick={() => setShowWarning(false)}>
-                    <HighlightOff color="primary" />
-                  </IconButton>
-                </Tooltip>
-              </Grid>
-            </Grid>
-          </DialogTitle>
-          <DialogContent>Last item was not added to the list</DialogContent>
+          <DialogTitle>Unsaved Changes</DialogTitle>
+          <DialogContent>
+            <Typography>The last item has not been added to the list.</Typography>
+          </DialogContent>
           <DialogActions>
-            <Button size="small" onClick={() => { setSubmitItemForm(true); setShowWarning(false); }}>
-              Add and Submit
+            <Button onClick={() => setShowWarning(false)}>Cancel</Button>
+            <Button onClick={() => { setSubmitItemForm(true); setShowWarning(false); }}>
+              Add & Submit
             </Button>
-            <Button size="small" onClick={handleConfirmSubmitWithoutAdd} color="secondary">
-              Submit without add
+            <Button onClick={handleConfirmSubmitWithoutAdd} color="primary">
+              Submit Without Adding
             </Button>
           </DialogActions>
         </Dialog>
       </DialogContent>
 
+      {/* Actions */}
       <DialogActions>
-        <Button size="small" onClick={() => setOpenDialog(false)}>
-          Cancel
-        </Button>
+        <Button onClick={() => setOpenDialog(false)}>Cancel</Button>
 
         <Box display="flex" gap={1}>
-          {activeTab === 1 &&
-            <Button
-              size="small"
-              variant='outlined'
-              onClick={() => setActiveTab((t) => t - 1)}
-            >
-              Prev
+          {activeTab === 1 && (
+            <Button variant="outlined" onClick={() => setActiveTab(0)}>
+              Previous
             </Button>
-          }
+          )}
 
-          {activeTab < 1 ? (
-            <Button
-              size="small"
-              variant="outlined"
-              onClick={() => setActiveTab((t) => t + 1)}
-            >
+          {activeTab === 0 && (
+            <Button variant="outlined" onClick={() => setActiveTab(1)}>
               Next
             </Button>
-          ) : (
+          )}
+
+          {activeTab === 1 && (
             <LoadingButton
               loading={addCertificate.isPending || updateCertificate.isPending}
-              size="small"
               variant="contained"
-              color="primary"
+              color="success"
               onClick={handleSubmit(onSubmit)}
             >
-              {certificate ? "Update" : "Submit"}
+              {certificate ? 'Update' : 'Submit'} Certificate
             </LoadingButton>
           )}
         </Box>

@@ -172,7 +172,7 @@ const CertificateItemAction = ({ certificate }) => {
         open={openEditDialog}
         fullWidth
         fullScreen={belowLargeScreen}
-        maxWidth="md"
+        maxWidth="lg"
         scroll={belowLargeScreen ? 'body' : 'paper'}
       >
         {openEditDialog && (
