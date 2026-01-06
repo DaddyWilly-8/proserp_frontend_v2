@@ -85,18 +85,6 @@ const ClaimPDF: React.FC<{ claim: Claim; organization: Organization }> = ({
       type: null as 'addition' | 'deduction' | null,
     },
 
-    ...(vatPercentage > 0
-      ? [
-          {
-            id: 'vat',
-            particular: `VAT (${vatPercentage}%)`,
-            amount: vatAmount,
-            complement_ledger: null,
-            type: null as 'addition' | 'deduction' | null,
-          },
-        ]
-      : []),
-
     ...(claim.adjustments || []).map((adj) => ({
       id: adj.id ?? `adj-${Math.random()}`,
       particular: adj.description,
@@ -104,6 +92,18 @@ const ClaimPDF: React.FC<{ claim: Claim; organization: Organization }> = ({
       type: adj.type,
       amount: adj.type === 'deduction' ? -Number(adj.amount) : Number(adj.amount),
     })),
+
+    ...(vatPercentage > 0
+    ? [
+        {
+          id: 'vat',
+          particular: `VAT (${vatPercentage}%)`,
+          amount: vatAmount,
+          complement_ledger: null,
+          type: null as 'addition' | 'deduction' | null,
+        },
+      ]
+    : []),
   ];
 
   const grandTotal = summaryItems.reduce((sum, item) => sum + Number(item.amount), 0);

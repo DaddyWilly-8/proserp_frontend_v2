@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import {
   Box,
@@ -79,9 +81,9 @@ interface ClaimOnscreenProps {
 const ClaimOnscreen: React.FC<ClaimOnscreenProps> = ({ claim, organization }) => {
   const theme = useTheme();
 
-  const mainColor = organization.settings?.main_color || "#2113AD";
-  const headerColor = theme.type === 'dark' ? '#29f096' : (organization.settings?.main_color || "#2113AD");
-  const contrastText = organization.settings?.contrast_text || "#FFFFFF";
+  const mainColor = organization.settings?.main_color || '#2113AD';
+  const headerColor = theme.type === 'dark' ? '#29f096' : (organization.settings?.main_color || '#2113AD');
+  const contrastText = organization.settings?.contrast_text || '#FFFFFF';
   const currencyCode = claim.currency?.code || 'TZS';
 
   // ==================== Summary Section ====================
@@ -97,6 +99,13 @@ const ClaimOnscreen: React.FC<ClaimOnscreenProps> = ({ claim, organization }) =>
       complement_ledger: null,
       type: null as 'addition' | 'deduction' | null,
     },
+    ...(claim.adjustments || []).map((adj) => ({
+      id: adj.id ?? `adj-${Math.random().toString(36)}`,
+      particular: adj.description,
+      complement_ledger: adj.complement_ledger ?? null,
+      type: adj.type,
+      amount: adj.type === 'deduction' ? -Number(adj.amount) : Number(adj.amount),
+    })),
     ...(vatPercentage > 0
       ? [{
           id: 'vat',
@@ -106,13 +115,6 @@ const ClaimOnscreen: React.FC<ClaimOnscreenProps> = ({ claim, organization }) =>
           type: null,
         }]
       : []),
-    ...(claim.adjustments || []).map((adj) => ({
-      id: adj.id ?? `adj-${Math.random()}`,
-      particular: adj.description,
-      complement_ledger: adj.complement_ledger ?? null,
-      type: adj.type,
-      amount: adj.type === 'deduction' ? -Number(adj.amount) : Number(adj.amount),
-    })),
   ];
 
   const grandTotal = summaryItems.reduce((sum, item) => sum + Number(item.amount), 0);
@@ -127,7 +129,7 @@ const ClaimOnscreen: React.FC<ClaimOnscreenProps> = ({ claim, organization }) =>
     return {
       sn: index + 1,
       description: item.project_deliverable?.description || '',
-      unit: item.measurement_unit?.symbol || '',
+      unit: item.measurement_unit?.symbol || item.project_deliverable?.measurement_unit?.symbol || '',
       ledger: item.revenue_ledger?.name || '',
       remarks: item.remarks || '',
       previousQty,
@@ -158,11 +160,11 @@ const ClaimOnscreen: React.FC<ClaimOnscreenProps> = ({ claim, organization }) =>
   };
 
   return (
-    <Box sx={{ bgcolor: 'background.paper' }}>
+    <Box sx={{ bgcolor: 'background.paper', p: { xs: 2, md: 4 } }}>
       {/* ==================== Header ==================== */}
-      <Grid container spacing={3} sx={{ mb: 5, alignItems: 'center' }}>
-        <Grid size={{ xs: 12, md: 8 }} textAlign="right">
-          <Typography variant="h4" sx={{ color: headerColor }}>
+      <Grid container spacing={3} sx={{ mb: 6, alignItems: 'center' }}>
+        <Grid size={{ xs: 12, md: 8 }} textAlign={{ xs: 'center', md: 'right' }}>
+          <Typography variant="h4" sx={{ color: headerColor, fontWeight: 'bold' }}>
             PAYMENT CLAIM
           </Typography>
           <Typography variant="h5" fontWeight="bold" sx={{ mt: 1 }}>
@@ -177,7 +179,7 @@ const ClaimOnscreen: React.FC<ClaimOnscreenProps> = ({ claim, organization }) =>
       </Grid>
 
       {/* ==================== Claim Info ==================== */}
-      <Grid container spacing={4} sx={{ mb: 5 }}>
+      <Grid container spacing={4} sx={{ mb: 6 }}>
         <Grid size={{ xs: 12, md: 6 }}>
           <Typography variant="subtitle2" color="text.secondary">
             Claim Date
@@ -197,16 +199,16 @@ const ClaimOnscreen: React.FC<ClaimOnscreenProps> = ({ claim, organization }) =>
         )}
       </Grid>
 
-      {/* ==================== Summary Table (Right Aligned) ==================== */}
-      <Box sx={{ mb: 6 }}>
-        <Typography variant="h6" sx={{ color: contrastText, textAlign: 'center' }}>
+      {/* ==================== Summary Table ==================== */}
+      <Box sx={{ mb: 8 }}>
+        <Typography variant="h6" align="center" gutterBottom sx={{ color: headerColor }}>
           Summary
         </Typography>
 
-        <TableContainer component={Paper} elevation={3}>
+        <TableContainer component={Paper} elevation={4}>
           <Table size="small">
             <TableHead>
-              <TableRow sx={{ backgroundColor: mainColor }}>
+              <TableRow sx={{ bgcolor: mainColor }}>
                 <TableCell sx={{ border: `1px solid ${contrastText}`, color: contrastText, fontWeight: 'bold' }}>S/N</TableCell>
                 <TableCell sx={{ border: `1px solid ${contrastText}`, color: contrastText, fontWeight: 'bold' }}>Particulars</TableCell>
                 <TableCell align="right" sx={{ border: `1px solid ${contrastText}`, color: contrastText, fontWeight: 'bold' }}>
@@ -216,7 +218,7 @@ const ClaimOnscreen: React.FC<ClaimOnscreenProps> = ({ claim, organization }) =>
             </TableHead>
             <TableBody>
               {summaryItems.map((item, index) => (
-                <TableRow key={item.id} sx={{ bgcolor: index % 2 === 1 ? theme.palette.action.hover : 'inherit' }}>
+                <TableRow key={item.id} sx={{ bgcolor: index % 2 === 1 ? 'action.hover' : 'inherit' }}>
                   <TableCell sx={{ border: '1px solid rgba(224, 224, 224, 1)' }}>{index + 1}.</TableCell>
                   <TableCell sx={{ border: '1px solid rgba(224, 224, 224, 1)' }}>
                     <Box>
@@ -236,12 +238,12 @@ const ClaimOnscreen: React.FC<ClaimOnscreenProps> = ({ claim, organization }) =>
                 </TableRow>
               ))}
 
-              <TableRow sx={{ backgroundColor: mainColor }}>
+              <TableRow sx={{ bgcolor: mainColor }}>
                 <TableCell colSpan={2} align="center" sx={{ border: `1px solid ${contrastText}`, color: contrastText, fontWeight: 'bold' }}>
                   Grand Total ({currencyCode})
                 </TableCell>
                 <TableCell align="right" sx={{ border: `1px solid ${contrastText}`, color: contrastText, fontWeight: 'bold' }}>
-                  {grandTotal.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                  {grandTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </TableCell>
               </TableRow>
             </TableBody>
@@ -250,60 +252,27 @@ const ClaimOnscreen: React.FC<ClaimOnscreenProps> = ({ claim, organization }) =>
       </Box>
 
       {/* ==================== Claim Derivations Table ==================== */}
-      <Typography variant="h6" sx={{ mb: 2, textAlign: 'center' }}>
+      <Typography variant="h6" align="center" gutterBottom sx={{ mb: 3, color: headerColor }}>
         Claim Derivations
       </Typography>
 
-      <TableContainer component={Paper} elevation={3} sx={{ mb: 6, overflowX: 'auto' }}>
-        <Table size="small" sx={{ borderCollapse: 'collapse' }}>
+      <TableContainer component={Paper} elevation={4} sx={{ mb: 8, overflowX: 'auto' }}>
+        <Table size="small">
           <TableHead>
-            {/* Group Header Row */}
-            <TableRow sx={{ backgroundColor: mainColor }}>
-              <TableCell
-                colSpan={3}
-                sx={{
-                  border: `1px solid ${contrastText}`,
-                  color: contrastText,
-                  fontWeight: 'bold',
-                  textAlign: 'center',
-                }}
-              />
-              <TableCell
-                colSpan={3}
-                align="center"
-                sx={{
-                  border: `1px solid ${contrastText}`,
-                  color: contrastText,
-                  fontWeight: 'bold',
-                }}
-              >
+            <TableRow sx={{ bgcolor: mainColor }}>
+              <TableCell colSpan={3} sx={{ border: `1px solid ${contrastText}`, color: contrastText, fontWeight: 'bold', textAlign: 'center' }}></TableCell>
+              <TableCell colSpan={3} align="center" sx={{ border: `1px solid ${contrastText}`, color: contrastText, fontWeight: 'bold' }}>
                 Price Schedule
               </TableCell>
-              <TableCell
-                colSpan={3}
-                align="center"
-                sx={{
-                  border: `1px solid ${contrastText}`,
-                  color: contrastText,
-                  fontWeight: 'bold',
-                }}
-              >
+              <TableCell colSpan={3} align="center" sx={{ border: `1px solid ${contrastText}`, color: contrastText, fontWeight: 'bold' }}>
                 Quantity
               </TableCell>
-              <TableCell
-                colSpan={3}
-                align="center"
-                sx={{
-                  border: `1px solid ${contrastText}`,
-                  color: contrastText,
-                  fontWeight: 'bold',
-                }}
-              >
+              <TableCell colSpan={3} align="center" sx={{ border: `1px solid ${contrastText}`, color: contrastText, fontWeight: 'bold' }}>
                 Amount ({currencyCode})
               </TableCell>
             </TableRow>
 
-            <TableRow sx={{ backgroundColor: mainColor + 'dd' }}>
+            <TableRow sx={{ bgcolor: mainColor + 'dd' }}>
               {[
                 'S/N',
                 'Description',
@@ -311,15 +280,15 @@ const ClaimOnscreen: React.FC<ClaimOnscreenProps> = ({ claim, organization }) =>
                 'Qty',
                 'Rate',
                 'Amount',
-                'Previous',
-                'Present',
-                'Cumulative',
-                'Previous',
-                'Present',
-                'Cumulative',
+                'Prev. Qty',
+                'Pres. Qty',
+                'Cum. Qty',
+                'Prev. Amt',
+                'Pres. Amt',
+                'Cum. Amt',
               ].map((header, idx) => (
                 <TableCell
-                  key={header}
+                  key={idx}
                   align={idx >= 3 ? 'right' : idx === 2 ? 'center' : 'left'}
                   sx={{
                     border: `1px solid ${contrastText}`,
@@ -338,14 +307,10 @@ const ClaimOnscreen: React.FC<ClaimOnscreenProps> = ({ claim, organization }) =>
             {claimedItems.map((item, index) => (
               <TableRow
                 key={item.sn}
-                sx={{
-                  bgcolor: index % 2 === 1 ? theme.palette.action.hover : 'inherit',
-                }}
+                sx={{ bgcolor: index % 2 === 1 ? 'action.hover' : 'inherit' }}
               >
-                <TableCell sx={{ border: '1px solid rgba(224, 224, 224, 1)', py: 1 }}>
-                  {item.sn}.
-                </TableCell>
-                <TableCell sx={{ border: '1px solid rgba(224, 224, 224, 1)', py: 1 }}>
+                <TableCell sx={{ border: '1px solid rgba(224, 224, 224, 1)' }}>{item.sn}.</TableCell>
+                <TableCell sx={{ border: '1px solid rgba(224, 224, 224, 1)', py: 1.5 }}>
                   <Box>
                     <Typography variant="body2">{item.description}</Typography>
                     {item.ledger && (
@@ -360,41 +325,41 @@ const ClaimOnscreen: React.FC<ClaimOnscreenProps> = ({ claim, organization }) =>
                     )}
                   </Box>
                 </TableCell>
-                <TableCell align="center" sx={{ border: '1px solid rgba(224, 224, 224, 1)', py: 1 }}>
+                <TableCell align="center" sx={{ border: '1px solid rgba(224, 224, 224, 1)' }}>
                   {item.unit}
                 </TableCell>
-                <TableCell align="right" sx={{ border: '1px solid rgba(224, 224, 224, 1)', py: 1 }}>
+                <TableCell align="right" sx={{ border: '1px solid rgba(224, 224, 224, 1)' }}>
                   {item.presentQty.toLocaleString()}
                 </TableCell>
-                <TableCell align="right" sx={{ border: '1px solid rgba(224, 224, 224, 1)', py: 1 }}>
-                  {item.unitRate.toLocaleString()}
+                <TableCell align="right" sx={{ border: '1px solid rgba(224, 224, 224, 1)' }}>
+                  {item.unitRate.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                 </TableCell>
-                <TableCell align="right" sx={{ border: '1px solid rgba(224, 224, 224, 1)', py: 1 }}>
+                <TableCell align="right" sx={{ border: '1px solid rgba(224, 224, 224, 1)' }}>
                   {item.presentAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                 </TableCell>
-                <TableCell align="right" sx={{ border: '1px solid rgba(224, 224, 224, 1)', py: 1 }}>
+                <TableCell align="right" sx={{ border: '1px solid rgba(224, 224, 224, 1)' }}>
                   {item.previousQty.toLocaleString()}
                 </TableCell>
-                <TableCell align="right" sx={{ border: '1px solid rgba(224, 224, 224, 1)', py: 1 }}>
+                <TableCell align="right" sx={{ border: '1px solid rgba(224, 224, 224, 1)' }}>
                   {item.presentQty.toLocaleString()}
                 </TableCell>
-                <TableCell align="right" sx={{ border: '1px solid rgba(224, 224, 224, 1)', py: 1 }}>
+                <TableCell align="right" sx={{ border: '1px solid rgba(224, 224, 224, 1)' }}>
                   {item.cumulativeQty.toLocaleString()}
                 </TableCell>
-                <TableCell align="right" sx={{ border: '1px solid rgba(224, 224, 224, 1)', py: 1 }}>
+                <TableCell align="right" sx={{ border: '1px solid rgba(224, 224, 224, 1)' }}>
                   {item.previousAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                 </TableCell>
-                <TableCell align="right" sx={{ border: '1px solid rgba(224, 224, 224, 1)', py: 1 }}>
+                <TableCell align="right" sx={{ border: '1px solid rgba(224, 224, 224, 1)' }}>
                   {item.presentAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                 </TableCell>
-                <TableCell align="right" sx={{ border: '1px solid rgba(224, 224, 224, 1)', py: 1 }}>
+                <TableCell align="right" sx={{ border: '1px solid rgba(224, 224, 224, 1)' }}>
                   {item.cumulativeAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                 </TableCell>
               </TableRow>
             ))}
 
             {/* Grand Total Row */}
-            <TableRow sx={{ backgroundColor: mainColor }}>
+            <TableRow sx={{ bgcolor: mainColor }}>
               <TableCell
                 colSpan={9}
                 align="right"
@@ -402,7 +367,7 @@ const ClaimOnscreen: React.FC<ClaimOnscreenProps> = ({ claim, organization }) =>
                   border: `1px solid ${contrastText}`,
                   color: contrastText,
                   fontWeight: 'bold',
-                  py: 1.5,
+                  py: 2,
                 }}
               >
                 GRAND TOTAL ({currencyCode})
@@ -413,7 +378,7 @@ const ClaimOnscreen: React.FC<ClaimOnscreenProps> = ({ claim, organization }) =>
                   border: `1px solid ${contrastText}`,
                   color: contrastText,
                   fontWeight: 'bold',
-                  py: 1.5,
+                  py: 2,
                 }}
               >
                 {totals.previousAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
@@ -424,7 +389,7 @@ const ClaimOnscreen: React.FC<ClaimOnscreenProps> = ({ claim, organization }) =>
                   border: `1px solid ${contrastText}`,
                   color: contrastText,
                   fontWeight: 'bold',
-                  py: 1.5,
+                  py: 2,
                 }}
               >
                 {totals.presentAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
@@ -435,7 +400,7 @@ const ClaimOnscreen: React.FC<ClaimOnscreenProps> = ({ claim, organization }) =>
                   border: `1px solid ${contrastText}`,
                   color: contrastText,
                   fontWeight: 'bold',
-                  py: 1.5,
+                  py: 2,
                 }}
               >
                 {totals.cumulativeAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
@@ -445,10 +410,9 @@ const ClaimOnscreen: React.FC<ClaimOnscreenProps> = ({ claim, organization }) =>
         </Table>
       </TableContainer>
 
-      {/* ==================== Signature ==================== */}
-      <Box sx={{ mt: 10, display: 'flex', justifyContent: 'flex-end' }}>
-        <Box sx={{ width: 300, textAlign: 'center' }}>
-          <Typography variant="subtitle1" sx={{ color: headerColor }}>
+      <Box sx={{ mt: 12, display: 'flex', justifyContent: 'flex-end' }}>
+        <Box sx={{ width: { xs: '100%', sm: 320 }, textAlign: 'center' }}>
+          <Typography variant="subtitle1" sx={{ color: headerColor, fontWeight: 'bold' }}>
             Prepared By:
           </Typography>
           <Typography variant="body1" fontWeight="medium">

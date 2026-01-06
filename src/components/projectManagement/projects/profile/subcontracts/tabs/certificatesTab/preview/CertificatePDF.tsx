@@ -102,8 +102,8 @@ const CertificatePDF: React.FC<CertificatePDFProps> = ({ certificate, organizati
 
   const summaryItems: SummaryItem[] = [
     grossItem,
-    ...(vatItem ? [vatItem] : []),
     ...adjustmentItems,
+    ...(vatItem ? [vatItem] : []),
   ];
 
   const grandTotal = summaryItems.reduce((sum, item) => sum + item.amount, 0);

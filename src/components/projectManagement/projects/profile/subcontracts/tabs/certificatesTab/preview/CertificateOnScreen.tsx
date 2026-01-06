@@ -86,15 +86,6 @@ const CertificateOnScreen: React.FC<CertificateOnScreenProps> = ({ certificate, 
       complement_ledger: null,
       type: null as 'addition' | 'deduction' | null,
     },
-    ...(vatPercentage > 0
-      ? [{
-          id: 'vat',
-          particular: `VAT (${vatPercentage}%)`,
-          amount: vatAmount,
-          complement_ledger: null,
-          type: null,
-        }]
-      : []),
     ...(certificate.adjustments || []).map((adj) => ({
       id: adj.id ?? `adj-${Math.random()}`,
       particular: adj.description,
@@ -102,6 +93,15 @@ const CertificateOnScreen: React.FC<CertificateOnScreenProps> = ({ certificate, 
       type: adj.type,
       amount: adj.type === 'deduction' ? -Number(adj.amount) : Number(adj.amount),
     })),
+    ...(vatPercentage > 0
+    ? [{
+        id: 'vat',
+        particular: `VAT (${vatPercentage}%)`,
+        amount: vatAmount,
+        complement_ledger: null,
+        type: null,
+      }]
+    : []),
   ];
 
   const grandTotal = summaryItems.reduce((sum, item) => sum + Number(item.amount), 0);
@@ -153,7 +153,7 @@ const CertificateOnScreen: React.FC<CertificateOnScreenProps> = ({ certificate, 
       {/* ==================== Header ==================== */}
       <Grid container spacing={3} sx={{ mb: 6, alignItems: 'center' }}>
 
-        <Grid size={{ xs: 12, md: 8 }} textAlign="right">
+        <Grid size={{ xs: 12, md: 8 }} textAlign="center">
           <Typography variant="h3" sx={{ color: headerColor, fontWeight: 'bold' }}>
             CERTIFICATE
           </Typography>
@@ -273,7 +273,7 @@ const CertificateOnScreen: React.FC<CertificateOnScreenProps> = ({ certificate, 
                 'Previous', 'Present', 'Cumulative',
               ].map((header, idx) => (
                 <TableCell
-                  key={header}
+                   key={idx} 
                   align={idx >= 3 ? 'right' : idx === 2 ? 'center' : 'left'}
                   sx={{ border: `1px solid ${contrastText}`, color: contrastText, fontWeight: 'bold' }}
                 >

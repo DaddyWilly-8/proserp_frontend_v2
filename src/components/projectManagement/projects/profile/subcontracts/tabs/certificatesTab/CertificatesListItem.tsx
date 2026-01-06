@@ -59,12 +59,7 @@ const CertificatesListItem: React.FC<CertificatesListItemProps> = ({ certificate
         <ListItemText
           primary={
             <Tooltip title="Certificate Date">
-              <Typography
-                variant="body1"
-                fontWeight={600}
-                noWrap
-                sx={{ color: 'text.primary' }}
-              >
+              <Typography variant="body1" fontWeight={600} noWrap>
                 {certificate.certificate_date
                   ? readableDate(certificate.certificate_date, false)
                   : '—'}
@@ -73,18 +68,16 @@ const CertificatesListItem: React.FC<CertificatesListItemProps> = ({ certificate
           }
           secondary={
             <Tooltip title="Certificate Number">
-              <Typography variant="body2" color="text.secondary" noWrap>
+              <span style={{ display: 'block' }}>
                 {certificate.certificateNo || 'Draft / Pending'}
-              </Typography>
+              </span>
             </Tooltip>
           }
         />
       </Grid>
+
       <Grid size={{ xs: 12, md: 5, lg: 5 }}>
-        <Tooltip
-          title={certificate.remarks || 'No remarks provided'}
-          placement="top-start"
-        >
+        <Tooltip title={certificate.remarks} placement="top-start">
           <Typography
             variant="body2"
             color="text.primary"
@@ -96,14 +89,11 @@ const CertificatesListItem: React.FC<CertificatesListItemProps> = ({ certificate
               textOverflow: 'ellipsis',
             }}
           >
-            {certificate.remarks || (
-              <Typography component="span" color="text.disabled">
-                No remarks
-              </Typography>
-            )}
+            {certificate.remarks}
           </Typography>
         </Tooltip>
       </Grid>
+
       <Grid
         size={{ xs: 8, md: 2, lg: 3 }}
         textAlign={{ xs: 'left', md: 'right' }}
@@ -112,14 +102,12 @@ const CertificatesListItem: React.FC<CertificatesListItemProps> = ({ certificate
         <Tooltip title="Certified Total Amount">
           <Typography
             variant="h6"
-            fontWeight="bold"
-            color={certificate.total_amount ? 'primary.main' : 'text.secondary'}
-            sx={{ fontFamily: 'monospace' }}
           >
             {formattedAmount}
           </Typography>
         </Tooltip>
       </Grid>
+
       <Grid size={{ xs: 4, md: 1, lg: 0.5 }} textAlign="end">
         <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
           <CertificateItemAction certificate={certificate} />
