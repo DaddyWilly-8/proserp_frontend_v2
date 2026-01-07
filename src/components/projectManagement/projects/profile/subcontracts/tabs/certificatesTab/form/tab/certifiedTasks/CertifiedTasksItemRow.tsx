@@ -108,8 +108,6 @@ const CertifiedTasksItemRow: React.FC<CertifiedTasksItemRowProps> = ({
     [quantityValue, rate, vatFactor]
   );
 
-  /* ---------- Handlers ---------- */
-
   const handleRemoveItem = () => {
     setTasksItems((prev) => {
       const updated = [...prev];
@@ -117,8 +115,6 @@ const CertifiedTasksItemRow: React.FC<CertifiedTasksItemRowProps> = ({
       return updated;
     });
   };
-
-  /* ---------- Render ---------- */
 
   return (
     <>
