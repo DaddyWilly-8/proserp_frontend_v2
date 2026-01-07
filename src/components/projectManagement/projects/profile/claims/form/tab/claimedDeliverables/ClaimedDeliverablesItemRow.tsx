@@ -66,7 +66,7 @@ const ClaimedDeliverablesItemRow: React.FC<ClaimedDeliverablesItemRowProps> = ({
     '-';
 
   const quantity = `${deliverableItem?.certified_quantity ?? 0} ${
-    deliverableItem?.task?.measurement_unit?.symbol || ''
+    deliverableItem?.unit_symbol || deliverableItem.measurement_unit.symbol
   }`;
 
   const rate = deliverableItem.rate || deliverableItem.project_deliverable.contract_rate

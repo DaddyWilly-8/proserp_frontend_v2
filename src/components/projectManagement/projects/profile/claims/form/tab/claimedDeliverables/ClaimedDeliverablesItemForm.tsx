@@ -5,15 +5,18 @@ import {
   Autocomplete,
   Grid,
   IconButton,
+  InputAdornment,
   LinearProgress,
   TextField,
   Tooltip,
+  Typography,
 } from '@mui/material';
 import { useForm } from 'react-hook-form';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { AddOutlined, CheckOutlined, DisabledByDefaultOutlined } from '@mui/icons-material';
 import { Button, CircularProgress } from '@mui/material';
+import { Div } from '@jumbo/shared';
 import { sanitizedNumber } from '@/app/helpers/input-sanitization-helpers';
 import CommaSeparatedField from '@/shared/Inputs/CommaSeparatedField';
 import { useProjectProfile } from '@/components/projectManagement/projects/profile/ProjectProfileProvider';
@@ -27,6 +30,9 @@ interface Deliverable {
   currency_id: number;
   contract_rate: number;
   unit_symbol?: string;
+  measurement_unit?: {
+    symbol: string;
+  };
 }
 
 interface ProjectDeliverableGroup {
@@ -38,11 +44,15 @@ interface ClaimedDeliverableItem {
   id?: number | string;
   project_deliverable_id?: number;
   project_deliverable?: Deliverable;
-  revenue_ledger?: {id: number, name: string}
+  revenue_ledger?: { id: number; name: string };
   revenue_ledger_id?: number;
   rate?: number;
   certified_quantity?: number | string;
   remarks?: string;
+  unit_symbol?: string
+  measurement_unit?: {
+    symbol: string;
+  };
   response_uncertified_quantity?: number;
 }
 
@@ -130,6 +140,9 @@ const ClaimedDeliverablesItemForm: React.FC<ClaimedDeliverablesItemFormProps> = 
   const { ungroupedLedgerOptions } = useLedgerSelect();
   const [isAdding, setIsAdding] = useState(false);
   const [isRetrievingDetails, setIsRetrievingDetails] = useState(false);
+  const [unitToDisplay, setUnitToDisplay] = useState<string | undefined>(
+    deliverableItem?.unit_symbol || deliverableItem?.measurement_unit?.symbol
+  );
 
   const {
     handleSubmit,
@@ -142,8 +155,8 @@ const ClaimedDeliverablesItemForm: React.FC<ClaimedDeliverablesItemFormProps> = 
     resolver: yupResolver(validationSchema) as any,
     context: { deliverableItems, index },
     defaultValues: {
-      project_deliverable_id: deliverableItem?.project_deliverable_id || deliverableItem?.project_deliverable?.id || undefined,
-      revenue_ledger_id: deliverableItem?.revenue_ledger_id || deliverableItem?.revenue_ledger?.id || undefined,
+      project_deliverable_id: deliverableItem?.project_deliverable_id || deliverableItem?.project_deliverable?.id,
+      revenue_ledger_id: deliverableItem?.revenue_ledger_id || deliverableItem?.revenue_ledger?.id,
       certified_quantity: deliverableItem?.certified_quantity || '',
       rate: deliverableItem?.project_deliverable?.contract_rate || deliverableItem?.rate,
       remarks: deliverableItem?.remarks || '',
@@ -197,7 +210,7 @@ const ClaimedDeliverablesItemForm: React.FC<ClaimedDeliverablesItemFormProps> = 
     setShowForm?.(false);
   };
 
-  const retrieveTaskDetails = async (delId?: number | string) => {
+  const retrieveTaskDetails = async (delId?: number) => {
     if (!delId) return;
     setIsRetrievingDetails(true);
     try {
@@ -217,7 +230,7 @@ const ClaimedDeliverablesItemForm: React.FC<ClaimedDeliverablesItemFormProps> = 
     }
   }, [deliverableItem]);
 
-  const getDeliverablesOptions = (groups: ProjectDeliverableGroup[] = [], depth = 0): Deliverable[] => {
+  const getDeliverablesOptions = (groups: ProjectDeliverableGroup[] = []): Deliverable[] => {
     if (!Array.isArray(groups)) return [];
 
     return groups.flatMap((group) => {
@@ -226,37 +239,37 @@ const ClaimedDeliverablesItemForm: React.FC<ClaimedDeliverablesItemFormProps> = 
         description: del.description,
         currency_id: del.currency_id,
         contract_rate: del.contract_rate,
-        unit_symbol: del.unit_symbol,
+        unit_symbol: del.measurement_unit?.symbol,
       }));
 
-      const childrenOptions = getDeliverablesOptions(group.children || [], depth + 1);
+      const childrenOptions = getDeliverablesOptions(group.children || []);
 
       return [...deliverableOptions, ...childrenOptions];
     });
   };
 
   const deliverables = getDeliverablesOptions(deliverable_groups);
-
+  const watchedDeliverableId = watch('project_deliverable_id');
   const filteredDeliverables = deliverables.filter((del) => del.currency_id === selectedCurrencyId);
+  const selectedDeliverable = filteredDeliverables.find(
+    (d) => d.id === watchedDeliverableId
+  );
 
   if (isAdding) return <LinearProgress />;
 
   return (
     <Grid container spacing={1} mt={0.5}>
+      {/* Deliverable Selection */}
       <Grid size={{ xs: 12, md: 4 }}>
         <Autocomplete<Deliverable>
           options={filteredDeliverables}
           getOptionLabel={(option) => option.description || ''}
           isOptionEqualToValue={(option, value) => option.id === value?.id}
-          value={
-            filteredDeliverables.find(
-              (d) =>
-                d.id ===
-                (deliverableItem?.project_deliverable_id || deliverableItem?.project_deliverable?.id)
-            ) || null
-          }
+          value={selectedDeliverable || null}
           onChange={(_, newValue) => {
             if (newValue) {
+              setUnitToDisplay(newValue.unit_symbol);
+              setValue('unit_symbol' as any, newValue.unit_symbol);
               setValue('rate', newValue.contract_rate);
               setValue('project_deliverable_id', newValue.id, {
                 shouldDirty: true,
@@ -264,7 +277,9 @@ const ClaimedDeliverablesItemForm: React.FC<ClaimedDeliverablesItemFormProps> = 
               });
               retrieveTaskDetails(newValue.id);
             } else {
+              setUnitToDisplay(undefined);
               setValue('rate', undefined);
+              setValue('unit_symbol' as any, undefined);
               setValue('project_deliverable_id', undefined, {
                 shouldDirty: true,
                 shouldValidate: true,
@@ -284,6 +299,7 @@ const ClaimedDeliverablesItemForm: React.FC<ClaimedDeliverablesItemFormProps> = 
         />
       </Grid>
 
+      {/* Revenue Ledger */}
       <Grid size={{ xs: 12, md: 4 }}>
         <LedgerSelect
           multiple={false}
@@ -300,6 +316,7 @@ const ClaimedDeliverablesItemForm: React.FC<ClaimedDeliverablesItemFormProps> = 
         />
       </Grid>
 
+      {/* Certified Quantity with Unit Symbol */}
       <Grid size={{ xs: 12, md: 2 }}>
         {isRetrievingDetails ? (
           <LinearProgress />
@@ -311,6 +328,13 @@ const ClaimedDeliverablesItemForm: React.FC<ClaimedDeliverablesItemFormProps> = 
             value={watch('certified_quantity') ?? ''}
             InputProps={{
               inputComponent: CommaSeparatedField as any,
+              endAdornment: unitToDisplay ? (
+                <InputAdornment position="end">
+                  <Typography variant="caption" color="text.secondary">
+                    {unitToDisplay}
+                  </Typography>
+                </InputAdornment>
+              ) : null,
             }}
             error={!!errors.certified_quantity}
             helperText={errors.certified_quantity?.message}
@@ -325,6 +349,7 @@ const ClaimedDeliverablesItemForm: React.FC<ClaimedDeliverablesItemFormProps> = 
         )}
       </Grid>
 
+      {/* Amount (Read-only) */}
       <Grid size={{ xs: 12, md: 2 }}>
         <TextField
           label="Amount"
@@ -338,6 +363,7 @@ const ClaimedDeliverablesItemForm: React.FC<ClaimedDeliverablesItemFormProps> = 
         />
       </Grid>
 
+      {/* Remarks */}
       <Grid size={12}>
         <TextField
           size="small"
@@ -353,6 +379,7 @@ const ClaimedDeliverablesItemForm: React.FC<ClaimedDeliverablesItemFormProps> = 
         />
       </Grid>
 
+      {/* Action Buttons */}
       <Grid size={12} textAlign="end">
         <Button
           variant="contained"
