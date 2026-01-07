@@ -9,17 +9,24 @@ import {
   LinearProgress,
   TextField,
   Tooltip,
+  Typography,
 } from '@mui/material';
 import { useForm } from 'react-hook-form';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { AddOutlined, CheckOutlined, DisabledByDefault } from '@mui/icons-material';
+import {
+  AddOutlined,
+  CheckOutlined,
+  DisabledByDefault,
+} from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
 import { Div } from '@jumbo/shared';
 import { sanitizedNumber } from '@/app/helpers/input-sanitization-helpers';
 import CommaSeparatedField from '@/shared/Inputs/CommaSeparatedField';
 import projectsServices from '@/components/projectManagement/projects/project-services';
 import { useQuery } from '@tanstack/react-query';
+
+/* ================= TYPES ================= */
 
 interface ProjectTask {
   id?: number | string;
@@ -37,19 +44,20 @@ interface SubContractTask {
 }
 
 interface CertifiedTaskItem {
-    id?: number | string;
-    project_subcontract_task_id?: number | string;
-    task?: ProjectTask;
-    certified_quantity?: number | string;
-    remarks?: string;
-    response_uncertified_quantity?: number;
-    response_executed_quantity?: number;
-    unit_symbol?: string;
-    rate?: number;
-    measurement_unit?: {
-        symbol?: string;
-    };
+  id?: number | string;
+  project_subcontract_task_id?: number | string;
+  task?: ProjectTask;
+  certified_quantity?: number | string;
+  remarks?: string;
+  response_uncertified_quantity?: number;
+  response_executed_quantity?: number;
+  unit_symbol?: string;
+  rate?: number;
+  measurement_unit?: {
+    symbol: string;
+  };
 }
+
 
 interface CertifiedTasksItemFormProps {
   setClearFormKey: React.Dispatch<React.SetStateAction<number>>;
@@ -75,9 +83,10 @@ interface FormValues {
   task?: ProjectTask;
   response_uncertified_quantity?: number;
   response_executed_quantity?: number;
-  unit_symbol?: string;
   rate?: number;
 }
+
+/* ================= VALIDATION ================= */
 
 const validationSchema = yup.object({
   project_subcontract_task_id: yup
@@ -93,18 +102,26 @@ const validationSchema = yup.object({
     .test('min-certified', function (value) {
       const { response_uncertified_quantity } = this.parent;
       if (response_uncertified_quantity == null || value == null) return true;
-      return value <= response_uncertified_quantity || this.createError({
-        message: `Certified Quantity cannot exceed un-certified (${response_uncertified_quantity})`,
-      });
+      return (
+        value <= response_uncertified_quantity ||
+        this.createError({
+          message: `Certified Quantity cannot exceed un-certified (${response_uncertified_quantity})`,
+        })
+      );
     })
     .test('max-executed', function (value) {
       const { response_executed_quantity } = this.parent;
       if (response_executed_quantity == null || value == null) return true;
-      return value <= response_executed_quantity || this.createError({
-        message: `Certified Quantity cannot exceed executed quantity (${response_executed_quantity})`,
-      });
+      return (
+        value <= response_executed_quantity ||
+        this.createError({
+          message: `Certified Quantity cannot exceed executed quantity (${response_executed_quantity})`,
+        })
+      );
     }),
 });
+
+/* ================= COMPONENT ================= */
 
 const CertifiedTasksItemForm: React.FC<CertifiedTasksItemFormProps> = ({
   setClearFormKey,
@@ -123,7 +140,10 @@ const CertifiedTasksItemForm: React.FC<CertifiedTasksItemFormProps> = ({
 }) => {
   const [isAdding, setIsAdding] = useState(false);
   const [isRetrievingDetails, setIsRetrievingDetails] = useState(false);
-  const [unitToDisplay, setUnitToDisplay] = useState<string | undefined>(taskItem?.unit_symbol);
+  const [unitToDisplay, setUnitToDisplay] = useState<string | undefined>(
+    taskItem?.unit_symbol ||
+      taskItem?.task?.measurement_unit?.symbol || taskItem?.measurement_unit?.symbol
+  );
 
   const {
     handleSubmit,
@@ -136,13 +156,12 @@ const CertifiedTasksItemForm: React.FC<CertifiedTasksItemFormProps> = ({
     defaultValues: {
       id: taskItem?.id,
       project_subcontract_task_id: taskItem?.project_subcontract_task_id,
-      certified_quantity: taskItem?.certified_quantity ? Number(taskItem.certified_quantity) : undefined,
+      certified_quantity: taskItem?.certified_quantity,
       remarks: taskItem?.remarks || '',
       task: taskItem?.task,
       response_uncertified_quantity: taskItem?.response_uncertified_quantity,
       response_executed_quantity: taskItem?.response_executed_quantity,
-      unit_symbol: taskItem?.unit_symbol || taskItem?.task?.measurement_unit?.symbol || taskItem?.measurement_unit?.symbol,
-      rate: taskItem?.rate ?? taskItem?.task?.rate,
+      rate: taskItem?.rate ? taskItem?.rate : taskItem?.task?.rate,
     },
   });
 
@@ -164,8 +183,8 @@ const CertifiedTasksItemForm: React.FC<CertifiedTasksItemFormProps> = ({
 
     const newItem: CertifiedTaskItem = {
       ...formData,
-      rate: watchedRate,
       unit_symbol: unitToDisplay,
+      rate: watchedRate,
     };
 
     if (index > -1) {
@@ -180,23 +199,13 @@ const CertifiedTasksItemForm: React.FC<CertifiedTasksItemFormProps> = ({
       }
     }
 
-    reset({
-      project_subcontract_task_id: undefined,
-      certified_quantity: undefined,
-      remarks: '',
-      task: undefined,
-      response_uncertified_quantity: undefined,
-      response_executed_quantity: undefined,
-      unit_symbol: undefined,
-      rate: undefined,
-    });
+    reset();
     setUnitToDisplay(undefined);
     setClearFormKey((prev) => prev + 1);
     setShowForm?.(false);
     setIsAdding(false);
   };
 
-  // Auto-submit when parent triggers
   useEffect(() => {
     if (submitItemForm) {
       handleSubmit(updateItems)();
@@ -206,11 +215,12 @@ const CertifiedTasksItemForm: React.FC<CertifiedTasksItemFormProps> = ({
   const retrieveTaskDetails = async (taskId: number | string) => {
     setIsRetrievingDetails(true);
     try {
-      const details = await projectsServices.showSubcontractTaskDetails(taskId, CertificateDate);
+      const details = await projectsServices.showSubcontractTaskDetails(
+        taskId,
+        CertificateDate
+      );
       setValue('response_uncertified_quantity', details?.uncertified_quantity ?? 0);
       setValue('response_executed_quantity', details?.executed_quantity ?? 0);
-    } catch (error) {
-      console.error('Failed to retrieve task details', error);
     } finally {
       setIsRetrievingDetails(false);
     }
@@ -230,16 +240,15 @@ const CertifiedTasksItemForm: React.FC<CertifiedTasksItemFormProps> = ({
 
   return (
     <Grid container spacing={1} mt={0.5}>
-      <Grid size={{ xs: 12, md: 4 }}>
+      <Grid size={{ xs: 12, md: 6 }}>
         <Div sx={{ mt: 0.3 }}>
           {isLoading ? (
             <LinearProgress />
           ) : (
             <Autocomplete<SubContractTask>
               options={subContractTasks}
-              loading={isLoading}
-              getOptionLabel={(option) => option.project_task?.name || ''}
-              isOptionEqualToValue={(option, value) => option.id === value?.id}
+              getOptionLabel={(o) => o.project_task?.name || ''}
+              isOptionEqualToValue={(o, v) => o.id === v?.id}
               value={
                 subContractTasks.find(
                   (t: any) => t.id === watch('project_subcontract_task_id')
@@ -248,31 +257,21 @@ const CertifiedTasksItemForm: React.FC<CertifiedTasksItemFormProps> = ({
               onChange={(_, newValue) => {
                 if (newValue) {
                   const task = newValue.project_task;
-                  const rate = newValue.rate ?? task.rate ?? 0;
-
                   setUnitToDisplay(task?.measurement_unit?.symbol);
                   setValue('task', task);
-                  setValue('rate', rate);
+                  setValue('rate', newValue.rate ?? task.rate ?? 0);
                   setValue('project_subcontract_task_id', newValue.id, {
-                    shouldValidate: true,
                     shouldDirty: true,
+                    shouldValidate: true,
                   });
                   retrieveTaskDetails(newValue.id);
                 } else {
                   setUnitToDisplay(undefined);
                   setValue('task', undefined);
                   setValue('rate', undefined);
-                  setValue('project_subcontract_task_id', undefined, {
-                    shouldValidate: true,
-                    shouldDirty: true,
-                  });
+                  setValue('project_subcontract_task_id', undefined);
                 }
               }}
-              renderOption={(props, option) => (
-                <li {...props} key={option.id}>
-                  {option.project_task?.name}
-                </li>
-              )}
               renderInput={(params) => (
                 <TextField
                   {...params}
@@ -286,7 +285,9 @@ const CertifiedTasksItemForm: React.FC<CertifiedTasksItemFormProps> = ({
           )}
         </Div>
       </Grid>
-      <Grid size={{ xs: 12, md: 4 }}>
+
+      {/* Quantity */}
+      <Grid size={{ xs: 12, md: 3 }}>
         <Div sx={{ mt: 0.3 }}>
           {isRetrievingDetails ? (
             <LinearProgress />
@@ -299,23 +300,31 @@ const CertifiedTasksItemForm: React.FC<CertifiedTasksItemFormProps> = ({
               InputProps={{
                 inputComponent: CommaSeparatedField as any,
                 endAdornment: unitToDisplay ? (
-                  <InputAdornment position="end">{unitToDisplay}</InputAdornment>
+                  <InputAdornment position="end">
+                    <Typography variant="caption" color="text.secondary">
+                      {unitToDisplay}
+                    </Typography>
+                  </InputAdornment>
                 ) : null,
               }}
               error={!!errors.certified_quantity}
               helperText={errors.certified_quantity?.message}
               onChange={(e) => {
-                const num = e.target.value ? sanitizedNumber(e.target.value) : undefined;
+                const num = e.target.value
+                  ? sanitizedNumber(e.target.value)
+                  : undefined;
                 setValue('certified_quantity', num, {
-                  shouldValidate: true,
                   shouldDirty: true,
+                  shouldValidate: true,
                 });
               }}
             />
           )}
         </Div>
       </Grid>
-      <Grid size={{ xs: 12, md: 4 }}>
+
+      {/* Amount */}
+      <Grid size={{ xs: 12, md: 3 }}>
         <Div sx={{ mt: 0.3 }}>
           <TextField
             label="Amount"
@@ -323,7 +332,6 @@ const CertifiedTasksItemForm: React.FC<CertifiedTasksItemFormProps> = ({
             fullWidth
             value={calculatedAmount.toLocaleString(undefined, {
               minimumFractionDigits: 2,
-              maximumFractionDigits: 2,
             })}
             InputProps={{
               readOnly: true,
@@ -332,6 +340,8 @@ const CertifiedTasksItemForm: React.FC<CertifiedTasksItemFormProps> = ({
           />
         </Div>
       </Grid>
+
+      {/* Remarks */}
       <Grid size={12}>
         <Div sx={{ mt: 0.3 }}>
           <TextField
@@ -347,6 +357,8 @@ const CertifiedTasksItemForm: React.FC<CertifiedTasksItemFormProps> = ({
           />
         </Div>
       </Grid>
+
+      {/* Actions */}
       <Grid size={12} textAlign="end">
         <LoadingButton
           loading={isAdding}
@@ -354,10 +366,10 @@ const CertifiedTasksItemForm: React.FC<CertifiedTasksItemFormProps> = ({
           size="small"
           startIcon={taskItem ? <CheckOutlined /> : <AddOutlined />}
           onClick={handleSubmit(updateItems)}
-          sx={{ mb: 0.5, mr: 1 }}
         >
           {taskItem ? 'Done' : 'Add'}
         </LoadingButton>
+
         {taskItem && setShowForm && (
           <Tooltip title="Cancel Edit">
             <IconButton

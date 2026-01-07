@@ -431,6 +431,7 @@ const CertificateForm: React.FC<CertificateFormProps> = ({
                   setIsDirty={setIsDirty}
                   setClearFormKey={setClearFormKey}
                   submitItemForm={submitItemForm}
+                  vat_percentage={vatPercentage}
                   setSubmitItemForm={setSubmitItemForm}
                   submitMainForm={handleSubmit(submitForm)}
                   subContract={subContract}

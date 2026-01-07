@@ -1,6 +1,6 @@
 'use client';
 
-import { DisabledByDefault, EditOutlined } from '@mui/icons-material';
+import React, { useState, useMemo } from 'react';
 import {
   Divider,
   Grid,
@@ -8,26 +8,31 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
-import React, { useState } from 'react';
+import { DisabledByDefault, EditOutlined } from '@mui/icons-material';
 import CertifiedTasksItemForm from './CertifiedTasksItemForm';
+
+/* ---------- Types ---------- */
+
+interface MeasurementUnit {
+  symbol?: string;
+}
 
 interface Task {
   id?: number | string;
   name?: string;
-  measurement_unit?: {
-    symbol?: string;
-  };
+  rate?: number;
+  measurement_unit?: MeasurementUnit;
 }
 
-interface CertifiedTaskItem {
+export interface CertifiedTaskItem {
   id?: number | string;
   task?: Task;
   task_name?: string;
   certified_quantity?: number | string;
   remarks?: string;
-  measurement_unit?: {
-    symbol?: string;
-  };
+  rate?: number;
+  unit_symbol?: string;
+  measurement_unit?: MeasurementUnit;
 }
 
 interface SubContract {
@@ -51,7 +56,10 @@ interface CertifiedTasksItemRowProps {
   setTasksItems: React.Dispatch<React.SetStateAction<CertifiedTaskItem[]>>;
   subContract?: SubContract;
   certificate?: Certificate;
+  vat_percentage?: number;
 }
+
+/* ---------- Component ---------- */
 
 const CertifiedTasksItemRow: React.FC<CertifiedTasksItemRowProps> = ({
   setClearFormKey,
@@ -66,23 +74,54 @@ const CertifiedTasksItemRow: React.FC<CertifiedTasksItemRowProps> = ({
   setTasksItems,
   subContract,
   certificate,
+  vat_percentage = 0,
 }) => {
   const [showForm, setShowForm] = useState(false);
 
+  /* ---------- Derived values ---------- */
+
+  const taskName =
+    taskItem.task?.name || taskItem.task_name || '-';
+
+  const quantityValue = Number(taskItem.certified_quantity) || 0;
+
+  const unitSymbol =
+    taskItem.unit_symbol ||
+    taskItem.task?.measurement_unit?.symbol ||
+    taskItem.measurement_unit?.symbol ||
+    '';
+
+  const quantityDisplay = `${quantityValue} ${unitSymbol}`.trim();
+
+  const rate =
+    Number(taskItem.rate ?? taskItem.task?.rate) || 0;
+
+  const vatFactor = vat_percentage > 0 ? vat_percentage / 100 : 0;
+
+  const vatAmount = useMemo(
+    () => quantityValue * rate * vatFactor,
+    [quantityValue, rate, vatFactor]
+  );
+
+  const lineTotal = useMemo(
+    () => quantityValue * rate * (1 + vatFactor),
+    [quantityValue, rate, vatFactor]
+  );
+
+  /* ---------- Handlers ---------- */
+
   const handleRemoveItem = () => {
-    setTasksItems((prevItems) => {
-      const newItems = [...prevItems];
-      newItems.splice(index, 1);
-      return newItems;
+    setTasksItems((prev) => {
+      const updated = [...prev];
+      updated.splice(index, 1);
+      return updated;
     });
   };
 
-  const taskName = taskItem.task?.name || taskItem.task_name || '-';
-  const quantity = `${taskItem.certified_quantity ?? 0} ${taskItem.task?.measurement_unit?.symbol || taskItem.measurement_unit?.symbol}`.trim();
-  const remarks = taskItem.remarks || '-';
+  /* ---------- Render ---------- */
 
   return (
-    <React.Fragment>
+    <>
       <Divider />
 
       {!showForm ? (
@@ -90,46 +129,103 @@ const CertifiedTasksItemRow: React.FC<CertifiedTasksItemRowProps> = ({
           container
           alignItems="center"
           sx={{
-            '&:hover': { bgcolor: 'action.hover' },
             py: 1,
+            '&:hover': { bgcolor: 'action.hover' },
           }}
         >
+          {/* Index */}
           <Grid size={{ xs: 1, md: 0.5 }}>
-            <Typography variant="body2">{index + 1}.</Typography>
+            <Typography variant="body2">
+              {index + 1}.
+            </Typography>
           </Grid>
 
-          <Grid size={{ xs: 11, md: 5.5 }}>
-            <Tooltip title="Project Task" arrow placement="top-start">
+          {/* Task & Remarks */}
+          <Grid size={{ xs: 11, md: 4 }}>
+            <Tooltip title="Project Task" arrow>
               <Typography variant="body2" noWrap>
                 {taskName}
               </Typography>
             </Tooltip>
+
+            {!!taskItem.remarks && (
+              <Typography
+                variant="caption"
+                color="text.secondary"
+                noWrap
+              >
+                {taskItem.remarks}
+              </Typography>
+            )}
           </Grid>
 
-          <Grid size={{ xs: 6, md: 2 }} sx={{ pl: { xs: 3, md: 0 } }}>
+          {/* Quantity */}
+          <Grid
+            size={{ xs: 6, md: vatFactor ? 3 : 3.5 }}
+            sx={{ pl: { xs: 3, md: 0 } }}
+          >
             <Tooltip title="Quantity" arrow>
-              <Typography variant="body2">{quantity || '0'}</Typography>
-            </Tooltip>
-          </Grid>
-
-          <Grid size={{ xs: 6, md: 3 }}>
-            <Tooltip title="Remarks" arrow placement="top-start">
-              <Typography variant="body2" noWrap>
-                {remarks}
+              <Typography variant="body2">
+                {quantityDisplay || '0'}
               </Typography>
             </Tooltip>
           </Grid>
 
-          <Grid size={{ xs: 12, md: 1 }} textAlign="end">
+          {/* VAT */}
+          {!!vatFactor && (
+            <Grid
+              size={{ xs: 6, md: 1.5 }}
+              textAlign="end"
+            >
+              <Tooltip title="VAT" arrow>
+                <Typography>
+                  {vatAmount.toLocaleString(undefined, {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })}
+                </Typography>
+              </Tooltip>
+            </Grid>
+          )}
+
+          {/* Line Total */}
+          <Grid
+            size={{ xs: 6, md: vatFactor ? 2 : 3 }}
+            textAlign={{ xs: vatFactor ? 'start' : 'end', md: 'end' }}
+          >
+            <Tooltip title="Line Total" arrow>
+              <Typography>
+                {lineTotal.toLocaleString(undefined, {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })}
+              </Typography>
+            </Tooltip>
+          </Grid>
+
+          {/* Actions */}
+          <Grid
+            size={{ xs: vatFactor ? 6 : 12, md: 1 }}
+            textAlign="end"
+          >
             <Tooltip title="Edit Task">
-              <IconButton size="small" onClick={() => setShowForm(true)}>
+              <IconButton
+                size="small"
+                onClick={() => setShowForm(true)}
+              >
                 <EditOutlined fontSize="small" />
               </IconButton>
             </Tooltip>
 
             <Tooltip title="Remove Task">
-              <IconButton size="small" onClick={handleRemoveItem}>
-                <DisabledByDefault fontSize="small" color="error" />
+              <IconButton
+                size="small"
+                onClick={handleRemoveItem}
+              >
+                <DisabledByDefault
+                  fontSize="small"
+                  color="error"
+                />
               </IconButton>
             </Tooltip>
           </Grid>
@@ -141,17 +237,17 @@ const CertifiedTasksItemRow: React.FC<CertifiedTasksItemRowProps> = ({
           submitItemForm={submitItemForm}
           setSubmitItemForm={setSubmitItemForm}
           setIsDirty={setIsDirty}
-          taskItem={taskItem}
+          taskItem={taskItem as any}
           setShowForm={setShowForm}
           index={index}
-          tasksItems={tasksItems}
-          setTasksItems={setTasksItems}
+          tasksItems={tasksItems as any}
+          setTasksItems={setTasksItems as any}
           subContract={subContract}
           certificate={certificate}
           CertificateDate={CertificateDate}
         />
       )}
-    </React.Fragment>
+    </>
   );
 };
 
