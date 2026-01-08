@@ -13,10 +13,12 @@ import {
   TableContainer
 } from '@mui/material';
 import { readableDate } from '@/app/helpers/input-sanitization-helpers';
+import { PERMISSIONS } from '@/utilities/constants/permissions';
 
 function ItemMovementOnScreen({ movementsData, authObject, baseCurrency }) {
   const theme = useTheme();
-  const { authOrganization } = authObject;
+  const { authOrganization, checkOrganizationPermission } = authObject;
+  const financePersonnel = checkOrganizationPermission([PERMISSIONS.ACCOUNTS_REPORTS]);
   
   const mainColor = authOrganization.organization.settings?.main_color || "#2113AD";
   const headerColor = theme.type === 'dark' ? '#29f096' : (authOrganization.organization.settings?.main_color || "#2113AD");
@@ -85,7 +87,6 @@ function ItemMovementOnScreen({ movementsData, authObject, baseCurrency }) {
         </Grid>
       </Grid>
 
-      {/* Movement Items Section */}
       <Box sx={{ mb: 3 }}>
         <Typography 
           variant="h6" 
@@ -97,15 +98,17 @@ function ItemMovementOnScreen({ movementsData, authObject, baseCurrency }) {
           MOVEMENT DETAILS
         </Typography>
 
-        <Typography 
-          variant="h6" 
-          sx={{
-            textAlign: 'center', 
-            mb: 2
-          }}
-        >
-          {baseCurrency?.code}
-        </Typography>
+        { financePersonnel &&
+          <Typography 
+            variant="h6" 
+            sx={{
+              textAlign: 'center', 
+              mb: 2
+            }}
+          >
+            {baseCurrency?.code}
+          </Typography>
+        }
         
         <TableContainer 
           component={Paper}
@@ -131,12 +134,16 @@ function ItemMovementOnScreen({ movementsData, authObject, baseCurrency }) {
                 <TableCell sx={{ backgroundColor: mainColor, color: contrastText, fontSize: '0.875rem' }}>
                   Reference
                 </TableCell>
-                <TableCell sx={{ backgroundColor: mainColor, color: contrastText, fontSize: '0.875rem' }}>
-                  Avg Cost
-                </TableCell>
-                <TableCell sx={{ backgroundColor: mainColor, color: contrastText, fontSize: '0.875rem' }}>
-                  Selling Price
-                </TableCell>
+                {financePersonnel &&
+                  <>
+                    <TableCell sx={{ backgroundColor: mainColor, color: contrastText, fontSize: '0.875rem' }}>
+                      Avg Cost
+                    </TableCell>
+                    <TableCell sx={{ backgroundColor: mainColor, color: contrastText, fontSize: '0.875rem' }}>
+                      Selling Price
+                    </TableCell>
+                  </>
+                }
                 <TableCell sx={{ backgroundColor: mainColor, color: contrastText, fontSize: '0.875rem' }} align="right">
                   Quantity In
                 </TableCell>
@@ -170,8 +177,12 @@ function ItemMovementOnScreen({ movementsData, authObject, baseCurrency }) {
                     </TableCell>
                     <TableCell>{movement.description}</TableCell>
                     <TableCell>{movement.reference}</TableCell>
-                    <TableCell>{movement.average_cost?.toLocaleString()}</TableCell>
-                    <TableCell>{movement.selling_price?.toLocaleString()}</TableCell>
+                    {financePersonnel &&
+                      <>
+                        <TableCell>{movement.average_cost?.toLocaleString()}</TableCell>
+                        <TableCell>{movement.selling_price?.toLocaleString()}</TableCell>
+                      </>
+                    }
                     <TableCell align="right" sx={{ fontFamily: 'monospace' }}>
                       {movement.quantity_in !== 0 && formatQuantity(movement.quantity_in)}
                     </TableCell>

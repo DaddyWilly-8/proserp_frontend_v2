@@ -25,8 +25,9 @@ import CostCenterSelector from '@/components/masters/costCenters/CostCenterSelec
 import PDFContent from '@/components/pdf/PDFContent'
 import productServices from '@/components/productAndServices/products/productServices'
 import { useSnackbar } from 'notistack'
+import { PERMISSIONS } from '@/utilities/constants/permissions'
 
-const ReportDocument = ({movementsData,authObject,store, baseCurrency}) => {
+const ReportDocument = ({movementsData,authObject,store, baseCurrency, financePersonnel}) => {
     const {authOrganization,authUser: { user}} = authObject;
     const {from, to, cost_centers, product} = movementsData.filters;
     const mainColor = authOrganization.organization.settings?.main_color || "#2113AD";
@@ -70,10 +71,12 @@ const ReportDocument = ({movementsData,authObject,store, baseCurrency}) => {
                         <Text style={{...pdfStyles.minInfo, color: mainColor }}>Printed By</Text>
                         <Text style={{...pdfStyles.minInfo }}>{user.name}</Text>
                     </View>
-                    <View style={{ flex: 1, padding: 2}}>
-                        <Text style={{...pdfStyles.minInfo, color: mainColor }}>Currency</Text>
-                        <Text style={{...pdfStyles.minInfo }}>{baseCurrency.code}</Text>
-                    </View>
+                    { financePersonnel &&
+                        <View style={{ flex: 1, padding: 2}}>
+                            <Text style={{...pdfStyles.minInfo, color: mainColor }}>Currency</Text>
+                            <Text style={{...pdfStyles.minInfo }}>{baseCurrency.code}</Text>
+                        </View>
+                    }
                     <View style={{ flex: 1, padding: 2}}>
                         <Text style={{...pdfStyles.minInfo, color: mainColor }}>Printed On</Text>
                         <Text style={{...pdfStyles.minInfo }}>{readableDate(undefined,true)}</Text>
@@ -84,8 +87,12 @@ const ReportDocument = ({movementsData,authObject,store, baseCurrency}) => {
                         <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 1.5 }}>Date</Text>
                         <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 2 }}>Description</Text>
                         <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 2 }}>Reference</Text>
-                        <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 2 }}>Avg Cost</Text>
-                        <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 2 }}>Selling Price</Text>
+                        {financePersonnel &&
+                            <>
+                                <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 2 }}>Avg Cost</Text>
+                                <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 2 }}>Selling Price</Text>
+                            </>
+                        }
                         <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 1 }}>In</Text>
                         <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 1 }}>Out</Text>
                         <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 1.5 }}>Balance</Text>
@@ -98,8 +105,12 @@ const ReportDocument = ({movementsData,authObject,store, baseCurrency}) => {
                             <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 1.5 }}>{readableDate(movement.movement_date)}</Text>
                             <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 2 }}>{movement.description}</Text>
                             <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 2 }}>{movement.reference}</Text>
-                            <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 2 }}>{movement.average_cost?.toLocaleString()}</Text>
-                            <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 2 }}>{movement.selling_price?.toLocaleString()}</Text>
+                            {financePersonnel &&
+                                <>
+                                    <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 2 }}>{movement.average_cost?.toLocaleString()}</Text>
+                                    <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 2 }}>{movement.selling_price?.toLocaleString()}</Text>
+                                </>
+                            }
                             <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 1, textAlign: 'right' }}>{(movement.quantity_in !== 0 && index > 0) && movement.quantity_in.toLocaleString('en-US',{maximumFractionDigits:5})}</Text>
                             <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 1, textAlign: 'right' }}>{(movement.quantity_out !== 0 && index > 0) && movement.quantity_out.toLocaleString('en-US',{maximumFractionDigits:5})}</Text>
                             <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 1.5, textAlign: 'right' }}>{cumulativeBalance.toLocaleString('en-US',{maximumFractionDigits:5})}</Text>
@@ -116,13 +127,16 @@ function ItemMovement({productStock = null, toggleOpen, isFromDashboard}) {
     const classes = useProsERPStyles();
     const [today] = useState(dayjs());
     const authObject = useJumboAuth();
-    const {authOrganization} = authObject;
+    const {authOrganization, checkOrganizationPermission} = authObject;
     const {activeStore} = useStoreProfile();
     const {productOptions} = useProductsSelect();
     const [selectedTab, setSelectedTab] = useState(0);
     const { enqueueSnackbar } = useSnackbar();
     const [isDownloadingTemplate, setIsDownloadingTemplate] = React.useState(false);
     const [uploadFieldsKey, setUploadFieldsKey] = useState(0)
+
+
+    const financePersonnel = checkOrganizationPermission([PERMISSIONS.ACCOUNTS_REPORTS]);
 
     //Screen handling constants
     const {theme} = useJumboTheme();
@@ -370,7 +384,7 @@ function ItemMovement({productStock = null, toggleOpen, isFromDashboard}) {
                         />
                         :
                         <PDFContent
-                            document={<ReportDocument baseCurrency={baseCurrency} movementsData={movements} authObject={authObject} store={isFromDashboard ? watch('store') : activeStore} />}
+                            document={<ReportDocument financePersonnel={financePersonnel} baseCurrency={baseCurrency} movementsData={movements} authObject={authObject} store={isFromDashboard ? watch('store') : activeStore} />}
                             fileName={`${productName} Movement Report ${readableDate(movements?.filters?.from)}-${readableDate(movements?.filters?.to)}`}
                         />
                     }
