@@ -49,7 +49,7 @@
     "@mui/styles": "^6.4.8",
     "@mui/system": "^7.2.0",
     "@mui/utils": "^7.2.0",
-    "@mui/x-charts": "^7.25.0",
+    "@mui/x-charts": "^8.23.0",
     "@mui/x-date-pickers": "^7.24.1",
     "@mui/x-tree-view": "^8.5.3",
     "@next-auth/mongodb-adapter": "^1.1.3",
