@@ -72,27 +72,18 @@ function ProfileContent() {
   const { data: deliverablesData, isLoading: isDeliverablesLoading, refetch: refetchDeliverables } = useQuery({
     queryKey: ['projectDeliverableGroups', project?.id],
     queryFn: () => projectsServices.showDeliverablesAndGroups(project.id),
-    enabled: false,
-    staleTime: 0,
-    gcTime: 0,
   });
 
   //Budgets
   const { data: budgetsData, isLoading: isBudgetLoading, refetch: refetchBudgets } = useQuery({
     queryKey: ['projectBudgets', project?.id, project?.cost_center?.id],
     queryFn: projectsServices.showProjectBudgets,
-    enabled: false,
-    staleTime: 0,
-    gcTime: 0,
   });
 
   //Timeline Activities
   const { data: timelineActivitiesData, isLoading: isTimelineActivitiesLoading, refetch: refetchTimelineActivities } = useQuery({
     queryKey: ['projectTimelineActivities', project?.id],
     queryFn: () => projectsServices.showProjectTimelineActivities(project.id),
-    enabled: false,
-    staleTime: 0,
-    gcTime: 0,
   });
 
   // Clear cache and fetch fresh data when tab changes
@@ -157,6 +148,7 @@ function ProfileContent() {
     if (timelineActivitiesData) updateProjectProfile({ projectTimelineActivities: timelineActivitiesData });
   }, [timelineActivitiesData, updateProjectProfile]);
 
+  // Combine loading states - only show loading for active tab's data
   const getIsLoading = () => {
     switch (activeTab) {
       case 'deliverables':
