@@ -86,23 +86,22 @@ function DeliverableSummary({ deliverableDetails }) {
     },
   ];
 
-  const chartHeight = isXs ? 120 : isSm ? 140 : 160; // Reduced from 160/180/220
-  const yAxisWidth = isXs ? 60 : isSm ? 70 : 80; // Reduced from 60/80/100
-  const barLabelFontSize = isXs ? 10 : 12; // Reduced from 11/13
-  const marginRight = isXs ? 50 : isSm ? 60 : 70; // Reduced from 60/70/80
-  const barThickness = isXs ? 20 : isSm ? 25 : 30; // Bar thickness
+  const chartHeight = isXs ? 120 : isSm ? 140 : 160;
+  const yAxisWidth = isXs ? 60 : isSm ? 70 : 80;
+  const barLabelFontSize = isXs ? 10 : 12;
+  const marginRight = isXs ? 50 : isSm ? 60 : 70;
+  const barThickness = isXs ? 20 : isSm ? 25 : 30;
 
   return (
     <Box sx={{ 
       width: '100%',
       px: isXs ? 0.5 : 2,
     }}>
-      {/* Bar Chart Only */}
       <Box sx={{ 
         overflowX: isXs ? 'auto' : 'visible',
         overflowY: 'hidden',
         '& .MuiBarChart-root': {
-          minWidth: isXs ? '250px' : 'auto' // Reduced min width
+          minWidth: isXs ? '250px' : 'auto'
         }
       }}>
         <BarChart
