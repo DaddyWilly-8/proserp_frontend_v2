@@ -5,7 +5,7 @@ import { Card, LinearProgress, Stack, Tab, Tabs, Typography } from '@mui/materia
 import JumboContentLayout from '@jumbo/components/JumboContentLayout';
 import ProjectDashboard from './dashboard/ProjectDashboard';
 import ProjectProfileProvider, { useProjectProfile } from './ProjectProfileProvider';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import projectsServices from '../project-services';
 import StakeholderSelectProvider from '@/components/masters/stakeholders/StakeholderSelectProvider';
 import CurrencySelectProvider from '@/components/masters/Currencies/CurrencySelectProvider';
@@ -50,28 +50,99 @@ const TABS_NEEDING_TIMELINE: TabKey[] = [
 
 function ProfileContent() {
   const { project, updateProjectProfile, setIsDashboardTab }: any = useProjectProfile();
-  const [activeTab, setActiveTab] = useState<TabKey>('dashboard');
+  const queryClient = useQueryClient();
+  
+  // Store active tab in sessionStorage for persistence
+  const [activeTab, setActiveTab] = useState<TabKey>(() => {
+    // Get saved tab from sessionStorage or default to 'dashboard'
+    if (typeof window !== 'undefined') {
+      const savedTab = sessionStorage.getItem('projectProfileActiveTab') as TabKey;
+      const validTabs: TabKey[] = ['dashboard', 'deliverables', 'wbs', 'updates', 'budgets', 'subcontracts', 'claims', 'users', 'attachments'];
+      return savedTab && validTabs.includes(savedTab) ? savedTab : 'dashboard';
+    }
+    return 'dashboard';
+  });
 
-  //Deliverables & Groups
-  const { data: deliverablesData, isLoading: isDeliverablesLoading } = useQuery({
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem('projectProfileActiveTab', activeTab);
+    }
+  }, [activeTab]);
+
+  const { data: deliverablesData, isLoading: isDeliverablesLoading, refetch: refetchDeliverables } = useQuery({
     queryKey: ['projectDeliverableGroups', project?.id],
     queryFn: () => projectsServices.showDeliverablesAndGroups(project.id),
-    enabled: !!project?.id && TABS_NEEDING_DELIVERABLES.includes(activeTab),
+    enabled: false,
+    staleTime: 0,
+    gcTime: 0,
   });
 
   //Budgets
-  const { data: budgetsData, isLoading: isBudgetLoading } = useQuery({
+  const { data: budgetsData, isLoading: isBudgetLoading, refetch: refetchBudgets } = useQuery({
     queryKey: ['projectBudgets', project?.id, project?.cost_center?.id],
     queryFn: projectsServices.showProjectBudgets,
-    enabled: !!project?.id && activeTab === 'budgets',
+    enabled: false,
+    staleTime: 0,
+    gcTime: 0,
   });
 
   //Timeline Activities
-  const { data: timelineActivitiesData, isLoading: isTimelineActivitiesLoading } = useQuery({
+  const { data: timelineActivitiesData, isLoading: isTimelineActivitiesLoading, refetch: refetchTimelineActivities } = useQuery({
     queryKey: ['projectTimelineActivities', project?.id],
     queryFn: () => projectsServices.showProjectTimelineActivities(project.id),
-    enabled: !!project?.id && TABS_NEEDING_TIMELINE.includes(activeTab),
+    enabled: false,
+    staleTime: 0,
+    gcTime: 0,
   });
+
+  // Clear cache and fetch fresh data when tab changes
+  useEffect(() => {
+    if (!project?.id) return;
+
+    // Clear existing cache for fresh data
+    queryClient.invalidateQueries({ queryKey: ['projectDeliverableGroups', project.id] });
+    queryClient.invalidateQueries({ queryKey: ['projectBudgets', project.id, project.cost_center?.id] });
+    queryClient.invalidateQueries({ queryKey: ['projectTimelineActivities', project.id] });
+
+    // Fetch data based on active tab
+    const fetchDataForTab = async () => {
+      switch (activeTab) {
+        case 'deliverables':
+        case 'wbs':
+        case 'updates':
+        case 'budgets':
+        case 'subcontracts':
+        case 'claims':
+          // These tabs need deliverables
+          if (TABS_NEEDING_DELIVERABLES.includes(activeTab)) {
+            await refetchDeliverables();
+          }
+          // These tabs need timeline
+          if (TABS_NEEDING_TIMELINE.includes(activeTab)) {
+            await refetchTimelineActivities();
+          }
+          break;
+        case 'budgets':
+          await refetchBudgets();
+          break;
+      }
+    };
+
+    fetchDataForTab();
+  }, [activeTab, project?.id]);
+
+  // Initial data fetch when component mounts
+  useEffect(() => {
+    if (project?.id && TABS_NEEDING_DELIVERABLES.includes(activeTab)) {
+      refetchDeliverables();
+    }
+    if (project?.id && TABS_NEEDING_TIMELINE.includes(activeTab)) {
+      refetchTimelineActivities();
+    }
+    if (project?.id && activeTab === 'budgets') {
+      refetchBudgets();
+    }
+  }, [project?.id]);
 
   // Update profile context with fetched data
   useEffect(() => {
@@ -86,7 +157,25 @@ function ProfileContent() {
     if (timelineActivitiesData) updateProjectProfile({ projectTimelineActivities: timelineActivitiesData });
   }, [timelineActivitiesData, updateProjectProfile]);
 
-  const isLoading = isDeliverablesLoading || isBudgetLoading || isTimelineActivitiesLoading;
+  const getIsLoading = () => {
+    switch (activeTab) {
+      case 'deliverables':
+      case 'wbs':
+      case 'updates':
+      case 'subcontracts':
+      case 'claims':
+        return (TABS_NEEDING_DELIVERABLES.includes(activeTab) && isDeliverablesLoading) ||
+               (TABS_NEEDING_TIMELINE.includes(activeTab) && isTimelineActivitiesLoading);
+      case 'budgets':
+        return isBudgetLoading || 
+               (TABS_NEEDING_DELIVERABLES.includes(activeTab) && isDeliverablesLoading) ||
+               (TABS_NEEDING_TIMELINE.includes(activeTab) && isTimelineActivitiesLoading);
+      default:
+        return false;
+    }
+  };
+
+  const isLoading = getIsLoading();
 
   useEffect(() => {
     updateProjectProfile({
@@ -99,6 +188,10 @@ function ProfileContent() {
   useEffect(() => {
     setIsDashboardTab(activeTab === 'dashboard');
   }, [activeTab, setIsDashboardTab]);
+
+  const handleTabChange = (event: React.SyntheticEvent, newValue: TabKey) => {
+    setActiveTab(newValue);
+  };
 
   const renderTabContent = useMemo(() => {
     switch (activeTab) {
@@ -149,7 +242,7 @@ function ProfileContent() {
         <Stack spacing={1}>
           <Tabs
             value={activeTab}
-            onChange={(_, newValue) => setActiveTab(newValue)}
+            onChange={handleTabChange}
             variant="scrollable"
             scrollButtons="auto"
             allowScrollButtonsMobile
