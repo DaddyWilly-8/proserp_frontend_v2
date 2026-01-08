@@ -14,7 +14,7 @@ import {
 } from '@mui/material';
 import { readableDate } from '@/app/helpers/input-sanitization-helpers';
 
-function ItemMovementOnScreen({ movementsData, authObject }) {
+function ItemMovementOnScreen({ movementsData, authObject, baseCurrency }) {
   const theme = useTheme();
   const { authOrganization } = authObject;
   
@@ -29,7 +29,7 @@ function ItemMovementOnScreen({ movementsData, authObject }) {
   const getBalanceStyle = (balance) => {
     if (balance < 0) {
       return {
-        backgroundColor: theme.palette.mode === 'dark' 
+        backgroundColor: theme.type === 'dark' 
           ? 'rgba(244, 67, 54, 0.1)' 
           : 'rgba(244, 67, 54, 0.05)'
       };
@@ -91,11 +91,20 @@ function ItemMovementOnScreen({ movementsData, authObject }) {
           variant="h6" 
           sx={{ 
             color: headerColor, 
+            textAlign: 'center'
+          }}
+        >
+          MOVEMENT DETAILS
+        </Typography>
+
+        <Typography 
+          variant="h6" 
+          sx={{
             textAlign: 'center', 
             mb: 2
           }}
         >
-          MOVEMENT DETAILS
+          {baseCurrency?.code}
         </Typography>
         
         <TableContainer 
@@ -121,6 +130,12 @@ function ItemMovementOnScreen({ movementsData, authObject }) {
                 </TableCell>
                 <TableCell sx={{ backgroundColor: mainColor, color: contrastText, fontSize: '0.875rem' }}>
                   Reference
+                </TableCell>
+                <TableCell sx={{ backgroundColor: mainColor, color: contrastText, fontSize: '0.875rem' }}>
+                  Avg Cost
+                </TableCell>
+                <TableCell sx={{ backgroundColor: mainColor, color: contrastText, fontSize: '0.875rem' }}>
+                  Selling Price
                 </TableCell>
                 <TableCell sx={{ backgroundColor: mainColor, color: contrastText, fontSize: '0.875rem' }} align="right">
                   Quantity In
@@ -155,6 +170,8 @@ function ItemMovementOnScreen({ movementsData, authObject }) {
                     </TableCell>
                     <TableCell>{movement.description}</TableCell>
                     <TableCell>{movement.reference}</TableCell>
+                    <TableCell>{movement.average_cost?.toLocaleString()}</TableCell>
+                    <TableCell>{movement.selling_price?.toLocaleString()}</TableCell>
                     <TableCell align="right" sx={{ fontFamily: 'monospace' }}>
                       {movement.quantity_in !== 0 && formatQuantity(movement.quantity_in)}
                     </TableCell>
