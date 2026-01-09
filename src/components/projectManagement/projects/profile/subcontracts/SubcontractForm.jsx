@@ -113,7 +113,7 @@ function SubcontractForm({setOpenDialog, subContract = null }) {
                   }}
                   startAdornment= {
                     checkOrganizationPermission(PERMISSIONS.STAKEHOLDERS_CREATE) && (
-                        <Tooltip title="Add Contractor">
+                        <Tooltip title="Add Sub Contractor">
                             <AddOutlined
                                 onClick={() => setStakeholderQuickAddDisplay(true)}
                                 sx={{ cursor: 'pointer' }}
