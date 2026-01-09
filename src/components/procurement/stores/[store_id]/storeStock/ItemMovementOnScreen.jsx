@@ -134,6 +134,15 @@ function ItemMovementOnScreen({ movementsData, authObject, baseCurrency }) {
                 <TableCell sx={{ backgroundColor: mainColor, color: contrastText, fontSize: '0.875rem' }}>
                   Reference
                 </TableCell>
+                <TableCell sx={{ backgroundColor: mainColor, color: contrastText, fontSize: '0.875rem' }} align="right">
+                  Quantity In
+                </TableCell>
+                <TableCell sx={{ backgroundColor: mainColor, color: contrastText, fontSize: '0.875rem' }} align="right">
+                  Quantity Out
+                </TableCell>
+                <TableCell sx={{ backgroundColor: mainColor, color: contrastText, fontSize: '0.875rem' }} align="right">
+                  Balance
+                </TableCell>
                 {financePersonnel &&
                   <>
                     <TableCell sx={{ backgroundColor: mainColor, color: contrastText, fontSize: '0.875rem' }}>
@@ -144,15 +153,6 @@ function ItemMovementOnScreen({ movementsData, authObject, baseCurrency }) {
                     </TableCell>
                   </>
                 }
-                <TableCell sx={{ backgroundColor: mainColor, color: contrastText, fontSize: '0.875rem' }} align="right">
-                  Quantity In
-                </TableCell>
-                <TableCell sx={{ backgroundColor: mainColor, color: contrastText, fontSize: '0.875rem' }} align="right">
-                  Quantity Out
-                </TableCell>
-                <TableCell sx={{ backgroundColor: mainColor, color: contrastText, fontSize: '0.875rem' }} align="right">
-                  Balance
-                </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -177,12 +177,6 @@ function ItemMovementOnScreen({ movementsData, authObject, baseCurrency }) {
                     </TableCell>
                     <TableCell>{movement.description}</TableCell>
                     <TableCell>{movement.reference}</TableCell>
-                    {financePersonnel &&
-                      <>
-                        <TableCell>{movement.average_cost?.toLocaleString()}</TableCell>
-                        <TableCell>{movement.selling_price?.toLocaleString()}</TableCell>
-                      </>
-                    }
                     <TableCell align="right" sx={{ fontFamily: 'monospace' }}>
                       {movement.quantity_in !== 0 && formatQuantity(movement.quantity_in)}
                     </TableCell>
@@ -199,6 +193,12 @@ function ItemMovementOnScreen({ movementsData, authObject, baseCurrency }) {
                     >
                       {formatQuantity(cumulativeBalance)}
                     </TableCell>
+                    {financePersonnel &&
+                      <>
+                        <TableCell>{movement.average_cost?.toLocaleString()}</TableCell>
+                        <TableCell>{movement.selling_price?.toLocaleString()}</TableCell>
+                      </>
+                    }
                   </TableRow>
                 );
               })}
