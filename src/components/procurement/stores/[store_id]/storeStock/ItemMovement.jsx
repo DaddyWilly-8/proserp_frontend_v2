@@ -87,15 +87,15 @@ const ReportDocument = ({movementsData,authObject,store, baseCurrency, financePe
                         <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 1.5 }}>Date</Text>
                         <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 2 }}>Description</Text>
                         <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 2 }}>Reference</Text>
+                        <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 1 }}>In</Text>
+                        <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 1 }}>Out</Text>
+                        <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 1.5 }}>Balance</Text>
                         {financePersonnel &&
                             <>
                                 <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 2 }}>Avg Cost</Text>
                                 <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 2 }}>Selling Price</Text>
                             </>
                         }
-                        <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 1 }}>In</Text>
-                        <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 1 }}>Out</Text>
-                        <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 1.5 }}>Balance</Text>
                     </View>
                     {movements.map((movement, index) => {
                         const balance = movement.quantity_in - movement.quantity_out;
@@ -105,15 +105,15 @@ const ReportDocument = ({movementsData,authObject,store, baseCurrency, financePe
                             <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 1.5 }}>{readableDate(movement.movement_date)}</Text>
                             <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 2 }}>{movement.description}</Text>
                             <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 2 }}>{movement.reference}</Text>
+                            <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 1, textAlign: 'right' }}>{(movement.quantity_in !== 0 && index > 0) && movement.quantity_in.toLocaleString('en-US',{maximumFractionDigits:5})}</Text>
+                            <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 1, textAlign: 'right' }}>{(movement.quantity_out !== 0 && index > 0) && movement.quantity_out.toLocaleString('en-US',{maximumFractionDigits:5})}</Text>
+                            <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 1.5, textAlign: 'right' }}>{cumulativeBalance.toLocaleString('en-US',{maximumFractionDigits:5})}</Text>
                             {financePersonnel &&
                                 <>
                                     <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 2 }}>{movement.average_cost?.toLocaleString()}</Text>
                                     <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 2 }}>{movement.selling_price?.toLocaleString()}</Text>
                                 </>
                             }
-                            <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 1, textAlign: 'right' }}>{(movement.quantity_in !== 0 && index > 0) && movement.quantity_in.toLocaleString('en-US',{maximumFractionDigits:5})}</Text>
-                            <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 1, textAlign: 'right' }}>{(movement.quantity_out !== 0 && index > 0) && movement.quantity_out.toLocaleString('en-US',{maximumFractionDigits:5})}</Text>
-                            <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 1.5, textAlign: 'right' }}>{cumulativeBalance.toLocaleString('en-US',{maximumFractionDigits:5})}</Text>
                         </View>
                         );
                     })}
