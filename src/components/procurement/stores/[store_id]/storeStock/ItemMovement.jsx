@@ -110,8 +110,8 @@ const ReportDocument = ({movementsData,authObject,store, baseCurrency, financePe
                             <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 1.5, textAlign: 'right' }}>{cumulativeBalance.toLocaleString('en-US',{maximumFractionDigits:5})}</Text>
                             {financePersonnel &&
                                 <>
-                                    <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 2 }}>{movement.average_cost?.toLocaleString()}</Text>
-                                    <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 2 }}>{movement.selling_price?.toLocaleString()}</Text>
+                                    <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 2, textAlign: 'right' }}>{movement.average_cost?.toLocaleString()}</Text>
+                                    <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 2, textAlign: 'right' }}>{movement.selling_price?.toLocaleString()}</Text>
                                 </>
                             }
                         </View>

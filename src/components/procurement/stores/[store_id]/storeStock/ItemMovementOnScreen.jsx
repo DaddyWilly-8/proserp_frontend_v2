@@ -195,8 +195,22 @@ function ItemMovementOnScreen({ movementsData, authObject, baseCurrency }) {
                     </TableCell>
                     {financePersonnel &&
                       <>
-                        <TableCell>{movement.average_cost?.toLocaleString()}</TableCell>
-                        <TableCell>{movement.selling_price?.toLocaleString()}</TableCell>
+                      <TableCell
+                        align="right" 
+                        sx={{ 
+                          fontFamily: 'monospace',
+                          ...balanceStyle,
+                          position: 'relative'
+                        }}
+                      >{movement.average_cost?.toLocaleString()}</TableCell>
+                      <TableCell
+                        align="right" 
+                        sx={{ 
+                          fontFamily: 'monospace',
+                          ...balanceStyle,
+                          position: 'relative'
+                        }}
+                      >{movement.selling_price?.toLocaleString()}</TableCell>
                       </>
                     }
                   </TableRow>
