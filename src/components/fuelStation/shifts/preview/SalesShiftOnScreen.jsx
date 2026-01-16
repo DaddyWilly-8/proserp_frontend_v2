@@ -154,19 +154,8 @@ const SalesShiftOnScreen = ({
       {/* Header */}
       <Grid container spacing={3} sx={{ mb: 4 }}>
         <Grid size={{ xs: 12, md: 8 }}>
-          <Typography variant="h4" sx={{ color: headerColor, fontWeight: 'bold' }}>
-            Fuel Sales Shift • {shiftData.shiftNo}
-          </Typography>
-          <Typography variant="subtitle1" color="text.secondary" sx={{ mt: 0.5 }}>
-            {organization.name}
-          </Typography>
-        </Grid>
-        <Grid size={{ xs: 12, md: 4 }} sx={{ textAlign: { xs: 'left', md: 'right' } }}>
-          <Typography variant="body2" color="text.secondary">
-            Recorded by:{' '}
-            <Box component="span" fontWeight="medium">
-              {shiftData.creator?.name || '—'}
-            </Box>
+          <Typography variant="h4" sx={{ color: headerColor, fontWeight: 'bold', textAlign: 'center' }}>
+            {shiftData.shiftNo}
           </Typography>
         </Grid>
       </Grid>
