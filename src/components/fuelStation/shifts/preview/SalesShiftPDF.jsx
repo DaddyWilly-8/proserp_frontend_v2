@@ -1,8 +1,8 @@
 import { Document, Page, Text, View } from '@react-pdf/renderer';
-import PageFooter from '../../pdf/PageFooter';
 import { readableDate } from '@/app/helpers/input-sanitization-helpers';
 import PdfLogo from '@/components/pdf/PdfLogo';
 import pdfStyles from '@/components/pdf/pdf-styles';
+import PageFooter from '@/components/pdf/PageFooter';
 
 function SalesShiftPDF({ includeFuelVouchers, shiftData, organization, shift_teams, fuel_pumps, tanks, productOptions }) {
   const mainColor = organization.settings?.main_color || "#2113AD";
@@ -138,7 +138,7 @@ function SalesShiftPDF({ includeFuelVouchers, shiftData, organization, shift_tea
                     >
                         <Text style={{ ...pdfStyles.tableHeader, ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 3.71, textAlign: 'left', fontWeight: 'bold' }}>Total</Text>
                         <Text style={{ ...pdfStyles.tableHeader, ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 1, textAlign: 'right', fontWeight: 'bold' }}>
-                            {mergedReadings.reduce((total, product) => {
+                            {mergedReadings?.reduce((total, product) => {
                                 const productPrice = shiftData.fuel_prices.find(price => price.product_id === product.product_id);
                                 const price = !!productPrice?.price ? productPrice.price : 0;
                                 const totalAdjustmentQuantity = shiftData.adjustments.filter(adjustment => adjustment.product_id === product.product_id).reduce((totalAdjustment, adj) => adj.operator === '+' ? totalAdjustment - adj.quantity : totalAdjustment + adj.quantity, 0);
@@ -159,7 +159,7 @@ function SalesShiftPDF({ includeFuelVouchers, shiftData, organization, shift_tea
                     ))}
                     <View style={{ ...pdfStyles.tableRow}}>
                         <Text style={{ ...pdfStyles.tableHeader, ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 3, textAlign: 'left', fontWeight: 'bold' }}>Total</Text>
-                        <Text style={{ ...pdfStyles.tableHeader, ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 1.5, textAlign: 'right', fontWeight: 'bold' }}>{totalCashAccountsamount?.toLocaleString('en-US',{minimumFractionDigits: 2, maximumFractionDigits:2})}</Text>
+                        <Text style={{ ...pdfStyles.tableHeader, ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 1.5, textAlign: 'right', fontWeight: 'bold' }}>{totalCashAccountsAmount?.toLocaleString('en-US',{minimumFractionDigits: 2, maximumFractionDigits:2})}</Text>
                     </View>
                 </View>
 
@@ -286,7 +286,7 @@ function SalesShiftPDF({ includeFuelVouchers, shiftData, organization, shift_tea
                     ))}
                     <View style={{ ...pdfStyles.tableRow}}>
                         <Text style={{ ...pdfStyles.tableHeader, ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 13.5, textAlign: 'left', fontWeight: 'bold' }}>Total</Text>
-                        <Text style={{ ...pdfStyles.tableHeader, ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 1.5, textAlign: 'right', fontWeight: 'bold' }}>{totalFuelVouchersamount?.toLocaleString('en-US',{minimumFractionDigits: 2, maximumFractionDigits:2})}</Text>
+                        <Text style={{ ...pdfStyles.tableHeader, ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 1.5, textAlign: 'right', fontWeight: 'bold' }}>{totalFuelVouchersAmount?.toLocaleString('en-US',{minimumFractionDigits: 2, maximumFractionDigits:2})}</Text>
                     </View>
                 </View>
             }
