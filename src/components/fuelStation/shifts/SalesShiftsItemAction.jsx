@@ -32,7 +32,7 @@ const EditShift = ({ClosedShift, setOpenEditDialog}) => {
   )
 }
 
-const DocumentDialog = ({organization, ClosedShift}) => {
+const DocumentDialog = ({organization, ClosedShift, setOpenDocumentDialog}) => {
   const {activeStation} = useContext(StationFormContext);
   const { shift_teams, fuel_pumps, tanks } = activeStation;
   const { productOptions } = useProductsSelect();
@@ -173,7 +173,7 @@ const SalesShiftsItemAction = ({ ClosedShift}) => {
         }}
       >
         {openEditDialog && <EditShift ClosedShift={ClosedShift} setOpenEditDialog={setOpenEditDialog} />}
-        {openDocumentDialog && <DocumentDialog ClosedShift={ClosedShift} organization={organization} />}
+        {openDocumentDialog && <DocumentDialog ClosedShift={ClosedShift} organization={organization} setOpenDocumentDialog={setOpenDocumentDialog}/>}
       </Dialog>
       <JumboDdMenu
         icon={
