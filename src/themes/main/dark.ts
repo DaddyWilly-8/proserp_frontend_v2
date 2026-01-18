@@ -1,4 +1,6 @@
 import { Shadows, ThemeOptions, alpha } from '@mui/material';
+import '@mui/lab/themeAugmentation';
+
 const shadows: Shadows = [
   'none',
   '0px 2px 1px -1px rgba(0,0,0,0.2),0px 1px 1px 0px rgba(0,0,0,0.14),0px 1px 3px 0px rgba(0,0,0,0.12)',
@@ -338,6 +340,10 @@ export const mainTheme: ThemeOptions = {
           textTransform: 'capitalize',
           fontWeight: 400,
           letterSpacing: 1,
+          '&.MuiLoadingButton-loading': {
+            backgroundColor: '#3C475F',
+            color: '#8595A6',
+          },
         },
         sizeSmall: {
           fontSize: '12px',
@@ -353,6 +359,23 @@ export const mainTheme: ThemeOptions = {
           '&.Mui-disabled': {
             color: '#FFF',
           },
+        },
+      },
+    },
+    MuiLoadingButton: {
+      styleOverrides: {
+        root: {
+          '&.Mui-disabled': {
+            backgroundColor: '#3C475F',
+            color: '#8595A6',
+          },
+        },
+        loading: {
+          backgroundColor: '#3C475F',
+          color: '#8595A6',
+        },
+        loadingIndicator: {
+          color: '#8595A6',
         },
       },
     },

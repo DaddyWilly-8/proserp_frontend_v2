@@ -5,8 +5,6 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { LoadingButton } from '@mui/lab';
 import { Button, Grid, TextField } from '@mui/material';
 import { Stack } from '@mui/system';
-import { useQueryClient } from '@tanstack/react-query';
-import { useSnackbar } from 'notistack';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import * as yup from 'yup';
@@ -17,10 +15,6 @@ interface FormValues {
   description?: string;
   organization_id: string;
   role_id?: number | null;
-}
-
-interface ValidationErrors {
-  [key: string]: string[];
 }
 
 interface Permission {
@@ -51,8 +45,6 @@ export const NewRoleForm = ({
   handleFormSubmit,
 }: RoleFormProp) => {
   const { organization } = useOrganizationProfile();
-  const queryClient = useQueryClient();
-  const { enqueueSnackbar } = useSnackbar();
   const dictionary = useDictionary();
   const newRoleDict = dictionary.organizations.profile.rolesTab.newRoleForm;
 
@@ -65,7 +57,6 @@ export const NewRoleForm = ({
   const {
     handleSubmit,
     register,
-    setError,
     reset,
     formState: { errors },
   } = useForm<FormValues>({
@@ -126,7 +117,9 @@ export const NewRoleForm = ({
               sx={{ display: 'flex' }}
               loading={isLoading}
             >
-              {!isEditMode ? newRoleDict.buttons.add : 'Update'}
+              {!isEditMode
+                ? newRoleDict.buttons.add
+                : newRoleDict.buttons.update}
             </LoadingButton>
             {isEditMode && (
               <Button
@@ -137,7 +130,7 @@ export const NewRoleForm = ({
                 sx={{ mb: 2 }}
                 onClick={handleCancelEdit}
               >
-                Cancel
+                {newRoleDict.buttons.cancel}
               </Button>
             )}
           </Stack>
