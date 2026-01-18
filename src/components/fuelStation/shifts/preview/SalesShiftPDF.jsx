@@ -243,7 +243,7 @@ function SalesShiftPDF({ includeFuelVouchers, shiftData, organization, shift_tea
                             <Text style={{ ...pdfStyles.tableHeader, ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 1.5 }}>Tank</Text>
                             <Text style={{ ...pdfStyles.tableHeader, ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 1.5 }}>Product</Text>
                             <Text style={{ ...pdfStyles.tableHeader, ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 1 }}>Reading</Text>
-                            <Text style={{ ...pdfStyles.tableHeader, ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 1 }}>Deviation</Text>
+                            <Text style={{ ...pdfStyles.tableHeader, ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 1 }}>Cumulative Deviation</Text>
                         </View>
                         {shiftData?.closing_dipping?.readings.map((cd, index) => (
                             <View key={index} style={pdfStyles.tableRow}>
