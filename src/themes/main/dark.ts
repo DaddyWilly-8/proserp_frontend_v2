@@ -337,27 +337,15 @@ export const mainTheme: ThemeOptions = {
     MuiButton: {
       styleOverrides: {
         root: {
-          textTransform: 'capitalize',
-          fontWeight: 400,
-          letterSpacing: 1,
-          '&.MuiLoadingButton-loading': {
+          '&.MuiButton-loading': {
             backgroundColor: '#3C475F',
             color: '#8595A6',
-          },
-        },
-        sizeSmall: {
-          fontSize: '12px',
-        },
-        colorInherit: {
-          backgroundColor: '#3C475F',
+            opacity: 0.7,
+            pointerEvents: 'none',
 
-          '&:hover': {
-            backgroundColor: '#323b4f',
-          },
-        },
-        contained: {
-          '&.Mui-disabled': {
-            color: '#FFF',
+            '& .MuiCircularProgress-root': {
+              color: '#A67FFB',
+            },
           },
         },
       },
@@ -365,17 +353,21 @@ export const mainTheme: ThemeOptions = {
     MuiLoadingButton: {
       styleOverrides: {
         root: {
-          '&.Mui-disabled': {
+          '&.MuiLoadingButton-loading': {
             backgroundColor: '#3C475F',
             color: '#8595A6',
+            boxShadow: 'none',
+            opacity: 0.7,
+            pointerEvents: 'none',
+
+            '& .MuiLoadingButton-loadingIndicator': {
+              color: '#A67FFB',
+            },
           },
-        },
-        loading: {
-          backgroundColor: '#3C475F',
-          color: '#8595A6',
-        },
-        loadingIndicator: {
-          color: '#8595A6',
+
+          '&.MuiLoadingButton-loading:hover': {
+            backgroundColor: '#3C475F',
+          },
         },
       },
     },
