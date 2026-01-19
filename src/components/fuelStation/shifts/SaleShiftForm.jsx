@@ -263,7 +263,9 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
 
       lastPumpReadings.forEach((lastReading) => {
         setValue(`pump_readings.${lastReading.fuel_pump_id}.opening`, lastReading.closing);
+        setValue(`pump_readings.${lastReading.fuel_pump_id}.closing`, 0);
         setValue(`pump_readings.${lastReading.fuel_pump_id}.fuel_pump_id`, lastReading.fuel_pump_id);
+        setValue(`pump_readings.${lastReading.fuel_pump_id}.tank_id`, lastReading.tank_id);
       })
 
       setPumpReadingsKey(prevKey => prevKey + 1);
