@@ -1,13 +1,10 @@
 "use client";
 
 import React from "react";
-import { Divider, Grid, Tab, Tabs, useMediaQuery } from "@mui/material";
-import { useJumboAuth } from "@/app/providers/JumboAuthProvider";
-import { PERMISSIONS } from "@/utilities/constants/permissions";
+import { Divider, Grid, Tab, Tabs } from "@mui/material";
 import ShiftTeamTab from "./ShiftTeamTab";
 import FuelPumpTab from "./FuelPumpTab";
 import { Station } from "./StationType";
-import { useJumboTheme } from "@jumbo/components/JumboTheme/hooks";
 import { useFormContext } from "react-hook-form";
 
 interface StationTabsProps {
@@ -21,14 +18,6 @@ const StationTabs: React.FC<StationTabsProps> = ({
   activeTab, 
   onTabChange 
 }) => {
-  const { checkOrganizationPermission } = useJumboAuth();
-  const { theme } = useJumboTheme();
-  const belowLargeScreen = useMediaQuery(theme.breakpoints.down("lg"));
-  const canCreateOrEdit = checkOrganizationPermission([
-    PERMISSIONS.FUEL_STATIONS_CREATE,
-    PERMISSIONS.FUEL_STATIONS_UPDATE,
-  ]);
-
   const { formState: { errors } } = useFormContext();
 
   return (

@@ -144,6 +144,7 @@ function FuelVouchers({ index = -1, setShowForm = null, fuelVoucher, productPric
             <Div sx={{ mt: 1}}>
               <LedgerSelect
                 label={'Expense Ledger'}
+                allowedGroups={['Expenses']}
                 frontError={errors.expense_ledger_id}
                 defaultValue={ungroupedLedgerOptions.find(ledger => ledger.id === watch(`expense_ledger`)?.id)}
                 onChange={(newValue) => {

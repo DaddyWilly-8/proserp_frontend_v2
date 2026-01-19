@@ -1,7 +1,6 @@
 import { sanitizedNumber } from '@/app/helpers/input-sanitization-helpers';
 import CommaSeparatedField from '@/shared/Inputs/CommaSeparatedField';
 import { Card, CardContent, Grid, TextField, Tooltip, Typography } from '@mui/material';
-import React from 'react'
 import { useFormContext } from 'react-hook-form';
 
 function PumpReadings() {

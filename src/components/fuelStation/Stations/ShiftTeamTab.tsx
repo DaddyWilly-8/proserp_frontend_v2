@@ -7,7 +7,6 @@ import { useFieldArray, Controller, useFormContext } from "react-hook-form";
 import * as yup from "yup";
 import LedgerSelect from "@/components/accounts/ledgers/forms/LedgerSelect";
 import { Station } from "./StationType";
-import { useLedgerSelect } from "@/components/accounts/ledgers/forms/LedgerSelectProvider";
 
 interface Ledger {
   id: number;
@@ -50,9 +49,6 @@ const ShiftTeamTab: React.FC<ShiftTeamTabProps> = ({ station }) => {
     name: "shift_teams",
   });
   
-  const { ungroupedLedgerOptions } = useLedgerSelect();
-  const shiftTeams = watch("shift_teams");
-
   const getFieldError = (index: number, fieldName: string) => {
     return (errors as any)?.shift_teams?.[index]?.[fieldName];
   };
@@ -87,8 +83,10 @@ const ShiftTeamTab: React.FC<ShiftTeamTabProps> = ({ station }) => {
                 defaultValue={[]}
                 render={({ field }) => (
                   <LedgerSelect
-                    multiple
+                    multiple={true}
                     label="Ledgers"
+                    allowedGroups={['Cash and cash equivalents', 'Banks']}
+                    frontError={getFieldError(index, "Ledger")}
                     defaultValue={
                       (field.value || []).map((item: any) => ({
                         id: item.id,
@@ -102,7 +100,6 @@ const ShiftTeamTab: React.FC<ShiftTeamTabProps> = ({ station }) => {
                     onChange={(newValue) => {
                       field.onChange(Array.isArray(newValue) ? newValue : []);
                     }}
-                    frontError={getFieldError(index, "Ledger")}
                   />
                 )}
               />

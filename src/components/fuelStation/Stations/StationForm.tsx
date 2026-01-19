@@ -107,7 +107,6 @@ const StationForm: React.FC<StationFormProps> = ({ station, setOpenDialog }) => 
     PERMISSIONS.FUEL_STATIONS_UPDATE,
   ]);
 
-  // State to track current active tab
   const [activeTab, setActiveTab] = useState<number>(0);
 
   const defaultValues = useMemo(() => {
@@ -253,19 +252,16 @@ const StationForm: React.FC<StationFormProps> = ({ station, setOpenDialog }) => 
     saveMutation(dataToSend as any);
   };
 
-  // Handle tab change
   const handleTabChange = (newValue: number) => {
     setActiveTab(newValue);
   };
 
-  // Handle next button click
   const handleNext = () => {
-    setActiveTab(1); // Move to Fuel Pump tab
+    setActiveTab(1);
   };
 
-  // Handle previous button click
   const handlePrevious = () => {
-    setActiveTab(0); // Move back to Shift Team tab
+    setActiveTab(0);
   };
 
   return (
@@ -332,7 +328,6 @@ const StationForm: React.FC<StationFormProps> = ({ station, setOpenDialog }) => 
             Cancel
           </Button>
           
-         {/* Previous Button with Back Arrow - Only show on Fuel Pump tab (tab index 1) */}
           {activeTab === 1 && (
             <Button 
               onClick={handlePrevious}
@@ -344,18 +339,16 @@ const StationForm: React.FC<StationFormProps> = ({ station, setOpenDialog }) => 
             </Button>
           )}
           
-          {/* Next Button with Forward Arrow - Only show on Shift Team tab (tab index 0) */}
           {activeTab === 0 ? (
             <Button 
               onClick={handleNext}
               size="small"
-              variant="outlined" // Changed to outlined to match Previous button
-              endIcon={<ArrowForwardIcon />} // Forward arrow at the end
+              variant="outlined"
+              endIcon={<ArrowForwardIcon />}
             >
               Next
             </Button>
           ) : (
-            /* Submit Button - Only show on Fuel Pump tab (tab index 1) */
             <LoadingButton
               type="submit"
               variant="contained"

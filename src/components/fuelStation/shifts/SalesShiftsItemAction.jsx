@@ -116,7 +116,7 @@ const SalesShiftsItemAction = ({ ClosedShift}) => {
  const { mutate: deleteShift } = useMutation({
   mutationFn: fuelStationServices.deleteSalesShift,
   onSuccess: (data) => {
-    queryClient.invalidateQueries({ queryKey: ['closedShifts'] });
+    queryClient.invalidateQueries({ queryKey: ['salesShifts'] });
     enqueueSnackbar(data.message, {
       variant: 'success',
     });

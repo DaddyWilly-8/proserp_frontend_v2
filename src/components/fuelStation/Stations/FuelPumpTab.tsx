@@ -45,13 +45,11 @@ const FuelPumpTab: React.FC<FuelPumpTabProps> = ({ station }) => {
   const canCreateProduct = checkOrganizationPermission([PERMISSIONS.PRODUCTS_CREATE]);
   const [openProductQuickAdd, setOpenProductQuickAdd] = useState<boolean[]>([]);
 
-  // Fetch store options - SAME PATTERN AS PRODUCT
   const { data: storeOptions, isLoading: isFetchingStores } = useQuery<StoreOption[], Error>({
     queryKey: ["storeOptions"],
-    queryFn: () => storeServices.getStoreOptions(true), // Pass mainOnly: true
+    queryFn: () => storeServices.getStoreOptions(true), 
   });
 
-  // Filter store options for tanks only - SAME PATTERN AS PRODUCT
   const tankOptions = useMemo(() => {
     if (!storeOptions) return [];
     return storeOptions.filter((store) => {
@@ -59,7 +57,6 @@ const FuelPumpTab: React.FC<FuelPumpTabProps> = ({ station }) => {
     });
   }, [storeOptions]);
 
-  // Compute nonInventoryIds safely - PRODUCT PATTERN
   const nonInventoryIds = useMemo(() => {
     if (!productOptions) return [];
     return productOptions
@@ -67,7 +64,6 @@ const FuelPumpTab: React.FC<FuelPumpTabProps> = ({ station }) => {
       .map((product) => product.id);
   }, [productOptions]);
 
-  // Type-safe error access
   const getFieldError = (index: number, fieldName: string) => {
     return (errors as any)?.fuel_pumps?.[index]?.[fieldName];
   };
@@ -84,13 +80,11 @@ const FuelPumpTab: React.FC<FuelPumpTabProps> = ({ station }) => {
     <Box sx={{ width: "100%" }}>
       {fields.map((field, index) => (
         <Grid container spacing={1} key={field.id} sx={{ mb: 2 }} alignItems="flex-start">
-          {/* Fuel Name - FOLLOWS PRODUCT PATTERN */}
           <Grid size={{ xs: 12, md: 3.5 }}>
             <Controller
               name={`fuel_pumps.${index}.product_id`}
               control={control}
               render={({ field: controllerField }) => {
-                // Get the current product ID from form state for this specific field
                 const currentProductId = watch(`fuel_pumps.${index}.product_id`);
                 const productValue = productOptions.find(product => product.id === currentProductId) || null;
                 
@@ -130,7 +124,6 @@ const FuelPumpTab: React.FC<FuelPumpTabProps> = ({ station }) => {
             />
           </Grid>
 
-          {/* Pump Name - 4 columns */}
           <Grid size={{ xs: 12, md: 3.5 }}>
             <Controller
               name={`fuel_pumps.${index}.name`}
@@ -148,39 +141,34 @@ const FuelPumpTab: React.FC<FuelPumpTabProps> = ({ station }) => {
             />
           </Grid>
 
-          {/* Tank Name - FOLLOWS SAME PATTERN AS PRODUCT */}
           <Grid size={{ xs: 11, md: 3.5 }}>
             <Controller
               name={`fuel_pumps.${index}.tank_id`}
               control={control}
               render={({ field }) => {
-                // Get current tank ID from form
                 const currentTankId = watch(`fuel_pumps.${index}.tank_id`);
                 
-                // Find tank in options - SAME PATTERN AS PRODUCT
                 const tankValue = tankOptions.find(tank => tank.id === currentTankId) || null;
                 
                 return (
                   <StoreSelector
                     label="Tank Name"
-                    defaultValue={tankValue} // Pass the object, not just ID
+                    defaultValue={tankValue}
                     frontError={getFieldError(index, "tank_id")}
                     onChange={(newValue: StoreOption | null) => {
-                      // StoreSelector returns the full object, extract ID for form
                       if (newValue) {
                         field.onChange(newValue.id);
                       } else {
                         field.onChange(null);
                       }
                     }}
-                    allowSubStores={false}
+                    allowSubStores={true}
                   />
                 );
               }}
             />
           </Grid>
 
-          {/* Delete Button - 1 column */}
           <Grid size={{ xs: 1, md: 1.5 }} sx={{ display: "flex", justifyContent: "center", alignItems: "flex-start" }}>
             {fields.length > 1 && (
               <IconButton

@@ -331,6 +331,12 @@ function CashReconciliation() {
                           inputComponent: CommaSeparatedField,
                           readOnly: true
                         }}
+                        sx={{
+                          '& .MuiInputBase-input': {
+                            fontWeight: 'bold',
+                            color: watch('main_ledger_amount') < 0 ? 'error.main' : 'success.main',
+                          },
+                        }}
                       />  
                     </Div>
                   </Grid>

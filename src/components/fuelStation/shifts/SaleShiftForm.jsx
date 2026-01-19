@@ -46,7 +46,7 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
   onSuccess: (data) => {
     setOpenDialog(false);
     enqueueSnackbar(data.message, { variant: 'success' });
-    queryClient.invalidateQueries({ queryKey: ['salesShift'] });
+    queryClient.invalidateQueries({ queryKey: ['salesShifts'] });
     setOpenDialog(false);
   },
   onError: (error) => {
@@ -72,7 +72,7 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
     onSuccess: (data) => {
       setOpenDialog(false);
       enqueueSnackbar(data.message, { variant: 'success' });
-      queryClient.invalidateQueries({ queryKey: ['Shift'] });
+      queryClient.invalidateQueries({ queryKey: ['salesShifts'] });
       setOpenDialog(false);
     },
     onError: (error) => {
@@ -134,7 +134,7 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
         amount: yup.string().required("Amount is required").typeError('Amount is required'),
       })
     ),
-    submit_type: yup.string().oneOf(['pending', 'close']).required(),
+    submit_type: yup.string().oneOf(['suspend', 'close']).required(),
     main_ledger_id: yup.number().when('submit_type', {
       is: 'close',
       then: (schema) => schema.required('Main Ledger is required').typeError('Main Ledger is required'),
@@ -215,8 +215,6 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
       })(),   
     },
   });
-
-  console.log(errors)
 
   const { fields: cashReconciliationFields, append: cashReconciliationAppend, remove: cashReconciliationRemove} = useFieldArray({
     control,
