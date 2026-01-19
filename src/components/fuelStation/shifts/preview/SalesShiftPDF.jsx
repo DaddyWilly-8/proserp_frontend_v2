@@ -85,6 +85,7 @@ function SalesShiftPDF({ includeFuelVouchers, shiftData, organization, shift_tea
           <View style={pdfStyles.table}>
             <View style={pdfStyles.tableRow}>
               <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 1.5 }}>Pump</Text>
+              <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 1.5 }}>Product Name</Text>
               <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 1 }}>Closing</Text>
               <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 1 }}>Opening</Text>
               <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 1 }}>Difference</Text>
@@ -93,6 +94,9 @@ function SalesShiftPDF({ includeFuelVouchers, shiftData, organization, shift_tea
               <View key={index} style={pdfStyles.tableRow}>
                 <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 1.5 }}>
                   {fuel_pumps.find(p => p.id === pump.fuel_pump_id)?.name}
+                </Text>
+                <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 1.5 }}>
+                    {productOptions?.find(p => p.id === pump.product_id)?.name}
                 </Text>
                 <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 1, textAlign: 'right' }}>
                   {pump.closing.toLocaleString('en-US', { minimumFractionDigits: 3, maximumFractionDigits: 3 })}
