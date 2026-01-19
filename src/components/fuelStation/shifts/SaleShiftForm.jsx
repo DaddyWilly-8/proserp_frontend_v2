@@ -115,11 +115,23 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
         opening: yup.number()
           .required("Opening Reading is required")
           .typeError('Opening Reading is required')
-          .max(yup.ref('closing'), "Opening Reading should not exceed the Closing Reading"),
+          .test('opening-less-than-closing', 'Opening Reading should not exceed the Closing Reading', 
+            function(value) {
+              const { closing } = this.parent;
+              if (value == null || closing == null) return true;
+              return Number(value) <= Number(closing);
+            }
+          ),
         closing: yup.number()
           .required("Closing Reading is required")
           .typeError('Closing Reading is required')
-          .min(yup.ref('opening'), "Closing Reading should exceed the Opening Reading"),
+          .test('closing-greater-than-opening', 'Closing Reading should exceed the Opening Reading', 
+            function(value) {
+              const { opening } = this.parent;
+              if (value == null || opening == null) return true;
+              return Number(value) > Number(opening);
+            }
+          ),
       })
     ),
     product_prices: yup.array().of(
@@ -220,7 +232,7 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
     control,
     name: 'other_ledgers',
   });
-  
+
   useEffect(() => {
     if (SalesShift) {
       setShiftLedgers(shift_teams?.find(team => team.id === SalesShift?.shift_team_id).ledgers)
@@ -283,7 +295,9 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
     }, []);
     return uniqueEntries.reverse();
   };
-  
+
+  console.log(watch(`pump_readings`))
+
   const handleSubmitForm = async (data) => {
     const updatedData = { 
       ...data, 
