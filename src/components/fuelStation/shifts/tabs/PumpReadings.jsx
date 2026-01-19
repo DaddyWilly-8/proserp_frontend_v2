@@ -46,6 +46,7 @@ function PumpReadings() {
                                         error={errors.pump_readings && !!errors?.pump_readings[pump.id]?.closing}
                                         helperText={errors.pump_readings && errors.pump_readings[pump.id]?.closing?.message}
                                         onChange={(e) => {
+                                            console.log(watch(`pump_readings`))
                                             setValue(`pump_readings.${pump.id}.opening`, (watch(`pump_readings`).find(reading => reading?.fuel_pump_id === pump.id)?.opening || 0) || 0, {
                                                 shouldValidate: true,
                                                 shouldDirty: true

@@ -246,7 +246,7 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
       reference: fuelVoucher.reference,
       narration: fuelVoucher.narration,
       product_id: fuelVoucher.product_id,
-      expense_ledger_id: fuelVoucher.expense_ledger?.id,
+      expense_ledger_id: fuelVoucher.expense_ledger?.id || fuelVoucher.expense_ledger_id,
     })));
   }, [fuelVouchers, setValue]);  
 
@@ -295,8 +295,6 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
     }, []);
     return uniqueEntries.reverse();
   };
-
-  console.log(watch(`pump_readings`))
 
   const handleSubmitForm = async (data) => {
     const updatedData = { 

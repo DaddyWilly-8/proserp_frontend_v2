@@ -343,7 +343,7 @@ const SalesShiftOnScreen = ({
                       <TableCell sx={{ color: contrastText }}>Tank</TableCell>
                       <TableCell sx={{ color: contrastText }}>Product</TableCell>
                       <TableCell align="right" sx={{ color: contrastText }}>Reading</TableCell>
-                      <TableCell align="right" sx={{ color: contrastText }}>Deviation</TableCell>
+                      <TableCell align="right" sx={{ color: contrastText }}>Cumulative Deviation</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -374,7 +374,7 @@ const SalesShiftOnScreen = ({
                       <TableCell sx={{ color: contrastText }}>Tank</TableCell>
                       <TableCell sx={{ color: contrastText }}>Product</TableCell>
                       <TableCell align="right" sx={{ color: contrastText }}>Reading</TableCell>
-                      <TableCell align="right" sx={{ color: contrastText }}>Deviation</TableCell>
+                      <TableCell align="right" sx={{ color: contrastText }}>Cumulative Deviation</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>

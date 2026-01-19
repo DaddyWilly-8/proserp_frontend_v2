@@ -1,8 +1,8 @@
-import { Document, Page, Text, View } from '@react-pdf/renderer';
 import { readableDate } from '@/app/helpers/input-sanitization-helpers';
-import PdfLogo from '@/components/pdf/PdfLogo';
-import pdfStyles from '@/components/pdf/pdf-styles';
 import PageFooter from '@/components/pdf/PageFooter';
+import pdfStyles from '@/components/pdf/pdf-styles';
+import PdfLogo from '@/components/pdf/PdfLogo';
+import { Document, Page, Text, View } from '@react-pdf/renderer';
 
 function SalesShiftPDF({ includeFuelVouchers, shiftData, organization, shift_teams, fuel_pumps, tanks, productOptions }) {
   const mainColor = organization.settings?.main_color || "#2113AD";
@@ -78,8 +78,30 @@ function SalesShiftPDF({ includeFuelVouchers, shiftData, organization, shift_tea
                 </View>
             </View>
 
+            <View style={{ ...pdfStyles.table, flex: 1, padding: 3 }}>
+                <View style={{ ...pdfStyles.tableRow,marginBottom: 1 }}>
+                    <Text style={{ ...pdfStyles.tableHeader, ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 1.5, textAlign: 'center', ...pdfStyles.midInfo }}>Pump Readings</Text>
+                </View>
+                <View style={pdfStyles.tableRow}>
+                    <Text style={{ ...pdfStyles.tableHeader, ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 1.5 }}>Pump</Text>
+                        <Text style={{ ...pdfStyles.tableHeader, ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 1.5 }}>Product Name</Text>
+                    <Text style={{ ...pdfStyles.tableHeader, ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 1 }}>Closing</Text>
+                    <Text style={{ ...pdfStyles.tableHeader, ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 1 }}>Opening</Text>
+                    <Text style={{ ...pdfStyles.tableHeader, ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 1 }}>Difference</Text>
+                </View>
+                {shiftData.pump_readings.map((pump, index) => (
+                    <View key={index} style={pdfStyles.tableRow}>
+                        <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 1.5 }}>{fuel_pumps.find(p => p.id === pump.fuel_pump_id).name}</Text>
+                        <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 1.5 }}>{productOptions?.find(product => product.id === pump.product_id)?.name}</Text>
+                        <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 1, textAlign: 'right' }}>{pump.closing.toLocaleString('en-US',{minimumFractionDigits: 3, maximumFractionDigits:3})}</Text>
+                        <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 1, textAlign: 'right' }}>{pump.opening.toLocaleString('en-US',{minimumFractionDigits: 3, maximumFractionDigits:3})}</Text>
+                        <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 1, textAlign: 'right' }}>{(pump.closing - pump.opening).toLocaleString('en-US',{minimumFractionDigits: 3, maximumFractionDigits:3})}</Text>
+                    </View>
+                ))}
+            </View>
+
             <View style={{ ...pdfStyles.tableRow }}>
-                <View style={{ ...pdfStyles.table, flex: 1, padding: 4, minHeight: 120 }}>
+                <View style={{ ...pdfStyles.table, flex: 1, padding: 3, minHeight: 120 }}>
                     <View style={{ ...pdfStyles.tableRow, marginBottom: 4 }}>
                         <Text style={{ ...pdfStyles.tableHeader, ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 1.5, textAlign: 'center',...pdfStyles.midInfo }}>Products</Text>
                     </View>
@@ -138,7 +160,7 @@ function SalesShiftPDF({ includeFuelVouchers, shiftData, organization, shift_tea
                     >
                         <Text style={{ ...pdfStyles.tableHeader, ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 3.71, textAlign: 'left', fontWeight: 'bold' }}>Total</Text>
                         <Text style={{ ...pdfStyles.tableHeader, ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 1, textAlign: 'right', fontWeight: 'bold' }}>
-                            {mergedReadings?.reduce((total, product) => {
+                            {mergedReadings.reduce((total, product) => {
                                 const productPrice = shiftData.fuel_prices.find(price => price.product_id === product.product_id);
                                 const price = !!productPrice?.price ? productPrice.price : 0;
                                 const totalAdjustmentQuantity = shiftData.adjustments.filter(adjustment => adjustment.product_id === product.product_id).reduce((totalAdjustment, adj) => adj.operator === '+' ? totalAdjustment - adj.quantity : totalAdjustment + adj.quantity, 0);
@@ -154,87 +176,17 @@ function SalesShiftPDF({ includeFuelVouchers, shiftData, organization, shift_tea
                     {cashAccounts.map((account, index) => (
                         <View key={index} style={pdfStyles.tableRow}>
                             <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 3 }}>{account.name}</Text>
-                            <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 1.5, textAlign: 'right' }}>{account.amount?.toLocaleString('en-US',{minimumFractionDigits: 2, maximumFractionDigits:2})}</Text>
+                            <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 1.5, textAlign: 'right' }}>{account.amount.toLocaleString('en-US',{minimumFractionDigits: 2, maximumFractionDigits:2})}</Text>
                         </View>
                     ))}
                     <View style={{ ...pdfStyles.tableRow}}>
                         <Text style={{ ...pdfStyles.tableHeader, ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 3, textAlign: 'left', fontWeight: 'bold' }}>Total</Text>
-                        <Text style={{ ...pdfStyles.tableHeader, ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 1.5, textAlign: 'right', fontWeight: 'bold' }}>{totalCashAccountsAmount?.toLocaleString('en-US',{minimumFractionDigits: 2, maximumFractionDigits:2})}</Text>
+                        <Text style={{ ...pdfStyles.tableHeader, ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 1.5, textAlign: 'right', fontWeight: 'bold' }}>{totalCashAccountsAmount.toLocaleString('en-US',{minimumFractionDigits: 2, maximumFractionDigits:2})}</Text>
                     </View>
-                </View>
-
-                <View style={{ ...pdfStyles.table, flex: 1, padding: 3 }}>
-                    <View style={{ ...pdfStyles.tableRow,marginBottom: 1 }}>
-                        <Text style={{ ...pdfStyles.tableHeader, ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 1.5, textAlign: 'center', ...pdfStyles.midInfo }}>Pump Readings</Text>
-                    </View>
-                    <View style={pdfStyles.tableRow}>
-                        <Text style={{ ...pdfStyles.tableHeader, ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 1.5 }}>Pump</Text>
-                        <Text style={{ ...pdfStyles.tableHeader, ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 1 }}>Closing</Text>
-                        <Text style={{ ...pdfStyles.tableHeader, ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 1 }}>Opening</Text>
-                        <Text style={{ ...pdfStyles.tableHeader, ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 1 }}>Difference</Text>
-                    </View>
-                    {shiftData.pump_readings.map((pump, index) => (
-                        <View key={index} style={pdfStyles.tableRow}>
-                            <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 1.5 }}>{fuel_pumps.find(p => p.id === pump.fuel_pump_id).name}</Text>
-                            <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 1, textAlign: 'right' }}>{pump.closing.toLocaleString('en-US',{minimumFractionDigits: 3, maximumFractionDigits:3})}</Text>
-                            <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 1, textAlign: 'right' }}>{pump.opening.toLocaleString('en-US',{minimumFractionDigits: 3, maximumFractionDigits:3})}</Text>
-                            <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 1, textAlign: 'right' }}>{(pump.closing - pump.opening).toLocaleString('en-US',{minimumFractionDigits: 3, maximumFractionDigits:3})}</Text>
-                        </View>
-                    ))}
                 </View>
             </View>
 
-            <View style={{ ...pdfStyles.tableRow, marginTop: 5 }}>
-                {shiftData?.adjustments?.length > 0 &&
-                    <View style={{ ...pdfStyles.table, padding: 3, flex: 1, marginTop: 5 }}>
-                        <View style={{ ...pdfStyles.tableRow}}>
-                            <Text style={{ ...pdfStyles.tableHeader, ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 1.5, textAlign: 'center',...pdfStyles.midInfo, marginBottom: 1 }}>Tank Adjustments</Text>
-                        </View>
-                        <View style={pdfStyles.tableRow}>
-                            <Text style={{ ...pdfStyles.tableHeader, ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 1 }}>Product</Text>
-                            <Text style={{ ...pdfStyles.tableHeader, ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 1}}>Tank</Text>
-                            <Text style={{ ...pdfStyles.tableHeader, ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 1.3 }}>Description</Text>
-                            <Text style={{ ...pdfStyles.tableHeader, ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 0.7 }}>Quantity</Text>
-                        </View>
-                        {shiftData?.adjustments?.map((adjustment, index) => (
-                            <View key={index} style={pdfStyles.tableRow}>
-                                <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 1}}>{productOptions?.find(product => product.id === adjustment.product_id)?.name}</Text>
-                                <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 1 }}>{tanks?.find(tank => tank.id === adjustment.tank_id).name}</Text>
-                                <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 1.3}}>{adjustment.description}</Text>
-                                <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 0.7, textAlign: 'right' }}>
-                                    { `(${adjustment.operator})${adjustment.quantity.toLocaleString('en-US',{
-                                        minimumFractionDigits: 3, maximumFractionDigits:3
-                                    })}`}
-                                </Text>
-                            </View>
-                        ))}
-                    </View>
-                }
-            </View>
-
-            <View style={{ ...pdfStyles.tableRow }}>
-                {shiftData?.opening_dipping?.readings.length > 0 &&
-                    <View style={{ ...pdfStyles.table, padding: 3, flex: 1,marginTop:15 }}>
-                        <View style={{ ...pdfStyles.tableRow,marginBottom: 1 }}>
-                            <Text style={{ ...pdfStyles.tableHeader, ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 1.5, textAlign: 'center',...pdfStyles.midInfo }}>Opening Dipping</Text>
-                        </View>
-                        <View style={pdfStyles.tableRow}>
-                            <Text style={{ ...pdfStyles.tableHeader, ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 1.5 }}>Tank</Text>
-                            <Text style={{ ...pdfStyles.tableHeader, ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 1.5 }}>Product</Text>
-                            <Text style={{ ...pdfStyles.tableHeader, ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 1 }}>Reading</Text>
-                            <Text style={{ ...pdfStyles.tableHeader, ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 1 }}>Deviation</Text>
-                        </View>
-                        {shiftData?.opening_dipping?.readings.map((od, index) => (
-                            <View key={index} style={pdfStyles.tableRow}>
-                                <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 1.5 }}>{od.tank.name}</Text>
-                                <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 1.5}}>{productOptions?.find(product => product.id === od.product_id)?.name}</Text>
-                                <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 1, textAlign: 'right' }}>{od.reading.toLocaleString('en-US',{minimumFractionDigits: 3, maximumFractionDigits:3})}</Text>
-                                <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 1, textAlign: 'right' }}>{od.deviation.toLocaleString('en-US',{minimumFractionDigits: 3, maximumFractionDigits:3})}</Text>
-                            </View>
-                        ))}
-                    </View>
-                }
-                { shiftData?.closing_dipping?.readings.length > 0 &&
+            { shiftData?.closing_dipping?.readings.length > 0 &&
                     <View style={{ ...pdfStyles.table, padding: 3, flex: 1,marginTop:15 }}>
                         <View style={{ ...pdfStyles.tableRow,marginBottom: 1 }}>
                             <Text style={{ ...pdfStyles.tableHeader, ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 1.5, textAlign: 'center',...pdfStyles.midInfo }}>Closing Dipping</Text>
@@ -254,10 +206,57 @@ function SalesShiftPDF({ includeFuelVouchers, shiftData, organization, shift_tea
                             </View>
                         ))}
                     </View>
-                }
-            </View>
+            }
 
-            { !!includeFuelVouchers && shiftData.fuel_vouchers.length > 0 &&
+            {shiftData?.opening_dipping?.readings.length > 0 &&
+                <View style={{ ...pdfStyles.table, padding: 3, flex: 1,marginTop:15 }}>
+                    <View style={{ ...pdfStyles.tableRow,marginBottom: 1 }}>
+                        <Text style={{ ...pdfStyles.tableHeader, ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 1.5, textAlign: 'center',...pdfStyles.midInfo }}>Opening Dipping</Text>
+                    </View>
+                    <View style={pdfStyles.tableRow}>
+                        <Text style={{ ...pdfStyles.tableHeader, ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 1.5 }}>Tank</Text>
+                        <Text style={{ ...pdfStyles.tableHeader, ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 1.5 }}>Product</Text>
+                        <Text style={{ ...pdfStyles.tableHeader, ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 1 }}>Reading</Text>
+                        <Text style={{ ...pdfStyles.tableHeader, ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 1 }}>Cumulative Deviation</Text>
+                    </View>
+                    {shiftData?.opening_dipping?.readings.map((od, index) => (
+                        <View key={index} style={pdfStyles.tableRow}>
+                            <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 1.5 }}>{od.tank.name}</Text>
+                            <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 1.5}}>{productOptions?.find(product => product.id === od.product_id)?.name}</Text>
+                            <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 1, textAlign: 'right' }}>{od.reading.toLocaleString('en-US',{minimumFractionDigits: 3, maximumFractionDigits:3})}</Text>
+                            <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 1, textAlign: 'right' }}>{od.deviation.toLocaleString('en-US',{minimumFractionDigits: 3, maximumFractionDigits:3})}</Text>
+                        </View>
+                    ))}
+                </View>
+            }
+
+            {shiftData?.adjustments?.length > 0 &&
+                <View style={{ ...pdfStyles.table, padding: 3, flex: 1, marginTop: 5 }}>
+                    <View style={{ ...pdfStyles.tableRow}}>
+                        <Text style={{ ...pdfStyles.tableHeader, ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 1.5, textAlign: 'center',...pdfStyles.midInfo, marginBottom: 1 }}>Tank Adjustments</Text>
+                    </View>
+                    <View style={pdfStyles.tableRow}>
+                        <Text style={{ ...pdfStyles.tableHeader, ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 1 }}>Product</Text>
+                        <Text style={{ ...pdfStyles.tableHeader, ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 1}}>Tank</Text>
+                        <Text style={{ ...pdfStyles.tableHeader, ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 1.3 }}>Description</Text>
+                        <Text style={{ ...pdfStyles.tableHeader, ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 0.7 }}>Quantity</Text>
+                    </View>
+                    {shiftData?.adjustments?.map((adjustment, index) => (
+                        <View key={index} style={pdfStyles.tableRow}>
+                            <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 1}}>{productOptions?.find(product => product.id === adjustment.product_id)?.name}</Text>
+                            <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 1 }}>{tanks?.find(tank => tank.id === adjustment.tank_id).name}</Text>
+                            <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 1.3}}>{adjustment.description}</Text>
+                            <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 0.7, textAlign: 'right' }}>
+                                { `(${adjustment.operator})${adjustment.quantity.toLocaleString('en-US',{
+                                    minimumFractionDigits: 3, maximumFractionDigits:3
+                                })}`}
+                            </Text>
+                        </View>
+                    ))}
+                </View>
+            }
+
+           { !!includeFuelVouchers && shiftData.fuel_vouchers.length > 0 &&
                 <View style={{ ...pdfStyles.table, minHeight: 230, marginTop: 20 }}>
                     <View style={{...pdfStyles.tableRow,marginBottom: 1}}>
                         <Text style={{ ...pdfStyles.tableHeader, ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 1.5, textAlign: 'center',...pdfStyles.midInfo }}>Fuel Vouchers</Text>
@@ -286,10 +285,11 @@ function SalesShiftPDF({ includeFuelVouchers, shiftData, organization, shift_tea
                     ))}
                     <View style={{ ...pdfStyles.tableRow}}>
                         <Text style={{ ...pdfStyles.tableHeader, ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 13.5, textAlign: 'left', fontWeight: 'bold' }}>Total</Text>
-                        <Text style={{ ...pdfStyles.tableHeader, ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 1.5, textAlign: 'right', fontWeight: 'bold' }}>{totalFuelVouchersAmount?.toLocaleString('en-US',{minimumFractionDigits: 2, maximumFractionDigits:2})}</Text>
+                        <Text style={{ ...pdfStyles.tableHeader, ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 1.5, textAlign: 'right', fontWeight: 'bold' }}>{totalFuelVouchersAmount.toLocaleString('en-US',{minimumFractionDigits: 2, maximumFractionDigits:2})}</Text>
                     </View>
                 </View>
             }
+
            <PageFooter/>
         </Page>
     </Document>
