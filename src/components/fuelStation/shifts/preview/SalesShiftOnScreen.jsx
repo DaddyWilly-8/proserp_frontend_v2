@@ -274,6 +274,7 @@ const SalesShiftOnScreen = ({
               <TableHead>
                 <TableRow sx={{ bgcolor: mainColor }}>
                   <TableCell sx={{ color: contrastText }}>Pump</TableCell>
+                  <TableCell sx={{ color: contrastText }}>Product</TableCell>
                   <TableCell align="right" sx={{ color: contrastText }}>Opening</TableCell>
                   <TableCell align="right" sx={{ color: contrastText }}>Closing</TableCell>
                   <TableCell align="right" sx={{ color: contrastText }}>Difference</TableCell>
@@ -283,6 +284,7 @@ const SalesShiftOnScreen = ({
                 {(shiftData.pump_readings || []).map((pump, idx) => (
                   <TableRow key={idx} hover>
                     <TableCell>{fuel_pumps?.find(p => p.id === pump.fuel_pump_id)?.name || '—'}</TableCell>
+                    <TableCell>{productOptions?.find(p => p.id === pump.product_id)?.name || '—'}</TableCell>
                     <QuantityCell value={pump.opening} />
                     <QuantityCell value={pump.closing} />
                     <QuantityCell value={pump.closing - pump.opening} />
