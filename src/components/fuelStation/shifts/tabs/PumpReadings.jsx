@@ -188,7 +188,7 @@ function PumpReadings() {
                                 </Grid>
                                 <Grid size={6}>
                                     <Typography variant="subtitle2" align="right">
-                                        {tankInfo.difference?.toLocaleString()}
+                                        {((tankInfo.difference || 0)?.toLocaleString())}
                                     </Typography>
                                 </Grid>
                                 <Grid size={6}>
@@ -198,7 +198,7 @@ function PumpReadings() {
                                 </Grid>
                                 <Grid size={6}>
                                     <Typography variant="subtitle2" align="right">
-                                        {(tankInfo.difference * tankInfo.price).toLocaleString()} {/* total tank amount */}
+                                        {((tankInfo.difference * tankInfo.price) || 0).toLocaleString()} {/* total tank amount */}
                                     </Typography>
                                 </Grid>
                             </Grid>
