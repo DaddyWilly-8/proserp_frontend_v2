@@ -22,7 +22,7 @@ const StationActionTail = () => {
 
   return (
     <React.Fragment>
-      <Dialog maxWidth="md" fullWidth fullScreen={belowLargeScreen} open={openDialog}>
+      <Dialog maxWidth="md" fullScreen={belowLargeScreen} open={openDialog}>
         <StationForm setOpenDialog={setOpenDialog} />
       </Dialog>
       <ButtonGroup variant="outlined" size="small" disableElevation sx={{ '& .MuiButton-root': { px: 1 } }}>
