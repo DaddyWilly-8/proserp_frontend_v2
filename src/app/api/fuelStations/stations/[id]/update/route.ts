@@ -13,6 +13,7 @@ export async function PUT(
   if (response) return response;
 
   const body = await req.json();
+  console.log(body, id)
   const res = await fetch(`${API_BASE}/fuel-stations/stations/${id}`, {
     method: 'PUT',
     headers,

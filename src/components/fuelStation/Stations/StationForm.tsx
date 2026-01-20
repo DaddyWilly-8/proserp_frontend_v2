@@ -241,6 +241,7 @@ const StationForm: React.FC<StationFormProps> = ({ station, setOpenDialog }) => 
     }
 
     const dataToSend = {
+      id: formData.id,
       name: formData.name.trim(),
       address: formData.address?.trim() || null,
       user_ids: formData.users?.map((user: User) => user.id) ?? [],

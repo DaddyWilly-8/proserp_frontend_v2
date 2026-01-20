@@ -4,37 +4,41 @@ import PdfLogo from '@/components/pdf/PdfLogo';
 import pdfStyles from '@/components/pdf/pdf-styles';
 import PageFooter from '@/components/pdf/PageFooter';
 
-function SalesShiftPDF({ includeFuelVouchers, shiftData, organization, shift_teams, fuel_pumps, tanks, productOptions }) {
+function SalesShiftPDF({ includeFuelVouchers, shiftData, stationName, organization, shift_teams, fuel_pumps, tanks, productOptions }) {
   const mainColor = organization.settings?.main_color || "#2113AD";
   const lightColor = organization.settings?.light_color || "#bec5da";
   const contrastText = organization.settings?.contrast_text || "#FFFFFF";
 
   const cashAccounts = [...shiftData.other_ledgers, shiftData.main_ledger].filter(account => !!account);
 
+  // Calculate the total amount of all fuel vouchers
   const totalFuelVouchersAmount = shiftData.fuel_vouchers.reduce((total, fuelVoucher) => {
     const productPrice = shiftData.fuel_prices.find(product => product.product_id === fuelVoucher.product_id)?.price || 0;
     return total + (fuelVoucher.quantity * productPrice);
   }, 0);
 
+  //Merge Products
   const mergePumpReadings = (pumpReadings) => {
-    const merged = pumpReadings.reduce((acc, pump) => {
-      if (!acc[pump.product_id]) {
-        acc[pump.product_id] = { ...pump, quantity: pump.closing - pump.opening };
-      } else {
-        acc[pump.product_id].quantity += pump.closing - pump.opening;
-      }
-      return acc;
-    }, {});
-    return Object.values(merged);
-  };
+        const merged = pumpReadings.reduce((acc, pump) => {
+            if (!acc[pump.product_id]) {
+                acc[pump.product_id] = { ...pump, quantity: pump.closing - pump.opening };
+            } else {
+                acc[pump.product_id].quantity += pump.closing - pump.opening;
+            }
+            return acc;
+        }, {});
+        return Object.values(merged);
+    };
 
-  const mergedReadings = mergePumpReadings(shiftData.pump_readings);
+    const mergedReadings = mergePumpReadings(shiftData.pump_readings);
 
+  // Add the total fuel vouchers amount to the cashAccounts array
   totalFuelVouchersAmount > 0 && cashAccounts.push({
     name: 'Fuel Vouchers',
     amount: totalFuelVouchersAmount,
   });
 
+  // Calculate the total amount of all cash accounts
   const totalCashAccountsAmount = cashAccounts.reduce((total, account) => total + account.amount, 0);
 
   return (
@@ -54,6 +58,7 @@ function SalesShiftPDF({ includeFuelVouchers, shiftData, organization, shift_tea
           <View style={{ flex: 1, textAlign: 'right' }}>
             <Text style={{ ...pdfStyles.majorInfo, color: mainColor }}>Fuel Sales Shift</Text>
             <Text style={{ ...pdfStyles.midInfo }}>{shiftData.shiftNo}</Text>
+            <Text style={{ ...pdfStyles.midInfo }}>{stationName}</Text>
           </View>
         </View>
 
@@ -151,7 +156,6 @@ function SalesShiftPDF({ includeFuelVouchers, shiftData, organization, shift_tea
               );
             })}
 
-            {/* Original Colored Total (using mainColor + contrastText) */}
             <View
               style={{
                 ...pdfStyles.tableRow,
@@ -179,39 +183,41 @@ function SalesShiftPDF({ includeFuelVouchers, shiftData, organization, shift_tea
         </View>
 
         {/* 3. CASH DISTRIBUTION */}
-        <View style={{ marginBottom: 12 }}>
-          <Text style={{ fontSize: 12, color: mainColor, marginBottom: 4, textAlign: 'center' }}>
-            Cash Distribution
-          </Text>
-          <View style={pdfStyles.table}>
-            {/* Simple Headers: Name + Amount */}
-            <View style={pdfStyles.tableRow}>
-              <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 3 }}>Name</Text>
-              <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 1.5, textAlign: 'right' }}>Amount</Text>
-            </View>
+        {cashAccounts.length > 0 &&
+            <View style={{ marginBottom: 12 }}>
+            <Text style={{ fontSize: 12, color: mainColor, marginBottom: 4, textAlign: 'center' }}>
+                Cash Distribution
+            </Text>
+            <View style={pdfStyles.table}>
+                {/* Simple Headers: Name + Amount */}
+                <View style={pdfStyles.tableRow}>
+                <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 3 }}>Name</Text>
+                <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 1.5, textAlign: 'right' }}>Amount</Text>
+                </View>
 
-            {cashAccounts.map((account, index) => (
-              <View key={index} style={pdfStyles.tableRow}>
-                <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 3 }}>
-                  {account.name}
-                </Text>
-                <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 1.5, textAlign: 'right' }}>
-                  {account.amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                </Text>
-              </View>
-            ))}
+                {cashAccounts.map((account, index) => (
+                <View key={index} style={pdfStyles.tableRow}>
+                    <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 3 }}>
+                    {account.name}
+                    </Text>
+                    <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 1.5, textAlign: 'right' }}>
+                    {account.amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </Text>
+                </View>
+                ))}
 
-            {/* Original Colored Total */}
-            <View style={{ ...pdfStyles.tableRow }}>
-              <Text style={{ ...pdfStyles.tableHeader, ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 3, textAlign: 'left', fontWeight: 'bold' }}>
-                Total
-              </Text>
-              <Text style={{ ...pdfStyles.tableHeader, ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 1.5, textAlign: 'right', fontWeight: 'bold' }}>
-                {totalCashAccountsAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-              </Text>
+                {/* Original Colored Total */}
+                <View style={{ ...pdfStyles.tableRow }}>
+                <Text style={{ ...pdfStyles.tableHeader, ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 3, textAlign: 'left', fontWeight: 'bold' }}>
+                    Total
+                </Text>
+                <Text style={{ ...pdfStyles.tableHeader, ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 1.5, textAlign: 'right', fontWeight: 'bold' }}>
+                    {totalCashAccountsAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </Text>
+                </View>
             </View>
-          </View>
-        </View>
+            </View>
+        }
 
         {/* 4. Opening Dipping */}
         {shiftData?.opening_dipping?.readings.length > 0 && (
@@ -274,6 +280,34 @@ function SalesShiftPDF({ includeFuelVouchers, shiftData, organization, shift_tea
             </View>
           </View>
         )}
+
+        <View style={{ ...pdfStyles.tableRow, marginTop: 5 }}>
+            {shiftData?.adjustments?.length > 0 &&
+                <View style={{ ...pdfStyles.table, padding: 3, flex: 1, marginTop: 5 }}>
+                    <View style={{ ...pdfStyles.tableRow}}>
+                        <Text style={{ ...pdfStyles.tableHeader, ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 1.5, textAlign: 'center',...pdfStyles.midInfo, marginBottom: 1 }}>Tank Adjustments</Text>
+                    </View>
+                    <View style={pdfStyles.tableRow}>
+                        <Text style={{ ...pdfStyles.tableHeader, ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 1 }}>Product</Text>
+                        <Text style={{ ...pdfStyles.tableHeader, ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 1}}>Tank</Text>
+                        <Text style={{ ...pdfStyles.tableHeader, ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 1.3 }}>Description</Text>
+                        <Text style={{ ...pdfStyles.tableHeader, ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 0.7 }}>Quantity</Text>
+                    </View>
+                    {shiftData?.adjustments?.map((adjustment, index) => (
+                        <View key={index} style={pdfStyles.tableRow}>
+                            <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 1}}>{productOptions?.find(product => product.id === adjustment.product_id)?.name}</Text>
+                            <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 1 }}>{tanks?.find(tank => tank.id === adjustment.tank_id).name}</Text>
+                            <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 1.3}}>{adjustment.description}</Text>
+                            <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 0.7, textAlign: 'right' }}>
+                                { `(${adjustment.operator})${adjustment.quantity.toLocaleString('en-US',{
+                                    minimumFractionDigits: 3, maximumFractionDigits:3
+                                })}`}
+                            </Text>
+                        </View>
+                    ))}
+                </View>
+            }
+        </View>
 
         {/* 6. FUEL VOUCHERS */}
         {!!includeFuelVouchers && shiftData.fuel_vouchers.length > 0 && (

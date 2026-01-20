@@ -185,6 +185,35 @@ const SalesShiftOnScreen = ({
       </Grid>
 
       <Paper elevation={3} sx={{ overflow: 'hidden' }}>
+        {/* Pump Readings */}
+        <SectionHeader title="Pump Readings" sectionKey="pumpReadings" />
+        {openSections.pumpReadings && (
+          <TableContainer sx={{ px: 2, pb: 2 }}>
+            <Table size="small">
+              <TableHead>
+                <TableRow sx={{ bgcolor: mainColor }}>
+                  <TableCell sx={{ color: contrastText }}>Pump</TableCell>
+                  <TableCell sx={{ color: contrastText }}>Product</TableCell>
+                  <TableCell align="right" sx={{ color: contrastText }}>Opening</TableCell>
+                  <TableCell align="right" sx={{ color: contrastText }}>Closing</TableCell>
+                  <TableCell align="right" sx={{ color: contrastText }}>Difference</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {(shiftData.pump_readings || []).map((pump, idx) => (
+                  <TableRow key={idx} hover>
+                    <TableCell>{fuel_pumps?.find(p => p.id === pump.fuel_pump_id)?.name || '—'}</TableCell>
+                    <TableCell>{productOptions?.find(p => p.id === pump.product_id)?.name || '—'}</TableCell>
+                    <QuantityCell value={pump.opening} />
+                    <QuantityCell value={pump.closing} />
+                    <QuantityCell value={pump.closing - pump.opening} />
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        )}
+        
         {/* Products Sold */}
         <SectionHeader title="Products Sold" sectionKey="products" />
         {openSections.products && (
@@ -261,35 +290,6 @@ const SalesShiftOnScreen = ({
                   <TableCell sx={{ fontWeight: 'bold' }}>Total Cash</TableCell>
                   <NumberCell value={totalCash} bold />
                 </TableRow>
-              </TableBody>
-            </Table>
-          </TableContainer>
-        )}
-
-        {/* Pump Readings */}
-        <SectionHeader title="Pump Readings" sectionKey="pumpReadings" />
-        {openSections.pumpReadings && (
-          <TableContainer sx={{ px: 2, pb: 2 }}>
-            <Table size="small">
-              <TableHead>
-                <TableRow sx={{ bgcolor: mainColor }}>
-                  <TableCell sx={{ color: contrastText }}>Pump</TableCell>
-                  <TableCell sx={{ color: contrastText }}>Product</TableCell>
-                  <TableCell align="right" sx={{ color: contrastText }}>Opening</TableCell>
-                  <TableCell align="right" sx={{ color: contrastText }}>Closing</TableCell>
-                  <TableCell align="right" sx={{ color: contrastText }}>Difference</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {(shiftData.pump_readings || []).map((pump, idx) => (
-                  <TableRow key={idx} hover>
-                    <TableCell>{fuel_pumps?.find(p => p.id === pump.fuel_pump_id)?.name || '—'}</TableCell>
-                    <TableCell>{productOptions?.find(p => p.id === pump.product_id)?.name || '—'}</TableCell>
-                    <QuantityCell value={pump.opening} />
-                    <QuantityCell value={pump.closing} />
-                    <QuantityCell value={pump.closing - pump.opening} />
-                  </TableRow>
-                ))}
               </TableBody>
             </Table>
           </TableContainer>

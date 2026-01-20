@@ -84,9 +84,9 @@ const DocumentDialog = ({organization, ClosedShift, setOpenDocumentDialog}) => {
           </Grid>
         )}
         {belowLargeScreen && activeTab === 0 ? (
-          <SalesShiftOnScreen includeFuelVouchers={includeFuelVouchers} productOptions={productOptions} shiftData={shiftData} tanks={tanks} fuel_pumps={fuel_pumps} shift_teams={shift_teams} organization={organization}/>
+          <SalesShiftOnScreen stationName={activeStation?.name} includeFuelVouchers={includeFuelVouchers} productOptions={productOptions} shiftData={shiftData} tanks={tanks} fuel_pumps={fuel_pumps} shift_teams={shift_teams} organization={organization}/>
         ) : (
-          <PDFContent fileName={shiftData.shiftNo} document={<SalesShiftPDF includeFuelVouchers={includeFuelVouchers} productOptions={productOptions} shiftData={shiftData} tanks={tanks} fuel_pumps={fuel_pumps} shift_teams={shift_teams} organization={organization}/>}/>
+          <PDFContent fileName={shiftData.shiftNo} document={<SalesShiftPDF stationName={activeStation?.name} includeFuelVouchers={includeFuelVouchers} productOptions={productOptions} shiftData={shiftData} tanks={tanks} fuel_pumps={fuel_pumps} shift_teams={shift_teams} organization={organization}/>}/>
         )}
         {
           belowLargeScreen &&
