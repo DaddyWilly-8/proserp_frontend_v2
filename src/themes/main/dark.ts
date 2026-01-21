@@ -337,6 +337,7 @@ export const mainTheme: ThemeOptions = {
     MuiButton: {
       styleOverrides: {
         root: {
+          textTransform: 'none',
           '&.MuiButton-loading': {
             backgroundColor: '#3C475F',
             color: '#8595A6',
