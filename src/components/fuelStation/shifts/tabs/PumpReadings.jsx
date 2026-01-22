@@ -1,6 +1,7 @@
 import { sanitizedNumber } from '@/app/helpers/input-sanitization-helpers';
 import CommaSeparatedField from '@/shared/Inputs/CommaSeparatedField';
 import { Card, CardContent, Grid, TextField, Tooltip, Typography } from '@mui/material';
+import React from 'react'
 import { useFormContext } from 'react-hook-form';
 
 function PumpReadings() {
@@ -46,7 +47,6 @@ function PumpReadings() {
                                         error={errors.pump_readings && !!errors?.pump_readings[pump.id]?.closing}
                                         helperText={errors.pump_readings && errors.pump_readings[pump.id]?.closing?.message}
                                         onChange={(e) => {
-                                            console.log(watch(`pump_readings`))
                                             setValue(`pump_readings.${pump.id}.opening`, (watch(`pump_readings`).find(reading => reading?.fuel_pump_id === pump.id)?.opening || 0) || 0, {
                                                 shouldValidate: true,
                                                 shouldDirty: true
@@ -189,7 +189,7 @@ function PumpReadings() {
                                 </Grid>
                                 <Grid size={6}>
                                     <Typography variant="subtitle2" align="right">
-                                        {((tankInfo.difference || 0)?.toLocaleString())}
+                                        {tankInfo.difference?.toLocaleString()}
                                     </Typography>
                                 </Grid>
                                 <Grid size={6}>
@@ -199,7 +199,7 @@ function PumpReadings() {
                                 </Grid>
                                 <Grid size={6}>
                                     <Typography variant="subtitle2" align="right">
-                                        {((tankInfo.difference * tankInfo.price) || 0).toLocaleString()} {/* total tank amount */}
+                                        {(tankInfo.difference * tankInfo.price).toLocaleString()} {/* total tank amount */}
                                     </Typography>
                                 </Grid>
                             </Grid>

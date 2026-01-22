@@ -29,7 +29,7 @@ const SalesShifts = ({activeStation}) => {
   const [filterDate, setFilterDate] = useState({})
 
   const [queryOptions, setQueryOptions] = React.useState({
-    queryKey: 'salesShifts',
+    queryKey: 'closedShifts',
     queryParams: { id: params.id, shift_team_id: 'null', status: 'All', keyword: '', stationId: !!activeStation?.id && activeStation?.id},
     countKey: 'total',
     dataKey: 'data',
@@ -38,7 +38,7 @@ const SalesShifts = ({activeStation}) => {
   React.useEffect(() => {
     setQueryOptions((state) => ({
       ...state,
-      queryKey: 'salesShifts',
+      queryKey: 'closedShifts',
       queryParams: { ...state.queryParams, stationId: !!activeStation?.id && activeStation.id },
     }));
   }, [activeStation]);

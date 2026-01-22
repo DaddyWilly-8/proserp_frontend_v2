@@ -46,7 +46,7 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
   onSuccess: (data) => {
     setOpenDialog(false);
     enqueueSnackbar(data.message, { variant: 'success' });
-    queryClient.invalidateQueries({ queryKey: ['salesShifts'] });
+    queryClient.invalidateQueries({ queryKey: ['salesShift'] });
     setOpenDialog(false);
   },
   onError: (error) => {
@@ -72,7 +72,7 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
     onSuccess: (data) => {
       setOpenDialog(false);
       enqueueSnackbar(data.message, { variant: 'success' });
-      queryClient.invalidateQueries({ queryKey: ['salesShifts'] });
+      queryClient.invalidateQueries({ queryKey: ['Shift'] });
       setOpenDialog(false);
     },
     onError: (error) => {
@@ -115,23 +115,11 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
         opening: yup.number()
           .required("Opening Reading is required")
           .typeError('Opening Reading is required')
-          .test('opening-less-than-closing', 'Opening Reading should not exceed the Closing Reading', 
-            function(value) {
-              const { closing } = this.parent;
-              if (value == null || closing == null) return true;
-              return Number(value) <= Number(closing);
-            }
-          ),
+          .max(yup.ref('closing'), "Opening Reading should not exceed the Closing Reading"),
         closing: yup.number()
           .required("Closing Reading is required")
           .typeError('Closing Reading is required')
-          .test('closing-greater-than-opening', 'Closing Reading should exceed the Opening Reading', 
-            function(value) {
-              const { opening } = this.parent;
-              if (value == null || opening == null) return true;
-              return Number(value) > Number(opening);
-            }
-          ),
+          .min(yup.ref('opening'), "Closing Reading should exceed the Opening Reading"),
       })
     ),
     product_prices: yup.array().of(
@@ -146,7 +134,7 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
         amount: yup.string().required("Amount is required").typeError('Amount is required'),
       })
     ),
-    submit_type: yup.string().oneOf(['suspend', 'close']).required(),
+    submit_type: yup.string().oneOf(['pending', 'close']).required(),
     main_ledger_id: yup.number().when('submit_type', {
       is: 'close',
       then: (schema) => schema.required('Main Ledger is required').typeError('Main Ledger is required'),
@@ -228,11 +216,13 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
     },
   });
 
+  console.log(errors)
+
   const { fields: cashReconciliationFields, append: cashReconciliationAppend, remove: cashReconciliationRemove} = useFieldArray({
     control,
     name: 'other_ledgers',
   });
-
+  
   useEffect(() => {
     if (SalesShift) {
       setShiftLedgers(shift_teams?.find(team => team.id === SalesShift?.shift_team_id).ledgers)
@@ -246,7 +236,7 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
       reference: fuelVoucher.reference,
       narration: fuelVoucher.narration,
       product_id: fuelVoucher.product_id,
-      expense_ledger_id: fuelVoucher.expense_ledger?.id || fuelVoucher.expense_ledger_id,
+      expense_ledger_id: fuelVoucher.expense_ledger?.id,
     })));
   }, [fuelVouchers, setValue]);  
 
@@ -275,9 +265,7 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
 
       lastPumpReadings.forEach((lastReading) => {
         setValue(`pump_readings.${lastReading.fuel_pump_id}.opening`, lastReading.closing);
-        setValue(`pump_readings.${lastReading.fuel_pump_id}.closing`, 0);
         setValue(`pump_readings.${lastReading.fuel_pump_id}.fuel_pump_id`, lastReading.fuel_pump_id);
-        setValue(`pump_readings.${lastReading.fuel_pump_id}.tank_id`, lastReading.tank_id);
       })
 
       setPumpReadingsKey(prevKey => prevKey + 1);
@@ -295,7 +283,7 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
     }, []);
     return uniqueEntries.reverse();
   };
-
+  
   const handleSubmitForm = async (data) => {
     const updatedData = { 
       ...data, 

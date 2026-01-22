@@ -1,4 +1,6 @@
-import React, { useEffect, useState } from 'react';
+'use client';
+
+import { useEffect, useState } from 'react';
 import { Grid, IconButton, LinearProgress, TextField, Tooltip } from '@mui/material';
 import { useForm, useFormContext } from 'react-hook-form';
 import { AddOutlined, CheckOutlined, DisabledByDefault } from '@mui/icons-material';
@@ -16,10 +18,10 @@ import LedgerSelect from '@/components/accounts/ledgers/forms/LedgerSelect';
 import ProductSelect from '@/components/productAndServices/products/ProductSelect';
 import StakeholderQuickAdd from '@/components/masters/stakeholders/StakeholderQuickAdd';
 
-function FuelVouchers({ index = -1, setShowForm = null, fuelVoucher, productPrices }) {
+function FuelVouchers({ index = -1, setShowForm = null, fuelVoucher, productPrices, fuelVouchers=[], setFuelVouchers }) {
   const iu = {id: null, name: 'Calibration/Internal use'};
   const [isAdding, setIsAdding] = useState(false);
-  const { products, fuelVouchers=[], setFuelVouchers} = useFormContext();
+  const { products } = useFormContext();
   const { productOptions } = useProductsSelect();
   const {stakeholders} = useStakeholderSelect();
   const { ungroupedLedgerOptions } = useLedgerSelect();
