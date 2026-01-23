@@ -22,7 +22,7 @@ import { AddOutlined, DisabledByDefault } from '@mui/icons-material';
 import CommaSeparatedField from '@/shared/Inputs/CommaSeparatedField';
 import { sanitizedNumber } from '@/app/helpers/input-sanitization-helpers';
 import { useLedgerSelect } from '@/components/accounts/ledgers/forms/LedgerSelectProvider';
-import { useFormContext } from 'react-hook-form';
+import { useFormContext, useWatch } from 'react-hook-form';
 
 function CashReconciliation({
   cashierIndex,
@@ -31,7 +31,6 @@ function CashReconciliation({
   localPumpReadings = [],
 }) {
   const {
-    watch,
     setValue,
     setCheckShiftBalanced,
     products,
@@ -42,11 +41,17 @@ function CashReconciliation({
 
   const { ungroupedLedgerOptions } = useLedgerSelect();
 
-  // Watched values
-  const productPrices = watch('product_prices') || [];
-  const mainLedgerId = watch(`cashiers.${cashierIndex}.main_ledger_id`);
-  const otherLedgers = watch(`cashiers.${cashierIndex}.other_ledgers`) || [];
-  const mainLedger = watch(`cashiers.${cashierIndex}.main_ledger`) || {};
+  const productPrices = useWatch({
+    name: 'product_prices',
+  }) || [];
+
+  const otherLedgers = useWatch({
+    name: `cashiers.${cashierIndex}.other_ledgers`,
+  }) || [];
+
+  const mainLedgerId = useWatch({
+    name: `cashiers.${cashierIndex}.main_ledger_id`,
+  });
 
   // ──────────────────────────────────────────────────────────────
   // Fuel Voucher Totals per product
