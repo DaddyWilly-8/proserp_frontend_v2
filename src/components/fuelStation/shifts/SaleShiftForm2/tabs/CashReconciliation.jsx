@@ -21,7 +21,6 @@ import {
 import { AddOutlined, DisabledByDefault } from '@mui/icons-material';
 import CommaSeparatedField from '@/shared/Inputs/CommaSeparatedField';
 import { sanitizedNumber } from '@/app/helpers/input-sanitization-helpers';
-import { Div } from '@jumbo/shared';
 import { useLedgerSelect } from '@/components/accounts/ledgers/forms/LedgerSelectProvider';
 import { useFormContext } from 'react-hook-form';
 
