@@ -736,6 +736,9 @@ function CashReconciliation({
                   
                   return (
                     <React.Fragment key={idx}>
+                      <Grid size={12}>
+                        <Divider/>
+                      </Grid>
                       <Grid size={{ xs: 12, md: 7 }}>
                         <Autocomplete
                           size="small"
