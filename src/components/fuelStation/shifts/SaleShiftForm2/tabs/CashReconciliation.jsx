@@ -1,189 +1,187 @@
-import React, { useEffect, useState, useMemo, useCallback } from 'react';
-import { useFormContext } from 'react-hook-form';
-import { TableContainer, Table, TableHead, TableBody, TableRow, TableCell, Button, Card, CardContent, Divider, Grid, IconButton, TextField, Tooltip, Typography, Autocomplete } from '@mui/material';
+"use client";
+import React, { useMemo, useCallback } from 'react';
+import {
+  TableContainer,
+  Table,
+  TableHead,
+  TableBody,
+  TableRow,
+  TableCell,
+  Button,
+  Card,
+  CardContent,
+  Divider,
+  Grid,
+  IconButton,
+  TextField,
+  Tooltip,
+  Typography,
+  Autocomplete,
+} from '@mui/material';
 import { AddOutlined, DisabledByDefault } from '@mui/icons-material';
 import CommaSeparatedField from '@/shared/Inputs/CommaSeparatedField';
-import { useLedgerSelect } from '@/components/accounts/ledgers/forms/LedgerSelectProvider';
 import { sanitizedNumber } from '@/app/helpers/input-sanitization-helpers';
 import { Div } from '@jumbo/shared';
+import { useLedgerSelect } from '@/components/accounts/ledgers/forms/LedgerSelectProvider';
+import { useFormContext } from 'react-hook-form';
 
-function CashReconciliation({ 
+function CashReconciliation({
   cashierIndex,
   localFuelVouchers = [],
   localAdjustments = [],
   localPumpReadings = [],
-  watch,
-  setValue
 }) {
-  const [fuelVoucherTotals, setFuelVoucherTotals] = useState({});
-  const { ungroupedLedgerOptions } = useLedgerSelect();
-  const { 
-    setCheckShiftBalanced, 
-    products, 
-    fuel_pumps, 
-    shiftLedgers, 
-    errors 
+  const {
+    watch,
+    setValue,
+    setCheckShiftBalanced,
+    products,
+    fuel_pumps,
+    shiftLedgers,
+    errors,
   } = useFormContext();
- 
-  const productPrices = watch(`product_prices`) || [];
+
+  const { ungroupedLedgerOptions } = useLedgerSelect();
+
+  // Watched values
+  const productPrices = watch('product_prices') || [];
   const mainLedgerId = watch(`cashiers.${cashierIndex}.main_ledger_id`);
   const otherLedgers = watch(`cashiers.${cashierIndex}.other_ledgers`) || [];
   const mainLedger = watch(`cashiers.${cashierIndex}.main_ledger`) || {};
 
-  useEffect(() => {
-    if (!localFuelVouchers?.length || !productPrices?.length) {
-      setFuelVoucherTotals({});
-      return;
-    }
+  // ──────────────────────────────────────────────────────────────
+  // Fuel Voucher Totals per product
+  // ──────────────────────────────────────────────────────────────
+  const fuelVoucherTotals = useMemo(() => {
+    if (!localFuelVouchers?.length || !productPrices?.length) return {};
 
-    const fuelVouchertotal = {};
-    localFuelVouchers.forEach((fuelVoucher) => {
-      if (!fuelVoucher?.product_id) return;
-      
-      const productId = fuelVoucher.product_id;
-      const quantity = fuelVoucher?.quantity || 0;
-      const productPrice = productPrices.find(price => price?.product_id === productId)?.price || 0;
-      fuelVouchertotal[productId] = (fuelVouchertotal[productId] || 0) + (quantity * productPrice);
+    const totals = {};
+    localFuelVouchers.forEach((voucher) => {
+      const productId = voucher?.product_id;
+      if (!productId) return;
+      const qty = voucher?.quantity || 0;
+      const price = productPrices.find(p => p?.product_id === productId)?.price || 0;
+      totals[productId] = (totals[productId] || 0) + qty * price;
     });
-    
-    setFuelVoucherTotals(fuelVouchertotal);
+    return totals;
   }, [localFuelVouchers, productPrices]);
 
+  // ──────────────────────────────────────────────────────────────
+  // Product sales totals (pump readings + adjustments)
+  // ──────────────────────────────────────────────────────────────
   const productTotals = useMemo(() => {
     const totals = {};
-    
-    if (!fuel_pumps?.length || !localPumpReadings?.length) return totals;
-    
-    fuel_pumps.forEach((pump) => {
+
+    // Pump sales
+    fuel_pumps?.forEach((pump) => {
       const productId = pump?.product_id;
       if (!productId) return;
-      
-      const pump_reading = localPumpReadings.find(reading => reading?.fuel_pump_id === pump.id);
-      const difference = ((pump_reading?.closing || 0) - (pump_reading?.opening || 0)) || 0;
-      totals[productId] = (totals[productId] || 0) + difference;
+      const reading = localPumpReadings.find(r => r?.fuel_pump_id === pump.id);
+      const sold = ((reading?.closing || 0) - (reading?.opening || 0)) || 0;
+      totals[productId] = (totals[productId] || 0) + sold;
     });
 
-    localAdjustments?.forEach((adjustment) => {
-      const productId = adjustment?.product_id;
-      const quantity = adjustment?.quantity || 0;
-      
-      if (adjustment.operator === '-') {
-        totals[productId] = (totals[productId] || 0) + quantity;
-      } else if (adjustment.operator === '+') {
-        totals[productId] = (totals[productId] || 0) - quantity;
+    // Adjustments
+    localAdjustments?.forEach((adj) => {
+      const productId = adj?.product_id;
+      if (!productId) return;
+      const qty = adj?.quantity || 0;
+      if (adj.operator === '-') {
+        totals[productId] = (totals[productId] || 0) + qty;     // add to sold (reduce cash)
+      } else if (adj.operator === '+') {
+        totals[productId] = (totals[productId] || 0) - qty;     // subtract from sold (increase cash)
       }
     });
 
     return totals;
   }, [fuel_pumps, localPumpReadings, localAdjustments]);
 
+  // ──────────────────────────────────────────────────────────────
+  // Grand totals & derived values
+  // ──────────────────────────────────────────────────────────────
   const { grandFuelVoucherTotal, grandProductsTotal, cashRemaining } = useMemo(() => {
-    const grandFuelVoucherTotal = Object.values(fuelVoucherTotals)?.reduce((acc, curr) => acc + (curr || 0), 0);
-    
-    const grandProductsTotal = products?.reduce((acc, product) => {
-      const productTotal = productTotals[product.id] || 0;
-      const productPrice = productPrices.find(price => price?.product_id === product.id)?.price || 0;
-      return acc + (productTotal * productPrice);
+    const voucherTotal = Object.values(fuelVoucherTotals).reduce((sum, v) => sum + (v || 0), 0);
+
+    const productsTotal = products?.reduce((sum, product) => {
+      const qty = productTotals[product.id] || 0;
+      const price = productPrices.find(p => p?.product_id === product.id)?.price || 0;
+      return sum + qty * price;
     }, 0) || 0;
 
-    const cashRemaining = grandProductsTotal - grandFuelVoucherTotal;
-
-    return { 
-      grandFuelVoucherTotal, 
-      grandProductsTotal, 
-      cashRemaining 
+    return {
+      grandFuelVoucherTotal: voucherTotal,
+      grandProductsTotal: productsTotal,
+      cashRemaining: productsTotal - voucherTotal,
     };
-  }, [fuelVoucherTotals, products, productTotals, productPrices]);
+  }, [fuelVoucherTotals, productTotals, products, productPrices]);
 
   const totalOtherLedgersAmount = useMemo(() => {
-    return otherLedgers?.reduce((total, field) => {
-      const amount = parseFloat(field?.amount || 0);
-      return total + amount;
-    }, 0);
+    return otherLedgers?.reduce((sum, ledger) => sum + sanitizedNumber(ledger?.amount || 0), 0) || 0;
   }, [otherLedgers]);
 
-  const main_ledger_amount = cashRemaining - totalOtherLedgersAmount;
+  // Derived main ledger amount (what should be there)
+  const calculatedMainLedgerAmount = cashRemaining - totalOtherLedgersAmount;
 
-  useEffect(() => {
-    if (isNaN(cashRemaining) || cashRemaining < 0) {
-      setCheckShiftBalanced(false);
-      return;
-    }
-    const currentMainLedgerAmount = parseFloat(mainLedger?.amount || 0);
-    const calculatedAmount = sanitizedNumber(main_ledger_amount);
-    
-    if (currentMainLedgerAmount !== calculatedAmount) {
-      setValue(`cashiers.${cashierIndex}.main_ledger`, {
-        id: mainLedgerId,
-        amount: calculatedAmount,
-      }, { shouldValidate: true, shouldDirty: true });
-    }
+  // Balance check
+  const isBalanced = Math.abs(cashRemaining - (calculatedMainLedgerAmount + totalOtherLedgersAmount)) < 0.01;
 
-    setValue(`cashiers.${cashierIndex}.main_ledger_amount`, calculatedAmount, {
-      shouldValidate: true,
-      shouldDirty: true
-    });
+  // Update balance status only when meaningful values change
+  React.useEffect(() => {
+    setCheckShiftBalanced(isBalanced && cashRemaining >= 0);
+  }, [isBalanced, cashRemaining, setCheckShiftBalanced]);
 
-    const isBalanced = Math.abs(cashRemaining - (calculatedAmount + totalOtherLedgersAmount)) < 0.01;
-    setCheckShiftBalanced(isBalanced);
-  }, [mainLedgerId, main_ledger_amount, cashRemaining, totalOtherLedgersAmount, setValue, setCheckShiftBalanced, cashierIndex]);
-
-  useEffect(() => {
-    if (otherLedgers.length > 0) {
-      const sanitizedLedgers = otherLedgers.map(field => ({
-        id: field.id,
-        amount: sanitizedNumber(field.amount || 0),
-      }));
-      
-      setValue(`cashiers.${cashierIndex}.other_ledgers`, sanitizedLedgers, { 
-        shouldValidate: true, 
-        shouldDirty: true 
-      });
-    }
-  }, []);
-  
-  const TableCellInfo = ({ label, value, colSpan, align = 'left', fontWeight }) => (
-    <Tooltip title={label}>
-      <TableCell colSpan={colSpan} size="small" align={align}>
-        <Typography variant="body2" fontWeight={fontWeight} sx={{ fontWeight }}>
-          {value}
-        </Typography>
-      </TableCell>
-    </Tooltip>
+  // ──────────────────────────────────────────────────────────────
+  // Helpers
+  // ──────────────────────────────────────────────────────────────
+  const getProductPrice = useCallback(
+    (productId) => productPrices.find(p => p?.product_id === productId)?.price || 0,
+    [productPrices]
   );
 
   const availableLedgers = useMemo(() => {
-    return shiftLedgers?.filter(shift => 
-      !otherLedgers.some(otherLedger => otherLedger?.id === shift.id)
+    return shiftLedgers?.filter(
+      (ledger) => !otherLedgers.some((other) => other?.id === ledger.id)
     ) || [];
   }, [shiftLedgers, otherLedgers]);
 
-  const getProductPrice = useCallback((productId) => {
-    return productPrices.find(price => price?.product_id === productId)?.price || 0;
-  }, [productPrices]);
-
   const cashReconciliationAppend = () => {
-    const newOtherLedgers = [...otherLedgers, { id: '', amount: '' }];
-    setValue(`cashiers.${cashierIndex}.other_ledgers`, newOtherLedgers, {
+    const newLedgers = [...otherLedgers, { id: '', amount: '' }];
+    setValue(`cashiers.${cashierIndex}.other_ledgers`, newLedgers, {
       shouldValidate: true,
-      shouldDirty: true
+      shouldDirty: true,
     });
   };
 
-  const cashReconciliationRemove = (index) => {
-    const newOtherLedgers = otherLedgers.filter((_, i) => i !== index);
-    setValue(`cashiers.${cashierIndex}.other_ledgers`, newOtherLedgers, {
+  const cashReconciliationRemove = (idx) => {
+    const newLedgers = otherLedgers.filter((_, i) => i !== idx);
+    setValue(`cashiers.${cashierIndex}.other_ledgers`, newLedgers, {
       shouldValidate: true,
-      shouldDirty: true
+      shouldDirty: true,
     });
   };
 
+  const updateOtherLedger = (idx, field, value) => {
+    const newLedgers = [...otherLedgers];
+    newLedgers[idx] = {
+      ...newLedgers[idx],
+      [field]: field === 'amount' ? sanitizedNumber(value) : value,
+    };
+    setValue(`cashiers.${cashierIndex}.other_ledgers`, newLedgers, {
+      shouldValidate: true,
+      shouldDirty: true,
+    });
+  };
+
+  // ──────────────────────────────────────────────────────────────
+  // Render
+  // ──────────────────────────────────────────────────────────────
   return (
-    <Grid container columnSpacing={1} rowSpacing={1}>
-      <Grid size={{xs: 12, md: 12, lg: 6}}>
-        <Card>
+    <Grid container columnSpacing={2} rowSpacing={2}>
+      {/* Total Products Amount */}
+      <Grid size={{ xs: 12, md: 6, lg: 6 }}>
+        <Card variant="outlined">
           <CardContent>
-            <Typography variant="subtitle1" align="center" fontWeight="bold">
+            <Typography variant="subtitle1" align="center" fontWeight="bold" gutterBottom>
               Total Products Amount
             </Typography>
             <Divider />
@@ -191,30 +189,33 @@ function CashReconciliation({
               <Table size="small">
                 <TableHead>
                   <TableRow>
-                    <TableCellInfo fontWeight={'bold'} value="Product Name" />
-                    <TableCellInfo fontWeight={'bold'} align={'right'} value="Quantity" />
-                    <TableCellInfo fontWeight={'bold'} align={'right'} value="Price" />
-                    <TableCellInfo fontWeight={'bold'} align={'right'} value="Amount" />
+                    <TableCell>Product Name</TableCell>
+                    <TableCell align="right">Quantity</TableCell>
+                    <TableCell align="right">Price</TableCell>
+                    <TableCell align="right">Amount</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {products?.map((product) => {
-                    const productDifference = productTotals[product.id] || 0;
+                    const qty = productTotals[product.id] || 0;
                     const price = getProductPrice(product.id);
-                    const totalPrice = productDifference * price;
-                    
+                    const amount = qty * price;
                     return (
                       <TableRow key={product.id}>
-                        <TableCellInfo value={product.name} />
-                        <TableCellInfo align="right" value={productDifference.toLocaleString()} />
-                        <TableCellInfo align="right" value={price.toLocaleString()} />
-                        <TableCellInfo align="right" value={totalPrice.toLocaleString()} />
+                        <TableCell>{product.name}</TableCell>
+                        <TableCell align="right">{qty.toLocaleString()}</TableCell>
+                        <TableCell align="right">{price.toLocaleString()}</TableCell>
+                        <TableCell align="right">{amount.toLocaleString()}</TableCell>
                       </TableRow>
                     );
                   })}
                   <TableRow>
-                    <TableCellInfo fontWeight="bold" value="Grand Total:" />
-                    <TableCellInfo fontWeight="bold" align="right" colSpan={3} value={grandProductsTotal.toLocaleString()} />
+                    <TableCell colSpan={3} align="right" sx={{ fontWeight: 'bold' }}>
+                      Grand Total:
+                    </TableCell>
+                    <TableCell align="right" sx={{ fontWeight: 'bold' }}>
+                      {grandProductsTotal.toLocaleString()}
+                    </TableCell>
                   </TableRow>
                 </TableBody>
               </Table>
@@ -223,10 +224,11 @@ function CashReconciliation({
         </Card>
       </Grid>
 
-      <Grid size={{xs: 12, md: 12, lg: 6}}>
-        <Card>
+      {/* Fuel Vouchers */}
+      <Grid size={{ xs: 12, md: 6, lg: 6 }}>
+        <Card variant="outlined">
           <CardContent>
-            <Typography variant="subtitle1" align="center" fontWeight="bold">
+            <Typography variant="subtitle1" align="center" fontWeight="bold" gutterBottom>
               Fuel Vouchers
             </Typography>
             <Divider />
@@ -234,36 +236,36 @@ function CashReconciliation({
               <Table size="small">
                 <TableHead>
                   <TableRow>
-                    <TableCellInfo fontWeight={'bold'} value="Product Name" />
-                    <TableCellInfo fontWeight={'bold'} align={'right'} value="Quantity" />
-                    <TableCellInfo fontWeight={'bold'} align={'right'} value="Price" />
-                    <TableCellInfo fontWeight={'bold'} align={'right'} value="Amount" />
+                    <TableCell>Product Name</TableCell>
+                    <TableCell align="right">Quantity</TableCell>
+                    <TableCell align="right">Price</TableCell>
+                    <TableCell align="right">Amount</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {products?.map((product) => {
+                    const qty = localFuelVouchers.reduce(
+                      (sum, v) => (v?.product_id === product.id ? sum + (v.quantity || 0) : sum),
+                      0
+                    );
                     const price = getProductPrice(product.id);
-                    const productVoucherTotal = localFuelVouchers?.reduce((totalQuantity, fuelVoucher) => {
-                      const productId = fuelVoucher?.product_id;
-                      const quantity = fuelVoucher?.quantity || 0;
-                      return productId === product.id ? totalQuantity + quantity : totalQuantity;
-                    }, 0) || 0;
-
+                    const amount = qty * price;
                     return (
                       <TableRow key={product.id}>
-                        <TableCellInfo value={product.name} />
-                        <TableCellInfo
-                          align="right"
-                          value={productVoucherTotal.toLocaleString()}
-                        />
-                        <TableCellInfo align="right" value={price.toLocaleString()} />
-                        <TableCellInfo align="right" value={(price * productVoucherTotal).toLocaleString()} />
+                        <TableCell>{product.name}</TableCell>
+                        <TableCell align="right">{qty.toLocaleString()}</TableCell>
+                        <TableCell align="right">{price.toLocaleString()}</TableCell>
+                        <TableCell align="right">{amount.toLocaleString()}</TableCell>
                       </TableRow>
-                    )
+                    );
                   })}
                   <TableRow>
-                    <TableCellInfo fontWeight="bold" value="Grand Total:" />
-                    <TableCellInfo fontWeight="bold" align="right" colSpan={3} value={grandFuelVoucherTotal?.toLocaleString()} />
+                    <TableCell colSpan={3} align="right" sx={{ fontWeight: 'bold' }}>
+                      Grand Total:
+                    </TableCell>
+                    <TableCell align="right" sx={{ fontWeight: 'bold' }}>
+                      {grandFuelVoucherTotal.toLocaleString()}
+                    </TableCell>
                   </TableRow>
                 </TableBody>
               </Table>
@@ -272,10 +274,11 @@ function CashReconciliation({
         </Card>
       </Grid>
 
-      <Grid size={{xs: 12, md: 12, lg: 6}}>
-        <Card>
+      {/* Final Summary */}
+      <Grid size={{ xs: 12, md: 12, lg: 6 }}>
+        <Card variant="outlined">
           <CardContent>
-            <Typography variant="subtitle1" align="center" fontWeight="bold">
+            <Typography variant="subtitle1" align="center" fontWeight="bold" gutterBottom>
               Final Summary
             </Typography>
             <Divider />
@@ -283,16 +286,18 @@ function CashReconciliation({
               <Table size="small">
                 <TableBody>
                   <TableRow>
-                    <TableCellInfo value="Total Amount" />
-                    <TableCellInfo align="right" value={grandProductsTotal?.toLocaleString()} />
+                    <TableCell>Total Amount</TableCell>
+                    <TableCell align="right">{grandProductsTotal.toLocaleString()}</TableCell>
                   </TableRow>
                   <TableRow>
-                    <TableCellInfo value="Fuel Vouchers total" />
-                    <TableCellInfo align="right" value={grandFuelVoucherTotal?.toLocaleString()} />
+                    <TableCell>Fuel Vouchers total</TableCell>
+                    <TableCell align="right">{grandFuelVoucherTotal.toLocaleString()}</TableCell>
                   </TableRow>
                   <TableRow>
-                    <TableCellInfo fontWeight="bold" value="Cash Remaining" />
-                    <TableCellInfo fontWeight="bold" align="right" value={cashRemaining?.toLocaleString()} />
+                    <TableCell sx={{ fontWeight: 'bold' }}>Cash Remaining</TableCell>
+                    <TableCell align="right" sx={{ fontWeight: 'bold', color: cashRemaining < 0 ? 'error.main' : 'success.main' }}>
+                      {cashRemaining.toLocaleString()}
+                    </TableCell>
                   </TableRow>
                 </TableBody>
               </Table>
@@ -301,168 +306,116 @@ function CashReconciliation({
         </Card>
       </Grid>
 
-      <Grid size={{xs: 12, md: 12}}>
-        <Card>
+      {/* Cash Distribution */}
+      <Grid size={{ xs: 12, md: 12, lg: 6 }}>
+        <Card variant="outlined">
           <CardContent>
-            <Typography variant="subtitle1" align="center" fontWeight="bold">
+            <Typography variant="subtitle1" align="center" fontWeight="bold" gutterBottom>
               Cash Distribution
             </Typography>
-            <Divider />
-            <Grid container columnSpacing={1} rowSpacing={1}>
-              <Grid size={{xs: 12, md: 12}}>
-                <Grid container columnSpacing={1} rowSpacing={1}>
-                  <Grid size={{xs: 11, md: 6.4, lg: 6.4}}>
-                    <Div sx={{ mt: 2 }}>
-                      <Autocomplete
-                        size="small"
-                        isOptionEqualToValue={(option, value) => option.id === value.id}
-                        options={availableLedgers}
-                        getOptionLabel={(option) => option.name}
-                        value={mainLedgerId ? ungroupedLedgerOptions?.find(ledger => ledger.id === mainLedgerId) : null}
-                        renderInput={(params) => (
-                          <TextField 
-                            {...params} 
-                            label="Main Ledger"
-                            error={!!errors?.cashiers?.[cashierIndex]?.main_ledger_id}
-                            helperText={errors?.cashiers?.[cashierIndex]?.main_ledger_id?.message}
-                          />
-                        )}
-                        onChange={(e, newValue) => {
-                          const id = newValue ? newValue.id : null;
+            <Divider sx={{ mb: 2 }} />
 
-                          setValue(`cashiers.${cashierIndex}.main_ledger_id`, id, {
-                            shouldValidate: true,
-                            shouldDirty: true,
-                          });
+            <Grid container spacing={2}>
+              {/* Main Ledger */}
+              <Grid size={{ xs: 12, md: 7 }}>
+                <Autocomplete
+                  size="small"
+                  options={availableLedgers}
+                  getOptionLabel={(opt) => opt.name}
+                  value={mainLedgerId ? ungroupedLedgerOptions?.find(l => l.id === mainLedgerId) : null}
+                  onChange={(_, newValue) => {
+                    const id = newValue?.id ?? null;
+                    setValue(`cashiers.${cashierIndex}.main_ledger_id`, id, { shouldValidate: true });
+                    setValue(`cashiers.${cashierIndex}.main_ledger`, { id }, { shouldValidate: true });
+                  }}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label="Main Ledger"
+                      error={!!errors?.cashiers?.[cashierIndex]?.main_ledger_id}
+                      helperText={errors?.cashiers?.[cashierIndex]?.main_ledger_id?.message}
+                    />
+                  )}
+                />
+              </Grid>
 
-                          setValue(`cashiers.${cashierIndex}.main_ledger`, prev => ({
-                            ...prev,
-                            id: id
-                          }), {
-                            shouldValidate: true,
-                            shouldDirty: true,
-                          });
-                        }}
-                      />
-                    </Div>
+              <Grid size={{ xs: 12, md: 5 }}>
+                <TextField
+                  size="small"
+                  fullWidth
+                  label="Calculated Amount"
+                  value={calculatedMainLedgerAmount.toLocaleString()}
+                  InputProps={{
+                    readOnly: true,
+                    inputComponent: CommaSeparatedField,
+                  }}
+                  sx={{
+                    '& .MuiInputBase-input': {
+                      fontWeight: 'bold',
+                      color: calculatedMainLedgerAmount < 0 ? 'error.main' : 'success.main',
+                    },
+                  }}
+                />
+              </Grid>
+
+              {/* Other Ledgers */}
+              {otherLedgers.map((ledger, idx) => (
+                <React.Fragment key={idx}>
+                  <Grid size={{ xs: 12, md: 7 }}>
+                    <Autocomplete
+                      size="small"
+                      options={availableLedgers.filter(l => l.id !== mainLedgerId)}
+                      getOptionLabel={(opt) => opt.name}
+                      value={ledger?.id ? ungroupedLedgerOptions?.find(l => l.id === ledger.id) : null}
+                      onChange={(_, newValue) => {
+                        updateOtherLedger(idx, 'id', newValue?.id ?? null);
+                      }}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          label="Other Ledger"
+                          error={!!errors?.cashiers?.[cashierIndex]?.other_ledgers?.[idx]?.id}
+                          helperText={errors?.cashiers?.[cashierIndex]?.other_ledgers?.[idx]?.id?.message}
+                        />
+                      )}
+                    />
                   </Grid>
-                  <Grid size={{xs: 11.5, md: 4.5}}>
-                    <Div sx={{ mt: { sx: 1, md: 2 } }}>
-                      <TextField
-                        size="small"
-                        fullWidth
-                        label="Amount"
-                        value={main_ledger_amount}
-                        error={!!errors?.cashiers?.[cashierIndex]?.main_ledger_amount}
-                        helperText={errors?.cashiers?.[cashierIndex]?.main_ledger_amount?.message}
-                        InputProps={{
-                          inputComponent: CommaSeparatedField,
-                          readOnly: true
-                        }}
-                        sx={{
-                          '& .MuiInputBase-input': {
-                            fontWeight: 'bold',
-                            color: main_ledger_amount < 0 ? 'error.main' : 'success.main',
-                          },
-                        }}
-                      />  
-                    </Div>
+
+                  <Grid size={{ xs: 10, md: 4 }}>
+                    <TextField
+                      size="small"
+                      fullWidth
+                      label="Amount"
+                      value={ledger?.amount ?? ''}
+                      error={!!errors?.cashiers?.[cashierIndex]?.other_ledgers?.[idx]?.amount}
+                      helperText={errors?.cashiers?.[cashierIndex]?.other_ledgers?.[idx]?.amount?.message}
+                      InputProps={{ inputComponent: CommaSeparatedField }}
+                      onChange={(e) => updateOtherLedger(idx, 'amount', e.target.value)}
+                    />
                   </Grid>
-                  {otherLedgers?.map((field, index) => (
-                    <Grid key={field.id || index} container columnSpacing={1} paddingLeft={1} width={'100%'}>
-                      <Grid size={{xs: 11}} marginBottom={0.5}>
-                        <Divider />
-                        <Grid container columnSpacing={1}>
-                          <Grid size={{xs: 12, md: 7}}>
-                            <Div sx={{ mt: 1 }}>
-                              <Autocomplete
-                                size="small"
-                                isOptionEqualToValue={(option, value) => option.id === value.id}
-                                options={availableLedgers.filter(ledger => 
-                                  ledger.id !== mainLedgerId
-                                )}
-                                getOptionLabel={(option) => option.name}
-                                value={field?.id ? 
-                                  ungroupedLedgerOptions?.find(ledger => ledger.id === field?.id) : 
-                                  null
-                                }
-                                renderInput={(params) => (
-                                  <TextField 
-                                    {...params} 
-                                    label="Other Ledger"
-                                    error={!!errors?.cashiers?.[cashierIndex]?.other_ledgers?.[index]?.id}
-                                    helperText={errors?.cashiers?.[cashierIndex]?.other_ledgers?.[index]?.id?.message}
-                                  />
-                                )}
-                                onChange={(e, newValue) => {
-                                  const newOtherLedgers = [...otherLedgers];
-                                  newOtherLedgers[index] = {
-                                    ...newOtherLedgers[index],
-                                    id: newValue ? newValue.id : null
-                                  };
-                                  setValue(`cashiers.${cashierIndex}.other_ledgers`, newOtherLedgers, {
-                                    shouldValidate: true,
-                                    shouldDirty: true
-                                  });
-                                }}
-                              />
-                            </Div>
-                          </Grid>
-                          <Grid size={{xs: 12, md: 5}}>
-                            <Div sx={{ mt: 1 }}>
-                              <TextField
-                                size="small"
-                                fullWidth
-                                error={!!errors?.cashiers?.[cashierIndex]?.other_ledgers?.[index]?.amount}
-                                value={field?.amount || ''}
-                                helperText={errors?.cashiers?.[cashierIndex]?.other_ledgers?.[index]?.amount?.message}
-                                label="Amount"
-                                InputProps={{
-                                  inputComponent: CommaSeparatedField,
-                                }}
-                                onChange={(e) => {
-                                  const value = e.target.value ? sanitizedNumber(e.target.value) : 0;
-                                  const newOtherLedgers = [...otherLedgers];
-                                  newOtherLedgers[index] = {
-                                    ...newOtherLedgers[index],
-                                    amount: value
-                                  };
-                                  setValue(`cashiers.${cashierIndex}.other_ledgers`, newOtherLedgers, {
-                                    shouldValidate: true,
-                                    shouldDirty: true
-                                  });
-                                }}
-                              />
-                            </Div>
-                          </Grid>
-                        </Grid>
-                      </Grid>
-                      <Grid size={{xs: 1}}>
-                        <Div sx={{ mt: 1 }}>
-                          <Tooltip title="Remove Other Ledger">
-                            <IconButton size="small" onClick={() => cashReconciliationRemove(index)}>
-                              <DisabledByDefault fontSize="small" color="error" />
-                            </IconButton>
-                          </Tooltip>
-                        </Div>
-                      </Grid>
-                    </Grid>
-                  ))}
-                  <Grid size={12} sx={{ display: 'flex', direction: 'row', justifyContent: 'flex-end' }}>
-                    <Div sx={{ mt: 1 }}>
-                      <Tooltip title="Add Other Ledger">
-                        <Button 
-                          size="small" 
-                          variant="outlined" 
-                          onClick={cashReconciliationAppend}
-                          disabled={availableLedgers?.length === 0}
-                        >
-                          <AddOutlined sx={{ fontSize: 10 }} /> Add
-                        </Button>
-                      </Tooltip>
-                    </Div>
+
+                  <Grid size={{ xs: 2, md: 1 }} sx={{ display: 'flex', alignItems: 'center' }}>
+                    <IconButton
+                      size="small"
+                      color="error"
+                      onClick={() => cashReconciliationRemove(idx)}
+                    >
+                      <DisabledByDefault fontSize="small" />
+                    </IconButton>
                   </Grid>
-                </Grid>
+                </React.Fragment>
+              ))}
+
+              <Grid size={12} sx={{ textAlign: 'right', mt: 1 }}>
+                <Button
+                  size="small"
+                  variant="outlined"
+                  startIcon={<AddOutlined />}
+                  onClick={cashReconciliationAppend}
+                  disabled={availableLedgers.length === 0}
+                >
+                  Add Other Ledger
+                </Button>
               </Grid>
             </Grid>
           </CardContent>
