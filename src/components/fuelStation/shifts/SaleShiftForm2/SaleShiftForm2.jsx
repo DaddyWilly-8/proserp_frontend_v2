@@ -32,6 +32,7 @@ import Dipping from './tabs/Dipping';
 import { StationFormContext } from '../SalesShifts';
 import fuelStationServices from '../../fuelStationServices';
 import FuelPrices from './FuelPrices';
+import ShiftSummary from './ShiftSummary';
 
 function SaleShiftForm({ SalesShift, setOpenDialog }) {
   const queryClient = useQueryClient();
@@ -611,12 +612,7 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
 
         {/* Tab 3: Shift Summary */}
         {activeTab === 2 && (
-          <div>
-            <Typography variant="h6" gutterBottom>
-              Shift Summary will be here
-            </Typography>
-            {/* You can add shift summary calculations here */}
-          </div>
+          <ShiftSummary />
         )}
       </DialogContent>
 
