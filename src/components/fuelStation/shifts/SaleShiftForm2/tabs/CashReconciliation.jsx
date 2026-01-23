@@ -308,7 +308,7 @@ function CashReconciliation({
       </Grid>
 
       {/* Cash Distribution */}
-      <Grid size={{ xs: 12, md: 12, lg: 6 }}>
+      <Grid size={{ xs: 12, md: 12, lg: 12 }}>
         <Card variant="outlined">
           <CardContent>
             <Typography variant="subtitle1" align="center" fontWeight="bold" gutterBottom>
@@ -382,7 +382,7 @@ function CashReconciliation({
                     />
                   </Grid>
 
-                  <Grid size={{ xs: 10, md: 4 }}>
+                  <Grid size={{ xs: 10, md: 4.5 }}>
                     <TextField
                       size="small"
                       fullWidth
@@ -395,7 +395,7 @@ function CashReconciliation({
                     />
                   </Grid>
 
-                  <Grid size={{ xs: 2, md: 1 }} sx={{ display: 'flex', alignItems: 'center' }}>
+                  <Grid size={{ xs: 2, md: 0.5 }} sx={{ alignItems: 'center', textAlign: 'end' }}>
                     <IconButton
                       size="small"
                       color="error"

@@ -31,8 +31,6 @@ import CashierAccordion from './CashierAccordion';
 import Dipping from './tabs/Dipping';
 import { StationFormContext } from '../SalesShifts';
 import fuelStationServices from '../../fuelStationServices';
-import { sanitizedNumber } from '@/app/helpers/input-sanitization-helpers';
-import CommaSeparatedField from '@/shared/Inputs/CommaSeparatedField';
 import FuelPrices from './FuelPrices';
 
 function SaleShiftForm({ SalesShift, setOpenDialog }) {
