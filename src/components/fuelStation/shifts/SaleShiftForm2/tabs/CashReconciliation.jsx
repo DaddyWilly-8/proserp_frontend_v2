@@ -176,9 +176,6 @@ function CashReconciliation({
     });
   };
 
-  // ──────────────────────────────────────────────────────────────
-  // Render
-  // ──────────────────────────────────────────────────────────────
   return (
     <Grid container columnSpacing={2} rowSpacing={2}>
       {/* Total Products Amount */}
