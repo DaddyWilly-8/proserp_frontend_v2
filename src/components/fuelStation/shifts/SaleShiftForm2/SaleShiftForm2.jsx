@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext, useState, useEffect, useCallback } from 'react';
 import { 
   Button, 
   DialogActions, 
@@ -29,33 +29,29 @@ import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
 import CashierAccordion from './CashierAccordion';
 import Dipping from './tabs/Dipping';
+import PaymentsReceived from './tabs/PaymentsReceived';
 import { StationFormContext } from '../SalesShifts';
 import fuelStationServices from '../../fuelStationServices';
 import FuelPrices from './FuelPrices';
 import ShiftSummary from './ShiftSummary';
+import PaymentsReceivedItemRow from './tabs/PaymentsReceivedItemRow';
 
-function SaleShiftForm({ SalesShift, setOpenDialog }) {
+function SaleShiftForm2({ SalesShift, setOpenDialog }) {
+  const [showWarning, setShowWarning] = useState(false);
+  const [isDirty, setIsDirty] = useState(false);
+  const [clearFormKey, setClearFormKey] = useState(0);
+  const [submitItemForm, setSubmitItemForm] = useState(false);
+  const [paymentItems, setPaymentItems] = useState(() => SalesShift?.payments_received ? [...SalesShift.payments_received] : []);
   const queryClient = useQueryClient();
   const { enqueueSnackbar } = useSnackbar();
   const [activeTab, setActiveTab] = useState(0);
   const {activeStation} = useContext(StationFormContext);
-  const {fuel_pumps, tanks, products, shift_teams} = activeStation;
+  const {fuel_pumps, cashiers, shifts} = activeStation;
   const {authOrganization : {organization}} = useJumboAuth();
-  const [shiftLedgers, setShiftLedgers] = useState([]);
-  const [checkShiftBalanced, setCheckShiftBalanced] = useState(true);
   const {checkOrganizationPermission} = useJumboAuth();
 
-  // Available cashiers - you can replace this with actual data
-  const AVAILABLE_CASHIERS = [
-    { id: 1, name: 'Cashier A' },
-    { id: 2, name: 'Cashier B' },
-    { id: 3, name: 'Cashier C' },
-    { id: 4, name: 'Cashier D' },
-    { id: 5, name: 'Cashier E' },
-  ];
-
-  // State to manage fuel vouchers for each cashier
-  const [cashierFuelVouchers, setCashierFuelVouchers] = useState({});
+  const [cashierLedgers, setCashierLedgers] = useState({});
+  const [lastClosingReadings, setLastClosingReadings] = useState({});
 
   const { mutate: addSalesShifts, isPending } = useMutation({
     mutationFn: fuelStationServices.addSalesShifts,
@@ -97,29 +93,32 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
     return SalesShift?.id ? updateSalesShifts : addSalesShifts;
   }, [SalesShift, addSalesShifts, updateSalesShifts]);
 
-  // Validation Schema
   const validationSchema = yup.object({
-    shift_team_id: yup.number().required('Shift Team is required').typeError('Shift Team is required'),
-    shift_start: yup.string().required('Start Date is required').typeError('Start Date is required'),
+    sales_outlet_shift_id: yup.number().required('Sales Outlet Shift is required').typeError('Sales Outlet Shift must be a number'),
+    shift_start: yup.string().required('Start Date is required').typeError('Start Date must be a valid string'),
     shift_end: yup.string()
       .required('End Date is required')
-      .typeError('End Date is required')
+      .typeError('End Date must be a valid string')
       .test(
         'is-greater',
         'Shift End Date must be greater than Start Date by at least 1 minute',
         function (value) {
           const { shift_start } = this.parent;
-          return dayjs(value).isAfter(dayjs(shift_start).add(1, 'minute'));
+          if (!value || !shift_start) return true;
+          const endDate = dayjs(value);
+          const startDate = dayjs(shift_start);
+          if (!endDate.isValid() || !startDate.isValid()) return true;
+          return endDate.isAfter(startDate.add(1, 'minute'));
         }
       ),
     cashiers: yup.array().of(
       yup.object().shape({
-        cashier_id: yup.number().required('Cashier selection is required'),
-        cashier_name: yup.string(),
+        id: yup.number().required('Cashier is required').typeError('Cashier is required'),
+        name: yup.string(),
         selected_pumps: yup.array().of(yup.number()),
         pump_readings: yup.array().of(
           yup.object().shape({
-            fuel_pump_id: yup.number().required('Fuel Pump is required'),
+            fuel_pump_id: yup.number().required('Fuel Pump is required').typeError('Fuel Pump is required'),
             opening: yup.number()
               .required("Opening Reading is required")
               .typeError('Opening Reading is required')
@@ -135,102 +134,153 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
               .required("Closing Reading is required")
               .typeError('Closing Reading is required')
               .min(0, 'Closing reading cannot be negative')
-              .test('closing-greater-than-opening', 'Closing Reading should exceed the Opening Reading', 
+              .test('closing-greater-than-or-equal-to-opening', 'Closing Reading should be greater than or equal to the Opening Reading', 
                 function(value) {
                   const { opening } = this.parent;
                   if (value == null || opening == null) return true;
-                  return Number(value) > Number(opening);
+                  return Number(value) >= Number(opening);
                 }
               ),
-            product_id: yup.number().required('Product is required'),
+            product_id: yup.number().required('Product is required').typeError('Product is required'),
           })
         ),
         fuel_vouchers: yup.array().of(
           yup.object().shape({
-            stakeholder_id: yup.number(),
-            quantity: yup.number().required('Quantity is required').positive('Quantity must be positive'),
-            product_id: yup.number().required('Product is required'),
-            expense_ledger_id: yup.number(),
-            reference: yup.string(),
-            narration: yup.string(),
+            stakeholder_id: yup.number().nullable().typeError('Stakeholder is Required'),
+            quantity: yup.number().required('Quantity is required').typeError('Quantity is Required').positive('Quantity must be positive'),
+            product_id: yup.number().required('Product is required').typeError('Product is Required'),
+            expense_ledger_id: yup.number().nullable().typeError('Expense Ledger is Required'),
+            reference: yup.string().nullable(),
+            narration: yup.string().nullable(),
           })
         ),
-        adjustments: yup.array().of(
+        tank_adjustments: yup.array().of(
           yup.object().shape({
-            tank_id: yup.number(),
-            quantity: yup.number().required('Quantity is required'),
+            tank_id: yup.number().nullable().typeError('Tank is Required'),
+            quantity: yup.number().required('Quantity is required').typeError('Quantity is Required'),
             operator: yup.string().required('Operator is required'),
-            description: yup.string(),
-            product_id: yup.number().required('Product is required'),
+            description: yup.string().nullable(),
+            product_id: yup.number().required('Product is required').typeError('Product is Required'),
           })
         ),
-        other_ledgers: yup.array().of(
+        other_transactions: yup.array().of(
           yup.object().shape({
-            id: yup.number().required('Ledger is required'),
-            amount: yup.number().required('Amount is required').positive('Amount must be positive'),
+            ledger_id: yup.number().required('Ledger is required').typeError('Ledger is Required'),
+            amount: yup.number().required('Amount is required').typeError('Amount is Required').positive('Amount must be positive'),
           })
         ),
-        product_prices: yup.array().of(
-          yup.object().shape({
-            product_id: yup.number().required('Product is required'),
-            price: yup.number().required('Price is required').positive('Price must be positive'),
-          })
-        ),
+        main_ledger: yup.object().shape({
+          id: yup.number().required('Main Ledger is required').typeError('Main Ledger is Required'),
+          amount: yup.number()
+            .required('Main Ledger Amount is required')
+            .typeError('Main Ledger Amount is Required')
+            .positive('Amount must be positive')
+        }).nullable(),
+        collected_amount: yup
+          .number()
+          .typeError('Collected Amount is required')
+          .when(['$submit_type'], {
+            is: (submit_type) => submit_type === 'close',
+            then: (schema) => schema.required('Collected Amount is required on close').typeError('Collected Amount is required on close'),
+            otherwise: (schema) => schema,
+          }),
+        collection_ledger_id: yup
+          .number()
+          .typeError('Collection Ledger is required')
+          .when(['$submit_type'], {
+            is: (submit_type) => submit_type === 'close',
+            then: (schema) => schema.required('Collection Ledger is required on close').typeError('Collection Ledger is required on close'),
+            otherwise: (schema) => schema,
+          }),
       })
-    ),
+    ).required('At least one cashier is required').min(1, 'At least one cashier is required'),
     dipping_before: yup.array().of(
       yup.object().shape({
-        reading: yup.number().required('Reading is required').min(0, 'Reading cannot be negative'),
-        product_id: yup.number().required('Product is required'),
-        tank_id: yup.number().required('Tank is required'),
+        reading: yup.number().required('Reading is required').typeError('Reading must be a number').min(0, 'Reading cannot be negative'),
+        product_id: yup.number().required('Product is required').typeError('Product must be a number'),
+        tank_id: yup.number().required('Tank is required').typeError('Tank must be a number'),
       })
     ),
     dipping_after: yup.array().of(
       yup.object().shape({
-        reading: yup.number().required('Reading is required').min(0, 'Reading cannot be negative'),
-        product_id: yup.number().required('Product is required'),
-        tank_id: yup.number().required('Tank is required'),
+        reading: yup.number().required('Reading is required').typeError('Reading must be a number').min(0, 'Reading cannot be negative'),
+        product_id: yup.number().required('Product is required').typeError('Product must be a number'),
+        tank_id: yup.number().required('Tank is required').typeError('Tank must be a number'),
       })
     ),
     submit_type: yup.string().oneOf(['suspend', 'close']).required(),
-    main_ledger_id: yup.number().when('submit_type', {
-      is: 'close',
-      then: (schema) => schema.required('Main Ledger is required'),
-      otherwise: (schema) => schema.nullable(),
-    }),
-    main_ledger_amount: yup.number().when('submit_type', {
-      is: 'close',
-      then: (schema) => schema.positive('Amount must be positive').required('Amount is required'),
-      otherwise: (schema) => schema.nullable(),
-    }),
+    product_prices: yup.array().of(
+      yup.object().shape({
+        product_id: yup.number().required('Product is required').typeError('Product is required'),
+        price: yup.number().required('Price is required').typeError('Price is required').positive('Price must be positive'),
+      })
+    ).required('Product prices are required').min(1, 'At least one product price is required'),
   });
 
-  // Prepare default values
-  const getDefaultValues = () => {
+  const getDefaultValues = useCallback(() => {
     if (SalesShift) {
-      // Initialize cashierFuelVouchers from SalesShift data
-      const initialFuelVouchers = {};
-      SalesShift.cashiers?.forEach((cashier, index) => {
-        initialFuelVouchers[index] = cashier.fuel_vouchers || [];
-      });
-      setCashierFuelVouchers(initialFuelVouchers);
-
+      const initialProductPrices = SalesShift.fuel_prices?.map(fp => ({
+        product_id: fp.product_id,
+        price: fp.price,
+      })) || [];
+      
+      const cashiersData = SalesShift.cashiers?.map(cashier => {
+        const selectedPumps = cashier.pump_readings?.map(pr => pr.fuel_pump_id) || [];
+        
+        const pumpReadings = cashier.pump_readings?.map(pr => ({
+          fuel_pump_id: pr.fuel_pump_id,
+          product_id: pr.product_id,
+          tank_id: pr.tank_id,
+          opening: pr.opening,
+          closing: pr.closing,
+        })) || [];
+        
+        return {
+          id: cashier.id,
+          name: cashier.name,
+          selected_pumps: selectedPumps,
+          pump_readings: pumpReadings,
+          fuel_vouchers: cashier.fuel_vouchers?.map(fv => ({
+            stakeholder_id: fv.stakeholder_id || fv.stakeholder?.id,
+            stakeholder: fv.stakeholder || null,
+            quantity: fv.quantity,
+            product_id: fv.product_id,
+            expense_ledger: fv.expense_ledger || null,
+            expense_ledger_id: fv.expense_ledger_id || fv.expense_ledger?.id,
+            reference: fv.reference,
+            narration: fv.narration,
+          })) || [],
+          collected_amount: cashier.collected_amount || 0,
+          collection_ledger_id: cashier.collection_ledger_id || null,
+          tank_adjustments: cashier.tank_adjustments?.map(adj => ({
+            tank_id: adj.tank_id,
+            quantity: adj.quantity,
+            operator: adj.operator,
+            description: adj.description,
+            product_id: adj.product_id,
+          })) || [],
+          other_transactions: cashier.other_transactions?.map(ct => ({
+            ledger_id: ct.debit_ledger?.id || ct.id,
+            amount: ct.amount,
+            narration: ct.narration,
+          })) || [],
+          main_ledger: cashier.main_ledger ? {
+            id: cashier.main_ledger.id,
+            name: cashier.main_ledger.name,
+            amount: cashier.main_ledger.amount,
+          } : null,
+        };
+      }) || [];
+      
       return {
         id: SalesShift.id,
-        submit_type: SalesShift.status,
-        shift_team_id: SalesShift.shift_team_id,
+        submit_type: SalesShift.status === 'closed' ? 'close' : 'suspend',
+        sales_outlet_shift_id: SalesShift.sales_outlet_shift_id,
         shift_start: dayjs(SalesShift.shift_start).toISOString(),
         shift_end: dayjs(SalesShift.shift_end).toISOString(),
-        cashiers: SalesShift.cashiers?.map(cashier => ({
-          cashier_id: cashier.cashier_id,
-          cashier_name: cashier.name,
-          selected_pumps: cashier.selected_pumps || [],
-          pump_readings: cashier.pump_readings || [],
-          fuel_vouchers: cashier.fuel_vouchers || [],
-          adjustments: cashier.adjustments || [],
-          other_ledgers: cashier.other_ledgers || [],
-          product_prices: cashier.product_prices || [],
-        })) || [],
+        product_prices: initialProductPrices,
+        cashiers: cashiersData,
+        
         dipping_before: SalesShift.opening_dipping?.readings.map(od => ({
           id: od.id,
           reading: od.reading,
@@ -243,91 +293,221 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
           product_id: cd.product_id,
           tank_id: cd.tank_id,
         })) || [],
-        main_ledger_id: SalesShift.main_ledger?.id,
-        main_ledger_amount: SalesShift.main_ledger?.amount,
       };
     }
     
-    // New shift defaults
     return {
       submit_type: 'suspend',
+      sales_outlet_shift_id: null,
       cashiers: [],
       dipping_before: [],
       dipping_after: [],
+      product_prices: [],
     };
-  };
+  }, [SalesShift]);
 
-  const { register, getValues, control, handleSubmit, setError, clearErrors, setValue, watch, formState: { errors } } = useForm({
+  const { register, control, handleSubmit, setError, trigger, clearErrors, setValue, watch, formState: { errors } } = useForm({
     resolver: yupResolver(validationSchema),
     defaultValues: getDefaultValues(),
   });
 
-  // Watch cashiers for dynamic rendering
   const selectedCashiers = watch('cashiers') || [];
 
-  // Sync form fuel_vouchers with local state when form values change
+  const retrieveLastShiftReadings = useCallback(async () => {
+    try {
+      const shiftStart = watch('shift_start');
+      if (!shiftStart || SalesShift?.id) return;
+      
+      const lastReadings = await fuelStationServices.retrieveLastReadings({
+        stationId: activeStation.id,
+        shift_start: shiftStart,
+      });
+
+      const readingsMap = {};
+        lastReadings.cashiers.flatMap(cashier => 
+          cashier.pump_readings || []
+        ).forEach(reading => {
+          readingsMap[reading.fuel_pump_id] = reading.closing;
+        });
+
+      setLastClosingReadings(readingsMap);
+    } catch (error) {
+    }
+  }, [activeStation.id, watch, enqueueSnackbar, SalesShift]);
+
+  const getPumpOpeningValue = useCallback((pumpId, cashierIndex) => {
+    if (SalesShift?.id) {
+      const cashier = selectedCashiers[cashierIndex];
+      if (cashier?.pump_readings) {
+        const savedReading = cashier.pump_readings.find(pr => pr.fuel_pump_id === pumpId);
+        return savedReading?.opening || 0;
+      }
+    }
+    
+    return lastClosingReadings[pumpId] || 0;
+  }, [SalesShift, selectedCashiers, lastClosingReadings]);
+
+  const handlePumpSelection = useCallback((cashierIndex, selectedPumpIds) => {
+    const currentCashier = selectedCashiers[cashierIndex];
+    if (!currentCashier) return;
+    
+    setValue(`cashiers.${cashierIndex}.selected_pumps`, selectedPumpIds, {
+      shouldValidate: true,
+      shouldDirty: true
+    });
+    
+    const currentReadings = currentCashier.pump_readings || [];
+    
+    let updatedReadings = currentReadings.filter(reading => 
+      selectedPumpIds.includes(reading.fuel_pump_id)
+    );
+    
+    selectedPumpIds.forEach(pumpId => {
+      if (!updatedReadings.some(r => r.fuel_pump_id === pumpId)) {
+        const pump = fuel_pumps?.find(p => p.id === pumpId);
+        if (pump) {
+          const openingValue = getPumpOpeningValue(pumpId, cashierIndex);
+          updatedReadings.push({
+            fuel_pump_id: pumpId,
+            product_id: pump.product_id,
+            tank_id: pump.tank_id,
+            opening: openingValue,
+            closing: openingValue,
+          });
+        }
+      }
+    });
+    
+    setValue(`cashiers.${cashierIndex}.pump_readings`, updatedReadings, {
+      shouldValidate: true,
+      shouldDirty: true
+    });
+  }, [selectedCashiers, setValue, fuel_pumps, getPumpOpeningValue]);
+
+  const combineDateTime = useCallback((date, timeString) => {
+    if (!date || !timeString) return date;
+    
+    const time = dayjs(timeString, 'HH:mm:ss');
+    return dayjs(date)
+      .hour(time.hour())
+      .minute(time.minute())
+      .second(time.second())
+      .toISOString();
+  }, []);
+
+  const handleShiftChange = useCallback((newValue) => {
+    const currentShiftStart = watch('shift_start');
+    const currentShiftEnd = watch('shift_end');
+    setValue('sales_outlet_shift_id', newValue ? newValue.id : '', {
+      shouldValidate: true,
+      shouldDirty: true,
+    });
+    if (newValue && (currentShiftStart || currentShiftEnd)) {
+      const selectedDate = currentShiftStart || dayjs().startOf('day');
+      if (newValue.start_time) {
+        const newStartDateTime = combineDateTime(selectedDate, newValue.start_time);
+        setValue('shift_start', newStartDateTime, {
+          shouldValidate: true,
+          shouldDirty: true
+        });
+      }
+      if (newValue.end_time) {
+        const startTime = dayjs(newValue.start_time, 'HH:mm:ss');
+        const endTime = dayjs(newValue.end_time, 'HH:mm:ss');
+        let endDateTime;
+        if (endTime.isBefore(startTime)) {
+          endDateTime = dayjs(selectedDate)
+            .add(1, 'day')
+            .hour(endTime.hour())
+            .minute(endTime.minute())
+            .second(endTime.second())
+            .toISOString();
+        } else {
+          endDateTime = combineDateTime(selectedDate, newValue.end_time);
+        }
+        setValue('shift_end', endDateTime, {
+          shouldValidate: true,
+          shouldDirty: true
+        });
+      }
+    }
+  }, [setValue, watch, combineDateTime]);
+
+  useEffect(() => {
+    if (SalesShift?.cashiers) {
+      SalesShift.cashiers.forEach((cashier, index) => {
+        const cashierData = cashiers?.find(c => c.id === cashier.id);
+        if (cashierData && cashierData.ledgers) {
+          setCashierLedgers(prev => ({
+            ...prev,
+            [index]: cashierData.ledgers
+          }));
+        }
+      });
+    }
+  }, [SalesShift, cashiers]);
+
   useEffect(() => {
     selectedCashiers.forEach((cashier, index) => {
-      if (cashier.fuel_vouchers && cashier.fuel_vouchers.length > 0) {
-        setCashierFuelVouchers(prev => ({
+      const cashierData = cashiers?.find(c => c.id === cashier.id);
+      if (cashierData && cashierData.ledgers && !cashierLedgers[index]) {
+        setCashierLedgers(prev => ({
           ...prev,
-          [index]: cashier.fuel_vouchers
+          [index]: cashierData.ledgers
         }));
       }
     });
-  }, [selectedCashiers]);
+  }, [selectedCashiers, cashiers, cashierLedgers]);
 
-  // Add multiple cashiers
+  useEffect(() => {
+    const shiftStart = watch('shift_start');
+    if (shiftStart && !SalesShift?.id) {
+      retrieveLastShiftReadings();
+    }
+  }, [watch('shift_start'), SalesShift?.id, retrieveLastShiftReadings]);
+
   const addCashiers = (selectedCashierIds) => {
     const newCashiers = selectedCashierIds
       .map(cashierId => {
-        const cashier = AVAILABLE_CASHIERS.find(c => c.id === cashierId);
+        const cashier = cashiers.find(c => c.id === cashierId);
         if (!cashier) return null;
-        
-        // Check if already exists
-        if (selectedCashiers.some(sc => sc.cashier_id === cashierId)) {
+        if (selectedCashiers.some(sc => sc.id === cashierId)) {
           return null;
         }
-        
         return {
-          cashier_id: cashierId,
-          cashier_name: cashier.name,
+          id: cashierId,
+          name: cashier.name,
           selected_pumps: [],
           pump_readings: [],
           fuel_vouchers: [],
-          adjustments: [],
-          other_ledgers: [],
-          product_prices: [],
+          tank_adjustments: [],
+          other_transactions: [],
+          main_ledger: null,
         };
       })
       .filter(c => c !== null);
-    
     const updatedCashiers = [...selectedCashiers, ...newCashiers];
     setValue('cashiers', updatedCashiers, { shouldValidate: true, shouldDirty: true });
-    
-    // Initialize fuel vouchers state for new cashiers
     newCashiers.forEach((cashier, offsetIndex) => {
       const cashierIndex = selectedCashiers.length + offsetIndex;
-      setCashierFuelVouchers(prev => ({
-        ...prev,
-        [cashierIndex]: []
-      }));
+      const cashierData = cashiers.find(c => c.id === cashier.id);
+      if (cashierData && cashierData.ledgers) {
+        setCashierLedgers(prev => ({
+          ...prev,
+          [cashierIndex]: cashierData.ledgers
+        }));
+      }
     });
   };
 
-  // Remove a cashier
   const removeCashier = (cashierId) => {
-    const cashierIndex = selectedCashiers.findIndex(c => c.cashier_id === cashierId);
+    const cashierIndex = selectedCashiers.findIndex(c => c.id === cashierId);
     if (cashierIndex !== -1) {
-      // Remove from form state
-      const updatedCashiers = selectedCashiers.filter(c => c.cashier_id !== cashierId);
+      const updatedCashiers = selectedCashiers.filter(c => c.id !== cashierId);
       setValue('cashiers', updatedCashiers, { shouldValidate: true, shouldDirty: true });
-      
-      // Remove from local fuel vouchers state
-      setCashierFuelVouchers(prev => {
+      setCashierLedgers(prev => {
         const newState = { ...prev };
         delete newState[cashierIndex];
-        // Reindex remaining cashiers
         const reindexedState = {};
         Object.keys(newState).forEach((key, index) => {
           reindexedState[index] = newState[key];
@@ -337,26 +517,10 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
     }
   };
 
-  // Update fuel vouchers for a specific cashier
-  const updateCashierFuelVouchers = (cashierIndex, newVouchers) => {
-    setCashierFuelVouchers(prev => ({
-      ...prev,
-      [cashierIndex]: newVouchers
-    }));
-    
-    // Also update the form value
-    setValue(`cashiers.${cashierIndex}.fuel_vouchers`, newVouchers, {
-      shouldValidate: true,
-      shouldDirty: true
-    });
-  };
-
-  // Get available pumps for cashier selection
   const getAvailablePumpsForCashier = (cashierIndex) => {
     const allPumps = fuel_pumps || [];
     const currentCashierPumps = selectedCashiers[cashierIndex]?.selected_pumps || [];
     
-    // Get pumps already selected by other cashiers
     const otherCashiersPumps = selectedCashiers
       .filter((_, idx) => idx !== cashierIndex)
       .flatMap(c => c.selected_pumps || []);
@@ -366,49 +530,48 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
     );
   };
 
+  const getCashierLedgers = (cashierIndex) => {
+    return cashierLedgers[cashierIndex] || [];
+  };
+
   const handleSubmitForm = async (data) => {
     if (data.cashiers.length === 0) {
       enqueueSnackbar('Please add at least one cashier', { variant: 'error' });
       return;
     }
 
-    if (!checkShiftBalanced && data.submit_type === 'close') {
-      enqueueSnackbar('Shift is not balanced. Please review and balance the shift.', {
-        variant: 'error',
-      });
-      return;
-    }
-
-    // Validate each cashier has at least one pump selected
     const cashiersWithoutPumps = data.cashiers.filter(c => 
       !c.selected_pumps || c.selected_pumps.length === 0
     );
-    
     if (cashiersWithoutPumps.length > 0) {
       enqueueSnackbar(
-        `Cashier(s) ${cashiersWithoutPumps.map(c => c.cashier_name).join(', ')} must have at least one pump selected`,
+        `Cashier(s) ${cashiersWithoutPumps.map(c => c.name).join(', ')} must have at least one pump selected`,
         { variant: 'error' }
       );
       return;
     }
 
-    // Ensure all local fuel vouchers are synced to form data
-    Object.keys(cashierFuelVouchers).forEach(index => {
-      if (data.cashiers[parseInt(index)]) {
-        data.cashiers[parseInt(index)].fuel_vouchers = cashierFuelVouchers[parseInt(index)] || [];
-      }
-    });
-
+    data.cashiers = data.cashiers.map(cashier => ({
+      ...cashier,
+      fuel_vouchers: Array.isArray(cashier.fuel_vouchers)
+        ? cashier.fuel_vouchers.map(fuelVoucher => ({
+            stakeholder_id: fuelVoucher.stakeholder_id ?? (fuelVoucher.stakeholder?.id ?? null),
+            expense_ledger_id: fuelVoucher.expense_ledger_id ?? (fuelVoucher.expense_ledger?.id ?? null),
+            product_id: fuelVoucher.product_id,
+            quantity: fuelVoucher.quantity,
+            amount: fuelVoucher.amount,
+            reference: fuelVoucher.reference,
+            narration: fuelVoucher.narration,
+          })
+        )
+        : [],
+    }));
+    data.payments_received = paymentItems;
     await saveMutation(data);
   };
 
   return (
     <FormProvider {...{
-      setCheckShiftBalanced, 
-      shiftLedgers, 
-      fuel_pumps, 
-      tanks, 
-      products, 
       register, 
       handleSubmit, 
       setError, 
@@ -417,9 +580,7 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
       watch, 
       errors,
       control,
-      getAvailablePumpsForCashier,
-      cashierFuelVouchers,
-      updateCashierFuelVouchers,
+      trigger
     }}>
       <DialogTitle>
         <form autoComplete='off'>    
@@ -428,29 +589,24 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
               {SalesShift ? `Edit ${SalesShift.shiftNo}` : `New Fuel Sales Shift`}
             </Grid>
             
-            {/* Shift Details */}
             <Grid size={{xs: 12, md: 4}}>
               <Div sx={{ mt: 0.3}}>
                 <Autocomplete
                   size="small"
                   isOptionEqualToValue={(option, value) => option.id === value.id}
-                  options={shift_teams || []}
-                  defaultValue={shift_teams?.find(team => team.id === SalesShift?.shift_team_id)}
+                  options={shifts || []}
+                  defaultValue={shifts?.find(team => team.id === SalesShift?.sales_outlet_shift_id)}
                   getOptionLabel={(option) => option.name}
                   renderInput={(params) => (
                     <TextField
                       {...params} 
-                      label="Shift Team *"
-                      error={!!errors?.shift_team_id}
-                      helperText={errors?.shift_team_id?.message}
+                      label="Sales Outlet Shift"
+                      error={!!errors?.sales_outlet_shift_id}
+                      helperText={errors?.sales_outlet_shift_id?.message}
                     />
                   )}
                   onChange={(e, newValue) => {
-                    setShiftLedgers(newValue ? newValue.ledgers : []);
-                    setValue('shift_team_id', newValue ? newValue.id : '', {
-                      shouldValidate: true,
-                      shouldDirty: true,
-                    });
+                    handleShiftChange(newValue);
                   }}
                   renderTags={(tagValue, getTagProps) => {
                     return tagValue.map((option, index) => (
@@ -464,7 +620,7 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
             <Grid size={{xs: 12, md: 4, lg: 4}}>
               <Div sx={{mt: 0.3}}>
                 <DateTimePicker
-                  label='Shift Start *'
+                  label='Shift Start'
                   fullWidth
                   value={watch('shift_start') ? dayjs(watch('shift_start')) : null}
                   minDate={dayjs(organization.recording_start_date)}
@@ -477,10 +633,43 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
                     }
                   }}
                   onChange={(newValue) => {
-                    setValue('shift_start', newValue ? newValue.toISOString() : null, {
-                      shouldValidate: true,
-                      shouldDirty: true
-                    });
+                    const currentShiftId = watch('sales_outlet_shift_id');
+                    const selectedShift = shifts?.find(s => s.id === currentShiftId);
+                    
+                    if (selectedShift && newValue) {
+                      const newStartDateTime = combineDateTime(newValue, selectedShift.start_time);
+                      setValue('shift_start', newStartDateTime, {
+                        shouldValidate: true,
+                        shouldDirty: true
+                      });
+                      
+                      if (selectedShift.end_time) {
+                        const startTime = dayjs(selectedShift.start_time, 'HH:mm:ss');
+                        const endTime = dayjs(selectedShift.end_time, 'HH:mm:ss');
+                        
+                        let endDateTime;
+                        if (endTime.isBefore(startTime)) {
+                          endDateTime = dayjs(newValue)
+                            .add(1, 'day')
+                            .hour(endTime.hour())
+                            .minute(endTime.minute())
+                            .second(endTime.second())
+                            .toISOString();
+                        } else {
+                          endDateTime = combineDateTime(newValue, selectedShift.end_time);
+                        }
+                        
+                        setValue('shift_end', endDateTime, {
+                          shouldValidate: true,
+                          shouldDirty: true
+                        });
+                      }
+                    } else {
+                      setValue('shift_start', newValue ? newValue.toISOString() : null, {
+                        shouldValidate: true,
+                        shouldDirty: true
+                      });
+                    }
                   }}
                 />
               </Div>
@@ -489,7 +678,7 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
             <Grid size={{xs: 12, md: 4, lg: 4}}>
               <Div sx={{mt: 0.3}}>
                 <DateTimePicker
-                  label='Shift End *'
+                  label='Shift End'
                   fullWidth
                   value={watch('shift_end') ? dayjs(watch('shift_end')) : null}
                   minDate={dayjs(organization.recording_start_date)}
@@ -502,10 +691,21 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
                     }
                   }}
                   onChange={(newValue) => {
-                    setValue('shift_end', newValue ? newValue.toISOString() : null, {
-                      shouldValidate: true,
-                      shouldDirty: true
-                    });
+                    const currentShiftId = watch('sales_outlet_shift_id');
+                    const selectedShift = shifts?.find(s => s.id === currentShiftId);
+                    
+                    if (selectedShift && newValue && selectedShift.end_time) {
+                      const endDateTime = combineDateTime(newValue, selectedShift.end_time);
+                      setValue('shift_end', endDateTime, {
+                        shouldValidate: true,
+                        shouldDirty: true
+                      });
+                    } else {
+                      setValue('shift_end', newValue ? newValue.toISOString() : null, {
+                        shouldValidate: true,
+                        shouldDirty: true
+                      });
+                    }
                   }}
                 />
               </Div>
@@ -515,7 +715,6 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
               <FuelPrices />
             </Grid>
 
-            {/* Cashiers Selection - Multiple with Checkbox */}
             <Grid size={{ xs: 12, md: 4 }}>
               <Typography sx={{ mt: 2, mb: 1 }}>
                 Select Cashiers
@@ -523,7 +722,7 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
               <Autocomplete
                 multiple
                 size="small"
-                options={AVAILABLE_CASHIERS}
+                options={cashiers || []}
                 disableCloseOnSelect
                 getOptionLabel={(option) => option.name}
                 renderOption={(props, option, { selected }) => {
@@ -542,34 +741,36 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
                   <TextField
                     {...params}
                     label="Select Cashiers"
-                    placeholder="Choose cashiers..."
+                    placeholder="Choose Cashiers..."
                   />
                 )}
                 onChange={(e, selectedValues) => {
                   const selectedIds = selectedValues.map(v => v.id);
-                  const currentCashierIds = selectedCashiers.map(c => c.cashier_id);
-                  
-                  // Find cashiers to remove (in current but not in new selection)
+                  const currentCashierIds = selectedCashiers.map(c => c.id);
                   const toRemove = currentCashierIds.filter(id => !selectedIds.includes(id));
                   const toAdd = selectedIds.filter(id => !currentCashierIds.includes(id));
-                  
-                  // Remove cashiers
                   toRemove.forEach(cashierId => removeCashier(cashierId));
                   
-                  // Add new cashiers
                   if (toAdd.length > 0) {
                     addCashiers(toAdd);
                   }
                 }}
-                value={AVAILABLE_CASHIERS.filter(c => 
-                  selectedCashiers.some(sc => sc.cashier_id === c.id)
+                value={cashiers.filter(c => 
+                  selectedCashiers.some(sc => sc.id === c.id)
                 )}
               />
             </Grid>
+            
+            {Object.keys(lastClosingReadings).length > 0 && !SalesShift?.id && (
+              <Grid size={12}>
+                <Typography variant="body2" color="textSecondary" sx={{ mt: 1 }}>
+                  ✓ Last shift readings loaded for {Object.keys(lastClosingReadings).length} pump(s)
+                </Typography>
+              </Grid>
+            )}
           </Grid>
         </form>
 
-        {/* Main Tabs */}
         <Tabs
           value={activeTab}
           onChange={(e, newValue) => setActiveTab(newValue)}
@@ -579,13 +780,13 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
           sx={{ mt: 2 }}
         >
           <Tab label="Cashiers Records" />
+          <Tab label="Payments Received" />
           <Tab label="Dipping" />
           <Tab label="Shift Summary" />
         </Tabs>
       </DialogTitle>
       
       <DialogContent>
-        {/* Tab 1: Cashiers Records */}
         {activeTab === 0 && (
           <div>
             {selectedCashiers.length === 0 ? (
@@ -595,24 +796,67 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
             ) : (
               selectedCashiers.map((cashier, index) => (
                 <CashierAccordion
-                  key={cashier.cashier_id}
+                  key={cashier.id}
                   cashier={cashier}
                   index={index}
                   control={control}
                   watch={watch}
+                  lastClosingReadings={lastClosingReadings}
+                  handlePumpSelection={handlePumpSelection}
+                  getCashierLedgers={getCashierLedgers}
+                  getAvailablePumpsForCashier={getAvailablePumpsForCashier}
                   setValue={setValue}
+                  onFuelVouchersChange={(vouchers) => setValue(`cashiers.${index}.fuel_vouchers`, vouchers, { shouldValidate: true, shouldDirty: true })}
                 />
               ))
             )}
           </div>
         )}
 
-        {/* Tab 2: Dipping (Global) */}
-        {activeTab === 1 && <Dipping />}
+        {activeTab === 1 && (
+          <>
+            <PaymentsReceived
+              paymentItems={paymentItems}
+              setPaymentItems={setPaymentItems}
+              showWarning={showWarning}
+              setShowWarning={setShowWarning}
+              isDirty={isDirty}
+              setIsDirty={setIsDirty}
+              clearFormKey={clearFormKey}
+              setClearFormKey={setClearFormKey}
+              submitItemForm={submitItemForm}
+              setSubmitItemForm={setSubmitItemForm}
+            />
+            {paymentItems.length === 0 ? (
+              <Typography color="textSecondary" textAlign="center" py={4}>
+                No payments received yet.
+              </Typography>
+            ) : (
+              paymentItems.map((paymentItem, idx) => (
+                <PaymentsReceivedItemRow
+                  key={idx}
+                  item={paymentItem}
+                  index={idx}
+                  paymentItems={paymentItems}
+                  setPaymentItems={setPaymentItems}
+                  setClearFormKey={setClearFormKey}
+                  submitMainForm={() => {}}
+                  setSubmitItemForm={setSubmitItemForm}
+                  submitItemForm={submitItemForm}
+                  setIsDirty={setIsDirty}
+                  showWarning={showWarning}
+                  setShowWarning={setShowWarning}
+                  clearFormKey={clearFormKey}
+                />
+              ))
+            )}
+          </>
+        )}
 
-        {/* Tab 3: Shift Summary */}
-        {activeTab === 2 && (
-          <ShiftSummary />
+        {activeTab === 2 && <Dipping SalesShift={SalesShift} />}
+
+        {activeTab === 3 && (
+          <ShiftSummary paymentItems={paymentItems} />
         )}
       </DialogContent>
 
@@ -632,7 +876,7 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
           </Button>
         )}
         
-        {activeTab < 2 && (
+        {activeTab < 3 && (
           <Button 
             size='small' 
             variant='outlined' 
@@ -643,7 +887,7 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
           </Button>
         )}
         
-        {activeTab === 2 && (
+        {activeTab === 3 && (
           <>
             <LoadingButton
               loading={isPending || updateLoading}
@@ -654,10 +898,10 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
                 handleSubmit(handleSubmitForm)(e);
               }}
             >
-              Suspend Shift
+              Suspend
             </LoadingButton>
             
-            {selectedCashiers.length > 0 && checkShiftBalanced && 
+            {
              checkOrganizationPermission([PERMISSIONS.FUEL_SALES_SHIFT_CLOSE]) && (
               <LoadingButton
                 loading={isPending || updateLoading}
@@ -669,7 +913,7 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
                   handleSubmit(handleSubmitForm)(e);
                 }}
               >
-                Close Shift
+                Close
               </LoadingButton>
             )}
           </>
@@ -679,4 +923,4 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
   );
 }
 
-export default SaleShiftForm;
+export default SaleShiftForm2;

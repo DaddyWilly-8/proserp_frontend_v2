@@ -21,6 +21,13 @@ export default function CashierAccordion({
   control,
   watch,
   setValue,
+  setCheckShiftBalanced,
+  getCashierLedgers,
+  getAvailablePumpsForCashier,
+  lastClosingReadings,
+  handleCashierPumpSelection,
+  setCashierFuelVouchers,
+  onFuelVouchersChange
 }) {
   const [tab, setTab] = useState(0);
   
@@ -45,10 +52,14 @@ export default function CashierAccordion({
 
   const updateFuelVouchers = (newVouchers) => {
     setLocalFuelVouchers(newVouchers);
-    setValue(`cashiers.${index}.fuel_vouchers`, newVouchers, {
-      shouldValidate: true,
-      shouldDirty: true
-    });
+    if (onFuelVouchersChange) {
+      onFuelVouchersChange(newVouchers);
+    } else {
+      setValue(`cashiers.${index}.fuel_vouchers`, newVouchers, {
+        shouldValidate: true,
+        shouldDirty: true
+      });
+    }
   };
 
   const updateAdjustments = (newAdjustments) => {
@@ -71,7 +82,7 @@ export default function CashierAccordion({
     <Accordion sx={{ mb: 2 }}>
       <AccordionSummary expandIcon={<ExpandMoreIcon />}>
         <Typography fontWeight="bold">
-          {cashier.cashier_name || `Cashier ${cashier.cashier_id}`}
+          {cashier.name}
         </Typography>
       </AccordionSummary>
 
@@ -88,45 +99,48 @@ export default function CashierAccordion({
           <Tab label="Cash Reconciliation" />
         </Tabs>
 
-        {tab === 0 && (
+        <div style={{ display: tab === 0 ? 'block' : 'none' }}>
           <PumpReadings
             name={`cashiers.${index}.pump_readings`}
             control={control}
             cashierIndex={index}
             selectedPumps={formSelectedPumps}
             localPumpReadings={localPumpReadings}
+            lastClosingReadings={lastClosingReadings}
+            handleCashierPumpSelection={handleCashierPumpSelection}
+            getAvailablePumpsForCashier={getAvailablePumpsForCashier}
             setLocalPumpReadings={updatePumpReadings}
           />
-        )}
-
-        {tab === 1 && (
+        </div>
+        <div style={{ display: tab === 1 ? 'block' : 'none' }}>
           <FuelVouchersTab
             cashierIndex={index}
             localFuelVouchers={localFuelVouchers}
             setLocalFuelVouchers={updateFuelVouchers}
             setValue={setValue}
+            onFuelVouchersChange={onFuelVouchersChange}
           />
-        )}
-
-        {tab === 2 && (
+        </div>
+        <div style={{ display: tab === 2 ? 'block' : 'none' }}>
           <AdjustmentsTab
             cashierIndex={index}
             localAdjustments={localAdjustments}
             setLocalAdjustments={updateAdjustments}
             setValue={setValue}
           />
-        )}
-
-        {tab === 3 && (
+        </div>
+        <div style={{ display: tab === 3 ? 'block' : 'none' }}>
           <CashReconciliation
             cashierIndex={index}
+            setCheckShiftBalanced={setCheckShiftBalanced}
             localFuelVouchers={localFuelVouchers}
             localAdjustments={localAdjustments}
             localPumpReadings={localPumpReadings}
+            getCashierLedgers={getCashierLedgers}
             watch={watch}
             setValue={setValue}
           />
-        )}
+        </div>
       </AccordionDetails>
     </Accordion>
   );

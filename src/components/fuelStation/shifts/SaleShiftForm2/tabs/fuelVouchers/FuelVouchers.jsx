@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { Grid, IconButton, LinearProgress, TextField, Tooltip } from '@mui/material';
 import { useForm, useFormContext } from 'react-hook-form';
 import { AddOutlined, CheckOutlined, DisabledByDefault } from '@mui/icons-material';
@@ -17,11 +17,13 @@ import StakeholderSelector from '@/components/masters/stakeholders/StakeholderSe
 import LedgerSelect from '@/components/accounts/ledgers/forms/LedgerSelect';
 import ProductSelect from '@/components/productAndServices/products/ProductSelect';
 import StakeholderQuickAdd from '@/components/masters/stakeholders/StakeholderQuickAdd';
+import { StationFormContext } from '../../../SalesShifts';
 
 function FuelVouchers({ index = -1, setShowForm = null, fuelVoucher, productPrices, fuelVouchers=[], setFuelVouchers }) {
   const iu = {id: null, name: 'Calibration/Internal use'};
   const [isAdding, setIsAdding] = useState(false);
-  const { products } = useFormContext();
+  const {activeStation} = useContext(StationFormContext);
+  const { products } = activeStation;
   const { productOptions } = useProductsSelect();
   const {stakeholders} = useStakeholderSelect();
   const { ungroupedLedgerOptions } = useLedgerSelect();
@@ -148,6 +150,7 @@ function FuelVouchers({ index = -1, setShowForm = null, fuelVoucher, productPric
                 label={'Expense Ledger'}
                 frontError={errors.expense_ledger_id}
                 defaultValue={ungroupedLedgerOptions.find(ledger => ledger.id === watch(`expense_ledger`)?.id)}
+                allowedGroups={['Expenses']}
                 onChange={(newValue) => {
                   setValue(`expense_ledger`, newValue)
                   setValue('expense_ledger_id', newValue ? newValue.id : null,{

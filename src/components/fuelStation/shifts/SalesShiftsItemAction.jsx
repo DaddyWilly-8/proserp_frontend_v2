@@ -16,11 +16,14 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import SalesShiftOnScreen from './preview/SalesShiftOnScreen';
 import SalesShiftPDF from './preview/SalesShiftPDF';
 import { Box, Grid } from '@mui/system';
+import SaleShiftForm2 from './SaleShiftForm2/SaleShiftForm2';
 
 const EditShift = ({ClosedShift, setOpenEditDialog}) => {
   const { data: shiftData, isFetching } = useQuery({
     queryKey: ['showshiftDetails', { id: ClosedShift.id }],
-    queryFn: () => fuelStationServices.showShiftDetails(ClosedShift.id)
+    queryFn: async () => {
+      return await fuelStationServices.showShiftDetails(ClosedShift.id);
+    }
   });
 
   if(isFetching){
@@ -28,13 +31,13 @@ const EditShift = ({ClosedShift, setOpenEditDialog}) => {
   }
 
   return (
-    <SaleShiftForm SalesShift={shiftData} setOpenDialog={setOpenEditDialog}/>
+    <SaleShiftForm2 SalesShift={shiftData} setOpenDialog={setOpenEditDialog}/>
   )
 }
 
 const DocumentDialog = ({organization, ClosedShift, setOpenDocumentDialog}) => {
   const {activeStation} = useContext(StationFormContext);
-  const { shift_teams, fuel_pumps, tanks } = activeStation;
+  const { shifts, fuel_pumps, tanks } = activeStation;
   const { productOptions } = useProductsSelect();
   const [includeFuelVouchers, setIncludeFuelVouchers] = useState(false);
 
@@ -84,9 +87,9 @@ const DocumentDialog = ({organization, ClosedShift, setOpenDocumentDialog}) => {
           </Grid>
         )}
         {belowLargeScreen && activeTab === 0 ? (
-          <SalesShiftOnScreen stationName={activeStation?.name} includeFuelVouchers={includeFuelVouchers} productOptions={productOptions} shiftData={shiftData} tanks={tanks} fuel_pumps={fuel_pumps} shift_teams={shift_teams} organization={organization}/>
+          <SalesShiftOnScreen stationName={activeStation?.name} includeFuelVouchers={includeFuelVouchers} productOptions={productOptions} shiftData={shiftData} tanks={tanks} fuel_pumps={fuel_pumps} shifts={shifts} organization={organization}/>
         ) : (
-          <PDFContent fileName={shiftData.shiftNo} document={<SalesShiftPDF stationName={activeStation?.name} includeFuelVouchers={includeFuelVouchers} productOptions={productOptions} shiftData={shiftData} tanks={tanks} fuel_pumps={fuel_pumps} shift_teams={shift_teams} organization={organization}/>}/>
+          <PDFContent fileName={shiftData.shiftNo} document={<SalesShiftPDF stationName={activeStation?.name} includeFuelVouchers={includeFuelVouchers} productOptions={productOptions} shiftData={shiftData} tanks={tanks} fuel_pumps={fuel_pumps} shifts={shifts} organization={organization}/>}/>
         )}
         {
           belowLargeScreen &&
