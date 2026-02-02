@@ -518,7 +518,7 @@ function PurchaseOrderOnScreenPreview({ order }) {
               mb: 2,
             }}
           >
-            CLOSURES
+            Closing Details
           </Typography>
 
           <TableContainer

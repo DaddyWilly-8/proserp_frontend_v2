@@ -459,6 +459,22 @@ function PurchaseOrderPDF({
           </View>
         )}
 
+        <View style={{ ...pdfStyles.tableRow, marginTop: 50 }}>
+          <View style={{ flex: 0.8 }}></View>
+          <View style={{ flex: 0.2 }}>
+            <Text
+              style={{
+                ...pdfStyles.minInfo,
+                color: mainColor,
+                fontFamily: 'Helvetica-Bold',
+              }}
+            >
+              Created By:
+            </Text>
+            <Text style={{ ...pdfStyles.minInfo }}>{order.creator?.name}</Text>
+          </View>
+        </View>
+
         {/* Closures */}
         {order.closures && order.closures.length > 0 && (
           <View
@@ -478,7 +494,7 @@ function PurchaseOrderPDF({
                   color: 'black',
                 }}
               >
-                CLOSURES
+                Closing Details
               </Text>
             </View>
             <View style={styles.tableRow}>
@@ -574,21 +590,6 @@ function PurchaseOrderPDF({
           </View>
         )}
 
-        <View style={{ ...pdfStyles.tableRow, marginTop: 50 }}>
-          <View style={{ flex: 0.8 }}></View>
-          <View style={{ flex: 0.2 }}>
-            <Text
-              style={{
-                ...pdfStyles.minInfo,
-                color: mainColor,
-                fontFamily: 'Helvetica-Bold',
-              }}
-            >
-              Created By:
-            </Text>
-            <Text style={{ ...pdfStyles.minInfo }}>{order.creator?.name}</Text>
-          </View>
-        </View>
         <PageFooter />
       </Page>
     </Document>
