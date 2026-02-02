@@ -559,7 +559,7 @@ function PurchaseOrderOnScreenPreview({ order }) {
                       fontSize: '0.875rem',
                     }}
                   >
-                    Name
+                    Done By
                   </TableCell>
                   <TableCell
                     sx={{

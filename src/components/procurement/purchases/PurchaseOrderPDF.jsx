@@ -516,7 +516,7 @@ function PurchaseOrderPDF({
                   flex: 2,
                 }}
               >
-                Name
+                Done By
               </Text>
               <Text
                 style={{
