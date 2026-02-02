@@ -494,6 +494,18 @@ function PurchaseOrderPDF({
               >
                 S/N
               </Text>
+                <Text
+                    style={{
+                    ...styles.tableCell,
+                    ...styles.tableHeader,
+                    ...styles.midInfo,
+                    backgroundColor: mainColor,
+                    color: contrastText,
+                    flex: 1,
+                    }}
+                >
+                    Date
+                </Text>
               <Text
                 style={{
                   ...styles.tableCell,
@@ -516,19 +528,7 @@ function PurchaseOrderPDF({
                   flex: 2,
                 }}
               >
-                Closing Remarks
-              </Text>
-              <Text
-                style={{
-                  ...styles.tableCell,
-                  ...styles.tableHeader,
-                  ...styles.midInfo,
-                  backgroundColor: mainColor,
-                  color: contrastText,
-                  flex: 1,
-                }}
-              >
-                Date
+                Remarks
               </Text>
             </View>
             {order.closures.map((closure, index) => (
@@ -541,6 +541,15 @@ function PurchaseOrderPDF({
                   }}
                 >
                   {index + 1}
+                </Text>
+                <Text
+                  style={{
+                    ...styles.tableCell,
+                    backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor,
+                    flex: 1,
+                  }}
+                >
+                  {readableDate(closure.datetime_closed, false)}
                 </Text>
                 <Text
                   style={{
@@ -559,16 +568,6 @@ function PurchaseOrderPDF({
                   }}
                 >
                   {closure.closing_remarks ?? '-'}
-                </Text>
-                <Text
-                  style={{
-                    ...styles.tableCell,
-                    backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor,
-                    flex: 1,
-                    textAlign: 'right',
-                  }}
-                >
-                  {closure.datetime_closed}
                 </Text>
               </View>
             ))}

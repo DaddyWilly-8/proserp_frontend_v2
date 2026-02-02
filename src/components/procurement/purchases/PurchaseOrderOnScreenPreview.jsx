@@ -548,6 +548,16 @@ function PurchaseOrderOnScreenPreview({ order }) {
                       color: contrastText,
                       fontSize: '0.875rem',
                     }}
+                    align='right'
+                  >
+                    Date
+                  </TableCell>
+                  <TableCell
+                    sx={{
+                      backgroundColor: mainColor,
+                      color: contrastText,
+                      fontSize: '0.875rem',
+                    }}
                   >
                     Name
                   </TableCell>
@@ -558,17 +568,7 @@ function PurchaseOrderOnScreenPreview({ order }) {
                       fontSize: '0.875rem',
                     }}
                   >
-                    Closing Remarks
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      backgroundColor: mainColor,
-                      color: contrastText,
-                      fontSize: '0.875rem',
-                    }}
-                    align='right'
-                  >
-                    Date
+                    Remarks
                   </TableCell>
                 </TableRow>
               </TableHead>
@@ -584,11 +584,11 @@ function PurchaseOrderOnScreenPreview({ order }) {
                     }}
                   >
                     <TableCell>{index + 1}</TableCell>
+                    <TableCell align='right' sx={{ fontFamily: 'monospace' }}>
+                      {readableDate(closure.datetime_closed, false)}
+                    </TableCell>
                     <TableCell>{closure.creator.name}</TableCell>
                     <TableCell>{closure.closing_remarks ?? '-'}</TableCell>
-                    <TableCell align='right' sx={{ fontFamily: 'monospace' }}>
-                      {closure.datetime_closed}
-                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
