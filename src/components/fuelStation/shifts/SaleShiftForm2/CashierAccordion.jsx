@@ -87,6 +87,7 @@ export default function CashierAccordion({
         borderRadius: 2, 
         borderTop: 2,
         borderColor: 'divider',
+        mb: 2,
         '&:hover': {
           bgcolor: 'action.hover',
         },
@@ -100,6 +101,9 @@ export default function CashierAccordion({
           flexDirection: 'row-reverse',
           '.MuiAccordionSummary-content': {
             alignItems: 'center',
+            width: '100%',
+            display: 'flex',
+            justifyContent: 'center',
             '&.Mui-expanded': {
               margin: '12px 0',
             }},
@@ -120,9 +124,11 @@ export default function CashierAccordion({
           },
         }}
       >
-        <Typography fontWeight="bold">
-          {cashier.name}
-        </Typography>
+        <div style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
+          <Typography fontWeight="bold">
+            {cashier.name}
+          </Typography>
+        </div>
       </AccordionSummary>
 
       <AccordionDetails
