@@ -141,7 +141,7 @@ function Sidebar ({ menus }) {
                 }
 
                 //PoS > Masters > PriceLists
-                if (!checkOrganizationPermission([PERMISSIONS.PRICE_LISTS_READ,PERMISSIONS.PRICE_LISTS_CREATE])) {
+                if (!checkOrganizationPermission([PERMISSIONS.PRICE_LISTS_READ,PERMISSIONS.PRICE_LISTS_CREATE, PERMISSIONS.PRICE_LISTS_EDIT, PERMISSIONS.PRICE_LISTS_DELETE])) {
                     const posMenuIndex = updatedMenus.findIndex(menu => menu.label === dictionary.sidebar.menu.pos);
                     if (posMenuIndex >= 0) {
                     const mastersIndex = updatedMenus[posMenuIndex].children.findIndex(child => child.label === dictionary.sidebar.menuItem.masters);
@@ -229,6 +229,19 @@ function Sidebar ({ menus }) {
                                 child => child.label !== dictionary.sidebar.menuItem.stations
                             );
                         }
+                    }
+                }
+
+                //fuelStations > Masters > PriceLists
+                if (!checkOrganizationPermission([PERMISSIONS.PRICE_LISTS_READ,PERMISSIONS.PRICE_LISTS_CREATE, PERMISSIONS.PRICE_LISTS_EDIT, PERMISSIONS.PRICE_LISTS_DELETE])) {
+                    const fuelStationMenuIndex = updatedMenus.findIndex(menu => menu.label === dictionary.sidebar.menu.fuelStations);
+                    if (fuelStationMenuIndex >= 0) {
+                    const mastersIndex = updatedMenus[fuelStationMenuIndex].children.findIndex(child => child.label === dictionary.sidebar.menuItem.masters);
+                    if (mastersIndex >= 0) {
+                        updatedMenus[fuelStationMenuIndex].children[mastersIndex].children = updatedMenus[fuelStationMenuIndex].children[mastersIndex].children.filter(
+                            item => item.label !== dictionary.sidebar.menuItem.priceLists
+                        );
+                    }
                     }
                 }
             }
