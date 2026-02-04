@@ -207,6 +207,8 @@ function Sidebar ({ menus }) {
                     PERMISSIONS.FUEL_STATIONS_DELETE,
                     PERMISSIONS.PRICE_LISTS_READ,
                     PERMISSIONS.PRICE_LISTS_CREATE,
+                    PERMISSIONS.PRICE_LISTS_EDIT,
+                    PERMISSIONS.PRICE_LISTS_DELETE
                 ])) {
                     const fuelStationMenuIndex = updatedMenus.findIndex(menu => menu.label === dictionary.sidebar.menu.fuelStations);
                     if (fuelStationMenuIndex >= 0) {
