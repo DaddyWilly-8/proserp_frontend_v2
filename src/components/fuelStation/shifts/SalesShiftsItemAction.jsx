@@ -79,7 +79,7 @@ const DocumentDialog = ({
 
   return (
     <>
-      <DialogTitle>
+      {/* <DialogTitle>
         <Stack
           direction={'row'}
           justifyContent={'center'}
@@ -94,7 +94,7 @@ const DocumentDialog = ({
             }}
           />
         </Stack>
-      </DialogTitle>
+      </DialogTitle> */}
       <DialogContent>
         {belowLargeScreen && (
           <Grid
