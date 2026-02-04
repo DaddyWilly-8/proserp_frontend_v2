@@ -971,7 +971,6 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
         <Button size='small' onClick={() => setOpenDialog(false)}>
           Cancel
         </Button>
-        
         {activeTab > 0 && (
           <Button 
             size='small' 
@@ -982,7 +981,6 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
             Previous
           </Button>
         )}
-        
         {activeTab < 3 && (
           <Button 
             size='small' 
@@ -993,23 +991,20 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
             Next
           </Button>
         )}
-        
+        <LoadingButton
+          loading={isPending || updateLoading}
+          size='small'
+          variant='contained'
+          onClick={(e) => {
+            setValue('submit_type', 'suspend');
+            handleSubmit(handleSubmitForm)(e);
+          }}
+        >
+          Suspend
+        </LoadingButton>
         {activeTab === 3 && (
           <>
-            <LoadingButton
-              loading={isPending || updateLoading}
-              size='small'
-              variant='contained'
-              onClick={(e) => {
-                setValue('submit_type', 'suspend');
-                handleSubmit(handleSubmitForm)(e);
-              }}
-            >
-              Suspend
-            </LoadingButton>
-            
-            {
-             checkOrganizationPermission([PERMISSIONS.FUEL_SALES_SHIFT_CLOSE]) && (
+            {checkOrganizationPermission([PERMISSIONS.FUEL_SALES_SHIFT_CLOSE]) && (
               <LoadingButton
                 loading={isPending || updateLoading}
                 size='small'
