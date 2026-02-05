@@ -10,6 +10,7 @@ function SalesShiftPDF({
   shiftData,
   stationName,
   organization,
+  cashiers,
   fuel_pumps,
   tanks,
   productOptions,
@@ -74,33 +75,6 @@ function SalesShiftPDF({
     };
   };
 
-  // Calculate overall totals
-  const overallTotals = shiftData.cashiers?.reduce(
-    (acc, cashier) => {
-      const cashierTotals = calculateCashierTotals(cashier);
-      return {
-        totalProductsAmount:
-          acc.totalProductsAmount + cashierTotals.totalProductsAmount,
-        adjustmentsAmount:
-          acc.adjustmentsAmount + cashierTotals.adjustmentsAmount,
-        totalFuelVouchersAmount:
-          acc.totalFuelVouchersAmount + cashierTotals.totalFuelVouchersAmount,
-        cashTransactionsTotal:
-          acc.cashTransactionsTotal + cashierTotals.cashTransactionsTotal,
-        cashRemaining: acc.cashRemaining + cashierTotals.cashRemaining,
-        netSales: acc.netSales + cashierTotals.netSales,
-      };
-    },
-    {
-      totalProductsAmount: 0,
-      adjustmentsAmount: 0,
-      totalFuelVouchersAmount: 0,
-      cashTransactionsTotal: 0,
-      cashRemaining: 0,
-      netSales: 0,
-    }
-  );
-
   // Merge pump readings by product for a specific cashier
   const mergeCashierPumpReadings = (pumpReadings) => {
     const merged = pumpReadings.reduce((acc, pump) => {
@@ -121,6 +95,11 @@ function SalesShiftPDF({
     }, {});
     return Object.values(merged);
   };
+
+  // hide dipping summary table if openeing or closing reading is less than 1
+  const hideDippingTable = shiftData.shift_tanks.some((st) => {
+    st.opening_reading < 1 || st.closing_reading < 1;
+  });
 
   return (
     <Document
@@ -1141,8 +1120,7 @@ function SalesShiftPDF({
         )}
 
         {/* ================= DIPPING SECTION ================= */}
-        {(shiftData.opening_dipping?.readings?.length > 0 ||
-          shiftData.closing_dipping?.readings?.length > 0) && (
+        {!hideDippingTable && (
           <View
             wrap={false}
             style={{ marginTop: 20, pageBreakInside: 'avoid' }}
@@ -1168,31 +1146,20 @@ function SalesShiftPDF({
             </View>
 
             {/* Dipping summary */}
-            {shiftData.closing_dipping?.readings?.length > 0 && (
-              <View style={{ marginBottom: 12 }}>
-                <Text
-                  style={{
-                    fontSize: 12,
-                    color: mainColor,
-                    marginBottom: 4,
-                    textAlign: 'center',
-                  }}
-                >
-                  Dipping Summary
-                </Text>
-                <View style={pdfStyles.table}>
-                  <View style={pdfStyles.tableRow}>
-                    <Text
-                      style={{
-                        ...pdfStyles.tableHeader,
-                        backgroundColor: mainColor,
-                        color: contrastText,
-                        flex: 1.5,
-                      }}
-                    >
-                      Tank
-                    </Text>
-                    {/* <Text
+            <View style={{ marginBottom: 12 }}>
+              <View style={pdfStyles.table}>
+                <View style={pdfStyles.tableRow}>
+                  <Text
+                    style={{
+                      ...pdfStyles.tableHeader,
+                      backgroundColor: mainColor,
+                      color: contrastText,
+                      flex: 1.5,
+                    }}
+                  >
+                    Tank
+                  </Text>
+                  {/* <Text
                       style={{
                         ...pdfStyles.tableHeader,
                         backgroundColor: mainColor,
@@ -1202,204 +1169,203 @@ function SalesShiftPDF({
                     >
                       Product
                     </Text> */}
-                    <Text
-                      style={{
-                        ...pdfStyles.tableHeader,
-                        backgroundColor: mainColor,
-                        color: contrastText,
-                        flex: 1,
-                      }}
-                    >
-                      Opening
-                    </Text>
-                    <Text
-                      style={{
-                        ...pdfStyles.tableHeader,
-                        backgroundColor: mainColor,
-                        color: contrastText,
-                        flex: 1,
-                      }}
-                    >
-                      Purchase
-                    </Text>
-                    <Text
-                      style={{
-                        ...pdfStyles.tableHeader,
-                        backgroundColor: mainColor,
-                        color: contrastText,
-                        flex: 1,
-                      }}
-                    >
-                      Total
-                    </Text>
-                    <Text
-                      style={{
-                        ...pdfStyles.tableHeader,
-                        backgroundColor: mainColor,
-                        color: contrastText,
-                        flex: 1,
-                      }}
-                    >
-                      Closing
-                    </Text>
-                    <Text
-                      style={{
-                        ...pdfStyles.tableHeader,
-                        backgroundColor: mainColor,
-                        color: contrastText,
-                        flex: 1,
-                      }}
-                    >
-                      Tank Difference
-                    </Text>
-                    <Text
-                      style={{
-                        ...pdfStyles.tableHeader,
-                        backgroundColor: mainColor,
-                        color: contrastText,
-                        flex: 1,
-                      }}
-                    >
-                      Actual Sold
-                    </Text>
-                    <Text
-                      style={{
-                        ...pdfStyles.tableHeader,
-                        backgroundColor: mainColor,
-                        color: contrastText,
-                        flex: 1,
-                      }}
-                    >
-                      Pos/Neg
-                    </Text>
-                  </View>
-                  {shiftData.shift_tanks.map((st, index) => {
-                    return (
-                      <View key={index} style={pdfStyles.tableRow}>
-                        {/* Tank */}
-                        <Text
-                          style={{
-                            ...pdfStyles.tableCell,
-                            backgroundColor:
-                              index % 2 === 0 ? '#FFFFFF' : lightColor,
-                            flex: 1.5,
-                          }}
-                        >
-                          {st.name || `Tank ${st.id}`}
-                        </Text>
-                        {/* Opening */}
-                        <Text
-                          style={{
-                            ...pdfStyles.tableCell,
-                            backgroundColor:
-                              index % 2 === 0 ? '#FFFFFF' : lightColor,
-                            flex: 1,
-                            textAlign: 'right',
-                          }}
-                        >
-                          {(st.opening_reading || 0).toLocaleString('en-US', {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                          })}
-                        </Text>
-                        {/* Purchase */}
-                        <Text
-                          style={{
-                            ...pdfStyles.tableCell,
-                            backgroundColor:
-                              index % 2 === 0 ? '#FFFFFF' : lightColor,
-                            flex: 1,
-                            textAlign: 'right',
-                          }}
-                        >
-                          {(st.incoming || 0).toLocaleString('en-US', {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                          })}
-                        </Text>
-                        {/* Total */}
-                        <Text
-                          style={{
-                            ...pdfStyles.tableCell,
-                            backgroundColor:
-                              index % 2 === 0 ? '#FFFFFF' : lightColor,
-                            flex: 1,
-                            textAlign: 'right',
-                          }}
-                        >
-                          {(
-                            (st.opening_reading || 0) + (st.incoming || 0)
-                          ).toLocaleString('en-US', {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                          })}
-                        </Text>
-                        {/* Closing */}
-                        <Text
-                          style={{
-                            ...pdfStyles.tableCell,
-                            backgroundColor:
-                              index % 2 === 0 ? '#FFFFFF' : lightColor,
-                            flex: 1,
-                            textAlign: 'right',
-                          }}
-                        >
-                          {(st.closing_reading || 0).toLocaleString('en-US', {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                          })}
-                        </Text>
-                        {/* Tank Difference */}
-                        <Text
-                          style={{
-                            ...pdfStyles.tableCell,
-                            backgroundColor:
-                              index % 2 === 0 ? '#FFFFFF' : lightColor,
-                            flex: 1,
-                            textAlign: 'right',
-                          }}
-                        >
-                          {(st.tank_difference || 0).toLocaleString('en-US', {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                          })}
-                        </Text>
-                        {/* Actual Sold */}
-                        <Text
-                          style={{
-                            ...pdfStyles.tableCell,
-                            backgroundColor:
-                              index % 2 === 0 ? '#FFFFFF' : lightColor,
-                            flex: 1,
-                            textAlign: 'right',
-                          }}
-                        >
-                          {(st.actual_sold || 0).toLocaleString('en-US', {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                          })}
-                        </Text>
-                        {/* Pos/Neg */}
-                        <Text
-                          style={{
-                            ...pdfStyles.tableCell,
-                            backgroundColor:
-                              index % 2 === 0 ? '#FFFFFF' : lightColor,
-                            flex: 1,
-                            textAlign: 'right',
-                          }}
-                        >
-                          {(st.deviation || 0).toLocaleString('en-US', {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                          })}
-                        </Text>
-                      </View>
-                    );
-                  })}
+                  <Text
+                    style={{
+                      ...pdfStyles.tableHeader,
+                      backgroundColor: mainColor,
+                      color: contrastText,
+                      flex: 1,
+                    }}
+                  >
+                    Opening
+                  </Text>
+                  <Text
+                    style={{
+                      ...pdfStyles.tableHeader,
+                      backgroundColor: mainColor,
+                      color: contrastText,
+                      flex: 1,
+                    }}
+                  >
+                    Purchase
+                  </Text>
+                  <Text
+                    style={{
+                      ...pdfStyles.tableHeader,
+                      backgroundColor: mainColor,
+                      color: contrastText,
+                      flex: 1,
+                    }}
+                  >
+                    Total
+                  </Text>
+                  <Text
+                    style={{
+                      ...pdfStyles.tableHeader,
+                      backgroundColor: mainColor,
+                      color: contrastText,
+                      flex: 1,
+                    }}
+                  >
+                    Closing
+                  </Text>
+                  <Text
+                    style={{
+                      ...pdfStyles.tableHeader,
+                      backgroundColor: mainColor,
+                      color: contrastText,
+                      flex: 1,
+                    }}
+                  >
+                    Tank Difference
+                  </Text>
+                  <Text
+                    style={{
+                      ...pdfStyles.tableHeader,
+                      backgroundColor: mainColor,
+                      color: contrastText,
+                      flex: 1,
+                    }}
+                  >
+                    Actual Sold
+                  </Text>
+                  <Text
+                    style={{
+                      ...pdfStyles.tableHeader,
+                      backgroundColor: mainColor,
+                      color: contrastText,
+                      flex: 1,
+                    }}
+                  >
+                    Pos/Neg
+                  </Text>
                 </View>
+                {shiftData.shift_tanks.map((st, index) => {
+                  return (
+                    <View key={index} style={pdfStyles.tableRow}>
+                      {/* Tank */}
+                      <Text
+                        style={{
+                          ...pdfStyles.tableCell,
+                          backgroundColor:
+                            index % 2 === 0 ? '#FFFFFF' : lightColor,
+                          flex: 1.5,
+                        }}
+                      >
+                        {st.name || `Tank ${st.id}`}
+                      </Text>
+                      {/* Opening */}
+                      <Text
+                        style={{
+                          ...pdfStyles.tableCell,
+                          backgroundColor:
+                            index % 2 === 0 ? '#FFFFFF' : lightColor,
+                          flex: 1,
+                          textAlign: 'right',
+                        }}
+                      >
+                        {(st.opening_reading || 0).toLocaleString('en-US', {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })}
+                      </Text>
+                      {/* Purchase */}
+                      <Text
+                        style={{
+                          ...pdfStyles.tableCell,
+                          backgroundColor:
+                            index % 2 === 0 ? '#FFFFFF' : lightColor,
+                          flex: 1,
+                          textAlign: 'right',
+                        }}
+                      >
+                        {(st.incoming || 0).toLocaleString('en-US', {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })}
+                      </Text>
+                      {/* Total */}
+                      <Text
+                        style={{
+                          ...pdfStyles.tableCell,
+                          backgroundColor:
+                            index % 2 === 0 ? '#FFFFFF' : lightColor,
+                          flex: 1,
+                          textAlign: 'right',
+                        }}
+                      >
+                        {(
+                          (st.opening_reading || 0) + (st.incoming || 0)
+                        ).toLocaleString('en-US', {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })}
+                      </Text>
+                      {/* Closing */}
+                      <Text
+                        style={{
+                          ...pdfStyles.tableCell,
+                          backgroundColor:
+                            index % 2 === 0 ? '#FFFFFF' : lightColor,
+                          flex: 1,
+                          textAlign: 'right',
+                        }}
+                      >
+                        {(st.closing_reading || 0).toLocaleString('en-US', {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })}
+                      </Text>
+                      {/* Tank Difference */}
+                      <Text
+                        style={{
+                          ...pdfStyles.tableCell,
+                          backgroundColor:
+                            index % 2 === 0 ? '#FFFFFF' : lightColor,
+                          flex: 1,
+                          textAlign: 'right',
+                        }}
+                      >
+                        {(st.tank_difference || 0).toLocaleString('en-US', {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })}
+                      </Text>
+                      {/* Actual Sold */}
+                      <Text
+                        style={{
+                          ...pdfStyles.tableCell,
+                          backgroundColor:
+                            index % 2 === 0 ? '#FFFFFF' : lightColor,
+                          flex: 1,
+                          textAlign: 'right',
+                        }}
+                      >
+                        {(st.actual_sold || 0).toLocaleString('en-US', {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })}
+                      </Text>
+                      {/* Pos/Neg */}
+                      <Text
+                        style={{
+                          ...pdfStyles.tableCell,
+                          backgroundColor:
+                            index % 2 === 0 ? '#FFFFFF' : lightColor,
+                          flex: 1,
+                          textAlign: 'right',
+                        }}
+                      >
+                        {(st.deviation || 0).toLocaleString('en-US', {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })}
+                      </Text>
+                    </View>
+                  );
+                })}
               </View>
-            )}
+            </View>
           </View>
         )}
 
