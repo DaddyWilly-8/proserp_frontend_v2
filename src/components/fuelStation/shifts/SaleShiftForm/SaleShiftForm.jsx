@@ -443,7 +443,7 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
       }
       // Retrieve product prices after setting shift start and end
       if (newStartDateTime) {
-        retrieveProductPrices(newStartDateTime);
+        retrieveProductPrices(selectedDate.toISOString());
       }
     }
   }, [setValue, watch, combineDateTime]);
