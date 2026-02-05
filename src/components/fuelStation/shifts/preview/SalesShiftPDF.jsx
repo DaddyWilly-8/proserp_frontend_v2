@@ -6,7 +6,7 @@ import { Document, Page, Text, View } from '@react-pdf/renderer';
 import CashierListSummaryPDF from './CashierListSummaryPDF';
 
 function SalesShiftPDF({
-  openDetails,
+  includeFuelVouchers,
   shiftData,
   stationName,
   organization,
@@ -75,6 +75,33 @@ function SalesShiftPDF({
     };
   };
 
+  // Calculate overall totals
+  const overallTotals = shiftData.cashiers?.reduce(
+    (acc, cashier) => {
+      const cashierTotals = calculateCashierTotals(cashier);
+      return {
+        totalProductsAmount:
+          acc.totalProductsAmount + cashierTotals.totalProductsAmount,
+        adjustmentsAmount:
+          acc.adjustmentsAmount + cashierTotals.adjustmentsAmount,
+        totalFuelVouchersAmount:
+          acc.totalFuelVouchersAmount + cashierTotals.totalFuelVouchersAmount,
+        cashTransactionsTotal:
+          acc.cashTransactionsTotal + cashierTotals.cashTransactionsTotal,
+        cashRemaining: acc.cashRemaining + cashierTotals.cashRemaining,
+        netSales: acc.netSales + cashierTotals.netSales,
+      };
+    },
+    {
+      totalProductsAmount: 0,
+      adjustmentsAmount: 0,
+      totalFuelVouchersAmount: 0,
+      cashTransactionsTotal: 0,
+      cashRemaining: 0,
+      netSales: 0,
+    }
+  );
+
   // Merge pump readings by product for a specific cashier
   const mergeCashierPumpReadings = (pumpReadings) => {
     const merged = pumpReadings.reduce((acc, pump) => {
@@ -98,7 +125,7 @@ function SalesShiftPDF({
 
   // hide dipping summary table if openeing or closing reading is less than 1
   const hideDippingTable = shiftData.shift_tanks.some((st) => {
-    st.opening_reading < 1 || st.closing_reading < 1;
+    return st.opening_reading < 1 || st.closing_reading < 1;
   });
 
   return (
@@ -181,7 +208,7 @@ function SalesShiftPDF({
         </View>
 
         {/* ================= CASHIERS SECTION ================= */}
-        {openDetails &&
+        {includeFuelVouchers &&
           shiftData.cashiers?.map((cashier, cashierIndex) => {
             const cashierTotals = calculateCashierTotals(cashier);
             const mergedReadings = mergeCashierPumpReadings(
@@ -779,7 +806,7 @@ function SalesShiftPDF({
                 )}
 
                 {/* Cashier Fuel Vouchers */}
-                {/* {openDetails && cashier.fuel_vouchers?.length > 0 && ( */}
+                {/* {includeFuelVouchers && cashier.fuel_vouchers?.length > 0 && ( */}
                 <View style={{ marginBottom: 12 }}>
                   <Text
                     style={{
@@ -1110,7 +1137,7 @@ function SalesShiftPDF({
           })}
 
         {/* ================= CASHIERS SUMMARY LISTING ================= */}
-        {!openDetails && (
+        {!includeFuelVouchers && (
           <CashierListSummaryPDF
             shiftData={shiftData}
             organization={organization}
