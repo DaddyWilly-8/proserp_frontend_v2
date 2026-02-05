@@ -36,6 +36,7 @@ import fuelStationServices from '../../fuelStationServices';
 import FuelPrices from './FuelPrices';
 import ShiftSummary from './ShiftSummary';
 import PaymentsReceivedItemRow from './tabs/PaymentsReceivedItemRow';
+import { readableDate } from '@/app/helpers/input-sanitization-helpers';
 
 function SaleShiftForm({ SalesShift, setOpenDialog }) {
   const [showWarning, setShowWarning] = useState(false);
@@ -415,6 +416,10 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
       // Set shift_start if not set or if shift times change
       let selectedDate = currentShiftStart ? dayjs(currentShiftStart) : dayjs().startOf('day');
       let newStartDateTime = newValue.start_time ? combineDateTime(selectedDate, newValue.start_time) : selectedDate.toISOString();
+      // Debug log for shift and computed start
+      console.log('Selected shift:', newValue);
+      console.log('Selected shift start_time:', newValue.start_time);
+      console.log('Computed newStartDateTime:', newStartDateTime);
       setValue('shift_start', newStartDateTime, {
         shouldValidate: true,
         shouldDirty: true
