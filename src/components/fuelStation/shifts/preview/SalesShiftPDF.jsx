@@ -12,7 +12,7 @@ function SalesShiftPDF({
   organization,
   fuel_pumps,
   tanks,
-  productOptions
+  productOptions,
 }) {
   const mainColor = organization.settings?.main_color || '#2113AD';
   const lightColor = organization.settings?.light_color || '#bec5da';
@@ -1287,17 +1287,6 @@ function SalesShiftPDF({
                         >
                           {st.name || `Tank ${st.id}`}
                         </Text>
-                        {/* Product */}
-                        {/* <Text
-                          style={{
-                            ...pdfStyles.tableCell,
-                            backgroundColor:
-                              index % 2 === 0 ? '#FFFFFF' : lightColor,
-                            flex: 1.5,
-                          }}
-                        >
-                          {st.product?.name || `Product ${st.product.id}`}
-                        </Text> */}
                         {/* Opening */}
                         <Text
                           style={{
@@ -1309,7 +1298,8 @@ function SalesShiftPDF({
                           }}
                         >
                           {(st.opening_reading || 0).toLocaleString('en-US', {
-                            minimumFractionDigits: 3,
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
                           })}
                         </Text>
                         {/* Purchase */}
@@ -1323,7 +1313,8 @@ function SalesShiftPDF({
                           }}
                         >
                           {(st.incoming || 0).toLocaleString('en-US', {
-                            minimumFractionDigits: 3,
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
                           })}
                         </Text>
                         {/* Total */}
@@ -1339,7 +1330,8 @@ function SalesShiftPDF({
                           {(
                             (st.opening_reading || 0) + (st.incoming || 0)
                           ).toLocaleString('en-US', {
-                            minimumFractionDigits: 3,
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
                           })}
                         </Text>
                         {/* Closing */}
@@ -1353,7 +1345,8 @@ function SalesShiftPDF({
                           }}
                         >
                           {(st.closing_reading || 0).toLocaleString('en-US', {
-                            minimumFractionDigits: 3,
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
                           })}
                         </Text>
                         {/* Tank Difference */}
@@ -1367,7 +1360,8 @@ function SalesShiftPDF({
                           }}
                         >
                           {(st.tank_difference || 0).toLocaleString('en-US', {
-                            minimumFractionDigits: 3,
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
                           })}
                         </Text>
                         {/* Actual Sold */}
@@ -1381,7 +1375,8 @@ function SalesShiftPDF({
                           }}
                         >
                           {(st.actual_sold || 0).toLocaleString('en-US', {
-                            minimumFractionDigits: 3,
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
                           })}
                         </Text>
                         {/* Pos/Neg */}
@@ -1395,7 +1390,8 @@ function SalesShiftPDF({
                           }}
                         >
                           {(st.deviation || 0).toLocaleString('en-US', {
-                            minimumFractionDigits: 3,
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
                           })}
                         </Text>
                       </View>
