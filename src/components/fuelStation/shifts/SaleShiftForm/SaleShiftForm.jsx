@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useContext, useState, useEffect, useCallback } from 'react';
+import Dialog from '@mui/material/Dialog';
 import { 
   Button, 
   DialogActions, 
@@ -14,7 +15,8 @@ import {
   Chip,
   Typography,
   Checkbox,
-  Alert
+  Alert,
+  DialogContentText
 } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 import { useSnackbar } from 'notistack';
@@ -40,6 +42,7 @@ import { readableDate } from '@/app/helpers/input-sanitization-helpers';
 
 function SaleShiftForm({ SalesShift, setOpenDialog }) {
   const [showWarning, setShowWarning] = useState(false);
+  const [showHoldDialog, setShowHoldDialog] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
   const [clearFormKey, setClearFormKey] = useState(0);
   const [submitItemForm, setSubmitItemForm] = useState(false);
@@ -1000,13 +1003,38 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
           loading={isPending || updateLoading}
           size='small'
           variant='contained'
-          onClick={(e) => {
-            setValue('submit_type', 'suspend');
-            handleSubmit(handleSubmitForm)(e);
-          }}
+          onClick={() => setShowHoldDialog(true)}
         >
           Hold
         </LoadingButton>
+        <Dialog
+          open={showHoldDialog}
+          onClose={() => setShowHoldDialog(false)}
+        >
+          <DialogTitle>Confirm Hold Action</DialogTitle>
+          <DialogContent>
+            <DialogContentText>
+              Are you sure you want to put this shift on hold? This will save your progress but will not close the shift. You can resume editing later.
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setShowHoldDialog(false)} color="inherit">
+              Cancel
+            </Button>
+            <LoadingButton
+              loading={isPending || updateLoading}
+              variant="contained"
+              color="warning"
+              onClick={(e) => {
+                setShowHoldDialog(false);
+                setValue('submit_type', 'suspend');
+                handleSubmit(handleSubmitForm)(e);
+              }}
+            >
+              Confirm Hold
+            </LoadingButton>
+          </DialogActions>
+        </Dialog>
         {activeTab === 3 && (
           <>
             {checkOrganizationPermission([PERMISSIONS.FUEL_SALES_SHIFT_CLOSE]) && (
