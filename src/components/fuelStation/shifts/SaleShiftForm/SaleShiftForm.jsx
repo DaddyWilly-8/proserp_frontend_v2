@@ -1000,7 +1000,7 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
             handleSubmit(handleSubmitForm)(e);
           }}
         >
-          Suspend
+          Hold
         </LoadingButton>
         {activeTab === 3 && (
           <>
