@@ -151,13 +151,22 @@ const EmailVerificationNotice = () => {
           </LoadingButton>
 
           <Typography textAlign="center" variant="body2" mb={1}>
-            Already Verified?{" "}
-            <Link
-              href={`/`}
-              style={{ textDecoration: "none", fontWeight: 500 }}
+            Already Verified?{' '}
+            <span
+              style={{ textDecoration: 'none', fontWeight: 500, color: '#1976d2', cursor: 'pointer' }}
+              onClick={async () => {
+                try {
+                  window.location.href = '/';
+                } catch (e) {
+                  enqueueSnackbar('Could not recheck verification. Please try again.', { variant: 'error' });
+                }
+              }}
+              role="button"
+              tabIndex={0}
+              onKeyPress={e => { if (e.key === 'Enter') window.location.href = '/'; }}
             >
               Proceed to Homepage
-            </Link>
+            </span>
           </Typography>
 
           <Typography textAlign="center" variant="body2">

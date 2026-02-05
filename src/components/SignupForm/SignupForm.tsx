@@ -35,7 +35,6 @@ type SignupFormValues = {
   password_confirmation: string;
 };
 
-/* 🔴 ERROR SHOWN ABOVE CONFIRM PASSWORD */
 const ConfirmPasswordError = () => {
   const {
     formState: { errors, touchedFields },
@@ -64,7 +63,6 @@ const SignupForm = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showPasswordConfirm, setShowPasswordConfirm] = useState(false);
 
-  /* ✅ RHF setup — onChange for live validation */
   const methods = useForm<SignupFormValues>({
     resolver: yupResolver(validationSchema),
     mode: 'onChange',
@@ -78,10 +76,8 @@ const SignupForm = () => {
     formState: { errors, isSubmitting, touchedFields },
   } = methods;
 
-  /* 👀 watch password */
   const password = watch('password');
 
-  /* 🔁 revalidate confirm password when password changes */
   useEffect(() => {
     if (touchedFields.password_confirmation) {
       trigger('password_confirmation');
@@ -232,7 +228,6 @@ const SignupForm = () => {
                   }}
                 />
 
-                {/* 🔴 mismatch error shown ABOVE */}
                 <ConfirmPasswordError />
 
                 <TextField
