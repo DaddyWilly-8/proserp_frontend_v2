@@ -6,20 +6,17 @@ import { Document, Page, Text, View } from '@react-pdf/renderer';
 import CashierListSummaryPDF from './CashierListSummaryPDF';
 
 function SalesShiftPDF({
-  includeFuelVouchers,
+  openDetails,
   shiftData,
   stationName,
   organization,
-  cashiers,
   fuel_pumps,
   tanks,
-  productOptions,
+  productOptions
 }) {
   const mainColor = organization.settings?.main_color || '#2113AD';
   const lightColor = organization.settings?.light_color || '#bec5da';
   const contrastText = organization.settings?.contrast_text || '#FFFFFF';
-
-  console.log('shiftData: ', shiftData);
 
   // Calculate totals for each cashier
   const calculateCashierTotals = (cashier) => {
@@ -205,7 +202,7 @@ function SalesShiftPDF({
         </View>
 
         {/* ================= CASHIERS SECTION ================= */}
-        {includeFuelVouchers &&
+        {openDetails &&
           shiftData.cashiers?.map((cashier, cashierIndex) => {
             const cashierTotals = calculateCashierTotals(cashier);
             const mergedReadings = mergeCashierPumpReadings(
@@ -803,7 +800,7 @@ function SalesShiftPDF({
                 )}
 
                 {/* Cashier Fuel Vouchers */}
-                {/* {includeFuelVouchers && cashier.fuel_vouchers?.length > 0 && ( */}
+                {/* {openDetails && cashier.fuel_vouchers?.length > 0 && ( */}
                 <View style={{ marginBottom: 12 }}>
                   <Text
                     style={{
@@ -1134,7 +1131,7 @@ function SalesShiftPDF({
           })}
 
         {/* ================= CASHIERS SUMMARY LISTING ================= */}
-        {!includeFuelVouchers && (
+        {!openDetails && (
           <CashierListSummaryPDF
             shiftData={shiftData}
             organization={organization}
