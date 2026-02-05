@@ -17,9 +17,12 @@ import StakeholderSelector from '@/components/masters/stakeholders/StakeholderSe
 import LedgerSelect from '@/components/accounts/ledgers/forms/LedgerSelect';
 import ProductSelect from '@/components/productAndServices/products/ProductSelect';
 import StakeholderQuickAdd from '@/components/masters/stakeholders/StakeholderQuickAdd';
+import { PERMISSIONS } from '@/utilities/constants/permissions';
+import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 
 function FuelVouchers({ cashierPumpProducts, index = -1, setShowForm = null, fuelVoucher, productPrices, fuelVouchers=[], setFuelVouchers }) {
   const iu = {id: null, name: 'Calibration/Internal use'};
+  const {checkOrganizationPermission} = useJumboAuth();
   const [isAdding, setIsAdding] = useState(false);
   const { productOptions } = useProductsSelect();
   const {stakeholders} = useStakeholderSelect();
@@ -40,7 +43,6 @@ function FuelVouchers({ cashierPumpProducts, index = -1, setShowForm = null, fue
     'stakeholder-or-expense-required',
     'Either of stakeholder or expense ledger required',
     function (value, ctx) {
-      // Allow bypass if 'Calibration/Internal use' is selected
       if (value.stakeholder && value.stakeholder.name === 'Calibration/Internal use') return true;
       if (!!value.stakeholder_id || !!value.expense_ledger_id) return true;
       return ctx.createError({ path: 'stakeholder-or-expense-required', message: 'Either of stakeholder or expense ledger required' });
@@ -144,14 +146,14 @@ function FuelVouchers({ cashierPumpProducts, index = -1, setShowForm = null, fue
                   });
                 }}
                 startAdornment= {
-                  <Tooltip title={'Add Client'}>
-                    <AddOutlined
-                      onClick={() => setStakeholderQuickAddDisplay(true)}
-                      sx={{
-                      cursor: 'pointer',
-                      }}
-                    />
-                  </Tooltip>
+                  checkOrganizationPermission(PERMISSIONS.STAKEHOLDERS_CREATE) && (
+                    <Tooltip title="Add Client">
+                      <AddOutlined
+                        onClick={() => setStakeholderQuickAddDisplay(true)}
+                        sx={{ cursor: 'pointer' }}
+                      />
+                    </Tooltip>
+                  )
                 }
               />
             </Div>

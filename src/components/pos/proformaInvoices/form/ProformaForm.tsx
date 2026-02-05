@@ -21,6 +21,7 @@ import { Div } from '@jumbo/shared';
 import StakeholderQuickAdd from '@/components/masters/stakeholders/StakeholderQuickAdd';
 import { Proforma, ProformaItem } from '../ProformaType';
 import { Stakeholder } from '@/components/masters/stakeholders/StakeholderType';
+import { PERMISSIONS } from '@/utilities/constants/permissions';
 
 interface ProformaFormProps {
   toggleOpen: (open: boolean) => void;
@@ -55,6 +56,7 @@ function ProformaForm({ toggleOpen, proforma = null }: ProformaFormProps) {
   const [addedStakeholder, setAddedStakeholder] = useState<Stakeholder | null>(null);
   const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
+  const {checkOrganizationPermission} = useJumboAuth();
 
   const [showWarning, setShowWarning] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
@@ -316,13 +318,15 @@ function ProformaForm({ toggleOpen, proforma = null }: ProformaFormProps) {
                                 shouldValidate: true
                               });
                             }}
-                            startAdornment={
-                              <Tooltip title="Add Client">
-                                <AddOutlined
-                                  onClick={() => setStakeholderQuickAddDisplay(true)}
-                                  sx={{ cursor: 'pointer' }}
-                                />
-                              </Tooltip>
+                            startAdornment= {
+                              checkOrganizationPermission(PERMISSIONS.STAKEHOLDERS_CREATE) && (
+                                <Tooltip title="Add Client">
+                                  <AddOutlined
+                                    onClick={() => setStakeholderQuickAddDisplay(true)}
+                                    sx={{ cursor: 'pointer' }}
+                                  />
+                                </Tooltip>
+                              )
                             }
                           />
                         </Div>

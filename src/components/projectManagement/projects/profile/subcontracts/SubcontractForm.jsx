@@ -115,7 +115,7 @@ function SubcontractForm({setOpenDialog, subContract = null }) {
                     checkOrganizationPermission(PERMISSIONS.STAKEHOLDERS_CREATE) && (
                         <Tooltip title="Add Sub Contractor">
                             <AddOutlined
-                                onClick={() => setStakeholderQuickAddDisplay(true)}
+                                
                                 sx={{ cursor: 'pointer' }}
                             />
                         </Tooltip>
