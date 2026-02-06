@@ -4,15 +4,20 @@ import { ASSET_IMAGES } from '@/utilities/constants/paths';
 import { keyframes } from '@emotion/react';
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 import { Div } from '@jumbo/shared';
-import { Backdrop, Button, Typography } from '@mui/material';
+import { Backdrop } from '@mui/material';
 import Image from 'next/image';
-import { useEffect, useRef } from 'react';
 
+/* =====================
+   ANIMATION
+===================== */
 const spiralRotate = keyframes`
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 `;
 
+/* =====================
+   GLOBAL ERROR
+===================== */
 export default function GlobalError({
   error,
   reset,
@@ -21,18 +26,17 @@ export default function GlobalError({
   reset: () => void;
 }) {
   const { theme } = useJumboTheme();
-  const redirected = useRef(false);
 
-  useEffect(() => {
-    if (redirected.current) return;
-    redirected.current = true;
-
+  if (typeof window !== 'undefined') {
     try {
       localStorage.removeItem('authData');
       sessionStorage.clear();
     } catch {
+      // Storage might be unavailable (Safari / private mode)
     }
-  }, []);
+
+    window.location.replace('/auth/signin');
+  }
 
   return (
     <Backdrop
@@ -47,6 +51,7 @@ export default function GlobalError({
         gap: 3,
       }}
     >
+      {/* Loader */}
       <Div
         sx={{
           position: 'relative',
@@ -57,6 +62,7 @@ export default function GlobalError({
           justifyContent: 'center',
         }}
       >
+        {/* Spiral arcs */}
         <Div
           sx={{
             position: 'absolute',
@@ -96,6 +102,7 @@ export default function GlobalError({
             clipPath: 'polygon(0 0, 100% 0, 100% 50%, 0 50%)',
           }}
         />
+        {/* Static logo in the center */}
         <Div
           sx={{
             width: 100,
@@ -122,35 +129,6 @@ export default function GlobalError({
             unoptimized
           />
         </Div>
-      </Div>
-
-      <Typography variant='h6' textAlign='center'>
-        Something went wrong
-      </Typography>
-
-      <Typography
-        variant='body2'
-        textAlign='center'
-        sx={{ opacity: 0.75, maxWidth: 360 }}
-      >
-        We ran into an unexpected problem. You can try again or return to the
-        sign-in page.
-      </Typography>
-
-      <Div sx={{ display: 'flex', gap: 2 }}>
-        <Button variant='contained' color='primary' onClick={() => reset()}>
-          Try Again
-        </Button>
-
-        <Button
-          variant='outlined'
-          color='inherit'
-          onClick={() => {
-            window.location.href = '/auth/signin';
-          }}
-        >
-          Sign In
-        </Button>
       </Div>
     </Backdrop>
   );
