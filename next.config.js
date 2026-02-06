@@ -11,38 +11,14 @@ const withPWA = withPWAInit({
     skipWaiting: true,
     clientsClaim: true,
     navigateFallback: '/',
-    runtimeCaching: [
-      {
-        urlPattern: ({ request }) => request.mode === 'navigate',
-        handler: 'NetworkFirst',
-        options: {
-          cacheName: 'pages',
-          expiration: {
-            maxEntries: 50,
-            maxAgeSeconds: 24 * 60 * 60,
-          },
-        },
-      },
-      {
-        urlPattern: /^https?.*\.(png|jpg|jpeg|svg|webp|css|js)$/i,
-        handler: 'StaleWhileRevalidate',
-        options: {
-          cacheName: 'assets',
-          expiration: {
-            maxEntries: 100,
-            maxAgeSeconds: 7 * 24 * 60 * 60,
-          },
-        },
-      },
-    ],
   },
 });
 
 const nextConfig = {
   reactStrictMode: true,
-
-  eslint: {
-    ignoreDuringBuilds: true,
+  turbopack: {},
+  env: {
+    REACT_APP_IMAGES_PATH: '/assets/images',
   },
 
   async redirects() {
