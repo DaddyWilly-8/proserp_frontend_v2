@@ -1,4 +1,3 @@
-import { Spinner } from '@/components/spinner';
 import { BackdropSpinner } from '@/shared/ProgressIndicators/BackdropSpinner';
 
 export default function Loading() {

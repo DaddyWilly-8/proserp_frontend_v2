@@ -9,11 +9,11 @@ import { SIDEBAR_STYLES } from '@jumbo/utilities/constants';
 import { TranslationPopover } from '@/components/translationPopover';
 import { Stack, useMediaQuery } from '@mui/material';
 import React from 'react';
-import { Logo } from '../logo';
 import { SidebarToggleButton } from '../SidebarToggleButton';
 import { Search } from './Search';
 import { ThemeModeOption } from './ThemeModeOptions';
 import dynamic from 'next/dynamic';
+import { Logo } from '../Logo';
 
 const AuthUserPopover = dynamic(() =>
   import('../authUserPopover').then((mod) => mod.AuthUserPopover),
