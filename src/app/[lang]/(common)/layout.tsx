@@ -4,9 +4,9 @@ import { JumboLayout } from '@jumbo/components';
 import { getDictionary } from '@/app/[lang]/dictionaries';
 import React from 'react';
 import JumboLayoutProvider from '@jumbo/components/JumboLayout/components/JumboLayoutProvider/JumboLayoutProvider';
-import { Header } from '@/components/Header';
+import { Header } from '@/components/header';
 import { Footer } from '@/components/Footer';
-import { Sidebar } from '@/components/Sidebar';
+import { Sidebar } from '@/components/sidebar';
 
 interface CommonLayoutProps {
   children: React.ReactNode;

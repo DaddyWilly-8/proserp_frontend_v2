@@ -1,4 +1,4 @@
-import { Signin } from "@/components/Signin";
+import { Signin } from "@/components/signin";
 
 export const dynamic = "force-dynamic";
 
