@@ -176,36 +176,11 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
         ),
         main_ledger: yup.object().shape({
           id: yup.number().required('Main Ledger is required').typeError('Main Ledger is Required'),
-          amount: yup.number()
-            .required('Main Ledger Amount is required')
-            .typeError('Main Ledger Amount is Required')
-            .positive('Amount must be positive')
+          amount: yup
+            .number()
+            .typeError('Main Ledger Amount is required')
+            .test('not-null-or-empty', 'Main Ledger Amount is required', v => v !== null && v !== '' && !isNaN(Number(v)))
         }).nullable(),
-          collected_amount: yup
-            .number()
-            .nullable()
-            .transform((v, o) => (o === '' ? null : v))
-            .when('$submit_type', {
-              is: 'close',
-              then: (schema) =>
-                schema
-                  .required('Collected Amount is required on close')
-                  .typeError('Collected Amount is required on close'),
-              otherwise: (schema) => schema.notRequired(),
-            }),
-
-          collection_ledger_id: yup
-            .number()
-            .nullable()
-            .transform((v, o) => (o === '' ? null : v))
-            .when('$submit_type', {
-              is: 'close',
-              then: (schema) =>
-                schema
-                  .required('Collection Ledger is required on close')
-                  .typeError('Collection Ledger is required on close'),
-              otherwise: (schema) => schema.notRequired(),
-            }),
       })
     ).required('At least one cashier is required').min(1, 'At least one cashier is required'),
     dipping_before: yup.array().of(
@@ -625,24 +600,29 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
       return;
     }
 
-    // Prevent submit if any cashier is missing Collected Amount, Collection Ledger, or Main Ledger info ONLY if closing
+    // Improved: Only require fields if ledger is selected, allow 0 for collected_amount and main_ledger.amount
     const cashiersMissingFields = data.cashiers
       .map((cashier, idx) => {
-        const missingCollected = cashier.collected_amount === undefined || cashier.collected_amount === null || cashier.collected_amount === '' || isNaN(Number(cashier.collected_amount));
+        // Always require collection_ledger_id and main_ledger.id if cashier exists
         const missingLedger = cashier.collection_ledger_id === undefined || cashier.collection_ledger_id === null || cashier.collection_ledger_id === '' || isNaN(Number(cashier.collection_ledger_id));
-        const missingMainLedger = !cashier.main_ledger || cashier.main_ledger.id === undefined || cashier.main_ledger.id === null || cashier.main_ledger.id === '' || isNaN(Number(cashier.main_ledger.id)) || cashier.main_ledger.amount === undefined || cashier.main_ledger.amount === null || cashier.main_ledger.amount === '' || isNaN(Number(cashier.main_ledger.amount));
+        const missingMainLedger = !cashier.main_ledger || cashier.main_ledger.id === undefined || cashier.main_ledger.id === null || cashier.main_ledger.id === '' || isNaN(Number(cashier.main_ledger.id));
+        // Amount must be 0 or a valid number, not null
+        const missingCollected = cashier.collected_amount === null || cashier.collected_amount === '' || isNaN(Number(cashier.collected_amount));
+        const missingMainLedgerAmount = cashier.main_ledger && (cashier.main_ledger.amount === null || cashier.main_ledger.amount === '' || isNaN(Number(cashier.main_ledger.amount)));
         return {
           name: cashier.name,
           missingCollected,
           missingLedger,
-          missingMainLedger
+          missingMainLedger,
+          missingMainLedgerAmount
         };
       })
-      .filter(c => c.missingCollected || c.missingLedger || c.missingMainLedger);
+      .filter(c => c.missingCollected || c.missingLedger || c.missingMainLedger || c.missingMainLedgerAmount);
     if (cashiersMissingFields.length > 0 && data.submit_type === 'close') {
       const missingCollected = cashiersMissingFields.filter(c => c.missingCollected).map(c => c.name);
       const missingLedger = cashiersMissingFields.filter(c => c.missingLedger).map(c => c.name);
       const missingMainLedger = cashiersMissingFields.filter(c => c.missingMainLedger).map(c => c.name);
+      const missingMainLedgerAmount = cashiersMissingFields.filter(c => c.missingMainLedgerAmount).map(c => c.name);
       const messageRows = [];
       if (missingCollected.length > 0) {
         messageRows.push(`Please fill Collected Amount for: ${missingCollected.join(', ')}`);
@@ -652,6 +632,9 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
       }
       if (missingMainLedger.length > 0) {
         messageRows.push(`Please fill Main Ledger information for: ${missingMainLedger.join(', ')}`);
+      }
+      if (missingMainLedgerAmount.length > 0) {
+        messageRows.push(`Please fill Main Ledger Amount for: ${missingMainLedgerAmount.join(', ')}`);
       }
       enqueueSnackbar(
         <div>
