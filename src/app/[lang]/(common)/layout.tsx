@@ -5,7 +5,7 @@ import { getDictionary } from '@/app/[lang]/dictionaries';
 import React from 'react';
 import JumboLayoutProvider from '@jumbo/components/JumboLayout/components/JumboLayoutProvider/JumboLayoutProvider';
 import { Header } from '@/components/header';
-import { Footer } from '@/components/Footer';
+import { Footer } from '@/components/footer';
 import { Sidebar } from '@/components/sidebar';
 
 interface CommonLayoutProps {
