@@ -8,7 +8,7 @@ import * as yup from "yup";
 import { yupResolver } from '@hookform/resolvers/yup';
 import supportServices from '../support-services';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import organizationServices from '@/components/Organizations/organizationServices';
+import organizationServices from '@/components/organizations/organizationServices';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { PROS_CONTROL_PERMISSIONS } from '@/utilities/constants/prosControlPermissions';
 

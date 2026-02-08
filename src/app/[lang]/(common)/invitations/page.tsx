@@ -1,5 +1,5 @@
 export const dynamic = "force-dynamic";
-import OrganizationInvitations from '@/components/Invitations/Invitations'
+import OrganizationInvitations from '@/components/invitations/Invitations'
 import React from 'react'
 
 function page() {

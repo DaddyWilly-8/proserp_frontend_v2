@@ -6,7 +6,7 @@ import Head from 'next/head';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { useQuery } from '@tanstack/react-query';
 import axios from '@/lib/services/config';
-import OrganizationForm from '@/components/Organizations/form/OrganizationForm';
+import OrganizationForm from '@/components/organizations/form/OrganizationForm';
 import { useParams, useRouter } from 'next/navigation';
 import { Organization } from '@/types/auth-types';
 import { Typography } from '@mui/material';

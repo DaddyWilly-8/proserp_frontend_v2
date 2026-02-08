@@ -1,6 +1,6 @@
 'use client'
 
-import OrganizationForm from '@/components/Organizations/form/OrganizationForm'
+import OrganizationForm from '@/components/organizations/form/OrganizationForm'
 import React from 'react'
 
 function page() {

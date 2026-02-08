@@ -1,5 +1,5 @@
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
-import organizationServices from '@/components/Organizations/organizationServices';
+import organizationServices from '@/components/organizations/organizationServices';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { Div } from '@jumbo/shared';
 import { AddOutlined, CheckOutlined, DisabledByDefault } from '@mui/icons-material';

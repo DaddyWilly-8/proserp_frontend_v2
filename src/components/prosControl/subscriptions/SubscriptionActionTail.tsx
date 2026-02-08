@@ -5,7 +5,7 @@ import { ButtonGroup, Tooltip, IconButton, Dialog, useMediaQuery} from '@mui/mat
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 import { PROS_CONTROL_PERMISSIONS } from '@/utilities/constants/prosControlPermissions';
-import SubscriptionsForm from '@/components/Organizations/profile/subscriptions/SubscriptionsForm';
+import SubscriptionsForm from '@/components/organizations/profile/subscriptions/SubscriptionsForm';
 
 const SubscriptionActionTail = () => {
   const { checkPermission } = useJumboAuth();

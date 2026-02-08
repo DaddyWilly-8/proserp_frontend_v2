@@ -11,7 +11,7 @@ import {
 import CheckBoxOutlineBlank from "@mui/icons-material/CheckBoxOutlineBlank";
 import CheckBox from "@mui/icons-material/CheckBox";
 import { useJumboAuth } from "@/app/providers/JumboAuthProvider";
-import organizationServices from "../Organizations/organizationServices";
+import organizationServices from "../organizations/organizationServices";
 import { useQuery } from "@tanstack/react-query";
 
 interface User {

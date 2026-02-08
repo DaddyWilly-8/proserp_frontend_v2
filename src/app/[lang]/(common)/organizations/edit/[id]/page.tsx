@@ -1,4 +1,4 @@
-import EditOrganization from '@/components/Organizations/form/EditOrganization'
+import EditOrganization from '@/components/organizations/form/EditOrganization'
 import React from 'react'
 
 function page() {

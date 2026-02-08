@@ -9,7 +9,7 @@ import approvalChainsServices from '../approvalChainsServices';
 import { approvalChainsListItemContext } from '../ApprovalChainsListItem';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
-import organizationServices from '@/components/Organizations/organizationServices';
+import organizationServices from '@/components/organizations/organizationServices';
 import { Div } from '@jumbo/shared';
 import { ApprovalChainLevel } from '../ApprovalChainType';
 

@@ -1,7 +1,7 @@
 'use client';
 
-import { LoginForm } from '@/components/LoginForm';
-import { Link } from '@/components/NextLink';
+import { LoginForm } from '@/components/loginForm';
+import { Link } from '@/components/nextLink';
 import { ASSET_IMAGES } from '@/utilities/constants/paths';
 import { Facebook, Google, Twitter } from '@mui/icons-material';
 import {

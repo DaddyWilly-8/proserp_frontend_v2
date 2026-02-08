@@ -6,7 +6,7 @@ import { getToken } from 'firebase/messaging';
 import { messaging } from '@/app/helpers/init-firebase';
 import authServices from '@/services/auth-services';
 import { AuthOrganization, User } from '@/types/auth-types';
-import organizationServices from '@/components/Organizations/organizationServices';
+import organizationServices from '@/components/organizations/organizationServices';
 
 interface AuthUser {
   user:{

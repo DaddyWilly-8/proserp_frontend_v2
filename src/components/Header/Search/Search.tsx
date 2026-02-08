@@ -1,5 +1,5 @@
 'use client';
-import { SearchGlobal } from '@/components/SearchGlobal';
+import { SearchGlobal } from '@/components/searchGlobal';
 import { useSmallScreen } from '@/hooks/useSmallScreen';
 import { Div } from '@jumbo/shared';
 import CloseIcon from '@mui/icons-material/Close';

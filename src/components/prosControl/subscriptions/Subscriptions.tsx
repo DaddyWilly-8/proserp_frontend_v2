@@ -10,10 +10,10 @@ import SubscriptionActionTail from "./SubscriptionActionTail";
 import SubscriptionsStatusSelector from "./SubscriptionsStatusSelector";
 import { useParams } from "next/navigation";
 import { useJumboAuth } from "@/app/providers/JumboAuthProvider";
-import SubscriptionItem from "@/components/Organizations/profile/subscriptions/SubscriptionItem";
+import SubscriptionItem from "@/components/organizations/profile/subscriptions/SubscriptionItem";
 import { PROS_CONTROL_PERMISSIONS } from "@/utilities/constants/prosControlPermissions";
 import UnauthorizedAccess from "@/shared/Information/UnauthorizedAccess";
-import { Subscription } from "@/components/Organizations/profile/subscriptions/SubscriptionTypes";
+import { Subscription } from "@/components/organizations/profile/subscriptions/SubscriptionTypes";
 
 interface QueryOptions {
   queryKey: string;

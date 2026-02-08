@@ -1,4 +1,4 @@
-import OrganizationProfile from '@/components/Organizations/profile/OrganizationProfile'
+import OrganizationProfile from '@/components/organizations/profile/OrganizationProfile'
 import React from 'react'
 
 function page() {

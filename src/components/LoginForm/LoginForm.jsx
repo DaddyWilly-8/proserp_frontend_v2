@@ -16,7 +16,7 @@ import * as yup from 'yup';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { useLanguage } from '@/app/[lang]/contexts/LanguageContext';
 import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
-import organizationServices from '../Organizations/organizationServices';
+import organizationServices from '../organizations/organizationServices';
 import { useSession } from 'next-auth/react';
 import { useTransition } from 'react';
 
