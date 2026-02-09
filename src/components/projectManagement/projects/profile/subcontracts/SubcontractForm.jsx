@@ -63,7 +63,6 @@ function SubcontractForm({setOpenDialog, subContract = null }) {
 
     const validationSchema = yup.object({
         subcontractor_id: yup.number().required("Sub Contractor Name is required").typeError('Sub Contractor Name is required'),
-        // store_id is optional, no validation needed
     }); 
 
     const { register, handleSubmit, setValue, watch, clearErrors, formState: { errors } } = useForm({
