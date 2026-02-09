@@ -38,7 +38,6 @@ import fuelStationServices from '../../fuelStationServices';
 import FuelPrices from './FuelPrices';
 import ShiftSummary from './ShiftSummary';
 import PaymentsReceivedItemRow from './tabs/PaymentsReceivedItemRow';
-import { readableDate } from '@/app/helpers/input-sanitization-helpers';
 
 function SaleShiftForm({ SalesShift, setOpenDialog }) {
   const [showWarning, setShowWarning] = useState(false);
@@ -57,6 +56,7 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
 
   const [cashierLedgers, setCashierLedgers] = useState({});
   const [lastClosingReadings, setLastClosingReadings] = useState({});
+  const [lastClosingDipping, setLastClosingDipping] = useState([]);
 
   const { mutate: addSalesShifts, isPending } = useMutation({
     mutationFn: fuelStationServices.addSalesShifts,
@@ -306,23 +306,39 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
     try {
       const shiftStart = watch('shift_start');
       if (!shiftStart) return;
-      
       const lastReadings = await fuelStationServices.retrieveLastReadings({
         stationId: activeStation.id,
         shift_start: shiftStart,
       });
 
+      // Pump readings
       const readingsMap = {};
-        lastReadings.cashiers.flatMap(cashier => 
-          cashier.pump_readings || []
-        ).forEach(reading => {
-          readingsMap[reading.fuel_pump_id] = reading.closing;
-        });
-
+      lastReadings.cashiers.flatMap(cashier => 
+        cashier.pump_readings || []
+      ).forEach(reading => {
+        readingsMap[reading.fuel_pump_id] = reading.closing;
+      });
       setLastClosingReadings(readingsMap);
+
+      // Dipping readings
+      if (lastReadings.closing_dipping && Array.isArray(lastReadings.closing_dipping.readings)) {
+        setLastClosingDipping(
+          lastReadings.closing_dipping.readings.map(r => ({
+            reading: r.reading,
+            product_id: r.product_id,
+            tank_id: r.tank_id,
+          }))
+        );
+        // Optionally, set as opening dipping for this shift if not already set
+        setValue('dipping_before', lastReadings.closing_dipping.readings.map(r => ({
+          reading: r.reading,
+          product_id: r.product_id,
+          tank_id: r.tank_id,
+        })), { shouldValidate: true, shouldDirty: true });
+      }
     } catch (error) {
     }
-  }, [activeStation.id, watch, enqueueSnackbar, SalesShift]);
+  }, [activeStation.id, watch, enqueueSnackbar, SalesShift, setValue]);
 
   const getPumpOpeningValue = useCallback((pumpId, cashierIndex) => {
     if (SalesShift?.id) {
@@ -394,10 +410,7 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
       // Set shift_start if not set or if shift times change
       let selectedDate = currentShiftStart ? dayjs(currentShiftStart) : dayjs().startOf('day');
       let newStartDateTime = newValue.start_time ? combineDateTime(selectedDate, newValue.start_time) : selectedDate.toISOString();
-      // Debug log for shift and computed start
-      console.log('Selected shift:', newValue);
-      console.log('Selected shift start_time:', newValue.start_time);
-      console.log('Computed newStartDateTime:', newStartDateTime);
+
       setValue('shift_start', newStartDateTime, {
         shouldValidate: true,
         shouldDirty: true
@@ -557,7 +570,7 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
       const sales_outlet_id = activeStation.id;
       const response = await fuelStationServices.getProductsSellingPrices({ product_ids, sales_outlet_id, as_at });
       let prices = [];
-      // Handle array or object keyed by product_id
+      
       if (Array.isArray(response)) {
         prices = response;
       } else if (response && typeof response === 'object' && !Array.isArray(response)) {
@@ -580,7 +593,6 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
   };
 
   const handleSubmitForm = async (data) => {
-      // Prevent if any product is missing a price
       const allProductIds = (activeStation.products || []).map(p => p.id);
       const pricedProductIds = (data.product_prices || []).map(p => p.product_id);
       const missingPriceProducts = allProductIds.filter(pid => !pricedProductIds.includes(pid));
@@ -600,13 +612,10 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
       return;
     }
 
-    // Improved: Only require fields if ledger is selected, allow 0 for collected_amount and main_ledger.amount
     const cashiersMissingFields = data.cashiers
       .map((cashier, idx) => {
-        // Always require collection_ledger_id and main_ledger.id if cashier exists
         const missingLedger = cashier.collection_ledger_id === undefined || cashier.collection_ledger_id === null || cashier.collection_ledger_id === '' || isNaN(Number(cashier.collection_ledger_id));
         const missingMainLedger = !cashier.main_ledger || cashier.main_ledger.id === undefined || cashier.main_ledger.id === null || cashier.main_ledger.id === '' || isNaN(Number(cashier.main_ledger.id));
-        // Amount must be 0 or a valid number, not null
         const missingCollected = cashier.collected_amount === null || cashier.collected_amount === '' || isNaN(Number(cashier.collected_amount));
         const missingMainLedgerAmount = cashier.main_ledger && (cashier.main_ledger.amount === null || cashier.main_ledger.amount === '' || isNaN(Number(cashier.main_ledger.amount)));
         return {
@@ -951,7 +960,7 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
           </>
         )}
 
-        {activeTab === 2 && <Dipping SalesShift={SalesShift} />}
+        {activeTab === 2 && <Dipping SalesShift={SalesShift} lastClosingDipping={lastClosingDipping} />}
 
         {activeTab === 3 && (
           <ShiftSummary paymentItems={paymentItems} />
