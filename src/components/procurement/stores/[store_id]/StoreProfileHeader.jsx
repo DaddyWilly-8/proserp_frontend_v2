@@ -3,7 +3,6 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useRouter } from 'next/navigation';
 import { useStoreProfile } from './StoreProfileProvider'
 
-
 function StoreProfileHeader() {
   const { mainStore } = useStoreProfile();
   const router = useRouter();
