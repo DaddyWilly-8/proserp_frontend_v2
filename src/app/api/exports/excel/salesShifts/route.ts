@@ -7,7 +7,7 @@ export async function POST(req: NextRequest) {
 
     const buffer = await exportSalesShiftsToExcel(body);
 
-    return new Response(buffer, {
+    return new Response(buffer as any, {
       headers: {
         'Content-Type':
           'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
