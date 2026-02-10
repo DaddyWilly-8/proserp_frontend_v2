@@ -109,7 +109,7 @@ const DocumentDialog = ({
   };
 
   return (
-    <Dialog open={isOpen} maxWidth='xl' fullWidth>
+    <>
       <DialogTitle>
         <Stack
           direction={'row'}
@@ -136,7 +136,7 @@ const DocumentDialog = ({
             </Grid>
           )}
           {!belowLargeScreen && <Grid size={11}></Grid>}
-          <Grid size={1} textAlign='right'>
+          {/* <Grid size={1} textAlign='right'>
             <Tooltip title='Export file'>
               <IconButton
                 size='small'
@@ -153,7 +153,7 @@ const DocumentDialog = ({
                 <HighlightOff color='primary' />
               </IconButton>
             </Tooltip>
-          </Grid>
+          </Grid> */}
         </Grid>
         {belowLargeScreen && activeTab === 0 ? (
           <SalesShiftOnScreen
@@ -197,7 +197,7 @@ const DocumentDialog = ({
           </Box>
         )}
       </DialogContent>
-    </Dialog>
+    </>
   );
 };
 
