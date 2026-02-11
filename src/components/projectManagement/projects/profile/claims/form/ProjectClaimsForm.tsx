@@ -177,7 +177,7 @@ const ProjectClaimsForm: React.FC<ProjectClaimsFormProps> = ({
 
     const netAdj = adjustments.reduce((sum, adj) => {
       const amount = Number(adj.amount) || 0;
-      return adj.type === 'deduction' || adj.type === '-' ? sum - amount : sum + amount;
+      return (adj.type === 'deduction' || adj.type === '-') ? sum - amount : sum + amount;
     }, 0);
 
     // VAT should be calculated on gross before adjustments
@@ -222,7 +222,7 @@ const ProjectClaimsForm: React.FC<ProjectClaimsFormProps> = ({
       adjustments: adjustments.map((adj) => ({
         description: adj.description,
         complement_ledger_id: adj.complement_ledger_id || adj.complement_ledger?.id,
-        type: adj.type === '-' ? 'deduction' : 'addition',
+        type: (adj.type === '-' || adj.type === 'deduction') ? 'deduction' : 'addition',
         amount: Number(adj.amount),
       })),
     };
