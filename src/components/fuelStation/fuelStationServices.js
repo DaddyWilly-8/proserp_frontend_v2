@@ -25,6 +25,13 @@ fuelStationServices.dippingReport = async (params) => {
     return data;
 }
 
+fuelStationServices.FuelVouchersReport = async (params) => {
+    const { data } = await axios.get(`/api/fuelStations/stations/fuelVouchersReport`, {
+        params
+    })
+    return data;
+}
+
 fuelStationServices.getUserStations = async ({ queryKey }) => {
     const { userId } = queryKey[1];
     const { data } = await axios.get(`/api/fuelStations/stations/${userId}/userStations`);
