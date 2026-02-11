@@ -83,7 +83,35 @@ function ProjectDashboard() {
 
               <StatItem label="Contract Sum" value="1,200,000,000 TZS" />
               <StatItem label="Progressive Revenue" value="750,000,000 TZS" />
+              
+              <Box mt={2} mb={2}>
+                <Box display="flex" alignItems="center" gap={1}>
+                  <LinearProgress
+                    variant="determinate"
+                    value={62.5}
+                    sx={{ height: 8, borderRadius: 5, mt: 1, flex: 1 }}
+                  />
+                  <Typography variant="body2" color="text.secondary">
+                    62.5%
+                  </Typography>
+                </Box>
+              </Box>
+
               <StatItem label="Certified Revenue" value="620,000,000 TZS" />
+              
+              <Box mt={2}>
+                <Box display="flex" alignItems="center" gap={1}>
+                  <LinearProgress
+                    variant="determinate"
+                    value={51.7}
+                    sx={{ height: 8, borderRadius: 5, mt: 1, flex: 1 }}
+                    color="success"
+                  />
+                  <Typography variant="body2" color="text.secondary">
+                    51.7%
+                  </Typography>
+                </Box>
+              </Box>
             </CardContent>
           </Card>
         </Grid>
@@ -104,13 +132,18 @@ function ProjectDashboard() {
 
               <Box mt={2}>
                 <Typography variant="body2" color="text.secondary">
-                  % Spend (71%)
+                  % Spent
                 </Typography>
-                <LinearProgress
-                  variant="determinate"
-                  value={71}
-                  sx={{ height: 8, borderRadius: 5, mt: 1 }}
-                />
+                <Box display="flex" alignItems="center" gap={1}>
+                  <LinearProgress
+                    variant="determinate"
+                    value={71}
+                    sx={{ height: 8, borderRadius: 5, mt: 1, flex: 1 }}
+                  />
+                  <Typography variant="body2" color="text.secondary">
+                    71%
+                  </Typography>
+                </Box>
               </Box>
             </CardContent>
           </Card>
@@ -128,19 +161,24 @@ function ProjectDashboard() {
               </Box>
 
               <Grid container spacing={3}>
-                <Grid size={{ xs: 12, md: 4 }}>
-                  <StatItem label="Time %" value="68%" />
-                  <LinearProgress variant="determinate" value={68} />
+                <Grid size={{ xs: 12, md: 6 }}>
+                  <StatItem label="Time %" value="" />
+                  <Box display="flex" alignItems="center" gap={1}>
+                    <LinearProgress variant="determinate" value={68} sx={{ flex: 1 }} />
+                    <Typography variant="body2" color="text.secondary">
+                      68%
+                    </Typography>
+                  </Box>
                 </Grid>
 
-                <Grid size={{ xs: 12, md: 4 }}>
-                  <StatItem label="Cost %" value="71%" />
-                  <LinearProgress variant="determinate" value={71} color="success" />
-                </Grid>
-
-                <Grid size={{ xs: 12, md: 4 }}>
-                  <StatItem label="Physical Progress %" value="65%" />
-                  <LinearProgress variant="determinate" value={65} color="warning" />
+                <Grid size={{ xs: 12, md: 6 }}>
+                  <StatItem label="Physical Progress %" value="" />
+                  <Box display="flex" alignItems="center" gap={1}>
+                    <LinearProgress variant="determinate" value={65} color="warning" sx={{ flex: 1 }} />
+                    <Typography variant="body2" color="text.secondary">
+                      65%
+                    </Typography>
+                  </Box>
                 </Grid>
               </Grid>
             </CardContent>
