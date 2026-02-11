@@ -195,15 +195,17 @@ const CertificateForm: React.FC<CertificateFormProps> = ({
       return (adj.type === 'deduction' || adj.type === '-') ? sum - amount : sum + amount;
     }, 0);
 
+    // VAT should be calculated on gross before adjustments
+    const vat = (gross * vatPercentage) / 100;
     const sub = gross + netAdj;
-    const vat = (sub * vatPercentage) / 100;
+    const grand = sub + vat;
 
     return {
       grossAmount: gross,
       netAdjustments: netAdj,
       subtotal: sub,
       vatAmount: vat,
-      grandTotal: sub + vat,
+      grandTotal: grand,
     };
   }, [tasksItems, adjustments, vatPercentage]);
 
