@@ -175,20 +175,22 @@ const ProjectClaimsForm: React.FC<ProjectClaimsFormProps> = ({
       return sum + (rate || 0) * qty;
     }, 0);
 
-  const netAdj = adjustments.reduce((sum, adj) => {
-    const amount = Number(adj.amount) || 0;
-    return adj.type === 'deduction' || adj.type === '-' ? sum - amount : sum + amount;
-  }, 0);
+    const netAdj = adjustments.reduce((sum, adj) => {
+      const amount = Number(adj.amount) || 0;
+      return adj.type === 'deduction' || adj.type === '-' ? sum - amount : sum + amount;
+    }, 0);
 
+    // VAT should be calculated on gross before adjustments
+    const vat = (gross * Number(watchVatPercentage)) / 100;
     const sub = gross + netAdj;
-    const vat = (sub * Number(watchVatPercentage)) / 100;
+    const grand = sub + vat;
 
     return {
       grossAmount: gross,
       netAdjustments: netAdj,
       subtotal: sub,
       vatAmount: vat,
-      grandTotal: sub + vat,
+      grandTotal: grand,
     };
   }, [deliverableItems, adjustments, watchVatPercentage]);
 
