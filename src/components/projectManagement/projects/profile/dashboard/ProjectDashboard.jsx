@@ -72,7 +72,7 @@ function ProjectDashboard() {
 
         {/* Revenue Card */}
         <Grid size={{ xs: 12, md: 6 }}>
-          <Card elevation={3} sx={{ borderRadius: 3 }}>
+          <Card elevation={3} sx={{ borderRadius: 3, height: '100%' }}>
             <CardContent>
               <Box display="flex" alignItems="center" mb={2}>
                 <PaidOutlined color="primary" sx={{ mr: 1 }} />
@@ -118,7 +118,7 @@ function ProjectDashboard() {
 
         {/* Budgets Card */}
         <Grid size={{ xs: 12, md: 6 }}>
-          <Card elevation={3} sx={{ borderRadius: 3 }}>
+          <Card elevation={3} sx={{ borderRadius: 3, height: '100%' }}>
             <CardContent>
               <Box display="flex" alignItems="center" mb={2}>
                 <AccountBalanceWalletOutlined color="success" sx={{ mr: 1 }} />
