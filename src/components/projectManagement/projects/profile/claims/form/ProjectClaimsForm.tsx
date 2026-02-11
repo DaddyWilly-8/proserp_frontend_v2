@@ -241,7 +241,7 @@ const ProjectClaimsForm: React.FC<ProjectClaimsFormProps> = ({
 
       <DialogContent dividers>
         <Grid container spacing={3}>
-          <Grid size={{ xs: 12, md: 9 }}>
+          <Grid size={{ xs: 12, md: 8 }}>
             <form autoComplete="off" onSubmit={handleSubmit(onSubmit)}>
               <Grid container spacing={2} mb={3}>
                 <Grid size={{ xs: 12, md: 6 }}>
@@ -295,7 +295,7 @@ const ProjectClaimsForm: React.FC<ProjectClaimsFormProps> = ({
             </form>
           </Grid>
 
-          <Grid size={{xs: 12, md: 3}}>
+          <Grid size={{xs: 12, md: 4}}>
             <Div
               sx={{
                 position: 'sticky',
