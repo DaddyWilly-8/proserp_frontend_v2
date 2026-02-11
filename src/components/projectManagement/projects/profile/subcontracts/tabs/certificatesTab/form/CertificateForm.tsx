@@ -192,7 +192,7 @@ const CertificateForm: React.FC<CertificateFormProps> = ({
 
     const netAdj = adjustments.reduce((sum, adj) => {
       const amount = Number(adj.amount) || 0;
-      return adj.type === 'deduction' || adj.type === '-' ? sum - amount : sum + amount;
+      return (adj.type === 'deduction' || adj.type === '-') ? sum - amount : sum + amount;
     }, 0);
 
     const sub = gross + netAdj;
@@ -234,7 +234,7 @@ const CertificateForm: React.FC<CertificateFormProps> = ({
       adjustments: adjustments.map((adj) => ({
         description: adj.description,
         complement_ledger_id: adj.complement_ledger_id || adj.complement_ledger?.id,
-        type: adj.type === '-' ? 'deduction' : 'addition',
+        type: (adj.type === '-' || adj.type === 'deduction') ? 'deduction' : 'addition',
         amount: Number(adj.amount),
       })),
     };
@@ -257,7 +257,7 @@ const CertificateForm: React.FC<CertificateFormProps> = ({
 
       <DialogContent dividers>
         <Grid container spacing={3}>
-          <Grid size={{ xs: 12, md: 9 }}>
+          <Grid size={{ xs: 12, md: 8 }}>
             <form autoComplete="off" onSubmit={handleSubmit(onSubmit)}>
               <Grid container spacing={2} mb={3}>
                 <Grid size={{ xs: 12, md: 4 }}>
@@ -295,7 +295,7 @@ const CertificateForm: React.FC<CertificateFormProps> = ({
             </form>
           </Grid>
 
-          <Grid size={{ xs: 12, md: 3 }}>
+          <Grid size={{ xs: 12, md: 4 }}>
             <Div
               sx={{
                 position: 'sticky',
