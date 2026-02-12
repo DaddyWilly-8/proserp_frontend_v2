@@ -8601,6 +8601,11 @@ react-scrollbars-custom@^4.1.1:
     react-draggable "^4.4.5"
     zoom-level "^2.5.0"
 
+react-simple-wysiwyg@^3.4.1:
+  version "3.4.1"
+  resolved "https://registry.npmjs.org/react-simple-wysiwyg/-/react-simple-wysiwyg-3.4.1.tgz#e694285f39eda531746ba66244fb6541b7d3feb8"
+  integrity sha512-amppNS/WiUSURSFXg9evcRjRBwK6pf5LRWDACVZT/q4k2TginjNxegxM0T2s2LYulbRFS4eGwO7nv57OskckHw==
+
 react-smooth@^4.0.4:
   version "4.0.4"
   resolved "https://registry.npmjs.org/react-smooth/-/react-smooth-4.0.4.tgz#a5875f8bb61963ca61b819cedc569dc2453894b4"
