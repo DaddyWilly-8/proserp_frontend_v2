@@ -77,7 +77,7 @@ const CertifiedAdjustmentsRow: React.FC<CertifiedAdjustmentsRowProps> = ({
               bgcolor: 'action.hover',
             },
           }}
-          onClick={() => setShowForm(true)} // Optional: click whole row to edit
+          onClick={() => setShowForm(true)}
         >
           {/* Index */}
           <Grid size={{ xs: 1, md: 0.5 }}>
