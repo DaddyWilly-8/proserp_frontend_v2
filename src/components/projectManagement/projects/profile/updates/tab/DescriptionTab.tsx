@@ -39,7 +39,7 @@ const DescriptionTab: React.FC<DescriptionTabProps> = ({
         <style>
           {`
             .rsw-editor {
-              min-height: 250px;
+              min-height: 600px;
             }
           `}
         </style>
