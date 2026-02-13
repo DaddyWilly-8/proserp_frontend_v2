@@ -28,7 +28,7 @@ function PurchaseOrderGrns({order}) {
                     width: '100%', m: 0 
                 }}
                 container
-                spacing={1}
+                columnSpacing={1}
                 alignItems="center"
             >
                 <Grid size={{xs: 6, md: 3}}>
