@@ -2,7 +2,7 @@
 const CACHE_VERSION = 'v2'; // Increment this to force update
 self.addEventListener('install', event => {
 	self.skipWaiting();
-});
+}); 
 self.addEventListener('activate', event => {
 	event.waitUntil(
 		caches.keys().then(keys =>
