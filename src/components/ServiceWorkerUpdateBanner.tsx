@@ -3,8 +3,6 @@ import { useServiceWorkerUpdatePrompt } from '../hooks/useServiceWorkerUpdatePro
 export function ServiceWorkerUpdateBanner() {
   const { updateAvailable, reloadPage } = useServiceWorkerUpdatePrompt();
 
-  console.log('ServiceWorkerUpdateBanner rendered, updateAvailable:', updateAvailable);
-
   if (!updateAvailable) return null;
 
   return (
