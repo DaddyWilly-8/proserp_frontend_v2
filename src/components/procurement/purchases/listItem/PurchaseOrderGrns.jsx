@@ -40,12 +40,17 @@ function PurchaseOrderGrns({order}) {
                 </Grid>
                 <Grid size={{xs: 4, md: 3}} align="center">
                     <Tooltip title={'Grn No.'}>
-                    <Typography>{orderGrn?.grnNo}</Typography>
+                        <Typography>{orderGrn?.grnNo}</Typography>
                     </Tooltip>
+                        <Tooltip title={'Reference'}>
+                            <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
+                                {orderGrn?.reference}
+                            </Typography>
+                        </Tooltip>
                 </Grid>
                 <Grid size={{xs: 4, md: 4}} align="end">
-                    <Tooltip title={'Reference'}>
-                    <Typography>{orderGrn?.reference}</Typography>
+                    <Tooltip title={'Store'}>
+                        <Typography>{orderGrn?.store.name}</Typography>
                     </Tooltip>
                 </Grid>
                 <Grid size={{xs: 12, md: 2}}>
