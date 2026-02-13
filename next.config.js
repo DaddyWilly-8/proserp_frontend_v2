@@ -22,7 +22,7 @@ const withPWA = withPWAInit({
           },
         },
       },
-
+ 
       {
         urlPattern: /^https?.*\.(js|css|png|jpg|jpeg|svg|webp|woff2?)$/i,
         handler: 'StaleWhileRevalidate',
