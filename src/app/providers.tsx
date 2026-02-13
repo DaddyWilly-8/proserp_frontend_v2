@@ -40,9 +40,11 @@ export function Providers({ children }: { children: React.ReactNode }) {
                     <JumboDialogProvider>
                       <AuthInitializer>
                         <JumboDialog />
-                          <Suspense fallback={<BackdropSpinner />}>
-                            {children}
-                          </Suspense>
+                        {/* Show SW update banner globally */}
+                        {typeof window !== 'undefined' && require('@/components/ServiceWorkerUpdateBanner').ServiceWorkerUpdateBanner()}
+                        <Suspense fallback={<BackdropSpinner />}> 
+                          {children}
+                        </Suspense>
                       </AuthInitializer>
                     </JumboDialogProvider>
                   </JumboTheme>
