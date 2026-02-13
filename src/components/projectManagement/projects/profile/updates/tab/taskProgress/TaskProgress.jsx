@@ -134,6 +134,7 @@ function TaskProgress({ taskProgressItem = null, index = -1, setShowForm = null 
   } = useForm({
     resolver: yupResolver(validationSchema),
     defaultValues: {
+      id: taskProgressItem?.id,
       quantity_executed: taskProgressItem?.quantity_executed,
       unexcuted_task_quantity: taskProgressItem?.unexcuted_task_quantity,
       project_task_id: taskProgressItem?.project_task_id,
