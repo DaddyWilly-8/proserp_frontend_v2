@@ -38,7 +38,7 @@ function PurchaseOrderGrns({order}) {
                         </Typography>
                     </Tooltip>
                 </Grid>
-                <Grid size={{xs: 4, md: 3}} align="center">
+                <Grid size={{xs: 4, md: 3}}>
                     <Tooltip title={'Grn No.'}>
                         <Typography>{orderGrn?.grnNo}</Typography>
                     </Tooltip>
