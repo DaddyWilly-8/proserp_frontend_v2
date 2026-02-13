@@ -48,7 +48,7 @@ function PurchaseOrderGrns({order}) {
                             </Typography>
                         </Tooltip>
                 </Grid>
-                <Grid size={{xs: 4, md: 4}} align="end">
+                <Grid size={{xs: 4, md: 4}}>
                     <Tooltip title={'Store'}>
                         <Typography>{orderGrn?.store.name}</Typography>
                     </Tooltip>
@@ -67,7 +67,7 @@ function PurchaseOrderGrns({order}) {
                                         setOpenDialog(true);
                                     }}
                                 >
-                                <UndoOutlined color='error'/>
+                                    <UndoOutlined color='error'/>
                                 </IconButton>
                             </Tooltip>
                         }
