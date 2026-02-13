@@ -31,14 +31,14 @@ function PurchaseOrderGrns({order}) {
                 spacing={1}
                 alignItems="center"
             >
-                <Grid size={{xs: 4, md: 3}}>
+                <Grid size={{xs: 6, md: 3}}>
                     <Tooltip title={'Date Received'}>
                         <Typography>
                             {readableDate(orderGrn?.date_received)}
                         </Typography>
                     </Tooltip>
                 </Grid>
-                <Grid size={{xs: 4, md: 3}}>
+                <Grid size={{xs: 6, md: 3}}>
                     <Tooltip title={'Grn No.'}>
                         <Typography>{orderGrn?.grnNo}</Typography>
                     </Tooltip>
@@ -48,12 +48,12 @@ function PurchaseOrderGrns({order}) {
                             </Typography>
                         </Tooltip>
                 </Grid>
-                <Grid size={{xs: 4, md: 4}}>
+                <Grid size={{xs: 6, md: 4}}>
                     <Tooltip title={'Store'}>
                         <Typography>{orderGrn?.store.name}</Typography>
                     </Tooltip>
                 </Grid>
-                <Grid size={{xs: 12, md: 2}}>
+                <Grid size={{xs: 6, md: 2}}>
                     <Box
                         display={'flex'}
                         flexDirection={'row'}
