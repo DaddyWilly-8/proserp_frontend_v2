@@ -103,7 +103,7 @@ function SaleItemForm({
         return yup.object().shape({
             ...baseSchema,
             ...(requiresInventoryValidation ? inventoryValidations : nonInventoryValidations),
-            store_id: isInventory
+            store_id: requiresInventoryValidation
                 ? yup.number().required('Store is required').typeError('Store is required')
                 : yup.mixed().notRequired().nullable()
         });
