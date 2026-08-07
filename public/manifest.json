@@ -1,0 +1,29 @@
+{
+  "name": "ProsERP v2",
+  "short_name": "ProsERP v2",
+  "theme_color": "#2113AD",
+  "background_color": "#ffffff",
+  "description": "Robust ERP for accounting, project management, payroll, inventory, and requisitions.",
+  "display": "minimal-ui",
+  "display_override": ["minimal-ui", "standalone"],
+  "orientation": "portrait",
+  "scope": "/",
+  "start_url": "/en-US/dashboard",
+  "icons": [
+    {
+      "src": "/assets/images/icons/logo196.png",
+      "type": "image/png",
+      "sizes": "196x196"
+    },
+    {
+      "src": "/assets/images/icons/logo256.png",
+      "type": "image/png",
+      "sizes": "256x256"
+    },
+    {
+      "src": "/assets/images/icons/logo512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ]
+}
