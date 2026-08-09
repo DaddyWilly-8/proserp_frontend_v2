@@ -4,6 +4,8 @@ import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { Currency } from '@/components/masters/Currencies/CurrencyType';
 import PDFContent from '@/components/pdf/PDFContent';
 import projectsServices from '@/components/projectManagement/projects/project-services';
+import { FileExportGrid } from '@/components/sharedComponents/FileExportGrid';
+import PreviewTopBar from '@/components/sharedComponents/PreviewTopBar';
 import { Organization } from '@/types/auth-types';
 import { JumboDdMenu } from '@jumbo/components';
 import { useJumboDialog } from '@jumbo/components/JumboDialog/hooks/useJumboDialog';
@@ -14,6 +16,7 @@ import {
   EditOutlined,
   HighlightOff,
   MoreHorizOutlined,
+  ReceiptLongOutlined,
   VisibilityOutlined,
 } from '@mui/icons-material';
 import {
@@ -23,13 +26,9 @@ import {
   Dialog,
   DialogContent,
   DialogTitle,
-  Grid,
   IconButton,
-  LinearProgress,
   Skeleton,
   Stack,
-  Tab,
-  Tabs,
   Tooltip,
   Typography,
   useMediaQuery,
@@ -48,6 +47,7 @@ interface Certificate {
   remarks?: string | null;
   total_amount?: number | null;
   currency?: Currency | null;
+  status?: 'draft' | 'invoiced';
 }
 
 const DocumentDialog: React.FC<{
@@ -62,7 +62,7 @@ const DocumentDialog: React.FC<{
     enabled: open,
   });
 
-  const [activeTab, setActiveTab] = useState(0);
+  const [showOnScreen, setShowOnScreen] = useState(true);
   const { theme } = useJumboTheme();
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
   const [openDetails, setOpenDetails] = useState(false);
@@ -77,9 +77,24 @@ const DocumentDialog: React.FC<{
       <Dialog open fullWidth fullScreen={belowLargeScreen} maxWidth='md'>
         <DialogContent>
           <div style={{ width: '100%', padding: '16px' }}>
-            <Skeleton variant="text" width={180} height={32} style={{ borderRadius: 4, marginLeft: 'auto' }} />
-            <Skeleton variant="rectangular" width="100%" height={48} style={{ borderRadius: 4 }} />
-            <Skeleton variant="rectangular" width="100%" height={32} style={{ borderRadius: 4 }} />
+            <Skeleton
+              variant='text'
+              width={180}
+              height={32}
+              style={{ borderRadius: 4, marginLeft: 'auto' }}
+            />
+            <Skeleton
+              variant='rectangular'
+              width='100%'
+              height={48}
+              style={{ borderRadius: 4 }}
+            />
+            <Skeleton
+              variant='rectangular'
+              width='100%'
+              height={32}
+              style={{ borderRadius: 4 }}
+            />
           </div>
         </DialogContent>
       </Dialog>
@@ -91,10 +106,10 @@ const DocumentDialog: React.FC<{
       open={open}
       onClose={onClose}
       fullScreen={belowLargeScreen}
-      maxWidth='md'
+      maxWidth={showOnScreen ? 'lg' : 'md'}
       fullWidth
     >
-      {(!belowLargeScreen || activeTab === 1) && (
+      {!showOnScreen && (
         <DialogTitle>
           <Stack
             direction={'row'}
@@ -107,30 +122,23 @@ const DocumentDialog: React.FC<{
         </DialogTitle>
       )}
       <DialogContent>
-        {belowLargeScreen && (
-          <Grid
-            container
-            alignItems='center'
-            justifyContent='space-between'
-            mb={2}
-          >
-            <Grid size={11}>
-              <Tabs value={activeTab} onChange={(_, tab) => setActiveTab(tab)}>
-                <Tab label='ONSCREEN' />
-                <Tab label='PDF' />
-              </Tabs>
-            </Grid>
-            <Grid size={1} textAlign='right'>
-              <Tooltip title='Close'>
-                <IconButton size='small' onClick={onClose}>
-                  <HighlightOff color='primary' />
-                </IconButton>
-              </Tooltip>
-            </Grid>
-          </Grid>
-        )}
+        <PreviewTopBar
+          fileExportGrid={
+            <FileExportGrid
+              exportPdf
+              handlePdf={() => {
+                setShowOnScreen((prev) => !prev);
+              }}
+            />
+          }
+          closeButton={
+            <IconButton size='small' onClick={onClose}>
+              <HighlightOff color='primary' />
+            </IconButton>
+          }
+        />
 
-        {belowLargeScreen && activeTab === 0 ? (
+        {showOnScreen ? (
           <CertificateOnScreen
             certificate={certificateDetails}
             organization={organization as Organization}
@@ -174,11 +182,27 @@ const EditCertificate: React.FC<{
     queryFn: () => projectsServices.getCertificateDetails(certificate.id),
   });
 
-  if (isFetching)     return (
+  if (isFetching)
+    return (
       <div style={{ width: '100%', padding: '16px' }}>
-        <Skeleton variant="text" width={180} height={32} style={{ borderRadius: 4, marginLeft: 'auto' }} />
-        <Skeleton variant="rectangular" width="100%" height={48} style={{ borderRadius: 4 }} />
-        <Skeleton variant="rectangular" width="100%" height={32} style={{ borderRadius: 4 }} />
+        <Skeleton
+          variant='text'
+          width={180}
+          height={32}
+          style={{ borderRadius: 4, marginLeft: 'auto' }}
+        />
+        <Skeleton
+          variant='rectangular'
+          width='100%'
+          height={48}
+          style={{ borderRadius: 4 }}
+        />
+        <Skeleton
+          variant='rectangular'
+          width='100%'
+          height={32}
+          style={{ borderRadius: 4 }}
+        />
       </div>
     );
 
@@ -220,19 +244,49 @@ const CertificateItemAction: React.FC<{ certificate: Certificate }> = ({
     },
   });
 
+  const { mutate: invoiceCertificate } = useMutation({
+    mutationFn: () => projectsServices.invoiceCertificate(certificate.id),
+    onSuccess: (data: any) => {
+      queryClient.invalidateQueries({ queryKey: ['Certificates'] });
+      enqueueSnackbar(data.message, { variant: 'success' });
+    },
+    onError: (error: any) => {
+      enqueueSnackbar(
+        error?.response?.data?.message || 'Failed to create invoice',
+        { variant: 'error' }
+      );
+    },
+  });
+
+  // Same rationale as ProjectClaimItemAction — the edit lock only applies
+  // once invoiced AND the org actually defers invoicing; otherwise every
+  // certificate is 'invoiced' immediately and has always stayed editable.
+  const deferredInvoicing = !!organization?.settings?.defer_project_certificate_invoicing;
+  const isDraft = certificate.status === 'draft';
+  const isLocked = deferredInvoicing && certificate.status === 'invoiced';
+
   const menuItems = [
     {
       icon: <VisibilityOutlined fontSize='small' />,
       title: 'View',
       action: 'view',
     },
-    { icon: <EditOutlined fontSize='small' />, title: 'Edit', action: 'edit' },
+    !isLocked && {
+      icon: <EditOutlined fontSize='small' />,
+      title: 'Edit',
+      action: 'edit',
+    },
+    isDraft && {
+      icon: <ReceiptLongOutlined fontSize='small' />,
+      title: 'Create Invoice',
+      action: 'invoice',
+    },
     {
       icon: <DeleteOutlined fontSize='small' color='error' />,
       title: 'Delete',
       action: 'delete',
     },
-  ];
+  ].filter(Boolean) as MenuItemProps[];
 
   const handleItemAction = (menu: MenuItemProps) => {
     switch (menu.action) {
@@ -241,6 +295,19 @@ const CertificateItemAction: React.FC<{ certificate: Certificate }> = ({
         break;
       case 'edit':
         setOpenEditDialog(true);
+        break;
+      case 'invoice':
+        showDialog({
+          title: 'Create Invoice',
+          content:
+            'This will post the Certificate to the subcontractor’s account and it can no longer be edited. Continue?',
+          onYes: () => {
+            invoiceCertificate();
+            hideDialog();
+          },
+          onNo: hideDialog,
+          variant: 'confirm',
+        });
         break;
       case 'delete':
         showDialog({

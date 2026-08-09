@@ -1,8 +1,12 @@
+import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import LedgerSelect from '@/components/accounts/ledgers/forms/LedgerSelect';
 import { Ledger } from '@/components/accounts/ledgers/LedgerType';
+import ProjectSelector from '@/components/projectManagement/projects/ProjectSelector';
 import StoreSelector from '@/components/procurement/stores/StoreSelector';
 import UsersSelector from '@/components/sharedComponents/UsersSelector';
 import { User } from '@/types/auth-types';
+import { getErrorMessage } from '@/utilities/helpers/errorHandler';
+import { MODULES } from '@/utilities/constants/modules';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { Div } from '@jumbo/shared';
 import { DisabledByDefault } from '@mui/icons-material';
@@ -48,6 +52,7 @@ interface FormData {
     ledger_ids: number[];
     ledgers?: Ledger[];
   }[];
+  project_id?: number | null;
 }
 
 const OUTLET_TYPES = [
@@ -103,6 +108,10 @@ const OutletFormDialog: React.FC<OutletFormProps> = ({
 }) => {
   const queryClient = useQueryClient();
   const { enqueueSnackbar } = useSnackbar();
+  const { organizationHasSubscribed } = useJumboAuth();
+  const hasProjectManagement = organizationHasSubscribed(
+    MODULES.PROJECT_MANAGEMENT
+  );
   const {
     register,
     handleSubmit,
@@ -128,6 +137,7 @@ const OutletFormDialog: React.FC<OutletFormProps> = ({
         : [{ name: '', ledger_ids: [] }],
       users: outlet?.users || [],
       stores: outlet?.stores || [],
+      project_id: outlet?.project?.id ?? null,
     },
     resolver: yupResolver(validationSchema) as any,
   });
@@ -149,18 +159,7 @@ const OutletFormDialog: React.FC<OutletFormProps> = ({
       setOpenDialog(false);
     },
     onError: (error: unknown) => {
-      let message = 'Something went wrong';
-
-      if (
-        typeof error === 'object' &&
-        error !== null &&
-        'response' in error &&
-        typeof (error as any).response?.data?.message === 'string'
-      ) {
-        message = (error as any).response.data.message;
-      } else if (error instanceof Error) {
-        message = error.message;
-      }
+      let message = getErrorMessage(error);
 
       enqueueSnackbar(message, { variant: 'error' });
     },
@@ -178,18 +177,7 @@ const OutletFormDialog: React.FC<OutletFormProps> = ({
       setOpenDialog(false);
     },
     onError: (error: unknown) => {
-      let message = 'Something went wrong';
-
-      if (
-        typeof error === 'object' &&
-        error !== null &&
-        'response' in error &&
-        typeof (error as any).response?.data?.message === 'string'
-      ) {
-        message = (error as any).response.data.message;
-      } else if (error instanceof Error) {
-        message = error.message;
-      }
+      let message = getErrorMessage(error);
 
       enqueueSnackbar(message, { variant: 'error' });
     },
@@ -274,6 +262,23 @@ const OutletFormDialog: React.FC<OutletFormProps> = ({
               />
             </Div>
           </Grid>
+          {hasProjectManagement && (
+            <Grid size={12}>
+              <Div sx={{ mt: 1, mb: 1 }}>
+                <Controller
+                  name='project_id'
+                  control={control}
+                  render={({ field }) => (
+                    <ProjectSelector
+                      label='Project (optional — sells on the project cost center)'
+                      defaultValue={outlet?.project ?? null}
+                      onChange={(project) => field.onChange(project?.id ?? null)}
+                    />
+                  )}
+                />
+              </Div>
+            </Grid>
+          )}
           <Grid size={12}>
             <Grid container spacing={1}>
               <Grid size={12}>

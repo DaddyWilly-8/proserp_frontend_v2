@@ -535,7 +535,7 @@ function RFQResponsesFormContent({
 
         <Grid size={{ xs: 12, md: 4 }}>
           <CurrencySelector
-            frontError={errors?.currency_id as any}
+            frontError={errors?.currency_id}
             defaultValue={response?.currency?.id || subContract?.currency_id || 1}
             onChange={(newValue) => {
               setValue('currency_id', newValue ? newValue.id : undefined, {

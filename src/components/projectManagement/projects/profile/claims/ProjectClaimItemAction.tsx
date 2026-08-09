@@ -2,6 +2,9 @@
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import PDFContent from '@/components/pdf/PDFContent';
 import projectsServices from '@/components/projectManagement/projects/project-services';
+import { FileExportGrid } from '@/components/sharedComponents/FileExportGrid';
+import PreviewTopBar from '@/components/sharedComponents/PreviewTopBar';
+import { PERMISSIONS } from '@/utilities/constants/permissions';
 import { JumboDdMenu } from '@jumbo/components';
 import { useJumboDialog } from '@jumbo/components/JumboDialog/hooks/useJumboDialog';
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
@@ -11,6 +14,7 @@ import {
   EditOutlined,
   HighlightOff,
   MoreHorizOutlined,
+  ReceiptLongOutlined,
   VisibilityOutlined,
 } from '@mui/icons-material';
 import {
@@ -20,13 +24,9 @@ import {
   Dialog,
   DialogContent,
   DialogTitle,
-  Grid,
   IconButton,
-  LinearProgress,
   Skeleton,
   Stack,
-  Tab,
-  Tabs,
   Tooltip,
   Typography,
   useMediaQuery,
@@ -37,7 +37,6 @@ import React, { useState } from 'react';
 import ClaimOnscreen from './ClaimOnscreen';
 import ClaimPDF from './ClaimPDF';
 import ProjectClaimsForm from './form/ProjectClaimsForm';
-import { PERMISSIONS } from '@/utilities/constants/permissions';
 
 interface DocumentDialogProps {
   open: boolean;
@@ -67,7 +66,7 @@ const DocumentDialog: React.FC<DocumentDialogProps> = ({
     enabled: open && !!claimId,
   });
 
-  const [activeTab, setActiveTab] = useState<number>(0);
+  const [showOnScreen, setShowOnScreen] = useState(true);
   const { theme } = useJumboTheme();
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
   const [openDetails, setOpenDetails] = useState(false);
@@ -81,9 +80,24 @@ const DocumentDialog: React.FC<DocumentDialogProps> = ({
     return (
       <Dialog open fullWidth fullScreen={belowLargeScreen} maxWidth='md'>
         <div style={{ width: '100%', padding: '16px' }}>
-          <Skeleton variant="text" width={180} height={32} style={{ borderRadius: 4, marginLeft: 'auto' }} />
-          <Skeleton variant="rectangular" width="100%" height={48} style={{ borderRadius: 4 }} />
-          <Skeleton variant="rectangular" width="100%" height={32} style={{ borderRadius: 4 }} />
+          <Skeleton
+            variant='text'
+            width={180}
+            height={32}
+            style={{ borderRadius: 4, marginLeft: 'auto' }}
+          />
+          <Skeleton
+            variant='rectangular'
+            width='100%'
+            height={48}
+            style={{ borderRadius: 4 }}
+          />
+          <Skeleton
+            variant='rectangular'
+            width='100%'
+            height={32}
+            style={{ borderRadius: 4 }}
+          />
         </div>
       </Dialog>
     );
@@ -94,10 +108,10 @@ const DocumentDialog: React.FC<DocumentDialogProps> = ({
       open={open}
       onClose={onClose}
       fullWidth
-      maxWidth='md'
+      maxWidth={showOnScreen ? 'lg' : 'md'}
       fullScreen={belowLargeScreen}
     >
-      {(!belowLargeScreen || activeTab === 1) && (
+      {!showOnScreen && (
         <DialogTitle>
           <Stack
             direction={'row'}
@@ -111,31 +125,23 @@ const DocumentDialog: React.FC<DocumentDialogProps> = ({
       )}
 
       <DialogContent>
-        {belowLargeScreen && (
-          <Grid
-            container
-            alignItems='center'
-            justifyContent='space-between'
-            mb={2}
-          >
-            <Grid size={11}>
-              <Tabs value={activeTab} onChange={(_, tab) => setActiveTab(tab)}>
-                <Tab label='ONSCREEN' />
-                <Tab label='PDF' />
-              </Tabs>
-            </Grid>
+        <PreviewTopBar
+          fileExportGrid={
+            <FileExportGrid
+              exportPdf
+              handlePdf={() => {
+                setShowOnScreen((prev) => !prev);
+              }}
+            />
+          }
+          closeButton={
+            <IconButton size='small' onClick={onClose}>
+              <HighlightOff color='primary' />
+            </IconButton>
+          }
+        />
 
-            <Grid size={1} textAlign='right'>
-              <Tooltip title='Close'>
-                <IconButton size='small' onClick={onClose}>
-                  <HighlightOff color='primary' />
-                </IconButton>
-              </Tooltip>
-            </Grid>
-          </Grid>
-        )}
-
-        {belowLargeScreen && activeTab === 0 ? (
+        {showOnScreen ? (
           <ClaimOnscreen claim={claimDetails} organization={organization} />
         ) : (
           <PDFContent
@@ -169,14 +175,29 @@ const EditClaim: React.FC<EditClaimProps> = ({ claim, setOpenDialog }) => {
     enabled: !!claim?.id,
   });
 
-  if (isFetching) 
-        return (
-          <div style={{ width: '100%', padding: '16px' }}>
-            <Skeleton variant="text" width={180} height={32} style={{ borderRadius: 4, marginLeft: 'auto' }} />
-            <Skeleton variant="rectangular" width="100%" height={48} style={{ borderRadius: 4 }} />
-            <Skeleton variant="rectangular" width="100%" height={32} style={{ borderRadius: 4 }} />
-          </div>
-        );
+  if (isFetching)
+    return (
+      <div style={{ width: '100%', padding: '16px' }}>
+        <Skeleton
+          variant='text'
+          width={180}
+          height={32}
+          style={{ borderRadius: 4, marginLeft: 'auto' }}
+        />
+        <Skeleton
+          variant='rectangular'
+          width='100%'
+          height={48}
+          style={{ borderRadius: 4 }}
+        />
+        <Skeleton
+          variant='rectangular'
+          width='100%'
+          height={32}
+          style={{ borderRadius: 4 }}
+        />
+      </div>
+    );
 
   return (
     <ProjectClaimsForm claim={claimDetails} setOpenDialog={setOpenDialog} />
@@ -215,11 +236,43 @@ const ProjectClaimItemAction: React.FC<ProjectClaimItemActionProps> = ({
     },
   });
 
+  const { mutate: invoiceClaim } = useMutation({
+    mutationFn: (id: number) => projectsServices.invoiceClaim(id),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({
+        queryKey: ['projectProjectClaims'],
+      });
+      enqueueSnackbar(data.message, { variant: 'success' });
+    },
+    onError: (error: any) => {
+      enqueueSnackbar(error?.response?.data?.message || 'Failed to create invoice', {
+        variant: 'error',
+      });
+    },
+  });
+
+  // Editing is only locked once a claim is invoiced AND the organization
+  // actually uses the deferred workflow — orgs that don't defer invoicing
+  // have every claim marked 'invoiced' immediately and have always been
+  // able to edit freely, so status alone can't gate this.
+  const deferredInvoicing = !!organization?.settings?.defer_project_certificate_invoicing;
+  const isDraft = claim.status === 'draft';
+  const isLocked = deferredInvoicing && claim.status === 'invoiced';
+
   const menuItems = [
     { icon: <VisibilityOutlined />, title: 'View', action: 'view' },
-    checkOrganizationPermission(PERMISSIONS.PROJECT_CLAIMS_UPDATE) && {
-      icon: <EditOutlined />, title: 'Edit', action: 'edit'
-    },
+    !isLocked &&
+      checkOrganizationPermission(PERMISSIONS.PROJECT_CLAIMS_UPDATE) && {
+        icon: <EditOutlined />,
+        title: 'Edit',
+        action: 'edit',
+      },
+    isDraft &&
+      checkOrganizationPermission(PERMISSIONS.PROJECT_CLAIMS_UPDATE) && {
+        icon: <ReceiptLongOutlined />,
+        title: 'Create Invoice',
+        action: 'invoice',
+      },
     checkOrganizationPermission(PERMISSIONS.PROJECT_CLAIMS_DELETE) && {
       icon: <DeleteOutlined color='error' />,
       title: 'Delete',
@@ -235,6 +288,20 @@ const ProjectClaimItemAction: React.FC<ProjectClaimItemActionProps> = ({
 
       case 'edit':
         setOpenEditDialog(true);
+        break;
+
+      case 'invoice':
+        showDialog({
+          title: 'Create Customer Invoice',
+          content:
+            'This will post the Certificate to the customer and it can no longer be edited. Continue?',
+          variant: 'confirm',
+          onYes: () => {
+            hideDialog();
+            invoiceClaim(claim.id);
+          },
+          onNo: hideDialog,
+        });
         break;
 
       case 'delete':

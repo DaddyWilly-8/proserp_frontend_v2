@@ -156,8 +156,8 @@ const ClaimedDeliverablesItemRow: React.FC<ClaimedDeliverablesItemRowProps> = ({
             </Grid>
           }
           
-          <Grid textAlign={'end'} size={{xs: 12, md: 2, lg: 2}}>
-            <Tooltip title={`Line Total`}>
+          <Grid textAlign={'end'} size={{xs: 6, md: 2, lg: 2}}>
+            <Tooltip title={`Line Total (${formatQuantity(quantity)} × ${formatCurrency(rate)}${vat_factor ? ` × ${vat_percentage}% VAT` : ''})`}>
               <Typography>
                 {formatCurrency(quantity * rate * (1 + vat_factor))}
               </Typography>

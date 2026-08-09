@@ -53,7 +53,6 @@ interface Adjustment {
 
 interface ClaimedDeliverable {
   id?: number;
-  rate?: number;
   project_deliverable_id: number;
   project_deliverable?: ProjectDeliverable;
   deliverable?: ProjectDeliverable;
@@ -216,7 +215,6 @@ const ProjectClaimsForm: React.FC<ProjectClaimsFormProps> = ({
       ...data,
       claimed_deliverables: deliverableItems.map((item) => ({
         project_deliverable_id: item.project_deliverable_id || item.project_deliverable?.id,
-        rate: item.rate,
         certified_quantity: Number(item.certified_quantity),
         revenue_ledger_id: item.revenue_ledger_id || item.revenue_ledger?.id,
         remarks: item.remarks || null,
