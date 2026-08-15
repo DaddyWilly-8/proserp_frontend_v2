@@ -176,7 +176,7 @@ function SalesShiftPDF({
               Sales Outlet Shift
             </Text>
             <Text style={{ ...pdfStyles.midInfo }}>
-              {shiftData.shift?.name || 'N/A'}
+              {shiftData.shift?.name}
             </Text>
           </View>
           <View style={{ flex: 1, padding: 2 }}>

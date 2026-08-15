@@ -16,7 +16,6 @@ import {
   Typography,
   useTheme,
 } from '@mui/material';
-import { useState } from 'react';
 import CashierListSummaryOnScreen from './CashierListSummaryOnScreen';
 
 const SalesShiftOnScreen = ({
@@ -33,23 +32,11 @@ const SalesShiftOnScreen = ({
   const theme = useTheme();
   const isDark = theme.type === 'dark';
 
+  console.log('shiftData:', shiftData);
+
   const mainColor = organization.settings?.main_color || '#2113AD';
   const contrastText = organization.settings?.contrast_text || '#FFFFFF';
   const headerColor = isDark ? '#29f096' : mainColor;
-
-  const [openSections, setOpenSections] = useState({
-    products: true,
-    cashDistribution: true,
-    pumpReadings: true,
-    tankAdjustments: !!shiftData?.adjustments?.length,
-    openingDipping: !!shiftData?.opening_dipping?.readings?.length,
-    closingDipping: !!shiftData?.closing_dipping?.readings?.length,
-    fuelVouchers: openDetails && !!shiftData?.fuel_vouchers?.length,
-  });
-
-  const toggleSection = (section) => {
-    setOpenSections((prev) => ({ ...prev, [section]: !prev[section] }));
-  };
 
   // Calculate totals for each cashier
   const calculateCashierTotals = (cashier) => {
@@ -107,67 +94,6 @@ const SalesShiftOnScreen = ({
     };
   };
 
-  // Merge pump readings by product for a specific cashier
-  const mergeCashierPumpReadings = (pumpReadings) => {
-    const merged = pumpReadings.reduce((acc, pump) => {
-      if (!acc[pump.product_id]) {
-        acc[pump.product_id] = {
-          ...pump,
-          quantity: (pump.closing || 0) - (pump.opening || 0),
-          opening: pump.opening || 0,
-          closing: pump.closing || 0,
-        };
-      } else {
-        acc[pump.product_id].quantity +=
-          (pump.closing || 0) - (pump.opening || 0);
-        acc[pump.product_id].opening += pump.opening || 0;
-        acc[pump.product_id].closing += pump.closing || 0;
-      }
-      return acc;
-    }, {});
-    return Object.values(merged);
-  };
-
-  // Products Sold Calculations (with adjustments)
-  const mergedPumpReadings = (shiftData.pump_readings || []).reduce(
-    (acc, pump) => {
-      if (!acc[pump.product_id]) {
-        acc[pump.product_id] = {
-          ...pump,
-          quantity: pump.closing - pump.opening,
-        };
-      } else {
-        acc[pump.product_id].quantity += pump.closing - pump.opening;
-      }
-      return acc;
-    },
-    {}
-  );
-
-  const mergedProducts = Object.values(mergedPumpReadings);
-
-  const productsTotals = mergedProducts.reduce(
-    (acc, product) => {
-      const price =
-        shiftData.fuel_prices?.find((p) => p.product_id === product.product_id)
-          ?.price || 0;
-      const adjustments = (shiftData.adjustments || []).filter(
-        (a) => a.product_id === product.product_id
-      );
-      const adjTotal = adjustments.reduce(
-        (sum, a) => sum + (a.operator === '+' ? -a.quantity : a.quantity),
-        0
-      );
-      const finalQty = product.quantity + adjTotal;
-      const amount = finalQty * price;
-
-      acc.totalQuantity += finalQty;
-      acc.totalAmount += amount;
-      return acc;
-    },
-    { totalQuantity: 0, totalAmount: 0 }
-  );
-
   // Calculate total expected amount
   const totalExpectedAmount =
     shiftData.cashiers?.reduce((sum, c) => {
@@ -209,34 +135,6 @@ const SalesShiftOnScreen = ({
     return st.opening_reading < 1 || st.closing_reading < 1;
   });
 
-  const SectionHeader = ({ title, sectionKey, hasData = true }) =>
-    hasData && (
-      <Box
-        sx={{
-          display: 'flex',
-          alignItems: 'center',
-          cursor: 'pointer',
-          py: 1.5,
-          px: 2,
-          bgcolor: theme.palette.background.default,
-          borderBottom: `1px solid ${theme.palette.divider}`,
-          '&:hover': { bgcolor: theme.palette.action.hover },
-        }}
-        onClick={() => toggleSection(sectionKey)}
-      >
-        <IconButton size='small' sx={{ mr: 1 }}>
-          {openSections[sectionKey] ? (
-            <KeyboardArrowDown />
-          ) : (
-            <KeyboardArrowRight />
-          )}
-        </IconButton>
-        <Typography variant='h6' sx={{ color: headerColor }}>
-          {title}
-        </Typography>
-      </Box>
-    );
-
   const NumberCell = ({ value, bold = false, color = contrastText }) => (
     <TableCell
       align='right'
@@ -262,15 +160,6 @@ const SalesShiftOnScreen = ({
     </TableCell>
   );
 
-  const TotalRow = ({ label, amount, quantity = null }) => (
-    <TableRow>
-      <TableCell sx={{ fontWeight: 'bold' }}>{label}</TableCell>
-      {quantity !== null && <QuantityCell value={quantity} />}
-      <TableCell />
-      <NumberCell value={amount} bold />
-    </TableRow>
-  );
-
   return (
     <Box sx={{ p: 0, width: '100%' }}>
       {/* Header */}
@@ -292,8 +181,7 @@ const SalesShiftOnScreen = ({
             Team
           </Typography>
           <Typography variant='body1'>
-            {shift_teams?.find((t) => t.id === shiftData.sales_outlet_shift_id)
-              ?.name || '—'}
+            {shiftData.shift?.name}
           </Typography>
         </Grid>
         <Grid size={{ xs: 6, sm: 3 }}>
