@@ -42,7 +42,7 @@ interface Props {
   organization: Organization;
   belowLargeScreen: boolean;
 }
-
+ 
 // --- Fetch Relatable Details Component ---
 const FetchRelatableDetails: React.FC<{
   relatable: any;
