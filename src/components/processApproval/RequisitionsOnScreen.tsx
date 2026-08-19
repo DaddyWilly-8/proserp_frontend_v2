@@ -419,7 +419,7 @@ const RequisitionsOnScreen: React.FC<Props> = ({
                               align='right'
                               sx={{ fontFamily: 'monospace' }}
                             >
-                              {`${item.quantity?.toLocaleString()} ${item.measurement_unit.symbol}`}
+                              {`${item.quantity?.toLocaleString()} ${item.measurement_unit?.symbol}`}
                             </TableCell>
                             <TableCell
                               colSpan={1}
