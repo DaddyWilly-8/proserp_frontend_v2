@@ -10,63 +10,82 @@ import {
   IconButton,
   Tooltip,
 } from '@mui/material';
-import Highcharts from 'highcharts';
-import exportDataModule from 'highcharts/modules/export-data';
-import exportingModule from 'highcharts/modules/exporting';
-import offlineExportingModule from 'highcharts/modules/offline-exporting';
-import treegraphModule from 'highcharts/modules/treegraph';
-import treemapModule from 'highcharts/modules/treemap';
 import dynamic from 'next/dynamic';
 import { useEffect, useState } from 'react';
 import { useProjectProfile } from '../../ProjectProfileProvider';
 
 const HighchartsReact = dynamic(
-  () => import('highcharts-react-official').then((m) => m && (m.default ?? m)),
-  { ssr: false }
+  () => import('highcharts-react-official'),
+  { 
+    ssr: false,
+    loading: () => <BackdropSpinner />
+  }
 );
 
 function TasksTreeView({ setOpenTasksTreeView }) {
   const { project, projectTimelineActivities } = useProjectProfile();
-  const [modulesLoaded, setModulesLoaded] = useState(false);
+  const [isReady, setIsReady] = useState(false);
+  const [Highcharts, setHighcharts] = useState(null);
 
   useEffect(() => {
     let mounted = true;
 
-    const applyModule = (mod) => {
-      const init = mod && (mod.default ?? mod);
-      if (typeof init === 'function') {
-        init(Highcharts);
+    const initHighcharts = async () => {
+      try {
+        // ✅ Import Highcharts core
+        const highchartsModule = await import('highcharts');
+        const Hc = highchartsModule.default || highchartsModule;
+        
+        // ✅ Initialize Highcharts on window
+        if (typeof window !== 'undefined') {
+          window.Highcharts = Hc;
+          window._Highcharts = Hc;
+        }
+
+        // ✅ Import and initialize modules
+        const moduleImports = await Promise.all([
+          import('highcharts/modules/treemap'),
+          import('highcharts/modules/treegraph'),
+          import('highcharts/modules/exporting'),
+          import('highcharts/modules/export-data'),
+          import('highcharts/modules/offline-exporting')
+        ]);
+
+        // ✅ Apply each module
+        moduleImports.forEach((module) => {
+          const initFn = module.default || module;
+          if (typeof initFn === 'function') {
+            initFn(Hc);
+          }
+        });
+
+        if (mounted) {
+          setHighcharts(Hc);
+          setIsReady(true);
+        }
+      } catch (error) {
+        console.error('Failed to load Highcharts modules:', error);
+        if (mounted) {
+          setIsReady(true);
+        }
       }
     };
 
-    async function load() {
-      try {
-        window.Highcharts = window.Highcharts || Highcharts;
-        window._Highcharts = window._Highcharts || Highcharts;
-
-        applyModule(treemapModule);
-        applyModule(treegraphModule);
-        applyModule(exportingModule);
-        applyModule(exportDataModule);
-        applyModule(offlineExportingModule);
-      } catch (err) {
-        console.error('Failed to load Highcharts modules:', err);
-      } finally {
-        if (mounted) setModulesLoaded(true);
-      }
+    if (typeof window !== 'undefined') {
+      initHighcharts();
     }
-
-    if (typeof window !== 'undefined') load();
 
     return () => {
       mounted = false;
     };
   }, []);
 
-  if (!modulesLoaded) {
+  // Wait for Highcharts to be ready
+  if (!isReady || !Highcharts) {
     return <BackdropSpinner />;
   }
 
+  // Your chart options function remains the same
   const tasksTreeViewSeriesData = (groups) => {
     if (!Array.isArray(groups)) return [];
 
