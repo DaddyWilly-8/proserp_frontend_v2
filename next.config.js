@@ -40,8 +40,98 @@ const withPWA = withPWAInit({
 const nextConfig = {
   reactStrictMode: true,
 
-  turbopack: {
-    root: __dirname,
+  // ✅ Turbopack configuration (Next.js 14+)
+  experimental: {
+    turbo: {
+      // ✅ Add rules for handling Highcharts modules
+      rules: {
+        '*.js': {
+          loaders: ['swc-loader'],
+        },
+        '*.mjs': {
+          loaders: ['swc-loader'],
+        },
+        '*.cjs': {
+          loaders: ['swc-loader'],
+        },
+      },
+      // ✅ Increase resolution cache for better performance
+      resolveAlias: {
+        // ✅ Ensure Highcharts modules resolve correctly
+        'highcharts/modules/exporting': 'highcharts/modules/exporting',
+        'highcharts/modules/export-data': 'highcharts/modules/export-data',
+        'highcharts/modules/offline-exporting': 'highcharts/modules/offline-exporting',
+        'highcharts/modules/treegraph': 'highcharts/modules/treegraph',
+        'highcharts/modules/treemap': 'highcharts/modules/treemap',
+        'highcharts/modules/gantt': 'highcharts/modules/gantt',
+      },
+    },
+  },
+
+  // ✅ Transpile Highcharts packages
+  transpilePackages: [
+    'highcharts',
+    'highcharts-react-official',
+    'highcharts/modules/exporting',
+    'highcharts/modules/export-data',
+    'highcharts/modules/offline-exporting',
+    'highcharts/modules/treegraph',
+    'highcharts/modules/treemap',
+    'highcharts/modules/gantt',
+  ],
+
+  // ✅ Webpack fallback for server-side
+  webpack: (config, { isServer, dev }) => {
+    // Fix for Highcharts on server
+    if (isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        path: false,
+        stream: false,
+        http: false,
+        https: false,
+        zlib: false,
+      };
+    }
+
+    // ✅ Add source map support in development
+    if (dev) {
+      config.devtool = 'cheap-module-source-map';
+    }
+
+    // ✅ Optimize bundle size
+    config.optimization = {
+      ...config.optimization,
+      splitChunks: {
+        chunks: 'all',
+        cacheGroups: {
+          // ✅ Separate Highcharts into its own chunk
+          highcharts: {
+            test: /[\\/]node_modules[\\/](highcharts|highcharts-react-official)[\\/]/,
+            name: 'highcharts',
+            priority: 30,
+            enforce: true,
+          },
+          // ✅ Separate MUI into its own chunk
+          mui: {
+            test: /[\\/]node_modules[\\/](@mui|@emotion)[\\/]/,
+            name: 'mui',
+            priority: 20,
+            enforce: true,
+          },
+          // ✅ Separate vendors into their own chunk
+          vendor: {
+            test: /[\\/]node_modules[\\/]/,
+            name: 'vendor',
+            priority: 10,
+            chunks: 'all',
+          },
+        },
+      },
+    };
+
+    return config;
   },
 
   env: {
@@ -65,6 +155,48 @@ const nextConfig = {
       },
     ],
   },
+
+  // ✅ Add headers for service worker and PWA
+  async headers() {
+    return [
+      {
+        source: '/firebase-messaging-sw.js',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=0, must-revalidate',
+          },
+          {
+            key: 'Service-Worker-Allowed',
+            value: '/',
+          },
+        ],
+      },
+      {
+        source: '/sw.js',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=0, must-revalidate',
+          },
+        ],
+      },
+      {
+        source: '/manifest.json',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=3600',
+          },
+        ],
+      },
+    ];
+  },
+
+  // ✅ Add security headers
+  poweredByHeader: false,
+  compress: true,
+  generateEtags: true,
 };
 
 module.exports = withPWA(nextConfig);
