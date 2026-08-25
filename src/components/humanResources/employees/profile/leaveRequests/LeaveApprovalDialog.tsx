@@ -83,12 +83,18 @@ export const getNextPendingLeaveLevel = (
   return levels[latestLevelIndex + 1];
 };
 
-const getEditedApprovalLevelId = (approval: any) => {
-  return Number(
-    approval?.approval_chain_level?.id ||
-      approval?.chain_level_id ||
-      approval?.approval_chain_level_id
-  );
+const formatBalancePeriod = (
+  balance: NonNullable<LeaveRequestType['leave_balance']>
+) => {
+  const startYear = balance.start_date
+    ? new Date(balance.start_date).getFullYear()
+    : undefined;
+  const endYear = balance.end_date
+    ? new Date(balance.end_date).getFullYear()
+    : startYear;
+
+  if (!startYear) return '';
+  return startYear !== endYear ? `${startYear} – ${endYear}` : `${startYear}`;
 };
 
 const LeaveApprovalDialog = ({
@@ -158,7 +164,26 @@ const LeaveApprovalDialog = ({
     },
   });
 
-  const isSubmitting = isAdding;
+  const { mutate: editApproval, isPending: isEditing } = useMutation({
+    mutationFn: ({ id, ...payload }: any) =>
+      humanResourcesServices.updateLeaveRequestApproval(id, payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['showLeaveRequest', leaveRequest.id],
+      });
+      queryClient.invalidateQueries({ queryKey: ['leaveRequests'] });
+      enqueueSnackbar('Leave approval updated', { variant: 'success' });
+      onClose();
+    },
+    onError: (error: any) => {
+      enqueueSnackbar(
+        error?.response?.data?.message || 'Something went wrong',
+        { variant: 'error' }
+      );
+    },
+  });
+
+  const isSubmitting = isAdding || isEditing;
 
   const handleDecision = (status: LeaveApprovalDecision) => {
     if (status === 'rejected' && !remarks.trim()) {
@@ -177,9 +202,23 @@ const LeaveApprovalDialog = ({
     setRemarksError('');
     setDaysError('');
 
-    const chainLevelId = isEditMode
-      ? getEditedApprovalLevelId(approval)
-      : Number(pendingLevel?.id);
+    if (isEditMode) {
+      if (!approval?.id) {
+        enqueueSnackbar('Approval not found', { variant: 'error' });
+        return;
+      }
+
+      editApproval({
+        id: approval.id,
+        status,
+        days_approved: status === 'approved' ? Number(daysApproved) : undefined,
+        remarks,
+        approval_date: approvalDate || undefined,
+      });
+      return;
+    }
+
+    const chainLevelId = Number(pendingLevel?.id);
 
     if (!chainLevelId) {
       enqueueSnackbar('Pending approval level not found', { variant: 'error' });
@@ -212,12 +251,28 @@ const LeaveApprovalDialog = ({
             <Alert severity={balance.has_allocation ? 'info' : 'warning'}>
               {balance.has_allocation ? (
                 <>
-                  Balance for {balance.year}: <strong>{balance.remaining_days}</strong>{' '}
-                  day{balance.remaining_days === 1 ? '' : 's'} remaining ({balance.used_days}{' '}
-                  used of {balance.allocated_days} allocated), before this request.
+                  Balance for {formatBalancePeriod(balance)}:{' '}
+                  <strong>{balance.remaining_days}</strong> day
+                  {balance.remaining_days === 1 ? '' : 's'} remaining (
+                  {balance.used_days} used of {balance.allocated_days}{' '}
+                  allocated), before this request.
+                  {balance.carried_forward_days > 0 && (
+                    <>
+                      {' '}
+                      Includes {balance.carried_forward_days} carried-forward
+                      day{balance.carried_forward_days === 1 ? '' : 's'}
+                      {balance.carry_forward_expires_at
+                        ? `, usable until ${balance.carry_forward_expires_at}`
+                        : ''}
+                      .
+                    </>
+                  )}
                 </>
               ) : (
-                <>No leave allocation found for {balance.year} — nothing to grant against.</>
+                <>
+                  No leave allocation found covering{' '}
+                  {leaveRequest.start_date} — nothing to grant against.
+                </>
               )}
             </Alert>
           )}
