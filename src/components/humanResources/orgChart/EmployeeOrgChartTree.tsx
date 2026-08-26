@@ -1,30 +1,33 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import dynamic from 'next/dynamic';
-import Highcharts from 'highcharts';
-import treemapModule from 'highcharts/modules/treemap';
-import treegraphModule from 'highcharts/modules/treegraph';
-import exportingModule from 'highcharts/modules/exporting';
-import exportDataModule from 'highcharts/modules/export-data';
-import offlineExportingModule from 'highcharts/modules/offline-exporting';
-import { Box, Typography } from '@mui/material';
-import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/app/[lang]/contexts/LanguageContext';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
-import JumboCardQuick from '@jumbo/components/JumboCardQuick';
 import { BackdropSpinner } from '@/shared/ProgressIndicators/BackdropSpinner';
+import JumboCardQuick from '@jumbo/components/JumboCardQuick';
+import { Box, Typography } from '@mui/material';
+import Highcharts from 'highcharts';
+import exportDataModule from 'highcharts/modules/export-data';
+import exportingModule from 'highcharts/modules/exporting';
+import offlineExportingModule from 'highcharts/modules/offline-exporting';
+import treegraphModule from 'highcharts/modules/treegraph';
+import treemapModule from 'highcharts/modules/treemap';
+import dynamic from 'next/dynamic';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import { OrgChartNode, useEmployeeOrgChart } from './EmployeeOrgChartProvider';
 
 const HighchartsReact = dynamic(
-  () => import('highcharts-react-official').then((m) => (m && (m.default ?? m))),
+  () => import('highcharts-react-official').then((m) => m && (m.default ?? m)),
   { ssr: false }
 );
 
 // Flattens the nested manager_id tree into the flat {id, parent} list
 // Highcharts' treegraph series needs — same technique as
 // TasksTreeView.jsx's flattenGroups(), just without the group/task duality.
-const flattenOrgChart = (nodes: OrgChartNode[] = [], parentId: string | null = null): any[] => {
+const flattenOrgChart = (
+  nodes: OrgChartNode[] = [],
+  parentId: string | null = null
+): any[] => {
   return nodes.flatMap((node) => {
     const flatId = 'emp_' + node.id;
     const flatNode = {
@@ -49,7 +52,9 @@ const flattenOrgChart = (nodes: OrgChartNode[] = [], parentId: string | null = n
 // node's own configured size).
 const getMaxDepth = (nodes: OrgChartNode[] = [], depth = 1): number => {
   if (nodes.length === 0) return depth - 1;
-  return Math.max(...nodes.map((node) => getMaxDepth(node.children || [], depth + 1)));
+  return Math.max(
+    ...nodes.map((node) => getMaxDepth(node.children || [], depth + 1))
+  );
 };
 
 const getMaxLevelWidth = (nodes: OrgChartNode[] = []): number => {
@@ -215,7 +220,9 @@ export default function EmployeeOrgChartTree() {
               if (target?.closest?.('.highcharts-collapse-button')) {
                 return;
               }
-              router.push(`/${lang}/humanResources/employees/${this.employeeId}`);
+              router.push(
+                `/${lang}/humanResources/employees/${this.employeeId}`
+              );
             },
           },
         },
@@ -270,7 +277,9 @@ export default function EmployeeOrgChartTree() {
       outside: true,
       formatter: function (this: any) {
         const { name, designation } = this.point;
-        return designation ? `<b>${name}</b><br>${designation}` : `<b>${name}</b>`;
+        return designation
+          ? `<b>${name}</b><br>${designation}`
+          : `<b>${name}</b>`;
       },
     },
     responsive: {
@@ -286,8 +295,7 @@ export default function EmployeeOrgChartTree() {
           },
         },
       ],
-    }, 
-    
+    },
   };
 
   return (
