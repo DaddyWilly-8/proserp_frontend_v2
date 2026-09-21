@@ -1,8 +1,16 @@
-'use client'
+'use client';
 
-import React, { createContext, useContext, useEffect, useState, ReactNode, useMemo, useCallback, useRef } from 'react';
-import ledgerServices from '../ledger-services';
 import { useQuery } from '@tanstack/react-query';
+import {
+  createContext,
+  ReactNode,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+} from 'react';
+import ledgerServices from '../ledger-services';
 
 // ✅ Updated Ledger interface with currency fields
 interface Ledger {
@@ -29,8 +37,9 @@ interface LedgerGroup {
   original_name: string;
   ledgers?: Ledger[];
   children_with_ledgers?: LedgerGroup[];
-  currency_id?: number | null;  // Optional
-  currency?: {                 // Optional
+  currency_id?: number | null; // Optional
+  currency?: {
+    // Optional
     id: number;
     name: string;
     code: string;
@@ -54,7 +63,7 @@ const LedgerSelectContext = createContext<LedgerSelectContextType>({
   ledgerOptions: undefined,
   ungroupedLedgerOptions: [],
   extractLedgers: () => [],
-  isLoaded: false
+  isLoaded: false,
 });
 
 export const useLedgerSelect = () => useContext(LedgerSelectContext);
@@ -76,13 +85,18 @@ interface PathBucket {
 
 // Build once: flattened ledger records with group path metadata.
 // Filtering is done later without recursive traversal or re-spreading objects.
-function buildLedgerIndex(groups: LedgerGroup[] | undefined): IndexedLedgerRecord[] {
+function buildLedgerIndex(
+  groups: LedgerGroup[] | undefined
+): IndexedLedgerRecord[] {
   if (!groups || groups.length === 0) return [];
 
   const result: IndexedLedgerRecord[] = [];
   const currentPath: string[] = [];
 
-  const walk = (currentGroups: LedgerGroup[], parentNatureId: number | null) => {
+  const walk = (
+    currentGroups: LedgerGroup[],
+    parentNatureId: number | null
+  ) => {
     for (const group of currentGroups) {
       const currentNatureId = parentNatureId ?? group.nature_id;
       currentPath.push(group.original_name);
@@ -92,7 +106,7 @@ function buildLedgerIndex(groups: LedgerGroup[] | undefined): IndexedLedgerRecor
           result.push({
             ledgerId: ledger.id,
             projectedLedger: {
-              ...ledger,  // ✅ Preserves all fields including currency
+              ...ledger, // ✅ Preserves all fields including currency
               nature_id: currentNatureId,
             },
             groupPath: currentPath.slice(),
@@ -100,7 +114,10 @@ function buildLedgerIndex(groups: LedgerGroup[] | undefined): IndexedLedgerRecor
         }
       }
 
-      if (group.children_with_ledgers && group.children_with_ledgers.length > 0) {
+      if (
+        group.children_with_ledgers &&
+        group.children_with_ledgers.length > 0
+      ) {
         walk(group.children_with_ledgers, currentNatureId);
       }
 
@@ -139,8 +156,12 @@ function isLedgerPathAccessible(
 }
 
 function LedgerSelectProvider({ children }: LedgerSelectProviderProps) {
-  const { data: ledgerOptions, isFetched, isLoading } = useQuery<LedgerGroup[]>({
-    queryKey: ['ledgerOptions'],
+  const {
+    data: ledgerOptions,
+    isFetched,
+    isLoading,
+  } = useQuery<LedgerGroup[]>({
+    queryKey: ['ledgerOptions', 'stakeholders'],
     queryFn: ledgerServices.getLedgerOptions,
     refetchOnWindowFocus: false,
     staleTime: 5 * 60 * 1000, // 5 minutes cache
@@ -194,91 +215,104 @@ function LedgerSelectProvider({ children }: LedgerSelectProviderProps) {
   }, []);
 
   // Generate cache key for filter combinations
-  const getFilterCacheKey = useCallback((
-    notAllowedGroups: string[],
-    allowedGroups: string[],
-    allowedLedgerIds?: Set<number>,
-    notAllowedLedgerIds?: Set<number>
-  ): string => {
-    const notAllowedKey = [...notAllowedGroups].sort().join('|');
-    const allowedKey = [...allowedGroups].sort().join('|');
-    const allowedIdsKey = getSetKey(allowedLedgerIds);
-    const notAllowedIdsKey = getSetKey(notAllowedLedgerIds);
-    return `${notAllowedKey}|${allowedKey}|${allowedIdsKey}|${notAllowedIdsKey}`;
-  }, [getSetKey]);
+  const getFilterCacheKey = useCallback(
+    (
+      notAllowedGroups: string[],
+      allowedGroups: string[],
+      allowedLedgerIds?: Set<number>,
+      notAllowedLedgerIds?: Set<number>
+    ): string => {
+      const notAllowedKey = [...notAllowedGroups].sort().join('|');
+      const allowedKey = [...allowedGroups].sort().join('|');
+      const allowedIdsKey = getSetKey(allowedLedgerIds);
+      const notAllowedIdsKey = getSetKey(notAllowedLedgerIds);
+      return `${notAllowedKey}|${allowedKey}|${allowedIdsKey}|${notAllowedIdsKey}`;
+    },
+    [getSetKey]
+  );
 
   // Optimized extractLedgers with memoization and caching
-  const extractLedgers = useCallback((
-    notAllowedGroups: string[],
-    allowedGroups: string[],
-    allowedLedgerIds?: Set<number>,
-    notAllowedLedgerIds?: Set<number>
-  ): Ledger[] => {
-    if (!indexedLedgers || indexedLedgers.length === 0) return [];
+  const extractLedgers = useCallback(
+    (
+      notAllowedGroups: string[],
+      allowedGroups: string[],
+      allowedLedgerIds?: Set<number>,
+      notAllowedLedgerIds?: Set<number>
+    ): Ledger[] => {
+      if (!indexedLedgers || indexedLedgers.length === 0) return [];
 
-    const hasAllowedGroups = allowedGroups.length > 0;
-    const hasNotAllowedGroups = notAllowedGroups.length > 0;
-    const hasAllowedLedgerIds = !!allowedLedgerIds && allowedLedgerIds.size > 0;
-    const hasNotAllowedLedgerIds =
-      !!notAllowedLedgerIds && notAllowedLedgerIds.size > 0;
+      const hasAllowedGroups = allowedGroups.length > 0;
+      const hasNotAllowedGroups = notAllowedGroups.length > 0;
+      const hasAllowedLedgerIds =
+        !!allowedLedgerIds && allowedLedgerIds.size > 0;
+      const hasNotAllowedLedgerIds =
+        !!notAllowedLedgerIds && notAllowedLedgerIds.size > 0;
 
-    // Fast path for the most common case: no filters at all.
-    if (
-      !hasAllowedGroups &&
-      !hasNotAllowedGroups &&
-      !hasAllowedLedgerIds &&
-      !hasNotAllowedLedgerIds
-    ) {
-      return ungroupedLedgerOptions;
-    }
-
-    // Generate cache key
-    const cacheKey = getFilterCacheKey(notAllowedGroups, allowedGroups, allowedLedgerIds, notAllowedLedgerIds);
-    
-    // Check cache first
-    const cached = filterCache.current.get(cacheKey);
-    if (cached) {
-      return cached;
-    }
-
-    // Build sets for O(1) lookups
-    const notAllowedGroupsSet = new Set(notAllowedGroups);
-    const allowedGroupsSet = new Set(allowedGroups);
-
-    const result: Ledger[] = [];
-    for (const bucket of pathBuckets) {
+      // Fast path for the most common case: no filters at all.
       if (
-        !isLedgerPathAccessible(
-          bucket.groupPath,
-          notAllowedGroupsSet,
-          allowedGroupsSet
-        )
+        !hasAllowedGroups &&
+        !hasNotAllowedGroups &&
+        !hasAllowedLedgerIds &&
+        !hasNotAllowedLedgerIds
       ) {
-        continue;
+        return ungroupedLedgerOptions;
       }
 
-      for (const record of bucket.ledgers) {
-        const ledgerId = record.ledgerId;
+      // Generate cache key
+      const cacheKey = getFilterCacheKey(
+        notAllowedGroups,
+        allowedGroups,
+        allowedLedgerIds,
+        notAllowedLedgerIds
+      );
 
-        if (hasNotAllowedLedgerIds && notAllowedLedgerIds!.has(ledgerId)) continue;
-        if (hasAllowedLedgerIds && !allowedLedgerIds!.has(ledgerId)) continue;
-
-        result.push(record.projectedLedger);
+      // Check cache first
+      const cached = filterCache.current.get(cacheKey);
+      if (cached) {
+        return cached;
       }
-    }
 
-    // Cache the result (limit cache size to prevent memory issues)
-    if (filterCache.current.size > 100) {
-      // Clear old entries if cache gets too large
-      const keys = Array.from(filterCache.current.keys());
-      for (let i = 0; i < 50; i++) {
-        filterCache.current.delete(keys[i]);
+      // Build sets for O(1) lookups
+      const notAllowedGroupsSet = new Set(notAllowedGroups);
+      const allowedGroupsSet = new Set(allowedGroups);
+
+      const result: Ledger[] = [];
+      for (const bucket of pathBuckets) {
+        if (
+          !isLedgerPathAccessible(
+            bucket.groupPath,
+            notAllowedGroupsSet,
+            allowedGroupsSet
+          )
+        ) {
+          continue;
+        }
+
+        for (const record of bucket.ledgers) {
+          const ledgerId = record.ledgerId;
+
+          if (hasNotAllowedLedgerIds && notAllowedLedgerIds!.has(ledgerId))
+            continue;
+          if (hasAllowedLedgerIds && !allowedLedgerIds!.has(ledgerId)) continue;
+
+          result.push(record.projectedLedger);
+        }
       }
-    }
-    filterCache.current.set(cacheKey, result);
 
-    return result;
-  }, [indexedLedgers, pathBuckets, getFilterCacheKey, ungroupedLedgerOptions]);
+      // Cache the result (limit cache size to prevent memory issues)
+      if (filterCache.current.size > 100) {
+        // Clear old entries if cache gets too large
+        const keys = Array.from(filterCache.current.keys());
+        for (let i = 0; i < 50; i++) {
+          filterCache.current.delete(keys[i]);
+        }
+      }
+      filterCache.current.set(cacheKey, result);
+
+      return result;
+    },
+    [indexedLedgers, pathBuckets, getFilterCacheKey, ungroupedLedgerOptions]
+  );
 
   // Clear cache when ledgerOptions change
   useEffect(() => {
@@ -287,12 +321,14 @@ function LedgerSelectProvider({ children }: LedgerSelectProviderProps) {
   }, [ledgerOptions]);
 
   return (
-    <LedgerSelectContext.Provider value={{ 
-      ledgerOptions, 
-      ungroupedLedgerOptions,
-      extractLedgers,
-      isLoaded: isFetched && !isLoading
-    }}>
+    <LedgerSelectContext.Provider
+      value={{
+        ledgerOptions,
+        ungroupedLedgerOptions,
+        extractLedgers,
+        isLoaded: isFetched && !isLoading,
+      }}
+    >
       {children}
     </LedgerSelectContext.Provider>
   );

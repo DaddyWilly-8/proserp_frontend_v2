@@ -73,6 +73,7 @@ const JumboRqList = React.forwardRef<
     itemSx,
     view,
     tableHeader,
+    disableTransition,
     onRefresh = () => {},
   } = props;
 
@@ -155,6 +156,7 @@ const JumboRqList = React.forwardRef<
       sx={sx}
       view={view}
       tableHeader={tableHeader}
+      disableTransition={disableTransition}
     />
   );
 });

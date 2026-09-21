@@ -1,14 +1,20 @@
+import { yupResolver } from '@hookform/resolvers/yup';
+import { Div } from '@jumbo/shared';
 import { LoadingButton } from '@mui/lab';
-import { Autocomplete, Button, Grid, TextField, Typography } from '@mui/material';
+import {
+  Autocomplete,
+  Button,
+  Grid,
+  TextField,
+  Typography,
+} from '@mui/material';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useSnackbar } from 'notistack';
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import * as yup from 'yup';
-import { yupResolver } from '@hookform/resolvers/yup';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useSnackbar } from 'notistack';
 import stakeholderServices from './stakeholder-services';
 import { Stakeholder, StakeholderType } from './StakeholderType';
-import { Div } from '@jumbo/shared';
 
 interface StakeholderQuickAddProps {
   setStakeholderQuickAddDisplay: (display: boolean) => void;
@@ -43,25 +49,28 @@ const stakeholderTypeOptions: StakeholderTypeOption[] = [
   { label: 'Private Limited' },
   { label: 'Public Liability' },
   { label: 'Government Institution' },
-  { label: 'Non-Government Organization' }
+  { label: 'Non-Government Organization' },
 ];
 
 const StakeholderQuickAdd: React.FC<StakeholderQuickAddProps> = ({
   setStakeholderQuickAddDisplay,
   create_receivable = false,
   create_payable = false,
-  displayTitle=null,
-  setAddedStakeholder
+  displayTitle = null,
+  setAddedStakeholder,
 }) => {
   const validationSchema = yup.object({
     name: yup.string().required('Name is required'),
-    type: yup.string().required('Stakeholder type is required').typeError('Stakeholder type is required'),
+    type: yup
+      .string()
+      .required('Stakeholder type is required')
+      .typeError('Stakeholder type is required'),
     phone: yup.string().optional(),
     tin: yup.string().optional(),
     vrn: yup.string().optional(),
     address: yup.string().optional(),
     email: yup.string().email('Please enter a valid email').optional(),
-    ledger_code: yup.string().optional()
+    ledger_code: yup.string().optional(),
   });
 
   const {
@@ -69,13 +78,13 @@ const StakeholderQuickAdd: React.FC<StakeholderQuickAddProps> = ({
     handleSubmit,
     setError,
     setValue,
-    formState: { errors }
+    formState: { errors },
   } = useForm<FormData>({
     resolver: yupResolver(validationSchema) as any,
     defaultValues: {
       create_receivable,
-      create_payable
-    }
+      create_payable,
+    },
   });
 
   const { enqueueSnackbar } = useSnackbar();
@@ -91,31 +100,34 @@ const StakeholderQuickAdd: React.FC<StakeholderQuickAddProps> = ({
       enqueueSnackbar(data.message, { variant: 'success' });
       setAddedStakeholder(data.stakeholder);
       queryClient.invalidateQueries({ queryKey: ['stakeholders'] });
+      queryClient.invalidateQueries({ queryKey: ['ledgerOptions'] });
       setStakeholderQuickAddDisplay(false);
     },
     onError: (error) => {
-      error?.response?.data?.message && 
+      error?.response?.data?.message &&
         enqueueSnackbar(error.response.data.message, { variant: 'error' });
-      
+
       const validationErrors = error?.response?.data?.validation_errors;
       if (validationErrors) {
         Object.keys(validationErrors).forEach((fieldName) => {
           const errorMessages = validationErrors[fieldName];
           setError(fieldName as keyof FormData, {
             type: 'manual',
-            message: errorMessages.join('<br/>')
+            message: errorMessages.join('<br/>'),
           });
         });
       }
-    }
+    },
   });
 
   return (
     <Grid container rowSpacing={1} columnSpacing={1} paddingTop={1}>
       <Grid size={12} textAlign={'center'}>
-        <Typography variant='h4'>{displayTitle ? displayTitle : `Quick Add Client`}</Typography>
+        <Typography variant='h4'>
+          {displayTitle ? displayTitle : `Quick Add Client`}
+        </Typography>
       </Grid>
-      <Grid size={{xs: 12, md: 6, lg: 4}}>
+      <Grid size={{ xs: 12, md: 6, lg: 4 }}>
         <Div sx={{ mt: 0.3 }}>
           <TextField
             size='small'
@@ -127,17 +139,19 @@ const StakeholderQuickAdd: React.FC<StakeholderQuickAddProps> = ({
           />
         </Div>
       </Grid>
-      <Grid size={{xs: 12, md: 6, lg: 4}}>
+      <Grid size={{ xs: 12, md: 6, lg: 4 }}>
         <Div sx={{ mt: 0.3 }}>
           <Autocomplete<StakeholderTypeOption>
-            size="small"
-            isOptionEqualToValue={(option, value) => option.label === value.label}
+            size='small'
+            isOptionEqualToValue={(option, value) =>
+              option.label === value.label
+            }
             options={stakeholderTypeOptions}
             getOptionLabel={(option) => option.label}
             renderInput={(params) => (
               <TextField
                 {...params}
-                label="Type*"
+                label='Type*'
                 error={!!errors?.type}
                 helperText={errors?.type?.message}
               />
@@ -145,13 +159,13 @@ const StakeholderQuickAdd: React.FC<StakeholderQuickAddProps> = ({
             onChange={(event, newValue) => {
               setValue('type', newValue ? newValue.label : null, {
                 shouldDirty: true,
-                shouldValidate: true
+                shouldValidate: true,
               });
             }}
           />
         </Div>
       </Grid>
-      <Grid size={{xs: 12, md: 4, lg: 4}}>
+      <Grid size={{ xs: 12, md: 4, lg: 4 }}>
         <Div sx={{ mt: 0.3 }}>
           <TextField
             size='small'
@@ -161,7 +175,7 @@ const StakeholderQuickAdd: React.FC<StakeholderQuickAddProps> = ({
           />
         </Div>
       </Grid>
-      <Grid size={{xs: 12, md: 4, lg: 4}}>
+      <Grid size={{ xs: 12, md: 4, lg: 4 }}>
         <Div sx={{ mt: 0.3 }}>
           <TextField
             size='small'
@@ -173,7 +187,7 @@ const StakeholderQuickAdd: React.FC<StakeholderQuickAddProps> = ({
           />
         </Div>
       </Grid>
-      <Grid size={{xs: 12, md: 4, lg: 4}}>
+      <Grid size={{ xs: 12, md: 4, lg: 4 }}>
         <Div sx={{ mt: 0.3 }}>
           <TextField
             size='small'
@@ -185,7 +199,7 @@ const StakeholderQuickAdd: React.FC<StakeholderQuickAddProps> = ({
           />
         </Div>
       </Grid>
-      <Grid size={{xs: 12, md: 4, lg: 4}}>
+      <Grid size={{ xs: 12, md: 4, lg: 4 }}>
         <Div sx={{ mt: 0.3 }}>
           <TextField
             size='small'
@@ -197,7 +211,7 @@ const StakeholderQuickAdd: React.FC<StakeholderQuickAddProps> = ({
           />
         </Div>
       </Grid>
-      <Grid size={{xs: 12, md: 4, lg: 4}}>
+      <Grid size={{ xs: 12, md: 4, lg: 4 }}>
         <Div sx={{ mt: 0.3 }}>
           <TextField
             size='small'
@@ -207,7 +221,7 @@ const StakeholderQuickAdd: React.FC<StakeholderQuickAddProps> = ({
           />
         </Div>
       </Grid>
-      <Grid size={{xs: 12, md: 4, lg: 4}}>
+      <Grid size={{ xs: 12, md: 4, lg: 4 }}>
         <Div sx={{ mt: 0.3 }}>
           <TextField
             size='small'
@@ -219,9 +233,12 @@ const StakeholderQuickAdd: React.FC<StakeholderQuickAddProps> = ({
           />
         </Div>
       </Grid>
-      <Grid size={{xs: 12, md: 12, lg: 4}} sx={{ textAlign: 'end' }}>
+      <Grid size={{ xs: 12, md: 12, lg: 4 }} sx={{ textAlign: 'end' }}>
         <Div sx={{ mt: 0.3 }}>
-          <Button size='small' onClick={() => setStakeholderQuickAddDisplay(false)}>
+          <Button
+            size='small'
+            onClick={() => setStakeholderQuickAddDisplay(false)}
+          >
             Cancel
           </Button>
           <LoadingButton

@@ -8,14 +8,23 @@ import JumboRqList from '@jumbo/components/JumboReactQuery/JumboRqList';
 import JumboSearch from '@jumbo/components/JumboSearch';
 import { VisibilityOutlined } from '@mui/icons-material';
 import {
+  Box,
   Card,
   Chip,
   Divider,
-  Grid,
   IconButton,
   Stack,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
   Tooltip,
   Typography,
+  useMediaQuery,
+  useTheme,
 } from '@mui/material';
 import { useRouter } from 'next/navigation';
 import { useCallback, useMemo, useRef, useState } from 'react';
@@ -27,48 +36,43 @@ interface PayslipsListProps {
   runStatus: string;
   isPosted: boolean;
   onViewPayslip: (payslip: any) => void;
-  // The run's full (processed) payslips — used only for the run-wide totals
-  // strip and to refetch this list when payments change something; the list
-  // itself is server-paginated.
+  // The run's full (processed) payslips — only used to notice when payments
+  // change something so the (server-paginated) list can refetch.
   allPayslips: any[];
 }
 
-const Field = ({
-  label,
-  children,
-  color,
-  bold,
-}: {
-  label: string;
-  children: React.ReactNode;
-  color?: string;
-  bold?: boolean;
-}) => (
-  <div>
-    <Typography variant='caption' color='text.secondary' display='block' noWrap>
-      {label}
-    </Typography>
-    <Typography
-      noWrap
-      variant='body2'
-      sx={{ color, fontWeight: bold ? 600 : undefined }}
-    >
-      {children}
-    </Typography>
-  </div>
+// Mirrors the payments table: outlined Paper, small size, bold header.
+// Rendered as the list's container so the rows JumboList emits land in the
+// <TableBody>; the list runs with disableTransition so they stay valid <tr>s.
+const PayslipsTable = ({ children }: { children?: React.ReactNode }) => (
+  <TableContainer
+    component={Paper}
+    variant='outlined'
+    sx={{ mx: 2, my: 2, width: 'auto' }}
+  >
+    <Table size='small'>
+      <TableHead>
+        <TableRow>
+          <TableCell sx={{ fontWeight: 700 }}>Employee</TableCell>
+          {['Basic', 'Allowances', 'Gross', 'Deductions', 'PAYE', 'Net Pay'].map(
+            (label) => (
+              <TableCell key={label} align='right' sx={{ fontWeight: 700 }}>
+                {label}
+              </TableCell>
+            )
+          )}
+          <TableCell sx={{ fontWeight: 700 }}>Status</TableCell>
+          <TableCell align='center' sx={{ fontWeight: 700 }}>
+            Actions
+          </TableCell>
+        </TableRow>
+      </TableHead>
+      <TableBody>{children}</TableBody>
+    </Table>
+  </TableContainer>
 );
 
-const PayslipsListItem = ({
-  payslip: rawPayslip,
-  runStatus,
-  isPosted,
-  onViewPayslip,
-}: {
-  payslip: any;
-  runStatus: string;
-  isPosted: boolean;
-  onViewPayslip: (payslip: any) => void;
-}) => {
+const usePayslipRow = (rawPayslip: any, runStatus: string, isPosted: boolean) => {
   const router = useRouter();
   const lang = useLanguage();
   const { checkOrganizationPermission } = useJumboAuth();
@@ -92,7 +96,7 @@ const PayslipsListItem = ({
   // "Partially Paid," so that label is only trustworthy as a per-row
   // fallback when it isn't one of those two.
   const runStatusRaw = (runStatus || '').toLowerCase();
-  const rowStatusLabel = isRowPaid
+  const statusLabel = isRowPaid
     ? 'Paid'
     : isRowPartiallyPaid
       ? 'Partially Paid'
@@ -101,122 +105,216 @@ const PayslipsListItem = ({
         : (runStatus || 'Approved')
             .replace(/_/g, ' ')
             .replace(/\b\w/g, (c) => c.toUpperCase());
+  const statusColor = isRowPaid
+    ? 'success'
+    : isRowPartiallyPaid
+      ? 'warning'
+      : isPosted
+        ? 'primary'
+        : 'info';
+
+  const canOpenEmployee = hasEmployeeRead && !!employee?.id && !employee?.deleted_at;
+  const openEmployee = () => {
+    if (canOpenEmployee) {
+      router.push(`/${lang}/humanResources/employees/${employee.id}`);
+    }
+  };
+
+  return {
+    payslip,
+    employee,
+    statusLabel,
+    statusColor: statusColor as 'success' | 'warning' | 'primary' | 'info',
+    canOpenEmployee,
+    openEmployee,
+  };
+};
+
+const EmployeeIdentity = ({
+  employee,
+  canOpen,
+  onOpen,
+}: {
+  employee: any;
+  canOpen: boolean;
+  onOpen: () => void;
+}) => (
+  <>
+    <Typography
+      variant='body2'
+      fontWeight={600}
+      noWrap
+      onClick={onOpen}
+      sx={
+        canOpen
+          ? {
+              cursor: 'pointer',
+              '&:hover': { color: 'primary.main', textDecoration: 'underline' },
+            }
+          : undefined
+      }
+    >
+      {getEmployeeName(employee)}
+    </Typography>
+    <Stack direction='row' spacing={1} alignItems='center'>
+      <Typography variant='caption' color='text.secondary' noWrap>
+        {employee?.employee_number}
+      </Typography>
+      {employee?.deleted_at && (
+        <Chip
+          size='small'
+          label='Employee removed'
+          color='warning'
+          variant='outlined'
+          sx={{ height: 18, fontSize: 11 }}
+        />
+      )}
+    </Stack>
+  </>
+);
+
+const PayslipTableRow = (props: {
+  payslip: any;
+  runStatus: string;
+  isPosted: boolean;
+  onViewPayslip: (payslip: any) => void;
+}) => {
+  const { payslip, employee, statusLabel, statusColor, canOpenEmployee, openEmployee } =
+    usePayslipRow(props.payslip, props.runStatus, props.isPosted);
 
   return (
-    <>
-      <Divider />
-      <Grid
-        mt={1}
-        mb={1}
-        sx={{ '&:hover': { bgcolor: 'action.hover' } }}
-        paddingLeft={2}
-        paddingRight={2}
-        spacing={1}
-        alignItems='center'
-        container
-      >
-        <Grid size={{ xs: 12, md: 2.5 }}>
-          <Typography
-            variant='h5'
-            fontSize={14}
-            lineHeight={1.25}
-            mb={0}
-            noWrap
-            onClick={() => {
-              if (hasEmployeeRead && employee?.id && !employee?.deleted_at) {
-                router.push(
-                  `/${lang}/humanResources/employees/${employee.id}`
-                );
-              }
-            }}
-            sx={
-              hasEmployeeRead && !employee?.deleted_at
-                ? {
-                    cursor: 'pointer',
-                    '&:hover': {
-                      color: 'primary.main',
-                      textDecoration: 'underline',
-                    },
-                  }
-                : undefined
-            }
+    <TableRow hover>
+      <TableCell>
+        <EmployeeIdentity
+          employee={employee}
+          canOpen={canOpenEmployee}
+          onOpen={openEmployee}
+        />
+      </TableCell>
+      <TableCell align='right'>{formatMoney(payslip.basic_salary || 0)}</TableCell>
+      <TableCell align='right'>{formatMoney(payslip.total_allowances || 0)}</TableCell>
+      <TableCell align='right'>{formatMoney(payslip.gross_salary || 0)}</TableCell>
+      <TableCell align='right'>{formatMoney(payslip.total_deductions || 0)}</TableCell>
+      <TableCell align='right' sx={{ color: 'error.main' }}>
+        {formatMoney(payslip.paye || 0)}
+      </TableCell>
+      <TableCell align='right' sx={{ color: 'success.main', fontWeight: 600 }}>
+        {formatMoney(payslip.net_salary || 0)}
+      </TableCell>
+      <TableCell>
+        <Chip label={statusLabel} size='small' color={statusColor} />
+      </TableCell>
+      <TableCell align='center'>
+        <Tooltip title='View Payslip'>
+          <IconButton
+            size='small'
+            color='primary'
+            onClick={() => props.onViewPayslip(payslip)}
           >
-            {getEmployeeName(employee)}
-          </Typography>
-          <Stack direction='row' spacing={1} alignItems='center'>
-            <Typography variant='body2' color='text.secondary' noWrap>
-              {employee?.employee_number}
-            </Typography>
-            {employee?.deleted_at && (
-              <Chip
-                size='small'
-                label='Employee removed'
-                color='warning'
-                variant='outlined'
-                sx={{ height: 18, fontSize: 11 }}
-              />
-            )}
-          </Stack>
-        </Grid>
+            <VisibilityOutlined fontSize='small' />
+          </IconButton>
+        </Tooltip>
+      </TableCell>
+    </TableRow>
+  );
+};
 
-        <Grid size={{ xs: 6, md: 1.2 }}>
-          <Field label='Basic'>{formatMoney(payslip.basic_salary || 0)}</Field>
-        </Grid>
-        <Grid size={{ xs: 6, md: 1.1 }}>
-          <Field label='Allowances'>
-            {formatMoney(payslip.total_allowances || 0)}
-          </Field>
-        </Grid>
-        <Grid size={{ xs: 6, md: 1.3 }}>
-          <Field label='Gross'>{formatMoney(payslip.gross_salary || 0)}</Field>
-        </Grid>
-        <Grid size={{ xs: 6, md: 1.2 }}>
-          <Field label='Deductions'>
-            {formatMoney(payslip.total_deductions || 0)}
-          </Field>
-        </Grid>
-        <Grid size={{ xs: 6, md: 1 }}>
-          <Field label='PAYE' color='error.main'>
-            {formatMoney(payslip.paye || 0)}
-          </Field>
-        </Grid>
-        <Grid size={{ xs: 6, md: 1.4 }}>
-          <Field label='Net Pay' color='success.main' bold>
-            {formatMoney(payslip.net_salary || 0)}
-          </Field>
-        </Grid>
+const CardAmount = ({
+  label,
+  value,
+  color,
+}: {
+  label: string;
+  value: number;
+  color?: string;
+}) => (
+  <Box>
+    <Typography variant='caption' color='text.secondary' display='block'>
+      {label}
+    </Typography>
+    <Typography variant='body2' fontWeight={500} sx={{ color }}>
+      {formatMoney(value || 0)}
+    </Typography>
+  </Box>
+);
 
-        <Grid size={{ xs: 8, md: 1.3 }}>
-          <Tooltip title='Payment Status'>
-            <Chip
-              label={rowStatusLabel}
-              size='small'
-              color={
-                isRowPaid
-                  ? 'success'
-                  : isRowPartiallyPaid
-                    ? 'warning'
-                    : isPosted
-                      ? 'primary'
-                      : 'info'
-              }
-            />
-          </Tooltip>
-        </Grid>
+const PayslipCard = (props: {
+  payslip: any;
+  runStatus: string;
+  isPosted: boolean;
+  onViewPayslip: (payslip: any) => void;
+}) => {
+  const { payslip, employee, statusLabel, statusColor, canOpenEmployee, openEmployee } =
+    usePayslipRow(props.payslip, props.runStatus, props.isPosted);
 
-        <Grid size={{ xs: 4, md: 1 }} textAlign='end'>
-          <Tooltip title='View Payslip'>
-            <IconButton
-              size='small'
-              color='primary'
-              onClick={() => onViewPayslip(payslip)}
-            >
-              <VisibilityOutlined fontSize='small' />
-            </IconButton>
-          </Tooltip>
-        </Grid>
-      </Grid>
-    </>
+  return (
+    <Box
+      sx={{
+        border: 1,
+        borderColor: 'divider',
+        borderLeft: 4,
+        borderLeftColor: `${statusColor}.main`,
+        borderRadius: 2,
+        p: 2,
+        mx: 2,
+        my: 1.5,
+        bgcolor: 'background.paper',
+      }}
+    >
+      <Stack
+        direction='row'
+        justifyContent='space-between'
+        alignItems='flex-start'
+        spacing={1}
+      >
+        <Box sx={{ minWidth: 0 }}>
+          <EmployeeIdentity
+            employee={employee}
+            canOpen={canOpenEmployee}
+            onOpen={openEmployee}
+          />
+        </Box>
+        <Chip label={statusLabel} size='small' color={statusColor} />
+      </Stack>
+
+      <Box mt={1.5} mb={1.5}>
+        <Typography variant='caption' color='text.secondary' display='block'>
+          Net Pay
+        </Typography>
+        <Typography variant='h5' color='success.main' mb={0}>
+          {formatMoney(payslip.net_salary || 0)}
+        </Typography>
+      </Box>
+
+      <Divider />
+
+      <Box
+        mt={1.5}
+        sx={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+          gap: 1.5,
+        }}
+      >
+        <CardAmount label='Basic' value={payslip.basic_salary} />
+        <CardAmount label='Allowances' value={payslip.total_allowances} />
+        <CardAmount label='Gross' value={payslip.gross_salary} />
+        <CardAmount label='Deductions' value={payslip.total_deductions} />
+        <CardAmount label='PAYE' value={payslip.paye} color='error.main' />
+      </Box>
+
+      <Stack direction='row' justifyContent='flex-end' mt={1}>
+        <Tooltip title='View Payslip'>
+          <IconButton
+            size='small'
+            color='primary'
+            onClick={() => props.onViewPayslip(payslip)}
+          >
+            <VisibilityOutlined fontSize='small' />
+          </IconButton>
+        </Tooltip>
+      </Stack>
+    </Box>
   );
 };
 
@@ -231,6 +329,8 @@ const PayslipsList = ({
   allPayslips,
 }: PayslipsListProps) => {
   const listRef = useRef<any>(null);
+  const theme = useTheme();
+  const isDesktop = useMediaQuery(theme.breakpoints.up('md'));
 
   // Pay/reverse actions refetch the run's details (they all invalidate
   // 'payrollRunDetails'), which changes this fingerprint — folding it into
@@ -264,78 +364,52 @@ const PayslipsList = ({
   }, []);
 
   const renderItem = useCallback(
-    (payslip: any) => (
-      <PayslipsListItem
-        payslip={payslip}
-        runStatus={runStatus}
-        isPosted={isPosted}
-        onViewPayslip={onViewPayslip}
-      />
-    ),
-    [runStatus, isPosted, onViewPayslip]
+    (payslip: any) => {
+      const Row = isDesktop ? PayslipTableRow : PayslipCard;
+      return (
+        <Row
+          payslip={payslip}
+          runStatus={runStatus}
+          isPosted={isPosted}
+          onViewPayslip={onViewPayslip}
+        />
+      );
+    },
+    [isDesktop, runStatus, isPosted, onViewPayslip]
   );
 
   return (
-    <>
-      {allPayslips.length > 0 && (
-        <Stack
-          direction='row'
-          spacing={3}
-          mb={2}
-          flexWrap='wrap'
-          useFlexGap
-          alignItems='center'
-        >
-          <Typography variant='caption' color='text.secondary'>
-            Run totals · {allPayslips.length} payslip
-            {allPayslips.length === 1 ? '' : 's'}
-          </Typography>
-          <Field label='Basic'>{formatMoney(sum(allPayslips, 'basic_salary'))}</Field>
-          <Field label='Allowances'>
-            {formatMoney(sum(allPayslips, 'total_allowances'))}
-          </Field>
-          <Field label='Gross'>{formatMoney(sum(allPayslips, 'gross_salary'))}</Field>
-          <Field label='Deductions'>
-            {formatMoney(sum(allPayslips, 'total_deductions'))}
-          </Field>
-          <Field label='PAYE' color='error.main'>
-            {formatMoney(sum(allPayslips, 'paye'))}
-          </Field>
-          <Field label='Net Pay' color='success.main' bold>
-            {formatMoney(sum(allPayslips, 'net_salary'))}
-          </Field>
-        </Stack>
-      )}
-      <JumboRqList
-        ref={listRef}
-        wrapperComponent={Card}
-        service={humanResourcesServices.getPayrollRunPayslips}
-        primaryKey='id'
-        queryOptions={queryOptionsWithVersion}
-        itemsPerPage={10}
-        itemsPerPageOptions={[10, 20, 50]}
-        renderItem={renderItem}
-        componentElement='div'
-        wrapperSx={{
-          flex: 1,
-          display: 'flex',
-          flexDirection: 'column',
-        }}
-        toolbar={
-          <JumboListToolbar
-            hideItemsPerPage={true}
-            actionTail={
-              <Stack direction='row' justifyContent='end'>
-                <JumboSearch
-                  onChange={handleSearch}
-                  value={queryOptions.queryParams.keyword}
-                />
-              </Stack>
-            }
-          />
-        }
-      />
-    </>
+    <JumboRqList
+      ref={listRef}
+      wrapperComponent={Card}
+      service={humanResourcesServices.getPayrollRunPayslips}
+      primaryKey='id'
+      queryOptions={queryOptionsWithVersion}
+      itemsPerPage={10}
+      itemsPerPageOptions={[10, 20, 50]}
+      renderItem={renderItem}
+      component={isDesktop ? PayslipsTable : undefined}
+      disableTransition
+      componentElement='div'
+      wrapperSx={{
+        flex: 1,
+        display: 'flex',
+        flexDirection: 'column',
+      }}
+      toolbar={
+        <JumboListToolbar
+          hideItemsPerPage={true}
+          actionTail={
+            <Stack direction='row' justifyContent='end'>
+              <JumboSearch
+                onChange={handleSearch}
+                value={queryOptions.queryParams.keyword}
+              />
+            </Stack>
+          }
+        />
+      }
+    />
   );
 };
 
