@@ -7,7 +7,7 @@ import {
   TextField
 } from "@mui/material";
 import { CheckBox, CheckBoxOutlineBlank } from "@mui/icons-material";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useJumboAuth } from "@/app/providers/JumboAuthProvider";
 import { Station } from "./StationType";
@@ -57,16 +57,6 @@ const StationSelector = ({
   });
 
   const [selectedStation, setSelectedStation] = useState<Station | Station[] | null>(defaultValue);
-
-  // Only set default value on initial load, don't auto-select
-  useEffect(() => {
-    if (defaultValue !== null) {
-      setSelectedStation(defaultValue);
-      // Don't call onChange here - let the parent handle defaults
-    }
-  }, [defaultValue]);
-
-  // Remove the auto-selection logic that was causing the issue
 
   if (isPending) {
     return <LinearProgress />;
