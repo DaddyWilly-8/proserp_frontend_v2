@@ -9,7 +9,8 @@ import {
   DialogContent,
   DialogTitle,
   Grid,
-  TextField
+  TextField,
+  Typography
 } from '@mui/material';
 import React, { useState } from 'react';
 import { LoadingButton } from '@mui/lab';
@@ -67,6 +68,15 @@ function LedgersMergeForm({ toggleOpen }: LedgersMergeFormProps) {
   const { enqueueSnackbar } = useSnackbar();
   const [serverError, setServerError] = useState<ServerError | null>(null);
   const [confirmation, setConfirmation] = useState<Confirmation | null>(null);
+  // Merging can't be undone: after "Merge" the user must type the surviving ledger's name
+  const [confirming, setConfirming] = useState(false);
+  const [confirmText, setConfirmText] = useState('');
+
+  const resetConfirmation = () => {
+    setConfirmation(null);
+    setConfirming(false);
+    setConfirmText('');
+  };
 
   const newLedgerOptions: Ledger[] = selectedRemainLedger
     ? ungroupedLedgerOptions.filter(
@@ -87,9 +97,12 @@ function LedgersMergeForm({ toggleOpen }: LedgersMergeFormProps) {
       if (error.response) {
         if (error.response.status === 400) {
           setServerError(error.response?.data?.validation_errors);
+          resetConfirmation();
         } else if (error.response.status === 409 && error.response?.data?.requires_confirmation) {
           // Stakeholder ledgers being merged into a ledger of other stakeholders
           setConfirmation({ message: error.response.data.message });
+          // Type it again, now that the consequences are spelled out
+          setConfirmText('');
         } else {
           enqueueSnackbar(error.response?.data?.message, { variant: 'error' });
         }
@@ -118,7 +131,15 @@ function LedgersMergeForm({ toggleOpen }: LedgersMergeFormProps) {
     resolver: yupResolver(validationSchema) as any
   });
 
+  const expectedConfirmText = selectedRemainLedger?.name ?? '';
+  const confirmTextMatches = confirmText.trim() === expectedConfirmText;
+
   const onSubmit = (data: FormValues) => {
+    if (!confirming) {
+      setConfirming(true);
+      return;
+    }
+    if (!confirmTextMatches) return;
     mergeLedgers.mutate(confirmation ? { ...data, confirm_stakeholder_reassignment: true } : data);
   };
 
@@ -139,7 +160,7 @@ function LedgersMergeForm({ toggleOpen }: LedgersMergeFormProps) {
                     setSelectedDissolveLedgers([]);
                     setValue('dissolved_ledgers_ids', []);
                     setServerError(null);
-                    setConfirmation(null);
+                    resetConfirmation();
                     clearErrors('remaining_ledger_id');
                     setSelectedRemainLedger(value);
                     setValue('remaining_ledger_id', value.id);
@@ -191,7 +212,7 @@ function LedgersMergeForm({ toggleOpen }: LedgersMergeFormProps) {
                 }}
                 onChange={(e, newValue: Ledger[]) => {
                     setServerError(null);
-                    setConfirmation(null);
+                    resetConfirmation();
                     newValue && clearErrors('dissolved_ledgers_ids');
                     setValue(
                         'dissolved_ledgers_ids',
@@ -215,6 +236,25 @@ function LedgersMergeForm({ toggleOpen }: LedgersMergeFormProps) {
               </span>
             )}
           </Grid>
+
+          {confirming && (
+            <Grid size={12}>
+              <Typography variant='body2' mb={1}>
+                {`${selectedDissolveLedgers.map((ledger) => ledger.name).join(', ')} will be merged into ${expectedConfirmText} and deleted. This cannot be undone.`}
+              </Typography>
+              <TextField
+                fullWidth
+                autoFocus
+                size='small'
+                label={`Type "${expectedConfirmText}" to confirm`}
+                value={confirmText}
+                onChange={(e) => setConfirmText(e.target.value)}
+                onPaste={(e) => e.preventDefault()}
+                onDrop={(e) => e.preventDefault()}
+                onContextMenu={(e) => e.preventDefault()}
+              />
+            </Grid>
+          )}
         </Grid>
       </DialogContent>
       <DialogActions>
@@ -222,10 +262,11 @@ function LedgersMergeForm({ toggleOpen }: LedgersMergeFormProps) {
         <LoadingButton
           type='submit'
           loading={mergeLedgers.isPending}
+          disabled={confirming && !confirmTextMatches}
           variant='contained'
           size='small'
         >
-          {confirmation ? 'Confirm & Merge' : 'Merge'}
+          {confirming ? 'Confirm & Merge' : 'Merge'}
         </LoadingButton>
       </DialogActions>
     </form>
