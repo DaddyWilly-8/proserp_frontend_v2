@@ -447,11 +447,10 @@ const TransactionItemForm: React.FC<TransactionItemFormProps> = ({
                 allowedGroups={
                   isPayment
                     ? [
+                        'Assets',
                         'Expenses',
-                        'Accounts Receivable',
                         'Liabilities',
                         'Capital',
-                        'Duties and Taxes',
                       ]
                     : isTransfer
                       ? ['Cash and cash equivalents', 'Current Assets']
