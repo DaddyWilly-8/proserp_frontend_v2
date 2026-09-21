@@ -477,10 +477,10 @@ function RequisitionLedgerItemForm({
                 label='Ledger Name'
                 notAllowedLedgers={notAllowedLedgers}
                 allowedGroups={[
-                  'Accounts Receivable',
-                  'Accounts Payable',
-                  'Expenses',
-                  'Liabilities',
+                        'Assets',
+                        'Expenses',
+                        'Liabilities',
+                        'Capital',
                 ]}
                 defaultValue={ledger_item?.ledger}
                 frontError={
