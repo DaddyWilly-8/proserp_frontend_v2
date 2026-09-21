@@ -79,9 +79,20 @@ const EmployeesListItem = ({ employee }: { employee: Employee }) => {
                 >
                   {fullName}
                 </Typography>
-                <Typography variant='body2' color='text.secondary' noWrap>
-                  {employee.employee_number}
-                </Typography>
+                <Stack direction='row' spacing={1} alignItems='center'>
+                  <Typography variant='body2' color='text.secondary' noWrap>
+                    {employee.employee_number}
+                  </Typography>
+                  {employee.is_active === false && (
+                    <Chip
+                      size='small'
+                      label='Deactivated'
+                      color='warning'
+                      variant='outlined'
+                      sx={{ height: 18, fontSize: 11 }}
+                    />
+                  )}
+                </Stack>
               </div>
             </Stack>
           </Tooltip>

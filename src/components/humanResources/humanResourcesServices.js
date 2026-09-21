@@ -59,6 +59,16 @@ humanResourcesServices.uploadEmployeePhoto = async (id, file) => {
     return data;
 }
 
+humanResourcesServices.deactivateEmployee = async ({ id, reason = '' }) => {
+    const { data } = await axios.post(`/api/humanResources/employees/${id}/deactivate`, { reason });
+    return data;
+}
+
+humanResourcesServices.reactivateEmployee = async (id) => {
+    const { data } = await axios.post(`/api/humanResources/employees/${id}/reactivate`);
+    return data;
+}
+
 humanResourcesServices.deleteEmployeePhoto = async (id) => {
     const { data } = await axios.delete(`/api/humanResources/employees/${id}/photo`);
     return data;
@@ -1264,6 +1274,15 @@ humanResourcesServices.previewPayrollRun = async ({ id, employee_ids = null }) =
 }
 
 // Simulate - calculate for a single employee
+// Paginated + searchable payslips of one run (JumboRqList service — receives
+// { payroll_run_id, keyword, page, limit }).
+humanResourcesServices.getPayrollRunPayslips = async ({ payroll_run_id, ...params }) => {
+    const { data } = await axios.get(`/api/humanResources/payrollRuns/${payroll_run_id}/payslips`, {
+        params,
+    });
+    return data;
+}
+
 humanResourcesServices.simulatePayrollRun = async ({ id, employee_id }) => {
     const { data } = await axios.post(`/api/humanResources/payrollRuns/${id}/simulate`, { employee_id });
     return data;

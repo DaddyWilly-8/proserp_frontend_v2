@@ -7,6 +7,8 @@ import {
   DeleteOutlined,
   EditOutlined,
   MoreHorizOutlined,
+  PersonOffOutlined,
+  PersonOutlined,
 } from '@mui/icons-material';
 import { Dialog, LinearProgress, Tooltip, useMediaQuery } from '@mui/material';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -65,13 +67,47 @@ const EmployeeItemAction = ({ employee }: { employee: Employee }) => {
         variant: 'success',
       });
     },
+    // The backend refuses to delete an employee with payslips, loans or
+    // leave on record, and says why — show that instead of a generic error.
     onError: (error: any) => {
-      enqueueSnackbar('Error Deleting Employee', {
-        variant: 'error',
-      });
-      console.log('error deleting employee: ', error);
+      enqueueSnackbar(
+        error?.response?.data?.message || 'Error Deleting Employee',
+        { variant: 'error' }
+      );
     },
   });
+
+  const { mutate: deactivateEmployee } = useMutation({
+    mutationFn: humanResourcesServices.deactivateEmployee,
+    onSuccess: (data: { message: string }) => {
+      queryClient.invalidateQueries({ queryKey: ['employees'] });
+      queryClient.invalidateQueries({ queryKey: ['fetchEmployees'] });
+      enqueueSnackbar(data.message, { variant: 'success' });
+    },
+    onError: (error: any) => {
+      enqueueSnackbar(
+        error?.response?.data?.message || 'Error deactivating employee',
+        { variant: 'error' }
+      );
+    },
+  });
+
+  const { mutate: reactivateEmployee } = useMutation({
+    mutationFn: humanResourcesServices.reactivateEmployee,
+    onSuccess: (data: { message: string }) => {
+      queryClient.invalidateQueries({ queryKey: ['employees'] });
+      queryClient.invalidateQueries({ queryKey: ['fetchEmployees'] });
+      enqueueSnackbar(data.message, { variant: 'success' });
+    },
+    onError: (error: any) => {
+      enqueueSnackbar(
+        error?.response?.data?.message || 'Error reactivating employee',
+        { variant: 'error' }
+      );
+    },
+  });
+
+  const isActive = employee.is_active !== false;
 
   const menuItems = [
     {
@@ -79,6 +115,17 @@ const EmployeeItemAction = ({ employee }: { employee: Employee }) => {
       title: 'Edit',
       action: 'edit',
     },
+    isActive
+      ? {
+          icon: <PersonOffOutlined color='warning' />,
+          title: 'Deactivate',
+          action: 'deactivate',
+        }
+      : {
+          icon: <PersonOutlined color='success' />,
+          title: 'Reactivate',
+          action: 'reactivate',
+        },
     {
       icon: <DeleteOutlined color='error' />,
       title: 'Delete',
@@ -90,6 +137,32 @@ const EmployeeItemAction = ({ employee }: { employee: Employee }) => {
     switch (menuItem.action) {
       case 'edit':
         setOpenEditDialog(true);
+        break;
+      case 'deactivate':
+        showDialog({
+          title: 'Deactivate Employee',
+          content:
+            'They will stop appearing in employee selectors and payroll, and lose My HR access. Their history stays intact and you can reactivate them at any time. Continue?',
+          onYes: () => {
+            hideDialog();
+            deactivateEmployee({ id: employee.id });
+          },
+          onNo: () => hideDialog(),
+          variant: 'confirm',
+        });
+        break;
+      case 'reactivate':
+        showDialog({
+          title: 'Reactivate Employee',
+          content:
+            'They will appear in employee selectors and payroll again, and regain My HR access. Continue?',
+          onYes: () => {
+            hideDialog();
+            reactivateEmployee(employee.id);
+          },
+          onNo: () => hideDialog(),
+          variant: 'confirm',
+        });
         break;
       case 'delete':
         showDialog({

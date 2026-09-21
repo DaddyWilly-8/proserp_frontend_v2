@@ -25,6 +25,10 @@ export interface Employee {
   create_payable?: boolean;
   payable_ledger_name?: string | null;
   employment_type?: string;
+  // Deactivated employees are off selectors, payroll and My HR but keep all history.
+  is_active?: boolean;
+  deactivated_at?: string | null;
+  deactivation_reason?: string | null;
   join_date?: string;
   user_id?: number | null;
   created_by: number;

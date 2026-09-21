@@ -27,7 +27,8 @@ import { PayrollPeriodType } from '../payrollPeriods/PayrollPeriodType';
 import PayrollPaymentsTab from './PayrollPaymentsTab';
 import { PayrollRunActions } from './PayrollRunActions';
 import { PayslipViewDialog, SimulationDialog } from './PayrollRunDialogs';
-import { ApprovalsTab, PayslipsTab, TabPanel } from './PayrollRunTabs';
+import { ApprovalsTab, TabPanel } from './PayrollRunTabs';
+import PayslipsList from './PayslipsList';
 import { PayrollRunType } from './PayrollRunType';
 import { formatPayslipPeriod, processPayslips, statusColor } from './payrollUtils';
 import SummaryTab from './SummaryTab';
@@ -57,7 +58,6 @@ const PayrollRunsListItem = ({
     useJumboAuth();
   const [expanded, setExpanded] = useState(false);
   const [tabValue, setTabValue] = useState(0);
-  const [employeeSearch, setEmployeeSearch] = useState('');
   const [simulationResult, setSimulationResult] = useState<any>(null);
   const [openSimulationDialog, setOpenSimulationDialog] = useState(false);
   const [isSimulating, setIsSimulating] = useState(false);
@@ -605,10 +605,9 @@ const PayrollRunsListItem = ({
 
               {hasPayslips && (
                 <TabPanel value={tabValue} index={payslipsTabIndex}>
-                  <PayslipsTab
-                    payslips={processedPayslips}
-                    search={employeeSearch}
-                    onSearchChange={setEmployeeSearch}
+                  <PayslipsList
+                    payrollRunId={payrollRun.id}
+                    allPayslips={processedPayslips}
                     onViewPayslip={handleViewPayslip}
                     runStatus={payrollRun.status || 'approved'}
                     isPosted={isPosted}

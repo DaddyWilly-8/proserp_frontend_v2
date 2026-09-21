@@ -15,6 +15,7 @@ const STATUS_CHIP_COLOR: Record<string, 'default' | 'warning' | 'info' | 'succes
   draft: 'warning',
   in_review: 'info',
   approved: 'success',
+  invoiced: 'success',
   rejected: 'error',
 };
 
@@ -56,7 +57,22 @@ const ProjectClaimsListItem: React.FC<ProjectClaimsListItemProps> = ({
               <Typography noWrap>
                 {claim.claimNo || '-'}
               </Typography>
-              {claim.approval_chain && claim.status_label ? (
+              {claim.status === 'invoiced' ? (
+                <Tooltip
+                  title={
+                    claim.invoice_date
+                      ? `Invoiced on ${readableDate(claim.invoice_date)}`
+                      : 'Invoiced'
+                  }
+                >
+                  <Chip
+                    label="Invoiced"
+                    size="small"
+                    color={STATUS_CHIP_COLOR.invoiced}
+                    variant="outlined"
+                  />
+                </Tooltip>
+              ) : claim.approval_chain && claim.status_label ? (
                 <Chip
                   label={claim.status_label}
                   size="small"

@@ -9,7 +9,7 @@ import { PERMISSIONS } from '@/utilities/constants/permissions';
 import JumboListToolbar from '@jumbo/components/JumboList/components/JumboListToolbar';
 import JumboRqList from '@jumbo/components/JumboReactQuery/JumboRqList';
 import JumboSearch from '@jumbo/components/JumboSearch';
-import { Card, Grid, Stack, Typography } from '@mui/material';
+import { Card, Grid, MenuItem, Stack, TextField, Typography } from '@mui/material';
 import { useParams, useSearchParams } from 'next/navigation';
 import React, { useEffect, useRef, useState } from 'react';
 import DepartmentSelector from '../departments/DepartmentSelector';
@@ -40,11 +40,16 @@ const Employees = () => {
     Designation[] | null
   >(null);
 
+  // Deactivated employees are hidden by default (the backend's default too) —
+  // switch to "Deactivated"/"All" to find one and reactivate them.
+  const [status, setStatus] = useState<'active' | 'inactive' | 'all'>('active');
+
   const [queryOptions, setQueryOptions] = React.useState({
     queryKey: 'employees',
     queryParams: {
       id: params.id,
       keyword: '',
+      status: 'active' as 'active' | 'inactive' | 'all',
       cost_center_ids:
         authOrganization?.costCenters?.map(
           (cost_center: CostCenter) => cost_center.id
@@ -63,6 +68,13 @@ const Employees = () => {
       },
     }));
   }, [selectedCostCenter]);
+
+  useEffect(() => {
+    setQueryOptions((state) => ({
+      ...state,
+      queryParams: { ...state.queryParams, status },
+    }));
+  }, [status]);
 
   useEffect(() => {
     setQueryOptions((state) => ({
@@ -141,7 +153,25 @@ const Employees = () => {
                   hideItemsPerPage={true}
                   action={
                     <Grid container spacing={1} justifyContent={'end'}>
-                      <Grid size={{ xs: 12, md: 4 }} textAlign={'center'}>
+                      <Grid size={{ xs: 12, md: 3 }}>
+                        <TextField
+                          select
+                          fullWidth
+                          size='small'
+                          label='Status'
+                          value={status}
+                          onChange={(e) =>
+                            setStatus(
+                              e.target.value as 'active' | 'inactive' | 'all'
+                            )
+                          }
+                        >
+                          <MenuItem value='active'>Active</MenuItem>
+                          <MenuItem value='inactive'>Deactivated</MenuItem>
+                          <MenuItem value='all'>All</MenuItem>
+                        </TextField>
+                      </Grid>
+                      <Grid size={{ xs: 12, md: 3 }} textAlign={'center'}>
                         <DepartmentSelector
                           multiple
                           value={selectedDepartments || null}
@@ -156,7 +186,7 @@ const Employees = () => {
                           }}
                         />
                       </Grid>
-                      <Grid size={{ xs: 12, md: 4 }} textAlign={'center'}>
+                      <Grid size={{ xs: 12, md: 3 }} textAlign={'center'}>
                         <DesignationSelector
                           multiple
                           value={selectedDesignations || null}
@@ -171,7 +201,7 @@ const Employees = () => {
                           }}
                         />
                       </Grid>
-                      <Grid size={{ xs: 12, md: 4 }}>
+                      <Grid size={{ xs: 12, md: 3 }}>
                         <CostCenterSelector
                           label='Cost Centers'
                           allowSameType={true}
