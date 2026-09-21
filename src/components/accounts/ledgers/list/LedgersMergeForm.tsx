@@ -44,10 +44,15 @@ interface Ledger {
 interface FormValues {
   remaining_ledger_id: number | null;
   dissolved_ledgers_ids: number[];
+  confirm_stakeholder_reassignment?: boolean;
 }
 
 interface ServerError {
-  [key: string]: string;
+  [key: string]: string | string[];
+}
+
+interface Confirmation {
+  message: string;
 }
 
 interface LedgersMergeFormProps {
@@ -61,6 +66,7 @@ function LedgersMergeForm({ toggleOpen }: LedgersMergeFormProps) {
   const queryClient = useQueryClient();
   const { enqueueSnackbar } = useSnackbar();
   const [serverError, setServerError] = useState<ServerError | null>(null);
+  const [confirmation, setConfirmation] = useState<Confirmation | null>(null);
 
   const newLedgerOptions: Ledger[] = selectedRemainLedger
     ? ungroupedLedgerOptions.filter(
@@ -81,6 +87,9 @@ function LedgersMergeForm({ toggleOpen }: LedgersMergeFormProps) {
       if (error.response) {
         if (error.response.status === 400) {
           setServerError(error.response?.data?.validation_errors);
+        } else if (error.response.status === 409 && error.response?.data?.requires_confirmation) {
+          // Stakeholder ledgers being merged into a ledger of other stakeholders
+          setConfirmation({ message: error.response.data.message });
         } else {
           enqueueSnackbar(error.response?.data?.message, { variant: 'error' });
         }
@@ -110,7 +119,7 @@ function LedgersMergeForm({ toggleOpen }: LedgersMergeFormProps) {
   });
 
   const onSubmit = (data: FormValues) => {
-    mergeLedgers.mutate(data);
+    mergeLedgers.mutate(confirmation ? { ...data, confirm_stakeholder_reassignment: true } : data);
   };
 
   return (
@@ -129,6 +138,8 @@ function LedgersMergeForm({ toggleOpen }: LedgersMergeFormProps) {
 
                     setSelectedDissolveLedgers([]);
                     setValue('dissolved_ledgers_ids', []);
+                    setServerError(null);
+                    setConfirmation(null);
                     clearErrors('remaining_ledger_id');
                     setSelectedRemainLedger(value);
                     setValue('remaining_ledger_id', value.id);
@@ -180,6 +191,7 @@ function LedgersMergeForm({ toggleOpen }: LedgersMergeFormProps) {
                 }}
                 onChange={(e, newValue: Ledger[]) => {
                     setServerError(null);
+                    setConfirmation(null);
                     newValue && clearErrors('dissolved_ledgers_ids');
                     setValue(
                         'dissolved_ledgers_ids',
@@ -192,22 +204,16 @@ function LedgersMergeForm({ toggleOpen }: LedgersMergeFormProps) {
 
           <Grid size={12} textAlign={{ md: 'center' }}>
             {serverError &&
-              Object.keys(serverError).map((key) => {
-                const match = key.match(/\d+/);
-                const index = match ? Number(match[0]) : null;
-
-                if (index === null || !selectedDissolveLedgers?.[index]) return null;
-
-                const ledger = selectedDissolveLedgers[index];
-                return (
-                  <span
-                    key={`${ledger.id}-${index}`}
-                    style={{ color: 'red', display: 'block' }}
-                  >
-                    {`${ledger.name} - This stakeholder ledger cannot be dissolved.`}
-                  </span>
-                );
-              })}
+              Object.entries(serverError).map(([key, value]) => (
+                <span key={key} style={{ color: 'red', display: 'block' }}>
+                  {Array.isArray(value) ? value[0] : value}
+                </span>
+              ))}
+            {confirmation && (
+              <span style={{ color: 'darkorange', display: 'block' }}>
+                {confirmation.message}
+              </span>
+            )}
           </Grid>
         </Grid>
       </DialogContent>
@@ -219,7 +225,7 @@ function LedgersMergeForm({ toggleOpen }: LedgersMergeFormProps) {
           variant='contained'
           size='small'
         >
-          Merge
+          {confirmation ? 'Confirm & Merge' : 'Merge'}
         </LoadingButton>
       </DialogActions>
     </form>
