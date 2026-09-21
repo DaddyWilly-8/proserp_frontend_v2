@@ -1,6 +1,8 @@
 'use client'
 
 import {
+  Alert,
+  AlertTitle,
   Autocomplete,
   Button,
   Checkbox,
@@ -230,21 +232,20 @@ function LedgersMergeForm({ toggleOpen }: LedgersMergeFormProps) {
                   {Array.isArray(value) ? value[0] : value}
                 </span>
               ))}
-            {confirmation && (
-              <span style={{ color: 'darkorange', display: 'block' }}>
-                {confirmation.message}
-              </span>
-            )}
           </Grid>
 
           {confirming && (
             <Grid size={12}>
-              <Typography variant='body2' mb={1}>
-                {`${selectedDissolveLedgers.map((ledger) => ledger.name).join(', ')} will be merged into ${expectedConfirmText} and deleted. This cannot be undone.`}
-              </Typography>
+              <Alert severity='error' sx={{ mb: 2 }}>
+                <AlertTitle>This cannot be undone</AlertTitle>
+                {`${selectedDissolveLedgers.map((ledger) => ledger.name).join(', ')} will be merged into ${expectedConfirmText} and deleted.`}
+                {confirmation && <Typography variant='body2' mt={1}>{confirmation.message}</Typography>}
+              </Alert>
               <TextField
                 fullWidth
                 autoFocus
+                color='error'
+                focused
                 size='small'
                 label={`Type "${expectedConfirmText}" to confirm`}
                 value={confirmText}
@@ -263,6 +264,7 @@ function LedgersMergeForm({ toggleOpen }: LedgersMergeFormProps) {
           type='submit'
           loading={mergeLedgers.isPending}
           disabled={confirming && !confirmTextMatches}
+          color={confirming ? 'error' : 'primary'}
           variant='contained'
           size='small'
         >
