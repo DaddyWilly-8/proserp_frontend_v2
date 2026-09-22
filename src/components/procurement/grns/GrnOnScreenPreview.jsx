@@ -256,6 +256,11 @@ function GrnOnScreenPreview({ grn, baseCurrency, checkOrganizationPermission, or
                                     <Grid size={7}>
                                         <Typography variant="body2" fontWeight="medium">
                                             {item.name}
+                                            {item.vat_exempted && (
+                                                <Typography component="span" variant="caption" color="text.secondary">
+                                                    {' '}(VAT Exempt)
+                                                </Typography>
+                                            )}
                                         </Typography>
                                     </Grid>
                                     <Grid size={5} sx={{ textAlign: 'right' }}>

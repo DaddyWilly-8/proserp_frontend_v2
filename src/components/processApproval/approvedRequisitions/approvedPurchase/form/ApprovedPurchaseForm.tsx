@@ -161,6 +161,12 @@ const ApprovedPurchaseForm: React.FC<ApprovedPurchaseFormProps> = ({
   prevApprovedDetails,
 }) => {
   const { authOrganization, checkOrganizationPermission } = useJumboAuth();
+  // VAT Exempt only affects the flat VAT calculation a Purchase Bill applies
+  // (SupplierInvoiceController::postBill()) — organizations that don't bill
+  // Purchase Orders/GRNs before paying them compute VAT strictly per-item
+  // at GRN time instead, never touching additional costs, so the flag would
+  // do nothing there. Hide it rather than offer a dead option.
+  const deferGrnBilling = !!authOrganization?.organization?.settings?.defer_grn_billing;
   const [totalAmount, setTotalAmount] = useState(0);
   const [vatableAmount, setVatableAmount] = useState(0);
   const [order_date] = useState(
@@ -778,7 +784,7 @@ const ApprovedPurchaseForm: React.FC<ApprovedPurchaseFormProps> = ({
                   </Typography>
                 </Grid>
 
-                <Grid size={{ xs: 12, md: 3 }}>
+                <Grid size={{ xs: 12, md: deferGrnBilling ? 3 : 6 }}>
                   {(() => {
                     const costAmount = Number(cost.approved_amount ?? 0);
                     const enteredAmount = Number(cost.amount ?? 0);
@@ -824,29 +830,31 @@ const ApprovedPurchaseForm: React.FC<ApprovedPurchaseFormProps> = ({
                     );
                   })()}
                 </Grid>
-                <Grid size={{ xs: 12, md: 3 }}>
-                  <Tooltip title="Excludes this cost from VAT when the order is later billed — e.g. CESS, a statutory levy that shouldn't itself attract VAT.">
-                    <FormControlLabel
-                      control={
-                        <Checkbox
-                          size='small'
-                          checked={Boolean(cost.vat_exempted)}
-                          onChange={(e) =>
-                            setAdditionalCosts((additionalCosts: any) => {
-                              const newItems = [...additionalCosts];
-                              newItems[index] = {
-                                ...newItems[index],
-                                vat_exempted: e.target.checked,
-                              };
-                              return newItems;
-                            })
-                          }
-                        />
-                      }
-                      label='VAT Exempt'
-                    />
-                  </Tooltip>
-                </Grid>
+                {deferGrnBilling && (
+                  <Grid size={{ xs: 12, md: 3 }}>
+                    <Tooltip title="Excludes this cost from VAT when the order is later billed — e.g. CESS, a statutory levy that shouldn't itself attract VAT.">
+                      <FormControlLabel
+                        control={
+                          <Checkbox
+                            size='small'
+                            checked={Boolean(cost.vat_exempted)}
+                            onChange={(e) =>
+                              setAdditionalCosts((additionalCosts: any) => {
+                                const newItems = [...additionalCosts];
+                                newItems[index] = {
+                                  ...newItems[index],
+                                  vat_exempted: e.target.checked,
+                                };
+                                return newItems;
+                              })
+                            }
+                          />
+                        }
+                        label='VAT Exempt'
+                      />
+                    </Tooltip>
+                  </Grid>
+                )}
                 <Grid size={{ xs: 12, md: 1 }}>
                   <Tooltip title='Remove Additional Cost'>
                     <IconButton

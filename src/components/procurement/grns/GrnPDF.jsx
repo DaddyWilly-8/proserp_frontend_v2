@@ -189,7 +189,7 @@ function GrnPDF({grn,organization = null,baseCurrency,checkOrganizationPermissio
                             {
                                 grn.additional_costs.map((item,index) => (
                                     <View key={index} style={styles.tableRow}>
-                                        <Text style={{ ...styles.tableCell,backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor,  flex : 0.4 }}>{item.name}</Text>
+                                        <Text style={{ ...styles.tableCell,backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor,  flex : 0.4 }}>{item.name}{item.vat_exempted ? ' (VAT Exempt)' : ''}</Text>
                                         <Text style={{ ...styles.tableCell,backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor,  flex : 0.3,textAlign : 'right'}}>{item.exchange_rate}</Text>
                                         <Text style={{ ...styles.tableCell,backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor,  flex : 0.3, textAlign : 'right'}}>{item.currency?.symbol}  {(item.amount)?.toLocaleString('en-US',{minimumFractionDigits:2})}</Text>
                                     </View>

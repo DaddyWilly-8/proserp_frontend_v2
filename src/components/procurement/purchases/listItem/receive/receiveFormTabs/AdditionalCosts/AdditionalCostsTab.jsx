@@ -1,4 +1,5 @@
 import { sanitizedNumber } from '@/app/helpers/input-sanitization-helpers';
+import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import LedgerSelect from '@/components/accounts/ledgers/forms/LedgerSelect';
 import { useLedgerSelect } from '@/components/accounts/ledgers/forms/LedgerSelectProvider';
 import CurrencySelector from '@/components/masters/Currencies/CurrencySelector';
@@ -13,7 +14,9 @@ import {
 } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
 import {
+  Checkbox,
   Divider,
+  FormControlLabel,
   Grid,
   IconButton,
   LinearProgress,
@@ -35,6 +38,12 @@ function AdditionalCostsTab({
   const { ungroupedLedgerOptions } = useLedgerSelect();
   const [isAdding, setIsAdding] = useState(false);
   const { currencies } = useCurrencySelect();
+  const { authOrganization } = useJumboAuth();
+  // VAT Exempt only affects the flat VAT a Purchase Bill applies — orgs
+  // that don't bill Purchase Orders/GRNs before paying them compute VAT
+  // strictly per-item at GRN time instead, never touching additional
+  // costs, so the flag would do nothing there.
+  const deferGrnBilling = !!authOrganization?.organization?.settings?.defer_grn_billing;
 
   // Define validation schema
   const validationSchema = yup.object({
@@ -81,8 +90,20 @@ function AdditionalCostsTab({
       exchange_rate: additionalCost ? additionalCost.exchange_rate : 1,
       reference: additionalCost && additionalCost.reference,
       amount: additionalCost && additionalCost.amount,
+      // Whether this cost is owed to the supplier (folded into the GRN's
+      // unbilled amount, billable later — e.g. CESS) or already settled/
+      // third-party (e.g. a transporter's own invoice). Defaults to true —
+      // most additional costs entered here relate to the shipment/supplier.
+      owed_to_supplier: additionalCost
+        ? additionalCost.owed_to_supplier ?? true
+        : true,
+      // Only meaningful when owed_to_supplier is true — see
+      // PurchaseOrderAdditionalCost::vat_exempted on the backend.
+      vat_exempted: additionalCost ? !!additionalCost.vat_exempted : false,
     },
   });
+
+  const owedToSupplier = watch('owed_to_supplier');
 
   useEffect(() => {
     setIsDirty(Object.keys(dirtyFields).length > 0); // Update dirty state
@@ -237,6 +258,42 @@ function AdditionalCostsTab({
               }}
             />
           </Div>
+        </Grid>
+        <Grid size={{ xs: 12, md: 6 }}>
+          <Tooltip title="Folds this cost into the GRN's unbilled amount so it's billed to the supplier later. Uncheck for a cost already settled elsewhere — e.g. a transporter's own invoice.">
+            <FormControlLabel
+              control={
+                <Checkbox
+                  size='small'
+                  checked={!!owedToSupplier}
+                  onChange={(e) =>
+                    setValue('owed_to_supplier', e.target.checked, {
+                      shouldDirty: true,
+                    })
+                  }
+                />
+              }
+              label='Owed to Supplier'
+            />
+          </Tooltip>
+          {owedToSupplier && deferGrnBilling && (
+            <Tooltip title="Excludes this cost from VAT when the order is later billed — e.g. CESS, a statutory levy that shouldn't itself attract VAT.">
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    size='small'
+                    checked={!!watch('vat_exempted')}
+                    onChange={(e) =>
+                      setValue('vat_exempted', e.target.checked, {
+                        shouldDirty: true,
+                      })
+                    }
+                  />
+                }
+                label='VAT Exempt'
+              />
+            </Tooltip>
+          )}
         </Grid>
       </Grid>
       <Grid size={{ xs: 12, md: 12, lg: 12 }} mt={1} textAlign={'end'}>

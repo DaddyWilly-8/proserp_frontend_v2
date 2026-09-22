@@ -32,6 +32,17 @@ function AdditionalCostsTabRow({
                 {additionalCost.credit_ledger_name || additionalCost.name}
               </Typography>
             </Tooltip>
+            {additionalCost.owed_to_supplier === false ? (
+              <Typography variant='caption' color='text.secondary' display='block'>
+                (Not owed to supplier)
+              </Typography>
+            ) : (
+              additionalCost.vat_exempted && (
+                <Typography variant='caption' color='text.secondary' display='block'>
+                  (VAT Exempt)
+                </Typography>
+              )
+            )}
           </Grid>
           <Grid
             size={{ xs: 4, md: 2 }}

@@ -397,6 +397,8 @@ function PurchaseOrderReceiveForm({ toggleOpen, order, grn }) {
         exchange_rate: additionalCost.exchange_rate,
         reference: additionalCost.reference,
         amount: additionalCost.amount,
+        owed_to_supplier: additionalCost.owed_to_supplier ?? true,
+        vat_exempted: !!additionalCost.vat_exempted,
       }))
     );
   }, [additionalCosts, setValue]);
