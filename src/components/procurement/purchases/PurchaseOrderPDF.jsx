@@ -388,10 +388,11 @@ function PurchaseOrderPDF({
             {additionalCosts.length > 0 &&
               additionalCosts.map((cost, index) => {
                 const costLabel =
-                  cost.credit_ledger_name ||
-                  cost.ledger?.name ||
-                  cost.name ||
-                  `Additional Cost ${index + 1}`;
+                  (cost.credit_ledger_name ||
+                    cost.ledger?.name ||
+                    cost.name ||
+                    `Additional Cost ${index + 1}`) +
+                  (cost.vat_exempted ? ' (VAT Exempt)' : '');
                 const costCurrency =
                   cost.currency?.code ||
                   cost.currency_name ||

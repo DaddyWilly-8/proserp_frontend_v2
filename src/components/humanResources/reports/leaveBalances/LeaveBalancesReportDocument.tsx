@@ -33,7 +33,7 @@ interface LeaveBalancesReportDocumentProps {
 
 function formatNumber(value: number | string | null | undefined) {
   const numeric = Number(value ?? 0);
-  return numeric.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  return numeric.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
 }
 
 const columns = [

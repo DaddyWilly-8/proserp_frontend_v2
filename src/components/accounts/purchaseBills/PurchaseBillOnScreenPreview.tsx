@@ -146,6 +146,11 @@ function PurchaseBillOnScreenPreview({ bill, organization }: { bill: any; organi
                   <tr key={index}>
                     <td style={{ padding: 8, border: `1px solid ${theme.palette.divider}` }}>
                       {item.product?.name || item.product?.item_name}
+                      {item.vat_exempted && (
+                        <Typography component='span' variant='caption' color='text.secondary'>
+                          {' '}(VAT Exempt)
+                        </Typography>
+                      )}
                     </td>
                     {bill.items.some((i: any) => i.quantity != null) && (
                       <>

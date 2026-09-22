@@ -513,6 +513,15 @@ function PurchaseOrderOnScreenPreview({ order }) {
                       }}
                     >
                       {costLabel}
+                      {cost.vat_exempted && (
+                        <Typography
+                          component='span'
+                          variant='body2'
+                          color='text.secondary'
+                        >
+                          {' '}(VAT Exempt)
+                        </Typography>
+                      )}
                     </Typography>
                   </Grid>
                   <Grid size={5} sx={{ textAlign: 'right' }}>

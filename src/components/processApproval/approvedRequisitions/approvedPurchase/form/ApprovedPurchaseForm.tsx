@@ -22,10 +22,12 @@ import { LoadingButton } from '@mui/lab';
 import {
   Alert,
   Button,
+  Checkbox,
   DialogActions,
   DialogContent,
   DialogTitle,
   Divider,
+  FormControlLabel,
   Grid,
   IconButton,
   Stack,
@@ -86,6 +88,10 @@ interface AdditionalCostItem {
   exchange_rate?: number;
   amount?: number;
   approved_amount?: number;
+  // e.g. CESS — a statutory levy that shouldn't itself attract VAT when
+  // the order is later billed. See PurchaseOrderAdditionalCost::vat_exempted
+  // on the backend.
+  vat_exempted?: boolean;
 }
 
 interface OrderItem {
@@ -411,6 +417,7 @@ const ApprovedPurchaseForm: React.FC<ApprovedPurchaseFormProps> = ({
         exchange_rate: Number(cost.exchange_rate || 1),
         reference: cost.reference,
         amount: Number(cost.amount || 0),
+        vat_exempted: Boolean(cost.vat_exempted),
       })),
     },
   });
@@ -511,6 +518,7 @@ const ApprovedPurchaseForm: React.FC<ApprovedPurchaseFormProps> = ({
         exchange_rate: Number(cost.exchange_rate || 1),
         reference: cost.reference,
         amount: Number(cost.amount || 0),
+        vat_exempted: Boolean(cost.vat_exempted),
       }))
     );
   }, [additionalCosts, setValue]);
@@ -764,13 +772,13 @@ const ApprovedPurchaseForm: React.FC<ApprovedPurchaseFormProps> = ({
                   </Typography>
                 </Grid>
 
-                <Grid size={{ xs: 12, md: 6 }}>
+                <Grid size={{ xs: 12, md: 4 }}>
                   <Typography variant='body2' sx={{ mt: 1.5 }}>
                     {`${cost.credit_ledger_name || cost.ledger?.name || cost.name}`}
                   </Typography>
                 </Grid>
 
-                <Grid size={{ xs: 12, md: 4 }}>
+                <Grid size={{ xs: 12, md: 3 }}>
                   {(() => {
                     const costAmount = Number(cost.approved_amount ?? 0);
                     const enteredAmount = Number(cost.amount ?? 0);
@@ -815,6 +823,29 @@ const ApprovedPurchaseForm: React.FC<ApprovedPurchaseFormProps> = ({
                       </Tooltip>
                     );
                   })()}
+                </Grid>
+                <Grid size={{ xs: 12, md: 3 }}>
+                  <Tooltip title="Excludes this cost from VAT when the order is later billed — e.g. CESS, a statutory levy that shouldn't itself attract VAT.">
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          size='small'
+                          checked={Boolean(cost.vat_exempted)}
+                          onChange={(e) =>
+                            setAdditionalCosts((additionalCosts: any) => {
+                              const newItems = [...additionalCosts];
+                              newItems[index] = {
+                                ...newItems[index],
+                                vat_exempted: e.target.checked,
+                              };
+                              return newItems;
+                            })
+                          }
+                        />
+                      }
+                      label='VAT Exempt'
+                    />
+                  </Tooltip>
                 </Grid>
                 <Grid size={{ xs: 12, md: 1 }}>
                   <Tooltip title='Remove Additional Cost'>

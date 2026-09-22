@@ -69,7 +69,7 @@ type AppliedFilters = {
 };
 
 const fmt = (value: number) =>
-  Number(value || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  Number(value || 0).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
 
 function LeaveBalancesReportContent({ onClose }: { onClose?: () => void }) {
   const { enqueueSnackbar } = useSnackbar();

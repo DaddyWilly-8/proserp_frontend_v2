@@ -198,6 +198,7 @@ const PurchaseBillFormDialog = ({ grn, order, setOpenDialog }) => {
           remaining_amount: Number(item.remaining_amount),
           amount: Number(item.remaining_amount),
           debit_ledger_id: null,
+          vat_exempted: Boolean(item.vat_exempted),
         }))
       );
     }
@@ -225,6 +226,7 @@ const PurchaseBillFormDialog = ({ grn, order, setOpenDialog }) => {
           ledger_name: cost.ledger?.name,
           remaining_amount: Number(cost.remaining_amount),
           amount: Number(cost.remaining_amount),
+          vat_exempted: Boolean(cost.vat_exempted),
         }))
       );
     }
@@ -249,14 +251,23 @@ const PurchaseBillFormDialog = ({ grn, order, setOpenDialog }) => {
     : (items || []).reduce((sum, item) => sum + (Number(item.amount) || 0), 0) +
       (additionalCosts || []).reduce((sum, cost) => sum + (Number(cost.amount) || 0), 0);
 
+  // Portion of baseAmount that shouldn't attract VAT — e.g. CESS, entered
+  // as a vat_exempted additional cost (see PurchaseOrderAdditionalCost::
+  // vat_exempted on the backend, which is what actually decides this at
+  // bill time — mirrored here only so the live preview matches it).
+  const vatExemptAmount = grn
+    ? source?.vat_exempt_amount || 0
+    : (items || []).reduce((sum, item) => sum + (item.vat_exempted ? Number(item.amount) || 0 : 0), 0) +
+      (additionalCosts || []).reduce((sum, cost) => sum + (cost.vat_exempted ? Number(cost.amount) || 0 : 0), 0);
+
   const netPayable = useMemo(() => {
-    const vatAmount = (baseAmount * vatPercentage) / 100;
+    const vatAmount = ((baseAmount - vatExemptAmount) * vatPercentage) / 100;
     const adjustmentsTotal = (adjustments || []).reduce((sum, adj) => {
       const amount = Number(adj.amount) || 0;
       return sum + (adj.type === 'deduction' ? -amount : amount);
     }, 0);
     return baseAmount + vatAmount + adjustmentsTotal;
-  }, [baseAmount, vatPercentage, adjustments]);
+  }, [baseAmount, vatExemptAmount, vatPercentage, adjustments]);
 
   const { mutate: createBill, isPending } = useMutation({
     mutationFn: (payload) =>
@@ -477,7 +488,9 @@ const PurchaseBillFormDialog = ({ grn, order, setOpenDialog }) => {
                   error={!!errors.vat_percentage}
                   helperText={
                     errors.vat_percentage?.message ||
-                    'From org settings — applied on the amount above'
+                    (vatExemptAmount > 0
+                      ? `From org settings — applied on the amount above, excluding ${vatExemptAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })} that's VAT-exempt`
+                      : 'From org settings — applied on the amount above')
                   }
                   {...register('vat_percentage')}
                 />
@@ -585,9 +598,18 @@ const PurchaseBillFormDialog = ({ grn, order, setOpenDialog }) => {
                     >
                       <Grid container columnSpacing={2} rowSpacing={1} alignItems='center'>
                         <Grid size={{ xs: 12, sm: 6 }}>
-                          <Typography variant='body2' noWrap title={field.ledger_name}>
-                            {field.ledger_name}
-                          </Typography>
+                          <Stack direction='row' spacing={0.5} alignItems='center'>
+                            <Typography variant='body2' noWrap title={field.ledger_name}>
+                              {field.ledger_name}
+                            </Typography>
+                            {field.vat_exempted && (
+                              <Tooltip title="This cost is excluded from VAT when the bill's VAT % is applied">
+                                <Typography variant='caption' color='text.secondary'>
+                                  (VAT Exempt)
+                                </Typography>
+                              </Tooltip>
+                            )}
+                          </Stack>
                           <Typography variant='caption' color='text.secondary'>
                             Remaining:{' '}
                             {Number(field.remaining_amount).toLocaleString(undefined, {
