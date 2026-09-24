@@ -442,7 +442,7 @@ const LedgerStatementDialogContent: React.FC<
   const user = authUser?.user;
   const [withItemDescription, setWithItemDescription] =
     useState(!!commingFilters);
-  const [hideCancelled, setHideCancelled] = useState(false);
+  const [hideCancelled, setHideCancelled] = useState(true);
   const [showOnScreen, setShowOnScreen] = useState(true);
   const { enqueueSnackbar } = useSnackbar();
   const [isExporting, setIsExporting] = useState(false);

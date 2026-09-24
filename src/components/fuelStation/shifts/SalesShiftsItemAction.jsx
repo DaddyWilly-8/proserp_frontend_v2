@@ -65,7 +65,7 @@ const DocumentDialog = ({
   setOpenDocumentDialog,
 }) => {
   const { activeStation } = useContext(StationFormContext);
-  const { shift_teams, fuel_pumps, tanks } = activeStation;
+  const { shifts: shift_teams, fuel_pumps, tanks } = activeStation;
   const { productOptions } = useProductsSelect();
   const { ungroupedLedgerOptions } = useLedgerSelect();
   const [openDetails, setOpenDetails] = useState(false);

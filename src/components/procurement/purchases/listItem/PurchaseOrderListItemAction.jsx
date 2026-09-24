@@ -552,7 +552,7 @@ function PurchaseOrderListItemAction({ order }) {
       {organization?.settings?.defer_grn_billing &&
         !order.billed &&
         order.unbilled_amount > 0 &&
-        checkOrganizationPermission(PERMISSIONS.ACCOUNTS_TRANSACTIONS_CREATE) && (
+        checkOrganizationPermission(PERMISSIONS.SUPPLIER_BILLS_CREATE) && (
           <Tooltip title={`Create Purchase Bill for ${order.orderNo}`}>
             <IconButton onClick={() => setOpenBillDialog(true)}>
               <ReceiptLongOutlined />

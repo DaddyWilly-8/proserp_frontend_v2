@@ -14,8 +14,11 @@ import { DateTimePicker } from '@mui/x-date-pickers';
 import dayjs, { Dayjs } from 'dayjs';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useParams, useSearchParams } from 'next/navigation';
+import CostCenterSelector from '../../masters/costCenters/CostCenterSelector';
+import { CostCenter } from '../../masters/costCenters/CostCenterType';
 import purchaseBillServices from '../../procurement/grns/purchaseBill-services';
 import PurchaseBillListItem from './PurchaseBillListItem';
+import PurchaseBillPaymentStatusSelector from './PurchaseBillPaymentStatusSelector';
 import { PurchaseBill } from './PurchaseBillType';
 
 interface FilterDate {
@@ -30,6 +33,8 @@ interface QueryOptions {
     keyword: string;
     from?: string | null;
     to?: string | null;
+    status?: string;
+    cost_center_ids?: number[];
   };
   countKey: string;
   dataKey: string;
@@ -42,6 +47,7 @@ const PurchaseBills = () => {
   const [mounted, setMounted] = useState(false);
   const [openFilters, setOpenFilters] = useState(false);
   const [filterDate, setFilterDate] = useState<FilterDate>({});
+  const [selectedCostCenter, setSelectedCostCenter] = useState<CostCenter[]>([]);
   const { authOrganization, checkOrganizationPermission, organizationHasSubscribed } = useJumboAuth();
 
   const [queryOptions, setQueryOptions] = useState<QueryOptions>({
@@ -49,10 +55,21 @@ const PurchaseBills = () => {
     queryParams: {
       id: params?.id,
       keyword: searchParams?.get('search') || '',
+      status: 'All',
     },
     countKey: 'total',
     dataKey: 'data',
   });
+
+  useEffect(() => {
+    setQueryOptions((prev) => ({
+      ...prev,
+      queryParams: {
+        ...prev.queryParams,
+        cost_center_ids: selectedCostCenter.map((c) => c.id),
+      },
+    }));
+  }, [selectedCostCenter]);
 
   useEffect(() => {
     setMounted(true);
@@ -99,6 +116,16 @@ const PurchaseBills = () => {
     }));
   }, []);
 
+  const handleStatusChange = useCallback((status: string) => {
+    setQueryOptions((prev) => ({
+      ...prev,
+      queryParams: {
+        ...prev.queryParams,
+        status,
+      },
+    }));
+  }, []);
+
   const renderPurchaseBill = useCallback(
     (purchaseBill: PurchaseBill) => <PurchaseBillListItem purchaseBill={purchaseBill} />,
     []
@@ -110,7 +137,12 @@ const PurchaseBills = () => {
     return <UnsubscribedAccess modules='Accounts & Finance' />;
   }
 
-  if (!checkOrganizationPermission([PERMISSIONS.PURCHASES_READ, PERMISSIONS.PURCHASES_CREATE])) {
+  if (
+    !checkOrganizationPermission([
+      PERMISSIONS.SUPPLIER_BILLS_READ,
+      PERMISSIONS.SUPPLIER_BILLS_CREATE,
+    ])
+  ) {
     return <UnauthorizedAccess />;
   }
 
@@ -122,6 +154,8 @@ const PurchaseBills = () => {
       </Typography>
     );
   }
+
+  const multiCostCenters = (authOrganization?.costCenters?.length || 0) > 1;
 
   return (
     <>
@@ -190,7 +224,31 @@ const PurchaseBills = () => {
                   </Grid>
                 )}
 
-                <Grid size={{ xs: 1, md: 0.5 }}>
+                <Grid size={{ xs: 12, md: 6, lg: 3 }} alignItems='center'>
+                  <PurchaseBillPaymentStatusSelector
+                    value={queryOptions.queryParams.status}
+                    onChange={handleStatusChange}
+                  />
+                </Grid>
+
+                {multiCostCenters && (
+                  <Grid size={{ xs: 12, md: 6, lg: 3 }}>
+                    <CostCenterSelector
+                      label='Cost Centers'
+                      allowSameType
+                      defaultValue={selectedCostCenter}
+                      onChange={(value) => {
+                        if (value === null) {
+                          setSelectedCostCenter([]);
+                        } else if (Array.isArray(value)) {
+                          setSelectedCostCenter(value);
+                        }
+                      }}
+                    />
+                  </Grid>
+                )}
+
+                <Grid size={{ xs: 1, lg: 0.5 }}>
                   <Tooltip title={!openFilters ? 'Filter' : 'Clear Filters'}>
                     <IconButton size='small' onClick={!openFilters ? () => setOpenFilters(true) : resetFilters}>
                       {!openFilters ? <FilterAltOutlined /> : <FilterAltOffOutlined />}
@@ -198,7 +256,7 @@ const PurchaseBills = () => {
                   </Tooltip>
                 </Grid>
 
-                <Grid size={{ xs: 11, md: 11.5 }}>
+                <Grid size={{ xs: 11, lg: multiCostCenters ? 5.5 : 8.5 }}>
                   <JumboSearch onChange={handleOnKeywordChange} value={queryOptions.queryParams.keyword} />
                 </Grid>
               </Grid>

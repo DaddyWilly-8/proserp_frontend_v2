@@ -118,15 +118,20 @@ const SectionHeader = ({ icon, title, hint }) => (
 );
 
 /**
- * Creates a Purchase Bill either against a GRN (inventory items) or
- * directly against a Purchase Order (non-inventory items, e.g. services,
- * which never go through a GRN). Pass exactly one of `grn` / `order`.
+ * Creates (or, with `existingBill`, edits) a Purchase Bill either against a
+ * GRN (inventory items) or directly against a Purchase Order (non-inventory
+ * items, e.g. services, which never go through a GRN). Pass exactly one of
+ * `grn` / `order` in both cases — for editing, that's the bill's own
+ * `source` (same {id, orderNo|grnNo} shape used elsewhere), plus
+ * `existingBill` (the full details from purchaseBillServices.details()).
  */
-const PurchaseBillFormDialog = ({ grn, order, setOpenDialog }) => {
+const PurchaseBillFormDialog = ({ grn, order, existingBill, setOpenDialog }) => {
   const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
   const { authOrganization } = useJumboAuth();
-  const [transactionDate] = useState(dayjs());
+  const [transactionDate] = useState(
+    existingBill ? dayjs(existingBill.transaction_date) : dayjs()
+  );
 
   const source = grn || order;
   const documentNo = grn ? grn.grnNo : order.orderNo;
@@ -142,13 +147,20 @@ const PurchaseBillFormDialog = ({ grn, order, setOpenDialog }) => {
   } = useForm({
     resolver: yupResolver(validationSchema),
     defaultValues: {
-      internal_reference: '',
-      supplier_reference: '',
-      narration: '',
+      internal_reference: existingBill?.internal_reference || '',
+      supplier_reference: existingBill?.supplier_reference || '',
+      narration: existingBill?.narration || '',
       transaction_date: transactionDate.toISOString(),
-      due_date: null,
-      vat_percentage: orgVatPercentage || '',
-      adjustments: [],
+      due_date: existingBill?.due_date || null,
+      vat_percentage: existingBill ? existingBill.vat_percentage || '' : orgVatPercentage || '',
+      adjustments: existingBill?.adjustments?.map((adj) => ({
+        complement_ledger_id: adj.complement_ledger?.id ?? adj.complement_ledger_id,
+        type: adj.type,
+        description: adj.description,
+        amount: adj.amount,
+        percentage: '',
+        purchase_order_item_ids: adj.purchase_order_items?.map((i) => i.id) || [],
+      })) || [],
       items: [],
       additional_costs: [],
     },
@@ -180,13 +192,37 @@ const PurchaseBillFormDialog = ({ grn, order, setOpenDialog }) => {
     enabled: !!order,
   });
 
+  // Editing: this bill's own amounts still count as "billed" on the order
+  // (see PurchaseOrderItem::supplier_invoice_items() — cleared only once
+  // the edit is actually submitted), understating each item's/cost's
+  // remaining_amount here by exactly what this bill already covers. Add it
+  // back so editing isn't artificially capped below what's already on it.
+  const existingItemAmounts = useMemo(() => {
+    const map = {};
+    (existingBill?.items || []).forEach((i) => {
+      if (i.purchase_order_item_id) map[i.purchase_order_item_id] = Number(i.amount) || 0;
+    });
+    return map;
+  }, [existingBill]);
+  const existingCostAmounts = useMemo(() => {
+    const map = {};
+    (existingBill?.items || []).forEach((i) => {
+      if (i.purchase_order_additional_cost_id) map[i.purchase_order_additional_cost_id] = Number(i.amount) || 0;
+    });
+    return map;
+  }, [existingBill]);
+
   // Items with nothing left to bill (already fully billed) are excluded.
   const nonInventoryItems = useMemo(
     () =>
-      (orderDetails?.purchase_order_items || []).filter(
-        (item) => item.product?.type !== 'Inventory' && Number(item.remaining_amount) > 0
-      ),
-    [orderDetails]
+      (orderDetails?.purchase_order_items || [])
+        .filter((item) => item.product?.type !== 'Inventory')
+        .map((item) => ({
+          ...item,
+          remaining_amount: Number(item.remaining_amount) + (existingItemAmounts[item.id] || 0),
+        }))
+        .filter((item) => item.remaining_amount > 0),
+    [orderDetails, existingItemAmounts]
   );
 
   useEffect(() => {
@@ -196,7 +232,7 @@ const PurchaseBillFormDialog = ({ grn, order, setOpenDialog }) => {
           purchase_order_item_id: item.id,
           product_name: item.product?.item_name || item.product?.name,
           remaining_amount: Number(item.remaining_amount),
-          amount: Number(item.remaining_amount),
+          amount: existingItemAmounts[item.id] ?? Number(item.remaining_amount),
           debit_ledger_id: null,
           vat_exempted: Boolean(item.vat_exempted),
         }))
@@ -212,10 +248,13 @@ const PurchaseBillFormDialog = ({ grn, order, setOpenDialog }) => {
     () =>
       orderDetails?.has_grn
         ? []
-        : (orderDetails?.additional_costs || []).filter(
-            (cost) => Number(cost.remaining_amount) > 0
-          ),
-    [orderDetails]
+        : (orderDetails?.additional_costs || [])
+            .map((cost) => ({
+              ...cost,
+              remaining_amount: Number(cost.remaining_amount) + (existingCostAmounts[cost.id] || 0),
+            }))
+            .filter((cost) => cost.remaining_amount > 0),
+    [orderDetails, existingCostAmounts]
   );
 
   useEffect(() => {
@@ -225,7 +264,7 @@ const PurchaseBillFormDialog = ({ grn, order, setOpenDialog }) => {
           purchase_order_additional_cost_id: cost.id,
           ledger_name: cost.ledger?.name,
           remaining_amount: Number(cost.remaining_amount),
-          amount: Number(cost.remaining_amount),
+          amount: existingCostAmounts[cost.id] ?? Number(cost.remaining_amount),
           vat_exempted: Boolean(cost.vat_exempted),
         }))
       );
@@ -271,13 +310,19 @@ const PurchaseBillFormDialog = ({ grn, order, setOpenDialog }) => {
 
   const { mutate: createBill, isPending } = useMutation({
     mutationFn: (payload) =>
-      grn
-        ? purchaseBillServices.create({ grnId: grn.id, ...payload })
-        : purchaseBillServices.createForOrder({ orderId: order.id, ...payload }),
+      existingBill
+        ? purchaseBillServices.update({ id: existingBill.id, ...payload })
+        : grn
+          ? purchaseBillServices.create({ grnId: grn.id, ...payload })
+          : purchaseBillServices.createForOrder({ orderId: order.id, ...payload }),
     onSuccess: (data) => {
       enqueueSnackbar(data.message, { variant: 'success' });
       queryClient.invalidateQueries({ queryKey: ['purchaseOrderGrns'] });
       queryClient.invalidateQueries({ queryKey: ['purchaseOrders'] });
+      queryClient.invalidateQueries({ queryKey: ['purchase-bills'] });
+      if (existingBill) {
+        queryClient.invalidateQueries({ queryKey: ['purchase-bill-details', existingBill.id] });
+      }
       setOpenDialog(false);
     },
     onError: (error) => {
@@ -291,7 +336,7 @@ const PurchaseBillFormDialog = ({ grn, order, setOpenDialog }) => {
         ? Object.values(validationErrors).flat().join(' ')
         : null;
       enqueueSnackbar(
-        detail || error?.response?.data?.message || 'Failed to create Purchase Bill',
+        detail || error?.response?.data?.message || `Failed to ${existingBill ? 'update' : 'create'} Purchase Bill`,
         { variant: 'error' }
       );
     },
@@ -361,7 +406,7 @@ const PurchaseBillFormDialog = ({ grn, order, setOpenDialog }) => {
   return (
     <form onSubmit={handleSubmit(onSubmit)} noValidate>
       <DialogTitle sx={{ textAlign: 'center' }}>
-        Purchase Bill for {documentNo}
+        {existingBill ? `Edit ${existingBill.invoiceNo} for ${documentNo}` : `Purchase Bill for ${documentNo}`}
       </DialogTitle>
       <DialogContent>
         <Stack spacing={2.5} sx={{ mt: 0.5 }}>
@@ -860,7 +905,7 @@ const PurchaseBillFormDialog = ({ grn, order, setOpenDialog }) => {
           size='small'
           loading={isPending}
         >
-          Create Bill
+          {existingBill ? 'Update Bill' : 'Create Bill'}
         </LoadingButton>
       </DialogActions>
     </form>

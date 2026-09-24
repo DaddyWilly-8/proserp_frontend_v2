@@ -72,7 +72,7 @@ function DueInvoiceRow({
   const { showDialog, hideDialog } = useJumboDialog();
   const { checkOrganizationPermission } = useJumboAuth();
   const canMarkPaid = checkOrganizationPermission(
-    PERMISSIONS.ACCOUNTS_TRANSACTIONS_CREATE
+    isIncoming ? PERMISSIONS.ACCOUNTS_TRANSACTIONS_CREATE : PERMISSIONS.SUPPLIER_BILLS_EDIT
   );
   const queryClient = useQueryClient();
 

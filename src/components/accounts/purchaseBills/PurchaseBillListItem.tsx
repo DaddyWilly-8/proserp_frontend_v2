@@ -69,20 +69,28 @@ function PurchaseBillListItem({ purchaseBill }: { purchaseBill: PurchaseBill }) 
                   {purchaseBill.invoiceNo}
                 </Typography>
               </Tooltip>
-              {paymentStatus === 'paid' && (
-                <Tooltip title='Fully paid to the supplier'>
-                  <Chip size='small' variant='outlined' color='success' label='Paid' />
+              {purchaseBill.cancelled_at ? (
+                <Tooltip title={purchaseBill.cancel_reason || 'This bill has been cancelled'}>
+                  <Chip size='small' variant='outlined' color='error' label='Cancelled' />
                 </Tooltip>
-              )}
-              {paymentStatus === 'partial' && (
-                <Tooltip title={`Partially paid: ${paidAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })} of ${netAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}`}>
-                  <Chip size='small' variant='outlined' color='warning' label='Partially Paid' />
-                </Tooltip>
-              )}
-              {paymentStatus === 'unpaid' && (
-                <Tooltip title='Not yet paid to the supplier'>
-                  <Chip size='small' variant='outlined' label='Unpaid' />
-                </Tooltip>
+              ) : (
+                <>
+                  {paymentStatus === 'paid' && (
+                    <Tooltip title='Fully paid to the supplier'>
+                      <Chip size='small' variant='outlined' color='success' label='Paid' />
+                    </Tooltip>
+                  )}
+                  {paymentStatus === 'partial' && (
+                    <Tooltip title={`Partially paid: ${paidAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })} of ${netAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}`}>
+                      <Chip size='small' variant='outlined' color='warning' label='Partially Paid' />
+                    </Tooltip>
+                  )}
+                  {paymentStatus === 'unpaid' && (
+                    <Tooltip title='Not yet paid to the supplier'>
+                      <Chip size='small' variant='outlined' label='Unpaid' />
+                    </Tooltip>
+                  )}
+                </>
               )}
             </Stack>
           }
@@ -98,7 +106,7 @@ function PurchaseBillListItem({ purchaseBill }: { purchaseBill: PurchaseBill }) 
         />
       </Grid>
 
-      <Grid size={{ xs: 12, md: 3, lg: 2.5 }}>
+      <Grid size={{ xs: 12, md: 3, lg: 2.5 }} sx={{ minWidth: 0 }}>
         <ListItemText
           primary={
             <Tooltip title='Supplier'>
@@ -108,6 +116,26 @@ function PurchaseBillListItem({ purchaseBill }: { purchaseBill: PurchaseBill }) 
             </Tooltip>
           }
         />
+        {!!purchaseBill.cost_centers?.length && (
+          <Stack direction='row' flexWrap='wrap' gap={0.5} mt={0.5} sx={{ width: '100%', minWidth: 0 }}>
+            {purchaseBill.cost_centers.map((cc) => (
+              <Tooltip key={cc.id} title={cc.name}>
+                <Chip
+                  size='small'
+                  label={cc.name}
+                  sx={{
+                    maxWidth: '100%',
+                    minWidth: 0,
+                    '& .MuiChip-label': {
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                    },
+                  }}
+                />
+              </Tooltip>
+            ))}
+          </Stack>
+        )}
       </Grid>
 
       <Grid size={{ xs: 12, md: 3, lg: 3 }}>

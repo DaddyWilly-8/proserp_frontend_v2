@@ -151,7 +151,8 @@ const PERMISSION_MODULES: PermissionModuleConfig[] = [
       'StockAdjustments',
       'Store',
       'Stores',
-      'RFQs'
+      'RFQs',
+      'SupplierBills'
     ],
   },
   {

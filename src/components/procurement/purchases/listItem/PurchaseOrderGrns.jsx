@@ -1,17 +1,20 @@
 import React, { useContext, useState } from 'react'
 import { Box, Chip, Dialog, Grid, IconButton, Stack, Tooltip, Typography } from '@mui/material';
-import { AttachmentOutlined, ReceiptLongOutlined, UndoOutlined, VisibilityOutlined, EditOutlined } from '@mui/icons-material';
+import { AttachmentOutlined, ReceiptLongOutlined, UndoOutlined, VisibilityOutlined, EditOutlined, ReceiptOutlined } from '@mui/icons-material';
 import { listItemContext } from './PurchaseOrderListItem';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { readableDate } from '@/app/helpers/input-sanitization-helpers';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
 import PurchaseBillFormDialog from '../../grns/PurchaseBillFormDialog';
+import PurchaseBillDetailsDialog from '../../../accounts/purchaseBills/PurchaseBillDetailsDialog';
 
 function PurchaseOrderGrns({order}) {
     const { setOpenEditReceive, setAttachDialog, setSelectedOrderGrn, setOpenDialog, setOpenDocumentDialog, purchaseOrderGrns } = useContext(listItemContext);
     const {checkOrganizationPermission, authOrganization: { organization }} = useJumboAuth();
     const deferGrnBilling = !!organization?.settings?.defer_grn_billing;
     const [billGrn, setBillGrn] = useState(null);
+    const [viewBillId, setViewBillId] = useState(null);
+    const canViewBills = checkOrganizationPermission(PERMISSIONS.SUPPLIER_BILLS_READ);
 
   return (
     <React.Fragment>
@@ -47,9 +50,22 @@ function PurchaseOrderGrns({order}) {
                             <Typography>{orderGrn?.grnNo}</Typography>
                         </Tooltip>
                         {deferGrnBilling && orderGrn.billed && (
-                            <Tooltip title='A Purchase Bill has been created for this GRN'>
-                                <Chip size='small' variant='outlined' color='success' label='Billed' />
-                            </Tooltip>
+                            canViewBills && orderGrn.bill_id ? (
+                                <Tooltip title='View the Purchase Bill created for this GRN'>
+                                    <Chip
+                                        size='small'
+                                        variant='outlined'
+                                        color='success'
+                                        label='Billed'
+                                        onClick={() => setViewBillId(orderGrn.bill_id)}
+                                        sx={{ cursor: 'pointer' }}
+                                    />
+                                </Tooltip>
+                            ) : (
+                                <Tooltip title='A Purchase Bill has been created for this GRN'>
+                                    <Chip size='small' variant='outlined' color='success' label='Billed' />
+                                </Tooltip>
+                            )
                         )}
                         {deferGrnBilling && orderGrn.billed === false && orderGrn.unbilled_amount > 0 && (
                             <Tooltip title='Not yet billed to the supplier'>
@@ -124,7 +140,7 @@ function PurchaseOrderGrns({order}) {
                         </Tooltip>
 
                         {deferGrnBilling && !orderGrn.billed && orderGrn.unbilled_amount > 0 &&
-                            checkOrganizationPermission([PERMISSIONS.ACCOUNTS_TRANSACTIONS_CREATE]) &&
+                            checkOrganizationPermission(PERMISSIONS.SUPPLIER_BILLS_CREATE) &&
                             <Tooltip title={`Create Purchase Bill for ${orderGrn.grnNo}`}>
                                 <IconButton onClick={() => setBillGrn(orderGrn)}>
                                     <ReceiptLongOutlined />
@@ -147,6 +163,18 @@ function PurchaseOrderGrns({order}) {
                     grn={billGrn}
                     setOpenDialog={(open) => !open && setBillGrn(null)}
                 />
+            )}
+        </Dialog>
+
+        <Dialog
+            open={!!viewBillId}
+            onClose={() => setViewBillId(null)}
+            fullWidth
+            maxWidth='md'
+            scroll='paper'
+        >
+            {viewBillId && (
+                <PurchaseBillDetailsDialog id={viewBillId} setOpenDialog={(open) => !open && setViewBillId(null)} />
             )}
         </Dialog>
     </React.Fragment>

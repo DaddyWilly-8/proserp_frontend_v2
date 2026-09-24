@@ -173,6 +173,11 @@ export const PERMISSIONS = {
   STORES_READ: 'Stores:Read',
   STORES_REPORTS: 'Stores:Reports',
   STORE_VALUES: 'Store:Values',
+  SUPPLIER_BILLS_CANCEL: 'SupplierBills:Cancel',
+  SUPPLIER_BILLS_CREATE: 'SupplierBills:Create',
+  SUPPLIER_BILLS_DELETE: 'SupplierBills:Delete',
+  SUPPLIER_BILLS_EDIT: 'SupplierBills:Edit',
+  SUPPLIER_BILLS_READ: 'SupplierBills:Read',
 
   // human resources
   EMPLOYEES_CREATE: 'Employees:Create',

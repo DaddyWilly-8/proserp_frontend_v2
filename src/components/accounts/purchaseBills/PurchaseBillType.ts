@@ -12,10 +12,13 @@ export interface PurchaseBillStakeholder {
 }
 
 export interface PurchaseBillItem {
+  purchase_order_item_id?: number;
+  purchase_order_additional_cost_id?: number;
   product?: { id: number; name?: string; item_name?: string };
   quantity?: number;
   rate?: number;
   amount: number;
+  vat_exempted?: boolean;
 }
 
 export interface PurchaseBillAttachment {
@@ -45,8 +48,26 @@ export interface PurchaseBill {
   total_amount?: number;
   paid_amount?: number;
   unpaid_amount?: number;
+  payment_status?: 'paid' | 'partial' | 'unpaid';
+  vat_percentage?: number;
+  cancelled_at?: string | null;
+  cancel_reason?: string | null;
+  canceller?: { id: number; name: string } | null;
+  // False once cancelled, or once a payment has been recorded against the
+  // bill — see SupplierInvoice::getCancellableAttribute().
+  cancellable?: boolean;
+  adjustments?: Array<{
+    id: number;
+    complement_ledger?: { id: number; name: string };
+    type: 'addition' | 'deduction';
+    description?: string;
+    amount: number;
+    purchase_order_items?: Array<{ id: number }>;
+  }>;
+  vat_transaction?: unknown;
   stakeholder?: PurchaseBillStakeholder;
   source?: PurchaseBillSource;
   items?: PurchaseBillItem[];
   attachments?: PurchaseBillAttachment[];
+  cost_centers?: Array<{ id: number; name: string }>;
 }

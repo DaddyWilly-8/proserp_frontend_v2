@@ -20,6 +20,25 @@ export async function GET(
   return handleJsonResponse(res);
 }
 
+export async function PUT(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params;
+
+  const { headers, response } = await getAuthHeaders(req);
+  if (response) return response;
+
+  const body = await req.json();
+  const res = await fetch(`${API_BASE}/purchase-bills/${id}`, {
+    method: 'PUT',
+    headers,
+    body: JSON.stringify(body),
+  });
+
+  return handleJsonResponse(res);
+}
+
 export async function DELETE(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }

@@ -57,4 +57,26 @@ purchaseBillServices.unmarkPaid = async (id) => {
   return data;
 };
 
+// Edits a bill in place: clears its existing postings and re-derives them
+// from the (possibly changed) request, same shape as create.
+purchaseBillServices.update = async ({ id, ...payload }) => {
+  const { data } = await axios.put(`/api/purchaseBills/${id}`, payload);
+  return data;
+};
+
+// Cancels a bill: reverses its journals with offsetting entries instead of
+// deleting anything, so it stays on record. `reason` is required.
+purchaseBillServices.cancel = async (id, { reason, cancellation_date } = {}) => {
+  const { data } = await axios.post(`/api/purchaseBills/${id}/cancel`, {
+    reason,
+    cancellation_date,
+  });
+  return data;
+};
+
+purchaseBillServices.reverseCancellation = async (id) => {
+  const { data } = await axios.post(`/api/purchaseBills/${id}/reverse-cancellation`);
+  return data;
+};
+
 export default purchaseBillServices;
