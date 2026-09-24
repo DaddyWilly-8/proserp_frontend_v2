@@ -15,6 +15,8 @@ import {
   Divider,
   Grid,
   IconButton,
+  Tab,
+  Tabs,
   Tooltip,
 } from '@mui/material';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -25,6 +27,8 @@ import { FormProvider, useForm } from 'react-hook-form';
 import * as yup from 'yup';
 import stakeholderServices from '../../../masters/stakeholders/stakeholder-services';
 import purchaseServices from '../purchase-services';
+import PurchaseOrderAdditionalCostsTab from './PurchaseOrderAdditionalCostsTab';
+import PurchaseOrderAdditionalCostsTabRow from './PurchaseOrderAdditionalCostsTabRow';
 import PurchaseOrderItemForm from './PurchaseOrderItemForm';
 import PurchaseOrderItemRow from './PurchaseOrderItemRow';
 import PurchaseOrderPaymentAndReceive from './PurchaseOrderPaymentAndReceive';
@@ -40,6 +44,15 @@ function PurchaseOrderDialogForm({ toggleOpen, order = null }) {
   const [order_date] = useState(order ? dayjs(order.order_date) : dayjs());
   const [displayStoreSelector, setDisplayStoreSelector] = useState(false);
   const [items, setItems] = useState(order ? order.purchase_order_items : []);
+  const [additionalCosts, setAdditionalCosts] = useState(
+    order?.additional_costs
+      ? order.additional_costs.map((cost) => ({
+          ...cost,
+          ledger_name: cost.ledger?.name,
+        }))
+      : []
+  );
+  const [activeTab, setActiveTab] = useState(0);
   const [checked, setChecked] = useState(false);
   const [stakeholderQuickAddDisplay, setStakeholderQuickAddDisplay] =
     useState(false);
@@ -241,6 +254,22 @@ function PurchaseOrderDialogForm({ toggleOpen, order = null }) {
   React.useEffect(() => {
     orderTotalAmount();
   }, [items]);
+
+  const additionalCostsAmount = additionalCosts.reduce(
+    (total, cost) => total + (parseFloat(cost.amount) || 0),
+    0
+  );
+
+  useEffect(() => {
+    setValue(
+      'additional_costs',
+      additionalCosts.map((cost) => ({
+        ledger_id: cost.ledger_id,
+        amount: cost.amount,
+        vat_exempted: !!cost.vat_exempted,
+      }))
+    );
+  }, [additionalCosts, setValue]);
 
   const stakeholder_id = watch('stakeholder_id');
   const { data: stakeholderPayableLedgers = [] } = useQuery({
@@ -521,60 +550,94 @@ function PurchaseOrderDialogForm({ toggleOpen, order = null }) {
             <PurchaseOrderSummary
               totalAmount={totalAmount}
               vatableAmount={vatableAmount}
+              additionalCostsAmount={additionalCostsAmount}
               checked={checked}
               setChecked={setChecked}
             />
           </Grid>
           <Grid size={12}>
-            <PurchaseOrderItemForm
-              setClearFormKey={setClearFormKey}
-              submitMainForm={handleSubmit((data) => saveMutation.mutate(data))}
-              submitItemForm={submitItemForm}
-              setSubmitItemForm={setSubmitItemForm}
-              key={clearFormKey}
-              setIsDirty={setIsDirty}
-              setItems={setItems}
-              checked={checked}
-              getLastPriceItems={getLastPriceItems}
-            />
+            <Tabs
+              value={activeTab}
+              onChange={(e, newValue) => setActiveTab(newValue)}
+              variant='scrollable'
+              scrollButtons='auto'
+              allowScrollButtonsMobile
+              sx={{ mt: 1 }}
+            >
+              <Tab label='Items' />
+              <Tab label='Additional Costs' />
+              <Tab label='Terms & Remarks' />
+            </Tabs>
+            {activeTab === 0 && (
+              <PurchaseOrderItemForm
+                setClearFormKey={setClearFormKey}
+                submitMainForm={handleSubmit((data) => saveMutation.mutate(data))}
+                submitItemForm={submitItemForm}
+                setSubmitItemForm={setSubmitItemForm}
+                key={clearFormKey}
+                setIsDirty={setIsDirty}
+                setItems={setItems}
+                checked={checked}
+                getLastPriceItems={getLastPriceItems}
+              />
+            )}
+            {activeTab === 1 && (
+              <PurchaseOrderAdditionalCostsTab
+                setIsDirty={setIsDirty}
+                additionalCosts={additionalCosts}
+                setAdditionalCosts={setAdditionalCosts}
+              />
+            )}
+            {activeTab === 2 && (
+              <PurchaseOrderPaymentAndReceive
+                instant_receive={watch('instant_receive')}
+                instant_pay={watch('instant_pay')}
+                displayStoreSelector={displayStoreSelector}
+                setDisplayStoreSelector={setDisplayStoreSelector}
+                order={order}
+                items={items}
+                errors={errors}
+                setValue={setValue}
+                watch={watch}
+                register={register}
+              />
+            )}
             <Divider />
           </Grid>
-
-          {/* Payment And Receive */}
-          <PurchaseOrderPaymentAndReceive
-            instant_receive={watch('instant_receive')}
-            instant_pay={watch('instant_pay')}
-            displayStoreSelector={displayStoreSelector}
-            setDisplayStoreSelector={setDisplayStoreSelector}
-            order={order}
-            items={items}
-            errors={errors}
-            setValue={setValue}
-            watch={watch}
-            register={register}
-          />
         </Grid>
       </DialogTitle>
       <DialogContent>
         {errors?.items?.message && items.length < 1 && (
           <Alert severity='error'>{errors.items.message}</Alert>
         )}
-        {items.map((item, index) => (
-          <PurchaseOrderItemRow
-            setClearFormKey={setClearFormKey}
-            submitMainForm={handleSubmit((data) => saveMutation.mutate(data))}
-            submitItemForm={submitItemForm}
-            setSubmitItemForm={setSubmitItemForm}
-            setIsDirty={setIsDirty}
-            key={index}
-            index={index}
-            setItems={setItems}
-            items={items}
-            item={item}
-            checked={checked}
-            getLastPriceItems={getLastPriceItems}
-          />
-        ))}
+        {activeTab === 0 &&
+          items.map((item, index) => (
+            <PurchaseOrderItemRow
+              setClearFormKey={setClearFormKey}
+              submitMainForm={handleSubmit((data) => saveMutation.mutate(data))}
+              submitItemForm={submitItemForm}
+              setSubmitItemForm={setSubmitItemForm}
+              setIsDirty={setIsDirty}
+              key={index}
+              index={index}
+              setItems={setItems}
+              items={items}
+              item={item}
+              checked={checked}
+              getLastPriceItems={getLastPriceItems}
+            />
+          ))}
+        {activeTab === 1 &&
+          additionalCosts.map((additionalCost, index) => (
+            <PurchaseOrderAdditionalCostsTabRow
+              additionalCosts={additionalCosts}
+              setAdditionalCosts={setAdditionalCosts}
+              key={index}
+              setIsDirty={setIsDirty}
+              additionalCost={additionalCost}
+              index={index}
+            />
+          ))}
 
         <Dialog open={showWarning} onClose={() => setShowWarning(false)}>
           <DialogTitle>
@@ -617,14 +680,33 @@ function PurchaseOrderDialogForm({ toggleOpen, order = null }) {
         <Button size='small' onClick={() => toggleOpen(false)}>
           Cancel
         </Button>
-        <LoadingButton
-          variant='contained'
-          size='small'
-          onClick={onSubmit}
-          loading={addPurchaseOrder.isPending || updatePurchaseOrder.isPending}
-        >
-          Submit
-        </LoadingButton>
+        {activeTab < 2 ? (
+          <Button
+            size='small'
+            variant='outlined'
+            onClick={() => setActiveTab((prev) => Math.min(prev + 1, 2))}
+          >
+            Next &gt;
+          </Button>
+        ) : (
+          <>
+            <Button
+              size='small'
+              variant='outlined'
+              onClick={() => setActiveTab((prev) => Math.max(prev - 1, 0))}
+            >
+              &lt; Prev
+            </Button>
+            <LoadingButton
+              variant='contained'
+              size='small'
+              onClick={onSubmit}
+              loading={addPurchaseOrder.isPending || updatePurchaseOrder.isPending}
+            >
+              Submit
+            </LoadingButton>
+          </>
+        )}
       </DialogActions>
     </FormProvider>
   );

@@ -91,6 +91,16 @@ bankReconciliationServices.unignoreLine = async (lineId) => {
     return data;
 };
 
+bankReconciliationServices.postTransaction = async (lineId, payload) => {
+    const { data } = await axios.post(`/api/accounts/bankReconciliation/statementLines/${lineId}/postTransaction`, payload);
+    return data;
+};
+
+bankReconciliationServices.undoPostedTransaction = async (matchId) => {
+    const { data } = await axios.post(`/api/accounts/bankReconciliation/matches/${matchId}/undo`);
+    return data;
+};
+
 bankReconciliationServices.completeStatement = async (statementId) => {
     const { data } = await axios.post(`/api/accounts/bankReconciliation/statements/${statementId}/complete`);
     return data;

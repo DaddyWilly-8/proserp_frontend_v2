@@ -2,9 +2,11 @@
 
 import React from 'react';
 import { Box, Button, Chip, Grid, IconButton, Tooltip, Typography } from '@mui/material';
-import { LinkOffOutlined } from '@mui/icons-material';
+import { LinkOffOutlined, UndoOutlined } from '@mui/icons-material';
+import { LoadingButton } from '@mui/lab';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSnackbar } from 'notistack';
+import { useJumboDialog } from '@jumbo/components/JumboDialog/hooks/useJumboDialog';
 import bankReconciliationServices from '../bank-reconciliation-services';
 import { descriptionIncludesVoucher } from './journal-display';
 
@@ -22,6 +24,7 @@ interface Match {
   id: number;
   match_type: 'auto' | 'manual';
   matched_amount: number;
+  created_transaction?: boolean;
   journal: Journal;
 }
 
@@ -47,6 +50,7 @@ const formatAmount = (amount: number) =>
 export default function MatchedLineGroup({ bankAccountId, matchedLine }: Props) {
   const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
+  const { showDialog, hideDialog } = useJumboDialog();
   const { line, matches, total_matched } = matchedLine;
 
   const invalidate = () => {
@@ -70,6 +74,27 @@ export default function MatchedLineGroup({ bankAccountId, matchedLine }: Props) 
     },
     onError: (err: any) => enqueueSnackbar(err?.response?.data?.message || 'Failed to unmatch', { variant: 'error' }),
   });
+
+  const undoMutation = useMutation({
+    mutationFn: (matchId: number) => bankReconciliationServices.undoPostedTransaction(matchId),
+    onSuccess: (data) => {
+      enqueueSnackbar(data.message || 'Undone', { variant: 'success' });
+      hideDialog();
+      invalidate();
+    },
+    onError: (err: any) => enqueueSnackbar(err?.response?.data?.message || 'Failed to undo', { variant: 'error' }),
+  });
+
+  const confirmUndo = (match: Match) => {
+    showDialog({
+      title: 'Undo this transaction?',
+      content:
+        'This permanently deletes the transaction that was posted for this match — not just the match itself. This cannot be undone. Continue?',
+      variant: 'confirm',
+      onYes: () => undoMutation.mutate(match.id),
+      onNo: () => hideDialog(),
+    });
+  };
 
   return (
     <Box sx={{ py: 1.5, borderBottom: 1, borderColor: 'divider' }}>
@@ -114,11 +139,27 @@ export default function MatchedLineGroup({ bankAccountId, matchedLine }: Props) 
               <Chip size='small' label={match.match_type} color={match.match_type === 'auto' ? 'success' : 'info'} variant='outlined' />
             </Grid>
             <Grid size={{ xs: 4, md: 2 }} textAlign='end'>
-              <Tooltip title='Remove this book entry from the match'>
-                <IconButton size='small' color='error' onClick={() => removeMatchMutation.mutate(match.id)} disabled={removeMatchMutation.isPending}>
-                  <LinkOffOutlined fontSize='small' />
-                </IconButton>
-              </Tooltip>
+              {match.created_transaction ? (
+                <Tooltip title='Undo — deletes this transaction, since it was created just for this match'>
+                  <span>
+                    <LoadingButton
+                      size='small'
+                      color='error'
+                      startIcon={<UndoOutlined fontSize='small' />}
+                      loading={undoMutation.isPending}
+                      onClick={() => confirmUndo(match)}
+                    >
+                      Undo
+                    </LoadingButton>
+                  </span>
+                </Tooltip>
+              ) : (
+                <Tooltip title='Remove this book entry from the match'>
+                  <IconButton size='small' color='error' onClick={() => removeMatchMutation.mutate(match.id)} disabled={removeMatchMutation.isPending}>
+                    <LinkOffOutlined fontSize='small' />
+                  </IconButton>
+                </Tooltip>
+              )}
             </Grid>
           </Grid>
         ))}

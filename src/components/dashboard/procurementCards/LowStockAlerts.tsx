@@ -198,17 +198,21 @@ function LowStockAlerts() {
                             padding: 1,
                           }}
                         >
-                          <Grid size={{ xs: 12, lg: 8 }}>
+                          <Grid size={{ xs: 12, lg: 4 }}>
                             <Tooltip title={'Product Name'}>
                               <Typography>{alert.product_name}</Typography>
                             </Tooltip>
                           </Grid>
-                          <Grid size={{ xs: 6, lg: 2 }} textAlign={'end'}>
+                          <Grid size={{ xs: 6, lg: 4 }} textAlign={'end'}>
                             <Tooltip title={'Threshold'}>
-                              <Chip label={alert.threshold} color={'primary'} />
+                              <Chip
+                                label={alert.threshold}
+                                color={'primary'}
+                                sx={{ minWidth: 120 }}
+                              />
                             </Tooltip>
                           </Grid>
-                          <Grid size={{ xs: 6, lg: 2 }} textAlign={'end'}>
+                          <Grid size={{ xs: 6, lg: 4 }} textAlign={'end'}>
                             <Tooltip title={'Available Stock'}>
                               <Chip
                                 label={alert.available_stock}
@@ -217,6 +221,7 @@ function LowStockAlerts() {
                                     ? 'warning'
                                     : 'error'
                                 }
+                                sx={{ minWidth: 120 }}
                               />
                             </Tooltip>
                           </Grid>

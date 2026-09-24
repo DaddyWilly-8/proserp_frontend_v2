@@ -1,7 +1,7 @@
 import { Divider, Grid, Switch, Typography } from '@mui/material';
 import React from 'react'
 
-function PurchaseOrderSummary({isApprovedPurchase, totalAmount, vatableAmount, checked, setChecked}) {
+function PurchaseOrderSummary({isApprovedPurchase, totalAmount, vatableAmount, additionalCostsAmount = 0, checked, setChecked}) {
 
   return (
     <Grid container columnSpacing={1}>
@@ -10,11 +10,21 @@ function PurchaseOrderSummary({isApprovedPurchase, totalAmount, vatableAmount, c
         <Divider/>
       </Grid>
       <Grid size={5}>
-        <Typography align='left' variant='body2'>Total:</Typography>
+        <Typography align='left' variant='body2'>Items Total:</Typography>
       </Grid>
       <Grid size={7}>
         <Typography align='right' variant='h5'>{totalAmount?.toLocaleString('en-US',{maximumFractionDigits:2,minimumFractionDigits:2})}</Typography>
       </Grid>
+      {!!additionalCostsAmount && (
+        <>
+          <Grid size={5}>
+            <Typography align='left' variant='body2'>Additional Costs:</Typography>
+          </Grid>
+          <Grid size={7}>
+            <Typography align='right' variant='h5'>{additionalCostsAmount?.toLocaleString('en-US',{maximumFractionDigits:2,minimumFractionDigits:2})}</Typography>
+          </Grid>
+        </>
+      )}
       <Grid size={5}>
         <Typography align='left' variant='body2'>
           VAT:
@@ -27,7 +37,7 @@ function PurchaseOrderSummary({isApprovedPurchase, totalAmount, vatableAmount, c
         <Typography align='left' variant='body2' noWrap>Grand Total:</Typography>
       </Grid>
       <Grid size={7} display={'flex'} alignItems={'end'} justifyContent={'end'}>
-        <Typography align='right' variant='h5'>{(totalAmount + vatableAmount)?.toLocaleString('en-US',{maximumFractionDigits:2,minimumFractionDigits:2})}</Typography>
+        <Typography align='right' variant='h5'>{(totalAmount + vatableAmount + additionalCostsAmount)?.toLocaleString('en-US',{maximumFractionDigits:2,minimumFractionDigits:2})}</Typography>
       </Grid>
       {!isApprovedPurchase &&
         <>

@@ -2,12 +2,13 @@
 
 import React, { useState } from 'react';
 import { Autocomplete, Box, Chip, Grid, IconButton, TextField, Tooltip, Typography } from '@mui/material';
-import { CheckCircleOutlined, LinkOffOutlined, VisibilityOffOutlined } from '@mui/icons-material';
+import { AddCircleOutlined, CheckCircleOutlined, LinkOffOutlined, VisibilityOffOutlined } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSnackbar } from 'notistack';
 import bankReconciliationServices from '../bank-reconciliation-services';
 import { journalDisplayParts } from './journal-display';
+import PostTransactionDialog from './PostTransactionDialog';
 
 interface Journal {
   id: number;
@@ -67,6 +68,7 @@ export default function UnmatchedLineRow({
   const [selectedJournals, setSelectedJournals] = useState<Journal[]>(
     suggestions.length === 1 ? [suggestions[0]] : []
   );
+  const [postDialogOpen, setPostDialogOpen] = useState(false);
 
   const invalidate = () => {
     queryClient.invalidateQueries({ queryKey: ['bank-reconciliation-workspace', bankAccountId] });
@@ -203,6 +205,18 @@ export default function UnmatchedLineRow({
             </LoadingButton>
           </span>
         </Tooltip>
+        <Tooltip title='Post the missing transaction (e.g. bank charges) and match it to this line'>
+          <span>
+            <IconButton
+              size='small'
+              onClick={() => setPostDialogOpen(true)}
+              disabled={existingMatches.length > 0}
+              sx={{ mr: 1 }}
+            >
+              <AddCircleOutlined fontSize='small' />
+            </IconButton>
+          </span>
+        </Tooltip>
         <Tooltip title='Ignore this line (not expected to have a book entry)'>
           <span>
             <IconButton
@@ -215,6 +229,14 @@ export default function UnmatchedLineRow({
           </span>
         </Tooltip>
       </Grid>
+      {postDialogOpen && (
+        <PostTransactionDialog
+          bankAccountId={bankAccountId}
+          line={line}
+          open={postDialogOpen}
+          onClose={() => setPostDialogOpen(false)}
+        />
+      )}
     </Grid>
   );
 }
