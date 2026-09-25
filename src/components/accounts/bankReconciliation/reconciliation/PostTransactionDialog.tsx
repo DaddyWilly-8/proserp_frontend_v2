@@ -13,11 +13,13 @@ import {
   ToggleButton,
   ToggleButtonGroup,
   Typography,
+  useMediaQuery,
 } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSnackbar } from 'notistack';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
+import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
 import LedgerSelect from '@/components/accounts/ledgers/forms/LedgerSelect';
 import LedgerSelectProvider from '@/components/accounts/ledgers/forms/LedgerSelectProvider';
@@ -58,6 +60,8 @@ function PostTransactionDialogContent({ bankAccountId, line, open, onClose }: Pr
   const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
   const { checkOrganizationPermission } = useJumboAuth();
+  const { theme } = useJumboTheme();
+  const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
 
   const isOutflow = line.amount < 0;
 
@@ -107,7 +111,14 @@ function PostTransactionDialogContent({ bankAccountId, line, open, onClose }: Pr
   const canSubmit = !!effectiveType && !!otherLedger && !!narration.trim();
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth='sm' fullWidth>
+    <Dialog
+      open={open}
+      onClose={onClose}
+      maxWidth='sm'
+      fullWidth
+      fullScreen={belowLargeScreen}
+      scroll={belowLargeScreen ? 'body' : 'paper'}
+    >
       <DialogTitle>Post Transaction</DialogTitle>
       <DialogContent>
         <Box sx={{ mb: 2 }}>

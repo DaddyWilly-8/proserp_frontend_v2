@@ -74,6 +74,10 @@ function ImprestRetirementOnScreenPreview({ retirement }: RetirementPreviewProps
           <Typography variant="body2">{retirement?.imprest_approval?.requisition?.requisitionNo || '-'}</Typography>
         </Box>
         <Box>
+          <Typography variant="caption" color="text.secondary">Cost Center</Typography>
+          <Typography variant="body2">{retirement?.imprest_approval?.requisition?.cost_center?.name || '-'}</Typography>
+        </Box>
+        <Box>
           <Typography variant="caption" color="text.secondary">Imprest Ledger</Typography>
           <Typography variant="body2">{retirement?.ledger?.name || '-'}</Typography>
         </Box>

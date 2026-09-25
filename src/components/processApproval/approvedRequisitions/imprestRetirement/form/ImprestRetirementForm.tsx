@@ -421,6 +421,30 @@ function ImprestRetirementForm({
     Number.isFinite(totalAmount) ? totalAmount : 0
   );
 
+  // DR is treated as the "available" side by convention here — retiring items
+  // reduces it; once it would go below zero, the remainder is shown as CR
+  // (over-retirement: more was retired than the float actually had available).
+  const selectedLedgerBalance = myImprestLedgers.find(
+    (option) => option.id === ledgerId
+  )?.balance;
+  const currentBalanceSigned =
+    selectedLedgerBalance == null
+      ? null
+      : selectedLedgerBalance.side === 'CR'
+        ? -selectedLedgerBalance.amount
+        : selectedLedgerBalance.amount;
+  const balanceAfterSigned =
+    currentBalanceSigned === null ? null : currentBalanceSigned - (Number.isFinite(totalAmount) ? totalAmount : 0);
+  const currentBalanceDisplay =
+    currentBalanceSigned === null
+      ? null
+      : `${formatMoney(Math.abs(currentBalanceSigned))} ${currentBalanceSigned < 0 ? 'CR' : 'DR'}`;
+  const balanceAfterDisplay =
+    balanceAfterSigned === null
+      ? null
+      : `${formatMoney(Math.abs(balanceAfterSigned))} ${balanceAfterSigned < 0 ? 'CR' : 'DR'}`;
+  const isBalanceAfterNegative = (balanceAfterSigned ?? 0) < 0;
+
   const statusRaw = String(statusLabel || '').toLowerCase();
   const isLocked = false;
   const canSubmitForApproval =
@@ -693,75 +717,147 @@ function ImprestRetirementForm({
             />
           </Grid>
           <Grid size={{ xs: 12, md: 9 }}>
-            <Div
-              sx={{
-                display: 'flex',
-                justifyContent: 'flex-end',
-                gap: 1,
-                flexWrap: 'wrap',
-              }}
+            <Grid
+              container
+              spacing={1}
+              justifyContent={{ xs: 'center', md: 'flex-end' }}
             >
-              <Div
-                sx={(theme) => ({
-                  display: 'inline-block',
-                  px: 1.5,
-                  py: 0.75,
-                  borderRadius: 1.5,
-                  border: '1px solid',
-                  borderColor:
-                    theme.type === 'dark'
-                      ? 'rgba(46, 204, 113, 0.45)'
-                      : 'success.light',
-                  bgcolor:
-                    theme.type === 'dark'
-                      ? 'rgba(46, 204, 113, 0.12)'
-                      : 'rgba(46, 204, 113, 0.1)',
-                })}
-              >
-                <Typography
-                  variant='caption'
-                  sx={{ display: 'block', opacity: 0.9 }}
+              <Grid size={{ xs: 6, sm: 'auto' }}>
+                <Div
+                  sx={(theme) => ({
+                    height: '100%',
+                    px: 1.5,
+                    py: 0.75,
+                    borderRadius: 1.5,
+                    border: '1px solid',
+                    borderColor:
+                      theme.type === 'dark'
+                        ? 'rgba(46, 204, 113, 0.45)'
+                        : 'success.light',
+                    bgcolor:
+                      theme.type === 'dark'
+                        ? 'rgba(46, 204, 113, 0.12)'
+                        : 'rgba(46, 204, 113, 0.1)',
+                  })}
                 >
-                  Approved Amount
-                </Typography>
-                <Typography
-                  variant='h6'
-                  sx={{ fontWeight: 700, lineHeight: 1.2 }}
+                  <Typography
+                    variant='caption'
+                    sx={{ display: 'block', opacity: 0.9 }}
+                  >
+                    Approved Amount
+                  </Typography>
+                  <Typography
+                    variant='h6'
+                    sx={{ fontWeight: 700, lineHeight: 1.2 }}
+                  >
+                    {approvedAmountDisplay}
+                  </Typography>
+                </Div>
+              </Grid>
+              <Grid size={{ xs: 6, sm: 'auto' }}>
+                <Div
+                  sx={(theme) => ({
+                    height: '100%',
+                    px: 1.5,
+                    py: 0.75,
+                    borderRadius: 1.5,
+                    border: '1px solid',
+                    borderColor:
+                      theme.type === 'dark'
+                        ? 'rgba(33, 150, 243, 0.45)'
+                        : 'info.light',
+                    bgcolor:
+                      theme.type === 'dark'
+                        ? 'rgba(33, 150, 243, 0.12)'
+                        : 'rgba(33, 150, 243, 0.08)',
+                  })}
                 >
-                  {approvedAmountDisplay}
-                </Typography>
-              </Div>
-              <Div
-                sx={(theme) => ({
-                  display: 'inline-block',
-                  px: 1.5,
-                  py: 0.75,
-                  borderRadius: 1.5,
-                  border: '1px solid',
-                  borderColor:
-                    theme.type === 'dark'
-                      ? 'rgba(33, 150, 243, 0.45)'
-                      : 'info.light',
-                  bgcolor:
-                    theme.type === 'dark'
-                      ? 'rgba(33, 150, 243, 0.12)'
-                      : 'rgba(33, 150, 243, 0.08)',
-                })}
-              >
-                <Typography
-                  variant='caption'
-                  sx={{ display: 'block', opacity: 0.9 }}
-                >
-                  Total Items Amount
-                </Typography>
-                <Typography
-                  variant='h6'
-                  sx={{ fontWeight: 700, lineHeight: 1.2 }}
-                >
-                  {totalItemsAmountDisplay}
-                </Typography>
-              </Div>
-            </Div>
+                  <Typography
+                    variant='caption'
+                    sx={{ display: 'block', opacity: 0.9 }}
+                  >
+                    Total Items Amount
+                  </Typography>
+                  <Typography
+                    variant='h6'
+                    sx={{ fontWeight: 700, lineHeight: 1.2 }}
+                  >
+                    {totalItemsAmountDisplay}
+                  </Typography>
+                </Div>
+              </Grid>
+              {currentBalanceDisplay && (
+                <Grid size={{ xs: 6, sm: 'auto' }}>
+                  <Div
+                    sx={(theme) => ({
+                      height: '100%',
+                      px: 1.5,
+                      py: 0.75,
+                      borderRadius: 1.5,
+                      border: '1px solid',
+                      borderColor:
+                        theme.type === 'dark'
+                          ? 'rgba(156, 39, 176, 0.45)'
+                          : 'secondary.light',
+                      bgcolor:
+                        theme.type === 'dark'
+                          ? 'rgba(156, 39, 176, 0.12)'
+                          : 'rgba(156, 39, 176, 0.08)',
+                    })}
+                  >
+                    <Typography
+                      variant='caption'
+                      sx={{ display: 'block', opacity: 0.9 }}
+                    >
+                      Current Balance
+                    </Typography>
+                    <Typography
+                      variant='h6'
+                      sx={{ fontWeight: 700, lineHeight: 1.2 }}
+                    >
+                      {currentBalanceDisplay}
+                    </Typography>
+                  </Div>
+                </Grid>
+              )}
+              {balanceAfterDisplay && (
+                <Grid size={{ xs: 6, sm: 'auto' }}>
+                  <Div
+                    sx={(theme) => ({
+                      height: '100%',
+                      px: 1.5,
+                      py: 0.75,
+                      borderRadius: 1.5,
+                      border: '1px solid',
+                      borderColor: isBalanceAfterNegative
+                        ? 'error.light'
+                        : theme.type === 'dark'
+                          ? 'rgba(46, 204, 113, 0.45)'
+                          : 'success.light',
+                      bgcolor: isBalanceAfterNegative
+                        ? 'rgba(244, 67, 54, 0.08)'
+                        : theme.type === 'dark'
+                          ? 'rgba(46, 204, 113, 0.12)'
+                          : 'rgba(46, 204, 113, 0.1)',
+                    })}
+                  >
+                    <Typography
+                      variant='caption'
+                      sx={{ display: 'block', opacity: 0.9 }}
+                    >
+                    Balance After Retirement
+                  </Typography>
+                  <Typography
+                    variant='h6'
+                    sx={{ fontWeight: 700, lineHeight: 1.2 }}
+                    color={isBalanceAfterNegative ? 'error.main' : undefined}
+                  >
+                    {balanceAfterDisplay}
+                  </Typography>
+                  </Div>
+                </Grid>
+              )}
+            </Grid>
           </Grid>
           <>
             <Grid size={{ xs: 12, md: 4 }}>

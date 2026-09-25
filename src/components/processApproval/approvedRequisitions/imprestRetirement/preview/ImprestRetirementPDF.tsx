@@ -71,6 +71,10 @@ function ImprestRetirementPDF({ retirement, organization }: ImprestRetirementPDF
             <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>Reference Requisition</Text>
             <Text style={{ ...pdfStyles.minInfo }}>{retirement?.imprest_approval?.requisition?.requisitionNo || '-'}</Text>
           </View>
+          <View style={{ flex: 1, padding: 2 }}>
+            <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>Cost Center</Text>
+            <Text style={{ ...pdfStyles.minInfo }}>{retirement?.imprest_approval?.requisition?.cost_center?.name || '-'}</Text>
+          </View>
         </View>
 
         <View style={{ ...pdfStyles.tableRow, marginBottom: 10 }}>

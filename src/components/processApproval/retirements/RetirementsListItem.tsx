@@ -124,6 +124,7 @@ const RetirementsListItem = ({ retirement }: RetirementsListItemProp) => {
           flexDirection: 'row-reverse',
           '.MuiAccordionSummary-content': {
             alignItems: 'center',
+            minWidth: 0,
             '&.Mui-expanded': {
               margin: '10px 0',
             },
@@ -145,7 +146,7 @@ const RetirementsListItem = ({ retirement }: RetirementsListItemProp) => {
           },
         }}
       >
-        <Grid container spacing={1} alignItems='center' width='100%' px={1}>
+        <Grid container spacing={1} alignItems='center' width='100%' px={1} sx={{ minWidth: 0 }}>
           <Grid size={{ xs: 12, md: 3 }}>
             <Tooltip title='Retirement Number'>
               <Typography lineHeight={1.25} noWrap fontWeight={600}>
@@ -159,12 +160,29 @@ const RetirementsListItem = ({ retirement }: RetirementsListItemProp) => {
             </Tooltip>
           </Grid>
 
-          <Grid size={{ xs: 6, md: 2 }}>
+          <Grid size={{ xs: 6, md: 2 }} sx={{ minWidth: 0 }}>
             <Tooltip title='Retirement Date'>
               <Typography lineHeight={1.25} noWrap>
                 {readableDate(retirement?.retirement_date)}
               </Typography>
             </Tooltip>
+            {retirement?.requisition?.cost_center?.name && (
+              <Tooltip title={retirement.requisition.cost_center.name}>
+                <Chip
+                  size='small'
+                  label={retirement.requisition.cost_center.name}
+                  sx={{
+                    mt: 0.5,
+                    maxWidth: '100%',
+                    minWidth: 0,
+                    '& .MuiChip-label': {
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                    },
+                  }}
+                />
+              </Tooltip>
+            )}
           </Grid>
 
           <Grid size={{ xs: 6, md: 2 }}>
