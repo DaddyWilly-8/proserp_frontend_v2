@@ -680,7 +680,20 @@ function PurchaseOrderDialogForm({ toggleOpen, order = null }) {
         <Button size='small' onClick={() => toggleOpen(false)}>
           Cancel
         </Button>
-        {activeTab < 2 ? (
+
+        {/* Show Prev button on any tab except the first */}
+        {activeTab > 0 && (
+          <Button
+            size='small'
+            variant='outlined'
+            onClick={() => setActiveTab((prev) => Math.max(prev - 1, 0))}
+          >
+            &lt; Prev
+          </Button>
+        )}
+
+        {/* Show Next button on any tab except the last */}
+        {activeTab < 2 && (
           <Button
             size='small'
             variant='outlined'
@@ -688,24 +701,18 @@ function PurchaseOrderDialogForm({ toggleOpen, order = null }) {
           >
             Next &gt;
           </Button>
-        ) : (
-          <>
-            <Button
-              size='small'
-              variant='outlined'
-              onClick={() => setActiveTab((prev) => Math.max(prev - 1, 0))}
-            >
-              &lt; Prev
-            </Button>
-            <LoadingButton
-              variant='contained'
-              size='small'
-              onClick={onSubmit}
-              loading={addPurchaseOrder.isPending || updatePurchaseOrder.isPending}
-            >
-              Submit
-            </LoadingButton>
-          </>
+        )}
+
+        {/* Show Submit only on the last tab */}
+        {activeTab === 2 && (
+          <LoadingButton
+            variant='contained'
+            size='small'
+            onClick={onSubmit}
+            loading={addPurchaseOrder.isPending || updatePurchaseOrder.isPending}
+          >
+            Submit
+          </LoadingButton>
         )}
       </DialogActions>
     </FormProvider>
