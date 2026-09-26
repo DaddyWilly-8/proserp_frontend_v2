@@ -129,7 +129,7 @@ export default function BankReconciliationWorkspace({ bankAccountId }: Props) {
       </Box>
     );
   } else {
-    const { statement, matched_lines, unmatched_lines, ignored_lines, unmatched_journals, outstanding_journals, book_balance, difference, amount_tolerance } = data;
+    const { statement, matched_lines, unmatched_lines, ignored_lines, unmatched_journals, outstanding_journals, book_balance, difference, amount_tolerance, suggestion_day_tolerance } = data;
     const tolerance = amount_tolerance ?? 0.01;
     const isBalanced = Math.abs(difference) <= tolerance;
     const isCompleted = statement.status === 'completed';
@@ -246,7 +246,12 @@ export default function BankReconciliationWorkspace({ bankAccountId }: Props) {
                 <Typography color='text.secondary'>No matched lines yet.</Typography>
               )}
               {matched_lines.map((matchedLine: any) => (
-                <MatchedLineGroup key={matchedLine.line.id} bankAccountId={bankAccountId} matchedLine={matchedLine} />
+                <MatchedLineGroup
+                  key={matchedLine.line.id}
+                  bankAccountId={bankAccountId}
+                  matchedLine={matchedLine}
+                  suggestionDayTolerance={suggestion_day_tolerance}
+                />
               ))}
             </Box>
           )}

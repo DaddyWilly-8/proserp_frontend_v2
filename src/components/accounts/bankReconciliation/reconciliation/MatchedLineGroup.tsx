@@ -9,7 +9,7 @@ import { useSnackbar } from 'notistack';
 import { useJumboDialog } from '@jumbo/components/JumboDialog/hooks/useJumboDialog';
 import bankReconciliationServices from '../bank-reconciliation-services';
 import { descriptionIncludesVoucher } from './journal-display';
-import { formatDate } from './date-format';
+import { formatDate, daysBetween } from './date-format';
 
 interface Journal {
   id: number;
@@ -43,12 +43,13 @@ interface Props {
     matches: Match[];
     total_matched: number;
   };
+  suggestionDayTolerance?: number;
 }
 
 const formatAmount = (amount: number) =>
   amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-export default function MatchedLineGroup({ bankAccountId, matchedLine }: Props) {
+export default function MatchedLineGroup({ bankAccountId, matchedLine, suggestionDayTolerance }: Props) {
   const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
   const { showDialog, hideDialog } = useJumboDialog();
@@ -122,7 +123,10 @@ export default function MatchedLineGroup({ bankAccountId, matchedLine }: Props) 
       </Grid>
 
       <Box sx={{ pl: { md: 2 }, mt: 1 }}>
-        {matches.map((match) => (
+        {matches.map((match) => {
+          const dayGap = daysBetween(match.journal?.journal_date, line.line_date);
+          const exceedsTolerance = !!dayGap && suggestionDayTolerance != null && Math.abs(dayGap) > suggestionDayTolerance;
+          return (
           <Grid container spacing={1} alignItems='center' key={match.id} sx={{ py: 0.5 }}>
             <Grid size={{ xs: 12, md: 6 }}>
               <Typography variant='caption' color='text.secondary'>
@@ -137,9 +141,29 @@ export default function MatchedLineGroup({ bankAccountId, matchedLine }: Props) 
             </Grid>
             <Grid size={{ xs: 8, md: 4 }}>
               <Typography variant='body2' fontWeight={600}>{formatAmount(match.matched_amount)}</Typography>
-              <Chip size='small' label={match.match_type} color={match.match_type === 'auto' ? 'success' : 'info'} variant='outlined' />
+              <Chip size='small' label={match.match_type} color={match.match_type === 'auto' ? 'success' : 'info'} variant='outlined' sx={{ mt: 0.25 }} />
             </Grid>
             <Grid size={{ xs: 4, md: 2 }} textAlign='end'>
+              {!!dayGap && (
+                <Tooltip
+                  title={
+                    (dayGap > 0
+                      ? `Book entry dated ${dayGap} day${dayGap === 1 ? '' : 's'} before the statement line — the bank settled late.`
+                      : `Book entry dated ${Math.abs(dayGap)} day${Math.abs(dayGap) === 1 ? '' : 's'} after the statement line.`) +
+                    (exceedsTolerance
+                      ? ` That's wider than this account's own ${suggestionDayTolerance}-day suggestion window — double-check this is the right match.`
+                      : ' Double-check this is the right match.')
+                  }
+                >
+                  <Chip
+                    size='small'
+                    label={`${Math.abs(dayGap)}d gap`}
+                    color={exceedsTolerance ? 'error' : 'warning'}
+                    variant={exceedsTolerance ? 'filled' : 'outlined'}
+                    sx={{ mb: 0.5, fontWeight: 600 }}
+                  />
+                </Tooltip>
+              )}
               {match.created_transaction ? (
                 <Tooltip title='Undo — deletes this transaction, since it was created just for this match'>
                   <span>
@@ -163,7 +187,8 @@ export default function MatchedLineGroup({ bankAccountId, matchedLine }: Props) 
               )}
             </Grid>
           </Grid>
-        ))}
+          );
+        })}
       </Box>
     </Box>
   );
