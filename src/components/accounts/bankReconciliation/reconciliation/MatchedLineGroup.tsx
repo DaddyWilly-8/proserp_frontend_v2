@@ -9,6 +9,7 @@ import { useSnackbar } from 'notistack';
 import { useJumboDialog } from '@jumbo/components/JumboDialog/hooks/useJumboDialog';
 import bankReconciliationServices from '../bank-reconciliation-services';
 import { descriptionIncludesVoucher } from './journal-display';
+import { formatDate } from './date-format';
 
 interface Journal {
   id: number;
@@ -102,7 +103,7 @@ export default function MatchedLineGroup({ bankAccountId, matchedLine }: Props) 
         <Grid size={{ xs: 12, md: 5 }}>
           <Typography variant='caption' color='text.secondary'>Statement</Typography>
           <Typography variant='body2'>
-            {new Date(line.line_date).toLocaleDateString()} — {line.description}
+            {formatDate(line.line_date)} — {line.description}
           </Typography>
         </Grid>
         <Grid size={{ xs: 8, md: 5 }}>
@@ -128,7 +129,7 @@ export default function MatchedLineGroup({ bankAccountId, matchedLine }: Props) 
                 Book Entry{!descriptionIncludesVoucher(match.journal) && match.journal?.voucher_no ? ` — ${match.journal.voucher_no}` : ''}
               </Typography>
               <Typography variant='body2'>
-                {match.journal?.journal_date && new Date(match.journal.journal_date).toLocaleDateString()} — {match.journal?.description}
+                {formatDate(match.journal?.journal_date)} — {match.journal?.description}
               </Typography>
               {match.journal?.counterparty && (
                 <Typography variant='caption' color='text.secondary'>{match.journal.counterparty}</Typography>

@@ -8,6 +8,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSnackbar } from 'notistack';
 import bankReconciliationServices from '../bank-reconciliation-services';
 import { descriptionIncludesVoucher } from './journal-display';
+import { formatDate } from './date-format';
 
 interface StatementLine {
   id: number;
@@ -92,7 +93,7 @@ export default function UnmatchedJournalRow({
     <Grid container spacing={1} alignItems='center' sx={{ py: 1.5, borderBottom: 1, borderColor: 'divider' }}>
       <Grid size={{ xs: 12, md: 3 }}>
         <Typography variant='body2' color='text.secondary'>
-          {new Date(journal.journal_date).toLocaleDateString()}
+          {formatDate(journal.journal_date)}
           {!descriptionIncludesVoucher(journal) && journal.voucher_no && ` — ${journal.voucher_no}`}
         </Typography>
         <Typography variant='body2'>{journal.description}</Typography>
@@ -130,7 +131,7 @@ export default function UnmatchedJournalRow({
           options={allUnmatchedLines}
           value={selectedLines}
           getOptionLabel={(option: UnmatchedLineOption) =>
-            `${new Date(option.line.line_date).toLocaleDateString()} — ${option.line.description} — ${formatAmount(option.remaining_amount)}`
+            `${formatDate(option.line.line_date)} — ${option.line.description} — ${formatAmount(option.remaining_amount)}`
           }
           isOptionEqualToValue={(option, value) => option.line.id === value.line.id}
           onChange={(e, newValue) => setSelectedLines(newValue)}

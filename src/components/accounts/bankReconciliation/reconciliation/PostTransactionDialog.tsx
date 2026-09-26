@@ -24,6 +24,7 @@ import { PERMISSIONS } from '@/utilities/constants/permissions';
 import LedgerSelect from '@/components/accounts/ledgers/forms/LedgerSelect';
 import LedgerSelectProvider from '@/components/accounts/ledgers/forms/LedgerSelectProvider';
 import bankReconciliationServices from '../bank-reconciliation-services';
+import { formatDate } from './date-format';
 
 interface Ledger {
   id: number;
@@ -123,7 +124,7 @@ function PostTransactionDialogContent({ bankAccountId, line, open, onClose }: Pr
       <DialogContent>
         <Box sx={{ mb: 2 }}>
           <Typography variant='body2' color='text.secondary'>
-            {new Date(line.line_date).toLocaleDateString()} — {line.description}
+            {formatDate(line.line_date)} — {line.description}
           </Typography>
           <Typography variant='h6' color={isOutflow ? 'error.main' : 'success.main'}>
             {formatAmount(Math.abs(line.amount))}

@@ -9,6 +9,7 @@ import { useSnackbar } from 'notistack';
 import bankReconciliationServices from '../bank-reconciliation-services';
 import { journalDisplayParts } from './journal-display';
 import PostTransactionDialog from './PostTransactionDialog';
+import { formatDate } from './date-format';
 
 interface Journal {
   id: number;
@@ -51,7 +52,7 @@ const formatAmount = (amount: number) =>
 
 const journalLabel = (journal: Journal) => {
   const parts = journalDisplayParts(journal);
-  return `${new Date(journal.journal_date).toLocaleDateString()} — ${parts.join(' — ')} — ${formatAmount(journal.comparable_amount)}`;
+  return `${formatDate(journal.journal_date)} — ${parts.join(' — ')} — ${formatAmount(journal.comparable_amount)}`;
 };
 
 export default function UnmatchedLineRow({
@@ -109,7 +110,7 @@ export default function UnmatchedLineRow({
     <Grid container spacing={1} alignItems='center' sx={{ py: 1.5, borderBottom: 1, borderColor: 'divider' }}>
       <Grid size={{ xs: 12, md: 3 }}>
         <Typography variant='body2' color='text.secondary'>
-          {new Date(line.line_date).toLocaleDateString()}
+          {formatDate(line.line_date)}
         </Typography>
         <Typography variant='body2'>{line.description}</Typography>
         {line.reference && (

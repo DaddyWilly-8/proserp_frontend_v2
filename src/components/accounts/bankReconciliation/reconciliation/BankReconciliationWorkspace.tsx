@@ -28,6 +28,7 @@ import DifferenceSummary from './DifferenceSummary';
 import MatchedLineGroup from './MatchedLineGroup';
 import UnmatchedJournalRow from './UnmatchedJournalRow';
 import UnmatchedLineRow from './UnmatchedLineRow';
+import { formatDate } from './date-format';
 
 interface Props {
   bankAccountId: number;
@@ -131,7 +132,7 @@ export default function BankReconciliationWorkspace({ bankAccountId }: Props) {
             <Typography variant='h5'>{bankAccount?.ledger?.name}</Typography>
             <Typography variant='body2' color='text.secondary' component='div' sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               <span>
-                Statement {new Date(statement.statement_date_from).toLocaleDateString()} – {new Date(statement.statement_date_to).toLocaleDateString()}
+                Statement {formatDate(statement.statement_date_from)} – {formatDate(statement.statement_date_to)}
               </span>
               <Chip size='small' label={statement.status} color={isCompleted ? 'success' : 'default'} />
             </Typography>
@@ -247,7 +248,7 @@ export default function BankReconciliationWorkspace({ bankAccountId }: Props) {
                 <Box key={line.id} sx={{ py: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1, flexWrap: 'wrap' }}>
                   <Divider sx={{ mb: 1, width: '100%' }} />
                   <Typography variant='body2'>
-                    {new Date(line.line_date).toLocaleDateString()} — {line.description} — {formatAmount(line.amount)}
+                    {formatDate(line.line_date)} — {line.description} — {formatAmount(line.amount)}
                   </Typography>
                   {checkOrganizationPermission(PERMISSIONS.BANK_RECONCILIATION_EDIT) && (
                     <LoadingButton

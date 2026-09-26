@@ -5,6 +5,7 @@ import { Divider, Grid, Tooltip, Typography } from '@mui/material';
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/app/[lang]/contexts/LanguageContext';
 import BankAccountListItemAction from './BankAccountListItemAction';
+import { formatDate } from '../reconciliation/date-format';
 
 interface BankAccount {
   id: number;
@@ -59,9 +60,7 @@ const BankAccountListItem: React.FC<Props> = ({ bankAccount }) => {
         <Grid size={{ xs: 6, md: 2.5 }}>
           <Tooltip title='Last Reconciled'>
             <Typography variant='body1'>
-              {bankAccount.last_reconciled_date
-                ? new Date(bankAccount.last_reconciled_date).toLocaleDateString()
-                : 'Never'}
+              {bankAccount.last_reconciled_date ? formatDate(bankAccount.last_reconciled_date) : 'Never'}
             </Typography>
           </Tooltip>
         </Grid>

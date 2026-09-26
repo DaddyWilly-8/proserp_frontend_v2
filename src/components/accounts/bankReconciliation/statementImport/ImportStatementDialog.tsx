@@ -174,6 +174,7 @@ export default function ImportStatementDialog({ bankAccountId, savedColumnMap, t
                 label='Statement From'
                 value={dateFrom}
                 onChange={setDateFrom}
+                format='DD/MM/YYYY'
                 slotProps={{ textField: { size: 'small', fullWidth: true } }}
               />
             </Grid>
@@ -182,6 +183,7 @@ export default function ImportStatementDialog({ bankAccountId, savedColumnMap, t
                 label='Statement To'
                 value={dateTo}
                 onChange={setDateTo}
+                format='DD/MM/YYYY'
                 slotProps={{ textField: { size: 'small', fullWidth: true } }}
               />
             </Grid>
