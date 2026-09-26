@@ -68,15 +68,31 @@ const DeductionTypeItemAction = ({
       });
     },
     onError: (error: any) => {
+      const data = (error as any)?.response?.data;
+
+      // Still assigned to employees — offer to remove it from all of them
+      // and delete the type, instead of just failing here.
+      if (data?.confirm_required) {
+        showDialog({
+          title: 'Deduction type still in use',
+          content: `${data.message.replace(
+            ' Remove it from their deductions, or confirm to remove it from all of them and delete the type.',
+            ''
+          )} Remove it from all of them and delete the type?`,
+          onYes: () => {
+            hideDialog();
+            deleteDeductionType({ id: deductionType.id, force: true });
+          },
+          onNo: () => hideDialog(),
+          variant: 'confirm',
+        });
+        return;
+      }
+
       let message = 'Something went wrong';
 
-      if (
-        typeof error === 'object' &&
-        error !== null &&
-        'response' in error &&
-        typeof (error as any).response?.data?.message === 'string'
-      ) {
-        message = (error as any).response.data.message;
+      if (typeof data?.message === 'string') {
+        message = data.message;
       } else if (error instanceof Error) {
         message = error.message;
       }
@@ -108,7 +124,7 @@ const DeductionTypeItemAction = ({
           content: 'Are you sure you want to delete this Deduction Type?',
           onYes: () => {
             hideDialog();
-            deleteDeductionType(deductionType.id);
+            deleteDeductionType({ id: deductionType.id });
           },
           onNo: () => hideDialog(),
           variant: 'confirm',

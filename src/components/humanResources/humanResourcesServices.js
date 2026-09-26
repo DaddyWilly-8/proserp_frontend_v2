@@ -445,8 +445,10 @@ humanResourcesServices.showAllowanceType = async (id) => {
     return data;
 }
 
-humanResourcesServices.deleteAllowanceType = async (id) => {
-    const { data } = await axios.delete(`/api/humanResources/allowanceTypes/${id}/delete`);
+humanResourcesServices.deleteAllowanceType = async ({ id, force = false }) => {
+    const { data } = await axios.delete(`/api/humanResources/allowanceTypes/${id}/delete`, {
+        params: force ? { force: true } : {},
+    });
     return data;
 }
 
@@ -476,8 +478,10 @@ humanResourcesServices.showDeductionType = async (id) => {
     return data;
 }
 
-humanResourcesServices.deleteDeductionType = async (id) => {
-    const { data } = await axios.delete(`/api/humanResources/deductionTypes/${id}/delete`);
+humanResourcesServices.deleteDeductionType = async ({ id, force = false }) => {
+    const { data } = await axios.delete(`/api/humanResources/deductionTypes/${id}/delete`, {
+        params: force ? { force: true } : {},
+    });
     return data;
 }
 
@@ -538,8 +542,10 @@ humanResourcesServices.showEmployerContributionType = async (id) => {
     return data;
 }
 
-humanResourcesServices.deleteEmployerContributionType = async (id) => {
-    const { data } = await axios.delete(`/api/humanResources/employerContributionTypes/${id}/delete`);
+humanResourcesServices.deleteEmployerContributionType = async ({ id, force = false }) => {
+    const { data } = await axios.delete(`/api/humanResources/employerContributionTypes/${id}/delete`, {
+        params: force ? { force: true } : {},
+    });
     return data;
 }
 

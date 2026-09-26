@@ -68,15 +68,31 @@ const AllowanceTypeItemAction = ({
       });
     },
     onError: (error: any) => {
+      const data = (error as any)?.response?.data;
+
+      // Still assigned to employees — offer to remove it from all of them
+      // and delete the type, instead of just failing here.
+      if (data?.confirm_required) {
+        showDialog({
+          title: 'Allowance type still in use',
+          content: `${data.message.replace(
+            ' Remove it from their allowances, or confirm to remove it from all of them and delete the type.',
+            ''
+          )} Remove it from all of them and delete the type?`,
+          onYes: () => {
+            hideDialog();
+            deleteAllowanceType({ id: allowanceType.id, force: true });
+          },
+          onNo: () => hideDialog(),
+          variant: 'confirm',
+        });
+        return;
+      }
+
       let message = 'Something went wrong';
 
-      if (
-        typeof error === 'object' &&
-        error !== null &&
-        'response' in error &&
-        typeof (error as any).response?.data?.message === 'string'
-      ) {
-        message = (error as any).response.data.message;
+      if (typeof data?.message === 'string') {
+        message = data.message;
       } else if (error instanceof Error) {
         message = error.message;
       }
@@ -108,7 +124,7 @@ const AllowanceTypeItemAction = ({
           content: 'Are you sure you want to delete this Allowance Type?',
           onYes: () => {
             hideDialog();
-            deleteAllowanceType(allowanceType.id);
+            deleteAllowanceType({ id: allowanceType.id });
           },
           onNo: () => hideDialog(),
           variant: 'confirm',

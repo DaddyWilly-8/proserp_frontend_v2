@@ -8,14 +8,15 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
+  const force = req.nextUrl.searchParams.get('force');
 
   const { headers, response } = await getAuthHeaders(req);
   if (response) return response;
 
-  const res = await fetch(`${API_BASE}/deduction-types/${id}`, {
-    method: 'DELETE',
-    headers,
-  });
+  const res = await fetch(
+    `${API_BASE}/deduction-types/${id}${force ? `?force=${force}` : ''}`,
+    { method: 'DELETE', headers }
+  );
 
   return handleJsonResponse(res);
 }
