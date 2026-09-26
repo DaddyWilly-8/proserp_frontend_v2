@@ -83,6 +83,15 @@ export default function BankReconciliationWorkspace({ bankAccountId }: Props) {
     onError: (err: any) => enqueueSnackbar(err?.response?.data?.message || 'Failed to restore line', { variant: 'error' }),
   });
 
+  const unmarkOutstandingMutation = useMutation({
+    mutationFn: (itemId: number) => bankReconciliationServices.unmarkOutstanding(itemId),
+    onSuccess: (result) => {
+      enqueueSnackbar(result.message || 'Removed from outstanding', { variant: 'success' });
+      queryClient.invalidateQueries({ queryKey: ['bank-reconciliation-workspace', bankAccountId] });
+    },
+    onError: (err: any) => enqueueSnackbar(err?.response?.data?.message || 'Failed to unmark', { variant: 'error' }),
+  });
+
   const confirmDeleteStatement = () => {
     showDialog({
       title: 'Delete this statement?',
@@ -120,7 +129,7 @@ export default function BankReconciliationWorkspace({ bankAccountId }: Props) {
       </Box>
     );
   } else {
-    const { statement, matched_lines, unmatched_lines, ignored_lines, unmatched_journals, book_balance, difference, amount_tolerance } = data;
+    const { statement, matched_lines, unmatched_lines, ignored_lines, unmatched_journals, outstanding_journals, book_balance, difference, amount_tolerance } = data;
     const tolerance = amount_tolerance ?? 0.01;
     const isBalanced = Math.abs(difference) <= tolerance;
     const isCompleted = statement.status === 'completed';
@@ -187,6 +196,7 @@ export default function BankReconciliationWorkspace({ bankAccountId }: Props) {
             <Tab label={`Unmatched Book Entries (${unmatched_journals.length})`} />
             <Tab label={`Matched (${matched_lines.length})`} />
             <Tab label={`Ignored (${ignored_lines.length})`} />
+            <Tab label={`Outstanding (${outstanding_journals.length})`} />
           </Tabs>
 
           {tab === 0 && (
@@ -257,6 +267,40 @@ export default function BankReconciliationWorkspace({ bankAccountId }: Props) {
                       onClick={() => unignoreMutation.mutate(line.id)}
                     >
                       Restore
+                    </LoadingButton>
+                  )}
+                </Box>
+              ))}
+            </Box>
+          )}
+
+          {tab === 4 && (
+            <Box sx={{ p: 2 }}>
+              <Typography variant='caption' color='text.secondary' display='block' sx={{ mb: 1 }}>
+                Book entries acknowledged as genuine timing differences (e.g. a cheque not yet presented, a deposit not yet credited) — excluded from the difference above until they clear on a future statement.
+              </Typography>
+              {outstanding_journals.length === 0 && (
+                <Typography color='text.secondary'>No outstanding book entries.</Typography>
+              )}
+              {outstanding_journals.map((journal: any) => (
+                <Box key={journal.id} sx={{ py: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1, flexWrap: 'wrap' }}>
+                  <Divider sx={{ mb: 1, width: '100%' }} />
+                  <Box>
+                    <Typography variant='body2'>
+                      {formatDate(journal.journal_date)} — {journal.description} — {formatAmount(journal.comparable_amount)}
+                    </Typography>
+                    <Typography variant='caption' color='text.secondary'>
+                      Marked outstanding by {journal.marked_by || 'unknown'} on {formatDate(journal.marked_at)}
+                      {journal.outstanding_note ? ` — "${journal.outstanding_note}"` : ''}
+                    </Typography>
+                  </Box>
+                  {checkOrganizationPermission(PERMISSIONS.BANK_RECONCILIATION_EDIT) && (
+                    <LoadingButton
+                      size='small'
+                      loading={unmarkOutstandingMutation.isPending && unmarkOutstandingMutation.variables === journal.outstanding_item_id}
+                      onClick={() => unmarkOutstandingMutation.mutate(journal.outstanding_item_id)}
+                    >
+                      Unmark
                     </LoadingButton>
                   )}
                 </Box>

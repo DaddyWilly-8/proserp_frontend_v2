@@ -2,13 +2,19 @@
 
 import React, { useState } from 'react';
 import { Autocomplete, Box, Chip, Grid, IconButton, TextField, Tooltip, Typography } from '@mui/material';
-import { CheckCircleOutlined, LinkOffOutlined } from '@mui/icons-material';
+import { BlockOutlined, CheckCircleOutlined, DeleteOutlined, LinkOffOutlined, MoreVert, PauseCircleOutlined } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
+import { IconButton as MuiIconButton, Menu, MenuItem, ListItemIcon, ListItemText } from '@mui/material';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSnackbar } from 'notistack';
+import { useJumboDialog } from '@jumbo/components/JumboDialog/hooks/useJumboDialog';
+import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
+import { PERMISSIONS } from '@/utilities/constants/permissions';
 import bankReconciliationServices from '../bank-reconciliation-services';
 import { descriptionIncludesVoucher } from './journal-display';
 import { formatDate } from './date-format';
+import { quickActionsFor } from './transaction-quick-actions';
+import CancelTransactionDialog from './CancelTransactionDialog';
 
 interface StatementLine {
   id: number;
@@ -37,6 +43,8 @@ interface Journal {
   counterparty?: string | null;
   credit_ledger?: { name: string };
   debit_ledger?: { name: string };
+  journalable_type?: string | null;
+  journalable_id?: number | null;
 }
 
 interface Props {
@@ -61,11 +69,21 @@ export default function UnmatchedJournalRow({
 }: Props) {
   const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
+  const { showDialog, hideDialog } = useJumboDialog();
+  const { checkOrganizationPermission } = useJumboAuth();
   const [selectedLines, setSelectedLines] = useState<UnmatchedLineOption[]>([]);
+  const [menuAnchor, setMenuAnchor] = useState<HTMLElement | null>(null);
+  const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
 
   const invalidate = () => {
     queryClient.invalidateQueries({ queryKey: ['bank-reconciliation-workspace', bankAccountId] });
   };
+
+  const quickActions = quickActionsFor(journal.journalable_type);
+  const canMarkOutstanding = checkOrganizationPermission(PERMISSIONS.BANK_RECONCILIATION_EDIT);
+  const canCancel = quickActions && checkOrganizationPermission(quickActions.cancelPermissions);
+  const canDelete = quickActions && checkOrganizationPermission(quickActions.deletePermissions);
+  const hasAnyRowAction = canMarkOutstanding || canCancel || canDelete;
 
   const selectedTotal = selectedLines.reduce((sum, option) => sum + option.remaining_amount, 0);
   const isBalanced = Math.abs(selectedTotal - remainingAmount) <= tolerance;
@@ -88,6 +106,46 @@ export default function UnmatchedJournalRow({
     },
     onError: (err: any) => enqueueSnackbar(err?.response?.data?.message || 'Failed to remove', { variant: 'error' }),
   });
+
+  const markOutstandingMutation = useMutation({
+    mutationFn: () => bankReconciliationServices.markOutstanding(bankAccountId, journal.id),
+    onSuccess: (data) => {
+      enqueueSnackbar(data.message || 'Marked as outstanding', { variant: 'success' });
+      invalidate();
+    },
+    onError: (err: any) => enqueueSnackbar(err?.response?.data?.message || 'Failed to mark as outstanding', { variant: 'error' }),
+  });
+
+  const cancelMutation = useMutation({
+    mutationFn: (reason: string) => quickActions!.cancel(journal.journalable_id!, { reason, cancellation_date: undefined }),
+    onSuccess: (data) => {
+      enqueueSnackbar(data.message || 'Transaction cancelled', { variant: 'success' });
+      setCancelDialogOpen(false);
+      invalidate();
+    },
+    onError: (err: any) => enqueueSnackbar(err?.response?.data?.message || 'Failed to cancel transaction', { variant: 'error' }),
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: () => quickActions!.delete(journal.journalable_id!),
+    onSuccess: (data) => {
+      enqueueSnackbar(data.message || 'Transaction deleted', { variant: 'success' });
+      hideDialog();
+      invalidate();
+    },
+    onError: (err: any) => enqueueSnackbar(err?.response?.data?.message || 'Failed to delete transaction', { variant: 'error' }),
+  });
+
+  const confirmDelete = () => {
+    setMenuAnchor(null);
+    showDialog({
+      title: `Delete this ${quickActions?.label.toLowerCase()}?`,
+      content: 'This permanently deletes the transaction and its book entry. This cannot be undone. Continue?',
+      variant: 'confirm',
+      onYes: () => deleteMutation.mutate(),
+      onNo: () => hideDialog(),
+    });
+  };
 
   return (
     <Grid container spacing={1} alignItems='center' sx={{ py: 1.5, borderBottom: 1, borderColor: 'divider' }}>
@@ -158,12 +216,60 @@ export default function UnmatchedJournalRow({
               disabled={selectedLines.length === 0 || !isBalanced}
               loading={matchMutation.isPending}
               onClick={() => matchMutation.mutate()}
+              sx={{ mr: hasAnyRowAction ? 1 : 0 }}
             >
               Match
             </LoadingButton>
           </span>
         </Tooltip>
+        {hasAnyRowAction && (
+          <>
+            <Tooltip title='More actions'>
+              <MuiIconButton size='small' onClick={(e) => setMenuAnchor(e.currentTarget)}>
+                <MoreVert fontSize='small' />
+              </MuiIconButton>
+            </Tooltip>
+            <Menu anchorEl={menuAnchor} open={!!menuAnchor} onClose={() => setMenuAnchor(null)}>
+              {canMarkOutstanding && (
+                <MenuItem
+                  onClick={() => {
+                    setMenuAnchor(null);
+                    markOutstandingMutation.mutate();
+                  }}
+                >
+                  <ListItemIcon><PauseCircleOutlined fontSize='small' /></ListItemIcon>
+                  <ListItemText>Mark as Outstanding (timing difference)</ListItemText>
+                </MenuItem>
+              )}
+              {canCancel && (
+                <MenuItem
+                  onClick={() => {
+                    setMenuAnchor(null);
+                    setCancelDialogOpen(true);
+                  }}
+                >
+                  <ListItemIcon><BlockOutlined fontSize='small' /></ListItemIcon>
+                  <ListItemText>Cancel {quickActions?.label}</ListItemText>
+                </MenuItem>
+              )}
+              {canDelete && (
+                <MenuItem onClick={confirmDelete}>
+                  <ListItemIcon><DeleteOutlined fontSize='small' color='error' /></ListItemIcon>
+                  <ListItemText>Delete {quickActions?.label}</ListItemText>
+                </MenuItem>
+              )}
+            </Menu>
+          </>
+        )}
       </Grid>
+      {cancelDialogOpen && (
+        <CancelTransactionDialog
+          open={cancelDialogOpen}
+          loading={cancelMutation.isPending}
+          onClose={() => setCancelDialogOpen(false)}
+          onConfirm={(reason) => cancelMutation.mutate(reason)}
+        />
+      )}
     </Grid>
   );
 }

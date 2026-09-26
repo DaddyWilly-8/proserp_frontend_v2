@@ -41,7 +41,7 @@ export default function DifferenceSummary({ closingBalance, bookBalance, differe
       </Grid>
       {!isBalanced && (
         <Alert severity='warning' sx={{ mt: 2 }}>
-          Match or ignore the remaining lines below to bring the difference to zero before completing this reconciliation.
+          Match or ignore the remaining statement lines, and match or mark as outstanding the remaining book entries, to bring the difference to zero before completing this reconciliation.
         </Alert>
       )}
       {isBalanced && (
