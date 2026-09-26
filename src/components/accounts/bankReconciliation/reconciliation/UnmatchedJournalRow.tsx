@@ -43,6 +43,8 @@ interface Journal {
   counterparty?: string | null;
   credit_ledger?: { name: string };
   debit_ledger?: { name: string };
+  credit_ledger_id?: number;
+  debit_ledger_id?: number;
   journalable_type?: string | null;
   journalable_id?: number | null;
 }
@@ -51,6 +53,7 @@ interface Props {
   bankAccountId: number;
   journal: Journal;
   allUnmatchedLines: UnmatchedLineOption[];
+  bankAccountLedgerId?: number;
   existingMatches: ExistingMatch[];
   remainingAmount: number;
   tolerance?: number;
@@ -63,6 +66,7 @@ export default function UnmatchedJournalRow({
   bankAccountId,
   journal,
   allUnmatchedLines,
+  bankAccountLedgerId,
   existingMatches,
   remainingAmount,
   tolerance = 0.01,
@@ -71,6 +75,16 @@ export default function UnmatchedJournalRow({
   const queryClient = useQueryClient();
   const { showDialog, hideDialog } = useJumboDialog();
   const { checkOrganizationPermission } = useJumboAuth();
+
+  // Mirror of the direction filter in UnmatchedLineRow: this journal's own
+  // direction against the bank ledger decides which sign of statement line
+  // can possibly settle it — a receipt (money in) can only be combined with
+  // incoming lines, a payment (money out) only with outgoing ones.
+  const isJournalInflow = bankAccountLedgerId != null && journal.debit_ledger_id === bankAccountLedgerId;
+  const directionFilteredLines = bankAccountLedgerId
+    ? allUnmatchedLines.filter((option) => (isJournalInflow ? option.line.amount > 0 : option.line.amount < 0))
+    : allUnmatchedLines;
+
   const [selectedLines, setSelectedLines] = useState<UnmatchedLineOption[]>([]);
   const [menuAnchor, setMenuAnchor] = useState<HTMLElement | null>(null);
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
@@ -186,7 +200,7 @@ export default function UnmatchedJournalRow({
         <Autocomplete
           multiple
           size='small'
-          options={allUnmatchedLines}
+          options={directionFilteredLines}
           value={selectedLines}
           getOptionLabel={(option: UnmatchedLineOption) =>
             `${formatDate(option.line.line_date)} — ${option.line.description} — ${formatAmount(option.remaining_amount)}`

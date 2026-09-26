@@ -211,6 +211,7 @@ export default function BankReconciliationWorkspace({ bankAccountId }: Props) {
                   line={item.line}
                   suggestions={item.suggestions}
                   allUnmatchedJournals={unmatched_journals}
+                  bankAccountLedgerId={bankAccount?.ledger_id}
                   existingMatches={item.existing_matches}
                   remainingAmount={item.remaining_amount}
                   tolerance={tolerance}
@@ -230,6 +231,7 @@ export default function BankReconciliationWorkspace({ bankAccountId }: Props) {
                   bankAccountId={bankAccountId}
                   journal={journal}
                   allUnmatchedLines={unmatched_lines}
+                  bankAccountLedgerId={bankAccount?.ledger_id}
                   existingMatches={journal.existing_matches}
                   remainingAmount={journal.remaining_amount}
                   tolerance={tolerance}

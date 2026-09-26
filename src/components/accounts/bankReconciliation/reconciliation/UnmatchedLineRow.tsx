@@ -21,6 +21,8 @@ interface Journal {
   counterparty?: string | null;
   credit_ledger?: { name: string };
   debit_ledger?: { name: string };
+  credit_ledger_id?: number;
+  debit_ledger_id?: number;
 }
 
 interface ExistingMatch {
@@ -42,6 +44,7 @@ interface Props {
   line: StatementLine;
   suggestions: Journal[];
   allUnmatchedJournals: Journal[];
+  bankAccountLedgerId?: number;
   existingMatches: ExistingMatch[];
   remainingAmount: number;
   tolerance?: number;
@@ -60,12 +63,28 @@ export default function UnmatchedLineRow({
   line,
   suggestions,
   allUnmatchedJournals,
+  bankAccountLedgerId,
   existingMatches,
   remainingAmount,
   tolerance = 0.01,
 }: Props) {
   const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
+
+  // A journal can only settle this line if its direction against the bank
+  // ledger agrees with the line's own sign — money in (positive) must debit
+  // the bank ledger, money out (negative) must credit it. Without this, the
+  // picker would offer (and the backend would previously have accepted)
+  // matching an incoming receipt against an outgoing payment just because
+  // the amounts happened to line up.
+  const directionFilteredJournals = bankAccountLedgerId
+    ? allUnmatchedJournals.filter((journal) =>
+        line.amount > 0
+          ? journal.debit_ledger_id === bankAccountLedgerId
+          : journal.credit_ledger_id === bankAccountLedgerId
+      )
+    : allUnmatchedJournals;
+
   const [selectedJournals, setSelectedJournals] = useState<Journal[]>(
     suggestions.length === 1 ? [suggestions[0]] : []
   );
@@ -144,7 +163,7 @@ export default function UnmatchedLineRow({
         <Autocomplete
           multiple
           size='small'
-          options={allUnmatchedJournals}
+          options={directionFilteredJournals}
           value={selectedJournals}
           getOptionLabel={journalLabel}
           isOptionEqualToValue={(option, value) => option.id === value.id}
