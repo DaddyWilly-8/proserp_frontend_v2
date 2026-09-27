@@ -247,6 +247,7 @@ const TransferItemAction: React.FC<TransferItemActionProps> = ({
     ]) &&
     !!transaction.editable &&
     !transaction.cancelled_at &&
+    !transaction.is_reconciled &&
     (checkOrganizationPermission([
       PERMISSIONS.ACCOUNTS_TRANSACTIONS_BACKDATE,
       PERMISSIONS.FUND_TRANSFERS_BACKDATE,
@@ -259,6 +260,7 @@ const TransferItemAction: React.FC<TransferItemActionProps> = ({
         }
       : null,
     !!transaction.cancellable &&
+    !transaction.is_reconciled &&
     checkOrganizationPermission([
       PERMISSIONS.ACCOUNTS_TRANSACTIONS_CANCEL,
       PERMISSIONS.FUND_TRANSFERS_CANCEL,

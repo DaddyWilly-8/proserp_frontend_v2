@@ -34,6 +34,7 @@ export type BaseTransaction = {
   cancellable?: boolean;
   cancelled_at?: string | null;
   cancel_reason?: string | null;
+  is_reconciled?: boolean;
 };
 
 export type PaymentTransaction = BaseTransaction & {

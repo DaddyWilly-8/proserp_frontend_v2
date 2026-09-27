@@ -326,6 +326,7 @@ function PaymentItemAction({ transaction }: { transaction: Transaction }) {
     !transaction.requisition_approval_id &&
       !!transaction.editable &&
       !transaction.cancelled_at &&
+      !transaction.is_reconciled &&
       checkOrganizationPermission([
         PERMISSIONS.ACCOUNTS_TRANSACTIONS_DELETE,
         PERMISSIONS.PAYMENTS_DELETE,
@@ -341,6 +342,7 @@ function PaymentItemAction({ transaction }: { transaction: Transaction }) {
         action: 'delete',
       },
     !!transaction.cancellable &&
+      !transaction.is_reconciled &&
       checkOrganizationPermission([
         PERMISSIONS.ACCOUNTS_TRANSACTIONS_CANCEL,
         PERMISSIONS.PAYMENTS_CANCEL,

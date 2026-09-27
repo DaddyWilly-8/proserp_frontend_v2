@@ -247,6 +247,7 @@ const ReceiptItemAction: React.FC<ReceiptItemActionProps> = ({
     ]) &&
     !!transaction.editable &&
     !transaction.cancelled_at &&
+    !transaction.is_reconciled &&
     (checkOrganizationPermission([
       PERMISSIONS.ACCOUNTS_TRANSACTIONS_BACKDATE,
       PERMISSIONS.RECEIPTS_BACKDATE,
@@ -259,6 +260,7 @@ const ReceiptItemAction: React.FC<ReceiptItemActionProps> = ({
         }
       : null,
     !!transaction.cancellable &&
+    !transaction.is_reconciled &&
     checkOrganizationPermission([
       PERMISSIONS.ACCOUNTS_TRANSACTIONS_CANCEL,
       PERMISSIONS.RECEIPTS_CANCEL,

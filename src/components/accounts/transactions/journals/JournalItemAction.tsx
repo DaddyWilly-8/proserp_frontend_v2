@@ -260,6 +260,7 @@ const JournalItemAction: React.FC<JournalItemActionProps> = ({
       PERMISSIONS.JOURNAL_VOUCHERS_DELETE,
     ]) &&
       !transaction.cancelled_at &&
+      !transaction.is_reconciled &&
       (checkPermission([
         PERMISSIONS.ACCOUNTS_TRANSACTIONS_BACKDATE,
         PERMISSIONS.JOURNAL_VOUCHERS_BACKDATE,
@@ -271,6 +272,7 @@ const JournalItemAction: React.FC<JournalItemActionProps> = ({
         action: 'delete',
       },
     !!transaction.cancellable &&
+      !transaction.is_reconciled &&
       checkPermission([
         PERMISSIONS.ACCOUNTS_TRANSACTIONS_CANCEL,
         PERMISSIONS.JOURNAL_VOUCHERS_CANCEL,
