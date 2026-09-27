@@ -33,5 +33,10 @@ receiptServices.reverseCancellation = async (receipt) => {
     return data;
 };
 
+receiptServices.updateCostCenters = async (receipt, costCenters) => {
+    const {data} = await axios.put(`/api/accountsAndFinance/transactions/receipts/${receipt.id}/cost-centers`, { cost_centers: costCenters });
+    return data;
+};
+
 
 export default receiptServices;

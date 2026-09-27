@@ -38,6 +38,7 @@ import { useLedgerSelect } from '../../ledgers/forms/LedgerSelectProvider';
 import QuickAddLedger from '../../ledgers/forms/QuickAddLedger';
 import TransactionItemForm from '../TransactionItemForm';
 import TransactionItemRow from '../TransactionItemRow';
+import ReconciledCostCentersForm from '../ReconciledCostCentersForm';
 import paymentServices from './payment-services';
 
 interface Ledger {
@@ -90,6 +91,7 @@ type PaymentData = {
   cost_centers?: CostCenter[];
   transactionDate?: string;
   items?: PaymentItem[];
+  is_reconciled?: boolean;
 };
 
 type PaymentFormDialogContentProps = {
@@ -352,6 +354,19 @@ const PaymentFormDialogContent: React.FC<PaymentFormDialogContentProps> = ({
     };
     await savePayment.mutate(updatedData);
   };
+
+  if (payment?.is_reconciled && !isDuplicate) {
+    return (
+      <ReconciledCostCentersForm
+        voucherNo={payment.voucherNo}
+        transactionDate={payment.transactionDate}
+        narration={payment.narration}
+        currentCostCenters={payment.cost_centers || []}
+        setOpen={setOpen}
+        updateCostCenters={(costCenters) => paymentServices.updateCostCenters(payment, costCenters)}
+      />
+    );
+  }
 
   return (
     <>

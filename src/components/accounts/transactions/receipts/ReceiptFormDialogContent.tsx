@@ -38,6 +38,7 @@ import { useLedgerSelect } from '../../ledgers/forms/LedgerSelectProvider';
 import QuickAddLedger from '../../ledgers/forms/QuickAddLedger';
 import TransactionItemForm from '../TransactionItemForm';
 import TransactionItemRow from '../TransactionItemRow';
+import ReconciledCostCentersForm from '../ReconciledCostCentersForm';
 import receiptServices from './receipt-services';
 
 interface ReceiptItem {
@@ -96,6 +97,7 @@ interface ReceiptData {
   cost_centers?: CostCenter[];
   transactionDate?: string;
   items?: ReceiptItem[];
+  is_reconciled?: boolean;
 }
 
 interface ReceiptFormDialogContentProps {
@@ -357,6 +359,19 @@ function ReceiptFormDialogContent({
     };
     await saveReceipt.mutate(updatedData);
   };
+
+  if (receipt?.is_reconciled) {
+    return (
+      <ReconciledCostCentersForm
+        voucherNo={receipt.voucherNo}
+        transactionDate={receipt.transactionDate}
+        narration={receipt.narration}
+        currentCostCenters={receipt.cost_centers || []}
+        setOpen={setOpen}
+        updateCostCenters={(costCenters) => receiptServices.updateCostCenters(receipt, costCenters)}
+      />
+    );
+  }
 
   return (
     <>

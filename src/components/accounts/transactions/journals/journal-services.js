@@ -34,4 +34,9 @@ journalServices.reverseCancellation = async (journal) => {
     return data;
 };
 
+journalServices.updateCostCenters = async (journal, costCenters) => {
+    const {data} = await axios.put(`/api/accountsAndFinance/transactions/journal/${journal.id}/cost-centers`, { cost_centers: costCenters });
+    return data;
+};
+
 export default journalServices;

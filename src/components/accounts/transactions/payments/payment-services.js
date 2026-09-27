@@ -34,4 +34,9 @@ paymentServices.reverseCancellation = async (payment) => {
     return data;
 };
 
+paymentServices.updateCostCenters = async (payment, costCenters) => {
+    const {data} = await axios.put(`/api/accountsAndFinance/transactions/payments/${payment.id}/cost-centers`, { cost_centers: costCenters });
+    return data;
+};
+
 export default paymentServices;

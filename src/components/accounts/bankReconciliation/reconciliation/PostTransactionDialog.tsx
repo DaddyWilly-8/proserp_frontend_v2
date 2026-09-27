@@ -23,6 +23,8 @@ import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
 import LedgerSelect from '@/components/accounts/ledgers/forms/LedgerSelect';
 import LedgerSelectProvider from '@/components/accounts/ledgers/forms/LedgerSelectProvider';
+import CostCenterSelector from '@/components/masters/costCenters/CostCenterSelector';
+import { CostCenter } from '@/components/masters/costCenters/CostCenterType';
 import bankReconciliationServices from '../bank-reconciliation-services';
 import { formatDate } from './date-format';
 
@@ -90,6 +92,7 @@ function PostTransactionDialogContent({ bankAccountId, line, open, onClose }: Pr
   const [otherLedger, setOtherLedger] = useState<Ledger | null>(null);
   const [narration, setNarration] = useState(line.description || '');
   const [reference, setReference] = useState('');
+  const [costCenters, setCostCenters] = useState<CostCenter[]>([]);
 
   const effectiveType = type && availableTypes.includes(type) ? type : availableTypes[0] ?? null;
 
@@ -100,6 +103,7 @@ function PostTransactionDialogContent({ bankAccountId, line, open, onClose }: Pr
         other_ledger_id: otherLedger?.id,
         narration,
         reference: reference || undefined,
+        cost_center_ids: costCenters.map((c) => c.id),
       }),
     onSuccess: (result) => {
       enqueueSnackbar(result.message || 'Posted and matched successfully', { variant: 'success' });
@@ -151,6 +155,14 @@ function PostTransactionDialogContent({ bankAccountId, line, open, onClose }: Pr
                   </ToggleButton>
                 ))}
               </ToggleButtonGroup>
+            </Grid>
+            <Grid size={12}>
+              <CostCenterSelector
+                multiple
+                label='Cost Centers (optional)'
+                defaultValue={costCenters}
+                onChange={(value) => setCostCenters((Array.isArray(value) ? value : value ? [value] : []) as CostCenter[])}
+              />
             </Grid>
             <Grid size={12}>
               <LedgerSelect

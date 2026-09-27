@@ -36,6 +36,7 @@ import { useLedgerSelect } from '../../ledgers/forms/LedgerSelectProvider';
 import journalServices from './journal-services';
 import JournalItemForm from './JournalItemForm';
 import JournalItemRow from './JournalItemRow';
+import ReconciledCostCentersForm from '../ReconciledCostCentersForm';
 
 type JournalItem = {
   debit_ledger_id?: number;
@@ -72,6 +73,7 @@ type JournalData = {
   cost_centers?: CostCenter[];
   transaction_date?: string;
   items?: JournalItem[];
+  is_reconciled?: boolean;
 };
 
 interface JournalFormDialogContentProps {
@@ -343,6 +345,19 @@ function JournalFormDialogContent({
 
   // Get the current selected currency ID
   const selectedCurrencyId = watch('currency_id');
+
+  if (journal?.is_reconciled && !isDuplicate) {
+    return (
+      <ReconciledCostCentersForm
+        voucherNo={journal.voucherNo}
+        transactionDate={journal.transaction_date}
+        narration={journal.narration}
+        currentCostCenters={journal.cost_centers || []}
+        setOpen={setOpen}
+        updateCostCenters={(costCenters) => journalServices.updateCostCenters(journal, costCenters)}
+      />
+    );
+  }
 
   return (
     <>

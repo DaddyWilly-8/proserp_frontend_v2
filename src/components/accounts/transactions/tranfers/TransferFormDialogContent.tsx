@@ -37,6 +37,7 @@ import LedgerSelect from '../../ledgers/forms/LedgerSelect';
 import { useLedgerSelect } from '../../ledgers/forms/LedgerSelectProvider';
 import TransactionItemForm from '../TransactionItemForm';
 import TransactionItemRow from '../TransactionItemRow';
+import ReconciledCostCentersForm from '../ReconciledCostCentersForm';
 import fundTransferServices from './fund-transfer-services';
 
 interface TransferItem {
@@ -90,6 +91,7 @@ interface TransferData {
   cost_centers?: CostCenter[];
   transactionDate?: string;
   items?: TransferItem[];
+  is_reconciled?: boolean;
 }
 
 interface TransferFormDialogContentProps {
@@ -353,6 +355,19 @@ function TransferFormDialogContent({
     };
     await saveTransfer.mutate(updatedData);
   };
+
+  if (transfer?.is_reconciled) {
+    return (
+      <ReconciledCostCentersForm
+        voucherNo={transfer.voucherNo}
+        transactionDate={transfer.transactionDate}
+        narration={transfer.narration}
+        currentCostCenters={transfer.cost_centers || []}
+        setOpen={setOpen}
+        updateCostCenters={(costCenters) => fundTransferServices.updateCostCenters(transfer, costCenters)}
+      />
+    );
+  }
 
   return (
     <>

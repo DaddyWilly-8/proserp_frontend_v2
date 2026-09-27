@@ -32,4 +32,9 @@ fundTransferServices.reverseCancellation = async (transfer) => {
     return data;
 };
 
+fundTransferServices.updateCostCenters = async (transfer, costCenters) => {
+    const {data} = await axios.put(`/api/accountsAndFinance/transactions/transfers/${transfer.id}/cost-centers`, { cost_centers: costCenters });
+    return data;
+};
+
 export default fundTransferServices;
