@@ -23,6 +23,7 @@ import * as yup from 'yup';
 import { readableDate } from '@/app/helpers/input-sanitization-helpers';
 import useProsERPStyles from '@/app/helpers/style-helpers';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
+import { PERMISSIONS } from '@/utilities/constants/permissions';
 import { FileExportGrid } from '@/components/sharedComponents/FileExportGrid';
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 import { Div, Span } from '@jumbo/shared';
@@ -51,6 +52,7 @@ function IncomeStatement({
   const {
     authOrganization,
     authUser: { user },
+    checkOrganizationPermission,
   } = useJumboAuth();
   const [reportData, setReportData] = useState(null);
   const [isExporting, setIsExporting] = useState(false);
@@ -74,7 +76,10 @@ function IncomeStatement({
       to: dayjs(to).toISOString(),
       cost_center_ids: Array.isArray(cost_center_ids)
         ? cost_center_ids.map((id) => id)
-        : 'all',
+        : checkOrganizationPermission(PERMISSIONS.COST_CENTERS_ALL)
+          ? 'all'
+          : authOrganization?.costCenters?.map((cost_center) => cost_center.id) ||
+            [],
       aggregate_by: aggregate_by || null,
     },
   });
@@ -175,10 +180,25 @@ function IncomeStatement({
             >
               <Grid size={{ xs: 12, md: 5, lg: 5 }}>
                 <CostCenterSelector
-                  label='Cost and Profit Centers'
+                  label='Cost and Profit Centers (leave empty for all)'
                   multiple={true}
                   allowSameType={true}
                   onChange={(cost_centers) => {
+                    // Clearing back to nothing must resubmit 'all' for a
+                    // CostCenters:All user (or their full accessible list
+                    // otherwise) — an empty array matches zero cost centers
+                    // server-side (resolveCostCenterIds), not "every" one.
+                    if (!cost_centers || cost_centers.length === 0) {
+                      setValue(
+                        'cost_center_ids',
+                        checkOrganizationPermission(PERMISSIONS.COST_CENTERS_ALL)
+                          ? 'all'
+                          : authOrganization?.costCenters?.map(
+                              (cost_center) => cost_center.id
+                            ) || []
+                      );
+                      return;
+                    }
                     setValue(
                       'cost_center_ids',
                       cost_centers.map((cost_center) => cost_center.id)

@@ -1,5 +1,5 @@
 'use client';
-import { readableDate } from '@/app/helpers/input-sanitization-helpers';
+import { readableDate, reportCostCentersToShow } from '@/app/helpers/input-sanitization-helpers';
 import useProsERPStyles from '@/app/helpers/style-helpers';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import CostCenterSelector from '@/components/masters/costCenters/CostCenterSelector';
@@ -55,6 +55,10 @@ const ReportDocument = ({
     authUser: { user },
   } = authObject;
   const { from, to, cost_centers, product } = movementsData.filters;
+  const costCentersToShow = reportCostCentersToShow(
+    cost_centers,
+    authOrganization?.costCenters
+  );
   const mainColor =
     authOrganization.organization.settings?.main_color || '#2113AD';
   const lightColor =
@@ -176,13 +180,13 @@ const ReportDocument = ({
         <View
           style={{ ...pdfStyles.tableRow, marginTop: 10, marginBottom: 10 }}
         >
-          {cost_centers.length > 0 && (
+          {costCentersToShow.length > 0 && (
             <View style={{ flex: 2, padding: 2 }}>
               <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>
                 Cost Centers
               </Text>
               <Text style={{ ...pdfStyles.minInfo }}>
-                {cost_centers.map((cost_center) => cost_center.name).join(', ')}
+                {costCentersToShow.map((cost_center) => cost_center.name).join(', ')}
               </Text>
             </View>
           )}
@@ -1103,14 +1107,21 @@ function ItemMovement({ productStock = null, toggleOpen, isFromDashboard }) {
               <Grid size={{ xs: 12, md: 12 }}>
                 <Div sx={{ mt: 1, mb: 1 }}>
                   <CostCenterSelector
-                    label='Cost and Profit Centers'
+                    label='Cost and Profit Centers (leave empty for all)'
                     multiple={true}
                     allowSameType={true}
                     onChange={(cost_centers) => {
-                      setValue(
-                        'cost_center_ids',
-                        cost_centers.map((cost_center) => cost_center.id)
-                      );
+                      // Clearing back to nothing must resubmit the user's full
+                      // accessible list, not a bare empty array — some backend
+                      // cost-center filters treat [] as "match none" rather
+                      // than "no filter".
+                      const selectedCostCenterIds =
+                        cost_centers.length === 0
+                          ? authOrganization?.costCenters.map(
+                              (cost_center) => cost_center.id
+                            ) || []
+                          : cost_centers.map((cost_center) => cost_center.id);
+                      setValue('cost_center_ids', selectedCostCenterIds);
                     }}
                   />
                 </Div>

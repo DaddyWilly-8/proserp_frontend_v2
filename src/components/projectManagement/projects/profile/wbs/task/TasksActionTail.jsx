@@ -4,11 +4,18 @@ import { ButtonGroup, Dialog, IconButton, Tooltip, useMediaQuery } from "@mui/ma
 import React, { useState } from "react";
 import TasksForm from "./TasksForm";
 import { useJumboTheme } from "@jumbo/components/JumboTheme/hooks";
+import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
+import { PERMISSIONS } from '@/utilities/constants/permissions';
 
-const TasksActionTail = ({activity}) => { 
+const TasksActionTail = ({activity}) => {
   const { theme } = useJumboTheme();
   const [openDialog, setOpenDialog] = useState(false)
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
+  const { checkOrganizationPermission } = useJumboAuth();
+
+  if (!checkOrganizationPermission(PERMISSIONS.PROJECTS_EDIT)) {
+    return null;
+  }
 
   return (
     <React.Fragment>

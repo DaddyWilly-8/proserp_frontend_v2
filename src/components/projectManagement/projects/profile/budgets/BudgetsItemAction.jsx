@@ -19,6 +19,8 @@ import { useSnackbar } from 'notistack';
 import { useState } from 'react';
 import projectsServices from '../../project-services';
 import BudgetsForm from './BudgetsForm';
+import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
+import { PERMISSIONS } from '@/utilities/constants/permissions';
 
 const EditBudget = ({ budget, setOpenDialog, isDuplicate }) => {
   const { data: budgetDetails, isFetching } = useQuery({
@@ -69,6 +71,7 @@ const BudgetsItemAction = ({ budget }) => {
 
   const { theme } = useJumboTheme();
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
+  const { checkOrganizationPermission } = useJumboAuth();
 
   // React Query v5 mutation
   const deleteBudgetMutation = useMutation({
@@ -123,37 +126,43 @@ const BudgetsItemAction = ({ budget }) => {
         sx={{ mb: 1 }}
         justifyContent='flex-end'
       >
-        <Tooltip title='Edit'>
-          <IconButton
-            color='primary'
-            size='small'
-            onClick={(e) => {
-              e.stopPropagation();
-              setDuplicateBudget(false);
-              handleEdit();
-            }}
-          >
-            <EditOutlined />
-          </IconButton>
-        </Tooltip>
-        <Tooltip title='Duplicate'>
-          <IconButton
-            color='primary'
-            size='small'
-            onClick={(e) => {
-              e.stopPropagation();
-              setDuplicateBudget(true);
-              handleEdit();
-            }}
-          >
-            <ContentCopyOutlined />
-          </IconButton>
-        </Tooltip>
-        <Tooltip title='Delete'>
-          <IconButton color='error' size='small' onClick={handleDelete}>
-            <DeleteOutlined />
-          </IconButton>
-        </Tooltip>
+        {checkOrganizationPermission(PERMISSIONS.BUDGETS_EDIT) && (
+          <Tooltip title='Edit'>
+            <IconButton
+              color='primary'
+              size='small'
+              onClick={(e) => {
+                e.stopPropagation();
+                setDuplicateBudget(false);
+                handleEdit();
+              }}
+            >
+              <EditOutlined />
+            </IconButton>
+          </Tooltip>
+        )}
+        {checkOrganizationPermission(PERMISSIONS.BUDGETS_CREATE) && (
+          <Tooltip title='Duplicate'>
+            <IconButton
+              color='primary'
+              size='small'
+              onClick={(e) => {
+                e.stopPropagation();
+                setDuplicateBudget(true);
+                handleEdit();
+              }}
+            >
+              <ContentCopyOutlined />
+            </IconButton>
+          </Tooltip>
+        )}
+        {checkOrganizationPermission(PERMISSIONS.BUDGETS_DELETE) && (
+          <Tooltip title='Delete'>
+            <IconButton color='error' size='small' onClick={handleDelete}>
+              <DeleteOutlined />
+            </IconButton>
+          </Tooltip>
+        )}
       </Stack>
     </>
   );

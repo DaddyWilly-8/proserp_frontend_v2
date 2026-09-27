@@ -34,6 +34,28 @@ export function autocompleteTreeOptions(tree,treeLevel = -1,options = []) {
     return options;
 }
 
+// Reports whose backend has no 'all' sentinel for cost_center_ids (unlike the
+// accounts/financial reports, which return an empty filters.cost_centers list
+// when unfiltered) always echo back a real list — the user's entire
+// accessible set when the selector was left empty. Printing every one of
+// those by name (often a dozen-plus auto-generated Project cost centers) on
+// the report header is exactly the clutter the selector fix addressed, just
+// on the output side instead of the input side. Treating "selected list
+// covers everything the user can access" the same as "nothing selected"
+// mirrors how the financial reports already hide this line when unfiltered.
+export function reportCostCentersToShow(selectedCostCenters, accessibleCostCenters) {
+    if (!Array.isArray(selectedCostCenters) || selectedCostCenters.length === 0) {
+        return [];
+    }
+    if (
+        Array.isArray(accessibleCostCenters) &&
+        selectedCostCenters.length >= accessibleCostCenters.length
+    ) {
+        return [];
+    }
+    return selectedCostCenters;
+}
+
 export function shortNumber(value){
     let shortNumber = value;
 

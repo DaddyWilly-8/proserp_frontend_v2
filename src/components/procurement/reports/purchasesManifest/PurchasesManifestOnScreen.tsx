@@ -1,6 +1,6 @@
 'use client';
 
-import { readableDate } from '@/app/helpers/input-sanitization-helpers';
+import { readableDate, reportCostCentersToShow } from '@/app/helpers/input-sanitization-helpers';
 import { Organization } from '@/types/auth-types';
 import {
   Box,
@@ -74,13 +74,24 @@ interface PurchasesManifestOnScreenProps {
     items: PurchaseManifestItem[];
   };
   organization?: Organization;
+  // The user's full accessible cost center list — used only to detect when
+  // reportData.filters.cost_centers represents "everything" (an unfiltered
+  // report) so that case can be hidden the same way the financial reports
+  // hide their own cost-centers line when unfiltered, instead of printing
+  // every cost center (often a dozen-plus auto-generated Project ones) by name.
+  accessibleCostCenters?: Array<{ id: number }>;
 }
 
 const PurchasesManifestOnScreen: React.FC<PurchasesManifestOnScreenProps> = ({
   reportData,
   organization,
+  accessibleCostCenters,
 }) => {
   const theme = useTheme();
+  const costCentersToShow = reportCostCentersToShow(
+    reportData?.filters?.cost_centers,
+    accessibleCostCenters
+  );
 
   // Color Tokens based on System Guidelines
   const mainColor = organization?.settings?.main_color || '#2113AD';
@@ -196,21 +207,18 @@ const PurchasesManifestOnScreen: React.FC<PurchasesManifestOnScreenProps> = ({
               </Typography>
             </Box>
           </Grid>
-          {reportData?.filters.cost_centers &&
-            reportData?.filters.cost_centers.length > 0 && (
-              <Grid size={{ xs: 12, sm: 6, md: 6 }}>
-                <Box>
-                  <Typography variant='subtitle2' sx={{ color: headerColor }}>
-                    Cost Centers
-                  </Typography>
-                  <Typography variant='body1' sx={{ wordBreak: 'break-word' }}>
-                    {reportData?.filters.cost_centers
-                      .map((cc) => cc.name)
-                      .join(', ')}
-                  </Typography>
-                </Box>
-              </Grid>
-            )}
+          {costCentersToShow.length > 0 && (
+            <Grid size={{ xs: 12, sm: 6, md: 6 }}>
+              <Box>
+                <Typography variant='subtitle2' sx={{ color: headerColor }}>
+                  Cost Centers
+                </Typography>
+                <Typography variant='body1' sx={{ wordBreak: 'break-word' }}>
+                  {costCentersToShow.map((cc) => cc.name).join(', ')}
+                </Typography>
+              </Box>
+            </Grid>
+          )}
           {reportData?.filters.suppliers &&
             reportData?.filters.suppliers.length > 0 && (
               <Grid size={{ xs: 12, sm: 6, md: 6 }}>

@@ -212,7 +212,7 @@ function PurchasesOrdersList() {
                                         {multiCostCenters &&
                                             <Grid size={{xs: 12, md: 6, lg: 3}}>
                                                 <CostCenterSelector
-                                                    label="Cost Centers"
+                                                    label="Cost Centers (leave empty for all)"
                                                     allowSameType={true}
                                                     defaultValue={selectedCostCenter}
                                                     onChange={(newValue) => {

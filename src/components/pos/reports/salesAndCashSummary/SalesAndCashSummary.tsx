@@ -421,11 +421,20 @@ const SalesAndCashSummary: React.FC<SalesAndCashSummaryProps> = ({ setOpenSalesA
             <Grid container columnSpacing={1} rowSpacing={1} alignItems="center" justifyContent="center">
               <Grid size={{xs: 12, md: 4, lg: 5}}>
                 <CostCenterSelector
-                  label="Cost Center(s)"
+                  label="Cost Center(s) (leave empty for all)"
                   multiple={true}
                   allowSameType={true}
                   onChange={(cost_centers: CostCenter | CostCenter[] | null) => {
-                    const selectedCostCenters = cost_centers || authOrganization?.costCenters || [];
+                    // An empty array is truthy in JS, so `cost_centers || fallback`
+                    // never actually falls back here — clearing the selector was
+                    // submitting cost_center_ids: [], which the backend
+                    // (whereIn with an empty array) matches against zero cost
+                    // centers, not "every" one. Checking .length explicitly so
+                    // clearing genuinely means "everything I can access".
+                    const selectedCostCenters =
+                      Array.isArray(cost_centers) && cost_centers.length > 0
+                        ? cost_centers
+                        : authOrganization?.costCenters || [];
                     const selectedCostCenterIds = selectedCostCenters.map((cost_center: CostCenter) => cost_center.id);
 
                     setValue('cost_centers', selectedCostCenters);

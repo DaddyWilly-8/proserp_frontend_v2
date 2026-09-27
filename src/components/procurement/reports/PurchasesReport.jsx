@@ -1,4 +1,4 @@
-import { readableDate } from '@/app/helpers/input-sanitization-helpers';
+import { readableDate, reportCostCentersToShow } from '@/app/helpers/input-sanitization-helpers';
 import useProsERPStyles from '@/app/helpers/style-helpers';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import CostCenterSelector from '@/components/masters/costCenters/CostCenterSelector';
@@ -41,7 +41,10 @@ const ReportDocument = ({
     authOrganization.organization.settings?.light_color || '#bec5da';
   const contrastText =
     authOrganization.organization.settings?.contrast_text || '#FFFFFF';
-  const costCenters = reportData.filters.cost_centers;
+  const costCenters = reportCostCentersToShow(
+    reportData.filters.cost_centers,
+    authOrganization?.costCenters
+  );
   const suppliers = reportData.filters.suppliers;
   const currency = reportData.filters.currency;
 
@@ -583,14 +586,21 @@ function PurchasesReport() {
               <Grid size={{ xs: 12, md: 5 }}>
                 <Div sx={{ mt: 1, mb: 1 }}>
                   <CostCenterSelector
-                    label='Cost and Profit Centers'
+                    label='Cost and Profit Centers (leave empty for all)'
                     multiple={true}
                     allowSameType={true}
                     onChange={(cost_centers) => {
-                      setValue(
-                        'cost_center_ids',
-                        cost_centers.map((cost_center) => cost_center.id)
-                      );
+                      // Clearing back to nothing must resubmit the user's full
+                      // accessible list, not a bare empty array — some backend
+                      // cost-center filters treat [] as "match none" rather
+                      // than "no filter".
+                      const selectedCostCenterIds =
+                        cost_centers.length === 0
+                          ? authOrganization?.costCenters.map(
+                              (cost_center) => cost_center.id
+                            ) || []
+                          : cost_centers.map((cost_center) => cost_center.id);
+                      setValue('cost_center_ids', selectedCostCenterIds);
                     }}
                   />
                 </Div>

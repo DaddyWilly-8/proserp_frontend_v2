@@ -246,15 +246,22 @@ const PurchasesManifestReport = ({
             <Grid size={{ xs: 12, md: 6 }}>
               <Div sx={{ mt: 0.3 }}>
                 <CostCenterSelector
-                  label='Cost  Centers'
+                  label='Cost Centers (leave empty for all)'
                   multiple={true}
                   allowSameType={true}
                   onChange={(cost_centers) => {
                     if (cost_centers && Array.isArray(cost_centers)) {
-                      setValue(
-                        'cost_center_ids',
-                        cost_centers.map((cost_center: any) => cost_center.id)
-                      );
+                      // Clearing back to nothing must resubmit the user's full
+                      // accessible list, not a bare empty array — some backend
+                      // cost-center filters treat [] as "match none" rather
+                      // than "no filter".
+                      const selectedCostCenterIds =
+                        cost_centers.length === 0
+                          ? authOrganization?.costCenters.map(
+                              (cost_center: any) => cost_center.id
+                            ) || []
+                          : cost_centers.map((cost_center: any) => cost_center.id);
+                      setValue('cost_center_ids', selectedCostCenterIds);
                     }
                   }}
                 />
@@ -350,6 +357,7 @@ const PurchasesManifestReport = ({
             <PurchasesManifestOnScreen
               reportData={reportsData}
               organization={authOrganization?.organization}
+              accessibleCostCenters={authOrganization?.costCenters}
             />
           ) : (
             <PDFContent
@@ -358,6 +366,7 @@ const PurchasesManifestReport = ({
                   reportData={reportsData}
                   organization={authOrganization?.organization}
                   user={user as User}
+                  accessibleCostCenters={authOrganization?.costCenters}
                 />
               }
               fileName={`Purchase-Manifest-Report from ${readableDate(watch('from'), true)} to ${readableDate(watch('to'), true)}`}

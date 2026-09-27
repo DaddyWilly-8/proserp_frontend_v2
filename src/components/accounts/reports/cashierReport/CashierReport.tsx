@@ -645,15 +645,29 @@ const CashierReport: React.FC<CashierReportProps> = ({
               </Grid>
               <Grid size={{ xs: 12, md: 6 }}>
                 <CostCenterSelector
-                  label='Cost Center(s)'
+                  label='Cost Center(s) (leave empty for all)'
                   multiple={true}
                   allowSameType={true}
                   onChange={(cost_centers: any) => {
-                    const costCenterIds =
-                      cost_centers?.map(
-                        (cost_center: CostCenter) => cost_center.id
-                      ) || [];
-                    setValue('cost_center_ids', costCenterIds);
+                    // Clearing back to nothing must resubmit 'all' for a
+                    // CostCenters:All user (or their full accessible list
+                    // otherwise) — an empty array matches zero cost centers
+                    // server-side (resolveCostCenterIds), not "every" one.
+                    if (!cost_centers || cost_centers.length === 0) {
+                      setValue(
+                        'cost_center_ids',
+                        checkOrganizationPermission(PERMISSIONS.COST_CENTERS_ALL)
+                          ? 'all'
+                          : authOrganization?.costCenters?.map(
+                              (cost_center: CostCenter) => cost_center.id
+                            ) || []
+                      );
+                      return;
+                    }
+                    setValue(
+                      'cost_center_ids',
+                      cost_centers.map((cost_center: CostCenter) => cost_center.id)
+                    );
                   }}
                 />
               </Grid>

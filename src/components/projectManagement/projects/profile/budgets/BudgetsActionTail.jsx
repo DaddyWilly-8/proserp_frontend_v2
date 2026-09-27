@@ -4,12 +4,19 @@ import { ButtonGroup, Dialog, IconButton, Tooltip, useMediaQuery } from "@mui/ma
 import React, { useState } from "react";
 import BudgetsForm from "./BudgetsForm";
 import { useJumboTheme } from "@jumbo/components/JumboTheme/hooks";
+import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
+import { PERMISSIONS } from '@/utilities/constants/permissions';
 
 const BudgetsActionTail = ({ isProjectBudget=true }) => {
   const { theme } = useJumboTheme();
   const [openDialog, setOpenDialog] = useState(false)
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
-  
+  const { checkOrganizationPermission } = useJumboAuth();
+
+  if (!checkOrganizationPermission(PERMISSIONS.BUDGETS_CREATE)) {
+    return null;
+  }
+
     return (
       <React.Fragment>
         <Dialog maxWidth="lg" fullWidth scroll={belowLargeScreen ? 'body' : 'paper'} fullScreen={belowLargeScreen} open={openDialog}>

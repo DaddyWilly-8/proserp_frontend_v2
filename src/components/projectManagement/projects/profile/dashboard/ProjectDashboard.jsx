@@ -1,6 +1,7 @@
 'use client';
 
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
+import { PERMISSIONS } from '@/utilities/constants/permissions';
 import financialReportsServices from '@/components/accounts/reports/financial-reports-services';
 import { useCurrencySelect } from '@/components/masters/Currencies/CurrencySelectProvider';
 import PDFContent from '@/components/pdf/PDFContent';
@@ -427,7 +428,7 @@ function ProjectDashboard() {
   const [openDocumentDialog, setOpenDocumentDialog] = useState(false);
   const [selectedReport, setSelectedReport] = useState(null);
   const { currencies } = useCurrencySelect();
-  const { authOrganization, authUser } = useJumboAuth();
+  const { authOrganization, authUser, checkOrganizationPermission } = useJumboAuth();
   const organization = authOrganization?.organization;
   const user = authUser?.user;
   const { theme } = useJumboTheme();
@@ -714,20 +715,22 @@ function ProjectDashboard() {
     <>
       <Grid container spacing={3} width={'100%'}>
         {/* Edit Button */}
-        <Grid size={12} display='flex' justifyContent='flex-end'>
-          <Tooltip title='Edit Project'>
-            <IconButton
-              onClick={() => setOpenEditDialog(true)}
-              sx={{
-                backgroundColor: 'primary.main',
-                color: '#fff',
-                '&:hover': { backgroundColor: 'primary.dark' },
-              }}
-            >
-              <EditOutlined />
-            </IconButton>
-          </Tooltip>
-        </Grid>
+        {checkOrganizationPermission(PERMISSIONS.PROJECTS_EDIT) && (
+          <Grid size={12} display='flex' justifyContent='flex-end'>
+            <Tooltip title='Edit Project'>
+              <IconButton
+                onClick={() => setOpenEditDialog(true)}
+                sx={{
+                  backgroundColor: 'primary.main',
+                  color: '#fff',
+                  '&:hover': { backgroundColor: 'primary.dark' },
+                }}
+              >
+                <EditOutlined />
+              </IconButton>
+            </Tooltip>
+          </Grid>
+        )}
 
         {/* Progress Card */}
         <Grid size={{ xs: 12, md: hasClient ? 12 : 12 }} display='flex'>

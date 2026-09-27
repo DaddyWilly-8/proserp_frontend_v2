@@ -23,6 +23,7 @@ interface CostCenterSelectorProps {
   readOnly?: boolean;
   allowSameType?: boolean;
   label?: string;
+  helperText?: string | null;
   multiple?: boolean;
   withNotSpecified?: boolean;
   defaultValue?: CostCenter | CostCenter[] | null;
@@ -39,6 +40,7 @@ function CostCenterSelector(props: CostCenterSelectorProps) {
     readOnly = false,
     allowSameType = false,
     label = 'Cost Center',
+    helperText = null,
     multiple = true,
     withNotSpecified = false,
     defaultValue = null,
@@ -95,9 +97,44 @@ function CostCenterSelector(props: CostCenterSelectorProps) {
       (center) => !removedCostCenters.some((removed) => removed === center.id)
     );
 
-  const finalCostCenters = removedCostCentersIds
-    ? filteredCostCenters(allCostCenters)
-    : filteredCostCenters(authOrganizationCostCenters);
+  // Projects (and Sales Outlets/Fuel Stations/Work Centers) auto-create a
+  // matching cost center each — on an org with many projects these can
+  // heavily outnumber the manually-created ones a user is actually looking
+  // for. Grouping by type (with manual cost centers first, Projects last,
+  // since they're typically the most numerous and least relevant for a
+  // company-wide report) keeps the real ones easy to spot instead of buried
+  // in a long flat list. MUI's groupBy requires the options themselves to
+  // already be sorted the same way, or group headers repeat.
+  //
+  // A cost center with no cost_centerable link (created directly, not by a
+  // Project/Sales Outlet) isn't a "Department" just because it wasn't
+  // auto-generated — it may be named anything (e.g. "NYANZA PROJECT" with no
+  // actual Project behind it). "Unspecified" is the honest label, and it's
+  // also what the synthetic "Not Specified" placeholder option (type
+  // 'Unassigned', from withNotSpecified) means — grouping both under the
+  // same header avoids two near-identical-sounding groups ("Unassigned" vs
+  // "Unspecified") side by side.
+  const groupOrder: Record<string, number> = {
+    Unassigned: -1, // "Not Specified" placeholder option
+    '': 0, // no cost_centerable link
+    'Work Center': 1,
+    'Sales Outlet': 2,
+    'Fuel Station': 3,
+    Project: 4,
+  };
+  const groupRank = (type: string) =>
+    groupOrder[type] ?? Object.keys(groupOrder).length;
+  const groupLabel = (type: string) =>
+    !type || type === 'Unassigned' ? 'Unspecified' : type;
+
+  const sortByGroup = (costCenters: CostCenter[]) =>
+    [...costCenters].sort((a, b) => groupRank(a.type) - groupRank(b.type));
+
+  const finalCostCenters = sortByGroup(
+    removedCostCentersIds
+      ? filteredCostCenters(allCostCenters)
+      : filteredCostCenters(authOrganizationCostCenters)
+  );
 
   const handleOnChange = (
     event: React.SyntheticEvent,
@@ -128,6 +165,7 @@ function CostCenterSelector(props: CostCenterSelectorProps) {
       <Autocomplete
         multiple={multiple}
         options={finalCostCenters}
+        groupBy={(option: CostCenter) => groupLabel(option.type)}
         disabled={disabled}
         readOnly={readOnly}
         getOptionLabel={(option: CostCenter) => option.name}
@@ -138,7 +176,7 @@ function CostCenterSelector(props: CostCenterSelectorProps) {
           <TextField
             {...params}
             error={!!frontError}
-            helperText={frontError?.message}
+            helperText={frontError?.message ?? helperText}
             fullWidth
             label={label}
             size='small'

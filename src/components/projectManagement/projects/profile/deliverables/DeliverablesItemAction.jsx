@@ -9,12 +9,15 @@ import projectsServices from '../../project-services';
 import { JumboDdMenu } from '@jumbo/components';
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
+import { PERMISSIONS } from '@/utilities/constants/permissions';
 
 const DeliverablesItemAction = ({ deliverable}) => {
     const [openEditDialog,setOpenEditDialog] = useState(false);
     const {showDialog,hideDialog} = useJumboDialog();
     const { enqueueSnackbar } = useSnackbar();
     const queryClient = useQueryClient();
+    const { checkOrganizationPermission } = useJumboAuth();
 
     //Screen handling constants
     const {theme} = useJumboTheme();
@@ -35,9 +38,9 @@ const DeliverablesItemAction = ({ deliverable}) => {
     });
 
     const menuItems = [
-        {icon: <EditOutlined/>, title: 'Edit', action: 'edit'},
-        {icon: <DeleteOutlined color='error'/>, title: 'Delete', action: 'delete'}
-    ];
+        checkOrganizationPermission(PERMISSIONS.PROJECTS_EDIT) && {icon: <EditOutlined/>, title: 'Edit', action: 'edit'},
+        checkOrganizationPermission(PERMISSIONS.PROJECTS_DELETE) && {icon: <DeleteOutlined color='error'/>, title: 'Delete', action: 'delete'}
+    ].filter(Boolean);
 
   const handleItemAction = (menuItem) => {
     switch (menuItem.action) {

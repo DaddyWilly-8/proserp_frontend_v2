@@ -1,3 +1,5 @@
+import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
+import { PERMISSIONS } from '@/utilities/constants/permissions';
 import { DeleteOutlined, MoreHorizOutlined } from '@mui/icons-material';
 import { Tooltip } from '@mui/material';
 import { useSnackbar } from 'notistack';
@@ -13,6 +15,7 @@ const ProjectListItemAction = ({ project }: { project: Project }) => {
   const { showDialog, hideDialog } = useJumboDialog();
   const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
+  const { checkOrganizationPermission } = useJumboAuth();
 
   const { mutate: deleteProject } = useMutation({
     mutationFn: (params: { id: number }) => projectsServices.deleteProject(params.id),
@@ -29,8 +32,12 @@ const ProjectListItemAction = ({ project }: { project: Project }) => {
   });
 
   const menuItems: MenuItemProps[] = [
-    { icon: <DeleteOutlined color="error" />, title: 'Delete', action: 'delete' },
-  ];
+    checkOrganizationPermission(PERMISSIONS.PROJECTS_DELETE) && {
+      icon: <DeleteOutlined color="error" />,
+      title: 'Delete',
+      action: 'delete',
+    },
+  ].filter(Boolean) as MenuItemProps[];
 
   const handleItemAction = (menuItem: MenuItemProps) => {
     switch (menuItem.action) {

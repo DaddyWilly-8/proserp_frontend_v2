@@ -5,12 +5,19 @@ import React, { useState } from "react";
 import WBSForm from "./WBSForm";
 import { useJumboTheme } from "@jumbo/components/JumboTheme/hooks";
 import WBSCloneDialog from "./clone/WBSCloneDialog";
+import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
+import { PERMISSIONS } from '@/utilities/constants/permissions';
 
 const WBSActionTail = ({ openDialog, setOpenDialog, group }) => {
     const { theme } = useJumboTheme();
     const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
     const [openCloneDialog, setOpenCloneDialog] = useState(false);
-  
+    const { checkOrganizationPermission } = useJumboAuth();
+
+    if (!checkOrganizationPermission(PERMISSIONS.PROJECTS_EDIT)) {
+      return null;
+    }
+
     return (
       <React.Fragment>
         <Dialog maxWidth="md" fullWidth fullScreen={belowLargeScreen} open={openDialog}>

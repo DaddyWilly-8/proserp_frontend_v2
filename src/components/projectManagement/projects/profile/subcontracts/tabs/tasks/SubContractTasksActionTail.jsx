@@ -4,13 +4,20 @@ import { ButtonGroup, Dialog, IconButton, Tooltip, useMediaQuery } from "@mui/ma
 import React, { useState } from "react";
 import SubContractTasks from "./SubContractTasks";
 import { useJumboTheme } from "@jumbo/components/JumboTheme/hooks";
+import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
+import { PERMISSIONS } from '@/utilities/constants/permissions';
 
 const SubContractTasksActionTail = ({subContract, subContractTasks}) => {
   const { theme } = useJumboTheme();
   const [openDialog, setOpenDialog] = useState(false)
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
+  const { checkOrganizationPermission } = useJumboAuth();
 
   const existingTasks = subContractTasks?.flatMap(contract => contract.project_task)
+
+  if (!checkOrganizationPermission(PERMISSIONS.PROJECT_SUBCONTRACTS_EDIT)) {
+    return null;
+  }
 
   return (
     <React.Fragment>

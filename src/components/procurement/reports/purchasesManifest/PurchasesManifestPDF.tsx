@@ -1,6 +1,6 @@
 'use client';
 
-import { readableDate } from '@/app/helpers/input-sanitization-helpers';
+import { readableDate, reportCostCentersToShow } from '@/app/helpers/input-sanitization-helpers';
 import PageFooter from '@/components/pdf/PageFooter';
 import PageNumber from '@/components/pdf/PageNumber';
 import PdfLogo from '@/components/pdf/PdfLogo';
@@ -65,6 +65,12 @@ interface PurchasesManifestPDFProps {
   };
   organization?: Organization;
   user?: User;
+  // The user's full accessible cost center list — used only to detect when
+  // reportData.filters.cost_centers represents "everything" (an unfiltered
+  // report) so that case can be hidden the same way the financial reports
+  // hide their own cost-centers line when unfiltered, instead of printing
+  // every cost center (often a dozen-plus auto-generated Project ones) by name.
+  accessibleCostCenters?: Array<{ id: number }>;
 }
 
 const styles = StyleSheet.create({
@@ -193,6 +199,7 @@ const PurchasesManifestPDF = ({
   reportData,
   organization,
   user,
+  accessibleCostCenters,
 }: PurchasesManifestPDFProps) => {
   const mainColor = (organization as any)?.settings?.main_color || '#2113AD';
   const lightColor = (organization as any)?.settings?.light_color || '#d9dfef';
@@ -200,6 +207,10 @@ const PurchasesManifestPDF = ({
     (organization as any)?.settings?.contrast_text || '#FFFFFF';
 
   const { filters, items } = reportData;
+  const costCentersToShow = reportCostCentersToShow(
+    filters.cost_centers,
+    accessibleCostCenters
+  );
 
   const currencyTotals: Record<string, { symbol: string; total: number }> =
     items.reduce(
@@ -294,11 +305,11 @@ const PurchasesManifestPDF = ({
             <Text style={styles.filterValue}>{filters.status || 'All'}</Text>
           </View>
 
-          {filters.cost_centers && filters.cost_centers.length > 0 && (
+          {costCentersToShow.length > 0 && (
             <View style={styles.filterItem}>
               <Text style={styles.filterLabel}>Cost Centers</Text>
               <Text style={styles.filterValue}>
-                {filters.cost_centers.map((cc) => cc.name).join(', ')}
+                {costCentersToShow.map((cc) => cc.name).join(', ')}
               </Text>
             </View>
           )}

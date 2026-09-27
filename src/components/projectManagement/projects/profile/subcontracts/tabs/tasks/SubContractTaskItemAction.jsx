@@ -9,12 +9,15 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 import projectsServices from '@/components/projectManagement/projects/project-services';
 import { JumboDdMenu } from '@jumbo/components';
+import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
+import { PERMISSIONS } from '@/utilities/constants/permissions';
 
 const SubContractTaskItemAction = ({ subContract, subContractTask, subContractTasks}) => {
     const [openEditDialog,setOpenEditDialog] = useState(false);
     const {showDialog,hideDialog} = useJumboDialog();
     const { enqueueSnackbar } = useSnackbar();
     const queryClient = useQueryClient();
+    const { checkOrganizationPermission } = useJumboAuth();
 
     const existingTasks = subContractTasks?.flatMap(contract => contract.project_task)
 
@@ -37,9 +40,9 @@ const SubContractTaskItemAction = ({ subContract, subContractTask, subContractTa
     });
 
     const menuItems = [
-        {icon: <EditOutlined/>, title: 'Edit', action: 'edit'},
-        {icon: <DeleteOutlined color='error'/>, title: 'Delete', action: 'delete'}
-    ];
+        checkOrganizationPermission(PERMISSIONS.PROJECT_SUBCONTRACTS_EDIT) && {icon: <EditOutlined/>, title: 'Edit', action: 'edit'},
+        checkOrganizationPermission(PERMISSIONS.PROJECT_SUBCONTRACTS_DELETE) && {icon: <DeleteOutlined color='error'/>, title: 'Delete', action: 'delete'}
+    ].filter(Boolean);
 
     const handleItemAction = (menuItem) => {
         switch (menuItem.action) {

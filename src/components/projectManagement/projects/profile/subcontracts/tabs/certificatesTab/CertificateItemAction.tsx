@@ -1,6 +1,7 @@
 'use client';
 
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
+import { PERMISSIONS } from '@/utilities/constants/permissions';
 import PDFContent from '@/components/pdf/PDFContent';
 import projectsServices from '@/components/projectManagement/projects/project-services';
 import { FileExportGrid } from '@/components/sharedComponents/FileExportGrid';
@@ -212,7 +213,7 @@ const CertificateItemAction: React.FC<{ certificate: Certificate }> = ({
   const { showDialog, hideDialog } = useJumboDialog();
   const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
-  const { authOrganization } = useJumboAuth();
+  const { authOrganization, checkOrganizationPermission } = useJumboAuth();
   const organization = authOrganization?.organization;
 
   const { theme } = useJumboTheme();
@@ -275,17 +276,17 @@ const CertificateItemAction: React.FC<{ certificate: Certificate }> = ({
       title: 'View',
       action: 'view',
     },
-    !isLocked && {
+    !isLocked && checkOrganizationPermission(PERMISSIONS.PROJECT_SUBCONTRACTS_EDIT) && {
       icon: <EditOutlined fontSize='small' />,
       title: 'Edit',
       action: 'edit',
     },
-    canInvoice && {
+    canInvoice && checkOrganizationPermission(PERMISSIONS.PROJECT_SUBCONTRACTS_EDIT) && {
       icon: <ReceiptLongOutlined fontSize='small' />,
       title: 'Create Invoice',
       action: 'invoice',
     },
-    {
+    checkOrganizationPermission(PERMISSIONS.PROJECT_SUBCONTRACTS_DELETE) && {
       icon: <DeleteOutlined fontSize='small' color='error' />,
       title: 'Delete',
       action: 'delete',

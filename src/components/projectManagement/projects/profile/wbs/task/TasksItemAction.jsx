@@ -16,6 +16,8 @@ import projectsServices from '../../../project-services';
 import { useProjectProfile } from '../../ProjectProfileProvider';
 import TasksForm from './TasksForm';
 import TaskView from './TaskView';
+import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
+import { PERMISSIONS } from '@/utilities/constants/permissions';
 
 const TasksItemAction = ({ task, activity }) => {
   const [openEditDialog, setOpenEditDialog] = useState(false);
@@ -24,6 +26,7 @@ const TasksItemAction = ({ task, activity }) => {
   const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
   const { project } = useProjectProfile();
+  const { checkOrganizationPermission } = useJumboAuth();
 
   //Screen handling constants
   const { theme } = useJumboTheme();
@@ -47,13 +50,17 @@ const TasksItemAction = ({ task, activity }) => {
 
   const menuItems = [
     { icon: <VisibilityOutlined />, title: 'View', action: 'view' },
-    { icon: <EditOutlined />, title: 'Edit', action: 'edit' },
-    {
+    checkOrganizationPermission(PERMISSIONS.PROJECTS_EDIT) && {
+      icon: <EditOutlined />,
+      title: 'Edit',
+      action: 'edit',
+    },
+    checkOrganizationPermission(PERMISSIONS.PROJECTS_DELETE) && {
       icon: <DeleteOutlined color='error' />,
       title: 'Delete',
       action: 'delete',
     },
-  ];
+  ].filter(Boolean);
 
   const handleItemAction = (menuItem) => {
     switch (menuItem.action) {

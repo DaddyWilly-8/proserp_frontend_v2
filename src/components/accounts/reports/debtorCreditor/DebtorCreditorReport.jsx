@@ -2,6 +2,7 @@
 import { readableDate } from '@/app/helpers/input-sanitization-helpers';
 import useProsERPStyles from '@/app/helpers/style-helpers';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
+import { PERMISSIONS } from '@/utilities/constants/permissions';
 import { FileExportGrid } from '@/components/sharedComponents/FileExportGrid';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
@@ -211,6 +212,7 @@ function DebtorCreditorReport({ setOpenDebtorsCreditorsDialog }) {
   const {
     authOrganization,
     authUser: { user },
+    checkOrganizationPermission,
   } = useJumboAuth();
   const [reportData, setReportData] = useState(null);
   const [selectedType, setSelectedType] = useState('creditors');
@@ -380,14 +382,29 @@ function DebtorCreditorReport({ setOpenDebtorsCreditorsDialog }) {
               </Grid>
               <Grid size={{ xs: 12, md: 12, lg: 6 }}>
                 <CostCenterSelector
-                  label='Cost Centers'
+                  label='Cost Centers (leave empty for all)'
                   multiple={true}
                   allowSameType={true}
-                  defaultValue={authOrganization?.costCenters}
+                  // Declutters the field for a CostCenters:All user — projects
+                  // auto-create a cost center each, so pre-filling every one as
+                  // a chip can mean dozens of them for no filtering benefit.
+                  // Restricted users still get their own (short, meaningful)
+                  // accessible list pre-selected.
+                  defaultValue={
+                    checkOrganizationPermission(PERMISSIONS.COST_CENTERS_ALL)
+                      ? []
+                      : authOrganization?.costCenters
+                  }
                   onChange={(cost_centers) => {
-                    const ids = cost_centers.map(
-                      (cost_center) => cost_center.id
-                    );
+                    // Clearing back to nothing still needs to submit the full
+                    // accessible set, not an empty array — an empty array would
+                    // match zero cost centers server-side.
+                    const ids =
+                      cost_centers.length === 0
+                        ? authOrganization?.costCenters.map(
+                            (cost_center) => cost_center.id
+                          )
+                        : cost_centers.map((cost_center) => cost_center.id);
                     setCostCenterIds(ids); // Update the state with selected cost centers
                     setValue('cost_center_ids', ids);
                   }}

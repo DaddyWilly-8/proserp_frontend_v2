@@ -1,5 +1,5 @@
 'use client';
-import { readableDate } from '@/app/helpers/input-sanitization-helpers';
+import { readableDate, reportCostCentersToShow } from '@/app/helpers/input-sanitization-helpers';
 import useProsERPStyles from '@/app/helpers/style-helpers';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import CostCenterSelector from '@/components/masters/costCenters/CostCenterSelector';
@@ -72,6 +72,10 @@ const ReportDocument = ({
   const contrastText =
     authOrganization.organization.settings?.contrast_text || '#FFFFFF';
   const reportPeriod = `As at: ${readableDate(date, true)}`;
+  const costCentersToShow = reportCostCentersToShow(
+    costCenter,
+    authOrganization?.costCenters
+  );
 
   const totalAmount = stockData.reduce(
     (total, stock) => total + stock.latest_rate * stock.balance,
@@ -172,13 +176,13 @@ const ReportDocument = ({
         <View
           style={{ ...pdfStyles.tableRow, marginTop: 10, marginBottom: 10 }}
         >
-          {costCenter?.length > 0 && (
+          {costCentersToShow.length > 0 && (
             <View style={{ flex: 1, padding: 2 }}>
               <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>
                 Cost Centers
               </Text>
               <Text style={{ ...pdfStyles.minInfo }}>
-                {costCenter.map((cc) => cc.name).join(', ')}
+                {costCentersToShow.map((cc) => cc.name).join(', ')}
               </Text>
             </View>
           )}
@@ -524,7 +528,7 @@ function StockReport({ setOpenDialog, isFromDashboard }) {
               <Grid size={{ xs: 12, md: isFromDashboard ? 6 : 4 }}>
                 <Div sx={{ mt: 0.3 }}>
                   <CostCenterSelector
-                    label='Cost and Profit Centers'
+                    label='Cost and Profit Centers (leave empty for all)'
                     multiple={true}
                     allowSameType={true}
                     onChange={(cost_centers) => {

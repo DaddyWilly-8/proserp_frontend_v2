@@ -15,6 +15,8 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 import projectsServices from '../../project-services';
 import { JumboDdMenu } from '@jumbo/components';
+import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
+import { PERMISSIONS } from '@/utilities/constants/permissions';
 
 function DeliverableGroupItemAction({ group, isAccDetails }) {
   const { showDialog, hideDialog } = useJumboDialog();
@@ -22,6 +24,7 @@ function DeliverableGroupItemAction({ group, isAccDetails }) {
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const [openDialog, setOpenDialog] = useState(false);
   const queryClient = useQueryClient();
+  const { checkOrganizationPermission } = useJumboAuth();
 
   const { theme } = useJumboTheme();
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
@@ -40,12 +43,17 @@ function DeliverableGroupItemAction({ group, isAccDetails }) {
   });
 
   const menuItems = [
-    { icon: <EditOutlined />, title: 'Edit', action: 'edit' },
-    !(group.children.length > 0 || group.deliverables.length > 0) && {
-      icon: <DeleteOutlined color="error" />,
-      title: 'Delete',
-      action: 'delete',
+    checkOrganizationPermission(PERMISSIONS.PROJECTS_EDIT) && {
+      icon: <EditOutlined />,
+      title: 'Edit',
+      action: 'edit',
     },
+    checkOrganizationPermission(PERMISSIONS.PROJECTS_DELETE) &&
+      !(group.children.length > 0 || group.deliverables.length > 0) && {
+        icon: <DeleteOutlined color="error" />,
+        title: 'Delete',
+        action: 'delete',
+      },
   ].filter(Boolean); // ✅ filter to remove false entries
 
   const handleItemAction = (menuItem) => {
@@ -104,7 +112,7 @@ function DeliverableGroupItemAction({ group, isAccDetails }) {
       )}
 
       {/* Add Deliverable (for account details view) */}
-      {!!isAccDetails && (
+      {!!isAccDetails && checkOrganizationPermission(PERMISSIONS.PROJECTS_EDIT) && (
         <Tooltip title={'Add Deliverable'}>
           <IconButton onClick={() => setOpenDialog(true)}>
             <PlaylistAddCheck />

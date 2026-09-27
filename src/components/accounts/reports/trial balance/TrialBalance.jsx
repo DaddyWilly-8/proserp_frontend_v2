@@ -373,14 +373,33 @@ function TrialBalance({ setOpenTrialBalanceDialog }) {
             >
               <Grid size={{ xs: 12, md: 8 }}>
                 <CostCenterSelector
-                  label='Cost Centers'
+                  label='Cost Centers (leave empty for all)'
                   multiple={true}
-                  defaultValue={authOrganization?.costCenters}
+                  // A user with CostCenters:All starts with nothing pre-selected —
+                  // their report already defaults to unfiltered ('all', see
+                  // defaultValues above), so pre-filling every cost center as a
+                  // chip here only clutters the field (projects auto-create one
+                  // each, so this can be dozens of chips) without changing what
+                  // gets submitted. A restricted user's own accessible cost
+                  // centers are the actual filter boundary, so those still need
+                  // to show pre-selected.
+                  defaultValue={
+                    checkOrganizationPermission(PERMISSIONS.COST_CENTERS_ALL)
+                      ? []
+                      : authOrganization?.costCenters
+                  }
                   allowSameType={true}
                   onChange={(cost_centers) => {
+                    // Clearing back down to nothing must resubmit 'all' for a
+                    // CostCenters:All user, not an empty array — the backend
+                    // (resolveCostCenterIds) treats an empty array as "match no
+                    // cost center" and would return a blank report.
                     setValue(
                       'cost_center_ids',
-                      cost_centers.map((cost_center) => cost_center.id)
+                      cost_centers.length === 0 &&
+                        checkOrganizationPermission(PERMISSIONS.COST_CENTERS_ALL)
+                        ? 'all'
+                        : cost_centers.map((cost_center) => cost_center.id)
                     );
                   }}
                 />

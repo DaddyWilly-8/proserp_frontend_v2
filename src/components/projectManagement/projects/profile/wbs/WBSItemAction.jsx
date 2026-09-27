@@ -9,6 +9,8 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks'
 import projectsServices from '../../project-services'
 import { JumboDdMenu } from '@jumbo/components'
+import { useJumboAuth } from '@/app/providers/JumboAuthProvider'
+import { PERMISSIONS } from '@/utilities/constants/permissions'
 
 function WBSItemAction({activity, isAccDetails}) {
     const {showDialog,hideDialog} = useJumboDialog();
@@ -16,6 +18,7 @@ function WBSItemAction({activity, isAccDetails}) {
     const [openEditDialog, setOpenEditDialog] = useState(false);
     const [openDialog, setOpenDialog] = useState(false);
     const queryClient = useQueryClient();
+    const { checkOrganizationPermission } = useJumboAuth();
 
       //Screen handling constants
     const {theme} = useJumboTheme();
@@ -34,8 +37,9 @@ function WBSItemAction({activity, isAccDetails}) {
     });
 
     const menuItems = [
-        {icon: <EditOutlined/>, title: 'Edit', action: 'edit'},
-        !(activity.children.length > 0 || activity.tasks.length > 0) &&{icon: <DeleteOutlined color='error'/>, title: 'Delete', action: 'delete'}
+        checkOrganizationPermission(PERMISSIONS.PROJECTS_EDIT) && {icon: <EditOutlined/>, title: 'Edit', action: 'edit'},
+        checkOrganizationPermission(PERMISSIONS.PROJECTS_DELETE) &&
+          !(activity.children.length > 0 || activity.tasks.length > 0) &&{icon: <DeleteOutlined color='error'/>, title: 'Delete', action: 'delete'}
     ].filter(Boolean);
 
     const handleItemAction = (menuItem) => {
@@ -85,7 +89,7 @@ function WBSItemAction({activity, isAccDetails}) {
             />
         }
 
-        {!!isAccDetails &&
+        {!!isAccDetails && checkOrganizationPermission(PERMISSIONS.PROJECTS_EDIT) &&
             <Tooltip title={"Add Sub Activity"}>
                 <IconButton onClick={() => setOpenDialog(true)}>
                     <PlaylistAddCheck/>

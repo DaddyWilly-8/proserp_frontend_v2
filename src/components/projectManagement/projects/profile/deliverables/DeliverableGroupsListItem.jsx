@@ -14,6 +14,8 @@ import DeliverableGroupActionTail from './DeliverableGroupActionTail';
 import DeliverablesBulkImport from './DeliverablesBulkImport';
 import { useCurrencySelect } from '@/components/masters/Currencies/CurrencySelectProvider';
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
+import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
+import { PERMISSIONS } from '@/utilities/constants/permissions';
 
 function getNestedKey(parentKey, index) {
   return parentKey ? `${parentKey}.${index}` : `${index}`;
@@ -228,6 +230,7 @@ const DeliverableGroupsAccordion = memo(function DeliverableGroupsAccordion({
 
 function DeliverableGroupsListItem() {
   const { project, deliverable_groups } = useProjectProfile();
+  const { checkOrganizationPermission } = useJumboAuth();
   const { theme } = useJumboTheme();
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
   const [openDialog, setOpenDialog] = useState(false);
@@ -303,13 +306,15 @@ function DeliverableGroupsListItem() {
             />
           </Grid>
         }
-        <Grid>
-          <Tooltip title={'Bulk Import Deliverables'}>
-            <IconButton onClick={() => setOpenBulkImportDialog(true)}>
-              <UploadFileIcon />
-            </IconButton>
-          </Tooltip>
-        </Grid>
+        {checkOrganizationPermission(PERMISSIONS.PROJECTS_EDIT) && (
+          <Grid>
+            <Tooltip title={'Bulk Import Deliverables'}>
+              <IconButton onClick={() => setOpenBulkImportDialog(true)}>
+                <UploadFileIcon />
+              </IconButton>
+            </Tooltip>
+          </Grid>
+        )}
         <Grid>
           <DeliverableGroupActionTail openDialog={openDialog} setOpenDialog={setOpenDialog} group={null} />
         </Grid>
