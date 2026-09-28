@@ -497,6 +497,13 @@ const EmployeeForm = ({
                     ? 'Suggested — edit to override'
                     : undefined)
                 }
+                // employee_number is registered uncontrolled — setValue()
+                // (the next-number suggestion, and reset() in edit mode)
+                // updates the input's actual value without MUI ever seeing a
+                // `value` prop change, so its floating label never shrinks on
+                // its own and sits on top of the pre-filled text. watch()
+                // gives MUI something reactive to shrink the label on.
+                InputLabelProps={{ shrink: !!watch('employee_number') }}
                 {...register('employee_number')}
               />
             </Grid>
