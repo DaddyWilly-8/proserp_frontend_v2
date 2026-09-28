@@ -122,6 +122,7 @@ function AdditionalFeatures() {
           const isFeatureSelected = additionalFeaturesSelected.some(
             (presentFeature) => presentFeature.id === additionaFeature.id
           );
+
           const currentValues = additionalFeatureValues[
             additionaFeature.id
           ] || {
