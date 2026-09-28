@@ -30,7 +30,7 @@ const IncomeStatementOnScreen = ({ reportData }) => {
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
   const smallScreen = useMediaQuery(theme.breakpoints.down('md'));
 
-  const categoryCellSx = (smallScreen
+  const categoryCellSx = smallScreen
     ? {
         minWidth: 280,
         maxWidth: 340,
@@ -50,8 +50,7 @@ const IncomeStatementOnScreen = ({ reportData }) => {
         background: (theme) => theme.palette.background.paper,
         borderRight: '2px solid',
         borderColor: 'divider',
-      }
-  );
+      };
 
   const toggleRow = (rowId) => {
     setOpenRows((prevOpenRows) => ({
@@ -254,10 +253,13 @@ const IncomeStatementOnScreen = ({ reportData }) => {
                           : undefined
                       }
                     >
-                      {getAmountByPeriod(node, periodItem.period).toLocaleString(
-                        'en-US',
-                        { minimumFractionDigits: 2, maximumFractionDigits: 2 }
-                      )}
+                      {getAmountByPeriod(
+                        node,
+                        periodItem.period
+                      ).toLocaleString('en-US', {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}
                     </span>
                   </Tooltip>
                 </Box>

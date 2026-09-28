@@ -2,8 +2,8 @@
 import { readableDate } from '@/app/helpers/input-sanitization-helpers';
 import useProsERPStyles from '@/app/helpers/style-helpers';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
-import { PERMISSIONS } from '@/utilities/constants/permissions';
 import { FileExportGrid } from '@/components/sharedComponents/FileExportGrid';
+import { PERMISSIONS } from '@/utilities/constants/permissions';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 import { Div, Span } from '@jumbo/shared';
@@ -458,6 +458,7 @@ function DebtorCreditorReport({ setOpenDebtorsCreditorsDialog }) {
                 <DebtorCreditorOnScreen
                   reportData={reportData}
                   authOrganization={authOrganization}
+                  user={user}
                 />
               ) : (
                 <PDFContent

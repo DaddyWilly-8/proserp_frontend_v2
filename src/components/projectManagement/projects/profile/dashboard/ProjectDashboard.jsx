@@ -1,14 +1,14 @@
 'use client';
 
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
-import { PERMISSIONS } from '@/utilities/constants/permissions';
 import financialReportsServices from '@/components/accounts/reports/financial-reports-services';
 import { useCurrencySelect } from '@/components/masters/Currencies/CurrencySelectProvider';
 import PDFContent from '@/components/pdf/PDFContent';
-import purchaseServices from '@/components/procurement/purchases/purchase-services';
 import PurchaseGrnsReportOnScreen from '@/components/procurement/purchases/listItem/purchaseGrnsReport/PurchaseGrnsReportOnScreen';
 import PurchaseGrnsReportPDF from '@/components/procurement/purchases/listItem/purchaseGrnsReport/PurchaseGrnsReportPDF';
+import purchaseServices from '@/components/procurement/purchases/purchase-services';
 import { FileExportGrid } from '@/components/sharedComponents/FileExportGrid';
+import { PERMISSIONS } from '@/utilities/constants/permissions';
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 import { Div } from '@jumbo/shared';
 import {
@@ -162,9 +162,7 @@ const StatItem = ({ label, value, valueColor, onClick }) => (
           : undefined
       }
     >
-      {onClick && (
-        <VisibilityOutlined fontSize='small' color='action' />
-      )}
+      {onClick && <VisibilityOutlined fontSize='small' color='action' />}
       <Typography variant='h4' color={valueColor || 'text.primary'}>
         {typeof value === 'number' ? value.toFixed(2) : value}
       </Typography>
@@ -428,7 +426,8 @@ function ProjectDashboard() {
   const [openDocumentDialog, setOpenDocumentDialog] = useState(false);
   const [selectedReport, setSelectedReport] = useState(null);
   const { currencies } = useCurrencySelect();
-  const { authOrganization, authUser, checkOrganizationPermission } = useJumboAuth();
+  const { authOrganization, authUser, checkOrganizationPermission } =
+    useJumboAuth();
   const organization = authOrganization?.organization;
   const user = authUser?.user;
   const { theme } = useJumboTheme();
@@ -616,7 +615,7 @@ function ProjectDashboard() {
   const inventoryRows = inventorySnapshot
     ? Object.entries(inventorySnapshot)
         .filter(([key]) => key !== 'name' && key !== 'Total Value')
-        .map(([key, value]) => ({ label: key, value }))
+        ?.map(([key, value]) => ({ label: key, value }))
     : [];
 
   const inventoryTotal = inventorySnapshot?.['Total Value'] || 0;
@@ -1333,7 +1332,6 @@ function ProjectDashboard() {
         organization={authOrganization}
         user={user}
         liabilitiesPaylod={liabilitiesPayload}
-        activeTab={activeTab}
       />
 
       <Dialog open={openEditDialog} scroll='paper' fullWidth maxWidth='md'>
@@ -1382,198 +1380,209 @@ function ProjectDashboard() {
                   </Box>
                 </AccordionSummary>
                 <AccordionDetails>
-              {belowSmallScreen ? (
-                <Box mb={3}>
-                  {(commitments?.purchase_orders || []).length === 0 && (
-                    <Alert severity='info'>No open purchase orders</Alert>
-                  )}
-                  {(commitments?.purchase_orders || []).map((po) => (
-                    <Card key={po.id} variant='outlined' sx={{ mb: 1.5 }}>
-                      <CardContent sx={{ pb: '12px !important' }}>
-                        <Box
-                          display='flex'
-                          justifyContent='space-between'
-                          alignItems='flex-start'
-                          gap={1}
-                        >
-                          <Tooltip title={`View ${po.order_no} GRNs Report`}>
-                            <Box
-                              display='flex'
-                              alignItems='center'
-                              gap={0.5}
-                              onClick={() => setGrnsReportOrderId(po.id)}
-                              sx={{
-                                cursor: 'pointer',
-                                '&:hover .MuiTypography-root': {
-                                  color: 'primary.main',
-                                },
-                                '&:hover .MuiSvgIcon-root': {
-                                  color: 'primary.main',
-                                },
-                              }}
-                            >
-                              <VisibilityOutlined
-                                fontSize='small'
-                                color='action'
-                              />
-                              <Typography variant='subtitle2'>
-                                {po.order_no}
-                              </Typography>
-                            </Box>
-                          </Tooltip>
-                          <Chip label={po.status} size='small' />
-                        </Box>
-                        <Typography variant='body2' color='text.secondary'>
-                          {po.stakeholder}
-                          {po.order_date &&
-                            ` · ${dayjs(po.order_date).format('DD-MM-YYYY')}`}
-                        </Typography>
-
-                        <Divider sx={{ my: 1 }} />
-
-                        <Grid container spacing={1}>
-                          <Grid size={6}>
-                            <Typography
-                              variant='caption'
-                              color='text.secondary'
-                            >
-                              Ordered
-                            </Typography>
-                            <Typography variant='body2'>
-                              {formatCurrencyIn(
-                                po.inventory_amount,
-                                po.currency
-                              )}
-                            </Typography>
-                          </Grid>
-                          <Grid size={6}>
-                            <Typography
-                              variant='caption'
-                              color='text.secondary'
-                            >
-                              Received
-                            </Typography>
-                            <Typography variant='body2'>
-                              {formatCurrencyIn(
-                                po.received_amount,
-                                po.currency
-                              )}
-                            </Typography>
-                          </Grid>
-                          <Grid size={6}>
-                            <Typography
-                              variant='caption'
-                              color='text.secondary'
-                            >
-                              Paid in Advance
-                            </Typography>
-                            <Typography variant='body2'>
-                              {formatCurrencyIn(po.paid_amount, po.currency)}
-                            </Typography>
-                          </Grid>
-                          <Grid size={6}>
-                            <Typography
-                              variant='caption'
-                              color='text.secondary'
-                            >
-                              Outstanding
-                            </Typography>
-                            <Typography variant='body2'>
-                              {formatCurrencyIn(
-                                po.outstanding_amount,
-                                po.currency
-                              )}
-                            </Typography>
-                          </Grid>
-                        </Grid>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </Box>
-              ) : (
-                <TableContainer sx={{ mb: 3 }}>
-                  <Table size='small'>
-                    <TableHead>
-                      <TableRow>
-                        <TableCell>P.O No</TableCell>
-                        <TableCell>Supplier</TableCell>
-                        <TableCell>Order Date</TableCell>
-                        <TableCell>Status</TableCell>
-                        <TableCell align='right'>Ordered</TableCell>
-                        <TableCell align='right'>Received</TableCell>
-                        <TableCell align='right'>Paid in Advance</TableCell>
-                        <TableCell align='right'>Outstanding</TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
+                  {belowSmallScreen ? (
+                    <Box mb={3}>
                       {(commitments?.purchase_orders || []).length === 0 && (
-                        <TableRow>
-                          <TableCell colSpan={8} align='center'>
-                            No open purchase orders
-                          </TableCell>
-                        </TableRow>
+                        <Alert severity='info'>No open purchase orders</Alert>
                       )}
                       {(commitments?.purchase_orders || []).map((po) => (
-                        <TableRow key={po.id}>
-                          <TableCell>
-                            <Tooltip title={`View ${po.order_no} GRNs Report`}>
-                              <Box
-                                display='flex'
-                                alignItems='center'
-                                gap={0.5}
-                                onClick={() => setGrnsReportOrderId(po.id)}
-                                sx={{
-                                  cursor: 'pointer',
-                                  width: 'fit-content',
-                                  '&:hover .MuiTypography-root': {
-                                    color: 'primary.main',
-                                  },
-                                  '&:hover .MuiSvgIcon-root': {
-                                    color: 'primary.main',
-                                  },
-                                }}
+                        <Card key={po.id} variant='outlined' sx={{ mb: 1.5 }}>
+                          <CardContent sx={{ pb: '12px !important' }}>
+                            <Box
+                              display='flex'
+                              justifyContent='space-between'
+                              alignItems='flex-start'
+                              gap={1}
+                            >
+                              <Tooltip
+                                title={`View ${po.order_no} GRNs Report`}
                               >
-                                <VisibilityOutlined
-                                  fontSize='small'
-                                  color='action'
-                                />
-                                <Typography variant='body2'>
-                                  {po.order_no}
+                                <Box
+                                  display='flex'
+                                  alignItems='center'
+                                  gap={0.5}
+                                  onClick={() => setGrnsReportOrderId(po.id)}
+                                  sx={{
+                                    cursor: 'pointer',
+                                    '&:hover .MuiTypography-root': {
+                                      color: 'primary.main',
+                                    },
+                                    '&:hover .MuiSvgIcon-root': {
+                                      color: 'primary.main',
+                                    },
+                                  }}
+                                >
+                                  <VisibilityOutlined
+                                    fontSize='small'
+                                    color='action'
+                                  />
+                                  <Typography variant='subtitle2'>
+                                    {po.order_no}
+                                  </Typography>
+                                </Box>
+                              </Tooltip>
+                              <Chip label={po.status} size='small' />
+                            </Box>
+                            <Typography variant='body2' color='text.secondary'>
+                              {po.stakeholder}
+                              {po.order_date &&
+                                ` · ${dayjs(po.order_date).format('DD-MM-YYYY')}`}
+                            </Typography>
+
+                            <Divider sx={{ my: 1 }} />
+
+                            <Grid container spacing={1}>
+                              <Grid size={6}>
+                                <Typography
+                                  variant='caption'
+                                  color='text.secondary'
+                                >
+                                  Ordered
                                 </Typography>
-                              </Box>
-                            </Tooltip>
-                          </TableCell>
-                          <TableCell>{po.stakeholder}</TableCell>
-                          <TableCell>
-                            {po.order_date
-                              ? dayjs(po.order_date).format('DD-MM-YYYY')
-                              : '-'}
-                          </TableCell>
-                          <TableCell>{po.status}</TableCell>
-                          <TableCell align='right'>
-                            {formatCurrencyIn(
-                              po.inventory_amount,
-                              po.currency
-                            )}
-                          </TableCell>
-                          <TableCell align='right'>
-                            {formatCurrencyIn(po.received_amount, po.currency)}
-                          </TableCell>
-                          <TableCell align='right'>
-                            {formatCurrencyIn(po.paid_amount, po.currency)}
-                          </TableCell>
-                          <TableCell align='right'>
-                            {formatCurrencyIn(
-                              po.outstanding_amount,
-                              po.currency
-                            )}
-                          </TableCell>
-                        </TableRow>
+                                <Typography variant='body2'>
+                                  {formatCurrencyIn(
+                                    po.inventory_amount,
+                                    po.currency
+                                  )}
+                                </Typography>
+                              </Grid>
+                              <Grid size={6}>
+                                <Typography
+                                  variant='caption'
+                                  color='text.secondary'
+                                >
+                                  Received
+                                </Typography>
+                                <Typography variant='body2'>
+                                  {formatCurrencyIn(
+                                    po.received_amount,
+                                    po.currency
+                                  )}
+                                </Typography>
+                              </Grid>
+                              <Grid size={6}>
+                                <Typography
+                                  variant='caption'
+                                  color='text.secondary'
+                                >
+                                  Paid in Advance
+                                </Typography>
+                                <Typography variant='body2'>
+                                  {formatCurrencyIn(
+                                    po.paid_amount,
+                                    po.currency
+                                  )}
+                                </Typography>
+                              </Grid>
+                              <Grid size={6}>
+                                <Typography
+                                  variant='caption'
+                                  color='text.secondary'
+                                >
+                                  Outstanding
+                                </Typography>
+                                <Typography variant='body2'>
+                                  {formatCurrencyIn(
+                                    po.outstanding_amount,
+                                    po.currency
+                                  )}
+                                </Typography>
+                              </Grid>
+                            </Grid>
+                          </CardContent>
+                        </Card>
                       ))}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
-              )}
+                    </Box>
+                  ) : (
+                    <TableContainer sx={{ mb: 3 }}>
+                      <Table size='small'>
+                        <TableHead>
+                          <TableRow>
+                            <TableCell>P.O No</TableCell>
+                            <TableCell>Supplier</TableCell>
+                            <TableCell>Order Date</TableCell>
+                            <TableCell>Status</TableCell>
+                            <TableCell align='right'>Ordered</TableCell>
+                            <TableCell align='right'>Received</TableCell>
+                            <TableCell align='right'>Paid in Advance</TableCell>
+                            <TableCell align='right'>Outstanding</TableCell>
+                          </TableRow>
+                        </TableHead>
+                        <TableBody>
+                          {(commitments?.purchase_orders || []).length ===
+                            0 && (
+                            <TableRow>
+                              <TableCell colSpan={8} align='center'>
+                                No open purchase orders
+                              </TableCell>
+                            </TableRow>
+                          )}
+                          {(commitments?.purchase_orders || []).map((po) => (
+                            <TableRow key={po.id}>
+                              <TableCell>
+                                <Tooltip
+                                  title={`View ${po.order_no} GRNs Report`}
+                                >
+                                  <Box
+                                    display='flex'
+                                    alignItems='center'
+                                    gap={0.5}
+                                    onClick={() => setGrnsReportOrderId(po.id)}
+                                    sx={{
+                                      cursor: 'pointer',
+                                      width: 'fit-content',
+                                      '&:hover .MuiTypography-root': {
+                                        color: 'primary.main',
+                                      },
+                                      '&:hover .MuiSvgIcon-root': {
+                                        color: 'primary.main',
+                                      },
+                                    }}
+                                  >
+                                    <VisibilityOutlined
+                                      fontSize='small'
+                                      color='action'
+                                    />
+                                    <Typography variant='body2'>
+                                      {po.order_no}
+                                    </Typography>
+                                  </Box>
+                                </Tooltip>
+                              </TableCell>
+                              <TableCell>{po.stakeholder}</TableCell>
+                              <TableCell>
+                                {po.order_date
+                                  ? dayjs(po.order_date).format('DD-MM-YYYY')
+                                  : '-'}
+                              </TableCell>
+                              <TableCell>{po.status}</TableCell>
+                              <TableCell align='right'>
+                                {formatCurrencyIn(
+                                  po.inventory_amount,
+                                  po.currency
+                                )}
+                              </TableCell>
+                              <TableCell align='right'>
+                                {formatCurrencyIn(
+                                  po.received_amount,
+                                  po.currency
+                                )}
+                              </TableCell>
+                              <TableCell align='right'>
+                                {formatCurrencyIn(po.paid_amount, po.currency)}
+                              </TableCell>
+                              <TableCell align='right'>
+                                {formatCurrencyIn(
+                                  po.outstanding_amount,
+                                  po.currency
+                                )}
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </TableContainer>
+                  )}
                 </AccordionDetails>
               </Accordion>
 
@@ -1602,64 +1611,68 @@ function ProjectDashboard() {
                   </Box>
                 </AccordionSummary>
                 <AccordionDetails>
-              {belowSmallScreen ? (
-                <Box mb={3}>
-                  {(commitments?.stock_on_hand || []).length === 0 && (
-                    <Alert severity='info'>No stock currently on hand</Alert>
-                  )}
-                  {(commitments?.stock_on_hand || []).map((stock) => (
-                    <Card
-                      key={stock.category_id ?? 'uncategorized'}
-                      variant='outlined'
-                      sx={{ mb: 1 }}
-                    >
-                      <CardContent
-                        sx={{
-                          py: '10px !important',
-                          display: 'flex',
-                          justifyContent: 'space-between',
-                          alignItems: 'center',
-                        }}
-                      >
-                        <Typography variant='body2'>
-                          {stock.category}
-                        </Typography>
-                        <Typography variant='body2'>
-                          {formatCurrency(stock.value)}
-                        </Typography>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </Box>
-              ) : (
-                <TableContainer sx={{ mb: 3 }}>
-                  <Table size='small'>
-                    <TableHead>
-                      <TableRow>
-                        <TableCell>Category</TableCell>
-                        <TableCell align='right'>Value</TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
+                  {belowSmallScreen ? (
+                    <Box mb={3}>
                       {(commitments?.stock_on_hand || []).length === 0 && (
-                        <TableRow>
-                          <TableCell colSpan={2} align='center'>
-                            No stock currently on hand
-                          </TableCell>
-                        </TableRow>
+                        <Alert severity='info'>
+                          No stock currently on hand
+                        </Alert>
                       )}
                       {(commitments?.stock_on_hand || []).map((stock) => (
-                        <TableRow key={stock.category_id ?? 'uncategorized'}>
-                          <TableCell>{stock.category}</TableCell>
-                          <TableCell align='right'>
-                            {formatCurrency(stock.value)}
-                          </TableCell>
-                        </TableRow>
+                        <Card
+                          key={stock.category_id ?? 'uncategorized'}
+                          variant='outlined'
+                          sx={{ mb: 1 }}
+                        >
+                          <CardContent
+                            sx={{
+                              py: '10px !important',
+                              display: 'flex',
+                              justifyContent: 'space-between',
+                              alignItems: 'center',
+                            }}
+                          >
+                            <Typography variant='body2'>
+                              {stock.category}
+                            </Typography>
+                            <Typography variant='body2'>
+                              {formatCurrency(stock.value)}
+                            </Typography>
+                          </CardContent>
+                        </Card>
                       ))}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
-              )}
+                    </Box>
+                  ) : (
+                    <TableContainer sx={{ mb: 3 }}>
+                      <Table size='small'>
+                        <TableHead>
+                          <TableRow>
+                            <TableCell>Category</TableCell>
+                            <TableCell align='right'>Value</TableCell>
+                          </TableRow>
+                        </TableHead>
+                        <TableBody>
+                          {(commitments?.stock_on_hand || []).length === 0 && (
+                            <TableRow>
+                              <TableCell colSpan={2} align='center'>
+                                No stock currently on hand
+                              </TableCell>
+                            </TableRow>
+                          )}
+                          {(commitments?.stock_on_hand || []).map((stock) => (
+                            <TableRow
+                              key={stock.category_id ?? 'uncategorized'}
+                            >
+                              <TableCell>{stock.category}</TableCell>
+                              <TableCell align='right'>
+                                {formatCurrency(stock.value)}
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </TableContainer>
+                  )}
                 </AccordionDetails>
               </Accordion>
 
@@ -1667,9 +1680,7 @@ function ProjectDashboard() {
                 <Accordion
                   expanded={expandedCommittedSection === 'payments'}
                   onChange={(e, isExpanded) =>
-                    setExpandedCommittedSection(
-                      isExpanded ? 'payments' : false
-                    )
+                    setExpandedCommittedSection(isExpanded ? 'payments' : false)
                   }
                 >
                   <AccordionSummary expandIcon={<ExpandMoreOutlined />}>
@@ -1689,146 +1700,146 @@ function ProjectDashboard() {
                     </Box>
                   </AccordionSummary>
                   <AccordionDetails>
-                  {belowSmallScreen ? (
-                    <Box>
-                      {(commitments?.payments || []).length === 0 && (
-                        <Alert severity='info'>
-                          No pending supplier payments
-                        </Alert>
-                      )}
-                      {(commitments?.payments || []).map((payment) => (
-                        <Card
-                          key={payment.id}
-                          variant='outlined'
-                          sx={{ mb: 1.5 }}
-                        >
-                          <CardContent sx={{ pb: '12px !important' }}>
-                            <Typography variant='subtitle2'>
-                              {payment.requisition_no}
-                            </Typography>
-                            <Typography
-                              variant='body2'
-                              color='text.secondary'
-                            >
-                              {payment.ledger}
-                            </Typography>
-                            <Typography
-                              variant='body2'
-                              color='text.secondary'
-                            >
-                              {payment.requester}
-                              {payment.date_required &&
-                                ` · ${dayjs(payment.date_required).format('DD-MM-YYYY')}`}
-                            </Typography>
+                    {belowSmallScreen ? (
+                      <Box>
+                        {(commitments?.payments || []).length === 0 && (
+                          <Alert severity='info'>
+                            No pending supplier payments
+                          </Alert>
+                        )}
+                        {(commitments?.payments || []).map((payment) => (
+                          <Card
+                            key={payment.id}
+                            variant='outlined'
+                            sx={{ mb: 1.5 }}
+                          >
+                            <CardContent sx={{ pb: '12px !important' }}>
+                              <Typography variant='subtitle2'>
+                                {payment.requisition_no}
+                              </Typography>
+                              <Typography
+                                variant='body2'
+                                color='text.secondary'
+                              >
+                                {payment.ledger}
+                              </Typography>
+                              <Typography
+                                variant='body2'
+                                color='text.secondary'
+                              >
+                                {payment.requester}
+                                {payment.date_required &&
+                                  ` · ${dayjs(payment.date_required).format('DD-MM-YYYY')}`}
+                              </Typography>
 
-                            <Divider sx={{ my: 1 }} />
+                              <Divider sx={{ my: 1 }} />
 
-                            <Grid container spacing={1}>
-                              <Grid size={4}>
-                                <Typography
-                                  variant='caption'
-                                  color='text.secondary'
-                                >
-                                  Approved
-                                </Typography>
-                                <Typography variant='body2'>
+                              <Grid container spacing={1}>
+                                <Grid size={4}>
+                                  <Typography
+                                    variant='caption'
+                                    color='text.secondary'
+                                  >
+                                    Approved
+                                  </Typography>
+                                  <Typography variant='body2'>
+                                    {formatCurrencyIn(
+                                      payment.amount,
+                                      payment.currency
+                                    )}
+                                  </Typography>
+                                </Grid>
+                                <Grid size={4}>
+                                  <Typography
+                                    variant='caption'
+                                    color='text.secondary'
+                                  >
+                                    Paid
+                                  </Typography>
+                                  <Typography variant='body2'>
+                                    {formatCurrencyIn(
+                                      payment.paid_amount,
+                                      payment.currency
+                                    )}
+                                  </Typography>
+                                </Grid>
+                                <Grid size={4}>
+                                  <Typography
+                                    variant='caption'
+                                    color='text.secondary'
+                                  >
+                                    Unpaid
+                                  </Typography>
+                                  <Typography variant='body2'>
+                                    {formatCurrencyIn(
+                                      payment.unpaid_amount,
+                                      payment.currency
+                                    )}
+                                  </Typography>
+                                </Grid>
+                              </Grid>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </Box>
+                    ) : (
+                      <TableContainer>
+                        <Table size='small'>
+                          <TableHead>
+                            <TableRow>
+                              <TableCell>Requisition No</TableCell>
+                              <TableCell>Ledger</TableCell>
+                              <TableCell>Requester</TableCell>
+                              <TableCell>Date Required</TableCell>
+                              <TableCell align='right'>Approved</TableCell>
+                              <TableCell align='right'>Paid</TableCell>
+                              <TableCell align='right'>Unpaid</TableCell>
+                            </TableRow>
+                          </TableHead>
+                          <TableBody>
+                            {(commitments?.payments || []).length === 0 && (
+                              <TableRow>
+                                <TableCell colSpan={7} align='center'>
+                                  No pending supplier payments
+                                </TableCell>
+                              </TableRow>
+                            )}
+                            {(commitments?.payments || []).map((payment) => (
+                              <TableRow key={payment.id}>
+                                <TableCell>{payment.requisition_no}</TableCell>
+                                <TableCell>{payment.ledger}</TableCell>
+                                <TableCell>{payment.requester}</TableCell>
+                                <TableCell>
+                                  {payment.date_required
+                                    ? dayjs(payment.date_required).format(
+                                        'DD-MM-YYYY'
+                                      )
+                                    : '-'}
+                                </TableCell>
+                                <TableCell align='right'>
                                   {formatCurrencyIn(
                                     payment.amount,
                                     payment.currency
                                   )}
-                                </Typography>
-                              </Grid>
-                              <Grid size={4}>
-                                <Typography
-                                  variant='caption'
-                                  color='text.secondary'
-                                >
-                                  Paid
-                                </Typography>
-                                <Typography variant='body2'>
+                                </TableCell>
+                                <TableCell align='right'>
                                   {formatCurrencyIn(
                                     payment.paid_amount,
                                     payment.currency
                                   )}
-                                </Typography>
-                              </Grid>
-                              <Grid size={4}>
-                                <Typography
-                                  variant='caption'
-                                  color='text.secondary'
-                                >
-                                  Unpaid
-                                </Typography>
-                                <Typography variant='body2'>
+                                </TableCell>
+                                <TableCell align='right'>
                                   {formatCurrencyIn(
                                     payment.unpaid_amount,
                                     payment.currency
                                   )}
-                                </Typography>
-                              </Grid>
-                            </Grid>
-                          </CardContent>
-                        </Card>
-                      ))}
-                    </Box>
-                  ) : (
-                    <TableContainer>
-                      <Table size='small'>
-                        <TableHead>
-                          <TableRow>
-                            <TableCell>Requisition No</TableCell>
-                            <TableCell>Ledger</TableCell>
-                            <TableCell>Requester</TableCell>
-                            <TableCell>Date Required</TableCell>
-                            <TableCell align='right'>Approved</TableCell>
-                            <TableCell align='right'>Paid</TableCell>
-                            <TableCell align='right'>Unpaid</TableCell>
-                          </TableRow>
-                        </TableHead>
-                        <TableBody>
-                          {(commitments?.payments || []).length === 0 && (
-                            <TableRow>
-                              <TableCell colSpan={7} align='center'>
-                                No pending supplier payments
-                              </TableCell>
-                            </TableRow>
-                          )}
-                          {(commitments?.payments || []).map((payment) => (
-                            <TableRow key={payment.id}>
-                              <TableCell>{payment.requisition_no}</TableCell>
-                              <TableCell>{payment.ledger}</TableCell>
-                              <TableCell>{payment.requester}</TableCell>
-                              <TableCell>
-                                {payment.date_required
-                                  ? dayjs(payment.date_required).format(
-                                      'DD-MM-YYYY'
-                                    )
-                                  : '-'}
-                              </TableCell>
-                              <TableCell align='right'>
-                                {formatCurrencyIn(
-                                  payment.amount,
-                                  payment.currency
-                                )}
-                              </TableCell>
-                              <TableCell align='right'>
-                                {formatCurrencyIn(
-                                  payment.paid_amount,
-                                  payment.currency
-                                )}
-                              </TableCell>
-                              <TableCell align='right'>
-                                {formatCurrencyIn(
-                                  payment.unpaid_amount,
-                                  payment.currency
-                                )}
-                              </TableCell>
-                            </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
-                    </TableContainer>
-                  )}
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </TableContainer>
+                    )}
                   </AccordionDetails>
                 </Accordion>
               )}
@@ -1836,9 +1847,7 @@ function ProjectDashboard() {
           )}
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setOpenCommitmentsDialog(false)}>
-            Close
-          </Button>
+          <Button onClick={() => setOpenCommitmentsDialog(false)}>Close</Button>
         </DialogActions>
       </Dialog>
 

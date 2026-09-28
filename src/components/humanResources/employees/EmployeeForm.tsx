@@ -135,6 +135,17 @@ const EmployeeForm = ({
     enabled: !!employee,
   });
 
+  // New employee only — suggests the next number per the org's configured
+  // format (Organization Settings), pre-filling the field below but never
+  // overriding anything HR has already typed. Purely a starting point: the
+  // field stays a free-text override either way.
+  const { data: nextNumberData } = useQuery({
+    queryKey: ['nextEmployeeNumber'],
+    queryFn: humanResourcesServices.getNextEmployeeNumber,
+    enabled: !employee,
+    staleTime: 0,
+  });
+
   const { data: rawUsers = [], isFetching: usersLoading } = useQuery<User[]>({
     queryKey: ['users', organization?.id],
     queryFn: () =>
@@ -294,6 +305,7 @@ const EmployeeForm = ({
     handleSubmit,
     reset,
     setValue,
+    getValues,
     control,
     watch,
     formState: { errors },
@@ -336,6 +348,15 @@ const EmployeeForm = ({
     (dirtyFields.cost_center_id ||
       dirtyFields.department_id ||
       dirtyFields.manager_id);
+
+  // Pre-fill the suggested next employee number — only while the field is
+  // still untouched, so it never clobbers something HR already typed while
+  // the request was in flight.
+  useEffect(() => {
+    if (!employee && nextNumberData?.employee_number && !getValues('employee_number')) {
+      setValue('employee_number', nextNumberData.employee_number);
+    }
+  }, [employee, nextNumberData, setValue, getValues]);
 
   // Populate form when editing
   useEffect(() => {
@@ -470,7 +491,12 @@ const EmployeeForm = ({
                 size='small'
                 fullWidth
                 error={!!errors.employee_number}
-                helperText={errors.employee_number?.message}
+                helperText={
+                  errors.employee_number?.message ||
+                  (!employee && nextNumberData?.employee_number
+                    ? 'Suggested — edit to override'
+                    : undefined)
+                }
                 {...register('employee_number')}
               />
             </Grid>

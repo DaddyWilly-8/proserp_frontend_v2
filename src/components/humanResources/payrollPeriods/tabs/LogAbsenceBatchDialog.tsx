@@ -19,11 +19,13 @@ import {
   useMediaQuery,
   useTheme,
 } from '@mui/material';
+import { sanitizedNumber } from '@/app/helpers/input-sanitization-helpers';
+import CommaSeparatedField from '@/shared/Inputs/CommaSeparatedField';
 import { DatePicker } from '@mui/x-date-pickers';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import dayjs, { Dayjs } from 'dayjs';
 import { useSnackbar } from 'notistack';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import EmployeeSelector from '../../employees/EmployeeSelector';
 import { EmployeesProvider } from '../../employees/EmployeesProvider';
 import { Employee } from '../../employees/EmployeesType';
@@ -34,6 +36,11 @@ interface Row {
   employee: Employee | null;
   date: string;
   hours: number | '';
+  // '' means "use the derived rate" — rateTouched tracks whether HR has
+  // typed their own value, same pattern as the Buy Leave dialog's Amount
+  // field, so switching employees keeps re-deriving until HR overrides it.
+  hourlyRate: number | '';
+  rateTouched: boolean;
   remarks: string;
 }
 
@@ -55,6 +62,161 @@ interface LogAbsenceBatchDialogProps {
   year: number;
   onSaved: () => void;
 }
+
+interface AbsenceBatchRowProps {
+  row: Row;
+  index: number;
+  periodStart: Dayjs;
+  periodEnd: Dayjs;
+  canRemove: boolean;
+  onChange: (patch: Partial<Row>) => void;
+  onRemove: () => void;
+}
+
+/**
+ * One row's own hooks — a per-row derived-rate query can't live in the
+ * parent's .map() (hooks can't run inside a loop), so each row is its own
+ * component instead. Mirrors the Buy Leave dialog's single daily-rate query,
+ * just one instance per row rather than one for the whole dialog.
+ */
+const AbsenceBatchRow = ({
+  row,
+  index,
+  periodStart,
+  periodEnd,
+  canRemove,
+  onChange,
+  onRemove,
+}: AbsenceBatchRowProps) => {
+  const { data: hourlyRateResponse } = useQuery({
+    queryKey: ['absenceHourlyRate', row.employee?.id],
+    queryFn: () => humanResourcesServices.getAbsenceHourlyRate(row.employee?.id),
+    enabled: !!row.employee,
+  });
+  const derivedRate: number | null = hourlyRateResponse?.hourly_rate ?? null;
+
+  useEffect(() => {
+    if (row.rateTouched || derivedRate === null) return;
+    onChange({ hourlyRate: derivedRate });
+    // Only re-derive when the employee (and therefore the rate) actually
+    // changes — including `onChange`/`row` would re-run this on every
+    // keystroke elsewhere in the row.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [derivedRate, row.rateTouched]);
+
+  const computedAmount =
+    row.hours === '' || row.hourlyRate === ''
+      ? null
+      : Math.round(Number(row.hours) * Number(row.hourlyRate) * 100) / 100;
+
+  return (
+    <Paper variant='outlined' sx={{ p: { xs: 2, sm: 3 }, borderRadius: 2 }}>
+      <Stack spacing={2.5}>
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+          }}
+        >
+          <Typography variant='subtitle2' color='text.secondary'>
+            Row {index + 1}
+          </Typography>
+          <IconButton color='error' onClick={onRemove} disabled={!canRemove}>
+            <DeleteOutline />
+          </IconButton>
+        </Box>
+
+        <Grid container spacing={2.5}>
+          <Grid size={{ xs: 12, sm: 5 }}>
+            <EmployeeSelector
+              value={row.employee || undefined}
+              onChange={(newValue) =>
+                onChange({
+                  employee: newValue && !Array.isArray(newValue) ? newValue : null,
+                  hourlyRate: '',
+                  rateTouched: false,
+                })
+              }
+            />
+          </Grid>
+          <Grid size={{ xs: 12, sm: 4 }}>
+            <DatePicker
+              label='Date'
+              value={row.date ? dayjs(row.date) : null}
+              onChange={(newValue) =>
+                onChange({ date: newValue ? newValue.toISOString() : '' })
+              }
+              minDate={periodStart}
+              maxDate={periodEnd}
+              slotProps={{ textField: { fullWidth: true } }}
+            />
+          </Grid>
+          <Grid size={{ xs: 12, sm: 3 }}>
+            <TextField
+              label='Hours'
+              fullWidth
+              type='number'
+              value={row.hours}
+              onChange={(e) =>
+                onChange({
+                  hours: e.target.value === '' ? '' : Number(e.target.value),
+                })
+              }
+              inputProps={{ min: 0.25, step: 0.25 }}
+            />
+          </Grid>
+        </Grid>
+
+        <Grid container spacing={2.5}>
+          <Grid size={{ xs: 12, sm: 6 }}>
+            <TextField
+              label='Rate/Hour'
+              fullWidth
+              value={row.hourlyRate}
+              onChange={(e) => {
+                const sanitized = sanitizedNumber(e.target.value);
+                onChange({
+                  hourlyRate: Number.isNaN(sanitized) ? '' : sanitized,
+                  rateTouched: true,
+                });
+              }}
+              InputProps={{ inputComponent: CommaSeparatedField as any }}
+              helperText={
+                row.rateTouched
+                  ? 'Overridden — clear to fall back to the derived rate'
+                  : derivedRate !== null
+                    ? 'Auto-derived from contract — edit to override'
+                    : row.employee
+                      ? "Couldn't derive a rate for this employee — enter it manually"
+                      : 'Pick an employee to auto-derive a rate'
+              }
+            />
+          </Grid>
+          <Grid size={{ xs: 12, sm: 6 }}>
+            <Alert severity='info' sx={{ borderRadius: 2, height: '100%' }}>
+              {computedAmount !== null
+                ? `Deduction: ${computedAmount.toLocaleString()}`
+                : 'Enter hours and a rate to see the deduction'}
+            </Alert>
+          </Grid>
+        </Grid>
+
+        <Grid container spacing={2.5}>
+          <Grid size={{ xs: 12 }}>
+            <TextField
+              label='Remarks'
+              fullWidth
+              value={row.remarks}
+              onChange={(e) => onChange({ remarks: e.target.value })}
+              placeholder='Optional'
+            />
+          </Grid>
+        </Grid>
+      </Stack>
+    </Paper>
+  );
+};
 
 const getErrorMessage = (error: any) => {
   const validationErrors = error?.response?.data?.validation_errors;
@@ -87,6 +249,8 @@ const LogAbsenceBatchDialog = ({
     employee: null,
     date: defaultDate,
     hours: '',
+    hourlyRate: '',
+    rateTouched: false,
     remarks: '',
   });
 
@@ -151,6 +315,7 @@ const LogAbsenceBatchDialog = ({
         employee_id: r.employee!.id,
         date: dayjs(r.date).format('YYYY-MM-DD'),
         hours: Number(r.hours),
+        hourly_rate: r.hourlyRate === '' ? undefined : Number(r.hourlyRate),
         remarks: r.remarks || undefined,
       })),
     });
@@ -193,88 +358,16 @@ const LogAbsenceBatchDialog = ({
           <EmployeesProvider>
             <Stack spacing={3}>
               {rows.map((row, idx) => (
-                <Paper
+                <AbsenceBatchRow
                   key={row.key}
-                  variant='outlined'
-                  sx={{ p: { xs: 2, sm: 3 }, borderRadius: 2 }}
-                >
-                  <Stack spacing={2.5}>
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                      }}
-                    >
-                      <Typography variant='subtitle2' color='text.secondary'>
-                        Row {idx + 1}
-                      </Typography>
-                      <IconButton
-                        color='error'
-                        onClick={() => removeRow(row.key)}
-                        disabled={rows.length === 1}
-                      >
-                        <DeleteOutline />
-                      </IconButton>
-                    </Box>
-
-                    <Grid container spacing={2.5}>
-                      <Grid size={{ xs: 12, sm: 5 }}>
-                        <EmployeeSelector
-                          value={row.employee || undefined}
-                          onChange={(newValue) =>
-                            updateRow(row.key, {
-                              employee:
-                                newValue && !Array.isArray(newValue) ? newValue : null,
-                            })
-                          }
-                        />
-                      </Grid>
-                      <Grid size={{ xs: 12, sm: 4 }}>
-                        <DatePicker
-                          label='Date'
-                          value={row.date ? dayjs(row.date) : null}
-                          onChange={(newValue) =>
-                            updateRow(row.key, {
-                              date: newValue ? newValue.toISOString() : '',
-                            })
-                          }
-                          minDate={periodStart}
-                          maxDate={periodEnd}
-                          slotProps={{ textField: { fullWidth: true } }}
-                        />
-                      </Grid>
-                      <Grid size={{ xs: 12, sm: 3 }}>
-                        <TextField
-                          label='Hours'
-                          fullWidth
-                          type='number'
-                          value={row.hours}
-                          onChange={(e) =>
-                            updateRow(row.key, {
-                              hours: e.target.value === '' ? '' : Number(e.target.value),
-                            })
-                          }
-                          inputProps={{ min: 0.25, step: 0.25 }}
-                        />
-                      </Grid>
-                    </Grid>
-
-                    <Grid container spacing={2.5}>
-                      <Grid size={{ xs: 12 }}>
-                        <TextField
-                          label='Remarks'
-                          fullWidth
-                          value={row.remarks}
-                          onChange={(e) =>
-                            updateRow(row.key, { remarks: e.target.value })
-                          }
-                          placeholder='Optional'
-                        />
-                      </Grid>
-                    </Grid>
-                  </Stack>
-                </Paper>
+                  row={row}
+                  index={idx}
+                  periodStart={periodStart}
+                  periodEnd={periodEnd}
+                  canRemove={rows.length > 1}
+                  onChange={(patch) => updateRow(row.key, patch)}
+                  onRemove={() => removeRow(row.key)}
+                />
               ))}
             </Stack>
           </EmployeesProvider>

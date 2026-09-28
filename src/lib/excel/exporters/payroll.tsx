@@ -1,3 +1,4 @@
+import { readableDate } from '@/app/helpers/input-sanitization-helpers';
 import { PayrollRunType } from '@/components/humanResources/payrollRuns/PayrollRunType';
 import { applyCellStyle, CELL_STYLES, getAlternatingRowFill } from '../styles';
 import { getExcelColumnName } from '../uitls';
@@ -145,6 +146,7 @@ export async function ExportPayrollToExcel(exportedData: any) {
       contributionTypes = [],
       groupBy = 'none',
       selectedPeriod,
+      userName = 'ProsERP',
     } = exportedData;
 
     // Unlike deductions/contributions, allowances are never filtered by
@@ -174,9 +176,13 @@ export async function ExportPayrollToExcel(exportedData: any) {
       const employee = run.employee as any;
       if (employee.name) return employee.name;
 
-      const firstName = run.employee.first_name || '';
-      const lastName = run.employee.last_name || '';
-      const fullName = `${firstName} ${lastName}`.trim();
+      const fullName = [
+        run.employee.first_name,
+        (run.employee as any).middle_name,
+        run.employee.last_name,
+      ]
+        .filter(Boolean)
+        .join(' ');
       return fullName || 'Unknown Employee';
     };
 
@@ -276,6 +282,10 @@ export async function ExportPayrollToExcel(exportedData: any) {
     const wb = createWorkbook();
     const ws = wb.addWorksheet('Salary Sheet');
 
+    // Repeats the group-header (row 3) and column-header (row 4) rows on
+    // every printed page — otherwise only page 1 shows what each column is.
+    ws.pageSetup.printTitlesRow = '3:4';
+
     // ---- Column widths ----
     ws.getColumn(getExcelColumnName(COL_SN)).width = 6;
     ws.getColumn(getExcelColumnName(COL_EMP_NO)).width = 14;
@@ -293,10 +303,13 @@ export async function ExportPayrollToExcel(exportedData: any) {
     titleCell.alignment = { horizontal: 'center', vertical: 'middle' };
     ws.getRow(1).height = 25;
 
-    // ---- Row 2: Period label ----
+    // ---- Row 2: Period label + printed by/on (kept on the same row rather
+    // than inserted as a new one, so the table's hardcoded row numbers below
+    // — group headers on 3, column headers on 4, data starting at 5 — don't
+    // have to shift) ----
     ws.mergeCells(`A2:${getExcelColumnName(TOTAL_COLS)}2`);
     const subtitleCell = ws.getCell('A2');
-    subtitleCell.value = `SALARY PAYROLL — ${periodLabel} - (${selectedPeriod})`;
+    subtitleCell.value = `SALARY PAYROLL — ${periodLabel} - (${selectedPeriod})   |   Printed By: ${userName}   |   Printed On: ${readableDate(undefined, true)}`;
     subtitleCell.font = { bold: true, size: 11 };
     subtitleCell.alignment = { horizontal: 'center', vertical: 'middle' };
     ws.getRow(2).height = 20;

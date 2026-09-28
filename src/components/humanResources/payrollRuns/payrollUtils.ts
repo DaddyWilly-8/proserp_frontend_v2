@@ -39,7 +39,9 @@ export const getEmployeeName = (employee: any) => {
   if (!employee) return '';
   return (
     employee.name ||
-    `${employee.first_name || ''} ${employee.last_name || ''}`.trim() ||
+    [employee.first_name, employee.middle_name, employee.last_name]
+      .filter(Boolean)
+      .join(' ') ||
     ''
   );
 };

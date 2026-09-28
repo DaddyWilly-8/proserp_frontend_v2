@@ -30,6 +30,11 @@ humanResourcesServices.getOrgChart = async () => {
     return data;
 };
 
+humanResourcesServices.getNextEmployeeNumber = async () => {
+    const { data } = await axios.get('/api/humanResources/employees/next-number');
+    return data;
+};
+
 humanResourcesServices.addEmployee = async (employee) => {
     const { data } = await axios.post(`/api/humanResources/employees/add`, employee)
     return data;
@@ -1135,6 +1140,12 @@ humanResourcesServices.deletePeriodOvertime = async (id) => {
 }
 
 // ===== period absences (monthly employees, logged one dated entry at a time — deducted pre-tax) ===== //
+humanResourcesServices.getAbsenceHourlyRate = async (employeeId) => {
+    const { data } = await axios.get('/api/humanResources/payrollPeriods/period-adjustments-template/absences/hourly-rate', {
+        params: { employee_id: employeeId },
+    });
+    return data;
+}
 humanResourcesServices.addPeriodAbsence = async (absenceEntry) => {
     const { data } = await axios.post('/api/humanResources/payrollPeriods/period-adjustments-template/absences/add', absenceEntry);
     return data;

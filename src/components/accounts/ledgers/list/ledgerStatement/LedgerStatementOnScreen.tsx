@@ -2,7 +2,9 @@ import { readableDate } from '@/app/helpers/input-sanitization-helpers';
 import { Organization } from '@/types/auth-types';
 import {
   Box,
+  Chip,
   Grid,
+  Stack,
   Table,
   TableBody,
   TableCell,
@@ -10,8 +12,6 @@ import {
   TableRow,
   Typography,
   useTheme,
-  Chip,
-  Stack,
 } from '@mui/material';
 import React from 'react';
 
@@ -35,7 +35,7 @@ interface Transaction {
   description: string;
   debit: number;
   credit: number;
-  debit_foreign?: number;  // ✅ New
+  debit_foreign?: number; // ✅ New
   credit_foreign?: number; // ✅ New
   correspondingLedger?: string | null;
   isCancelled?: boolean;
@@ -78,9 +78,10 @@ const LedgerStatementOnScreen: React.FC<LedgerStatementOnScreenProps> = ({
       : authOrganization?.organization.settings?.main_color || '#2113AD';
 
   // ✅ Check if ledger has foreign currency
-  const hasForeignCurrency = !!transactionsData.filters.ledger?.currency;
-  const currencyCode = transactionsData.filters.ledger?.currency?.code || '';
-  const currencySymbol = transactionsData.filters.ledger?.currency?.symbol || '';
+  const hasForeignCurrency = !!transactionsData?.filters?.ledger?.currency;
+  const currencyCode = transactionsData?.filters?.ledger?.currency?.code || '';
+  const currencySymbol =
+    transactionsData?.filters?.ledger?.currency?.symbol || '';
 
   const [openingBalanceTx, ...restTransactions] = transactionsData.transactions;
 
@@ -92,11 +93,14 @@ const LedgerStatementOnScreen: React.FC<LedgerStatementOnScreenProps> = ({
     : 0;
 
   // ✅ Foreign currency opening balance
-  const foreignOpeningBalance = openingBalanceTx && hasForeignCurrency
-    ? increasesWith === 'DR'
-      ? (openingBalanceTx.debit_foreign || 0) - (openingBalanceTx.credit_foreign || 0)
-      : (openingBalanceTx.credit_foreign || 0) - (openingBalanceTx.debit_foreign || 0)
-    : 0;
+  const foreignOpeningBalance =
+    openingBalanceTx && hasForeignCurrency
+      ? increasesWith === 'DR'
+        ? (openingBalanceTx.debit_foreign || 0) -
+          (openingBalanceTx.credit_foreign || 0)
+        : (openingBalanceTx.credit_foreign || 0) -
+          (openingBalanceTx.debit_foreign || 0)
+      : 0;
 
   const totalCredits = restTransactions.reduce(
     (total, transaction) => total + transaction.credit,
@@ -108,15 +112,19 @@ const LedgerStatementOnScreen: React.FC<LedgerStatementOnScreenProps> = ({
   );
 
   // ✅ Foreign currency totals
-  const totalForeignCredits = hasForeignCurrency ? restTransactions.reduce(
-    (total, transaction) => total + (transaction.credit_foreign || 0),
-    0
-  ) : 0;
+  const totalForeignCredits = hasForeignCurrency
+    ? restTransactions.reduce(
+        (total, transaction) => total + (transaction.credit_foreign || 0),
+        0
+      )
+    : 0;
 
-  const totalForeignDebits = hasForeignCurrency ? restTransactions.reduce(
-    (total, transaction) => total + (transaction.debit_foreign || 0),
-    0
-  ) : 0;
+  const totalForeignDebits = hasForeignCurrency
+    ? restTransactions.reduce(
+        (total, transaction) => total + (transaction.debit_foreign || 0),
+        0
+      )
+    : 0;
 
   let runningBalance = openingBalance;
   let foreignRunningBalance = foreignOpeningBalance;
@@ -142,8 +150,12 @@ const LedgerStatementOnScreen: React.FC<LedgerStatementOnScreenProps> = ({
             debit: null as number | null,
             credit: null as number | null,
             balance: openingBalance,
-            debit_foreign: hasForeignCurrency ? (openingBalanceTx.debit_foreign || null) : null,
-            credit_foreign: hasForeignCurrency ? (openingBalanceTx.credit_foreign || null) : null,
+            debit_foreign: hasForeignCurrency
+              ? openingBalanceTx.debit_foreign || null
+              : null,
+            credit_foreign: hasForeignCurrency
+              ? openingBalanceTx.credit_foreign || null
+              : null,
             balance_foreign: hasForeignCurrency ? foreignOpeningBalance : null,
             isCancelled: false,
             isReversal: false,
@@ -159,8 +171,10 @@ const LedgerStatementOnScreen: React.FC<LedgerStatementOnScreenProps> = ({
       if (hasForeignCurrency) {
         foreignRunningBalance +=
           increasesWith === 'DR'
-            ? (transaction.debit_foreign || 0) - (transaction.credit_foreign || 0)
-            : (transaction.credit_foreign || 0) - (transaction.debit_foreign || 0);
+            ? (transaction.debit_foreign || 0) -
+              (transaction.credit_foreign || 0)
+            : (transaction.credit_foreign || 0) -
+              (transaction.debit_foreign || 0);
       }
 
       return {
@@ -172,8 +186,12 @@ const LedgerStatementOnScreen: React.FC<LedgerStatementOnScreenProps> = ({
         debit: transaction.debit,
         credit: transaction.credit,
         balance: runningBalance,
-        debit_foreign: hasForeignCurrency ? (transaction.debit_foreign || null) : null,
-        credit_foreign: hasForeignCurrency ? (transaction.credit_foreign || null) : null,
+        debit_foreign: hasForeignCurrency
+          ? transaction.debit_foreign || null
+          : null,
+        credit_foreign: hasForeignCurrency
+          ? transaction.credit_foreign || null
+          : null,
         balance_foreign: hasForeignCurrency ? foreignRunningBalance : null,
         isCancelled: transaction.isCancelled,
         isReversal: transaction.isReversal,
@@ -184,16 +202,16 @@ const LedgerStatementOnScreen: React.FC<LedgerStatementOnScreenProps> = ({
   return transactionsData ? (
     <Box>
       {/* ✅ Header with currency badge */}
-      <Stack direction="row" spacing={1} alignItems="center" mb={2}>
-        <Typography variant="h6">
-          {transactionsData.filters.ledger?.name || 'Ledger Statement'}
+      <Stack direction='row' spacing={1} alignItems='center' mb={2}>
+        <Typography variant='h6'>
+          {transactionsData?.filters?.ledger?.name || 'Ledger Statement'}
         </Typography>
         {hasForeignCurrency && (
           <Chip
             label={`${currencyCode} (${currencySymbol})`}
-            size="small"
-            color="primary"
-            variant="outlined"
+            size='small'
+            color='primary'
+            variant='outlined'
           />
         )}
       </Stack>
@@ -206,7 +224,7 @@ const LedgerStatementOnScreen: React.FC<LedgerStatementOnScreenProps> = ({
           </Typography>
           <Typography variant='body2'>{formatBalance(totalCredits)}</Typography>
           {hasForeignCurrency && (
-            <Typography variant='caption' color="text.secondary">
+            <Typography variant='caption' color='text.secondary'>
               {currencySymbol} {formatBalance(totalForeignCredits)}
             </Typography>
           )}
@@ -217,7 +235,7 @@ const LedgerStatementOnScreen: React.FC<LedgerStatementOnScreenProps> = ({
           </Typography>
           <Typography variant='body2'>{formatBalance(totalDebits)}</Typography>
           {hasForeignCurrency && (
-            <Typography variant='caption' color="text.secondary">
+            <Typography variant='caption' color='text.secondary'>
               {currencySymbol} {formatBalance(totalForeignDebits)}
             </Typography>
           )}
@@ -248,10 +266,14 @@ const LedgerStatementOnScreen: React.FC<LedgerStatementOnScreenProps> = ({
             {/* ✅ Foreign currency columns */}
             {hasForeignCurrency && (
               <>
-                <TableCell sx={{ backgroundColor: mainColor, color: contrastText }}>
+                <TableCell
+                  sx={{ backgroundColor: mainColor, color: contrastText }}
+                >
                   Debit ({currencyCode})
                 </TableCell>
-                <TableCell sx={{ backgroundColor: mainColor, color: contrastText }}>
+                <TableCell
+                  sx={{ backgroundColor: mainColor, color: contrastText }}
+                >
                   Credit ({currencyCode})
                 </TableCell>
               </>
@@ -260,7 +282,9 @@ const LedgerStatementOnScreen: React.FC<LedgerStatementOnScreenProps> = ({
               Balance
             </TableCell>
             {hasForeignCurrency && (
-              <TableCell sx={{ backgroundColor: mainColor, color: contrastText }}>
+              <TableCell
+                sx={{ backgroundColor: mainColor, color: contrastText }}
+              >
                 Balance ({currencyCode})
               </TableCell>
             )}
@@ -307,23 +331,30 @@ const LedgerStatementOnScreen: React.FC<LedgerStatementOnScreenProps> = ({
                 {row.debit && row.debit !== 0 ? formatBalance(row.debit) : '-'}
               </TableCell>
               <TableCell align='right'>
-                {row.credit && row.credit !== 0 ? formatBalance(row.credit) : '-'}
+                {row.credit && row.credit !== 0
+                  ? formatBalance(row.credit)
+                  : '-'}
               </TableCell>
               {/* ✅ Foreign currency cells */}
               {hasForeignCurrency && (
                 <>
                   <TableCell align='right'>
-                    {row.debit_foreign && row.debit_foreign !== 0 ? formatBalance(row.debit_foreign) : '-'}
+                    {row.debit_foreign && row.debit_foreign !== 0
+                      ? formatBalance(row.debit_foreign)
+                      : '-'}
                   </TableCell>
                   <TableCell align='right'>
-                    {row.credit_foreign && row.credit_foreign !== 0 ? formatBalance(row.credit_foreign) : '-'}
+                    {row.credit_foreign && row.credit_foreign !== 0
+                      ? formatBalance(row.credit_foreign)
+                      : '-'}
                   </TableCell>
                 </>
               )}
               <TableCell align='right'>{formatBalance(row.balance)}</TableCell>
               {hasForeignCurrency && (
                 <TableCell align='right'>
-                  {row.balance_foreign !== null && row.balance_foreign !== undefined
+                  {row.balance_foreign !== null &&
+                  row.balance_foreign !== undefined
                     ? formatBalance(row.balance_foreign)
                     : '-'}
                 </TableCell>

@@ -75,6 +75,8 @@ interface FormValues {
   defer_grn_billing?: boolean;
   defer_project_certificate_invoicing?: boolean;
   standard_hours_per_month?: number | null;
+  employee_number_prefix?: string | null;
+  employee_number_padding?: number | null;
   symbol_path?: string | null;
   main_color: string;
   light_color: string;
@@ -201,6 +203,16 @@ const OrganizationForm: React.FC<OrganizationFormProps> = ({ organization = null
             .typeError('Standard hours per month must be a number')
             .positive('Standard hours per month must be greater than 0')
             .nullable(),
+        employee_number_prefix: yup
+            .string()
+            .max(20, 'Employee number prefix must be at most 20 characters')
+            .nullable(),
+        employee_number_padding: yup
+            .number()
+            .typeError('Digits must be a number')
+            .min(1, 'Digits must be at least 1')
+            .max(10, 'Digits must be at most 10')
+            .nullable(),
     });
 
     const {
@@ -230,6 +242,8 @@ const OrganizationForm: React.FC<OrganizationFormProps> = ({ organization = null
         defer_grn_billing: !!organization?.settings?.defer_grn_billing,
         defer_project_certificate_invoicing: !!organization?.settings?.defer_project_certificate_invoicing,
         standard_hours_per_month: organization?.settings?.standard_hours_per_month ?? null,
+        employee_number_prefix: organization?.settings?.employee_number_prefix ?? null,
+        employee_number_padding: organization?.settings?.employee_number_padding ?? null,
         symbol_path: organization?.settings?.symbol_path
             ? organization.settings.symbol_path
             : null,
@@ -657,6 +671,35 @@ const OrganizationForm: React.FC<OrganizationFormProps> = ({ organization = null
                   'Default used to derive monthly-paid employees’ hourly rate for overtime — overridable per employee contract'
                 }
                 {...register('standard_hours_per_month')}
+              />
+            </Grid>
+            <Grid size={{ xs: 12, md: 4 }}>
+              <TextField
+                fullWidth
+                label="Employee Number Prefix"
+                size="small"
+                placeholder="e.g. PROS"
+                error={!!errors?.employee_number_prefix}
+                helperText={
+                  errors?.employee_number_prefix?.message ||
+                  'Optional — prepended to every suggested employee number (e.g. "PROS010")'
+                }
+                {...register('employee_number_prefix')}
+              />
+            </Grid>
+            <Grid size={{ xs: 12, md: 4 }}>
+              <TextField
+                fullWidth
+                label="Employee Number Digits"
+                size="small"
+                type="number"
+                placeholder="e.g. 4"
+                error={!!errors?.employee_number_padding}
+                helperText={
+                  errors?.employee_number_padding?.message ||
+                  'Zero-padded width of the number (e.g. 4 → "0052") — leave blank for no padding'
+                }
+                {...register('employee_number_padding')}
               />
             </Grid>
             <Grid size={{ xs: 12 }} sx={{ m: 1, mt: 3 }}>

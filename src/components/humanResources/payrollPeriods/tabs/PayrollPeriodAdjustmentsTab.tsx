@@ -143,6 +143,8 @@ interface PeriodAbsence {
   employee_id: number;
   date: string;
   hours: number;
+  hourly_rate: number | null;
+  amount: number;
   remarks: string | null;
   employee: AdjustmentEmployee;
 }
@@ -302,7 +304,34 @@ const PayrollPeriodAdjustmentsTab = ({
     defaultOvertimeDate()
   );
   const [absenceHours, setAbsenceHours] = useState<number | ''>('');
+  const [absenceHourlyRate, setAbsenceHourlyRate] = useState<number | ''>('');
+  const [absenceHourlyRateTouched, setAbsenceHourlyRateTouched] =
+    useState(false);
   const [absenceRemarks, setAbsenceRemarks] = useState('');
+
+  // Derived hourly rate (basic_salary / standard_hours_per_month) for the
+  // entry being edited — same idea as the Leave Encashment daily-rate query
+  // below, used to auto-fill Rate/Hour so HR can see (and override) it
+  // rather than typing arithmetic the system already has every input for.
+  const { data: absenceHourlyRateResponse } = useQuery({
+    queryKey: ['absenceHourlyRate', absenceEmployee?.id],
+    queryFn: () =>
+      humanResourcesServices.getAbsenceHourlyRate(absenceEmployee?.id),
+    enabled: absenceDialogOpen && !!absenceEmployee,
+  });
+  const derivedAbsenceHourlyRate: number | null =
+    absenceHourlyRateResponse?.hourly_rate ?? null;
+
+  useEffect(() => {
+    if (absenceHourlyRateTouched || derivedAbsenceHourlyRate === null) return;
+    setAbsenceHourlyRate(derivedAbsenceHourlyRate);
+  }, [derivedAbsenceHourlyRate, absenceHourlyRateTouched]);
+
+  const absenceComputedAmount =
+    absenceHours === '' || absenceHourlyRate === ''
+      ? null
+      : Math.round(Number(absenceHours) * Number(absenceHourlyRate) * 100) /
+        100;
 
   // Leave Encashment — "employer buys back unused leave days". A single-entry
   // form only (no bulk upload, no edit): each save pairs a taxable payroll
@@ -741,6 +770,8 @@ const PayrollPeriodAdjustmentsTab = ({
     setAbsenceEmployee(null);
     setAbsenceDate(defaultOvertimeDate());
     setAbsenceHours('');
+    setAbsenceHourlyRate('');
+    setAbsenceHourlyRateTouched(false);
     setAbsenceRemarks('');
   };
 
@@ -749,6 +780,12 @@ const PayrollPeriodAdjustmentsTab = ({
     setAbsenceEmployee(item.employee as unknown as Employee);
     setAbsenceDate(dayjs(item.date).toISOString());
     setAbsenceHours(item.hours);
+    // A previously-saved override is shown as-is (touched=true, so the
+    // derived-rate query below never clobbers it); no override on record
+    // falls back to showing (and re-deriving) the contract rate, same as a
+    // brand new entry would.
+    setAbsenceHourlyRate(item.hourly_rate ?? '');
+    setAbsenceHourlyRateTouched(item.hourly_rate !== null);
     setAbsenceRemarks(item.remarks || '');
     setAbsenceDialogOpen(true);
   };
@@ -760,6 +797,7 @@ const PayrollPeriodAdjustmentsTab = ({
       id: editingAbsence.id,
       date: dayjs(absenceDate).format('YYYY-MM-DD'),
       hours: Number(absenceHours),
+      hourly_rate: absenceHourlyRate === '' ? null : Number(absenceHourlyRate),
       remarks: absenceRemarks || undefined,
     });
   };
@@ -1246,6 +1284,7 @@ const PayrollPeriodAdjustmentsTab = ({
     }
 
     const totalHours = items.reduce((sum, item) => sum + Number(item.hours || 0), 0);
+    const totalAmount = items.reduce((sum, item) => sum + Number(item.amount || 0), 0);
 
     return (
       <TableContainer
@@ -1253,12 +1292,14 @@ const PayrollPeriodAdjustmentsTab = ({
         variant='outlined'
         sx={{ borderRadius: 2, overflowX: 'auto' }}
       >
-        <Table size='small' sx={{ minWidth: 650 }}>
+        <Table size='small' sx={{ minWidth: 800 }}>
           <TableHead>
             <TableRow sx={{ bgcolor: isDark ? 'action.hover' : 'grey.50' }}>
               <TableCell>Employee</TableCell>
               <TableCell>Date</TableCell>
               <TableCell align='right'>Hours</TableCell>
+              <TableCell align='right'>Rate/Hr</TableCell>
+              <TableCell align='right'>Amount</TableCell>
               <TableCell>Remarks</TableCell>
               <TableCell align='center'>Actions</TableCell>
             </TableRow>
@@ -1283,6 +1324,18 @@ const PayrollPeriodAdjustmentsTab = ({
                   <TableCell align='right'>
                     <Typography variant='body2' fontWeight='medium'>
                       {item.hours}
+                    </Typography>
+                  </TableCell>
+                  <TableCell align='right'>
+                    <Tooltip title={item.hourly_rate !== null ? 'Overridden' : 'Derived from contract'}>
+                      <Typography variant='body2' color={item.hourly_rate !== null ? 'text.primary' : 'text.secondary'}>
+                        {item.hourly_rate !== null ? Number(item.hourly_rate).toLocaleString() : '—'}
+                      </Typography>
+                    </Tooltip>
+                  </TableCell>
+                  <TableCell align='right'>
+                    <Typography variant='body2' fontWeight='medium'>
+                      {Number(item.amount || 0).toLocaleString()}
                     </Typography>
                   </TableCell>
                   <TableCell>
@@ -1337,6 +1390,12 @@ const PayrollPeriodAdjustmentsTab = ({
               <TableCell align='right'>
                 <Typography variant='body2' fontWeight={700}>
                   {totalHours.toLocaleString()}
+                </Typography>
+              </TableCell>
+              <TableCell />
+              <TableCell align='right'>
+                <Typography variant='body2' fontWeight={700}>
+                  {totalAmount.toLocaleString()}
                 </Typography>
               </TableCell>
               <TableCell colSpan={2} />
@@ -2613,6 +2672,30 @@ const PayrollPeriodAdjustmentsTab = ({
               inputProps={{ min: 0.25, step: 0.25 }}
             />
             <TextField
+              label='Rate/Hour'
+              size='small'
+              fullWidth
+              value={absenceHourlyRate}
+              onChange={(e) => {
+                const sanitized = sanitizedNumber(e.target.value);
+                setAbsenceHourlyRateTouched(true);
+                setAbsenceHourlyRate(Number.isNaN(sanitized) ? '' : sanitized);
+              }}
+              InputProps={{ inputComponent: CommaSeparatedField as any }}
+              helperText={
+                absenceHourlyRateTouched
+                  ? 'Overridden — edit to change, or clear to fall back to the derived rate'
+                  : derivedAbsenceHourlyRate !== null
+                    ? `Auto-derived from contract (basic salary ÷ standard hours/month) — edit to override`
+                    : "Couldn't derive a rate for this employee — enter it manually"
+              }
+            />
+            <Alert severity='info' sx={{ borderRadius: 2 }}>
+              {absenceComputedAmount !== null
+                ? `Deduction: ${absenceComputedAmount.toLocaleString()} (${Number(absenceHours)} hour(s) × ${Number(absenceHourlyRate).toLocaleString()}/hour)`
+                : 'Enter hours and a rate to see the computed deduction'}
+            </Alert>
+            <TextField
               label='Remarks'
               size='small'
               fullWidth
@@ -2630,7 +2713,10 @@ const PayrollPeriodAdjustmentsTab = ({
             onClick={handleAbsenceSave}
             variant='contained'
             disabled={
-              !absenceDate || absenceHours === '' || editAbsenceMutation.isPending
+              !absenceDate ||
+              absenceHours === '' ||
+              absenceHourlyRate === '' ||
+              editAbsenceMutation.isPending
             }
           >
             Save

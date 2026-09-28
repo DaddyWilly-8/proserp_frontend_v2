@@ -1,6 +1,7 @@
 // payrollPeriods/SalarySheetPDF.tsx
 'use client';
 
+import { readableDate } from '@/app/helpers/input-sanitization-helpers';
 import PdfLogo from '@/components/pdf/PdfLogo';
 import { Organization } from '@/types/auth-types';
 import { Document, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
@@ -31,6 +32,7 @@ type SalarySheetPDFProps = {
   contributionTypes: Array<any>;
   groupBy?: 'none' | 'department' | 'cost_center';
   selectedPeriod: String | null;
+  userName?: string;
 };
 
 const styles = StyleSheet.create({
@@ -180,9 +182,13 @@ function getEmployeeName(run: PayrollRunType) {
   const employee = run.employee as any;
   if (employee.name) return employee.name;
 
-  const firstName = run.employee.first_name || '';
-  const lastName = run.employee.last_name || '';
-  const fullName = `${firstName} ${lastName}`.trim();
+  const fullName = [
+    run.employee.first_name,
+    (run.employee as any).middle_name,
+    run.employee.last_name,
+  ]
+    .filter(Boolean)
+    .join(' ');
   return fullName || '';
 }
 
@@ -212,6 +218,7 @@ const SalarySheetPDF = ({
   contributionTypes,
   groupBy = 'none',
   selectedPeriod,
+  userName = 'ProsERP',
 }: SalarySheetPDFProps) => {
   const mainColor = organization.settings?.main_color || '#2113AD';
   const lightColor = organization.settings?.light_color || '#d9dfef';
@@ -446,6 +453,9 @@ const SalarySheetPDF = ({
             <Text style={styles.subtitle}>{periodLabel}</Text>
             <Text style={{ ...styles.subtitle, marginTop: 1 }}>
               {selectedPeriod}
+            </Text>
+            <Text style={{ ...styles.subtitle, marginTop: 3, fontSize: 6.5 }}>
+              Printed By: {userName} | Printed On: {readableDate(undefined, true)}
             </Text>
           </View>
         </View>

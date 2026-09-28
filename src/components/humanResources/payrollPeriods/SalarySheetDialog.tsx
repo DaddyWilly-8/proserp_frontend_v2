@@ -74,9 +74,13 @@ function getEmployeeName(run: PayrollRunType) {
   if (!run.employee) return '';
   const employee = run.employee as any;
   if (employee.name) return employee.name;
-  const firstName = run.employee.first_name || '';
-  const lastName = run.employee.last_name || '';
-  const fullName = `${firstName} ${lastName}`.trim();
+  const fullName = [
+    run.employee.first_name,
+    (run.employee as any).middle_name,
+    run.employee.last_name,
+  ]
+    .filter(Boolean)
+    .join(' ');
   return fullName;
 }
 
@@ -118,8 +122,15 @@ const SalarySheetDialog = ({
   const [groupBy, setGroupBy] = useState<'none' | 'department' | 'cost_center'>(
     'none'
   );
+  // Detailed (default): one column per Allowance/Deduction Type. Compact:
+  // every allowance collapses into one "Allowances" column and every
+  // deduction (PAYE excluded — it already has its own dedicated column) into
+  // one "Deductions" column, for a sheet that fits the page/screen width
+  // regardless of how many types are configured.
+  const [view, setView] = useState<'detailed' | 'compact'>('detailed');
 
   const organization = authObject?.authOrganization?.organization;
+  const userName = authObject?.authUser?.user?.name || 'ProsERP';
 
   // monthName isn't a backend field — some callers compute and attach it
   // themselves, but not all (e.g. an initial URL-driven period selection),
@@ -137,14 +148,14 @@ const SalarySheetDialog = ({
     ? `${selectedPayrollPeriod.year} - ${monthName}`
     : '';
 
-  const employeeDeductions = rows.flatMap(
+  let employeeDeductions = rows.flatMap(
     (itm) =>
       itm.run?.deductions?.map((deduction: any) => ({
         ...deduction,
         employee_contract_id: itm.run.employee?.id,
       })) || []
   );
-  const employeeAllowance = rows.flatMap(
+  let employeeAllowance = rows.flatMap(
     (itm) =>
       itm.run?.allowances?.map((allowance: any) => ({
         ...allowance,
@@ -184,11 +195,31 @@ const SalarySheetDialog = ({
   // number of per-type columns rendered. Other null-typed system deductions
   // (e.g. Absence Deduction, which also has no backing DeductionType) are
   // NOT excluded — category is what singles PAYE out, not a null type_id.
-  const unique_deductions_types = getUniqueTypes(employeeDeductions).filter(
+  let unique_deductions_types = getUniqueTypes(employeeDeductions).filter(
     (type: any) => type.category !== 'tax'
   );
-  const unique_allowances_types = getUniqueTypes(employeeAllowance);
+  let unique_allowances_types = getUniqueTypes(employeeAllowance);
   const unique_contributions_types = getUniqueTypes(employeecontributions);
+
+  // Compact view: relabel every row to one shared label per group so all of
+  // the sum-by-label logic below (per-type column totals, group subtotals,
+  // grand totals) collapses onto a single column automatically — nothing
+  // past this point needs to know which view is active.
+  if (view === 'compact') {
+    employeeAllowance = employeeAllowance.map((itm: any) => ({
+      ...itm,
+      label: 'Allowances',
+    }));
+    employeeDeductions = employeeDeductions
+      .filter((itm: any) => itm.category !== 'tax')
+      .map((itm: any) => ({ ...itm, label: 'Deductions' }));
+    unique_allowances_types = employeeAllowance.length
+      ? [{ label: 'Allowances', allowance_type_id: null }]
+      : [];
+    unique_deductions_types = employeeDeductions.length
+      ? [{ label: 'Deductions', deduction_type_id: null, category: 'voluntary' }]
+      : [];
+  }
 
   const hasAllowances = unique_allowances_types.length > 0;
   const hasDeductions = unique_deductions_types.length > 0;
@@ -320,6 +351,7 @@ const SalarySheetDialog = ({
     contributionTypes: employeecontributions,
     groupBy,
     selectedPeriod: selectedPeriod,
+    userName,
   };
 
   const handleExcelExport = async (exportedData: any) => {
@@ -404,18 +436,33 @@ const SalarySheetDialog = ({
                     {selectedPeriod}
                   </Typography>
                 </Box>
-                <TextField
-                  select
-                  size='small'
-                  label='Group By'
-                  value={groupBy}
-                  onChange={(e) => setGroupBy(e.target.value as typeof groupBy)}
-                  sx={{ minWidth: 200 }}
-                >
-                  <MenuItem value='none'>One table (default)</MenuItem>
-                  <MenuItem value='department'>Department</MenuItem>
-                  <MenuItem value='cost_center'>Cost Center</MenuItem>
-                </TextField>
+                <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
+                  <TextField
+                    select
+                    size='small'
+                    label='View'
+                    value={view}
+                    onChange={(e) => setView(e.target.value as typeof view)}
+                    sx={{ minWidth: 160 }}
+                  >
+                    <MenuItem value='detailed'>Detailed (default)</MenuItem>
+                    <MenuItem value='compact'>
+                      Compact (merged allowances/deductions)
+                    </MenuItem>
+                  </TextField>
+                  <TextField
+                    select
+                    size='small'
+                    label='Group By'
+                    value={groupBy}
+                    onChange={(e) => setGroupBy(e.target.value as typeof groupBy)}
+                    sx={{ minWidth: 200 }}
+                  >
+                    <MenuItem value='none'>One table (default)</MenuItem>
+                    <MenuItem value='department'>Department</MenuItem>
+                    <MenuItem value='cost_center'>Cost Center</MenuItem>
+                  </TextField>
+                </Stack>
               </Stack>
               {isLoading ? (
                 <Box
@@ -1387,6 +1434,7 @@ const SalarySheetDialog = ({
                     contributionTypes={employeecontributions}
                     groupBy={groupBy}
                     selectedPeriod={selectedPeriod}
+                    userName={userName}
                   />
                 }
                 fileName={`Salary-Sheet-${periodLabel}`}

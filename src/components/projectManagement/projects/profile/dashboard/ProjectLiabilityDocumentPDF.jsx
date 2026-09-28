@@ -10,7 +10,6 @@ const ProjectLiabilityDocumentPDF = ({
   ledger,
   ledgerName,
   increasesWith,
-  activeTab,
 }) => {
   const [openingBalanceTx, ...restTransactions] = transactionsData.transactions;
 
@@ -72,7 +71,7 @@ const ProjectLiabilityDocumentPDF = ({
   ];
   return transactionsData ? (
     <Document
-      creator={`${user.name} | Powered by ProsERP`}
+      creator={`${user?.name} | Powered by ProsERP`}
       producer='ProsERP'
       title={`${ledger?.name || ledgerName} Statement ${readableDate(transactionsData.filters.from)} to ${readableDate(transactionsData.filters.to)}`}
     >

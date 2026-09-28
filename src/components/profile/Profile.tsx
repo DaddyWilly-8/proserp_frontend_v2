@@ -73,6 +73,7 @@ const Profile = () => {
     'success' | 'primary' | 'error'
   >('success');
   const [hasHrModule, setHasHrModule] = useState(false);
+  const [hasAccountsModule, setHasAccountsModule] = useState(false);
   const [isClient, setIsClient] = useState(false);
   const [changePasswordOpen, setChangePasswordOpen] = useState(false);
 
@@ -116,7 +117,7 @@ const Profile = () => {
           label: 'My Hr',
           icon: <AccessibilityNewOutlined />,
         },
-        {
+        hasAccountsModule && {
           key: 'imprestAccounts',
           label: 'Imprest Accounts',
           icon: <AccountBalanceWalletOutlined />,
@@ -126,7 +127,7 @@ const Profile = () => {
         label: string;
         icon: React.ReactElement;
       }[],
-    [hasEmployeeLink]
+    [hasEmployeeLink, hasAccountsModule]
   );
 
   useEffect(() => {
@@ -135,6 +136,9 @@ const Profile = () => {
 
   useEffect(() => {
     setHasHrModule(organizationHasSubscribed(MODULES.HUMAN_RESOURCES));
+    setHasAccountsModule(
+      organizationHasSubscribed(MODULES.ACCOUNTS_AND_FINANCE)
+    );
   }, [organizationHasSubscribed]);
 
   // If not client yet, show loading state

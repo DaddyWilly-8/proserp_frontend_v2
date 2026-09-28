@@ -27,11 +27,9 @@ import ProjectLiabilityDocumentPDF from './ProjectLiabilityDocumentPDF';
 const ProjectLiabilityDocumentDialog = ({
   openDialog,
   onClose,
-  baseCurrency,
   organization,
   user,
   liabilitiesPaylod,
-  activeTab,
 }) => {
   const [isExporting, setIsExporting] = useState(false);
   const [showOnScreen, setShowOnScreen] = useState(true);
@@ -147,7 +145,6 @@ const ProjectLiabilityDocumentDialog = ({
                 user={user}
                 ledgerName={liabilitiesPaylod?.liabilityName}
                 increasesWith={liabilitiesPaylod?.increasesWith}
-                activeTab={activeTab}
               />
             }
           />
