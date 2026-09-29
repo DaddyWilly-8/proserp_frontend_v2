@@ -855,6 +855,16 @@ humanResourcesServices.updateLoanRequest = async ({ id, ...payload }) => {
     return data;
 }
 
+humanResourcesServices.skipLoanRecovery = async ({ id, ...payload }) => {
+    const { data } = await axios.post(`/api/humanResources/loanRequests/${id}/skip-recovery`, payload);
+    return data;
+}
+
+humanResourcesServices.unskipLoanRecovery = async ({ id, skipId }) => {
+    const { data } = await axios.delete(`/api/humanResources/loanRequests/${id}/skip-recovery/${skipId}`);
+    return data;
+}
+
 // ============================================
 // PAYE TAX BANDS
 // ============================================

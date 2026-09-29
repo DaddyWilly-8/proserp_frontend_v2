@@ -83,6 +83,23 @@ export interface LoanRepayment {
   receiptedBy?: { id: number; name: string } | null;
 }
 
+/** One period this loan's installment was explicitly excused from — see LoanService::skipRecovery(). */
+export interface LoanRecoverySkip {
+  id: number;
+  loan_request_id: number;
+  employee_deduction_id: number;
+  payroll_period_id: number;
+  remarks: string | null;
+  created_by: number;
+  created_at: string;
+  payroll_period?: {
+    id: number;
+    year: number;
+    month: number;
+    name?: string;
+  };
+}
+
 export interface LoanRequestType {
   id: number;
   employee_id: number;
@@ -93,6 +110,10 @@ export interface LoanRequestType {
   installments: number;
   recovery_mode?: 'installments' | 'fixed_amount';
   installment_amount_requested?: number | null;
+  // What was requested (or the approver overrode at grant time) — never
+  // earlier than payroll actually allowed once approved. See
+  // LoanService::grant()'s $recoveryStartDate param.
+  recovery_start_date?: string | null;
   amount_approved: number | null;
   installments_approved: number | null;
   installment_amount: number | null;
@@ -138,4 +159,7 @@ export interface LoanRequestType {
   initiated_repayments_count?: number;
   // Only the initiated (not-yet-receipted) ones, eager-loaded on show().
   repayments?: LoanRepayment[];
+  // Periods excused from recovery — eager-loaded on show(). See
+  // LoanService::skipRecovery()/unskipRecovery().
+  skips?: LoanRecoverySkip[];
 }

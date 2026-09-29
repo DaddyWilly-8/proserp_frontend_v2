@@ -54,6 +54,7 @@ export interface LoanRequestPreviewData {
   amount_approved?: number | null;
   installments_approved?: number | null;
   installment_amount?: number | null;
+  recovery_start_date?: string | null;
   reviewed_at?: string | null;
   review_remarks?: string | null;
   disbursed_at?: string | null;
@@ -288,6 +289,18 @@ const LoanRequestPreview = ({ loanRequest, title }: LoanRequestPreviewProps) => 
               {loanRequest.recovery_mode === 'fixed_amount' &&
                 loanRequest.installments_approved != null &&
                 ` (flat rate, ~${loanRequest.installments_approved} periods to clear)`}
+            </Typography>
+          )}
+          {loanRequest.recovery_start_date && (
+            <Typography variant='body2' color='text.secondary' mt={0.5}>
+              Recovery starts:{' '}
+              <strong>
+                {new Date(loanRequest.recovery_start_date).toLocaleDateString(
+                  undefined,
+                  { year: 'numeric', month: 'long' }
+                )}
+              </strong>
+              {loanRequest.status === 'in_review' && ' (requested)'}
             </Typography>
           )}
         </CardContent>

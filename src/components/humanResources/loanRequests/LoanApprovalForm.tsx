@@ -16,7 +16,7 @@ import {
   Stack,
   TextField,
 } from '@mui/material';
-import { DateTimePicker } from '@mui/x-date-pickers';
+import { DatePicker, DateTimePicker } from '@mui/x-date-pickers';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import { useSnackbar } from 'notistack';
@@ -75,6 +75,9 @@ const LoanApprovalForm = ({
   >(defaultInstallmentAmount);
   const [remarks, setRemarks] = useState('');
   const [approvalDate, setApprovalDate] = useState(dayjs().toISOString());
+  const [recoveryStartDate, setRecoveryStartDate] = useState<string | null>(
+    loanRequest.recovery_start_date ?? null
+  );
   const [amountError, setAmountError] = useState('');
   const [installmentsError, setInstallmentsError] = useState('');
   const [remarksError, setRemarksError] = useState('');
@@ -91,6 +94,7 @@ const LoanApprovalForm = ({
     setInstallmentAmountApproved(defaultInstallmentAmount);
     setRemarks('');
     setApprovalDate(dayjs().toISOString());
+    setRecoveryStartDate(loanRequest.recovery_start_date ?? null);
     setAmountError('');
     setInstallmentsError('');
     setRemarksError('');
@@ -174,6 +178,8 @@ const LoanApprovalForm = ({
             : undefined,
         remarks,
         approval_date: approvalDate || undefined,
+        recovery_start_date:
+          status === 'approved' ? recoveryStartDate || undefined : undefined,
       });
 
     // Rejection is a terminal, single-click decision (unlike Approve, which
@@ -280,6 +286,25 @@ const LoanApprovalForm = ({
               }}
             />
           )}
+          <DatePicker
+            label='Recovery Start (optional)'
+            views={['year', 'month']}
+            minDate={dayjs().startOf('month')}
+            value={recoveryStartDate ? dayjs(recoveryStartDate) : null}
+            onChange={(val) =>
+              setRecoveryStartDate(
+                val ? val.startOf('month').format('YYYY-MM-DD') : null
+              )
+            }
+            slotProps={{
+              textField: {
+                size: 'small',
+                fullWidth: true,
+                helperText: 'Leave blank to start as soon as payroll allows',
+              },
+              field: { clearable: true },
+            }}
+          />
           <DateTimePicker
             label='Approval Date & Time'
             value={approvalDate ? dayjs(approvalDate) : null}

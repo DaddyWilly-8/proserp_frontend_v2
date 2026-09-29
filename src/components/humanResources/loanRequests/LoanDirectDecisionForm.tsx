@@ -13,7 +13,7 @@ import {
   Stack,
   TextField,
 } from '@mui/material';
-import { DateTimePicker } from '@mui/x-date-pickers';
+import { DatePicker, DateTimePicker } from '@mui/x-date-pickers';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import { useSnackbar } from 'notistack';
@@ -54,6 +54,9 @@ const LoanDirectDecisionForm = ({
   >(loanRequest.installment_amount_requested ?? '');
   const [remarks, setRemarks] = useState('');
   const [reviewedAt, setReviewedAt] = useState(dayjs().toISOString());
+  const [recoveryStartDate, setRecoveryStartDate] = useState<string | null>(
+    loanRequest.recovery_start_date ?? null
+  );
   const [amountError, setAmountError] = useState('');
   const [remarksError, setRemarksError] = useState('');
 
@@ -68,6 +71,7 @@ const LoanDirectDecisionForm = ({
     setInstallmentAmountApproved(loanRequest.installment_amount_requested ?? '');
     setRemarks('');
     setReviewedAt(dayjs().toISOString());
+    setRecoveryStartDate(loanRequest.recovery_start_date ?? null);
     setAmountError('');
     setRemarksError('');
   }, [open]);
@@ -134,6 +138,7 @@ const LoanDirectDecisionForm = ({
           : undefined,
       remarks: remarks || undefined,
       reviewed_at: reviewedAt || undefined,
+      recovery_start_date: isApprove ? recoveryStartDate || undefined : undefined,
     });
   };
 
@@ -211,6 +216,25 @@ const LoanDirectDecisionForm = ({
                   }
                 />
               )}
+              <DatePicker
+                label='Recovery Start (optional)'
+                views={['year', 'month']}
+                minDate={dayjs().startOf('month')}
+                value={recoveryStartDate ? dayjs(recoveryStartDate) : null}
+                onChange={(val) =>
+                  setRecoveryStartDate(
+                    val ? val.startOf('month').format('YYYY-MM-DD') : null
+                  )
+                }
+                slotProps={{
+                  textField: {
+                    size: 'small',
+                    fullWidth: true,
+                    helperText: 'Leave blank to start as soon as payroll allows',
+                  },
+                  field: { clearable: true },
+                }}
+              />
             </>
           )}
           <DateTimePicker

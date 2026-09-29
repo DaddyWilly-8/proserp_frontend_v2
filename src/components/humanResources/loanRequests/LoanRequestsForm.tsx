@@ -38,6 +38,7 @@ interface FormData {
   installment_amount_requested?: number | null;
   reason?: string | null;
   requested_at?: string | null;
+  recovery_start_date?: string | null;
 }
 
 interface ApiResponse {
@@ -145,6 +146,7 @@ const LoanRequestsForm = ({
       }),
     reason: yup.string().nullable(),
     requested_at: yup.string().nullable(),
+    recovery_start_date: yup.string().nullable(),
   });
 
   // Form
@@ -166,6 +168,7 @@ const LoanRequestsForm = ({
       installment_amount_requested: loan?.installment_amount_requested ?? null,
       reason: loan?.reason ?? '',
       requested_at: loan?.requested_at || dayjs().format('YYYY-MM-DD'),
+      recovery_start_date: loan?.recovery_start_date ?? null,
     },
   });
 
@@ -318,6 +321,36 @@ const LoanRequestsForm = ({
                     error: !!errors.requested_at,
                     helperText: errors.requested_at?.message,
                   },
+                }}
+              />
+            </Grid>
+            <Grid size={{ xs: 12, md: 6 }}>
+              <DatePicker
+                label='Recovery Start (optional)'
+                views={['year', 'month']}
+                minDate={dayjs().startOf('month')}
+                value={
+                  watch('recovery_start_date')
+                    ? dayjs(watch('recovery_start_date'))
+                    : null
+                }
+                onChange={(val) => {
+                  setValue(
+                    'recovery_start_date',
+                    val ? val.startOf('month').format('YYYY-MM-DD') : null,
+                    { shouldDirty: true }
+                  );
+                }}
+                slotProps={{
+                  textField: {
+                    size: 'small',
+                    fullWidth: true,
+                    error: !!errors.recovery_start_date,
+                    helperText:
+                      errors.recovery_start_date?.message ||
+                      'Leave blank to start as soon as payroll allows',
+                  },
+                  field: { clearable: true },
                 }}
               />
             </Grid>

@@ -3,28 +3,43 @@
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
 import { useJumboDialog } from '@jumbo/components/JumboDialog/hooks/useJumboDialog';
-import { ReplayOutlined } from '@mui/icons-material';
+import { AddCircleOutline, DeleteOutline, ReplayOutlined } from '@mui/icons-material';
+import { LoadingButton } from '@mui/lab';
 import {
   Alert,
+  Autocomplete,
   Box,
+  Button,
   Card,
   CardContent,
   Chip,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   Grid,
   IconButton,
   LinearProgress,
+  Stack,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
   TableRow,
+  TextField,
   Tooltip,
   Typography,
 } from '@mui/material';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useSnackbar } from 'notistack';
+import { useState } from 'react';
 import humanResourcesServices from '../humanResourcesServices';
+
+const MONTH_NAMES = [
+  'January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December',
+];
 
 interface LoanStatementProps {
   loanId: number;
@@ -77,6 +92,14 @@ interface InitiatedRepaymentRow {
   requested_at?: string | null;
 }
 
+interface SkipRow {
+  id: number;
+  period_id: number;
+  period_label: string | null;
+  remarks: string | null;
+  created_at: string | null;
+}
+
 /**
  * Read-only recovery statement for one loan: what's actually been recovered
  * via payroll so far (the real PayslipDeduction history) and a forward
@@ -96,6 +119,91 @@ const LoanStatement = ({ loanId, service }: LoanStatementProps) => {
     queryKey: ['loanStatement', loanId, service ? 'self' : 'hr'],
     queryFn: () => fetchStatement(loanId),
   });
+
+  const [skipDialogOpen, setSkipDialogOpen] = useState(false);
+  const [skipPeriod, setSkipPeriod] = useState<{
+    id: number;
+    label: string;
+  } | null>(null);
+  const [skipRemarks, setSkipRemarks] = useState('');
+
+  const { data: periodsData, isFetching: isFetchingPeriods } = useQuery({
+    queryKey: ['payrollPeriodsForLoanSkip'],
+    queryFn: () =>
+      humanResourcesServices.getPayrollPeriodsList({ limit: 100 }),
+    enabled: skipDialogOpen,
+  });
+
+  const periodOptions = (periodsData?.data || []).map((period: any) => ({
+    id: period.id,
+    label: `${MONTH_NAMES[period.month - 1] || period.month} ${period.year}`,
+  }));
+
+  const invalidateAfterRecoveryChange = () => {
+    queryClient.invalidateQueries({
+      queryKey: ['loanStatement', loanId, service ? 'self' : 'hr'],
+    });
+    queryClient.invalidateQueries({ queryKey: ['showLoanRequest', loanId] });
+    queryClient.invalidateQueries({ queryKey: ['loanRequests'] });
+  };
+
+  const { mutate: skipRecovery, isPending: isSkipping } = useMutation({
+    mutationFn: humanResourcesServices.skipLoanRecovery,
+    onSuccess: (response: any) => {
+      invalidateAfterRecoveryChange();
+      enqueueSnackbar(
+        response?.message ||
+          "That period's installment has been excused",
+        { variant: 'success' }
+      );
+      setSkipDialogOpen(false);
+      setSkipPeriod(null);
+      setSkipRemarks('');
+    },
+    onError: (error: any) => {
+      enqueueSnackbar(
+        error?.response?.data?.message || 'Something went wrong',
+        { variant: 'error' }
+      );
+    },
+  });
+
+  const { mutate: unskipRecovery, isPending: isUnskipping } = useMutation({
+    mutationFn: humanResourcesServices.unskipLoanRecovery,
+    onSuccess: () => {
+      invalidateAfterRecoveryChange();
+      enqueueSnackbar('Recovery skip reversed', { variant: 'success' });
+    },
+    onError: (error: any) => {
+      enqueueSnackbar(
+        error?.response?.data?.message || 'Something went wrong',
+        { variant: 'error' }
+      );
+    },
+  });
+
+  const handleUnskip = (skipId: number) => {
+    showDialog({
+      title: 'Reverse Recovery Skip',
+      content:
+        "This puts that period's installment back into the schedule. Continue?",
+      onYes: () => {
+        hideDialog();
+        unskipRecovery({ id: loanId, skipId });
+      },
+      onNo: () => hideDialog(),
+      variant: 'confirm',
+    });
+  };
+
+  const handleSkipSubmit = () => {
+    if (!skipPeriod) return;
+    skipRecovery({
+      id: loanId,
+      payroll_period_id: skipPeriod.id,
+      remarks: skipRemarks || undefined,
+    });
+  };
 
   const { mutate: reverseReceipt, isPending: isReversingReceipt } = useMutation({
     mutationFn: humanResourcesServices.reverseLoanRepaymentReceipt,
@@ -123,6 +231,10 @@ const LoanStatement = ({ loanId, service }: LoanStatementProps) => {
     checkOrganizationPermission(PERMISSIONS.LOANS_EDIT) &&
     checkOrganizationPermission(PERMISSIONS.ACCOUNTS_TRANSACTIONS_DELETE);
 
+  // Same HR-only gating as reversing a receipt — an employee viewing their
+  // own loan on My HR should never see recovery-skip controls.
+  const canManageSkips = !service && checkOrganizationPermission(PERMISSIONS.LOANS_EDIT);
+
   const handleReverseReceipt = (loanRepaymentId: number) => {
     showDialog({
       title: 'Reverse Repayment Receipt',
@@ -145,7 +257,14 @@ const LoanStatement = ({ loanId, service }: LoanStatementProps) => {
     return null;
   }
 
-  const { loan, history, initiated_repayments: initiatedRepayments = [], projection, summary } = data;
+  const {
+    loan,
+    history,
+    initiated_repayments: initiatedRepayments = [],
+    projection,
+    summary,
+    skips = [],
+  } = data;
 
   return (
     <Box>
@@ -166,6 +285,65 @@ const LoanStatement = ({ loanId, service }: LoanStatementProps) => {
           }
         />
       </Grid>
+
+      {canManageSkips && loan.status === 'approved' && !summary.fully_recovered && (
+        <>
+          <Stack
+            direction='row'
+            justifyContent='space-between'
+            alignItems='center'
+            mb={1}
+          >
+            <Typography variant='subtitle1' fontWeight={600}>
+              Excused Periods
+            </Typography>
+            <Button
+              size='small'
+              variant='outlined'
+              startIcon={<AddCircleOutline />}
+              onClick={() => setSkipDialogOpen(true)}
+            >
+              Skip a Period
+            </Button>
+          </Stack>
+          {skips.length === 0 ? (
+            <Alert severity='info' variant='outlined' sx={{ mb: 3 }}>
+              No periods have been excused for this loan.
+            </Alert>
+          ) : (
+            <TableContainer sx={{ mb: 3, overflowX: 'auto' }}>
+              <Table size='small'>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Period</TableCell>
+                    <TableCell>Remarks</TableCell>
+                    <TableCell align='right'>Actions</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {skips.map((skip: SkipRow) => (
+                    <TableRow key={skip.id}>
+                      <TableCell>{skip.period_label || `#${skip.period_id}`}</TableCell>
+                      <TableCell>{skip.remarks || '—'}</TableCell>
+                      <TableCell align='right'>
+                        <Tooltip title='Reverse — put this period back in the schedule'>
+                          <IconButton
+                            size='small'
+                            disabled={isUnskipping}
+                            onClick={() => handleUnskip(skip.id)}
+                          >
+                            <DeleteOutline color='error' fontSize='small' />
+                          </IconButton>
+                        </Tooltip>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          )}
+        </>
+      )}
 
       {initiatedRepayments.length > 0 && (
         <>
@@ -291,6 +469,58 @@ const LoanStatement = ({ loanId, service }: LoanStatementProps) => {
           </TableContainer>
         </>
       )}
+
+      <Dialog
+        open={skipDialogOpen}
+        onClose={() => setSkipDialogOpen(false)}
+        fullWidth
+        maxWidth='xs'
+      >
+        <DialogTitle>Skip a Period's Recovery</DialogTitle>
+        <DialogContent>
+          <Stack spacing={2} sx={{ mt: 1 }}>
+            <Alert severity='info' variant='outlined'>
+              That period's installment is excused, not lost — it's collected
+              one period later instead, and the loan still recovers in full.
+            </Alert>
+            <Autocomplete
+              size='small'
+              loading={isFetchingPeriods}
+              options={periodOptions}
+              getOptionLabel={(option) => option.label}
+              isOptionEqualToValue={(option, value) => option.id === value.id}
+              value={skipPeriod}
+              onChange={(_event, newValue) => setSkipPeriod(newValue)}
+              renderInput={(params) => (
+                <TextField {...params} label='Payroll Period' />
+              )}
+            />
+            <TextField
+              label='Remarks (optional)'
+              size='small'
+              fullWidth
+              multiline
+              minRows={2}
+              value={skipRemarks}
+              onChange={(e) => setSkipRemarks(e.target.value)}
+              placeholder='e.g. hardship exception'
+            />
+          </Stack>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setSkipDialogOpen(false)} disabled={isSkipping}>
+            Cancel
+          </Button>
+          <LoadingButton
+            variant='contained'
+            loading={isSkipping}
+            disabled={!skipPeriod}
+            onClick={handleSkipSubmit}
+          >
+            Skip
+          </LoadingButton>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };
