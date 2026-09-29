@@ -10,8 +10,10 @@ import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 import { HighlightOff } from '@mui/icons-material';
 import {
   Alert,
+  Autocomplete,
   Box,
   Button,
+  ButtonGroup,
   CircularProgress,
   Dialog,
   DialogActions,
@@ -27,6 +29,7 @@ import {
   TableHead,
   TableRow,
   TextField,
+  Tooltip,
   Typography,
   useMediaQuery,
   useTheme,
@@ -101,6 +104,71 @@ function getDesignation(run: PayrollRunType) {
   return '-';
 }
 
+// Detailed (default, one column per type), Merged (every row in the group
+// collapses into one column), or Hidden (the group's per-type breakdown is
+// dropped from the sheet entirely). Options are static, so they're declared
+// once here rather than rebuilt on every render.
+type GroupView = 'detailed' | 'merged' | 'hidden';
+
+interface SelectOption<T extends string> {
+  value: T;
+  label: string;
+  shortLabel: string;
+}
+
+const GROUP_VIEW_OPTIONS: SelectOption<GroupView>[] = [
+  { value: 'detailed', label: 'Detailed (default)', shortLabel: 'Detailed' },
+  { value: 'merged', label: 'Merged', shortLabel: 'Merged' },
+  { value: 'hidden', label: 'Hidden', shortLabel: 'Hidden' },
+];
+
+type GroupByOption = 'none' | 'department' | 'cost_center';
+
+const GROUP_BY_OPTIONS: SelectOption<GroupByOption>[] = [
+  { value: 'none', label: 'One table (default)', shortLabel: 'One table' },
+  { value: 'department', label: 'Department', shortLabel: 'Department' },
+  { value: 'cost_center', label: 'Cost Center', shortLabel: 'Cost Center' },
+];
+
+/**
+ * Desktop: a labeled ButtonGroup, same convention as the dashboard's Profit
+ * & Loss Trend card — avoids the floating-label input path entirely (no
+ * notch/label to clip, unlike the TextField-select and Autocomplete
+ * attempts before this). Mobile/narrow screens keep the compact Autocomplete
+ * instead, where a whole row of button groups wouldn't fit — mirrors that
+ * same card's own desktop/mobile split.
+ */
+function GroupViewToggle<T extends string>({
+  label,
+  options,
+  value,
+  onChange,
+}: {
+  label: string;
+  options: SelectOption<T>[];
+  value: T;
+  onChange: (value: T) => void;
+}) {
+  return (
+    <Box>
+      <Typography variant='caption' color='text.secondary' display='block'>
+        {label}
+      </Typography>
+      <ButtonGroup variant='outlined' size='small' disableElevation>
+        {options.map((option) => (
+          <Button
+            key={option.value}
+            variant={option.value === value ? 'contained' : 'outlined'}
+            onClick={() => onChange(option.value)}
+          >
+            {option.shortLabel}
+          </Button>
+        ))}
+      </ButtonGroup>
+    </Box>
+  );
+}
+
 const SalarySheetDialog = ({
   open,
   onClose,
@@ -122,12 +190,20 @@ const SalarySheetDialog = ({
   const [groupBy, setGroupBy] = useState<'none' | 'department' | 'cost_center'>(
     'none'
   );
-  // Detailed (default): one column per Allowance/Deduction Type. Compact:
-  // every allowance collapses into one "Allowances" column and every
-  // deduction (PAYE excluded — it already has its own dedicated column) into
-  // one "Deductions" column, for a sheet that fits the page/screen width
-  // regardless of how many types are configured.
-  const [view, setView] = useState<'detailed' | 'compact'>('detailed');
+  // Independent per-group display: Detailed (default, one column per type),
+  // Merged (every row in that group collapses into one column — e.g. every
+  // allowance into a single "Allowances" column), or Hidden (that group's
+  // per-type breakdown is dropped from the sheet entirely — its own running
+  // total, e.g. Total Ded./Total Empr. Contrib./Employer Cost, is untouched
+  // either way, since those come from the payslip's own totals, not from
+  // summing whatever's displayed here). Lets HR export exactly what a given
+  // recipient needs to see — e.g. a bank-facing sheet with contributions
+  // hidden entirely, or one showing only a merged deductions figure.
+  type GroupView = 'detailed' | 'merged' | 'hidden';
+  const [allowancesView, setAllowancesView] = useState<GroupView>('detailed');
+  const [deductionsView, setDeductionsView] = useState<GroupView>('detailed');
+  const [contributionsView, setContributionsView] =
+    useState<GroupView>('detailed');
 
   const organization = authObject?.authOrganization?.organization;
   const userName = authObject?.authUser?.user?.name || 'ProsERP';
@@ -162,7 +238,7 @@ const SalarySheetDialog = ({
         employee_contract_id: itm.run.employee?.id,
       })) || []
   );
-  const employeecontributions = rows.flatMap(
+  let employeecontributions = rows.flatMap(
     (itm) =>
       itm.run?.employer_contributions?.map((contribution: any) => ({
         ...contribution,
@@ -199,25 +275,56 @@ const SalarySheetDialog = ({
     (type: any) => type.category !== 'tax'
   );
   let unique_allowances_types = getUniqueTypes(employeeAllowance);
-  const unique_contributions_types = getUniqueTypes(employeecontributions);
+  let unique_contributions_types = getUniqueTypes(employeecontributions);
 
-  // Compact view: relabel every row to one shared label per group so all of
-  // the sum-by-label logic below (per-type column totals, group subtotals,
-  // grand totals) collapses onto a single column automatically — nothing
-  // past this point needs to know which view is active.
-  if (view === 'compact') {
+  // Merged: relabel every row in the group to one shared label so all of the
+  // sum-by-label logic below (per-type column totals, group subtotals, grand
+  // totals) collapses onto a single column automatically — nothing past this
+  // point needs to know a merge happened. Hidden: empty the group out of the
+  // breakdown entirely — its own running total (Total Ded., Total Empr.
+  // Contrib., Employer Cost) is computed independently from the payslip's own
+  // totals elsewhere, so it's untouched either way.
+  if (allowancesView === 'hidden') {
+    employeeAllowance = [];
+    unique_allowances_types = [];
+  } else if (allowancesView === 'merged') {
     employeeAllowance = employeeAllowance.map((itm: any) => ({
       ...itm,
       label: 'Allowances',
     }));
-    employeeDeductions = employeeDeductions
-      .filter((itm: any) => itm.category !== 'tax')
-      .map((itm: any) => ({ ...itm, label: 'Deductions' }));
     unique_allowances_types = employeeAllowance.length
       ? [{ label: 'Allowances', allowance_type_id: null }]
       : [];
+  }
+
+  if (deductionsView === 'hidden') {
+    employeeDeductions = [];
+    unique_deductions_types = [];
+  } else if (deductionsView === 'merged') {
+    employeeDeductions = employeeDeductions
+      .filter((itm: any) => itm.category !== 'tax')
+      .map((itm: any) => ({ ...itm, label: 'Deductions' }));
     unique_deductions_types = employeeDeductions.length
       ? [{ label: 'Deductions', deduction_type_id: null, category: 'voluntary' }]
+      : [];
+  }
+
+  if (contributionsView === 'hidden') {
+    employeecontributions = [];
+    unique_contributions_types = [];
+  } else if (contributionsView === 'merged') {
+    // employer_contribution_type_id is nulled too, not just relabeled —
+    // calculateTotalAmtByType() matches a contribution's grand/subtotal by
+    // that id alone (no label fallback, unlike allowances/deductions), so
+    // every merged row needs the SAME (null) id for the totals to actually
+    // add up instead of silently summing to 0.
+    employeecontributions = employeecontributions.map((itm: any) => ({
+      ...itm,
+      label: 'Contributions',
+      employer_contribution_type_id: null,
+    }));
+    unique_contributions_types = employeecontributions.length
+      ? [{ label: 'Contributions', employer_contribution_type_id: null }]
       : [];
   }
 
@@ -397,17 +504,6 @@ const SalarySheetDialog = ({
       >
         <DialogTitle variant='h3'>
           <PreviewTopBar
-            fileExportGrid={
-              <FileExportGrid
-                exportExcel
-                handlExcelExport={() => handleExcelExport(exportedData)}
-                exportingExcel={isExporting}
-                exportPdf
-                handlePdf={() => {
-                  setShowOnScreen((prev) => !prev);
-                }}
-              />
-            }
             closeButton={
               <IconButton size='small' color='primary' onClick={onClose}>
                 <HighlightOff color='primary' />
@@ -421,8 +517,14 @@ const SalarySheetDialog = ({
               <Stack
                 direction={{ xs: 'column', md: 'row' }}
                 justifyContent='space-between'
-                alignItems={{ md: 'center' }}
+                // flex-start, not center — with four Select fields now
+                // wrapping onto a second line on medium screens, centering
+                // against the (taller) company-info block on the left
+                // vertically squeezed the wrapped row and clipped its
+                // floating labels at the top.
+                alignItems={{ md: 'flex-start' }}
                 mb={2}
+                pt={0.5}
                 spacing={2}
               >
                 <Box>
@@ -436,33 +538,120 @@ const SalarySheetDialog = ({
                     {selectedPeriod}
                   </Typography>
                 </Box>
-                <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
-                  <TextField
-                    select
-                    size='small'
-                    label='View'
-                    value={view}
-                    onChange={(e) => setView(e.target.value as typeof view)}
-                    sx={{ minWidth: 160 }}
-                  >
-                    <MenuItem value='detailed'>Detailed (default)</MenuItem>
-                    <MenuItem value='compact'>
-                      Compact (merged allowances/deductions)
-                    </MenuItem>
-                  </TextField>
-                  <TextField
-                    select
-                    size='small'
-                    label='Group By'
-                    value={groupBy}
-                    onChange={(e) => setGroupBy(e.target.value as typeof groupBy)}
-                    sx={{ minWidth: 200 }}
-                  >
-                    <MenuItem value='none'>One table (default)</MenuItem>
-                    <MenuItem value='department'>Department</MenuItem>
-                    <MenuItem value='cost_center'>Cost Center</MenuItem>
-                  </TextField>
-                </Stack>
+                {smallScreen ? (
+                  <Stack direction='column' spacing={2}>
+                    <Autocomplete
+                      size='small'
+                      disableClearable
+                      options={GROUP_VIEW_OPTIONS}
+                      getOptionLabel={(option) => option.label}
+                      isOptionEqualToValue={(option, value) =>
+                        option.value === value.value
+                      }
+                      value={GROUP_VIEW_OPTIONS.find(
+                        (option) => option.value === allowancesView
+                      )}
+                      onChange={(_event, newValue) =>
+                        setAllowancesView(newValue.value)
+                      }
+                      renderInput={(params) => (
+                        <TextField {...params} label='Allowances' />
+                      )}
+                    />
+                    <Autocomplete
+                      size='small'
+                      disableClearable
+                      options={GROUP_VIEW_OPTIONS}
+                      getOptionLabel={(option) => option.label}
+                      isOptionEqualToValue={(option, value) =>
+                        option.value === value.value
+                      }
+                      value={GROUP_VIEW_OPTIONS.find(
+                        (option) => option.value === deductionsView
+                      )}
+                      onChange={(_event, newValue) =>
+                        setDeductionsView(newValue.value)
+                      }
+                      renderInput={(params) => (
+                        <TextField {...params} label='Deductions' />
+                      )}
+                    />
+                    <Autocomplete
+                      size='small'
+                      disableClearable
+                      options={GROUP_VIEW_OPTIONS}
+                      getOptionLabel={(option) => option.label}
+                      isOptionEqualToValue={(option, value) =>
+                        option.value === value.value
+                      }
+                      value={GROUP_VIEW_OPTIONS.find(
+                        (option) => option.value === contributionsView
+                      )}
+                      onChange={(_event, newValue) =>
+                        setContributionsView(newValue.value)
+                      }
+                      renderInput={(params) => (
+                        <TextField {...params} label='Contributions' />
+                      )}
+                    />
+                    <Autocomplete
+                      size='small'
+                      disableClearable
+                      options={GROUP_BY_OPTIONS}
+                      getOptionLabel={(option) => option.label}
+                      isOptionEqualToValue={(option, value) =>
+                        option.value === value.value
+                      }
+                      value={GROUP_BY_OPTIONS.find(
+                        (option) => option.value === groupBy
+                      )}
+                      onChange={(_event, newValue) =>
+                        setGroupBy(newValue.value)
+                      }
+                      renderInput={(params) => (
+                        <TextField {...params} label='Group By' />
+                      )}
+                    />
+                  </Stack>
+                ) : (
+                  <Stack direction='row' spacing={3} flexWrap='wrap' useFlexGap>
+                    <GroupViewToggle
+                      label='Allowances'
+                      options={GROUP_VIEW_OPTIONS}
+                      value={allowancesView}
+                      onChange={setAllowancesView}
+                    />
+                    <GroupViewToggle
+                      label='Deductions'
+                      options={GROUP_VIEW_OPTIONS}
+                      value={deductionsView}
+                      onChange={setDeductionsView}
+                    />
+                    <GroupViewToggle
+                      label='Contributions'
+                      options={GROUP_VIEW_OPTIONS}
+                      value={contributionsView}
+                      onChange={setContributionsView}
+                    />
+                    <GroupViewToggle
+                      label='Group By'
+                      options={GROUP_BY_OPTIONS}
+                      value={groupBy}
+                      onChange={setGroupBy}
+                    />
+                  </Stack>
+                )}
+              </Stack>
+              <Stack direction='row' justifyContent='flex-end' mb={2}>
+                <FileExportGrid
+                  exportExcel
+                  handlExcelExport={() => handleExcelExport(exportedData)}
+                  exportingExcel={isExporting}
+                  exportPdf
+                  handlePdf={() => {
+                    setShowOnScreen((prev) => !prev);
+                  }}
+                />
               </Stack>
               {isLoading ? (
                 <Box
@@ -898,9 +1087,20 @@ const SalarySheetDialog = ({
                                   sx={{
                                     border: '1px solid',
                                     borderColor: 'divider',
+                                    color: computed.proration
+                                      ? 'warning.main'
+                                      : undefined,
                                   }}
                                 >
-                                  {fmt(computed.basicSalary)}
+                                  {computed.proration ? (
+                                    <Tooltip
+                                      title={`Prorated for ${computed.proration.active_days}/${computed.proration.total_days} days — full basic salary is ${fmt(computed.fullBasicSalary ?? computed.basicSalary)}`}
+                                    >
+                                      <span>{fmt(computed.basicSalary)} *</span>
+                                    </Tooltip>
+                                  ) : (
+                                    fmt(computed.basicSalary)
+                                  )}
                                 </TableCell>
 
                                 {unique_allowances_types.map(
@@ -1418,11 +1618,34 @@ const SalarySheetDialog = ({
                   </Table>
                 </TableContainer>
               )}
+              {rows.some((entry) => entry.computed.proration) && (
+                <Typography
+                  variant='caption'
+                  color='warning.main'
+                  display='block'
+                  mt={1}
+                >
+                  * Basic Salary prorated — the employee's contract didn't
+                  cover the full payroll month. Hover a marked figure for the
+                  full configured amount.
+                </Typography>
+              )}
             </DialogContent>
           </>
         ) : (
           <>
             <DialogContent>
+              <Stack direction='row' justifyContent='flex-end' mb={2}>
+                <FileExportGrid
+                  exportExcel
+                  handlExcelExport={() => handleExcelExport(exportedData)}
+                  exportingExcel={isExporting}
+                  exportPdf
+                  handlePdf={() => {
+                    setShowOnScreen((prev) => !prev);
+                  }}
+                />
+              </Stack>
               <PDFContent
                 document={
                   <SalarySheetPDF

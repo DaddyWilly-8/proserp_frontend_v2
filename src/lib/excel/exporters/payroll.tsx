@@ -162,9 +162,14 @@ export async function ExportPayrollToExcel(exportedData: any) {
     const uniqueDeductionTypes = getUniqueTypes(deductionTypes).filter(
       (type) => type.category !== 'tax'
     );
-    const uniqueContributionTypes = getUniqueTypes(contributionTypes).filter(
-      (type) => type.employer_contribution_type_id !== null
-    );
+    // No id/category filter here (unlike deductions' tax exclusion above) —
+    // mirrors SalarySheetPDF.tsx / SalarySheetDialog.tsx, which never filter
+    // contributions by id either. A stray `employer_contribution_type_id !==
+    // null` filter used to sit here and would have silently dropped a
+    // legitimately null-typed contribution column — and, now that "merged"
+    // contributions are deliberately given a null id (see SalarySheetDialog.tsx),
+    // it would drop that column entirely instead of showing the merged total.
+    const uniqueContributionTypes = getUniqueTypes(contributionTypes);
 
     const processedAllowanceTypes = uniqueAllowanceTypes;
     const processedDeductionTypes = uniqueDeductionTypes;
@@ -286,6 +291,17 @@ export async function ExportPayrollToExcel(exportedData: any) {
     // every printed page — otherwise only page 1 shows what each column is.
     ws.pageSetup.printTitlesRow = '3:4';
 
+    // Landscape A4 by default — matches the PDF export's page setup, and is
+    // the standard printable size/orientation for a wide multi-column sheet
+    // like this one, rather than whatever the printer's own default happens
+    // to be. Still just the default print setup — a person opening the file
+    // in Excel can always change it before printing.
+    ws.pageSetup.orientation = 'landscape';
+    ws.pageSetup.paperSize = 9; // PaperSize.A4
+    ws.pageSetup.fitToPage = true;
+    ws.pageSetup.fitToWidth = 1;
+    ws.pageSetup.fitToHeight = 0; // 0 = as many pages tall as needed
+
     // ---- Column widths ----
     ws.getColumn(getExcelColumnName(COL_SN)).width = 6;
     ws.getColumn(getExcelColumnName(COL_EMP_NO)).width = 14;
@@ -303,13 +319,10 @@ export async function ExportPayrollToExcel(exportedData: any) {
     titleCell.alignment = { horizontal: 'center', vertical: 'middle' };
     ws.getRow(1).height = 25;
 
-    // ---- Row 2: Period label + printed by/on (kept on the same row rather
-    // than inserted as a new one, so the table's hardcoded row numbers below
-    // — group headers on 3, column headers on 4, data starting at 5 — don't
-    // have to shift) ----
+    // ---- Row 2: Period label ----
     ws.mergeCells(`A2:${getExcelColumnName(TOTAL_COLS)}2`);
     const subtitleCell = ws.getCell('A2');
-    subtitleCell.value = `SALARY PAYROLL — ${periodLabel} - (${selectedPeriod})   |   Printed By: ${userName}   |   Printed On: ${readableDate(undefined, true)}`;
+    subtitleCell.value = `SALARY PAYROLL — ${periodLabel} - (${selectedPeriod})`;
     subtitleCell.font = { bold: true, size: 11 };
     subtitleCell.alignment = { horizontal: 'center', vertical: 'middle' };
     ws.getRow(2).height = 20;
@@ -392,6 +405,15 @@ export async function ExportPayrollToExcel(exportedData: any) {
       setTxt(COL_NAME, name || '-');
       setTxt(COL_DESIGNATION, getDesignation(entry.run));
       setNum(COL_BASIC, entry.computed.basicSalary);
+      // Prorated (contract didn't cover the full payroll month) — colored
+      // and footnoted below rather than shown alongside the full figure, so
+      // the numeric format/column width stays intact.
+      if (entry.computed.proration) {
+        ws.getCell(`${getExcelColumnName(COL_BASIC)}${ROW}`).font = {
+          color: { argb: 'FFB45309' },
+          bold: true,
+        };
+      }
 
       // Data rows are summed (not .find()'d) on the type arrays — an
       // employee can have more than one row under the same label (e.g. two
@@ -790,12 +812,34 @@ export async function ExportPayrollToExcel(exportedData: any) {
       ws.getRow(summaryRow).height = 22;
       summaryRow++;
     };
+    if (rows.some((entry: any) => entry.computed.proration)) {
+      ws.mergeCells(`A${summaryRow}:F${summaryRow}`);
+      const footnoteCell = ws.getCell(`A${summaryRow}`);
+      footnoteCell.value =
+        "* Basic Salary (shown in orange) prorated — the employee's contract didn't cover the full payroll month.";
+      footnoteCell.font = { italic: true, size: 8, color: { argb: 'FFB45309' } };
+      footnoteCell.alignment = { horizontal: 'left', vertical: 'middle' };
+      ws.getRow(summaryRow).height = 16;
+      summaryRow++;
+    }
+
     addSig(
       'Prepared by............................................................................'
     );
     addSig(
       'Verified by................................................................................'
     );
+
+    // Sits just above "Approved by" — the last thing an approver reads
+    // before signing off, rather than buried up in the header.
+    ws.mergeCells(`A${summaryRow}:F${summaryRow}`);
+    const printedByCell = ws.getCell(`A${summaryRow}`);
+    printedByCell.value = `Printed By: ${userName}   |   Printed On: ${readableDate(undefined, true)}`;
+    printedByCell.font = { italic: true, size: 9 };
+    printedByCell.alignment = { horizontal: 'left', vertical: 'middle' };
+    ws.getRow(summaryRow).height = 18;
+    summaryRow++;
+
     addSig(
       'Approved by...............................................................................'
     );

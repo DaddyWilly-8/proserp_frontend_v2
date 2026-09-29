@@ -38,8 +38,16 @@ export interface PayslipEmployerContribution {
   };
 }
 
+export interface PayslipProration {
+  active_days: number;
+  total_days: number;
+  factor?: number;
+}
+
 export interface PayrollRunLike {
   basic_salary?: number | string;
+  full_basic_salary?: number | string | null;
+  proration?: PayslipProration | null;
   paye?: number | string;
   allowances?: PayslipAllowance[];
   employee_allowances?: PayslipAllowance[];
@@ -70,6 +78,11 @@ export interface PayslipEmployerContributionRow {
 
 export interface PayslipComputed {
   basicSalary: number;
+  // Set only when basic_salary was reduced for a contract that didn't cover
+  // the full payroll month — the configured figure it was reduced *from*,
+  // plus the active/total day count, so the payslip can show both.
+  fullBasicSalary: number | null;
+  proration: PayslipProration | null;
   paye: number;
   earningsRows: PayslipEarningRow[];
   deductionRows: PayslipDeductionRow[];
@@ -101,6 +114,11 @@ const isTaxCategory = (category?: string) => (category || '').toLowerCase() === 
 
 export const getPayslipCalculations = (run?: PayrollRunLike | null): PayslipComputed => {
   const basicSalary = toNumber(run?.basic_salary);
+  const fullBasicSalary =
+    run?.full_basic_salary !== null && run?.full_basic_salary !== undefined
+      ? toNumber(run.full_basic_salary)
+      : null;
+  const proration = run?.proration ?? null;
   const paye = toNumber(run?.paye);
 
   const rawAllowances = [
@@ -215,6 +233,8 @@ export const getPayslipCalculations = (run?: PayrollRunLike | null): PayslipComp
 
   return {
     basicSalary,
+    fullBasicSalary,
+    proration,
     paye,
     earningsRows,
     deductionRows,

@@ -75,8 +75,22 @@ export const SimulationDialog = ({
                     Basic Salary
                   </Typography>
                   <Typography variant='h6'>
-                    {formatMoney(simulationRow.basic_salary)}
+                    {formatMoney(
+                      simulationRow.full_basic_salary ??
+                        simulationRow.basic_salary
+                    )}
                   </Typography>
+                  {simulationRow.proration && (
+                    <Typography
+                      variant='caption'
+                      color='warning.main'
+                      display='block'
+                    >
+                      Prorated ({simulationRow.proration.active_days}/
+                      {simulationRow.proration.total_days} days):{' '}
+                      {formatMoney(simulationRow.basic_salary)}
+                    </Typography>
+                  )}
                 </Grid>
                 <Grid size={{ xs: 6, md: 4 }}>
                   <Typography variant='caption' color='text.secondary'>
@@ -154,9 +168,36 @@ export const SimulationDialog = ({
                       {simulationRow.allowances.map(
                         (item: any, idx: number) => (
                           <TableRow key={idx}>
-                            <TableCell>{item.label}</TableCell>
+                            <TableCell>
+                              {item.label}
+                              {item.full_amount != null && (
+                                <Typography
+                                  variant='caption'
+                                  color='warning.main'
+                                  display='block'
+                                >
+                                  Prorated (
+                                  {simulationRow.proration?.active_days}/
+                                  {simulationRow.proration?.total_days} days)
+                                </Typography>
+                              )}
+                            </TableCell>
                             <TableCell align='right'>
-                              {formatMoney(item.amount)}
+                              {item.full_amount != null ? (
+                                <>
+                                  <Typography
+                                    variant='caption'
+                                    color='text.secondary'
+                                    display='block'
+                                    sx={{ textDecoration: 'line-through' }}
+                                  >
+                                    {formatMoney(item.full_amount)}
+                                  </Typography>
+                                  {formatMoney(item.amount)}
+                                </>
+                              ) : (
+                                formatMoney(item.amount)
+                              )}
                             </TableCell>
                           </TableRow>
                         )
@@ -338,8 +379,21 @@ export const PayslipViewDialog = ({
                         Basic Salary
                       </Typography>
                       <Typography variant='h6'>
-                        {formatMoney(payslip.basic_salary || 0)}
+                        {formatMoney(
+                          payslip.full_basic_salary ?? payslip.basic_salary ?? 0
+                        )}
                       </Typography>
+                      {payslip.proration && (
+                        <Typography
+                          variant='caption'
+                          color='warning.main'
+                          display='block'
+                        >
+                          Prorated ({payslip.proration.active_days}/
+                          {payslip.proration.total_days} days):{' '}
+                          {formatMoney(payslip.basic_salary || 0)}
+                        </Typography>
+                      )}
                     </Grid>
                     <Grid size={6}>
                       <Typography variant='caption' color='text.secondary'>
@@ -403,9 +457,35 @@ export const PayslipViewDialog = ({
                         <TableBody>
                           {payslip.allowances.map((item: any, idx: number) => (
                             <TableRow key={idx}>
-                              <TableCell>{item.label}</TableCell>
+                              <TableCell>
+                                {item.label}
+                                {item.full_amount != null && (
+                                  <Typography
+                                    variant='caption'
+                                    color='warning.main'
+                                    display='block'
+                                  >
+                                    Prorated ({payslip.proration?.active_days}/
+                                    {payslip.proration?.total_days} days)
+                                  </Typography>
+                                )}
+                              </TableCell>
                               <TableCell align='right'>
-                                {formatMoney(item.amount)}
+                                {item.full_amount != null ? (
+                                  <>
+                                    <Typography
+                                      variant='caption'
+                                      color='text.secondary'
+                                      display='block'
+                                      sx={{ textDecoration: 'line-through' }}
+                                    >
+                                      {formatMoney(item.full_amount)}
+                                    </Typography>
+                                    {formatMoney(item.amount)}
+                                  </>
+                                ) : (
+                                  formatMoney(item.amount)
+                                )}
                               </TableCell>
                             </TableRow>
                           ))}

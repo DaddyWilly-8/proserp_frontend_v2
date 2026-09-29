@@ -116,14 +116,27 @@ const PayslipPDF: React.FC<PayslipPDFProps> = ({
 
           <View style={{ ...pdfStyles.tableRow, borderTop: '1px solid #ddd' }}>
             <Text style={{ ...pdfStyles.tableCell, flex: 2 }}>
-              Basic Salary
+              Basic Salary{payslip?.proration ? ' *' : ''}
             </Text>
             <Text
-              style={{ ...pdfStyles.tableCell, flex: 1.5, textAlign: 'right' }}
+              style={{
+                ...pdfStyles.tableCell,
+                flex: 1.5,
+                textAlign: 'right',
+                color: payslip?.proration ? '#B45309' : undefined,
+              }}
             >
               {fmt(payslip?.basic_salary)}
             </Text>
           </View>
+          {payslip?.proration && (
+            <Text style={{ fontSize: 6, color: '#B45309', marginBottom: 2 }}>
+              * Prorated for {payslip.proration.active_days}/
+              {payslip.proration.total_days} days this period (full Basic
+              Salary: {fmt(payslip.full_basic_salary)}) — any allowance
+              marked * below was reduced the same way.
+            </Text>
+          )}
           <View style={{ ...pdfStyles.tableRow }}>
             <Text style={{ ...pdfStyles.tableCell, flex: 2 }}>
               Gross Salary
@@ -199,9 +212,15 @@ const PayslipPDF: React.FC<PayslipPDFProps> = ({
               <View key={idx} style={pdfStyles.tableRow}>
                 <Text style={{ ...pdfStyles.minInfo, flex: 2 }}>
                   {item.label}
+                  {item.full_amount != null ? ' *' : ''}
                 </Text>
                 <Text
-                  style={{ ...pdfStyles.minInfo, flex: 1, textAlign: 'right' }}
+                  style={{
+                    ...pdfStyles.minInfo,
+                    flex: 1,
+                    textAlign: 'right',
+                    color: item.full_amount != null ? '#B45309' : undefined,
+                  }}
                 >
                   {fmt(item.amount)}
                 </Text>
@@ -349,7 +368,7 @@ const PayslipPDF: React.FC<PayslipPDFProps> = ({
               flex: 3,
             }}
           >
-            Basic Salary
+            Basic Salary{payslip?.proration ? ' *' : ''}
           </Text>
           <Text
             style={{
@@ -357,11 +376,27 @@ const PayslipPDF: React.FC<PayslipPDFProps> = ({
               backgroundColor: '#FFFFFF',
               flex: 1.5,
               textAlign: 'right',
+              color: payslip?.proration ? '#B45309' : undefined,
             }}
           >
             {fmt(payslip?.basic_salary)}
           </Text>
         </View>
+        {payslip?.proration && (
+          <Text
+            style={{
+              fontSize: 7,
+              color: '#B45309',
+              marginTop: -2,
+              marginBottom: 2,
+            }}
+          >
+            * Prorated for {payslip.proration.active_days}/
+            {payslip.proration.total_days} days this period (full Basic
+            Salary: {fmt(payslip.full_basic_salary)}) — any allowance marked
+            * below was reduced the same way.
+          </Text>
+        )}
         <View style={pdfStyles.tableRow}>
           <Text
             style={{
@@ -515,6 +550,7 @@ const PayslipPDF: React.FC<PayslipPDFProps> = ({
                   }}
                 >
                   {item.label}
+                  {item.full_amount != null ? ' *' : ''}
                 </Text>
                 <Text
                   style={{
@@ -522,6 +558,7 @@ const PayslipPDF: React.FC<PayslipPDFProps> = ({
                     backgroundColor: idx % 2 === 0 ? '#FFFFFF' : lightColor,
                     flex: 1.5,
                     textAlign: 'right',
+                    color: item.full_amount != null ? '#B45309' : undefined,
                   }}
                 >
                   {fmt(item.amount)}

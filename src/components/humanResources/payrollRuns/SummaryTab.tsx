@@ -137,8 +137,8 @@ const SummaryTab = ({
   );
 
   const firstRowCards: Array<{ label: string; value: number | string }> = [
-    { label: 'Basic Salary', value: money(basic_salary) },
     { label: 'Employees', value: employees },
+    { label: 'Basic Salary', value: money(basic_salary) },
     { label: 'Gross Salary', value: money(gross_salary) },
   ];
   const lastRowCards: Array<{ label: string; value: number | string }> = [

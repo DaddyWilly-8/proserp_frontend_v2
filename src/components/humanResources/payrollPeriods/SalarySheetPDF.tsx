@@ -440,7 +440,7 @@ const SalarySheetPDF = ({
       author={organization.name}
       subject='Salary Sheet'
     >
-      <Page size='A2' orientation='landscape' style={styles.page}>
+      <Page size='A4' orientation='landscape' style={styles.page}>
         {/* Company Header Info Block */}
         <View style={styles.headerRow}>
           <View style={{ width: 110 }}>
@@ -454,16 +454,16 @@ const SalarySheetPDF = ({
             <Text style={{ ...styles.subtitle, marginTop: 1 }}>
               {selectedPeriod}
             </Text>
-            <Text style={{ ...styles.subtitle, marginTop: 3, fontSize: 6.5 }}>
-              Printed By: {userName} | Printed On: {readableDate(undefined, true)}
-            </Text>
           </View>
         </View>
 
         {/* Core Table Engine */}
         <View style={styles.table}>
-          {/* ROW 1: Level 1 Top-level Grouping (RECRUITMENT | EMPLOYEE | EMPLOYER) */}
-          <View style={styles.tableRow}>
+          {/* ROW 1: Level 1 Top-level Grouping (RECRUITMENT | EMPLOYEE | EMPLOYER) —
+              fixed repeats this row at the same position on every printed
+              page, the same way Excel's printTitlesRow does for its header
+              rows, instead of only appearing on page 1. */}
+          <View style={styles.tableRow} fixed>
             <Text
               style={{
                 ...styles.groupHeaderCell,
@@ -503,7 +503,7 @@ const SalarySheetPDF = ({
           </View>
 
           {/* ROW 2: Level 2 Sub-Group Categorization (S/N, Employee, Designation, Basic, Allowances, Gross, Deductions, Net, etc.) */}
-          <View style={styles.tableRow}>
+          <View style={styles.tableRow} fixed>
             <Text
               style={{
                 ...styles.subHeaderCell,
@@ -670,7 +670,7 @@ const SalarySheetPDF = ({
           </View>
 
           {/* ROW 3: Detailed Data Column Sub-headers */}
-          <View style={{ ...styles.tableRow, backgroundColor: mainColor }}>
+          <View style={{ ...styles.tableRow, backgroundColor: mainColor }} fixed>
             <Text
               style={{
                 ...styles.headerCell,
@@ -935,9 +935,11 @@ const SalarySheetPDF = ({
                         // flex: dataColumnFlex,
                         width: stringCOlumnWidth,
                         textAlign: 'right',
+                        color: entry.computed.proration ? '#B45309' : undefined,
                       }}
                     >
                       {fmt(entry.computed.basicSalary)}
+                      {entry.computed.proration ? ' *' : ''}
                     </Text>
                     {unique_allowances_types.map((type, typeIdx) => (
                       <Text
@@ -1547,6 +1549,13 @@ const SalarySheetPDF = ({
           </View> */}
         </View>
 
+        {rows.some((entry) => entry.computed.proration) && (
+          <Text style={{ fontSize: 7, color: '#B45309', marginTop: 4 }}>
+            * Basic Salary prorated — the employee's contract didn't cover
+            the full payroll month.
+          </Text>
+        )}
+
         {/* Corporate Approvals and Signatures Field Area */}
         <View style={styles.signaturesWrap}>
           <View style={styles.signatureRow}>
@@ -1567,6 +1576,11 @@ const SalarySheetPDF = ({
               Signature..................................
             </Text>
           </View>
+          {/* Sits just above "Approved by" — the last thing an approver
+              reads before signing off, rather than buried up in the header. */}
+          <Text style={{ fontSize: 8, fontStyle: 'italic', marginVertical: 6 }}>
+            Printed By: {userName}   |   Printed On: {readableDate(undefined, true)}
+          </Text>
           <View style={styles.signatureRow}>
             <Text style={styles.signatureLabel}>
               Approved
