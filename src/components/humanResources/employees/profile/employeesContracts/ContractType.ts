@@ -12,6 +12,9 @@ export interface ContractType {
   holiday_work_multiplier?: number | null;
   standard_hours_per_day?: number | null;
   standard_hours_per_month?: number | null;
+  // Statutory exemption — PAYE is zeroed regardless of income/tax bands
+  // while set. See PayrollService::computePayslip(). Defaults to false.
+  is_paye_exempt?: boolean;
   status: string;
   remarks?: string;
   created_by: number;

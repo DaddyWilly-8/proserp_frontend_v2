@@ -544,9 +544,11 @@ const SalarySheetDialog = ({
                   <Typography variant='body2' color='text.secondary'>
                     Salary Payroll - {periodLabel}
                   </Typography>
-                  <Typography variant='body1' fontWeight={400}>
-                    {selectedPeriod}
-                  </Typography>
+                  {!!selectedPeriod && (
+                    <Typography variant='body1' fontWeight={400}>
+                      {selectedPeriod}
+                    </Typography>
+                  )}
                 </Box>
                 {smallScreen ? (
                   <Stack direction='column' spacing={2}>

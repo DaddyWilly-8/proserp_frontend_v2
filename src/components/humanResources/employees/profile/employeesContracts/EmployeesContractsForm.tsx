@@ -5,12 +5,15 @@ import { LoadingButton } from '@mui/lab';
 import {
   Autocomplete,
   Button,
+  Checkbox,
   DialogActions,
   DialogContent,
   DialogTitle,
+  FormControlLabel,
   Grid,
   LinearProgress,
   TextField,
+  Tooltip,
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -212,6 +215,7 @@ const EmployeesContractsForm = ({
       .number()
       .nullable()
       .typeError('This value should be a number'),
+    is_paye_exempt: yup.boolean().nullable(),
     remarks: yup
       .string()
       .max(1000, 'Remarks should not exceed 1000 characters'),
@@ -240,6 +244,7 @@ const EmployeesContractsForm = ({
       standard_hours_per_month: contract?.standard_hours_per_month ?? null,
       overtime_multiplier: contract?.overtime_multiplier || 1.5,
       holiday_work_multiplier: contract?.holiday_work_multiplier || 2,
+      is_paye_exempt: contract?.is_paye_exempt ?? false,
       remarks: contract?.remarks || '',
     },
   });
@@ -258,6 +263,7 @@ const EmployeesContractsForm = ({
       standard_hours_per_month: contract?.standard_hours_per_month ?? null,
       overtime_multiplier: contract?.overtime_multiplier || 1.5,
       holiday_work_multiplier: contract?.holiday_work_multiplier || 2,
+      is_paye_exempt: contract?.is_paye_exempt ?? false,
       remarks: contract?.remarks || '',
     });
   }, [contract, reset]);
@@ -473,6 +479,30 @@ const EmployeesContractsForm = ({
                 </Div>
               </Grid>
             )}
+
+            <Grid size={{ xs: 12, md: 4 }}>
+              <Div sx={{ mt: 1, mb: 1 }}>
+                <Tooltip title="For a statutory exemption already approved by the tax authority — PAYE is zeroed on every payslip regardless of income, not merely skipped for now.">
+                  <FormControlLabel
+                    control={
+                      <Controller
+                        name='is_paye_exempt'
+                        control={control}
+                        render={({ field }) => (
+                          <Checkbox
+                            checked={!!field.value}
+                            onChange={(event) =>
+                              field.onChange(event.target.checked)
+                            }
+                          />
+                        )}
+                      />
+                    }
+                    label='PAYE Exempt'
+                  />
+                </Tooltip>
+              </Div>
+            </Grid>
 
             {showMoreFields && (
               <>

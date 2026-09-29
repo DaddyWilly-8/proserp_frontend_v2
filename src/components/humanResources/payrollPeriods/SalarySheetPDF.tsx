@@ -459,9 +459,11 @@ const SalarySheetPDF = ({
               SALARY PAYROLL
             </Text>
             <Text style={styles.subtitle}>{periodLabel}</Text>
-            <Text style={{ ...styles.subtitle, marginTop: 1 }}>
-              {selectedPeriod}
-            </Text>
+            {!!selectedPeriod && (
+              <Text style={{ ...styles.subtitle, marginTop: 1 }}>
+                {selectedPeriod}
+              </Text>
+            )}
           </View>
         </View>
 

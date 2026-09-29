@@ -1,6 +1,5 @@
 import { readableDate } from '@/app/helpers/input-sanitization-helpers';
 import { PayrollRunType } from '@/components/humanResources/payrollRuns/PayrollRunType';
-import type ExcelJS from 'exceljs';
 import { applyCellStyle, CELL_STYLES, getAlternatingRowFill } from '../styles';
 import { autosizeColumns, getExcelColumnName } from '../uitls';
 import { createWorkbook } from '../workBook';
@@ -293,18 +292,16 @@ export async function ExportPayrollToExcel(exportedData: any) {
     // every printed page — otherwise only page 1 shows what each column is.
     ws.pageSetup.printTitlesRow = '3:4';
 
-    // Landscape by default — matches the PDF export's page setup, and is the
-    // standard printable orientation for a wide multi-column sheet like this
-    // one, rather than whatever the printer's own default happens to be.
-    // Still just the default print setup — a person opening the file in
-    // Excel can always change it before printing. Paper size bumps up to A3
-    // when all three view options are Detailed (the widest possible column
-    // count) — A4 gets cramped at that width, same as the PDF export.
+    // Landscape A4 always — matches the PDF export's page setup when it
+    // isn't at its widest, and is the standard printable orientation for a
+    // wide multi-column sheet like this one, rather than whatever the
+    // printer's own default happens to be. Unlike the PDF export, this stays
+    // A4 even at the widest (all-Detailed) column count — fitToWidth below
+    // already scales columns to fit the page, and A3 made printing worse,
+    // not better. Still just the default print setup — a person opening the
+    // file in Excel can always change it before printing.
     ws.pageSetup.orientation = 'landscape';
-    // A3 (id 8) isn't in ExcelJS's own PaperSize enum (only A4/A5/B5 etc are),
-    // even though it's a standard ECMA-376 paper size id Excel itself
-    // recognizes fine — cast past the enum's narrower type.
-    ws.pageSetup.paperSize = (allDetailed ? 8 : 9) as ExcelJS.PaperSize;
+    ws.pageSetup.paperSize = 9; // PaperSize.A4
     ws.pageSetup.fitToPage = true;
     ws.pageSetup.fitToWidth = 1;
     ws.pageSetup.fitToHeight = 0; // 0 = as many pages tall as needed
@@ -323,7 +320,9 @@ export async function ExportPayrollToExcel(exportedData: any) {
     // ---- Row 2: Period label ----
     ws.mergeCells(`A2:${getExcelColumnName(TOTAL_COLS)}2`);
     const subtitleCell = ws.getCell('A2');
-    subtitleCell.value = `SALARY PAYROLL — ${periodLabel} - (${selectedPeriod})`;
+    subtitleCell.value = selectedPeriod
+      ? `SALARY PAYROLL — ${periodLabel} - (${selectedPeriod})`
+      : `SALARY PAYROLL — ${periodLabel}`;
     subtitleCell.font = { bold: true, size: 11 };
     subtitleCell.alignment = { horizontal: 'center', vertical: 'middle' };
     ws.getRow(2).height = 20;
