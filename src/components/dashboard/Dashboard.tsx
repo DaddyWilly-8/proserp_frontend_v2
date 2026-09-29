@@ -250,10 +250,19 @@ function Dashboard() {
               </Grid>
             )}
             {active_subscriptions.length > 0 &&
+              // "Any of these" — QuickReports itself gates each card
+              // individually (Payroll:Read, LeaveAllocations:Read,
+              // Loans:Read, etc.), but this outer check used to only cover
+              // Stores/Accounts/Sales, so a purely HR-permissioned user
+              // (no Accounts/Stores/Sales access at all) never even reached
+              // the section to see their own HR cards inside it.
               checkOrganizationPermission([
                 PERMISSIONS.STORES_REPORTS,
                 PERMISSIONS.ACCOUNTS_REPORTS,
                 PERMISSIONS.SALES_REPORTS,
+                PERMISSIONS.PAYROLL_READ,
+                PERMISSIONS.LEAVE_ALLOCATIONS_READ,
+                PERMISSIONS.LOANS_READ,
               ]) && (
                 <Grid size={{ xs: 12 }} textAlign={'center'}>
                   <QuickReports />

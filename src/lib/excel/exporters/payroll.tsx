@@ -1,7 +1,7 @@
 import { readableDate } from '@/app/helpers/input-sanitization-helpers';
 import { PayrollRunType } from '@/components/humanResources/payrollRuns/PayrollRunType';
 import { applyCellStyle, CELL_STYLES, getAlternatingRowFill } from '../styles';
-import { getExcelColumnName } from '../uitls';
+import { autosizeColumns, getExcelColumnName } from '../uitls';
 import { createWorkbook } from '../workBook';
 
 // ---- Helper functions (mirrors SalarySheetPDF logic) ----
@@ -302,14 +302,8 @@ export async function ExportPayrollToExcel(exportedData: any) {
     ws.pageSetup.fitToWidth = 1;
     ws.pageSetup.fitToHeight = 0; // 0 = as many pages tall as needed
 
-    // ---- Column widths ----
-    ws.getColumn(getExcelColumnName(COL_SN)).width = 6;
-    ws.getColumn(getExcelColumnName(COL_EMP_NO)).width = 14;
-    ws.getColumn(getExcelColumnName(COL_NAME)).width = 26;
-    ws.getColumn(getExcelColumnName(COL_DESIGNATION)).width = 20;
-    for (let c = COL_BASIC; c <= TOTAL_COLS; c++) {
-      ws.getColumn(getExcelColumnName(c)).width = 18;
-    }
+    // Column widths are set at the very end, via autosizeColumns() — fit to
+    // each column's actual widest cell rather than a fixed guess per column.
 
     // ---- Row 1: Organisation name ----
     ws.mergeCells(`A1:${getExcelColumnName(TOTAL_COLS)}1`);
@@ -843,6 +837,8 @@ export async function ExportPayrollToExcel(exportedData: any) {
     addSig(
       'Approved by...............................................................................'
     );
+
+    autosizeColumns(ws, { minWidth: 8, maxWidth: 40 });
 
     return await wb.xlsx.writeBuffer();
   } catch (error: any) {
