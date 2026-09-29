@@ -328,6 +328,15 @@ const SalarySheetDialog = ({
       : [];
   }
 
+  // All three still fully detailed (nothing merged/hidden) means the sheet
+  // is at its widest possible column count — A4 gets cramped, so both PDF
+  // and Excel bump up to A3 automatically rather than HR having to notice
+  // and switch page size by hand.
+  const allDetailed =
+    allowancesView === 'detailed' &&
+    deductionsView === 'detailed' &&
+    contributionsView === 'detailed';
+
   const hasAllowances = unique_allowances_types.length > 0;
   const hasDeductions = unique_deductions_types.length > 0;
   const hasContributions = unique_contributions_types.length > 0;
@@ -459,6 +468,7 @@ const SalarySheetDialog = ({
     groupBy,
     selectedPeriod: selectedPeriod,
     userName,
+    allDetailed,
   };
 
   const handleExcelExport = async (exportedData: any) => {
@@ -1658,6 +1668,7 @@ const SalarySheetDialog = ({
                     groupBy={groupBy}
                     selectedPeriod={selectedPeriod}
                     userName={userName}
+                    allDetailed={allDetailed}
                   />
                 }
                 fileName={`Salary-Sheet-${periodLabel}`}

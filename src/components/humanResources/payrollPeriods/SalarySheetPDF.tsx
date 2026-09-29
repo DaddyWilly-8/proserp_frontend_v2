@@ -33,6 +33,9 @@ type SalarySheetPDFProps = {
   groupBy?: 'none' | 'department' | 'cost_center';
   selectedPeriod: String | null;
   userName?: string;
+  // All three view options at Detailed (widest possible column count) — A4
+  // gets cramped, so the page bumps up to A3.
+  allDetailed?: boolean;
 };
 
 const styles = StyleSheet.create({
@@ -219,6 +222,7 @@ const SalarySheetPDF = ({
   groupBy = 'none',
   selectedPeriod,
   userName = 'ProsERP',
+  allDetailed = false,
 }: SalarySheetPDFProps) => {
   const mainColor = organization.settings?.main_color || '#2113AD';
   const lightColor = organization.settings?.light_color || '#d9dfef';
@@ -440,7 +444,11 @@ const SalarySheetPDF = ({
       author={organization.name}
       subject='Salary Sheet'
     >
-      <Page size='A4' orientation='landscape' style={styles.page}>
+      <Page
+        size={allDetailed ? 'A3' : 'A4'}
+        orientation='landscape'
+        style={styles.page}
+      >
         {/* Company Header Info Block */}
         <View style={styles.headerRow}>
           <View style={{ width: 110 }}>

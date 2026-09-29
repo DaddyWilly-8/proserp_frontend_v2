@@ -1,5 +1,6 @@
 import { readableDate } from '@/app/helpers/input-sanitization-helpers';
 import { PayrollRunType } from '@/components/humanResources/payrollRuns/PayrollRunType';
+import type ExcelJS from 'exceljs';
 import { applyCellStyle, CELL_STYLES, getAlternatingRowFill } from '../styles';
 import { autosizeColumns, getExcelColumnName } from '../uitls';
 import { createWorkbook } from '../workBook';
@@ -147,6 +148,7 @@ export async function ExportPayrollToExcel(exportedData: any) {
       groupBy = 'none',
       selectedPeriod,
       userName = 'ProsERP',
+      allDetailed = false,
     } = exportedData;
 
     // Unlike deductions/contributions, allowances are never filtered by
@@ -291,13 +293,18 @@ export async function ExportPayrollToExcel(exportedData: any) {
     // every printed page — otherwise only page 1 shows what each column is.
     ws.pageSetup.printTitlesRow = '3:4';
 
-    // Landscape A4 by default — matches the PDF export's page setup, and is
-    // the standard printable size/orientation for a wide multi-column sheet
-    // like this one, rather than whatever the printer's own default happens
-    // to be. Still just the default print setup — a person opening the file
-    // in Excel can always change it before printing.
+    // Landscape by default — matches the PDF export's page setup, and is the
+    // standard printable orientation for a wide multi-column sheet like this
+    // one, rather than whatever the printer's own default happens to be.
+    // Still just the default print setup — a person opening the file in
+    // Excel can always change it before printing. Paper size bumps up to A3
+    // when all three view options are Detailed (the widest possible column
+    // count) — A4 gets cramped at that width, same as the PDF export.
     ws.pageSetup.orientation = 'landscape';
-    ws.pageSetup.paperSize = 9; // PaperSize.A4
+    // A3 (id 8) isn't in ExcelJS's own PaperSize enum (only A4/A5/B5 etc are),
+    // even though it's a standard ECMA-376 paper size id Excel itself
+    // recognizes fine — cast past the enum's narrower type.
+    ws.pageSetup.paperSize = (allDetailed ? 8 : 9) as ExcelJS.PaperSize;
     ws.pageSetup.fitToPage = true;
     ws.pageSetup.fitToWidth = 1;
     ws.pageSetup.fitToHeight = 0; // 0 = as many pages tall as needed
