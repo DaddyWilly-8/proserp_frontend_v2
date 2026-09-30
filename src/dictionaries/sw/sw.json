@@ -74,7 +74,8 @@
       "prosAfricans": "ProsAfricans",
       "invitations": "Mialiko",
       "organizations": "Mashirika",
-      
+      "accessControlReports": "Ripoti za Udhibiti wa Ufikiaji",
+
       "hrDashboard": "Dashibodi",
       "employees": "Waajiriwa",
       "orgChart": "Muundo wa Shirika",
@@ -404,6 +405,47 @@
         "loginError": "Barua pepe au nenosiri uliyoweka sio sahihi",
         "success": "Umefanikiwa kuingia! Unaelekezwa..."
       }
+    }
+  },
+  "accessControlReports": {
+    "title": "Ripoti za Udhibiti wa Ufikiaji",
+    "subtitle": "Majukumu, ruhusa, watumiaji, na minyororo ya uidhinishaji — kama ilivyosanidiwa leo. Hamisha kwa Excel au PDF kwa ukaguzi.",
+    "tabs": {
+      "rolesPermissions": "Majukumu na Ruhusa",
+      "usersRoles": "Watumiaji dhidi ya Majukumu",
+      "approvalChains": "Minyororo ya Uidhinishaji"
+    },
+    "buttons": {
+      "exportPdf": "Hamisha PDF"
+    },
+    "rolesPermissions": {
+      "role": "Jukumu",
+      "description": "Maelezo",
+      "category": "Jamii",
+      "permissions": "Ruhusa",
+      "noPermissions": "Hakuna ruhusa zilizowekwa"
+    },
+    "usersRoles": {
+      "name": "Jina",
+      "email": "Barua Pepe",
+      "phone": "Simu",
+      "roles": "Majukumu",
+      "noRoles": "Hakuna majukumu yaliyowekwa"
+    },
+    "approvalChains": {
+      "processType": "Aina ya Mchakato",
+      "costCenter": "Kituo cha Gharama",
+      "department": "Idara",
+      "status": "Hali",
+      "levels": "Ngazi",
+      "level": "Ngazi",
+      "approverRole": "Jukumu la Muidhinishaji",
+      "noLevels": "Hakuna ngazi zilizosanidiwa"
+    },
+    "messages": {
+      "loadError": "Imeshindwa kupakia ripoti. Tafadhali jaribu tena.",
+      "exportError": "Imeshindwa kuhamisha ripoti. Tafadhali jaribu tena.",
+      "noPermission": "Huna ruhusa ya kuona ukurasa huu."
     }
   }
 }

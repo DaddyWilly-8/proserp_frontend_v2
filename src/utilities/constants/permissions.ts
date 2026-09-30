@@ -245,6 +245,7 @@ export const PERMISSIONS = {
   PROJECT_PAYMENT_CLAIMS_APPROVE: 'ProjectPaymentClaims:Approve',
 
   // Shared / Organization / Platform
+  ACCESS_CONTROL_REPORTS_READ: 'AccessControlReports:Read',
   AUDIT_READ: 'Audit:Read',
   FILES_SHELF_BROWSE: 'FilesShelf:Browse',
   MEASUREMENT_UNITS_CREATE: 'MeasurementUnits:Create',

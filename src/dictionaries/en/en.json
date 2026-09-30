@@ -72,6 +72,7 @@
       "prosAfricans": "ProsAfricans",
       "invitations": "Invitations",
       "organizations": "Organizations",
+      "accessControlReports": "Access Control Reports",
 
       "hrDashboard": "Dashboard",
       "employees": "Employees",
@@ -396,6 +397,47 @@
         "loginError": "The email or password you entered is incorrect",
         "success": "Login successful! Redirecting..."
       }
+    }
+  },
+  "accessControlReports": {
+    "title": "Access Control Reports",
+    "subtitle": "Roles, permissions, users, and approval chains — as configured today. Export to Excel or PDF for audit and compliance review.",
+    "tabs": {
+      "rolesPermissions": "Roles & Permissions",
+      "usersRoles": "Users vs Roles",
+      "approvalChains": "Approval Chains"
+    },
+    "buttons": {
+      "exportPdf": "Export PDF"
+    },
+    "rolesPermissions": {
+      "role": "Role",
+      "description": "Description",
+      "category": "Category",
+      "permissions": "Permissions",
+      "noPermissions": "No permissions assigned"
+    },
+    "usersRoles": {
+      "name": "Name",
+      "email": "Email",
+      "phone": "Phone",
+      "roles": "Roles",
+      "noRoles": "No roles assigned"
+    },
+    "approvalChains": {
+      "processType": "Process Type",
+      "costCenter": "Cost Center",
+      "department": "Department",
+      "status": "Status",
+      "levels": "Levels",
+      "level": "Level",
+      "approverRole": "Approver Role",
+      "noLevels": "No levels configured"
+    },
+    "messages": {
+      "loadError": "Could not load the report. Please try again.",
+      "exportError": "Could not export the report. Please try again.",
+      "noPermission": "You do not have permission to view this page."
     }
   }
 }

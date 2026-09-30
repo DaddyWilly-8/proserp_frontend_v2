@@ -583,6 +583,12 @@ export async function getMenus(locale: string) {
           icon: icon('reports'),
         },
         {
+          uri: `/${locale}/accessControlReports`,
+          label: sidebar.menuItem.accessControlReports,
+          type: 'nav-item',
+          icon: icon('reports'),
+        },
+        {
           label: 'Stakeholders',
           type: 'collapsible',
           icon: icon('stakeholders'),

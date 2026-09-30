@@ -1063,6 +1063,16 @@ function Sidebar({ menus }) {
                 }
             }
 
+            // Masters > Access Control Reports
+            if (!checkOrganizationPermission(PERMISSIONS.ACCESS_CONTROL_REPORTS_READ)) {
+                const mastersMenuIndex = updatedMenus.findIndex(menu => menu.label === dictionary.sidebar.menuItem.masters);
+                if (mastersMenuIndex >= 0) {
+                    updatedMenus[mastersMenuIndex].children = updatedMenus[mastersMenuIndex].children.filter(
+                        child => child.label !== dictionary.sidebar.menuItem.accessControlReports
+                    );
+                }
+            }
+
             //SMS
             if (
                 organizationHasSubscribed(MODULES.SMS) &&

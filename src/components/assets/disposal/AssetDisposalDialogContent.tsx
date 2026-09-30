@@ -159,7 +159,7 @@ const AssetDisposalDialogContent: React.FC<AssetDisposalDialogContentProps> = ({
               <Grid size={{ xs: 12, md: 6 }}>
                 <LedgerSelect
                   label={dictionary.disposal.form.labels.proceedsLedger}
-                  allowedGroups={['Cash and cash equivalents', 'Accounts Receivable']}
+                  allowedGroups={['Cash and cash equivalents', 'Accounts Receivable', 'Current Assets', 'Current Liabilities']}
                   frontError={errors.proceeds_ledger_id as any}
                   onChange={(newValue: any) => {
                     setValue('proceeds_ledger_id', newValue && !Array.isArray(newValue) ? newValue.id : null, {
