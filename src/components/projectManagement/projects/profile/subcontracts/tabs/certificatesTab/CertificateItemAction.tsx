@@ -262,7 +262,8 @@ const CertificateItemAction: React.FC<{ certificate: Certificate }> = ({
   // Certificates list), where `hasApprovalChain` would otherwise read false.
   const isLocked =
     (deferredInvoicing && certificate.status === 'invoiced') ||
-    ['in_review', 'approved'].includes(certificate.status || '');
+    ['in_review', 'approved'].includes(certificate.status || '') ||
+    !!certificate.has_approved_payment_request;
   // Invoicing requires 'approved' status once a chain is configured; legacy
   // behavior (no chain) still only requires 'draft'. Checking status directly
   // for the 'approved' case (rather than gating on `hasApprovalChain`) keeps
@@ -286,7 +287,7 @@ const CertificateItemAction: React.FC<{ certificate: Certificate }> = ({
       title: 'Create Invoice',
       action: 'invoice',
     },
-    checkOrganizationPermission(PERMISSIONS.PROJECT_SUBCONTRACTS_DELETE) && {
+    !certificate.has_approved_payment_request && checkOrganizationPermission(PERMISSIONS.PROJECT_SUBCONTRACTS_DELETE) && {
       icon: <DeleteOutlined fontSize='small' color='error' />,
       title: 'Delete',
       action: 'delete',

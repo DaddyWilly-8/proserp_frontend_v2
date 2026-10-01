@@ -48,6 +48,10 @@ export interface Certificate {
   // Backend-computed — "Waiting for {Role}" while under a pending approval
   // level, same convention as LeaveRequest.status_label.
   status_label?: string;
+  // True once a payment request linking to this certificate has cleared its
+  // approval chain — editing/deleting is blocked server-side at that point
+  // (see ProjectSubcontractCertificateController::update()/destroy()).
+  has_approved_payment_request?: boolean;
   invoice_date?: string | null;
   approval_chain_id?: number | null;
   approval_chain?: CertificateApprovalChain | null;
