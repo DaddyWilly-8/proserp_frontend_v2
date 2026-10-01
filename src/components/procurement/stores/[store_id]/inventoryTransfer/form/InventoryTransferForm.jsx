@@ -293,8 +293,8 @@ function InventoryTransferForm({ toggleOpen, transfer = null, type }) {
                       <CostCenterSelector
                         multiple={false}
                         label="Destination Cost Center"
-                        allowAllCostCenters={true}
-                        removedCostCentersIds={[watch(`source_cost_center_id`)]}
+                        removedCostCentersIds={true}
+                        removedCostCenters={[watch(`source_cost_center_id`)]}
                         withNotSpecified={true}
                         defaultValue={transfer?.destination_cost_center}
                         onChange={(newValue) => {
@@ -353,8 +353,8 @@ function InventoryTransferForm({ toggleOpen, transfer = null, type }) {
                           <CostCenterSelector
                             multiple={false}
                             label="Destination Cost Center"
-                            allowAllCostCenters={true}
-                            removedCostCentersIds={[watch(`source_cost_center_id`)]}
+                            removedCostCentersIds={true}
+                            removedCostCenters={[watch(`source_cost_center_id`)]}
                             withNotSpecified={true}
                             defaultValue={transfer?.destination_cost_center}
                             onChange={(newValue) => {
