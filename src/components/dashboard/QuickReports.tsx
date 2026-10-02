@@ -17,6 +17,7 @@ import {
   AssessmentOutlined,
   BeachAccessOutlined,
   FeedOutlined,
+  LeaderboardOutlined,
   ListAltOutlined,
   Money,
   QueryStatsOutlined,
@@ -62,6 +63,9 @@ const StakeholderSelectProvider = lazy(
 const SalesManifest = lazy(
   () => import('../pos/reports/salesManifest/SalesManifest')
 );
+const SalesPerformance = lazy(
+  () => import('../pos/reports/salesPerformance/SalesPerformance')
+);
 const LedgerSelectProvider = lazy(
   () => import('../accounts/ledgers/forms/LedgerSelectProvider')
 );
@@ -90,6 +94,7 @@ function QuickReports() {
   const [apArAgingDialogOpen, setApArAgingDialogOpen] = useState(false);
   const [openSalesAndCashSummary, setOpenSalesAndCashSummary] = useState(false);
   const [openSalesManifest, setOpenSalesManifest] = useState(false);
+  const [openSalesPerformance, setOpenSalesPerformance] = useState(false);
   const [openDippingReport, setOpenDippingReport] = useState(false);
   const [fuelVouchersDialogOpen, setFuelVouchersDialogOpen] = useState(false);
   const [openShiftsSummaryReport, setOpenShiftsSummaryReport] = useState(false);
@@ -117,6 +122,7 @@ function QuickReports() {
     setItemMovementDialogOpen(false);
     setStockMovementDialogOpen(false);
     setOpenSalesManifest(false);
+    setOpenSalesPerformance(false);
     setFuelVouchersDialogOpen(false);
     setOpenLeaveBalancesReport(false);
     setOpenStaffLoanReport(false);
@@ -133,6 +139,7 @@ function QuickReports() {
           stockMovementDialogOpen ||
           openDippingReport ||
           openSalesManifest ||
+          openSalesPerformance ||
           openCashierReport ||
           openLeaveBalancesReport ||
           openStaffLoanReport ||
@@ -153,6 +160,7 @@ function QuickReports() {
           itemMovementDialogOpen ||
           stockMovementDialogOpen ||
           openSalesManifest ||
+          openSalesPerformance ||
           fuelVouchersDialogOpen ||
           openLeaveBalancesReport ||
           openStaffLoanReport ||
@@ -205,6 +213,13 @@ function QuickReports() {
         {openSalesManifest && (
           <StakeholderSelectProvider>
             <SalesManifest setOpenSalesManifest={setOpenSalesManifest} />
+          </StakeholderSelectProvider>
+        )}
+        {openSalesPerformance && (
+          <StakeholderSelectProvider>
+            <SalesPerformance
+              setOpenSalesPerformance={setOpenSalesPerformance}
+            />
           </StakeholderSelectProvider>
         )}
         {fuelVouchersDialogOpen && (
@@ -291,6 +306,24 @@ function QuickReports() {
                 >
                   <ListAltOutlined sx={{ fontSize: '40px' }} />
                   <Typography>Sales Manifest</Typography>
+                </Grid>
+              )}
+            {organizationHasSubscribed(MODULES.POINT_OF_SALE) &&
+              checkOrganizationPermission(PERMISSIONS.SALES_REPORTS) && (
+                <Grid
+                  size={{ xs: 6, md: 2, lg: 1.5 }}
+                  p={1}
+                  textAlign={'center'}
+                  sx={{
+                    cursor: 'pointer',
+                    '&:hover': {
+                      bgcolor: 'action.hover',
+                    },
+                  }}
+                  onClick={() => handleOpenDialog(setOpenSalesPerformance)}
+                >
+                  <LeaderboardOutlined sx={{ fontSize: '40px' }} />
+                  <Typography>Sales Performance</Typography>
                 </Grid>
               )}
 

@@ -105,6 +105,20 @@ posServices.exportProductSalesReportExcel = async (exportedData) => {
     return res.data;
 };
 
+posServices.salesPerformance = async (params) => {
+    const { data } = await axios.get(`/api/pos/counter/salesPerformance`, {
+        params
+    });
+    return data;
+};
+
+posServices.exportSalesPerformanceExcel = async (exportedData) => {
+    const res = await axios.post(`/api/exports/excel/salesPerformance`, exportedData, {
+        responseType: 'blob',
+    });
+    return res.data;
+};
+
 posServices.exportProductSalesExcel = async (exportedData) => {
     const res = await axios.post(`/api/exports/excel/topProducts/`, exportedData, {
         responseType: 'blob',

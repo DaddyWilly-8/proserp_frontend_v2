@@ -36,6 +36,9 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import dayjs, { Dayjs } from 'dayjs';
 import { useSnackbar } from 'notistack';
 import React, { useMemo, useState } from 'react';
+import StakeholderSelector from '../../masters/stakeholders/StakeholderSelector';
+import { Stakeholder } from '../../masters/stakeholders/StakeholderType';
+import ProductSelect from '../../productAndServices/products/ProductSelect';
 import posServices from '../pos-services';
 import ProductSalesReportPDF from './ProductSalesReportPDF';
 
@@ -96,6 +99,10 @@ const ProductSalesReportDialog: React.FC = () => {
   const [selectedCounters, setSelectedCounters] = useState<CounterOption[]>(
     []
   );
+  const [selectedStakeholders, setSelectedStakeholders] = useState<
+    Stakeholder[]
+  >([]);
+  const [selectedProducts, setSelectedProducts] = useState<any[]>([]);
   const [rows, setRows] = useState<ProductSalesReportRow[] | null>(null);
   const [totals, setTotals] = useState<ReportTotals | null>(null);
   const [collectionDistribution, setCollectionDistribution] = useState<
@@ -150,6 +157,8 @@ const ProductSalesReportDialog: React.FC = () => {
     setTotals(null);
     setCollectionDistribution(null);
     setShowPdfPreview(false);
+    setSelectedStakeholders([]);
+    setSelectedProducts([]);
   };
 
   const handleGenerate = () => {
@@ -159,6 +168,12 @@ const ProductSalesReportDialog: React.FC = () => {
       to: to.toISOString(),
       counter_ids: selectedCounters.length
         ? selectedCounters.map((counter) => counter.id)
+        : undefined,
+      stakeholder_ids: selectedStakeholders.length
+        ? selectedStakeholders.map((stakeholder) => stakeholder.id)
+        : undefined,
+      product_ids: selectedProducts.length
+        ? selectedProducts.map((product) => product.id)
         : undefined,
     });
   };
@@ -275,6 +290,26 @@ const ProductSalesReportDialog: React.FC = () => {
                   );
                 }}
                 onChange={(event, newValue) => setSelectedCounters(newValue)}
+              />
+            </Grid>
+            <Grid size={{ xs: 12, md: 6 }}>
+              <StakeholderSelector
+                label='Clients (all if empty)'
+                multiple
+                onChange={(newValue) =>
+                  setSelectedStakeholders(
+                    (Array.isArray(newValue) ? newValue : []) as Stakeholder[]
+                  )
+                }
+              />
+            </Grid>
+            <Grid size={{ xs: 12, md: 6 }}>
+              <ProductSelect
+                label='Products (all if empty)'
+                multiple
+                onChange={(newValue: any[]) =>
+                  setSelectedProducts(newValue || [])
+                }
               />
             </Grid>
             <Grid size={{ xs: 12 }} textAlign='right'>

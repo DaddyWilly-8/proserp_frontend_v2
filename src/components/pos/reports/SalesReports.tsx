@@ -4,8 +4,9 @@ import JumboCardQuick from '@jumbo/components/JumboCardQuick/JumboCardQuick';
 import { Dialog, Grid, Typography, useMediaQuery } from '@mui/material';
 import React, { useState, ReactNode } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { ListAltOutlined, SummarizeOutlined } from '@mui/icons-material';
+import { LeaderboardOutlined, ListAltOutlined, SummarizeOutlined } from '@mui/icons-material';
 import SalesManifest from './salesManifest/SalesManifest';
+import SalesPerformance from './salesPerformance/SalesPerformance';
 import StakeholderSelectProvider from '../../masters/stakeholders/StakeholderSelectProvider';
 import CashierReport from '../../accounts/reports/cashierReport/CashierReport';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -24,6 +25,7 @@ function SalesReports() {
     const [openCashierReport, setOpenCashierReport] = useState<boolean>(false);
     const [openSalesAndCashSummary, setOpenSalesAndCashSummary] = useState<boolean>(false);
     const [openSalesManifest, setOpenSalesManifest] = useState<boolean>(false);
+    const [openSalesPerformance, setOpenSalesPerformance] = useState<boolean>(false);
     const [report, setReport] = useState<ReactNode>(null);
     const { checkOrganizationPermission, organizationHasSubscribed } = useJumboAuth();
     
@@ -50,6 +52,9 @@ function SalesReports() {
         } else if (reportParam === 'sales-cash-summary') {
             setReport(<SalesAndCashSummary setOpenSalesAndCashSummary={setOpenSalesAndCashSummary} />);
             setOpenSalesAndCashSummary(true);
+        } else if (reportParam === 'sales-performance') {
+            setReport(<SalesPerformance setOpenSalesPerformance={setOpenSalesPerformance} />);
+            setOpenSalesPerformance(true);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [mounted, searchParams]);
@@ -72,8 +77,8 @@ function SalesReports() {
                         scroll={belowLargeScreen ? 'body' : 'paper'} 
                         fullScreen={belowLargeScreen} 
                         fullWidth 
-                        maxWidth={openSalesAndCashSummary ? 'md' : 'lg'} 
-                        open={openCashierReport || openSalesManifest || openSalesAndCashSummary}
+                        maxWidth={openSalesAndCashSummary ? 'md' : 'lg'}
+                        open={openCashierReport || openSalesManifest || openSalesAndCashSummary || openSalesPerformance}
                     >
                         {report}
                     </Dialog>
@@ -142,6 +147,26 @@ function SalesReports() {
                             >
                                 <SummarizeOutlined sx={{ fontSize: '40px' }} />
                                 <Typography>Sales & Cash Summary</Typography>
+                            </Grid>
+
+                            {/* Sales Performance Card */}
+                            <Grid
+                                sx={{
+                                    cursor: 'pointer',
+                                    '&:hover': {
+                                        bgcolor: 'action.hover',
+                                    }
+                                }}
+                                size={{xs: 6, md: 3, lg: 2}}
+                                p={1}
+                                textAlign={'center'}
+                                onClick={() => {
+                                    setReport(<SalesPerformance setOpenSalesPerformance={setOpenSalesPerformance} />);
+                                    setOpenSalesPerformance(true);
+                                }}
+                            >
+                                <LeaderboardOutlined sx={{ fontSize: '40px' }} />
+                                <Typography>Sales Performance</Typography>
                             </Grid>
                         </Grid>
                     </JumboCardQuick>
