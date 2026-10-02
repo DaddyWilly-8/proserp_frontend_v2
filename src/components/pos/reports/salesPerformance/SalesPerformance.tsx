@@ -52,6 +52,7 @@ interface SalesPerformanceProductRow {
   unit_symbol?: string | null;
   quantity: number;
   amount_ordered: number;
+  amount_dispatched: number;
 }
 
 interface SalesPerformanceRow {
@@ -440,27 +441,51 @@ function SalesPerformance({
                             Products sold
                           </Typography>
                           {row.products.map((product) => (
-                            <Grid
-                              container
+                            <Box
                               key={product.product_id}
-                              sx={{ mb: 0.5 }}
+                              sx={{
+                                mb: 1,
+                                p: 1,
+                                borderRadius: 1,
+                                bgcolor: 'action.hover',
+                              }}
                             >
-                              <Grid size={12}>
-                                <Typography variant='body2'>
-                                  {product.product_name}
-                                </Typography>
+                              <Typography variant='body2' fontWeight='medium' gutterBottom>
+                                {product.product_name}
+                              </Typography>
+                              <Grid container rowSpacing={0.25}>
+                                <Grid size={6}>
+                                  <Typography variant='caption' color='text.secondary'>
+                                    Quantity
+                                  </Typography>
+                                </Grid>
+                                <Grid size={6} textAlign='right'>
+                                  <Typography variant='caption'>
+                                    {formatQuantity(product.quantity, product.unit_symbol)}
+                                  </Typography>
+                                </Grid>
+                                <Grid size={6}>
+                                  <Typography variant='caption' color='text.secondary'>
+                                    Amount Ordered
+                                  </Typography>
+                                </Grid>
+                                <Grid size={6} textAlign='right'>
+                                  <Typography variant='caption'>
+                                    {formatAmount(product.amount_ordered)}
+                                  </Typography>
+                                </Grid>
+                                <Grid size={6}>
+                                  <Typography variant='caption' color='text.secondary'>
+                                    Amount Dispatched
+                                  </Typography>
+                                </Grid>
+                                <Grid size={6} textAlign='right'>
+                                  <Typography variant='caption'>
+                                    {formatAmount(product.amount_dispatched)}
+                                  </Typography>
+                                </Grid>
                               </Grid>
-                              <Grid size={6}>
-                                <Typography variant='caption' color='text.secondary'>
-                                  {formatQuantity(product.quantity, product.unit_symbol)}
-                                </Typography>
-                              </Grid>
-                              <Grid size={6} textAlign='right'>
-                                <Typography variant='caption' color='text.secondary'>
-                                  {formatAmount(product.amount_ordered)}
-                                </Typography>
-                              </Grid>
-                            </Grid>
+                            </Box>
                           ))}
                         </Collapse>
                       )}
@@ -589,6 +614,7 @@ function SalesPerformance({
                                         <TableCell>Product</TableCell>
                                         <TableCell align='right'>Quantity</TableCell>
                                         <TableCell align='right'>Amount Ordered</TableCell>
+                                        <TableCell align='right'>Amount Dispatched</TableCell>
                                       </TableRow>
                                     </TableHead>
                                     <TableBody>
@@ -603,6 +629,9 @@ function SalesPerformance({
                                           </TableCell>
                                           <TableCell align='right'>
                                             {formatAmount(product.amount_ordered)}
+                                          </TableCell>
+                                          <TableCell align='right'>
+                                            {formatAmount(product.amount_dispatched)}
                                           </TableCell>
                                         </TableRow>
                                       ))}

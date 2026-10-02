@@ -12,6 +12,7 @@ interface SalesPerformanceProductRow {
   unit_symbol?: string | null;
   quantity: number;
   amount_ordered: number;
+  amount_dispatched: number;
 }
 
 interface SalesPerformanceRow {
@@ -153,7 +154,9 @@ function SalesPerformancePDF({
                   <Text style={{ ...pdfStyles.tableCell, flex: 1.6, textAlign: 'right', fontSize: 8, color: '#555555' }}>
                     {formatAmount(product.amount_ordered)}
                   </Text>
-                  <Text style={{ ...pdfStyles.tableCell, flex: 1.6 }} />
+                  <Text style={{ ...pdfStyles.tableCell, flex: 1.6, textAlign: 'right', fontSize: 8, color: '#555555' }}>
+                    Disp: {formatAmount(product.amount_dispatched)}
+                  </Text>
                 </View>
               ))}
             </React.Fragment>

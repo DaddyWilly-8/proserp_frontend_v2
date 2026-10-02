@@ -33,10 +33,12 @@ export async function exportSalesPerformanceExcel(exportedData: any) {
       { width: 18 }, // Transactions
       { width: 20 }, // Amount Ordered
       { width: 20 }, // Amount Collected
+      { width: 20 }, // Amount Dispatched (product lines only)
     ];
 
-    ws.addRow([organization.name, ' ', ' ', ' ', 'SALES PERFORMANCE']);
+    ws.addRow([organization.name, ' ', ' ', ' ', ' ', 'SALES PERFORMANCE']);
     ws.addRow([
+      ' ',
       ' ',
       ' ',
       ' ',
@@ -44,14 +46,14 @@ export async function exportSalesPerformanceExcel(exportedData: any) {
       `${readableDate(from, true)} - ${readableDate(to, true)}`,
     ]);
     if (baseCurrencyCode) {
-      ws.addRow([' ', ' ', ' ', ' ', `Amounts in base currency (${baseCurrencyCode})`]);
+      ws.addRow([' ', ' ', ' ', ' ', ' ', `Amounts in base currency (${baseCurrencyCode})`]);
     }
     ws.getCell('A1').font = { bold: true, size: 12 };
-    ws.getCell('E1').font = { bold: true, size: 12 };
+    ws.getCell('F1').font = { bold: true, size: 12 };
 
     ws.addRow([]);
-    const infoRow = ws.addRow(['Printed By', ' ', 'Printed On', ' ', ' ']);
-    ws.addRow([printedBy || '', ' ', readableDate(undefined, true), ' ', ' ']);
+    const infoRow = ws.addRow(['Printed By', ' ', 'Printed On', ' ', ' ', ' ']);
+    ws.addRow([printedBy || '', ' ', readableDate(undefined, true), ' ', ' ', ' ']);
     infoRow.eachCell((cell) => applyCellStyle(cell, CELL_STYLES.filterLabel));
 
     ws.addRow([]);
@@ -62,6 +64,7 @@ export async function exportSalesPerformanceExcel(exportedData: any) {
       'Transactions',
       'Amount Ordered',
       'Amount Collected',
+      'Amount Dispatched',
     ]);
     headerRow.eachCell((cell, colNumber) => {
       applyCellStyle(cell, CELL_STYLES.tableHeader);
@@ -77,6 +80,7 @@ export async function exportSalesPerformanceExcel(exportedData: any) {
         row.transaction_count,
         row.amount_ordered,
         row.amount_collected,
+        '',
       ]);
       dataRow.eachCell((cell, colNumber) => {
         applyCellStyle(
@@ -98,6 +102,7 @@ export async function exportSalesPerformanceExcel(exportedData: any) {
           '',
           product.amount_ordered,
           '',
+          product.amount_dispatched,
         ]);
         // Collapsible under its customer/sales person row — see
         // outlineProperties above.
@@ -107,7 +112,7 @@ export async function exportSalesPerformanceExcel(exportedData: any) {
             cell,
             colNumber === 2 ? CELL_STYLES.filterLabel : CELL_STYLES.dataRowNumeric
           );
-          if (colNumber === 4) {
+          if (colNumber >= 4) {
             cell.numFmt = '#,##0.00';
           }
         });
@@ -126,6 +131,16 @@ export async function exportSalesPerformanceExcel(exportedData: any) {
       (sum: number, row: any) => sum + (row.transaction_count || 0),
       0
     );
+    const totalDispatched = (rows || []).reduce(
+      (sum: number, row: any) =>
+        sum +
+        (row.products || []).reduce(
+          (productSum: number, product: any) =>
+            productSum + (product.amount_dispatched || 0),
+          0
+        ),
+      0
+    );
 
     const totalRow = ws.addRow([
       '',
@@ -133,6 +148,7 @@ export async function exportSalesPerformanceExcel(exportedData: any) {
       totalTransactions,
       totalOrdered,
       totalCollected,
+      totalDispatched,
     ]);
     totalRow.eachCell((cell, colNumber) => {
       applyCellStyle(
