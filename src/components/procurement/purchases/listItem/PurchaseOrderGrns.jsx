@@ -103,7 +103,7 @@ function PurchaseOrderGrns({order}) {
                             </Tooltip>
                         }
 
-                        {!orderGrn.billed &&
+                        {!orderGrn.billed && order.status !== 'Instantly Received' &&
                             <Tooltip title={`Edit ${orderGrn.grnNo}`}>
                                 <IconButton
                                     onClick={() => {

@@ -25,6 +25,7 @@ import {
   MenuItem,
   Paper,
   Select,
+  Stack,
   Table,
   TableBody,
   TableCell,
@@ -328,16 +329,34 @@ function SalesPerformance({
               }
             />
           </Grid>
-          <Grid size={{ xs: 12 }} textAlign='right'>
-            <Button
-              fullWidth={belowLargeScreen}
-              variant='contained'
-              size='small'
-              disabled={!from || !to || generateReport.isPending}
-              onClick={handleGenerate}
+          <Grid size={{ xs: 12 }}>
+            <Stack
+              direction='row'
+              spacing={1}
+              alignItems='center'
+              justifyContent={{ xs: 'space-between', sm: 'flex-end' }}
+              width={{ xs: '100%', sm: 'auto' }}
+              sx={{ ml: 'auto' }}
             >
-              Generate
-            </Button>
+              {rows && rows.length > 0 && (
+                <FileExportGrid
+                  exportExcel
+                  handlExcelExport={handleExportExcel}
+                  exportingExcel={isExportingExcel}
+                  exportPdf
+                  handlePdf={() => setShowPdfPreview((prev) => !prev)}
+                />
+              )}
+              <Button
+                fullWidth={belowLargeScreen}
+                variant='contained'
+                size='small'
+                disabled={!from || !to || generateReport.isPending}
+                onClick={handleGenerate}
+              >
+                Generate
+              </Button>
+            </Stack>
           </Grid>
         </Grid>
 
@@ -688,15 +707,6 @@ function SalesPerformance({
           ))}
       </DialogContent>
       <DialogActions>
-        {rows && rows.length > 0 && (
-          <FileExportGrid
-            exportExcel
-            handlExcelExport={handleExportExcel}
-            exportingExcel={isExportingExcel}
-            exportPdf
-            handlePdf={() => setShowPdfPreview((prev) => !prev)}
-          />
-        )}
         <Button size='small' onClick={() => setOpenSalesPerformance(false)}>
           Close
         </Button>
