@@ -245,6 +245,7 @@ const JournalItemAction: React.FC<JournalItemActionProps> = ({
       PERMISSIONS.JOURNAL_VOUCHERS_EDIT,
     ]) &&
       !transaction.cancelled_at &&
+      !transaction.is_system_generated &&
       (checkPermission([
         PERMISSIONS.ACCOUNTS_TRANSACTIONS_BACKDATE,
         PERMISSIONS.JOURNAL_VOUCHERS_BACKDATE,
@@ -261,6 +262,7 @@ const JournalItemAction: React.FC<JournalItemActionProps> = ({
     ]) &&
       !transaction.cancelled_at &&
       !transaction.is_reconciled &&
+      !transaction.is_system_generated &&
       (checkPermission([
         PERMISSIONS.ACCOUNTS_TRANSACTIONS_BACKDATE,
         PERMISSIONS.JOURNAL_VOUCHERS_BACKDATE,

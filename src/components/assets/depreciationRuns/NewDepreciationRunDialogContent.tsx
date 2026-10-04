@@ -3,11 +3,13 @@ import { getErrorMessage } from '@/utilities/helpers/errorHandler';
 import { LoadingButton } from '@mui/lab';
 import {
   Alert,
+  Box,
   Button,
   DialogActions,
   DialogContent,
   DialogTitle,
   Divider,
+  Paper,
   Stack,
   Table,
   TableBody,
@@ -17,6 +19,8 @@ import {
   TableRow,
   TextField,
   Typography,
+  useMediaQuery,
+  useTheme,
 } from '@mui/material';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSnackbar } from 'notistack';
@@ -35,6 +39,8 @@ const NewDepreciationRunDialogContent: React.FC<NewDepreciationRunDialogContentP
   const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
   const dictionary = useDictionary();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   const [period, setPeriod] = useState(dayjs().format('YYYY-MM'));
   const [narration, setNarration] = useState('');
@@ -59,6 +65,7 @@ const NewDepreciationRunDialogContent: React.FC<NewDepreciationRunDialogContentP
 
   const hasMissingMappings = preview?.missing_mappings?.length > 0;
   const canPost = preview && !hasMissingMappings && preview.lines?.length > 0;
+  const totalCharge = (preview?.categories ?? []).reduce((sum: number, c: any) => sum + (c.depreciation_amount ?? 0), 0);
 
   return (
     <>
@@ -109,39 +116,113 @@ const NewDepreciationRunDialogContent: React.FC<NewDepreciationRunDialogContentP
 
               {preview.categories?.length > 0 && (
                 <>
-                  <Typography variant="subtitle2" color="text.secondary">{dictionary.depreciationRuns.form.preview.categoryHeader}</Typography>
-                  <TableContainer>
-                  <Table size="small">
-                    <TableHead>
-                      <TableRow>
-                        <TableCell>{dictionary.depreciationRuns.view.labels.category}</TableCell>
-                        <TableCell>{dictionary.depreciationRuns.view.labels.costCenter}</TableCell>
-                        <TableCell align="right">{dictionary.depreciationRuns.form.preview.assetsCount}</TableCell>
-                        <TableCell align="right">{dictionary.depreciationRuns.view.labels.charge}</TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {preview.categories.map((category: any) => (
-                        <TableRow key={`${category.product_category_id}-${category.cost_center_id ?? 'none'}`}>
-                          <TableCell>{category.category_name}</TableCell>
-                          <TableCell>{category.cost_center_name ?? '-'}</TableCell>
-                          <TableCell align="right">{category.assets_count}</TableCell>
-                          <TableCell align="right">{fmt(category.depreciation_amount)}</TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                  </TableContainer>
+                  <Paper variant="outlined" sx={{ p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center', bgcolor: 'action.hover' }}>
+                    <Typography variant="subtitle2">{dictionary.depreciationRuns.form.preview.totalCharge}</Typography>
+                    <Typography variant="h6">{fmt(totalCharge)}</Typography>
+                  </Paper>
 
-                  <Typography variant="caption" color="text.secondary">
+                  <Typography variant="subtitle2" color="text.secondary">{dictionary.depreciationRuns.form.preview.categoryHeader}</Typography>
+                  {isMobile ? (
+                    <Stack spacing={1}>
+                      {preview.categories.map((category: any) => (
+                        <Paper key={`${category.product_category_id}-${category.cost_center_id ?? 'none'}`} variant="outlined" sx={{ p: 1.5 }}>
+                          <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
+                            <Box>
+                              <Typography variant="body2" fontWeight={500}>{category.category_name}</Typography>
+                              <Typography variant="caption" color="text.secondary">
+                                {category.cost_center_name ?? '-'} · {category.assets_count} {dictionary.depreciationRuns.form.preview.assetsCount}
+                              </Typography>
+                            </Box>
+                            <Typography variant="body2" fontWeight={500}>{fmt(category.depreciation_amount)}</Typography>
+                          </Stack>
+                        </Paper>
+                      ))}
+                    </Stack>
+                  ) : (
+                    <TableContainer component={Paper} variant="outlined">
+                      <Table size="small">
+                        <TableHead>
+                          <TableRow>
+                            <TableCell>{dictionary.depreciationRuns.view.labels.category}</TableCell>
+                            <TableCell>{dictionary.depreciationRuns.view.labels.costCenter}</TableCell>
+                            <TableCell align="right">{dictionary.depreciationRuns.form.preview.assetsCount}</TableCell>
+                            <TableCell align="right">{dictionary.depreciationRuns.view.labels.charge}</TableCell>
+                          </TableRow>
+                        </TableHead>
+                        <TableBody>
+                          {preview.categories.map((category: any) => (
+                            <TableRow key={`${category.product_category_id}-${category.cost_center_id ?? 'none'}`}>
+                              <TableCell sx={{ whiteSpace: 'normal', wordBreak: 'break-word' }}>{category.category_name}</TableCell>
+                              <TableCell sx={{ whiteSpace: 'normal', wordBreak: 'break-word' }}>{category.cost_center_name ?? '-'}</TableCell>
+                              <TableCell align="right">{category.assets_count}</TableCell>
+                              <TableCell align="right">{fmt(category.depreciation_amount)}</TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                        <TableBody>
+                          <TableRow>
+                            <TableCell colSpan={3} sx={{ fontWeight: 600, borderBottom: 'none' }}>
+                              {dictionary.depreciationRuns.form.preview.totalCharge}
+                            </TableCell>
+                            <TableCell align="right" sx={{ fontWeight: 600, borderBottom: 'none' }}>{fmt(totalCharge)}</TableCell>
+                          </TableRow>
+                        </TableBody>
+                      </Table>
+                    </TableContainer>
+                  )}
+
+                  <Typography variant="subtitle2" color="text.secondary" sx={{ mt: 1 }}>
                     {dictionary.depreciationRuns.form.preview.journalPreview}
                   </Typography>
-                  {preview.categories.map((category: any) => (
-                    <Typography key={`${category.product_category_id}-${category.cost_center_id ?? 'none'}`} variant="body2" sx={{ pl: 1 }}>
-                      DR {category.depreciation_expense_ledger?.name} / CR {category.accumulated_depreciation_ledger?.name} — {fmt(category.depreciation_amount)}
-                      {category.cost_center_name ? ` (${category.cost_center_name})` : ''}
-                    </Typography>
-                  ))}
+                  {isMobile ? (
+                    <Stack spacing={1}>
+                      {preview.categories.map((category: any) => (
+                        <Paper key={`${category.product_category_id}-${category.cost_center_id ?? 'none'}`} variant="outlined" sx={{ p: 1.5 }}>
+                          {category.cost_center_name && (
+                            <Typography variant="caption" color="text.secondary">{category.cost_center_name}</Typography>
+                          )}
+                          <Stack direction="row" justifyContent="space-between">
+                            <Typography variant="body2" color="text.secondary">{dictionary.depreciationRuns.form.preview.debit}</Typography>
+                            <Typography variant="body2">{category.depreciation_expense_ledger?.name}</Typography>
+                          </Stack>
+                          <Stack direction="row" justifyContent="space-between">
+                            <Typography variant="body2" color="text.secondary">{dictionary.depreciationRuns.form.preview.credit}</Typography>
+                            <Typography variant="body2">{category.accumulated_depreciation_ledger?.name}</Typography>
+                          </Stack>
+                          <Divider sx={{ my: 0.5 }} />
+                          <Stack direction="row" justifyContent="space-between">
+                            <Typography variant="body2" fontWeight={500}>{dictionary.depreciationRuns.form.preview.amount}</Typography>
+                            <Typography variant="body2" fontWeight={500}>{fmt(category.depreciation_amount)}</Typography>
+                          </Stack>
+                        </Paper>
+                      ))}
+                    </Stack>
+                  ) : (
+                    <TableContainer component={Paper} variant="outlined">
+                      <Table size="small">
+                        <TableHead>
+                          <TableRow>
+                            <TableCell>{dictionary.depreciationRuns.view.labels.costCenter}</TableCell>
+                            <TableCell>{dictionary.depreciationRuns.form.preview.debit}</TableCell>
+                            <TableCell>{dictionary.depreciationRuns.form.preview.credit}</TableCell>
+                            <TableCell align="right">{dictionary.depreciationRuns.form.preview.amount}</TableCell>
+                          </TableRow>
+                        </TableHead>
+                        <TableBody>
+                          {preview.categories.map((category: any) => (
+                            <TableRow key={`${category.product_category_id}-${category.cost_center_id ?? 'none'}`}>
+                              <TableCell sx={{ whiteSpace: 'normal', wordBreak: 'break-word' }}>
+                                {category.category_name}{category.cost_center_name ? ` — ${category.cost_center_name}` : ''}
+                              </TableCell>
+                              <TableCell sx={{ whiteSpace: 'normal', wordBreak: 'break-word' }}>{category.depreciation_expense_ledger?.name}</TableCell>
+                              <TableCell sx={{ whiteSpace: 'normal', wordBreak: 'break-word' }}>{category.accumulated_depreciation_ledger?.name}</TableCell>
+                              <TableCell align="right">{fmt(category.depreciation_amount)}</TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </TableContainer>
+                  )}
                 </>
               )}
             </>

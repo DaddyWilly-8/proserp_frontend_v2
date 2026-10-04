@@ -265,7 +265,11 @@
         "noLines": "No depreciation to charge for this period.",
         "assetsCount": "assets",
         "categoryHeader": "By Category",
-        "journalPreview": "This will post one journal per category:",
+        "journalPreview": "Journals to be posted (one per category)",
+        "totalCharge": "Total Charge for Period",
+        "debit": "Debit",
+        "credit": "Credit",
+        "amount": "Amount",
         "missingMappings": "These categories have assets to depreciate but no GL mapping. Set them up under Masters → GL Mappings first:"
       },
       "buttons": {

@@ -31,4 +31,11 @@ depreciationRunsServices.rollback = async (run) => {
   return data;
 };
 
+depreciationRunsServices.exportExcel = async (id) => {
+  const response = await axios.get(`/api/assets/depreciation-runs/${id}/export-excel`, {
+    responseType: 'blob',
+  });
+  return response.data;
+};
+
 export default depreciationRunsServices;

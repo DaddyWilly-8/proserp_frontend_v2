@@ -265,7 +265,11 @@
         "noLines": "Hakuna uchakavu wa kutoza kwa kipindi hiki.",
         "assetsCount": "mali",
         "categoryHeader": "Kwa Kategoria",
-        "journalPreview": "Hii itaweka jarida moja kwa kila kategoria:",
+        "journalPreview": "Majarida yatakayowekwa (moja kwa kila kategoria)",
+        "totalCharge": "Jumla ya Gharama kwa Kipindi",
+        "debit": "Madeni",
+        "credit": "Mikopo",
+        "amount": "Kiasi",
         "missingMappings": "Kategoria hizi zina mali za kuchakaa lakini hazina uunganishaji wa daftari. Ziweke chini ya Wakuu → Uunganishaji wa Daftari kwanza:"
       },
       "buttons": {

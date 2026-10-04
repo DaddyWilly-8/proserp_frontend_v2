@@ -10,10 +10,10 @@ import { FileExportGrid } from '@/components/sharedComponents/FileExportGrid';
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 import {
   EditOutlined,
-  PaidOutlined,
   PreviewOutlined,
   PrintOutlined,
   ReceiptLongOutlined,
+  Verified,
 } from '@mui/icons-material';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
@@ -239,7 +239,7 @@ const MyHrLoanRequestsListItem = ({
                 <Tooltip
                   title={`Disbursed ${readableDate(loanRequest.disbursed_at, false)}`}
                 >
-                  <PaidOutlined color='success' fontSize='small' />
+                  <Verified color='success' fontSize='small' />
                 </Tooltip>
               )}
             </Stack>
