@@ -6,7 +6,7 @@ import PurchaseBillItemAction from './PurchaseBillItemAction';
 import { PurchaseBill } from './PurchaseBillType';
 
 function PurchaseBillListItem({ purchaseBill }: { purchaseBill: PurchaseBill }) {
-  const sourceNo = purchaseBill.source?.orderNo || purchaseBill.source?.grnNo || '';
+  const sourceNo = purchaseBill.source?.orderNo || purchaseBill.source?.grnNo || purchaseBill.source?.certificateNo || '';
 
   const paidAmount = purchaseBill.paid_amount ?? 0;
   const netAmount = purchaseBill.net_amount ?? 0;

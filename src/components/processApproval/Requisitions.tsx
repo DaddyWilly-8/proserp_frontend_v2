@@ -35,6 +35,7 @@ import RequisitionsActionTail from './RequisitionsActionTail';
 import requisitionsServices from './requisitionsServices';
 import RequisitionsTypeSelector from './RequisitionsTypeSelector';
 import RequisitionsWaitingForSelector from './RequisitionsWaitingForSelector';
+import MyRequisitionsToggle from './MyRequisitionsToggle';
 import { Requisition } from './RequisitionType';
 
 interface RequisitionContextType {
@@ -55,6 +56,7 @@ interface QueryParams {
   cost_center_ids: number[];
   from?: string | null;
   to?: string | null;
+  my_requisitions?: boolean;
 }
 
 interface QueryOptions {
@@ -166,6 +168,16 @@ const Requisitions = () => {
     },
     []
   );
+
+  const handleOnMyRequisitionsChange = useCallback((value: boolean) => {
+    setQueryOptions((state) => ({
+      ...state,
+      queryParams: {
+        ...state.queryParams,
+        my_requisitions: value,
+      },
+    }));
+  }, []);
 
   if (!mounted) return null;
 
@@ -365,14 +377,20 @@ const Requisitions = () => {
                         </Grid>
                       }
                       actionTail={
-                        <Grid container spacing={1}>
-                          <Grid size={{ xs: 11, lg: 11 }}>
+                        <Grid container spacing={1} alignItems='center'>
+                          <Grid size={{ xs: 12, sm: 'auto' }}>
+                            <MyRequisitionsToggle
+                              value={!!queryOptions.queryParams.my_requisitions}
+                              onChange={handleOnMyRequisitionsChange}
+                            />
+                          </Grid>
+                          <Grid size='grow'>
                             <JumboSearch
                               onChange={handleOnChange}
                               value={queryOptions.queryParams.keyword}
                             />
                           </Grid>
-                          <Grid size={{ xs: 1, lg: 1 }}>
+                          <Grid size='auto'>
                             <RequisitionsActionTail />
                           </Grid>
                         </Grid>

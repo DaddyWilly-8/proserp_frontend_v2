@@ -24,6 +24,8 @@ const attachmentableOptions: Option[] = [
   { label: "Delivery Note", value: "delivery_note" },
   { label: "Requisitions", value: "requisition" },
   { label: "Proforma Invoice", value: "proforma_invoice" },
+  { label: "Asset", value: "asset_detail" },
+  { label: "Budget", value: "budget" },
 ].sort((a, b) => a.label.localeCompare(b.label));
 
 const AttachmentablesSelector: React.FC<AttachmentablesSelectorProps> = ({ value, onChange }) => {

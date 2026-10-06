@@ -11,6 +11,7 @@ import dayjs, { Dayjs } from 'dayjs';
 import approvalChainsServices from '../../masters/approvalChains/approvalChainsServices';
 import ApprovedRequisitionsListItem from './ApprovedRequisitionsListItem';
 import RequisitionsTypeSelector from '../RequisitionsTypeSelector';
+import MyRequisitionsToggle from '../MyRequisitionsToggle';
 import PaymentOrOrderStatusSelector from './PaymentOrOrderStatusSelector';
 import CostCenterSelector from '../../masters/costCenters/CostCenterSelector';
 import ProductsProvider from '../../productAndServices/products/ProductsProvider';
@@ -40,6 +41,7 @@ interface QueryParams {
   to?: string | null;
   payment_status?: string;
   order_status?: string;
+  my_requisitions?: boolean;
 }
 
 interface QueryOptions {
@@ -156,6 +158,16 @@ const ApprovedRequisitionsRqList: React.FC<ApprovedRequisitionsRqListProps> = ({
     }));
   }, [filterDate]);
 
+  const handleOnMyRequisitionsChange = useCallback((value: boolean) => {
+    setQueryOptions(state => ({
+      ...state,
+      queryParams: {
+        ...state.queryParams,
+        my_requisitions: value
+      }
+    }));
+  }, []);
+
   const handleClearFilters = useCallback(() => {
     setOpenFilters(false);
     setFilterDate({ from: null, to: null });
@@ -167,6 +179,7 @@ const ApprovedRequisitionsRqList: React.FC<ApprovedRequisitionsRqListProps> = ({
         to: null,
         payment_status: undefined,
         order_status: undefined,
+        my_requisitions: undefined,
       }
     }));
   }, []);
@@ -306,6 +319,12 @@ const ApprovedRequisitionsRqList: React.FC<ApprovedRequisitionsRqListProps> = ({
                               {!openFilters ? <FilterAltOutlined /> : <FilterAltOffOutlined />}
                             </IconButton>
                           </Tooltip>
+                        </Grid>
+                        <Grid size={{ xs: 12, sm: 'auto' }} display='flex' alignItems='center'>
+                          <MyRequisitionsToggle
+                            value={!!queryOptions.queryParams.my_requisitions}
+                            onChange={handleOnMyRequisitionsChange}
+                          />
                         </Grid>
                         <Grid size={{ xs: 11, lg: 5.5 }}>
                           <JumboSearch

@@ -9,6 +9,7 @@ import { Div } from '@jumbo/shared';
 import { LoadingButton } from '@mui/lab';
 import {
   Alert,
+  Autocomplete,
   Box,
   Button,
   Checkbox,
@@ -24,12 +25,13 @@ import {
   Typography,
 } from '@mui/material';
 import { DateTimePicker } from '@mui/x-date-pickers';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import { useSnackbar } from 'notistack';
 import React, { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as yup from 'yup';
+import posServices from '@/components/pos/pos-services';
 import { useProjectProfile } from '../../ProjectProfileProvider';
 import ProjectClaimsAdjustments from './tab/adjustments/ProjectClaimsAdjustments';
 import ProjectClaimsAdjustmentsRow from './tab/adjustments/ProjectClaimsAdjustmentsRow';
@@ -74,6 +76,13 @@ interface Claim {
   claim_items?: ClaimedDeliverable[];
   claimed_deliverables?: ClaimedDeliverable[];
   adjustments?: Adjustment[];
+  customer_invoice?: {
+    id: number;
+    invoiceNo: string;
+    due_date?: string | null;
+    customer_reference?: string | null;
+    terms_and_instructions?: string | null;
+  } | null;
 }
 
 interface ProjectClaimsFormProps {
@@ -89,6 +98,9 @@ interface FormValues {
   claim_date: string;
   currency_id: number;
   vat_percentage?: number;
+  due_date?: string;
+  customer_reference?: string;
+  terms_and_instructions?: string;
 }
 
 const validationSchema = yup.object({
@@ -107,6 +119,14 @@ const ProjectClaimsForm: React.FC<ProjectClaimsFormProps> = ({
 }) => {
   const { authOrganization } = useJumboAuth();
   const organization = authOrganization?.organization;
+  // This submit posts straight to a real Customer Invoice (no draft/approval step in between) only
+  // when the org generates invoices for IPCs AND doesn't defer invoicing — see
+  // ProjectPaymentClaimController::store()/generatesInvoices(). An approval chain can still
+  // intercept server-side (claim goes to 'in_review' instead); these fields are then simply unused
+  // until the claim is later invoiced via the Create Invoice dialog.
+  const generatesInvoiceNow =
+    !!organization?.settings?.generate_invoices_for_project_certificates &&
+    !organization?.settings?.defer_project_certificate_invoicing;
   const queryClient = useQueryClient();
   const { project } = useProjectProfile() as any;
   const { enqueueSnackbar } = useSnackbar();
@@ -168,7 +188,18 @@ const ProjectClaimsForm: React.FC<ProjectClaimsFormProps> = ({
       claim_date: claim?.claim_date
         ? dayjs(claim.claim_date).toISOString()
         : dayjs().toISOString(),
+      due_date: claim?.customer_invoice?.due_date
+        ? dayjs(claim.customer_invoice.due_date).toISOString()
+        : '',
+      customer_reference: claim?.customer_invoice?.customer_reference || '',
+      terms_and_instructions: claim?.customer_invoice?.terms_and_instructions || '',
     },
+  });
+
+  const { data: termsSuggestions } = useQuery<string[]>({
+    queryKey: ['terms-and-instructions'],
+    queryFn: posServices.getTermsandInstructions,
+    enabled: generatesInvoiceNow,
   });
 
   const watchVatPercentage = watch('vat_percentage') || 0;
@@ -317,6 +348,76 @@ const ProjectClaimsForm: React.FC<ProjectClaimsFormProps> = ({
                     helperText={errors.remarks?.message}
                   />
                 </Grid>
+
+                {generatesInvoiceNow && (
+                  <>
+                    <Grid size={12}>
+                      <Alert severity='info' sx={{ py: 0 }}>
+                        This will post straight to a Customer Invoice — fill in its due date and
+                        any reference/terms now.
+                      </Alert>
+                    </Grid>
+
+                    <Grid size={{ xs: 12, md: 6 }}>
+                      <DateTimePicker
+                        label='Invoice Due Date'
+                        minDate={dayjs(watch('claim_date'))}
+                        value={watch('due_date') ? dayjs(watch('due_date')) : null}
+                        slotProps={{
+                          textField: {
+                            size: 'small',
+                            fullWidth: true,
+                            error: !!errors.due_date,
+                            helperText: errors.due_date?.message,
+                          },
+                        }}
+                        onChange={(newValue) =>
+                          setValue('due_date', newValue?.toISOString() || '', {
+                            shouldDirty: true,
+                          })
+                        }
+                      />
+                    </Grid>
+
+                    <Grid size={{ xs: 12, md: 6 }}>
+                      <TextField
+                        size='small'
+                        label='Customer Reference'
+                        fullWidth
+                        {...register('customer_reference')}
+                      />
+                    </Grid>
+
+                    <Grid size={12}>
+                      <Autocomplete
+                        freeSolo
+                        options={termsSuggestions || []}
+                        value={watch('terms_and_instructions') || ''}
+                        getOptionLabel={(option) => option}
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            label='Terms and Instructions'
+                            size='small'
+                            fullWidth
+                            multiline
+                            rows={2}
+                          />
+                        )}
+                        onChange={(_, newValue) =>
+                          setValue('terms_and_instructions', newValue || '', {
+                            shouldDirty: true,
+                          })
+                        }
+                        onInputChange={(_, newInputValue) =>
+                          setValue('terms_and_instructions', newInputValue, {
+                            shouldDirty: true,
+                          })
+                        }
+                      />
+                    </Grid>
+                  </>
+                )}
               </Grid>
             </form>
           </Grid>

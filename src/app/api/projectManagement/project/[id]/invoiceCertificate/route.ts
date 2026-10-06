@@ -12,9 +12,14 @@ export async function POST(
   const { headers, response } = await getAuthHeaders(req);
   if (response) return response;
 
+  // due_date/supplier_reference, when this org generates a real Supplier Bill for the certificate —
+  // see CertificateInvoiceDialog. Tolerate an empty body (older callers).
+  const body = await req.text();
+
   const res = await fetch(`${API_BASE}/project-subcontract-certificates/${id}/invoice`, {
     method: 'POST',
-    headers,
+    headers: { ...headers, 'Content-Type': 'application/json' },
+    body: body || undefined,
   });
 
   return handleJsonResponse(res);

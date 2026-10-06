@@ -24,6 +24,7 @@ interface BudgetItem {
     name: string;
     start_date: string;
     end_date: string;
+    attachments_count?: number;
 }
 
 interface QueryParams {

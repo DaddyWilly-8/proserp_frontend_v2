@@ -1,101 +1,176 @@
 'use client';
 
 import React from 'react';
-import { Box, Chip, Divider, Grid, Tooltip, Typography } from '@mui/material';
+import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
+  Chip,
+  Grid,
+  Tooltip,
+  Typography,
+} from '@mui/material';
+import AddIcon from '@mui/icons-material/Add';
+import RemoveIcon from '@mui/icons-material/Remove';
 import { readableDate } from '@/app/helpers/input-sanitization-helpers';
 import ProjectClaimItemAction from '@/components/projectManagement/projects/profile/claims/ProjectClaimItemAction';
+import ProjectClaimApprovalsActionTail from '@/components/projectManagement/projects/profile/claims/ProjectClaimApprovalsActionTail';
 import { ProjectClaim } from '@/components/projectManagement/projects/profile/claims/ProjectClaimType';
+import InvoiceLinkChip from '@/components/projectManagement/InvoiceLinkChip';
+import ApprovalHistoryTable from '@/components/projectManagement/approvals/ApprovalHistoryTable';
 
 interface ApprovedProjectPaymentClaimsListItemProps {
   claim: ProjectClaim;
 }
 
-const STATUS_CHIP_COLOR: Record<string, 'default' | 'warning' | 'info' | 'success' | 'error'> = {
+const STATUS_CHIP_COLOR: Record<
+  string,
+  'default' | 'warning' | 'info' | 'success' | 'error' | 'secondary'
+> = {
   draft: 'warning',
   in_review: 'info',
   approved: 'success',
   rejected: 'error',
   invoiced: 'success',
+  returned: 'secondary',
 };
 
+// Mirrors ApprovedSubcontractCertificatesListItem / RequisitionsListItem's accordion pattern: a
+// compact summary row that expands to show the full action set and complete approval history,
+// instead of a dialog for each.
 const ApprovedProjectPaymentClaimsListItem: React.FC<
   ApprovedProjectPaymentClaimsListItemProps
 > = ({ claim }) => {
+  const [expanded, setExpanded] = React.useState(false);
+
+  const formattedAmount = React.useMemo(() => {
+    if (claim.total_amount == null) return '—';
+
+    return claim.total_amount.toLocaleString('en-US', {
+      style: 'currency',
+      currency: claim.currency?.code || 'USD',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
+  }, [claim.total_amount, claim.currency?.code]);
+
   return (
-    <>
-      <Divider />
-
-      <Grid
-        container
-        mt={1}
-        mb={1}
-        paddingLeft={2}
-        paddingRight={2}
-        columnSpacing={1}
-        alignItems="center"
+    <Accordion
+      expanded={expanded}
+      onChange={() => setExpanded((prev) => !prev)}
+      square
+      disableGutters
+      sx={{
+        borderRadius: 2,
+        borderTop: 2,
+        borderColor: 'divider',
+        '&:hover': { bgcolor: 'action.hover' },
+      }}
+    >
+      <AccordionSummary
+        expandIcon={expanded ? <RemoveIcon /> : <AddIcon />}
+        sx={{
+          px: 2,
+          flexDirection: 'row-reverse',
+          '.MuiAccordionSummary-content': {
+            alignItems: 'center',
+            minWidth: 0,
+            '&.Mui-expanded': { margin: '10px 0' },
+          },
+          '.MuiAccordionSummary-expandIconWrapper': {
+            borderRadius: 1,
+            border: 1,
+            color: 'text.secondary',
+            transform: 'none',
+            mr: 1,
+            '&.Mui-expanded': {
+              transform: 'none',
+              color: 'primary.main',
+              borderColor: 'primary.main',
+            },
+            '& svg': { fontSize: '0.9rem' },
+          },
+        }}
       >
-        {/* Claim Date */}
-        <Grid size={{ xs: 6, md: 2, lg: 2 }}>
-          <Tooltip title="Claim Date">
-            <Typography variant="h5" fontSize={14} lineHeight={1.25} noWrap>
-              {claim.claim_date ? readableDate(claim.claim_date) : '-'}
-            </Typography>
-          </Tooltip>
-        </Grid>
+        <Grid container spacing={1} alignItems="center" width="100%" sx={{ minWidth: 0 }}>
+          <Grid size={{ xs: 12, md: 2 }} sx={{ minWidth: 0 }}>
+            <Tooltip title="Claim Number">
+              <Typography noWrap>{claim.claimNo || 'Draft / Pending'}</Typography>
+            </Tooltip>
+            <Tooltip title="Claim Date">
+              <Typography variant="caption" color="text.secondary" display="block">
+                {claim.claim_date ? readableDate(claim.claim_date) : '—'}
+              </Typography>
+            </Tooltip>
+          </Grid>
 
-        {/* Claim No */}
-        <Grid size={{ xs: 6, md: 2, lg: 2 }}>
-          <Tooltip title="Claim No.">
-            <Box display="flex" alignItems="center" gap={1}>
-              <Typography noWrap>{claim.claimNo || '-'}</Typography>
-              {claim.status_label ? (
+          <Grid size={{ xs: 12, md: 3 }} sx={{ minWidth: 0 }}>
+            <Tooltip title="Project">
+              <Typography variant="body2" noWrap>
+                {claim.project?.name || '—'}
+              </Typography>
+            </Tooltip>
+            {claim.client?.name && (
+              <Tooltip title={claim.client.name}>
                 <Chip
-                  label={claim.status_label}
                   size="small"
-                  color={STATUS_CHIP_COLOR[claim.status || ''] || 'default'}
-                  variant="outlined"
+                  label={claim.client.name}
+                  sx={{
+                    mt: 0.5,
+                    maxWidth: '100%',
+                    minWidth: 0,
+                    '& .MuiChip-label': { overflow: 'hidden', textOverflow: 'ellipsis' },
+                  }}
                 />
-              ) : null}
-            </Box>
-          </Tooltip>
-        </Grid>
+              </Tooltip>
+            )}
+          </Grid>
 
-        {/* Project */}
-        <Grid size={{ xs: 6, md: 2, lg: 2 }}>
-          <Tooltip title="Project">
-            <Typography noWrap>{claim.project?.name || '-'}</Typography>
-          </Tooltip>
-        </Grid>
+          <Grid size={{ xs: 12, md: 4, lg: 4 }} sx={{ minWidth: 0 }}>
+            <Tooltip title="Remarks">
+              <Typography variant="body2" fontSize={14} noWrap>
+                {claim.remarks || '—'}
+              </Typography>
+            </Tooltip>
+          </Grid>
 
-        {/* Client */}
-        <Grid size={{ xs: 6, md: 2, lg: 2 }}>
-          <Tooltip title="Client">
-            <Typography noWrap>{claim.client?.name || '-'}</Typography>
-          </Tooltip>
+          <Grid size={{ xs: 12, md: 3, lg: 3 }}>
+            <Tooltip title="Total Amount">
+              <Typography noWrap>{formattedAmount}</Typography>
+            </Tooltip>
+            <Tooltip title="Status">
+              {claim.status === 'invoiced' ? (
+                <span>
+                  <InvoiceLinkChip
+                    kind="customer"
+                    documentNo={claim.customer_invoice?.invoiceNo}
+                    tooltip="Invoiced"
+                  />
+                </span>
+              ) : (
+                <Chip
+                  size="small"
+                  label={claim.status_label || claim.status || '—'}
+                  color={STATUS_CHIP_COLOR[claim.status || ''] || 'default'}
+                />
+              )}
+            </Tooltip>
+          </Grid>
         </Grid>
+      </AccordionSummary>
 
-        {/* Amount */}
-        <Grid size={{ xs: 7, md: 2, lg: 2 }}>
-          <Tooltip title="Amount">
-            <Typography noWrap>
-              {claim.amount != null && claim.currency?.code
-                ? claim.amount.toLocaleString('en-US', {
-                    style: 'currency',
-                    currency: claim.currency.code,
-                  })
-                : '-'}
-            </Typography>
-          </Tooltip>
-        </Grid>
-
-        {/* Actions */}
-        <Grid size={{ xs: 12, md: 2, lg: 2 }}>
-          <Box display="flex" justifyContent="flex-end" alignItems="center" gap={1}>
+      <AccordionDetails sx={{ backgroundColor: 'background.paper' }}>
+        <Grid container spacing={1}>
+          <Grid size={{ xs: 12 }} textAlign="end">
+            <ProjectClaimApprovalsActionTail claim={claim} />
             <ProjectClaimItemAction claim={claim} />
-          </Box>
+          </Grid>
+          <Grid size={{ xs: 12 }}>
+            <ApprovalHistoryTable approvals={claim.approvals} />
+          </Grid>
         </Grid>
-      </Grid>
-    </>
+      </AccordionDetails>
+    </Accordion>
   );
 };
 

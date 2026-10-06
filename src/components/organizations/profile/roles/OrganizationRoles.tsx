@@ -163,7 +163,7 @@ const PERMISSION_MODULES: PermissionModuleConfig[] = [
   {
     key: 'project_management',
     displayName: MODULES.PROJECT_MANAGEMENT,
-    prefixes: ['ProjectCategories', 'Projects', 'ProjectClaims', 'ProjectSubcontracts'],
+    prefixes: ['ProjectCategories', 'Projects', 'ProjectClaims', 'ProjectSubcontracts', 'ProjectSubcontractCertificates', 'ProjectPaymentClaims'],
   },
   {
     key: 'human_resources',

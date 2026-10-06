@@ -14,7 +14,7 @@ function PurchaseBillPDF({ bill, organization }) {
   const mainColor = organization?.settings?.main_color || '#2113AD';
   const lightColor = organization?.settings?.light_color || '#bec5da';
   const contrastText = organization?.settings?.contrast_text || '#FFFFFF';
-  const sourceNo = bill.source?.orderNo || bill.source?.grnNo || '';
+  const sourceNo = bill.source?.orderNo || bill.source?.grnNo || bill.source?.certificateNo || '';
 
   return (
     <Document
@@ -313,6 +313,41 @@ function PurchaseBillPDF({ bill, organization }) {
             </View>
           </View>
         </View>
+
+        {!!bill.payments?.length && (
+          <View style={{ ...pdfStyles.table, minHeight: 40, marginTop: 10 }}>
+            <View style={styles.tableRow}>
+              <Text style={{ ...styles.tableCell, ...styles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 3 }}>
+                Voucher No.
+              </Text>
+              <Text style={{ ...styles.tableCell, ...styles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 2 }}>
+                Date
+              </Text>
+              <Text style={{ ...styles.tableCell, ...styles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 2 }}>
+                Reference
+              </Text>
+              <Text style={{ ...styles.tableCell, ...styles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 2, textAlign: 'right' }}>
+                Amount
+              </Text>
+            </View>
+            {bill.payments.map((payment, index) => (
+              <View key={payment.id} style={styles.tableRow}>
+                <Text style={{ ...styles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 3 }}>
+                  {payment.voucherNo}{payment.cancelled_at ? ' (Cancelled)' : ''}
+                </Text>
+                <Text style={{ ...styles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 2 }}>
+                  {readableDate(payment.transaction_date)}
+                </Text>
+                <Text style={{ ...styles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 2 }}>
+                  {payment.reference || payment.narration}
+                </Text>
+                <Text style={{ ...styles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 2, textAlign: 'right' }}>
+                  {money(payment.amount)}
+                </Text>
+              </View>
+            ))}
+          </View>
+        )}
 
         <View style={{ ...pdfStyles.tableRow, marginTop: 50 }}>
           <View style={{ flex: 0.8 }}>

@@ -147,7 +147,7 @@ function RevenueDistributionCard() {
     <JumboCardQuick
       // title={'Revenue Composition'}
       sx={{
-        height: midScreen ? 360 : null,
+        height: 360,
         display: 'flex',
         flexDirection: 'column',
       }}

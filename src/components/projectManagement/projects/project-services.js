@@ -255,8 +255,11 @@ projectsServices.updateClaim = async (claim) => {
     return data;
 }
 
-projectsServices.invoiceClaim = async (id) => {
-    const { data } = await axios.post(`/api/projectManagement/project/${id}/invoiceClaim`)
+// `payload` may be a bare claim id (legacy, no real invoice fields to collect) or
+// { id, due_date, customer_reference, terms_and_instructions } from ProjectClaimInvoiceDialog.
+projectsServices.invoiceClaim = async (payload) => {
+    const { id, ...body } = typeof payload === 'object' ? payload : { id: payload };
+    const { data } = await axios.post(`/api/projectManagement/project/${id}/invoiceClaim`, body)
     return data;
 }
 
@@ -453,8 +456,11 @@ projectsServices.deleteCertificate = async (id) => {
     return data;
 };
 
-projectsServices.invoiceCertificate = async (id) => {
-    const { data } = await axios.post(`/api/projectManagement/project/${id}/invoiceCertificate`);
+// `payload` may be a bare certificate id (legacy, no real bill fields to collect) or
+// { id, due_date, supplier_reference } from CertificateInvoiceDialog.
+projectsServices.invoiceCertificate = async (payload) => {
+    const { id, ...body } = typeof payload === 'object' ? payload : { id: payload };
+    const { data } = await axios.post(`/api/projectManagement/project/${id}/invoiceCertificate`, body);
     return data;
 };
 

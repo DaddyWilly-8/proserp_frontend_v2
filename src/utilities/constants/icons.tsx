@@ -74,6 +74,7 @@ export const ICONS = {
   transactions: ReceiptOutlined,
   bankReconciliation: AccountBalanceOutlined,
   supplierBills: ReceiptLongOutlined,
+  customerInvoices: ReceiptOutlined,
   budgets: EnergySavingsLeafOutlined,
   purchases: ShoppingCartOutlined,
   rfq: RequestQuoteOutlined,

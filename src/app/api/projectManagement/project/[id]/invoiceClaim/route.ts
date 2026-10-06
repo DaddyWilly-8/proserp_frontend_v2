@@ -12,9 +12,14 @@ export async function POST(
   const { headers, response } = await getAuthHeaders(req);
   if (response) return response;
 
+  // due_date/customer_reference/terms_and_instructions, when this org generates a real Customer
+  // Invoice for the claim — see ProjectClaimInvoiceDialog. Tolerate an empty body (older callers).
+  const body = await req.text();
+
   const res = await fetch(`${API_BASE}/project-payment-claims/${id}/invoice`, {
     method: 'POST',
-    headers,
+    headers: { ...headers, 'Content-Type': 'application/json' },
+    body: body || undefined,
   });
 
   return handleJsonResponse(res);

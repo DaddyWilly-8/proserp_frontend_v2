@@ -146,7 +146,7 @@ function ExpenseDistributionCard() {
     <JumboCardQuick
       // title={'Operating Expenses'}
       sx={{
-        height: midScreen ? 360 : null,
+        height: 360,
         display: 'flex',
         flexDirection: 'column',
       }}

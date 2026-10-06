@@ -2,6 +2,7 @@
 
 import { LoadingButton } from '@mui/lab';
 import {
+  Alert,
   Button,
   Dialog,
   DialogActions,
@@ -18,7 +19,7 @@ import { useEffect, useState } from 'react';
 import projectsServices from '@/components/projectManagement/projects/project-services';
 import { ProjectClaim } from './ProjectClaimType';
 
-export type ProjectClaimApprovalDecision = 'approved' | 'rejected' | 'on hold';
+export type ProjectClaimApprovalDecision = 'approved' | 'rejected' | 'on hold' | 'returned';
 
 const DEFAULT_APPROVAL_DATE = () => new Date().toISOString();
 
@@ -37,6 +38,7 @@ export const getProjectClaimApprovalDecision = (
   if (status === 'rejected') return 'rejected';
   if (status === 'on hold') return 'on hold';
   if (status === 'approved') return 'approved';
+  if (status === 'returned') return 'returned';
 
   return 'unknown';
 };
@@ -83,6 +85,7 @@ const ProjectClaimApprovalDialog = ({
   const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
   const pendingLevel = getNextPendingProjectClaimApprovalLevel(claim);
+  const latestApproval = claim.approvals?.[claim.approvals.length - 1];
 
   useEffect(() => {
     if (!open) return;
@@ -94,7 +97,7 @@ const ProjectClaimApprovalDialog = ({
 
   const { mutate: addApproval, isPending: isSubmitting } = useMutation({
     mutationFn: projectsServices.addProjectPaymentClaimApproval,
-    onSuccess: () => {
+    onSuccess: (data: any) => {
       queryClient.invalidateQueries({
         queryKey: ['claimDetails', claim.id],
       });
@@ -102,7 +105,7 @@ const ProjectClaimApprovalDialog = ({
         queryKey: ['claim-details', claim.id],
       });
       queryClient.invalidateQueries({ queryKey: ['projectProjectClaims'] });
-      enqueueSnackbar('Claim approval recorded', { variant: 'success' });
+      enqueueSnackbar(data?.message || 'Claim approval recorded', { variant: 'success' });
       onClose();
     },
     onError: (error: any) => {
@@ -121,7 +124,18 @@ const ProjectClaimApprovalDialog = ({
 
     setRemarksError('');
 
-    const chainLevelId = Number(pendingLevel?.id);
+    // A return can happen from any point in the chain's progress (mid-review, on hold, or even
+    // after a final approval) where there's no well-defined "next level" left - fall back to the
+    // level the latest decision was made at, or the chain's first level, so there's always a
+    // valid level id to submit.
+    const chainLevelId =
+      status === 'returned'
+        ? Number(
+            pendingLevel?.id ||
+              latestApproval?.approval_chain_level_id ||
+              claim.approval_chain?.levels?.[0]?.id
+          )
+        : Number(pendingLevel?.id);
 
     if (!chainLevelId) {
       enqueueSnackbar('Pending approval level not found', { variant: 'error' });
@@ -149,6 +163,12 @@ const ProjectClaimApprovalDialog = ({
       <DialogTitle>Claim Approval</DialogTitle>
       <DialogContent>
         <Stack spacing={2} sx={{ mt: 1 }}>
+          {!pendingLevel && (
+            <Alert severity='info'>
+              This claim isn't open for a new Approve/Hold/Reject decision right now - the only
+              action available is sending it back to the requester for correction.
+            </Alert>
+          )}
           <DateTimePicker
             label='Approval Date & Time'
             value={approvalDate ? dayjs(approvalDate) : null}
@@ -180,17 +200,18 @@ const ProjectClaimApprovalDialog = ({
         <LoadingButton
           loading={isSubmitting}
           variant='contained'
-          color='error'
+          color='info'
           size='small'
-          onClick={() => handleDecision('rejected')}
+          onClick={() => handleDecision('returned')}
         >
-          Reject
+          Return
         </LoadingButton>
         <LoadingButton
           loading={isSubmitting}
           variant='contained'
           color='warning'
           size='small'
+          disabled={!pendingLevel}
           onClick={() => handleDecision('on hold')}
         >
           Hold
@@ -200,6 +221,7 @@ const ProjectClaimApprovalDialog = ({
           variant='contained'
           color='success'
           size='small'
+          disabled={!pendingLevel}
           onClick={() => handleDecision('approved')}
         >
           Approve

@@ -16,6 +16,9 @@ import {
 } from '@mui/material';
 import { readableDate } from '@/app/helpers/input-sanitization-helpers';
 import { Organization } from '@/types/auth-types';
+import ApprovalHistoryTable, {
+  ApprovalHistoryEntry,
+} from '@/components/projectManagement/approvals/ApprovalHistoryTable';
 
 interface RevenueLedger {
   name?: string;
@@ -62,6 +65,7 @@ interface Project {
 
 interface Claim {
   claimNo: string;
+  customer_invoice?: { id: number; invoiceNo: string } | null;
   claim_date: string;
   project?: Project;
   remarks?: string | null;
@@ -71,6 +75,7 @@ interface Claim {
   vat_percentage?: number;
   claim_items: ClaimItem[];
   adjustments?: Adjustment[];
+  approvals?: ApprovalHistoryEntry[];
 }
 
 interface ClaimOnscreenProps {
@@ -170,6 +175,11 @@ const ClaimOnscreen: React.FC<ClaimOnscreenProps> = ({ claim, organization }) =>
           <Typography variant="h5" fontWeight="bold" sx={{ mt: 1 }}>
             {claim.claimNo}
           </Typography>
+          {claim.customer_invoice?.invoiceNo && (
+            <Typography variant="subtitle1" color="text.secondary">
+              Invoice: {claim.customer_invoice.invoiceNo}
+            </Typography>
+          )}
           {claim.project?.name && (
             <Typography variant="subtitle1" color="text.secondary">
               Project: {claim.project.name}
@@ -409,6 +419,8 @@ const ClaimOnscreen: React.FC<ClaimOnscreenProps> = ({ claim, organization }) =>
           </TableBody>
         </Table>
       </TableContainer>
+
+      <ApprovalHistoryTable approvals={claim.approvals} />
 
       <Box sx={{ mt: 12, display: 'flex', justifyContent: 'flex-end' }}>
         <Box sx={{ width: { xs: '100%', sm: 320 }, textAlign: 'center' }}>

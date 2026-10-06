@@ -1,6 +1,10 @@
-import { Box, Chip, Divider, Stack, TableCell, TableRow, Typography } from '@mui/material';
-import React from 'react';
+import { Badge, Box, Chip, Dialog, Divider, IconButton, Stack, TableCell, TableRow, Tooltip, Typography, useMediaQuery, useTheme } from '@mui/material';
+import { AttachmentOutlined } from '@mui/icons-material';
+import React, { useState } from 'react';
 import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
+import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
+import { PERMISSIONS } from '@/utilities/constants/permissions';
+import AttachmentForm from '@/components/filesShelf/attachments/AttachmentForm';
 import AssetRegisterItemAction from './AssetRegisterItemAction';
 
 const STATUS_COLORS: Record<string, 'default' | 'success' | 'warning' | 'error'> = {
@@ -33,6 +37,38 @@ const Field = ({ label, value }: { label: string; value?: React.ReactNode }) => 
     </Box>
   </Stack>
 );
+
+const AssetAttachmentButton = ({ asset }: { asset: any }) => {
+  const [open, setOpen] = useState(false);
+  const theme = useTheme();
+  const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
+  const { checkOrganizationPermission } = useJumboAuth();
+  const canEdit = checkOrganizationPermission([PERMISSIONS.ASSETS_EDIT]);
+
+  return (
+    <>
+      <Tooltip title="Attachments">
+        <IconButton size="small" onClick={(event) => { event.stopPropagation(); setOpen(true); }}>
+          <Badge badgeContent={asset.attachments_count} color="info">
+            <AttachmentOutlined fontSize="small" />
+          </Badge>
+        </IconButton>
+      </Tooltip>
+      <Dialog open={open} onClose={() => setOpen(false)} fullWidth fullScreen={belowLargeScreen} maxWidth="sm" scroll={belowLargeScreen ? 'body' : 'paper'}>
+        {open && (
+          <AttachmentForm
+            setAttachDialog={setOpen}
+            readOnly={!canEdit}
+            attachmentable_type="asset_detail"
+            attachmentable_id={asset.id}
+            attachment_name="Asset"
+            attachment_sourceNo={asset.code}
+          />
+        )}
+      </Dialog>
+    </>
+  );
+};
 
 const AssetRegisterListItem: React.FC<AssetRegisterListItemProps> = ({ asset, view }) => {
   const dictionary = useDictionary();
@@ -86,7 +122,10 @@ const AssetRegisterListItem: React.FC<AssetRegisterListItemProps> = ({ asset, vi
           />
         </TableCell>
         <TableCell align="right">
-          <AssetRegisterItemAction asset={asset} />
+          <Stack direction="row" spacing={0.5} justifyContent="flex-end" alignItems="center">
+            <AssetAttachmentButton asset={asset} />
+            <AssetRegisterItemAction asset={asset} />
+          </Stack>
         </TableCell>
       </TableRow>
     );
@@ -112,6 +151,7 @@ const AssetRegisterListItem: React.FC<AssetRegisterListItemProps> = ({ asset, vi
             label={dictionary.register.list.status[asset.status]}
             color={STATUS_COLORS[asset.status]}
           />
+          <AssetAttachmentButton asset={asset} />
           <AssetRegisterItemAction asset={asset} />
         </Stack>
       </Stack>

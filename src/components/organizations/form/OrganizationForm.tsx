@@ -74,6 +74,7 @@ interface FormValues {
   vat_percentage?: number;
   defer_grn_billing?: boolean;
   defer_project_certificate_invoicing?: boolean;
+  generate_invoices_for_project_certificates?: boolean;
   standard_hours_per_month?: number | null;
   employee_number_prefix?: string | null;
   employee_number_padding?: number | null;
@@ -198,6 +199,7 @@ const OrganizationForm: React.FC<OrganizationFormProps> = ({ organization = null
             .nullable(),
         defer_grn_billing: yup.boolean(),
         defer_project_certificate_invoicing: yup.boolean(),
+        generate_invoices_for_project_certificates: yup.boolean(),
         standard_hours_per_month: yup
             .number()
             .typeError('Standard hours per month must be a number')
@@ -241,6 +243,7 @@ const OrganizationForm: React.FC<OrganizationFormProps> = ({ organization = null
             : 18,
         defer_grn_billing: !!organization?.settings?.defer_grn_billing,
         defer_project_certificate_invoicing: !!organization?.settings?.defer_project_certificate_invoicing,
+        generate_invoices_for_project_certificates: !!organization?.settings?.generate_invoices_for_project_certificates,
         standard_hours_per_month: organization?.settings?.standard_hours_per_month ?? null,
         employee_number_prefix: organization?.settings?.employee_number_prefix ?? null,
         employee_number_padding: organization?.settings?.employee_number_padding ?? null,
@@ -650,6 +653,29 @@ const OrganizationForm: React.FC<OrganizationFormProps> = ({ organization = null
                   <Typography variant="body2">
                     Project Certificates start as drafts and only debit the
                     customer once explicitly invoiced
+                  </Typography>
+                </Box>
+              </Grid>
+            )}
+            {hasProjectManagement && (
+              <Grid size={{ xs: 12, md: 6 }}>
+                <Box display="flex" alignItems="center">
+                  <Checkbox
+                    checked={!!watch('generate_invoices_for_project_certificates')}
+                    size="small"
+                    onChange={(e) => {
+                      setValue(
+                        'generate_invoices_for_project_certificates',
+                        e.target.checked,
+                        { shouldDirty: true }
+                      );
+                    }}
+                  />
+                  <Typography variant="body2">
+                    Generate a Customer Invoice for each invoiced Project Payment
+                    Claim and a Supplier Bill for each invoiced Subcontract
+                    Certificate (existing ones are converted by running the
+                    backfill command once after enabling)
                   </Typography>
                 </Box>
               </Grid>

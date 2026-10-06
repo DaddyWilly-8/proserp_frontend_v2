@@ -6,6 +6,7 @@ import { readableDate } from '@/app/helpers/input-sanitization-helpers';
 import ProjectClaimItemAction from './ProjectClaimItemAction';
 import ProjectClaimApprovalsActionTail from './ProjectClaimApprovalsActionTail';
 import { ProjectClaim } from './ProjectClaimType';
+import InvoiceLinkChip from '../../../InvoiceLinkChip';
 
 interface ProjectClaimsListItemProps {
   claim: ProjectClaim;
@@ -17,6 +18,7 @@ const STATUS_CHIP_COLOR: Record<string, 'default' | 'warning' | 'info' | 'succes
   approved: 'success',
   invoiced: 'success',
   rejected: 'error',
+  returned: 'warning',
 };
 
 const ProjectClaimsListItem: React.FC<ProjectClaimsListItemProps> = ({
@@ -58,20 +60,15 @@ const ProjectClaimsListItem: React.FC<ProjectClaimsListItemProps> = ({
                 {claim.claimNo || '-'}
               </Typography>
               {claim.status === 'invoiced' ? (
-                <Tooltip
-                  title={
+                <InvoiceLinkChip
+                  kind="customer"
+                  documentNo={claim.customer_invoice?.invoiceNo}
+                  tooltip={
                     claim.invoice_date
                       ? `Invoiced on ${readableDate(claim.invoice_date)}`
                       : 'Invoiced'
                   }
-                >
-                  <Chip
-                    label="Invoiced"
-                    size="small"
-                    color={STATUS_CHIP_COLOR.invoiced}
-                    variant="outlined"
-                  />
-                </Tooltip>
+                />
               ) : claim.approval_chain && claim.status_label ? (
                 <Chip
                   label={claim.status_label}

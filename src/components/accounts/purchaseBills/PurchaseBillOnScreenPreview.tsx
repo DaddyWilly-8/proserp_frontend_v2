@@ -1,13 +1,26 @@
+import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { readableDate } from '@/app/helpers/input-sanitization-helpers';
-import { AttachFileOutlined } from '@mui/icons-material';
-import { Badge, Box, Divider, Grid, IconButton, Link, Stack, Tooltip, Typography, useTheme } from '@mui/material';
-import { useRef } from 'react';
+import PaymentPreviewDialog from '@/components/accounts/transactions/payments/PaymentPreviewDialog';
+import { PERMISSIONS } from '@/utilities/constants/permissions';
+import { AttachFileOutlined, CancelOutlined } from '@mui/icons-material';
+import { Badge, Box, Chip, Divider, Grid, IconButton, Link, Stack, Tooltip, Typography, useTheme } from '@mui/material';
+import { useRef, useState } from 'react';
 
 const money = (value: number = 0) =>
   value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 function PurchaseBillOnScreenPreview({ bill, organization }: { bill: any; organization: any }) {
   const theme = useTheme();
+  const { checkOrganizationPermission } = useJumboAuth();
+  // Seeing this bill (gated on SupplierBills:Read) doesn't imply the viewer can see full Payment
+  // details — only offer the voucher number as a link to those who actually hold that separate
+  // permission (PaymentPreviewDialog enforces this again itself, this is just so the link isn't
+  // shown as clickable to someone who'd just hit a "no permission" dead end).
+  const canViewPayments = checkOrganizationPermission([
+    PERMISSIONS.ACCOUNTS_TRANSACTIONS_READ,
+    PERMISSIONS.PAYMENTS_READ,
+  ]);
+  const [previewPaymentId, setPreviewPaymentId] = useState<number | null>(null);
   // Theme-native primary color instead of the org's raw brand hex — the
   // brand color isn't guaranteed to contrast against a dark background,
   // while MUI's primary.main is already contrast-checked for both modes.
@@ -16,7 +29,7 @@ function PurchaseBillOnScreenPreview({ bill, organization }: { bill: any; organi
 
   if (!bill) return null;
 
-  const sourceNo = bill.source?.orderNo || bill.source?.grnNo || '';
+  const sourceNo = bill.source?.orderNo || bill.source?.grnNo || bill.source?.certificateNo || '';
   const attachmentsCount = bill.attachments?.length || 0;
 
   return (
@@ -295,6 +308,94 @@ function PurchaseBillOnScreenPreview({ bill, organization }: { bill: any; organi
           </Box>
         </Box>
       )}
+
+      {!!bill.payments?.length && (
+        <Box sx={{ mt: 3 }}>
+          <Typography variant='h6' sx={{ color: headerColor, textAlign: 'center', mb: 2 }}>
+            PAYMENTS
+          </Typography>
+          <Box
+            sx={{
+              p: 2,
+              backgroundColor: theme.palette.background.default,
+              border: `1px solid ${theme.palette.divider}`,
+              borderRadius: 1,
+              overflowX: 'auto',
+            }}
+          >
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <thead>
+                <tr style={{ background: theme.palette.action.hover }}>
+                  <th style={{ padding: 8, border: `1px solid ${theme.palette.divider}`, textAlign: 'left' }}>
+                    Voucher No.
+                  </th>
+                  <th style={{ padding: 8, border: `1px solid ${theme.palette.divider}`, textAlign: 'left' }}>
+                    Date
+                  </th>
+                  <th style={{ padding: 8, border: `1px solid ${theme.palette.divider}`, textAlign: 'left' }}>
+                    Paid From
+                  </th>
+                  <th style={{ padding: 8, border: `1px solid ${theme.palette.divider}`, textAlign: 'left' }}>
+                    Reference
+                  </th>
+                  <th style={{ padding: 8, border: `1px solid ${theme.palette.divider}` }}>Amount</th>
+                </tr>
+              </thead>
+              <tbody>
+                {bill.payments.map((payment: any) => (
+                  <tr key={payment.id}>
+                    <td style={{ padding: 8, border: `1px solid ${theme.palette.divider}` }}>
+                      <Stack direction='row' spacing={1} alignItems='center'>
+                        {canViewPayments ? (
+                          <Tooltip title='View Payment'>
+                            <Typography
+                              component='span'
+                              variant='body2'
+                              color='primary'
+                              sx={{ cursor: 'pointer', textDecoration: 'underline' }}
+                              onClick={() => setPreviewPaymentId(payment.id)}
+                            >
+                              {payment.voucherNo}
+                            </Typography>
+                          </Tooltip>
+                        ) : (
+                          <Typography component='span' variant='body2'>
+                            {payment.voucherNo}
+                          </Typography>
+                        )}
+                        {payment.cancelled_at && (
+                          <Tooltip title={`Cancelled ${readableDate(payment.cancelled_at)} — this payment was reversed, but the amount it applied here is unaffected and may no longer be accurate`}>
+                            <Chip
+                              size='small'
+                              color='error'
+                              variant='outlined'
+                              icon={<CancelOutlined fontSize='small' />}
+                              label='Cancelled'
+                            />
+                          </Tooltip>
+                        )}
+                      </Stack>
+                    </td>
+                    <td style={{ padding: 8, border: `1px solid ${theme.palette.divider}` }}>
+                      {readableDate(payment.transaction_date)}
+                    </td>
+                    <td style={{ padding: 8, border: `1px solid ${theme.palette.divider}` }}>
+                      {payment.credit_ledger?.name}
+                    </td>
+                    <td style={{ padding: 8, border: `1px solid ${theme.palette.divider}` }}>
+                      {payment.reference || payment.narration}
+                    </td>
+                    <td style={{ padding: 8, border: `1px solid ${theme.palette.divider}`, textAlign: 'right' }}>
+                      {money(payment.amount)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </Box>
+        </Box>
+      )}
+
       {!!bill.attachments?.length && (
         <Box sx={{ mt: 3 }} ref={attachmentsRef}>
           <Typography variant='h6' sx={{ color: headerColor, textAlign: 'center', mb: 2 }}>
@@ -324,6 +425,12 @@ function PurchaseBillOnScreenPreview({ bill, organization }: { bill: any; organi
           </Box>
         </Box>
       )}
+
+      <PaymentPreviewDialog
+        open={!!previewPaymentId}
+        paymentId={previewPaymentId}
+        onClose={() => setPreviewPaymentId(null)}
+      />
     </Box>
   );
 }

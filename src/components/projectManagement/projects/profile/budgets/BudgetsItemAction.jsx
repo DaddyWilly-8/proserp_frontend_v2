@@ -2,11 +2,13 @@
 import { useJumboDialog } from '@jumbo/components/JumboDialog/hooks/useJumboDialog';
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 import {
+  AttachmentOutlined,
   ContentCopyOutlined,
   DeleteOutlined,
   EditOutlined,
 } from '@mui/icons-material';
 import {
+  Badge,
   Dialog,
   IconButton,
   Skeleton,
@@ -19,6 +21,7 @@ import { useSnackbar } from 'notistack';
 import { useState } from 'react';
 import projectsServices from '../../project-services';
 import BudgetsForm from './BudgetsForm';
+import AttachmentForm from '@/components/filesShelf/attachments/AttachmentForm';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
 
@@ -64,6 +67,7 @@ const EditBudget = ({ budget, setOpenDialog, isDuplicate }) => {
 
 const BudgetsItemAction = ({ budget }) => {
   const [openEditDialog, setOpenEditDialog] = useState(false);
+  const [openAttachDialog, setOpenAttachDialog] = useState(false);
   const { showDialog, hideDialog } = useJumboDialog();
   const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
@@ -119,6 +123,26 @@ const BudgetsItemAction = ({ budget }) => {
         />
       </Dialog>
 
+      <Dialog
+        open={openAttachDialog}
+        onClose={() => setOpenAttachDialog(false)}
+        fullWidth
+        fullScreen={belowLargeScreen}
+        maxWidth='sm'
+        scroll={belowLargeScreen ? 'body' : 'paper'}
+      >
+        {openAttachDialog && (
+          <AttachmentForm
+            setAttachDialog={setOpenAttachDialog}
+            readOnly={!checkOrganizationPermission(PERMISSIONS.BUDGETS_EDIT)}
+            attachmentable_type='budget'
+            attachmentable_id={budget.id}
+            attachment_name='Budget'
+            attachment_sourceNo={budget.name}
+          />
+        )}
+      </Dialog>
+
       <Stack
         textAlign={'end'}
         direction='row'
@@ -126,6 +150,19 @@ const BudgetsItemAction = ({ budget }) => {
         sx={{ mb: 1 }}
         justifyContent='flex-end'
       >
+        <Tooltip title='Attachments'>
+          <IconButton
+            size='small'
+            onClick={(e) => {
+              e.stopPropagation();
+              setOpenAttachDialog(true);
+            }}
+          >
+            <Badge badgeContent={budget.attachments_count} color='info'>
+              <AttachmentOutlined fontSize='small' />
+            </Badge>
+          </IconButton>
+        </Tooltip>
         {checkOrganizationPermission(PERMISSIONS.BUDGETS_EDIT) && (
           <Tooltip title='Edit'>
             <IconButton

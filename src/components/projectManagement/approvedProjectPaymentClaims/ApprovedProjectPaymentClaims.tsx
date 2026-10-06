@@ -11,11 +11,9 @@ import { getSanitizedSearchKeyword } from '@/utilities/getSanitizedSearchKeyword
 import ApprovedProjectPaymentClaimsListItem from './ApprovedProjectPaymentClaimsListItem';
 import { ProjectClaim } from '@/components/projectManagement/projects/profile/claims/ProjectClaimType';
 
-// Org-wide history of payment claims that have cleared approval — stays on
-// this list through 'approved' and 'invoiced' rather than dropping off once
-// invoiced, mirroring ApprovedPayrollRuns/ApprovedLoans.
-const DEFAULT_STATUS = 'approved,invoiced';
-
+// Org-wide list of every claim regardless of status (draft, in_review, returned, approved,
+// invoiced) - status is shown per-row via status_label, so there's no need to filter any of
+// them out by default.
 const ApprovedProjectPaymentClaims: React.FC = () => {
   const searchParams = useSearchParams();
   const listRef = React.useRef<any>(null);
@@ -27,7 +25,6 @@ const ApprovedProjectPaymentClaims: React.FC = () => {
     queryKey: 'projectProjectClaims',
     queryParams: {
       keyword: '',
-      status: DEFAULT_STATUS,
     },
     countKey: 'total',
     dataKey: 'data',
@@ -39,7 +36,7 @@ const ApprovedProjectPaymentClaims: React.FC = () => {
       queryParams: {
         ...prev.queryParams,
         keyword: getSanitizedSearchKeyword(
-          'Approved Project Payment Claims',
+          'Project Payment Claims',
           searchParams
         ),
       },
@@ -63,7 +60,7 @@ const ApprovedProjectPaymentClaims: React.FC = () => {
   return (
     <>
       <Typography variant="h4" mb={2}>
-        Approved Project Payment Claims
+        Project Payment Claims
       </Typography>
 
       <JumboRqList

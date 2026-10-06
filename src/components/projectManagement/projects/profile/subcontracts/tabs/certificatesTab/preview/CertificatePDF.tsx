@@ -45,6 +45,7 @@ interface CertifiedItem {
 
 interface Certificate {
   certificateNo: string;
+  supplier_invoice?: { id: number; invoiceNo: string } | null;
   certificate_date: string;
   remarks?: string;
   creator?: Creator;
@@ -183,6 +184,9 @@ const CertificatePDF: React.FC<CertificatePDFProps> = ({
               Certificate
             </Text>
             <Text style={pdfStyles.minInfo}>{certificate.certificateNo}</Text>
+            {certificate.supplier_invoice?.invoiceNo && (
+              <Text style={pdfStyles.minInfo}>Bill: {certificate.supplier_invoice.invoiceNo}</Text>
+            )}
           </View>
         </View>
 

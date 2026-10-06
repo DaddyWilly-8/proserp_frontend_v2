@@ -94,7 +94,7 @@ function BalanceSheetTrend() {
     <JumboCardQuick
       title='Balance Sheet Trend'
       sx={{
-        height: midScreen ? 360 : null,
+        height: 360,
       }}
       action={
         <Grid container columnSpacing={1} alignItems='center'>

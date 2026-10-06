@@ -13,6 +13,7 @@ import { readableDate } from '@/app/helpers/input-sanitization-helpers';
 import CertificateItemAction from './CertificateItemAction';
 import CertificateApprovalsActionTail from './CertificateApprovalsActionTail';
 import { Certificate } from './CertificateType';
+import InvoiceLinkChip from '../../../../../InvoiceLinkChip';
 
 interface CertificatesListItemProps {
   certificate: Certificate;
@@ -23,6 +24,7 @@ const STATUS_CHIP_COLOR: Record<string, 'default' | 'warning' | 'info' | 'succes
   in_review: 'info',
   approved: 'success',
   rejected: 'error',
+  returned: 'warning',
 };
 
 const CertificatesListItem: React.FC<CertificatesListItemProps> = ({ certificate }) => {
@@ -70,7 +72,13 @@ const CertificatesListItem: React.FC<CertificatesListItemProps> = ({ certificate
             <Tooltip title="Certificate Number">
               <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                 {certificate.certificateNo || 'Draft / Pending'}
-                {certificate.approval_chain && certificate.status_label ? (
+                {certificate.status === 'invoiced' ? (
+                  <InvoiceLinkChip
+                    kind="supplier"
+                    documentNo={certificate.supplier_invoice?.invoiceNo}
+                    tooltip="Invoiced"
+                  />
+                ) : certificate.approval_chain && certificate.status_label ? (
                   <Chip
                     label={certificate.status_label}
                     size="small"

@@ -11,11 +11,9 @@ import { getSanitizedSearchKeyword } from '@/utilities/getSanitizedSearchKeyword
 import ApprovedSubcontractCertificatesListItem from './ApprovedSubcontractCertificatesListItem';
 import { Certificate } from '@/components/projectManagement/projects/profile/subcontracts/tabs/certificatesTab/CertificateType';
 
-// Org-wide history of certificates that have cleared approval — stays on
-// this list through 'approved' and 'invoiced' rather than dropping off once
-// invoiced, mirroring ApprovedPayrollRuns/ApprovedLoans.
-const DEFAULT_STATUS = 'approved,invoiced';
-
+// Org-wide list of every certificate regardless of status (draft, in_review, returned,
+// approved, invoiced) - status is shown per-row via status_label, so there's no need to filter
+// any of them out by default.
 const ApprovedSubcontractCertificates: React.FC = () => {
   const searchParams = useSearchParams();
   const listRef = React.useRef<any>(null);
@@ -27,7 +25,6 @@ const ApprovedSubcontractCertificates: React.FC = () => {
     queryKey: 'Certificates',
     queryParams: {
       keyword: '',
-      status: DEFAULT_STATUS,
     },
     countKey: 'total',
     dataKey: 'data',
@@ -39,7 +36,7 @@ const ApprovedSubcontractCertificates: React.FC = () => {
       queryParams: {
         ...prev.queryParams,
         keyword: getSanitizedSearchKeyword(
-          'Approved Subcontract Certificates',
+          'Subcontract Certificates',
           searchParams
         ),
       },
@@ -63,7 +60,7 @@ const ApprovedSubcontractCertificates: React.FC = () => {
   return (
     <>
       <Typography variant="h4" mb={2}>
-        Approved Subcontract Certificates
+        Subcontract Certificates
       </Typography>
 
       <JumboRqList

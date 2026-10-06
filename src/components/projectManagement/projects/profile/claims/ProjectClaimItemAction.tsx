@@ -5,15 +5,12 @@ import projectsServices from '@/components/projectManagement/projects/project-se
 import { FileExportGrid } from '@/components/sharedComponents/FileExportGrid';
 import PreviewTopBar from '@/components/sharedComponents/PreviewTopBar';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
-import { JumboDdMenu } from '@jumbo/components';
 import { useJumboDialog } from '@jumbo/components/JumboDialog/hooks/useJumboDialog';
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
-import { MenuItemProps } from '@jumbo/types';
 import {
   DeleteOutlined,
   EditOutlined,
   HighlightOff,
-  MoreHorizOutlined,
   ReceiptLongOutlined,
   VisibilityOutlined,
 } from '@mui/icons-material';
@@ -37,6 +34,7 @@ import React, { useState } from 'react';
 import ClaimOnscreen from './ClaimOnscreen';
 import ClaimPDF from './ClaimPDF';
 import ProjectClaimsForm from './form/ProjectClaimsForm';
+import ProjectClaimInvoiceDialog from './ProjectClaimInvoiceDialog';
 import { ProjectClaim } from './ProjectClaimType';
 
 interface DocumentDialogProps {
@@ -210,6 +208,7 @@ const ProjectClaimItemAction: React.FC<ProjectClaimItemActionProps> = ({
 }) => {
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const [openPreviewDialog, setOpenPreviewDialog] = useState(false);
+  const [openInvoiceDialog, setOpenInvoiceDialog] = useState(false);
 
   const { showDialog, hideDialog } = useJumboDialog();
   const { enqueueSnackbar } = useSnackbar();
@@ -236,6 +235,10 @@ const ProjectClaimItemAction: React.FC<ProjectClaimItemActionProps> = ({
       });
     },
   });
+
+  // Whether invoicing this claim creates a real, documented Customer Invoice — if so, the Create
+  // Invoice action collects its due date/reference/terms instead of a plain yes/no confirm.
+  const generatesInvoices = !!organization?.settings?.generate_invoices_for_project_certificates;
 
   const { mutate: invoiceClaim } = useMutation({
     mutationFn: (id: number) => projectsServices.invoiceClaim(id),
@@ -273,67 +276,39 @@ const ProjectClaimItemAction: React.FC<ProjectClaimItemActionProps> = ({
   // this correct on list items that don't include the `approval_chain` relation.
   const canInvoice = claim.status === 'approved' || (!hasApprovalChain && isDraft);
 
-  const menuItems = [
-    { icon: <VisibilityOutlined />, title: 'View', action: 'view' },
-    !isLocked &&
-      checkOrganizationPermission(PERMISSIONS.PROJECT_CLAIMS_UPDATE) && {
-        icon: <EditOutlined />,
-        title: 'Edit',
-        action: 'edit',
-      },
-    canInvoice &&
-      checkOrganizationPermission(PERMISSIONS.PROJECT_CLAIMS_UPDATE) && {
-        icon: <ReceiptLongOutlined />,
-        title: 'Create Invoice',
-        action: 'invoice',
-      },
-    checkOrganizationPermission(PERMISSIONS.PROJECT_CLAIMS_DELETE) && {
-      icon: <DeleteOutlined color='error' />,
-      title: 'Delete',
-      action: 'delete',
-    },
-  ].filter(Boolean);
+  const canEdit = !isLocked && checkOrganizationPermission(PERMISSIONS.PROJECT_CLAIMS_UPDATE);
+  const canCreateInvoice = canInvoice && checkOrganizationPermission(PERMISSIONS.PROJECT_CLAIMS_UPDATE);
+  const canDelete = checkOrganizationPermission(PERMISSIONS.PROJECT_CLAIMS_DELETE);
 
-  const handleItemAction = (menu: MenuItemProps) => {
-    switch (menu.action) {
-      case 'view':
-        setOpenPreviewDialog(true);
-        break;
-
-      case 'edit':
-        setOpenEditDialog(true);
-        break;
-
-      case 'invoice':
-        showDialog({
-          title: 'Create Customer Invoice',
-          content:
-            'This will post the Certificate to the customer and it can no longer be edited. Continue?',
-          variant: 'confirm',
-          onYes: () => {
-            hideDialog();
-            invoiceClaim(claim.id);
-          },
-          onNo: hideDialog,
-        });
-        break;
-
-      case 'delete':
-        showDialog({
-          title: 'Confirm Delete',
-          content: 'Are you sure you want to delete this Claim?',
-          variant: 'confirm',
-          onYes: () => {
-            hideDialog();
-            deleteClaim(claim.id);
-          },
-          onNo: hideDialog,
-        });
-        break;
-
-      default:
-        break;
+  const handleInvoice = () => {
+    if (generatesInvoices) {
+      setOpenInvoiceDialog(true);
+    } else {
+      showDialog({
+        title: 'Create Customer Invoice',
+        content:
+          'This will post the Certificate to the customer and it can no longer be edited. Continue?',
+        variant: 'confirm',
+        onYes: () => {
+          hideDialog();
+          invoiceClaim(claim.id);
+        },
+        onNo: hideDialog,
+      });
     }
+  };
+
+  const handleDelete = () => {
+    showDialog({
+      title: 'Confirm Delete',
+      content: 'Are you sure you want to delete this Claim?',
+      variant: 'confirm',
+      onYes: () => {
+        hideDialog();
+        deleteClaim(claim.id);
+      },
+      onNo: hideDialog,
+    });
   };
 
   return (
@@ -357,16 +332,41 @@ const ProjectClaimItemAction: React.FC<ProjectClaimItemActionProps> = ({
         organization={organization}
       />
 
-      {menuItems.length > 0 && (
-        <JumboDdMenu
-          icon={
-            <Tooltip title='Actions'>
-              <MoreHorizOutlined />
-            </Tooltip>
-          }
-          menuItems={menuItems as any}
-          onClickCallback={handleItemAction}
-        />
+      <ProjectClaimInvoiceDialog
+        open={openInvoiceDialog}
+        belowLargeScreen={belowLargeScreen}
+        claim={claim}
+        onClose={() => setOpenInvoiceDialog(false)}
+      />
+
+      <Tooltip title='View'>
+        <IconButton onClick={() => setOpenPreviewDialog(true)}>
+          <VisibilityOutlined />
+        </IconButton>
+      </Tooltip>
+
+      {canEdit && (
+        <Tooltip title='Edit'>
+          <IconButton onClick={() => setOpenEditDialog(true)}>
+            <EditOutlined />
+          </IconButton>
+        </Tooltip>
+      )}
+
+      {canCreateInvoice && (
+        <Tooltip title='Create Invoice'>
+          <IconButton onClick={handleInvoice}>
+            <ReceiptLongOutlined />
+          </IconButton>
+        </Tooltip>
+      )}
+
+      {canDelete && (
+        <Tooltip title='Delete'>
+          <IconButton onClick={handleDelete}>
+            <DeleteOutlined color='error' />
+          </IconButton>
+        </Tooltip>
       )}
     </>
   );

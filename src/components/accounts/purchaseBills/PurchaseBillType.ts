@@ -2,6 +2,9 @@ export interface PurchaseBillSource {
   id: number;
   orderNo?: string;
   grnNo?: string;
+  // Bills generated from a Subcontract Certificate
+  certificateNo?: string;
+  source_type?: string;
   reference?: string;
   date_received?: string;
 }
@@ -26,6 +29,21 @@ export interface PurchaseBillAttachment {
   attachment: { id: number; name: string; full_path?: string };
 }
 
+export interface PurchaseBillPayment {
+  id: number;
+  voucherNo?: string;
+  reference?: string | null;
+  narration?: string | null;
+  transaction_date?: string;
+  // The amount THIS payment applied to this specific bill — not necessarily the payment's own total.
+  amount: number;
+  credit_ledger?: { id: number; name: string } | null;
+  // Set when the payment was later cancelled — see SupplierInvoice::getPayingPaymentsAttribute():
+  // a cancellation reverses the payment but doesn't remove this link, so the amount above may no
+  // longer be accurate.
+  cancelled_at?: string | null;
+}
+
 export interface PurchaseBill {
   id: number;
   invoiceNo: string;
@@ -48,6 +66,7 @@ export interface PurchaseBill {
   total_amount?: number;
   paid_amount?: number;
   unpaid_amount?: number;
+  payments?: PurchaseBillPayment[];
   payment_status?: 'paid' | 'partial' | 'unpaid';
   vat_percentage?: number;
   cancelled_at?: string | null;

@@ -7,15 +7,12 @@ import projectsServices from '@/components/projectManagement/projects/project-se
 import { FileExportGrid } from '@/components/sharedComponents/FileExportGrid';
 import PreviewTopBar from '@/components/sharedComponents/PreviewTopBar';
 import { Organization } from '@/types/auth-types';
-import { JumboDdMenu } from '@jumbo/components';
 import { useJumboDialog } from '@jumbo/components/JumboDialog/hooks/useJumboDialog';
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
-import { MenuItemProps } from '@jumbo/types';
 import {
   DeleteOutlined,
   EditOutlined,
   HighlightOff,
-  MoreHorizOutlined,
   ReceiptLongOutlined,
   VisibilityOutlined,
 } from '@mui/icons-material';
@@ -37,6 +34,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useSnackbar } from 'notistack';
 import React, { useState } from 'react';
 import CertificateForm from './form/CertificateForm';
+import CertificateInvoiceDialog from './CertificateInvoiceDialog';
 import CertificateOnScreen from './preview/CertificateOnScreen';
 import CertificatePDF from './preview/CertificatePDF';
 import { Certificate } from './CertificateType';
@@ -210,6 +208,7 @@ const CertificateItemAction: React.FC<{ certificate: Certificate }> = ({
 }) => {
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const [openPreviewDialog, setOpenPreviewDialog] = useState(false);
+  const [openInvoiceDialog, setOpenInvoiceDialog] = useState(false);
   const { showDialog, hideDialog } = useJumboDialog();
   const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
@@ -234,6 +233,10 @@ const CertificateItemAction: React.FC<{ certificate: Certificate }> = ({
       );
     },
   });
+
+  // Whether invoicing this certificate creates a real, documented Supplier Bill — if so, Create
+  // Invoice collects its due date/reference instead of a plain yes/no confirm.
+  const generatesBills = !!organization?.settings?.generate_invoices_for_project_certificates;
 
   const { mutate: invoiceCertificate } = useMutation({
     mutationFn: () => projectsServices.invoiceCertificate(certificate.id),
@@ -271,65 +274,39 @@ const CertificateItemAction: React.FC<{ certificate: Certificate }> = ({
   const canInvoice =
     certificate.status === 'approved' || (!hasApprovalChain && isDraft);
 
-  const menuItems = [
-    {
-      icon: <VisibilityOutlined fontSize='small' />,
-      title: 'View',
-      action: 'view',
-    },
-    !isLocked && checkOrganizationPermission(PERMISSIONS.PROJECT_SUBCONTRACTS_EDIT) && {
-      icon: <EditOutlined fontSize='small' />,
-      title: 'Edit',
-      action: 'edit',
-    },
-    canInvoice && checkOrganizationPermission(PERMISSIONS.PROJECT_SUBCONTRACTS_EDIT) && {
-      icon: <ReceiptLongOutlined fontSize='small' />,
-      title: 'Create Invoice',
-      action: 'invoice',
-    },
-    !certificate.has_approved_payment_request && checkOrganizationPermission(PERMISSIONS.PROJECT_SUBCONTRACTS_DELETE) && {
-      icon: <DeleteOutlined fontSize='small' color='error' />,
-      title: 'Delete',
-      action: 'delete',
-    },
-  ].filter(Boolean) as MenuItemProps[];
+  const canEdit = !isLocked && checkOrganizationPermission(PERMISSIONS.PROJECT_SUBCONTRACTS_EDIT);
+  const canCreateInvoice = canInvoice && checkOrganizationPermission(PERMISSIONS.PROJECT_SUBCONTRACTS_EDIT);
+  const canDelete = !certificate.has_approved_payment_request && checkOrganizationPermission(PERMISSIONS.PROJECT_SUBCONTRACTS_DELETE);
 
-  const handleItemAction = (menu: MenuItemProps) => {
-    switch (menu.action) {
-      case 'view':
-        setOpenPreviewDialog(true);
-        break;
-      case 'edit':
-        setOpenEditDialog(true);
-        break;
-      case 'invoice':
-        showDialog({
-          title: 'Create Invoice',
-          content:
-            'This will post the Certificate to the subcontractor’s account and it can no longer be edited. Continue?',
-          onYes: () => {
-            invoiceCertificate();
-            hideDialog();
-          },
-          onNo: hideDialog,
-          variant: 'confirm',
-        });
-        break;
-      case 'delete':
-        showDialog({
-          title: 'Confirm Delete',
-          content: 'Are you sure you want to delete this certificate?',
-          onYes: () => {
-            deleteCertificate();
-            hideDialog();
-          },
-          onNo: hideDialog,
-          variant: 'confirm',
-        });
-        break;
-      default:
-        break;
+  const handleInvoice = () => {
+    if (generatesBills) {
+      setOpenInvoiceDialog(true);
+    } else {
+      showDialog({
+        title: 'Create Invoice',
+        content:
+          'This will post the Certificate to the subcontractor’s account and it can no longer be edited. Continue?',
+        onYes: () => {
+          invoiceCertificate();
+          hideDialog();
+        },
+        onNo: hideDialog,
+        variant: 'confirm',
+      });
     }
+  };
+
+  const handleDelete = () => {
+    showDialog({
+      title: 'Confirm Delete',
+      content: 'Are you sure you want to delete this certificate?',
+      onYes: () => {
+        deleteCertificate();
+        hideDialog();
+      },
+      onNo: hideDialog,
+      variant: 'confirm',
+    });
   };
 
   return (
@@ -355,15 +332,42 @@ const CertificateItemAction: React.FC<{ certificate: Certificate }> = ({
         organization={organization}
       />
 
-      <JumboDdMenu
-        icon={
-          <Tooltip title='Actions'>
-            <MoreHorizOutlined fontSize='small' />
-          </Tooltip>
-        }
-        menuItems={menuItems}
-        onClickCallback={handleItemAction}
+      <CertificateInvoiceDialog
+        open={openInvoiceDialog}
+        belowLargeScreen={belowLargeScreen}
+        certificate={certificate}
+        onClose={() => setOpenInvoiceDialog(false)}
       />
+
+      <Tooltip title='View'>
+        <IconButton onClick={() => setOpenPreviewDialog(true)}>
+          <VisibilityOutlined />
+        </IconButton>
+      </Tooltip>
+
+      {canEdit && (
+        <Tooltip title='Edit'>
+          <IconButton onClick={() => setOpenEditDialog(true)}>
+            <EditOutlined />
+          </IconButton>
+        </Tooltip>
+      )}
+
+      {canCreateInvoice && (
+        <Tooltip title='Create Invoice'>
+          <IconButton onClick={handleInvoice}>
+            <ReceiptLongOutlined />
+          </IconButton>
+        </Tooltip>
+      )}
+
+      {canDelete && (
+        <Tooltip title='Delete'>
+          <IconButton onClick={handleDelete}>
+            <DeleteOutlined color='error' />
+          </IconButton>
+        </Tooltip>
+      )}
     </>
   );
 };

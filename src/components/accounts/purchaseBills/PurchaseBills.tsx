@@ -146,11 +146,15 @@ const PurchaseBills = () => {
     return <UnauthorizedAccess />;
   }
 
-  if (!authOrganization?.organization?.settings?.defer_grn_billing) {
+  if (
+    !authOrganization?.organization?.settings?.defer_grn_billing &&
+    !authOrganization?.organization?.settings?.generate_invoices_for_project_certificates
+  ) {
     return (
       <Typography variant='body1' color='text.secondary' mt={2}>
         Supplier Bills are not enabled for this organization. Enable &quot;Bill suppliers separately
-        from GRNs&quot; under Organization Settings to use this feature.
+        from GRNs&quot; or &quot;Generate invoices and bills for project certificates&quot; under
+        Organization Settings to use this feature.
       </Typography>
     );
   }

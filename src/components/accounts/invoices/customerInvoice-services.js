@@ -12,6 +12,17 @@ customerInvoiceServices.listByStakeholder = async (stakeholderId, params = {}) =
   return data;
 };
 
+// All Customer Invoices (optionally filtered) - used by the Accounts >
+// Customer Invoices list page. Covers invoices raised from Sales as well as
+// those generated from Project Payment Claims (IPCs).
+customerInvoiceServices.getList = async (params = {}) => {
+  const { page = 1, limit = 20, ...queryParams } = params;
+  const { data } = await axios.get('/api/accountsAndFinance/customerInvoices', {
+    params: { page, limit, ...queryParams },
+  });
+  return data;
+};
+
 customerInvoiceServices.details = async (id) => {
   const { data } = await axios.get(`/api/pos/counter/${id}/invoiceDetails`);
   return data;

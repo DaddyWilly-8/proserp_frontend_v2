@@ -43,6 +43,12 @@ const RevenueDistributionCard = lazy(
   () => import('./accountsCards/RevenueDistributionCard')
 );
 const DippingsCard = lazy(() => import('./fuelStationCards/DippingsCard'));
+const OnLeaveToday = lazy(
+  () => import('./humanResourcesCards/OnLeaveToday')
+);
+const BirthdaysToday = lazy(
+  () => import('./humanResourcesCards/BirthdaysToday')
+);
 
 const QuickReports = lazy(() => import('./QuickReports'));
 
@@ -243,6 +249,17 @@ function Dashboard() {
                 <Grid size={{ xs: 12, xl: haveFuelStation ? 8 : 12 }}>
                   <ProductSalesCard />
                 </Grid>
+              )}
+            {organizationHasSubscribed(MODULES.HUMAN_RESOURCES) &&
+              checkOrganizationPermission(PERMISSIONS.EMPLOYEES_READ) && (
+                <React.Fragment>
+                  <Grid size={{ xs: 12, md: 6, xl: 4 }}>
+                    <OnLeaveToday />
+                  </Grid>
+                  <Grid size={{ xs: 12, md: 6, xl: 4 }}>
+                    <BirthdaysToday />
+                  </Grid>
+                </React.Fragment>
               )}
             {active_subscriptions.length > 0 && (
               <Grid size={{ xs: 12 }} textAlign={'center'}>

@@ -16,6 +16,9 @@ import { readableDate } from '@/app/helpers/input-sanitization-helpers';
 import { Organization } from '@/types/auth-types';
 import { MeasurementUnit } from '@/components/masters/measurementUnits/MeasurementUnitType';
 import { Currency } from '@/components/masters/Currencies/CurrencyType';
+import ApprovalHistoryTable, {
+  ApprovalHistoryEntry,
+} from '@/components/projectManagement/approvals/ApprovalHistoryTable';
 
 interface Task {
   id?: string | number;
@@ -49,6 +52,7 @@ interface Creator {
 
 interface Certificate {
   certificateNo: string;
+  supplier_invoice?: { id: number; invoiceNo: string } | null;
   certificate_date: string;
   remarks?: string | null;
   currency?: Currency;
@@ -60,6 +64,7 @@ interface Certificate {
   vat_percentage?: number;
   items: CertifiedItem[];
   adjustments?: Adjustment[];
+  approvals?: ApprovalHistoryEntry[];
 }
 
 interface CertificateOnScreenProps {
@@ -169,6 +174,11 @@ const CertificateOnScreen: React.FC<CertificateOnScreenProps> = ({ certificate, 
           <Typography variant="h4" fontWeight="bold" sx={{ mt: 2 }}>
             {certificate.certificateNo}
           </Typography>
+          {certificate.supplier_invoice?.invoiceNo && (
+            <Typography variant="subtitle1" color="text.secondary">
+              Bill: {certificate.supplier_invoice.invoiceNo}
+            </Typography>
+          )}
         </Grid>
       </Grid>
 
@@ -342,6 +352,8 @@ const CertificateOnScreen: React.FC<CertificateOnScreenProps> = ({ certificate, 
           </TableBody>
         </Table>
       </TableContainer>
+
+      <ApprovalHistoryTable approvals={certificate.approvals} />
     </Box>
   );
 };

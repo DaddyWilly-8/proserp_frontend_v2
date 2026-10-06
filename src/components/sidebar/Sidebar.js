@@ -587,9 +587,20 @@ function Sidebar({ menus }) {
                     }
                 }
 
-                //Accounts > Supplier Bills
+                //Accounts > Customer Invoices
+                if (!checkOrganizationPermission([PERMISSIONS.ACCOUNTS_TRANSACTIONS_READ])) {
+                    const accountsMenuIndex = updatedMenus.findIndex(menu => menu.label === dictionary.sidebar.menu.accounts_and_finance);
+                    if (accountsMenuIndex >= 0) {
+                        updatedMenus[accountsMenuIndex].children = updatedMenus[accountsMenuIndex].children.filter(
+                            item => item.label !== dictionary.sidebar.menuItem.customerInvoices
+                        );
+                    }
+                }
+
+                //Accounts > Supplier Bills (Purchase bills, or the bills generated from Subcontract Certificates)
                 if (
-                    !authOrganization?.organization?.settings?.defer_grn_billing ||
+                    !(authOrganization?.organization?.settings?.defer_grn_billing ||
+                      authOrganization?.organization?.settings?.generate_invoices_for_project_certificates) ||
                     !checkOrganizationPermission([
                         PERMISSIONS.PURCHASES_READ,
                         PERMISSIONS.PURCHASES_CREATE,

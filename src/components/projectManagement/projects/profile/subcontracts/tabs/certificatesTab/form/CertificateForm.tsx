@@ -67,6 +67,12 @@ interface CertificateData {
   project_subcontract_id?: number | string;
   items?: CertifiedTaskItem[];
   adjustments?: Adjustment[];
+  supplier_invoice?: {
+    id: number;
+    invoiceNo: string;
+    due_date?: string | null;
+    supplier_reference?: string | null;
+  } | null;
 }
 
 interface SubContract {
@@ -92,6 +98,8 @@ interface FormValues {
   remarks: string;
   certificate_date: string;
   vat_percentage?: number;
+  due_date?: string;
+  supplier_reference?: string;
 }
 
 const validationSchema = yup.object({
@@ -108,7 +116,15 @@ const CertificateForm: React.FC<CertificateFormProps> = ({
   const { enqueueSnackbar } = useSnackbar();
   const { authOrganization } = useJumboAuth();
   const organization = authOrganization?.organization as
-    Organization | undefined;
+    (Organization & { settings?: { generate_invoices_for_project_certificates?: boolean; defer_project_certificate_invoicing?: boolean } }) | undefined;
+  // This submit posts straight to a real Supplier Bill (no draft/approval step in between) only
+  // when the org generates invoices/bills for certificates AND doesn't defer invoicing — see
+  // ProjectSubcontractCertificateController::store()/postCertificateEntries(). An approval chain can
+  // still intercept server-side; these fields are then simply unused until the certificate is later
+  // invoiced via the Create Invoice dialog.
+  const generatesBillNow =
+    !!organization?.settings?.generate_invoices_for_project_certificates &&
+    !organization?.settings?.defer_project_certificate_invoicing;
 
   const [tasksItems, setTasksItems] = useState<CertifiedTaskItem[]>(
     certificate?.items || []
@@ -172,6 +188,10 @@ const CertificateForm: React.FC<CertificateFormProps> = ({
       certificate_date: certificate?.certificate_date
         ? dayjs(certificate.certificate_date).toISOString()
         : dayjs().toISOString(),
+      due_date: certificate?.supplier_invoice?.due_date
+        ? dayjs(certificate.supplier_invoice.due_date).toISOString()
+        : '',
+      supplier_reference: certificate?.supplier_invoice?.supplier_reference || '',
     },
   });
 
@@ -304,6 +324,48 @@ const CertificateForm: React.FC<CertificateFormProps> = ({
                     helperText={errors.remarks?.message}
                   />
                 </Grid>
+
+                {generatesBillNow && (
+                  <>
+                    <Grid size={12}>
+                      <Alert severity='info' sx={{ py: 0 }}>
+                        This will post straight to a Supplier Bill — fill in its due date and any
+                        reference now.
+                      </Alert>
+                    </Grid>
+
+                    <Grid size={{ xs: 12, md: 6 }}>
+                      <DateTimePicker
+                        label='Bill Due Date'
+                        minDate={dayjs(certificateDate)}
+                        value={watch('due_date') ? dayjs(watch('due_date')) : null}
+                        slotProps={{
+                          textField: {
+                            size: 'small',
+                            fullWidth: true,
+                            error: !!errors.due_date,
+                            helperText: errors.due_date?.message,
+                          },
+                        }}
+                        onChange={(v) =>
+                          setValue('due_date', v?.toISOString() || '', {
+                            shouldDirty: true,
+                          })
+                        }
+                      />
+                    </Grid>
+
+                    <Grid size={{ xs: 12, md: 6 }}>
+                      <TextField
+                        size='small'
+                        label='Supplier Reference'
+                        fullWidth
+                        inputProps={{ maxLength: 20 }}
+                        {...register('supplier_reference')}
+                      />
+                    </Grid>
+                  </>
+                )}
               </Grid>
             </form>
           </Grid>

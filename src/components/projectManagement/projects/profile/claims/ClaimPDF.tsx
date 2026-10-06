@@ -51,6 +51,7 @@ interface Project {
 
 interface Claim {
   claimNo: string;
+  customer_invoice?: { id: number; invoiceNo: string } | null;
   claim_date: string;
   project?: Project;
   remarks?: string | null;
@@ -167,6 +168,9 @@ const ClaimPDF: React.FC<{
               Payment Claim
             </Text>
             <Text style={pdfStyles.minInfo}>{claim.claimNo}</Text>
+            {claim.customer_invoice?.invoiceNo && (
+              <Text style={pdfStyles.minInfo}>Invoice: {claim.customer_invoice.invoiceNo}</Text>
+            )}
             <Text style={pdfStyles.minInfo}>{claim.project?.name || ''}</Text>
           </View>
         </View>

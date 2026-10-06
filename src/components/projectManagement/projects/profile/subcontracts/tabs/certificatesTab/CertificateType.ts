@@ -15,7 +15,7 @@ export interface ApprovalChainLevel {
 export interface CertificateApproval {
   id?: number;
   approval_chain_level_id?: number;
-  status?: 'approved' | 'on hold' | 'rejected';
+  status?: 'approved' | 'on hold' | 'rejected' | 'returned';
   is_final?: boolean;
   remarks?: string | null;
   approval_date?: string | null;
@@ -44,7 +44,16 @@ export interface Certificate {
   vat_amount?: number | null;
   total_amount?: number | null;
   currency?: Currency | null;
-  status?: 'draft' | 'in_review' | 'rejected' | 'approved' | 'invoiced';
+  status?: 'draft' | 'in_review' | 'rejected' | 'approved' | 'invoiced' | 'returned';
+  // The real Supplier Bill generated for this certificate (organizations that generate bills for
+  // certificates). due_date/supplier_reference are only populated on the single-certificate detail
+  // endpoint (show()), for prefilling the edit form — list endpoints only return id/invoiceNo.
+  supplier_invoice?: {
+    id: number;
+    invoiceNo: string;
+    due_date?: string | null;
+    supplier_reference?: string | null;
+  } | null;
   // Backend-computed — "Waiting for {Role}" while under a pending approval
   // level, same convention as LeaveRequest.status_label.
   status_label?: string;
