@@ -4,11 +4,10 @@ import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import financialReportsServices from '@/components/accounts/reports/financial-reports-services';
 import { useCurrencySelect } from '@/components/masters/Currencies/CurrencySelectProvider';
 import PDFContent from '@/components/pdf/PDFContent';
-import PurchaseGrnsReportOnScreen from '@/components/procurement/purchases/listItem/purchaseGrnsReport/PurchaseGrnsReportOnScreen';
 import PurchaseGrnsReportPDF from '@/components/procurement/purchases/listItem/purchaseGrnsReport/PurchaseGrnsReportPDF';
 import purchaseServices from '@/components/procurement/purchases/purchase-services';
-import { FileExportGrid } from '@/components/sharedComponents/FileExportGrid';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
+import dynamic from 'next/dynamic';
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 import { Div } from '@jumbo/shared';
 import {
@@ -65,14 +64,25 @@ import { useQuery } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import React, { useEffect, useMemo, useState } from 'react';
 import projectsServices from '../../project-services';
-import ProjectForm from '../../ProjectFormDialog';
 import { useProjectProfile } from '../ProjectProfileProvider';
-import ProjectInventoryValueOnScreen from './ProjectInventoryValueOnScreen';
 import ProjectInventoryValuePDF from './ProjectInventoryValuePDF';
-import ProjectInventoryValueTrend from './ProjectInventoryValueTrend';
-import ProjectLiabilitiesOnScreen from './ProjectLiabilitiesOnScreen';
 import ProjectLiabilitiesPDF from './ProjectLiabilitiesPDF';
-import ProjectLiabilityDocumentDialog from './ProjectLiabilityDocumentDialog';
+
+// Dialogs/previews only shown on demand, plus the always-visible recharts
+// trend chart - none need to be in the route's initial bundle. PDF
+// components (PurchaseGrnsReportPDF, ProjectInventoryValuePDF,
+// ProjectLiabilitiesPDF above) stay static - never wrap *PDF components in
+// dynamic(), per the established rule (past PDFViewer/attachment crashes).
+const PurchaseGrnsReportOnScreen = dynamic(() => import('@/components/procurement/purchases/listItem/purchaseGrnsReport/PurchaseGrnsReportOnScreen'), { ssr: false });
+const FileExportGrid = dynamic(() => import('@/components/sharedComponents/FileExportGrid').then((mod) => mod.FileExportGrid), { ssr: false });
+const ProjectForm = dynamic(() => import('../../ProjectFormDialog'), { ssr: false });
+const ProjectInventoryValueOnScreen = dynamic(() => import('./ProjectInventoryValueOnScreen'), { ssr: false });
+const ProjectInventoryValueTrend = dynamic(() => import('./ProjectInventoryValueTrend'), {
+  ssr: false,
+  loading: () => <Skeleton variant='rectangular' height={300} />,
+});
+const ProjectLiabilitiesOnScreen = dynamic(() => import('./ProjectLiabilitiesOnScreen'), { ssr: false });
+const ProjectLiabilityDocumentDialog = dynamic(() => import('./ProjectLiabilityDocumentDialog'), { ssr: false });
 
 const EditProject = ({ project, setOpenEditDialog }) => {
   return <ProjectForm project={project} setOpenDialog={setOpenEditDialog} />;
