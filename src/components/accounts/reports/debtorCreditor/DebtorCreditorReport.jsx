@@ -10,9 +10,11 @@ import { Div, Span } from '@jumbo/shared';
 import { HighlightOff } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
 import {
+  Checkbox,
   DialogContent,
   DialogTitle,
   FormControl,
+  FormControlLabel,
   Grid,
   IconButton,
   InputLabel,
@@ -37,6 +39,19 @@ import PdfLogo from '../../../pdf/PdfLogo';
 import financialReportsServices from '../financial-reports-services';
 import DebtorCreditorOnScreen from './DebtorCreditorOnScreen';
 
+// Flattens the grouped debtors/creditors tree into indented rows, same
+// shape the backend's TrialBalanceGroupedExport::flatten() produces for
+// the Excel export — group rows first, then that group's ledgers, before
+// moving to the next sibling.
+const flattenGroupTree = (group, level, rows = []) => {
+  rows.push({ name: group.name, amount: group.amount, level, isGroup: true });
+  (group.children || []).forEach((child) => flattenGroupTree(child, level + 1, rows));
+  (group.ledgers || []).forEach((ledger) =>
+    rows.push({ name: ledger.name, amount: ledger.amount, level: level + 1, isGroup: false })
+  );
+  return rows;
+};
+
 const ReportDocumet = ({ reportData, authOrganization, user }) => {
   const mainColor =
     authOrganization.organization.settings?.main_color || '#2113AD';
@@ -45,6 +60,8 @@ const ReportDocumet = ({ reportData, authOrganization, user }) => {
   const contrastText =
     authOrganization.organization.settings?.contrast_text || '#FFFFFF';
   const reportPeriod = `As at: ${readableDate(reportData.filters.as_at, true)}`;
+  const rootGroup = reportData.debtors || reportData.creditors;
+  const rows = rootGroup ? flattenGroupTree(rootGroup, 0) : [];
 
   return reportData ? (
     <Document
@@ -103,17 +120,7 @@ const ReportDocumet = ({ reportData, authOrganization, user }) => {
                 ...pdfStyles.tableHeader,
                 backgroundColor: mainColor,
                 color: contrastText,
-                flex: 0.5,
-              }}
-            >
-              S/N
-            </Text>
-            <Text
-              style={{
-                ...pdfStyles.tableHeader,
-                backgroundColor: mainColor,
-                color: contrastText,
-                flex: 7,
+                flex: 7.5,
               }}
             >
               Name
@@ -129,51 +136,51 @@ const ReportDocumet = ({ reportData, authOrganization, user }) => {
               Amount
             </Text>
           </View>
-          {Object.values(reportData.debtors || reportData.creditors).map(
-            (data, index) => (
-              <View key={index} style={pdfStyles.tableRow}>
-                <Text
-                  style={{
-                    ...pdfStyles.tableCell,
-                    backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor,
-                    flex: 0.5,
-                    textAlign: 'right',
-                  }}
-                >
-                  {index + 1}
-                </Text>
-                <Text
-                  style={{
-                    ...pdfStyles.tableCell,
-                    backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor,
-                    flex: 7,
-                  }}
-                >
-                  {data.name}
-                </Text>
-                <Text
-                  style={{
-                    ...pdfStyles.tableCell,
-                    backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor,
-                    flex: 1.5,
-                    textAlign: 'right',
-                  }}
-                >
-                  {data.amount.toLocaleString('en-US', {
-                    maximumFractionDigits: 2,
-                    minimumFractionDigits: 2,
-                  })}
-                </Text>
-              </View>
-            )
-          )}
+          {rows.map((row, index) => (
+            <View key={index} style={pdfStyles.tableRow}>
+              <Text
+                style={{
+                  ...pdfStyles.tableCell,
+                  backgroundColor: row.isGroup
+                    ? lightColor
+                    : index % 2 === 0
+                      ? '#FFFFFF'
+                      : lightColor,
+                  flex: 7.5,
+                  paddingLeft: 4 + row.level * 10,
+                  fontWeight: row.isGroup ? 'bold' : 'normal',
+                }}
+              >
+                {row.name}
+              </Text>
+              <Text
+                style={{
+                  ...pdfStyles.tableCell,
+                  backgroundColor: row.isGroup
+                    ? lightColor
+                    : index % 2 === 0
+                      ? '#FFFFFF'
+                      : lightColor,
+                  flex: 1.5,
+                  textAlign: 'right',
+                  fontWeight: row.isGroup ? 'bold' : 'normal',
+                  color: row.amount < 0 ? '#D32F2F' : undefined,
+                }}
+              >
+                {row.amount.toLocaleString('en-US', {
+                  maximumFractionDigits: 2,
+                  minimumFractionDigits: 2,
+                })}
+              </Text>
+            </View>
+          ))}
           <View style={pdfStyles.tableRow}>
             <Text
               style={{
                 ...pdfStyles.tableHeader,
                 backgroundColor: mainColor,
                 color: contrastText,
-                flex: 7.7,
+                flex: 7.5,
                 paddingLeft: 10,
               }}
             >
@@ -183,16 +190,13 @@ const ReportDocumet = ({ reportData, authOrganization, user }) => {
               style={{
                 ...pdfStyles.tableHeader,
                 backgroundColor: mainColor,
-                color: contrastText,
+                color: (reportData.total ?? 0) < 0 ? '#FF8A80' : contrastText,
                 flex: 1.5,
                 textAlign: 'right',
                 fontSize: '9px',
               }}
             >
-              {Object.values(reportData.debtors || reportData.creditors)
-                .reduce((total, item) => {
-                  return total + item.amount;
-                }, 0)
+              {(reportData.total ?? 0)
                 .toLocaleString('en-US', {
                   maximumFractionDigits: 2,
                   minimumFractionDigits: 2,
@@ -217,9 +221,17 @@ function DebtorCreditorReport({ setOpenDebtorsCreditorsDialog }) {
   const [reportData, setReportData] = useState(null);
   const [selectedType, setSelectedType] = useState('creditors');
   const [showOnScreen, setShowOnScreen] = useState(true);
+  // A CostCenters:All user who hasn't deliberately filtered sends the
+  // literal 'all' sentinel, not every cost center id explicitly — otherwise
+  // the backend sees a deliberate, exhaustive selection and the PDF/Excel
+  // list every cost center by name instead of showing "All" (same
+  // convention IncomeStatement.jsx uses).
   const [costCenterIds, setCostCenterIds] = useState(
-    authOrganization?.costCenters.map((cost_center) => cost_center.id)
+    checkOrganizationPermission(PERMISSIONS.COST_CENTERS_ALL)
+      ? 'all'
+      : authOrganization?.costCenters.map((cost_center) => cost_center.id)
   );
+  const [onlyStakeholderLinked, setOnlyStakeholderLinked] = useState(false);
   const [uploadFieldsKey, setUploadFieldsKey] = useState(0);
 
   const [isExporting, setIsExporting] = useState(false);
@@ -252,6 +264,7 @@ function DebtorCreditorReport({ setOpenDebtorsCreditorsDialog }) {
     const finalFilters = {
       ...filters,
       cost_center_ids: costCenterIds,
+      only_stakeholder_linked: onlyStakeholderLinked,
     };
 
     const report =
@@ -396,18 +409,37 @@ function DebtorCreditorReport({ setOpenDebtorsCreditorsDialog }) {
                       : authOrganization?.costCenters
                   }
                   onChange={(cost_centers) => {
-                    // Clearing back to nothing still needs to submit the full
-                    // accessible set, not an empty array — an empty array would
-                    // match zero cost centers server-side.
+                    // Clearing back to nothing must resubmit 'all' for a
+                    // CostCenters:All user (or their full accessible list
+                    // otherwise) — an empty array matches zero cost centers
+                    // server-side, not "every" one, and sending every id
+                    // explicitly is read as a deliberate selection, not "All".
                     const ids =
                       cost_centers.length === 0
-                        ? authOrganization?.costCenters.map(
-                            (cost_center) => cost_center.id
+                        ? checkOrganizationPermission(
+                            PERMISSIONS.COST_CENTERS_ALL
                           )
+                          ? 'all'
+                          : authOrganization?.costCenters.map(
+                              (cost_center) => cost_center.id
+                            )
                         : cost_centers.map((cost_center) => cost_center.id);
                     setCostCenterIds(ids); // Update the state with selected cost centers
                     setValue('cost_center_ids', ids);
                   }}
+                />
+              </Grid>
+              <Grid size={{ xs: 12, md: 12, lg: 12 }}>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={onlyStakeholderLinked}
+                      onChange={(e) =>
+                        setOnlyStakeholderLinked(e.target.checked)
+                      }
+                    />
+                  }
+                  label='Stakeholders Only'
                 />
               </Grid>
               <Grid size={{ xs: 12, md: 12, lg: 12 }} textAlign='right'>
@@ -450,9 +482,7 @@ function DebtorCreditorReport({ setOpenDebtorsCreditorsDialog }) {
           <LinearProgress />
         ) : (
           reportData &&
-          (reportData.debtors || reportData.creditors) &&
-          Object.values(reportData.debtors || reportData.creditors).length >
-            0 && (
+          (reportData.debtors || reportData.creditors) && (
             <>
               {showOnScreen ? (
                 <DebtorCreditorOnScreen

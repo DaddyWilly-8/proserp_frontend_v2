@@ -1,4 +1,5 @@
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
+import { KeyboardArrowDown, KeyboardArrowRight } from '@mui/icons-material';
 import {
   Box,
   Dialog,
@@ -14,7 +15,7 @@ import {
   useMediaQuery,
   useTheme,
 } from '@mui/material';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import LedgerStatementDialogContent from '../../ledgers/list/ledgerStatement/LedgerStatementDialogContent';
 
 const BUCKET_COLUMNS = [
@@ -42,6 +43,15 @@ const ApArAgingOnScreen = ({ reportData, authOrganization }) => {
 
   const [ledgerDialogOpen, setLedgerDialogOpen] = useState(false);
   const [ledgerFilters, setLedgerFilters] = useState(null);
+  const [openRows, setOpenRows] = useState([]);
+
+  const increasesWith = reportData?.filters?.type === 'receivable' ? 'DR' : 'CR';
+
+  const toggleRow = (rowId) => {
+    setOpenRows((prev) =>
+      prev.includes(rowId) ? prev.filter((id) => id !== rowId) : [...prev, rowId]
+    );
+  };
 
   const handleViewLedger = (row) => {
     const costCenters = reportData.filters?.cost_centers || [];
@@ -51,12 +61,85 @@ const ApArAgingOnScreen = ({ reportData, authOrganization }) => {
       cost_center_ids: costCenters.length ? costCenters.map((cc) => cc.id) : 'all',
       ledger_id: row.ledger_id,
       ledgerName: row.name,
-      increasesWith: reportData.filters?.type === 'receivable' ? 'DR' : 'CR',
+      increasesWith,
     });
     setLedgerDialogOpen(true);
   };
 
-  if (!reportData) return null;
+  if (!reportData || !reportData.group) return null;
+
+  const renderGroup = (group, level) => {
+    const hasChildren = (group.children?.length > 0) || (group.ledgers?.length > 0);
+    const isOpen = level === 0 || openRows.includes(`g-${group.id}`);
+
+    return (
+      <React.Fragment key={`g-${group.id}`}>
+        <TableRow
+          onClick={() => level > 0 && hasChildren && toggleRow(`g-${group.id}`)}
+          sx={{
+            cursor: level > 0 && hasChildren ? 'pointer' : 'default',
+            backgroundColor: level === 0 ? mainColor : theme.palette.action.hover,
+            '&:hover': level > 0 ? { bgcolor: 'action.selected' } : undefined,
+          }}
+        >
+          <TableCell
+            style={{ paddingLeft: level * 20 }}
+            sx={{ color: level === 0 ? contrastText : undefined, fontWeight: 'bold' }}
+          >
+            {level > 0 && hasChildren && (isOpen ? <KeyboardArrowDown /> : <KeyboardArrowRight />)}
+            <span style={{ marginLeft: 5 }}>{group.name}</span>
+          </TableCell>
+          {BUCKET_COLUMNS.map((col) => (
+            <TableCell
+              key={col.key}
+              align='right'
+              sx={{ color: level === 0 ? contrastText : undefined, fontWeight: 'bold' }}
+            >
+              {formatMoney(group.buckets[col.key])}
+            </TableCell>
+          ))}
+          <TableCell
+            align='right'
+            sx={{ color: level === 0 ? contrastText : undefined, fontWeight: 'bold' }}
+          >
+            {formatMoney(group.total)}
+          </TableCell>
+        </TableRow>
+        {isOpen && group.children?.map((child) => renderGroup(child, level + 1))}
+        {isOpen && group.ledgers?.map((row, index) => (
+          <TableRow
+            key={`l-${row.ledger_id}`}
+            sx={{
+              backgroundColor:
+                index % 2 === 0 ? theme.palette.background.paper : theme.palette.action.hover,
+            }}
+          >
+            <TableCell style={{ paddingLeft: (level + 1) * 20 }}>
+              <Tooltip title='Click to view statement' placement='top' arrow>
+                <Typography
+                  component='span'
+                  variant='body2'
+                  color='primary.main'
+                  sx={{ cursor: 'pointer', '&:hover': { textDecoration: 'underline' } }}
+                  onClick={() => handleViewLedger(row)}
+                >
+                  {row.name}
+                </Typography>
+              </Tooltip>
+            </TableCell>
+            {BUCKET_COLUMNS.map((col) => (
+              <TableCell key={col.key} align='right'>
+                {formatMoney(row.buckets[col.key])}
+              </TableCell>
+            ))}
+            <TableCell align='right'>
+              <strong>{formatMoney(row.total)}</strong>
+            </TableCell>
+          </TableRow>
+        ))}
+      </React.Fragment>
+    );
+  };
 
   return (
     <Box sx={{ marginTop: 3 }}>
@@ -69,9 +152,6 @@ const ApArAgingOnScreen = ({ reportData, authOrganization }) => {
         <Table size='small'>
           <TableHead>
             <TableRow>
-              <TableCell sx={{ backgroundColor: mainColor, color: contrastText }}>
-                S/N
-              </TableCell>
               <TableCell sx={{ backgroundColor: mainColor, color: contrastText }}>
                 Name
               </TableCell>
@@ -90,57 +170,21 @@ const ApArAgingOnScreen = ({ reportData, authOrganization }) => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {reportData.rows.map((row, index) => (
-              <TableRow
-                key={row.ledger_id}
-                sx={{
-                  backgroundColor:
-                    index % 2 === 0
-                      ? theme.palette.background.paper
-                      : theme.palette.action.hover,
-                }}
-              >
-                <TableCell>{index + 1}</TableCell>
-                <TableCell>
-                  <Tooltip title='Click to view statement' placement='top' arrow>
-                    <Typography
-                      component='span'
-                      variant='body2'
-                      color='primary.main'
-                      sx={{ cursor: 'pointer', '&:hover': { textDecoration: 'underline' } }}
-                      onClick={() => handleViewLedger(row)}
-                    >
-                      {row.name}
-                    </Typography>
-                  </Tooltip>
-                </TableCell>
-                {BUCKET_COLUMNS.map((col) => (
-                  <TableCell key={col.key} align='right'>
-                    {formatMoney(row.buckets[col.key])}
-                  </TableCell>
-                ))}
-                <TableCell align='right'>
-                  <strong>{formatMoney(row.total)}</strong>
-                </TableCell>
-              </TableRow>
-            ))}
+            {renderGroup(reportData.group, 0)}
             <TableRow>
-              <TableCell
-                colSpan={2}
-                sx={{ backgroundColor: mainColor, color: contrastText }}
-              >
+              <TableCell sx={{ backgroundColor: mainColor, color: contrastText, borderBottom: 'none' }}>
                 Total
               </TableCell>
               {BUCKET_COLUMNS.map((col) => (
                 <TableCell
                   key={col.key}
                   align='right'
-                  sx={{ backgroundColor: mainColor, color: contrastText }}
+                  sx={{ backgroundColor: mainColor, color: contrastText, borderBottom: 'none' }}
                 >
                   {formatMoney(reportData.totals[col.key])}
                 </TableCell>
               ))}
-              <TableCell align='right' sx={{ backgroundColor: mainColor, color: contrastText }}>
+              <TableCell align='right' sx={{ backgroundColor: mainColor, color: contrastText, borderBottom: 'none' }}>
                 {formatMoney(reportData.grand_total)}
               </TableCell>
             </TableRow>

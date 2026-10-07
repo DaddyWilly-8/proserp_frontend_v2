@@ -1,5 +1,6 @@
 import { useCurrencySelect } from '@/components/masters/Currencies/CurrencySelectProvider';
 import ProjectLiabilityDocumentDialog from '@/components/projectManagement/projects/profile/dashboard/ProjectLiabilityDocumentDialog';
+import { KeyboardArrowDown, KeyboardArrowRight } from '@mui/icons-material';
 import {
   Box,
   Table,
@@ -12,7 +13,13 @@ import {
   useTheme,
 } from '@mui/material';
 import dayjs from 'dayjs';
-import { useState } from 'react';
+import React, { useState } from 'react';
+
+const formatAmount = (amount) =>
+  (amount ?? 0).toLocaleString('en-US', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
 
 const DebtorCreditorOnScreen = ({ reportData, authOrganization, user }) => {
   const { currencies } = useCurrencySelect();
@@ -21,110 +28,126 @@ const DebtorCreditorOnScreen = ({ reportData, authOrganization, user }) => {
   const theme = useTheme();
   const mainColor =
     authOrganization?.organization.settings?.main_color || '#2113AD';
-  const headerColor =
-    theme.type === 'dark'
-      ? '#29f096'
-      : authOrganization?.organization.settings?.main_color || '#2113AD';
   const contrastText =
     authOrganization?.organization.settings?.contrast_text || '#FFFFFF';
 
   const [openDialog, setOpenDialog] = useState(false);
+  const [openRows, setOpenRows] = useState([]);
+  const [liabilitiesPayload, setLiabilitiesPayload] = useState(null);
 
-  let cost_center_id = [];
-  reportData?.filters?.cost_centers?.map((itm) => cost_center_id.push(itm?.id));
+  const rootGroup = reportData?.debtors || reportData?.creditors;
+  // debtors are rooted at the Accounts Receivable group (increases with
+  // debit), creditors at Accounts Payable (increases with credit) — fixed
+  // per report type, so this doesn't need to travel per-ledger anymore.
+  const increasesWith = reportData?.debtors ? 'DR' : 'CR';
 
-  const [liabilitiesPayload, setLiabilitiesPayload] = useState({
-    from: dayjs(organization?.recording_start_date).toISOString(),
-    to: reportData?.filters?.as_at
-      ? dayjs(reportData?.filters?.as_at).toISOString()
-      : dayjs().toISOString(),
-    cost_center_ids: cost_center_id,
-    with_item_description: true,
-  });
+  if (!reportData || !rootGroup) return null;
 
-  return reportData ? (
+  const toggleRow = (rowId) => {
+    setOpenRows((prev) =>
+      prev.includes(rowId) ? prev.filter((id) => id !== rowId) : [...prev, rowId]
+    );
+  };
+
+  const handleViewLedger = (ledger) => {
+    let cost_center_id = [];
+    reportData?.filters?.cost_centers?.map((itm) => cost_center_id.push(itm?.id));
+
+    setLiabilitiesPayload({
+      from: dayjs(organization?.recording_start_date).toISOString(),
+      to: reportData?.filters?.as_at
+        ? dayjs(reportData?.filters?.as_at).toISOString()
+        : dayjs().toISOString(),
+      cost_center_ids: cost_center_id,
+      with_item_description: true,
+      ledger_id: ledger.id,
+      liabilityName: ledger.name,
+      increasesWith,
+    });
+    setOpenDialog(true);
+  };
+
+  const renderGroup = (group, level) => {
+    const hasChildren = (group.children?.length > 0) || (group.ledgers?.length > 0);
+    const isOpen = level === 0 || openRows.includes(`g-${group.id}`);
+
+    return (
+      <React.Fragment key={`g-${group.id}`}>
+        <TableRow
+          onClick={() => level > 0 && hasChildren && toggleRow(`g-${group.id}`)}
+          sx={{
+            cursor: level > 0 && hasChildren ? 'pointer' : 'default',
+            backgroundColor: level === 0 ? mainColor : theme.palette.action.hover,
+            '&:hover': level > 0 ? { bgcolor: 'action.selected' } : undefined,
+          }}
+        >
+          <TableCell
+            style={{ paddingLeft: level * 20 }}
+            sx={{ color: level === 0 ? contrastText : undefined, fontWeight: 'bold' }}
+          >
+            {level > 0 && hasChildren && (isOpen ? <KeyboardArrowDown /> : <KeyboardArrowRight />)}
+            <span style={{ marginLeft: 5 }}>{group.name}</span>
+          </TableCell>
+          <TableCell
+            align='right'
+            sx={{
+              color: level === 0 ? contrastText : group.amount < 0 ? 'error.main' : undefined,
+              fontWeight: 'bold',
+            }}
+          >
+            {formatAmount(group.amount)}
+          </TableCell>
+        </TableRow>
+        {isOpen && group.children?.map((child) => renderGroup(child, level + 1))}
+        {isOpen && group.ledgers?.map((ledger, index) => (
+          <TableRow
+            key={`l-${ledger.id}`}
+            sx={{
+              backgroundColor:
+                index % 2 === 0 ? theme.palette.background.paper : theme.palette.action.hover,
+            }}
+          >
+            <TableCell style={{ paddingLeft: (level + 1) * 20 }}>{ledger.name}</TableCell>
+            <TableCell
+              align='right'
+              onClick={() => handleViewLedger(ledger)}
+              sx={{
+                cursor: 'pointer',
+                color: ledger.amount < 0 ? 'error.main' : undefined,
+                '&:hover': { color: 'primary.main' },
+              }}
+            >
+              {formatAmount(ledger.amount)}
+            </TableCell>
+          </TableRow>
+        ))}
+      </React.Fragment>
+    );
+  };
+
+  return (
     <>
       <Box sx={{ marginTop: 3 }}>
         <TableContainer component={TablePaper}>
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell
-                  sx={{ backgroundColor: mainColor, color: contrastText }}
-                >
-                  S/N
-                </TableCell>
-                <TableCell
-                  sx={{ backgroundColor: mainColor, color: contrastText }}
-                >
+                <TableCell sx={{ backgroundColor: mainColor, color: contrastText }}>
                   Name
                 </TableCell>
-                <TableCell
-                  sx={{ backgroundColor: mainColor, color: contrastText }}
-                  align='right'
-                >
+                <TableCell align='right' sx={{ backgroundColor: mainColor, color: contrastText }}>
                   Amount
                 </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {Object.values(reportData.debtors || reportData.creditors).map(
-                (data, index) => (
-                  <TableRow
-                    key={index}
-                    sx={{
-                      backgroundColor:
-                        index % 2 === 0
-                          ? theme.palette.background.paper
-                          : theme.palette.action.hover,
-                    }}
-                  >
-                    <TableCell>{index + 1}</TableCell>
-                    <TableCell>{data.name}</TableCell>
-                    <TableCell
-                      align='right'
-                      onClick={() => {
-                        setLiabilitiesPayload((prevPayload) => ({
-                          ...prevPayload,
-                          ledger_id: data.id,
-                          liabilityName: data.name,
-                          increasesWith: data.increasesWith,
-                        }));
-                        setOpenDialog(true);
-                      }}
-                      sx={{
-                        cursor: 'pointer',
-                        '&:hover': {
-                          color: 'primary.main',
-                        },
-                      }}
-                    >
-                      {data.amount?.toLocaleString('en-US', {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                      })}
-                    </TableCell>
-                  </TableRow>
-                )
-              )}
+              {renderGroup(rootGroup, 0)}
               <TableRow>
-                <TableCell
-                  colSpan={2}
-                  align='left'
-                  sx={{ backgroundColor: mainColor, color: contrastText }}
-                >
+                <TableCell sx={{ backgroundColor: mainColor, color: contrastText, borderBottom: 'none' }}>
                   Total
                 </TableCell>
-                <TableCell
-                  align='right'
-                  sx={{ backgroundColor: mainColor, color: contrastText }}
-                >
-                  {Object.values(reportData.debtors || reportData.creditors)
-                    .reduce((total, item) => total + item.amount, 0)
-                    .toLocaleString('en-US', {
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 2,
-                    })}
+                <TableCell align='right' sx={{ backgroundColor: mainColor, color: contrastText, borderBottom: 'none' }}>
+                  {formatAmount(reportData.total)}
                 </TableCell>
               </TableRow>
             </TableBody>
@@ -132,16 +155,18 @@ const DebtorCreditorOnScreen = ({ reportData, authOrganization, user }) => {
         </TableContainer>
       </Box>
 
-      <ProjectLiabilityDocumentDialog
-        openDialog={openDialog}
-        onClose={setOpenDialog}
-        baseCurrency={baseCurrency}
-        organization={authOrganization}
-        user={user}
-        liabilitiesPaylod={liabilitiesPayload}
-      />
+      {liabilitiesPayload && (
+        <ProjectLiabilityDocumentDialog
+          openDialog={openDialog}
+          onClose={setOpenDialog}
+          baseCurrency={baseCurrency}
+          organization={authOrganization}
+          user={user}
+          liabilitiesPaylod={liabilitiesPayload}
+        />
+      )}
     </>
-  ) : null;
+  );
 };
 
 export default DebtorCreditorOnScreen;

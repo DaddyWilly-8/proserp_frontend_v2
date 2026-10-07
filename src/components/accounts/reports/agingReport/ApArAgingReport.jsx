@@ -9,9 +9,11 @@ import { Div, Span } from '@jumbo/shared';
 import { HighlightOff } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
 import {
+  Checkbox,
   DialogContent,
   DialogTitle,
   FormControl,
+  FormControlLabel,
   Grid,
   IconButton,
   InputLabel,
@@ -42,9 +44,17 @@ function ApArAgingReport({ setOpenDialog }) {
   } = useJumboAuth();
   const [reportData, setReportData] = useState(null);
   const [selectedType, setSelectedType] = useState('payable');
+  // A CostCenters:All user who hasn't deliberately filtered sends the
+  // literal 'all' sentinel, not every cost center id explicitly — otherwise
+  // the backend sees a deliberate, exhaustive selection and the PDF/Excel
+  // list every cost center by name instead of showing "All" (same
+  // convention IncomeStatement.jsx uses).
   const [costCenterIds, setCostCenterIds] = useState(
-    authOrganization?.costCenters.map((cost_center) => cost_center.id)
+    checkOrganizationPermission(PERMISSIONS.COST_CENTERS_ALL)
+      ? 'all'
+      : authOrganization?.costCenters.map((cost_center) => cost_center.id)
   );
+  const [onlyStakeholderLinked, setOnlyStakeholderLinked] = useState(false);
   const [isFetching, setIsFetching] = useState(false);
   const [showOnScreen, setShowOnScreen] = useState(true);
   const [isExporting, setIsExporting] = useState(false);
@@ -58,6 +68,14 @@ function ApArAgingReport({ setOpenDialog }) {
     },
   });
 
+  // reportData.group is the Accounts Receivable/Payable tree root (see
+  // AgingReportService::generate) rather than a flat rows array — walk it
+  // to tell whether there's anything to show/export.
+  const hasAgingRows = (group) =>
+    !!group &&
+    ((group.ledgers?.length ?? 0) > 0 ||
+      (group.children || []).some((child) => hasAgingRows(child)));
+
   const retrieveReport = async (filters) => {
     setIsFetching(true);
     try {
@@ -65,6 +83,7 @@ function ApArAgingReport({ setOpenDialog }) {
         ...filters,
         type: selectedType,
         cost_center_ids: costCenterIds,
+        only_stakeholder_linked: onlyStakeholderLinked,
       });
       setReportData(report);
     } finally {
@@ -164,22 +183,41 @@ function ApArAgingReport({ setOpenDialog }) {
                       : authOrganization?.costCenters
                   }
                   onChange={(cost_centers) => {
-                    // Clearing back to nothing still needs to submit the full
-                    // accessible set, not an empty array — an empty array would
-                    // match zero cost centers server-side.
+                    // Clearing back to nothing must resubmit 'all' for a
+                    // CostCenters:All user (or their full accessible list
+                    // otherwise) — an empty array matches zero cost centers
+                    // server-side, not "every" one, and sending every id
+                    // explicitly is read as a deliberate selection, not "All".
                     const ids =
                       cost_centers.length === 0
-                        ? authOrganization?.costCenters.map(
-                            (cost_center) => cost_center.id
+                        ? checkOrganizationPermission(
+                            PERMISSIONS.COST_CENTERS_ALL
                           )
+                          ? 'all'
+                          : authOrganization?.costCenters.map(
+                              (cost_center) => cost_center.id
+                            )
                         : cost_centers.map((cost_center) => cost_center.id);
                     setCostCenterIds(ids);
                   }}
                 />
               </Grid>
+              <Grid size={12}>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={onlyStakeholderLinked}
+                      onChange={(e) =>
+                        setOnlyStakeholderLinked(e.target.checked)
+                      }
+                    />
+                  }
+                  label='Stakeholders Only'
+                />
+              </Grid>
               <Grid size={12} textAlign='right'>
                 <Stack direction='row' spacing={0.5} justifyContent='flex-end' alignItems='center'>
-                  {reportData && reportData.rows.length > 0 && (
+                  {reportData && hasAgingRows(reportData.group) && (
                     <FileExportGrid
                       exportExcel
                       handlExcelExport={handlExcelExport}
@@ -204,7 +242,7 @@ function ApArAgingReport({ setOpenDialog }) {
           <LinearProgress />
         ) : (
           reportData &&
-          reportData.rows.length > 0 &&
+          hasAgingRows(reportData.group) &&
           (showOnScreen ? (
             <ApArAgingOnScreen reportData={reportData} authOrganization={authOrganization} />
           ) : (
@@ -216,7 +254,7 @@ function ApArAgingReport({ setOpenDialog }) {
             />
           ))
         )}
-        {reportData && reportData.rows.length === 0 && !isFetching && (
+        {reportData && !hasAgingRows(reportData.group) && !isFetching && (
           <Typography textAlign='center' color='text.secondary' sx={{ mt: 3 }}>
             Nothing outstanding for the selected filters.
           </Typography>

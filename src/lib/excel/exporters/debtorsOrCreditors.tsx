@@ -7,9 +7,19 @@ export async function exportDebtorsOrCreditorsToExcel(exportedData: any) {
     const { authOrganization, reportData, user } = exportedData;
     const reportPeriod = `As at: ${readableDate(reportData.filters.as_at, true)}`;
 
+    const rootGroup = reportData.debtors || reportData.creditors;
+
     // create workbook and worksheet
     const wb = createWorkbook();
     const ws = wb.addWorksheet('Debtors or Creditors Report');
+    // The group's own row sits above its children (not a trailing
+    // subtotal), so the collapse toggle needs to live on that row too —
+    // summaryBelow false tells Excel the parent is above the detail it
+    // controls, matching the Trial Balance / Income Statement exports.
+    ws.properties.outlineProperties = {
+      summaryBelow: false,
+      summaryRight: false,
+    };
 
     // column widths
     const baseColumns = [
@@ -114,49 +124,63 @@ export async function exportDebtorsOrCreditorsToExcel(exportedData: any) {
     const dataRow = (ws.lastRow?.number ?? 0) + 1;
     const headerRow = ws.getRow(dataRow);
     headerRow.height = 25;
-    ws.getCell(`A${dataRow}`).value = 'S/N';
 
-    ws.mergeCells(`B${dataRow}:E${dataRow}`);
-    ws.getCell(`B${dataRow}`).value = 'Name';
+    ws.mergeCells(`A${dataRow}:E${dataRow}`);
+    ws.getCell(`A${dataRow}`).value = 'Name';
     ws.getCell(`F${dataRow}`).value = 'Amount';
-    let total = 0;
-    Object.values(reportData.debtors || reportData.creditors).forEach(
-      (d: any, index: number) => {
-        total += d.amount;
-        const row = (ws.lastRow?.number ?? 0) + 1;
-        ws.getCell(`A${row}`).value = index + 1;
 
-        ws.mergeCells(`B${row}:E${row}`);
-        ws.getCell(`B${row}`).value = d.name;
+    const thinBorder = {
+      top: { style: 'thin' as const, color: { argb: 'FF000000' } },
+      bottom: { style: 'thin' as const, color: { argb: 'FF000000' } },
+      left: { style: 'thin' as const, color: { argb: 'FF000000' } },
+      right: { style: 'thin' as const, color: { argb: 'FF000000' } },
+    };
 
-        ws.getCell(`F${row}`).value = d.amount;
-        ws.getCell(`F${row}`).numFmt = '#,###.00';
-        ws.getCell(`F${row}`).alignment = {
-          horizontal: 'right',
-          vertical: 'middle',
-        };
+    // Writes one row per tree node (ledger-group or leaf ledger), group
+    // rows first then that group's own subgroups/ledgers directly below —
+    // same depth-first order as the backend's TrialBalanceGroupedExport —
+    // and gives every row below the root an outlineLevel so Excel's native
+    // group collapse arrows work like the on-screen collapsible tree.
+    const writeGroupTreeRow = (
+      node: any,
+      level: number,
+      isGroup: boolean
+    ) => {
+      const row = (ws.lastRow?.number ?? 0) + 1;
 
-        ws.getCell(`A${row}`).border = {
-          top: { style: 'thin', color: { argb: 'FF000000' } },
-          bottom: { style: 'thin', color: { argb: 'FF000000' } },
-          left: { style: 'thin', color: { argb: 'FF000000' } },
-          right: { style: 'thin', color: { argb: 'FF000000' } },
-        };
-        ws.getCell(`B${row}`).border = {
-          top: { style: 'thin', color: { argb: 'FF000000' } },
-          bottom: { style: 'thin', color: { argb: 'FF000000' } },
-          left: { style: 'thin', color: { argb: 'FF000000' } },
-          right: { style: 'thin', color: { argb: 'FF000000' } },
-        };
-        ws.getCell(`F${row}`).border = {
-          top: { style: 'thin', color: { argb: 'FF000000' } },
-          bottom: { style: 'thin', color: { argb: 'FF000000' } },
-          left: { style: 'thin', color: { argb: 'FF000000' } },
-          right: { style: 'thin', color: { argb: 'FF000000' } },
-        };
+      ws.mergeCells(`A${row}:E${row}`);
+      const nameCell = ws.getCell(`A${row}`);
+      nameCell.value = node.name;
+      nameCell.alignment = { indent: level };
+      nameCell.border = thinBorder;
+      if (isGroup) nameCell.font = { bold: true };
+
+      const amountCell = ws.getCell(`F${row}`);
+      amountCell.value = node.amount;
+      amountCell.numFmt = '#,##0.00;[Red]-#,##0.00';
+      amountCell.alignment = { horizontal: 'right', vertical: 'middle' };
+      amountCell.border = thinBorder;
+      if (isGroup) amountCell.font = { bold: true };
+
+      if (level > 0) {
+        ws.getRow(row).outlineLevel = level;
       }
-    );
 
+      if (isGroup) {
+        (node.children || []).forEach((child: any) =>
+          writeGroupTreeRow(child, level + 1, true)
+        );
+        (node.ledgers || []).forEach((ledger: any) =>
+          writeGroupTreeRow(ledger, level + 1, false)
+        );
+      }
+    };
+
+    if (rootGroup) {
+      writeGroupTreeRow(rootGroup, 0, true);
+    }
+
+    const total = reportData.total ?? 0;
     const totalRow = (ws.lastRow?.number ?? 0) + 1;
 
     // TOTAL ROW STYLING
@@ -180,7 +204,7 @@ export async function exportDebtorsOrCreditorsToExcel(exportedData: any) {
     ws.getCell(`A${totalRow}`).font = { bold: true, size: 11 };
 
     ws.getCell(`F${totalRow}`).value = total;
-    ws.getCell(`F${totalRow}`).numFmt = '#,###.00';
+    ws.getCell(`F${totalRow}`).numFmt = '#,##0.00;[Red]-#,##0.00';
     ws.getCell(`F${totalRow}`).alignment = {
       horizontal: 'right',
       vertical: 'middle',

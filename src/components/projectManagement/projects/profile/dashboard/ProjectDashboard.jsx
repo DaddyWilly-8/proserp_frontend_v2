@@ -17,6 +17,8 @@ import {
   ExpandMoreOutlined,
   HighlightOff,
   Inventory2Outlined,
+  KeyboardArrowDown,
+  KeyboardArrowRight,
   PaidOutlined,
   TimelineOutlined,
   VisibilityOutlined,
@@ -61,7 +63,7 @@ import {
 } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
 import dayjs from 'dayjs';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import projectsServices from '../../project-services';
 import ProjectForm from '../../ProjectFormDialog';
 import { useProjectProfile } from '../ProjectProfileProvider';
@@ -521,18 +523,176 @@ function ProjectDashboard() {
     enabled: !!project?.id,
   });
 
+  // debtors/creditors now come back grouped by ledger-group hierarchy
+  // (see FinanceReportsService::debtorsOrCreditorsGrouped) instead of a
+  // flat array, so this dashboard — which just wants a flat per-ledger
+  // list — flattens every group's own ledgers plus its subgroups'
+  // recursively. increasesWith is no longer carried per ledger (every
+  // ledger in "debtors" is AR/DR, every one in "creditors" is AP/CR), so
+  // it's attached here instead of read off each row.
+  const flattenLedgers = (node, increasesWith) => {
+    if (!node) return [];
+    const own = (node.ledgers || []).map((ledger) => ({
+      ...ledger,
+      increasesWith,
+    }));
+    const nested = (node.children || []).flatMap((child) =>
+      flattenLedgers(child, increasesWith)
+    );
+    return [...own, ...nested];
+  };
+
+  const creditorLedgers = useMemo(
+    () => flattenLedgers(creditors?.creditors, 'CR'),
+    [creditors]
+  );
+  const debtorLedgers = useMemo(
+    () => flattenLedgers(debtors?.debtors, 'DR'),
+    [debtors]
+  );
+
   useEffect(() => {
-    const totalCreditors = creditors?.creditors?.reduce(
+    const totalCreditors = creditorLedgers.reduce(
       (acc, item) => (acc += item.amount),
       0
     );
-    const totalDebtors = debtors?.debtors?.reduce(
+    const totalDebtors = debtorLedgers.reduce(
       (acc, item) => (acc += item.amount),
       0
     );
     setCreditorsTotal(totalCreditors);
     setDebitorsTotal(totalDebtors);
-  }, [creditors, debtors]);
+  }, [creditorLedgers, debtorLedgers]);
+
+  // Indented group/ledger rows for the PDF export, same depth-first
+  // flattening the main Debtors/Creditors report's PDF uses.
+  const flattenGroupRows = (node, level = 0, rows = []) => {
+    if (!node) return rows;
+    rows.push({ label: node.name, value: node.amount, level, isGroup: true });
+    (node.children || []).forEach((child) =>
+      flattenGroupRows(child, level + 1, rows)
+    );
+    (node.ledgers || []).forEach((ledger) =>
+      rows.push({
+        label: ledger.name,
+        value: ledger.amount,
+        level: level + 1,
+        isGroup: false,
+      })
+    );
+    return rows;
+  };
+
+  const liabilityRows = useMemo(
+    () => flattenGroupRows(creditors?.creditors),
+    [creditors]
+  );
+  const debtorsRow = useMemo(
+    () => flattenGroupRows(debtors?.debtors),
+    [debtors]
+  );
+
+  const [openGroupRows, setOpenGroupRows] = useState([]);
+  const toggleGroupRow = (rowKey) => {
+    setOpenGroupRows((prev) =>
+      prev.includes(rowKey)
+        ? prev.filter((key) => key !== rowKey)
+        : [...prev, rowKey]
+    );
+  };
+
+  // Mirrors the main Debtors/Creditors report's collapsible group tree
+  // (DebtorCreditorOnScreen.jsx), adapted to this panel's Grid-row layout.
+  const renderLiabilityGroup = (node, level, increasesWith, keyPrefix) => {
+    if (!node) return null;
+    const hasChildren =
+      node.children?.length > 0 || node.ledgers?.length > 0;
+    const rowKey = `${keyPrefix}-g-${node.id}`;
+    const isOpen = level === 0 || openGroupRows.includes(rowKey);
+
+    return (
+      <React.Fragment key={rowKey}>
+        <Divider />
+        <Grid
+          container
+          size={12}
+          onClick={() => level > 0 && hasChildren && toggleGroupRow(rowKey)}
+          sx={{
+            py: 1,
+            px: 1,
+            cursor: level > 0 && hasChildren ? 'pointer' : 'default',
+            '&:hover': level > 0 && hasChildren ? { bgcolor: 'action.hover' } : undefined,
+          }}
+        >
+          <Grid size={8} sx={{ pl: level * 2, display: 'flex', alignItems: 'center' }}>
+            {level > 0 &&
+              hasChildren &&
+              (isOpen ? (
+                <KeyboardArrowDown fontSize='small' />
+              ) : (
+                <KeyboardArrowRight fontSize='small' />
+              ))}
+            <Typography fontWeight='bold'>{node.name}</Typography>
+          </Grid>
+          <Grid size={4}>
+            <Typography
+              textAlign='right'
+              fontWeight='bold'
+              color={node.amount < 0 ? 'error.main' : undefined}
+            >
+              {parseFloat(node.amount).toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}
+            </Typography>
+          </Grid>
+        </Grid>
+        {isOpen &&
+          node.children?.map((child) =>
+            renderLiabilityGroup(child, level + 1, increasesWith, keyPrefix)
+          )}
+        {isOpen &&
+          node.ledgers?.map((ledger) => (
+            <React.Fragment key={`${keyPrefix}-l-${ledger.id}`}>
+              <Divider />
+              <Grid container size={12} sx={{ py: 1, px: 1 }}>
+                <Grid size={8} sx={{ pl: (level + 1) * 2 }}>
+                  <Tooltip title='Name'>
+                    <Typography>{ledger.name}</Typography>
+                  </Tooltip>
+                </Grid>
+                <Grid size={4}>
+                  <Tooltip title={`Click to view ${ledger.name} Statement`}>
+                    <Typography
+                      textAlign='right'
+                      onClick={() => {
+                        setLiabilitiesPayload((prevPayload) => ({
+                          ...prevPayload,
+                          ledger_id: ledger.id,
+                          liabilityName: ledger.name,
+                          increasesWith,
+                        }));
+                        setOpenDialog(true);
+                      }}
+                      sx={{
+                        cursor: 'pointer',
+                        color: ledger.amount < 0 ? 'error.main' : undefined,
+                        '&:hover': { color: 'primary.main' },
+                      }}
+                    >
+                      {parseFloat(ledger.amount).toLocaleString('en-US', {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}
+                    </Typography>
+                  </Tooltip>
+                </Grid>
+              </Grid>
+            </React.Fragment>
+          ))}
+      </React.Fragment>
+    );
+  };
 
   // inventory values
   const inventoryValuesParam = {
@@ -601,16 +761,6 @@ function ProjectDashboard() {
     return `${code ? code + ' ' : ''}${formatted}`;
   };
 
-  const liabilityRows = (creditors?.creditors || []).map((creditor) => ({
-    label: creditor.name,
-    value: creditor.amount,
-  }));
-
-  const debtorsRow = (debtors?.debtors || []).map((debtor) => ({
-    label: debtor.name,
-    value: debtor.amount,
-  }));
-
   const inventorySnapshot = inventoryValues?.[inventoryValues.length - 1];
   const inventoryRows = inventorySnapshot
     ? Object.entries(inventorySnapshot)
@@ -620,8 +770,8 @@ function ProjectDashboard() {
 
   const inventoryTotal = inventorySnapshot?.['Total Value'] || 0;
 
-  const canOpenLiabilitiesPdf = liabilityRows.length > 0;
-  const canOpenDebtorsPdf = debtorsRow.length > 0;
+  const canOpenLiabilitiesPdf = creditorLedgers.length > 0;
+  const canOpenDebtorsPdf = debtorLedgers.length > 0;
   const canOpenInventoryPdf = inventoryRows.length > 0;
 
   const handleOpenDocumentDialog = (report) => {
@@ -1054,99 +1204,15 @@ function ProjectDashboard() {
                   <Skeleton variant='rectangular' height={8} sx={{ mt: 2 }} />
                 </>
               ) : activeTab === 0 ? (
-                creditors?.creditors.length ? (
-                  creditors?.creditors.map((l, i) => (
-                    <React.Fragment key={i}>
-                      <Divider />
-                      <Grid container size={12} sx={{ py: 1, px: 1 }}>
-                        <Grid size={8}>
-                          <Tooltip title='Name'>
-                            <Typography>{l.name}</Typography>
-                          </Tooltip>
-                        </Grid>
-                        <Grid size={4}>
-                          <Tooltip title={`Click to view ${l.name} Statement`}>
-                            <Typography
-                              textAlign={'right'}
-                              onClick={() => {
-                                setLiabilitiesPayload((prevPayload) => ({
-                                  ...prevPayload,
-                                  ledger_id: l.id,
-                                  liabilityName: l.name,
-                                  increasesWith: l.increasesWith,
-                                }));
-                                setOpenDialog(true);
-                              }}
-                              sx={{
-                                cursor: canOpenLiabilitiesPdf
-                                  ? 'pointer'
-                                  : 'default',
-                                '&:hover': canOpenLiabilitiesPdf
-                                  ? {
-                                      color: 'primary.main',
-                                    }
-                                  : undefined,
-                              }}
-                            >
-                              {parseFloat(l.amount).toLocaleString('en-US', {
-                                minimumFractionDigits: 2,
-                                maximumFractionDigits: 2,
-                              })}
-                            </Typography>
-                          </Tooltip>
-                        </Grid>
-                      </Grid>
-                    </React.Fragment>
-                  ))
+                creditorLedgers.length ? (
+                  renderLiabilityGroup(creditors?.creditors, 0, 'CR', 'cr')
                 ) : (
                   <Alert variant='outlined' severity='info'>
                     No Creditors Found
                   </Alert>
                 )
-              ) : debtors?.debtors.length ? (
-                debtors?.debtors.map((l, i) => (
-                  <React.Fragment key={i}>
-                    <Divider />
-                    <Grid container size={12} sx={{ py: 1, px: 1 }}>
-                      <Grid size={8}>
-                        <Tooltip title='Name'>
-                          <Typography>{l.name}</Typography>
-                        </Tooltip>
-                      </Grid>
-                      <Grid size={4}>
-                        <Tooltip title={`Click to view ${l.name} Statement`}>
-                          <Typography
-                            textAlign={'right'}
-                            onClick={() => {
-                              setLiabilitiesPayload((prevPayload) => ({
-                                ...prevPayload,
-                                ledger_id: l.id,
-                                liabilityName: l.name,
-                                increasesWith: l.increasesWith,
-                              }));
-                              setOpenDialog(true);
-                            }}
-                            sx={{
-                              cursor: canOpenLiabilitiesPdf
-                                ? 'pointer'
-                                : 'default',
-                              '&:hover': canOpenLiabilitiesPdf
-                                ? {
-                                    color: 'primary.main',
-                                  }
-                                : undefined,
-                            }}
-                          >
-                            {parseFloat(l.amount).toLocaleString('en-US', {
-                              minimumFractionDigits: 2,
-                              maximumFractionDigits: 2,
-                            })}
-                          </Typography>
-                        </Tooltip>
-                      </Grid>
-                    </Grid>
-                  </React.Fragment>
-                ))
+              ) : debtorLedgers.length ? (
+                renderLiabilityGroup(debtors?.debtors, 0, 'DR', 'db')
               ) : (
                 <Alert variant='outlined' severity='info'>
                   No Debtors Found

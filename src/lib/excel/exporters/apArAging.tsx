@@ -18,6 +18,14 @@ export async function exportApArAgingToExcel(exportedData: any) {
 
     const wb = createWorkbook();
     const ws = wb.addWorksheet('Aging Report');
+    // The group's own row sits above its children (not a trailing
+    // subtotal), so the collapse toggle needs to live on that row too —
+    // summaryBelow false tells Excel the parent is above the detail it
+    // controls, matching the other grouped report exports.
+    ws.properties.outlineProperties = {
+      summaryBelow: false,
+      summaryRight: false,
+    };
 
     ws.columns = [
       { width: 8 },
@@ -58,8 +66,8 @@ export async function exportApArAgingToExcel(exportedData: any) {
     // header row
     const headerRow = (ws.lastRow?.number ?? 0) + 1;
     ws.getRow(headerRow).height = 22;
-    ws.getCell(`A${headerRow}`).value = 'S/N';
-    ws.getCell(`B${headerRow}`).value = 'Name';
+    ws.mergeCells(`A${headerRow}:B${headerRow}`);
+    ws.getCell(`A${headerRow}`).value = 'Name';
     BUCKET_COLUMNS.forEach((col, i) => {
       ws.getCell(`${String.fromCharCode(67 + i)}${headerRow}`).value = col.label;
     });
@@ -69,25 +77,48 @@ export async function exportApArAgingToExcel(exportedData: any) {
       applyCellStyle(ws.getCell(`${String.fromCharCode(c)}${headerRow}`), CELL_STYLES.tableHeader);
     }
 
-    // data rows
-    (reportData.rows || []).forEach((row: any, index: number) => {
+    // Writes one row per tree node (ledger-group or leaf ledger), group
+    // rows first then that group's own subgroups/ledgers directly below,
+    // and gives every row below the root an outlineLevel so Excel's
+    // native group collapse arrows work like the on-screen collapsible
+    // tree.
+    const writeAgingTreeRow = (node: any, level: number, isGroup: boolean) => {
       const r = (ws.lastRow?.number ?? 0) + 1;
-      ws.getCell(`A${r}`).value = index + 1;
-      ws.getCell(`B${r}`).value = row.name;
+      ws.mergeCells(`A${r}:B${r}`);
+      const nameCell = ws.getCell(`A${r}`);
+      nameCell.value = node.name;
+      nameCell.alignment = { indent: level };
+      if (isGroup) nameCell.font = { bold: true };
+
       BUCKET_COLUMNS.forEach((col, i) => {
         const cell = ws.getCell(`${String.fromCharCode(67 + i)}${r}`);
-        cell.value = row.buckets?.[col.key] || 0;
+        cell.value = node.buckets?.[col.key] || 0;
         cell.numFmt = '#,##0.00';
+        if (isGroup) cell.font = { bold: true };
       });
       const totalCell = ws.getCell(`H${r}`);
-      totalCell.value = row.total || 0;
+      totalCell.value = node.total || 0;
       totalCell.numFmt = '#,##0.00';
+      if (isGroup) totalCell.font = { bold: true };
 
       for (let c = 65; c <= 72; c++) {
         const cell = ws.getCell(`${String.fromCharCode(c)}${r}`);
         applyCellStyle(cell, c >= 67 ? CELL_STYLES.dataRowNumeric : CELL_STYLES.dataRowText);
       }
-    });
+
+      if (level > 0) {
+        ws.getRow(r).outlineLevel = level;
+      }
+
+      if (isGroup) {
+        (node.children || []).forEach((child: any) => writeAgingTreeRow(child, level + 1, true));
+        (node.ledgers || []).forEach((ledger: any) => writeAgingTreeRow(ledger, level + 1, false));
+      }
+    };
+
+    if (reportData.group) {
+      writeAgingTreeRow(reportData.group, 0, true);
+    }
 
     // total row
     const totalRow = (ws.lastRow?.number ?? 0) + 1;

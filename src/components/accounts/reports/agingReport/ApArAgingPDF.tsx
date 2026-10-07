@@ -17,6 +17,19 @@ const money = (value: number = 0) =>
     maximumFractionDigits: 2,
   });
 
+// Flattens the grouped aging tree into indented rows, group rows first
+// then that group's own subgroups/ledgers — same shape the Debtors/
+// Creditors report's PDF uses for its own grouped tree.
+const flattenAgingTree = (group: any, level: number, rows: any[] = []): any[] => {
+  if (!group) return rows;
+  rows.push({ name: group.name, buckets: group.buckets, total: group.total, level, isGroup: true });
+  (group.children || []).forEach((child: any) => flattenAgingTree(child, level + 1, rows));
+  (group.ledgers || []).forEach((ledger: any) =>
+    rows.push({ name: ledger.name, buckets: ledger.buckets, total: ledger.total, level: level + 1, isGroup: false })
+  );
+  return rows;
+};
+
 const ApArAgingPDF = ({ reportData, authOrganization, user }: any) => {
   const organization = authOrganization?.organization;
   const mainColor = organization?.settings?.main_color || '#2113AD';
@@ -24,6 +37,7 @@ const ApArAgingPDF = ({ reportData, authOrganization, user }: any) => {
   const contrastText = organization?.settings?.contrast_text || '#FFFFFF';
   const reportTitle = reportData?.filters?.type === 'receivable' ? 'A/R Aging Report' : 'A/P Aging Report';
   const reportPeriod = `As at: ${readableDate(reportData?.filters?.as_at, true)}`;
+  const rows = reportData?.group ? flattenAgingTree(reportData.group, 0) : [];
 
   if (!reportData) return null;
 
@@ -61,10 +75,7 @@ const ApArAgingPDF = ({ reportData, authOrganization, user }: any) => {
 
         <View style={{ ...pdfStyles.table, minHeight: 230 }}>
           <View style={pdfStyles.tableRow}>
-            <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 0.5 }}>
-              S/N
-            </Text>
-            <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 3 }}>
+            <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 3.5 }}>
               Name
             </Text>
             {BUCKET_COLUMNS.map((col) => (
@@ -93,23 +104,15 @@ const ApArAgingPDF = ({ reportData, authOrganization, user }: any) => {
               Total
             </Text>
           </View>
-          {(reportData.rows || []).map((row: any, index: number) => (
-            <View key={row.ledger_id} style={pdfStyles.tableRow}>
+          {rows.map((row: any, index: number) => (
+            <View key={index} style={pdfStyles.tableRow}>
               <Text
                 style={{
                   ...pdfStyles.tableCell,
-                  backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor,
-                  flex: 0.5,
-                  textAlign: 'right',
-                }}
-              >
-                {index + 1}
-              </Text>
-              <Text
-                style={{
-                  ...pdfStyles.tableCell,
-                  backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor,
-                  flex: 3,
+                  backgroundColor: row.isGroup ? lightColor : index % 2 === 0 ? '#FFFFFF' : lightColor,
+                  flex: 3.5,
+                  paddingLeft: 4 + row.level * 10,
+                  fontWeight: row.isGroup ? 'bold' : 'normal',
                 }}
               >
                 {row.name}
@@ -119,9 +122,10 @@ const ApArAgingPDF = ({ reportData, authOrganization, user }: any) => {
                   key={col.key}
                   style={{
                     ...pdfStyles.tableCell,
-                    backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor,
+                    backgroundColor: row.isGroup ? lightColor : index % 2 === 0 ? '#FFFFFF' : lightColor,
                     flex: 1.4,
                     textAlign: 'right',
+                    fontWeight: row.isGroup ? 'bold' : 'normal',
                   }}
                 >
                   {money(row.buckets?.[col.key])}
@@ -130,9 +134,10 @@ const ApArAgingPDF = ({ reportData, authOrganization, user }: any) => {
               <Text
                 style={{
                   ...pdfStyles.tableCell,
-                  backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor,
+                  backgroundColor: row.isGroup ? lightColor : index % 2 === 0 ? '#FFFFFF' : lightColor,
                   flex: 1.5,
                   textAlign: 'right',
+                  fontWeight: row.isGroup ? 'bold' : 'normal',
                 }}
               >
                 {money(row.total)}

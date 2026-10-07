@@ -194,7 +194,7 @@ export async function exportDippingReportToExcel(exportedData: any) {
       ws.getCell(`G${dippingRow}`).value = 'Closing';
       ws.getCell(`H${dippingRow}`).value = 'Tank Difference';
       ws.getCell(`I${dippingRow}`).value = 'Deviation';
-      ws.getCell(`J${dippingRow}`).value = 'Commulative Deviation';
+      ws.getCell(`J${dippingRow}`).value = 'Cumulative Deviation';
       ws.getCell(`K${dippingRow}`).value = 'Calculated Stock';
       ws.getCell(`L${dippingRow}`).value = 'Stock Deviation';
 
@@ -397,7 +397,7 @@ export async function exportDippingReportToExcel(exportedData: any) {
     ws.getCell(`G${summaryRow + 1}`).value = 'Closing';
     ws.getCell(`H${summaryRow + 1}`).value = 'Tank Difference';
     ws.getCell(`I${summaryRow + 1}`).value = 'Deviation';
-    ws.getCell(`J${summaryRow + 1}`).value = 'Commulative Deviation';
+    ws.getCell(`J${summaryRow + 1}`).value = 'Cumulative Deviation';
     ws.getCell(`K${summaryRow + 1}`).value = 'Calculated Stock';
     ws.getCell(`L${summaryRow + 1}`).value = 'Stock Deviation';
 

@@ -87,8 +87,14 @@ function ProjectLiabilitiesPDF({
                 <Text
                   style={{
                     ...pdfStyles.tableCell,
-                    backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor,
+                    backgroundColor: row.isGroup
+                      ? lightColor
+                      : index % 2 === 0
+                        ? '#FFFFFF'
+                        : lightColor,
                     flex: 2,
+                    paddingLeft: 4 + (row.level || 0) * 10,
+                    fontWeight: row.isGroup ? 'bold' : 'normal',
                   }}
                 >
                   {row.label}
@@ -96,9 +102,15 @@ function ProjectLiabilitiesPDF({
                 <Text
                   style={{
                     ...pdfStyles.tableCell,
-                    backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor,
+                    backgroundColor: row.isGroup
+                      ? lightColor
+                      : index % 2 === 0
+                        ? '#FFFFFF'
+                        : lightColor,
                     flex: 1,
                     textAlign: 'right',
+                    fontWeight: row.isGroup ? 'bold' : 'normal',
+                    color: row.value < 0 ? '#D32F2F' : undefined,
                   }}
                 >
                   {formatReportAmount(row.value)}
