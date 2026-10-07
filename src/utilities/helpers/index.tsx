@@ -1,20 +1,20 @@
-import moment from 'moment';
+import dayjs, { ManipulateType } from 'dayjs';
 import { USE_IMAGE_PLACEHOLDERS } from '../constants/paths';
 
 export const getCustomDateTime = (
   value: number = 0,
-  unit: moment.unitOfTime.DurationConstructor = 'days',
+  unit: ManipulateType = 'days',
   format: string = 'HH:mm a | MMMM DD, YYYY'
 ) => {
   if (value === 0) {
-    return moment().format(format);
+    return dayjs().format(format);
   } else {
-    return moment().add(value, unit).format(format);
+    return dayjs().add(value, unit).format(format);
   }
 };
 
 export const getDateElements = (date: string) => {
-  const dateString = moment(date).format('dddd, MMMM DD YYYY, hh:mm A');
+  const dateString = dayjs(date).format('dddd, MMMM DD YYYY, hh:mm A');
   const dateSections = dateString.split(',');
   const day = dateSections[0];
   const time = dateSections[2];

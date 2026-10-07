@@ -72,6 +72,7 @@ import RFQComparisonUI from './RFQComparisonUI';
 import LedgerSelectProvider from '@/components/accounts/ledgers/forms/LedgerSelectProvider';
 import RFQPDF from '../RFQPDF';
 import PDFContent from '@/components/pdf/PDFContent';
+import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
 
 interface RFQDetailProps {
   rfqId?: string;
@@ -299,7 +300,7 @@ function RFQDetail({ rfqId: rfqIdProp }: RFQDetailProps) {
     setViewResponseId(null);
   };
 
-  if (!mounted) return null;
+  if (!mounted) return <PageLoadingSkeleton />;
 
   if (!organizationHasSubscribed(MODULES.PROCUREMENT_AND_SUPPLY)) {
     return <UnsubscribedAccess modules={'Procurement & Supply'} />;

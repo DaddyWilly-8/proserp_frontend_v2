@@ -20,16 +20,15 @@ import {
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 import { useQuery } from '@tanstack/react-query';
 import dayjs from 'dayjs';
-import moment from 'moment';
 import React, { useEffect, useMemo, useState } from 'react';
-import { Calendar, momentLocalizer, View } from 'react-big-calendar';
+import { Calendar, dayjsLocalizer, View } from 'react-big-calendar';
 import StakeholderSelectProvider from '@/components/masters/stakeholders/StakeholderSelectProvider';
 import CurrencySelectProvider from '@/components/masters/Currencies/CurrencySelectProvider';
 import assetBookingsServices from './asset-bookings-services';
 import AssetBookingFormDialogContent from './AssetBookingFormDialogContent';
 import AssetBookingDetailDialog from './AssetBookingDetailDialog';
 
-const localizer = momentLocalizer(moment);
+const localizer = dayjsLocalizer(dayjs);
 
 const STATUS_BG: Record<string, string> = {
   draft: '#9e9e9e',

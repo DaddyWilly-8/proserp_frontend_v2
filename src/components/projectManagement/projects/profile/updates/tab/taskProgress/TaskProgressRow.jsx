@@ -165,12 +165,20 @@ function TaskProgressRow({ taskProgressItem, index }) {
             </Grid>
             <Grid textAlign={'end'} size={{ xs: 12, md: 1 }}>
               <Tooltip title="Edit Item">
-                <IconButton size="small" onClick={() => setShowForm(true)}>
+                <IconButton
+                  component="span"
+                  size="small"
+                  onClick={() => setShowForm(true)}
+                >
                   <EditOutlined fontSize="small" />
                 </IconButton>
               </Tooltip>
               <Tooltip title="Remove Item">
-                <IconButton size="small" onClick={handleRemoveItem}>
+                <IconButton
+                  component="span"
+                  size="small"
+                  onClick={handleRemoveItem}
+                >
                   <DisabledByDefault fontSize="small" color="error" />
                 </IconButton>
               </Tooltip>

@@ -10,6 +10,7 @@ import EmployeeBankAccountsListItem from './EmployeeBankAccountsListItem';
 import EmployeeBankAccountActionTail from './EmployeeBankAccountActionTail';
 import humanResourcesServices from '@/components/humanResources/humanResourcesServices';
 import { EmployeeBankAccountType } from './EmployeeBankAccountType';
+import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
 
 const EmployeeBankAccounts = ({ employeeId }: { employeeId?: number }) => {
   const params = useParams<{ employee_id?: string }>();
@@ -64,7 +65,7 @@ const EmployeeBankAccounts = ({ employeeId }: { employeeId?: number }) => {
     setMounted(true);
   }, [params, searchParams, resolvedEmployeeId]);
 
-  if (!mounted) return null;
+  if (!mounted) return <PageLoadingSkeleton />;
 
   return (
     <JumboRqList

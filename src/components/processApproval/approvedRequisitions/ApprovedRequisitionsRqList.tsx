@@ -26,6 +26,7 @@ import { PERMISSIONS } from '@/utilities/constants/permissions';
 import UnauthorizedAccess from '@/shared/Information/UnauthorizedAccess';
 import { ApprovalRequisition } from './ApprovalRequisitionType';
 import { CostCenter } from '@/components/masters/costCenters/CostCenterType';
+import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
 
 interface FilterDate {
   from: string | null;
@@ -184,7 +185,7 @@ const ApprovedRequisitionsRqList: React.FC<ApprovedRequisitionsRqListProps> = ({
     }));
   }, []);
 
-  if (!mounted) return null;
+  if (!mounted) return <PageLoadingSkeleton />;
 
   if (!checkOrganizationPermission([PERMISSIONS.REQUISITIONS_CREATE, PERMISSIONS.REQUISITIONS_READ, PERMISSIONS.ACCOUNTS_MASTERS_EDIT])) {
     return <UnauthorizedAccess />;

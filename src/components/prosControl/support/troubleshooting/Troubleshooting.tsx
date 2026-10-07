@@ -8,6 +8,7 @@ import JumboCardQuick from '@jumbo/components/JumboCardQuick';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { PROS_CONTROL_PERMISSIONS } from '@/utilities/constants/prosControlPermissions';
 import UnauthorizedAccess from '@/shared/Information/UnauthorizedAccess';
+import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
 
 interface SelectedTabContextType {
   activeTab: number;
@@ -35,7 +36,7 @@ function Troubleshooting() {
       : []),
   ];
 
-  if (!mounted) return null; // ⛔ Prevent mismatch during hydration
+  if (!mounted) return <PageLoadingSkeleton />;
 
   if (!checkPermission([
     PROS_CONTROL_PERMISSIONS.DATABASE_MIGRATE,

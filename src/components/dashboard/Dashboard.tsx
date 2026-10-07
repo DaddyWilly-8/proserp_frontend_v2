@@ -18,6 +18,7 @@ import React, {
 import { CostCenter } from '../masters/costCenters/CostCenterType';
 import QuickLinks from './QuickLinks';
 import { AnnouncementBanner } from '@/shared/AnnouncementBanner';
+import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
 
 const OrganizationCalendar = lazy(() => import('./OrganizationCalendar'));
 const Filters = lazy(() => import('./Filters'));
@@ -132,7 +133,7 @@ function Dashboard() {
     setMounted(true);
   }, []);
 
-  if (!mounted) return null;
+  if (!mounted) return <PageLoadingSkeleton />;
 
   return (
     <React.Fragment>

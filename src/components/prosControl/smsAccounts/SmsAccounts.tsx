@@ -11,6 +11,7 @@ import UnauthorizedAccess from '@/shared/Information/UnauthorizedAccess';
 import smsAccountsServices from './smsAccounts-services';
 import SmsAccountListItem from './SmsAccountListItem';
 import SmsAccountActionTail from './SmsAccountActionTail';
+import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
 
 const SmsAccounts = () => {
   const { checkPermission } = useJumboAuth();
@@ -34,7 +35,7 @@ const SmsAccounts = () => {
     setQueryOptions((state) => ({ ...state, queryParams: { ...state.queryParams, keyword } }));
   }, []);
 
-  if (!mounted) return null;
+  if (!mounted) return <PageLoadingSkeleton />;
 
   if (
     !checkPermission([

@@ -10,6 +10,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import DesignationActionTail from './DesignationActionTail';
 import DesignationsListItem from './DesignationsListItem';
 import { Designation } from './DesignationsType';
+import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
 
 const Designations = () => {
   const params = useParams<{ id?: string; keyword?: string }>();
@@ -48,7 +49,7 @@ const Designations = () => {
     setMounted(true);
   }, []);
 
-  if (!mounted) return null; // ⛔ Prevent mismatch during hydration
+  if (!mounted) return <PageLoadingSkeleton />;
 
   return (
     <>

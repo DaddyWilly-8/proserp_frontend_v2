@@ -18,6 +18,7 @@ import UnauthorizedAccess from '@/shared/Information/UnauthorizedAccess';
 import { useQuery } from '@tanstack/react-query';
 import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import { ProductCategory } from './ProductCategoryType';
+import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
 
 interface QueryOptions {
   queryKey: string;
@@ -79,7 +80,7 @@ const ProductCategories = () => {
     setMounted(true);
   }, []);
 
-  if (!mounted) return null;
+  if (!mounted) return <PageLoadingSkeleton />;
 
   if (!organizationHasSubscribed(MODULES.PROCUREMENT_AND_SUPPLY)) {
     return <UnsubscribedAccess modules={'Procurement & Supply'} />;

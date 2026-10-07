@@ -17,6 +17,7 @@ import { useSearchParams } from 'next/navigation';
 import customerInvoiceServices from '../invoices/customerInvoice-services';
 import CustomerInvoiceListItem from './CustomerInvoiceListItem';
 import { CustomerInvoice } from './CustomerInvoiceType';
+import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
 
 interface FilterDate {
   from?: string | null;
@@ -99,7 +100,7 @@ const CustomerInvoices = () => {
     []
   );
 
-  if (!mounted) return null;
+  if (!mounted) return <PageLoadingSkeleton />;
 
   if (!organizationHasSubscribed(MODULES.ACCOUNTS_AND_FINANCE)) {
     return <UnsubscribedAccess modules='Accounts & Finance' />;

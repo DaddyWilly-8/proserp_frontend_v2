@@ -9,7 +9,7 @@ import { SIDEBAR_STYLES } from '@jumbo/utilities/constants';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import RefreshIcon from '@mui/icons-material/Refresh';
-import { Grid, IconButton, Stack, Tooltip, useMediaQuery } from '@mui/material';
+import { Grid, IconButton, Skeleton, Stack, Tooltip, useMediaQuery } from '@mui/material';
 import dynamic from 'next/dynamic';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import React from 'react';
@@ -17,14 +17,18 @@ import { Logo } from '../logo/Logo';
 import { SidebarToggleButton } from '../sidebarToggleButton';
 import { ThemeModeOption } from './themeModeOptions/ThemeModeOption';
 
+const headerIconSkeleton = (
+  <Skeleton variant='circular' width={40} height={40} />
+);
+
 const AuthUserPopover = dynamic(
   () => import('../authUserPopover').then((mod) => mod.AuthUserPopover),
-  { ssr: false }
+  { ssr: false, loading: () => headerIconSkeleton }
 );
 
 const NotificationBell = dynamic(
   () => import('../notifications/notificationBell/NotificationBell').then((mod) => mod.NotificationBell),
-  { ssr: false }
+  { ssr: false, loading: () => headerIconSkeleton }
 );
 
 function Header({ dictionary }: { dictionary: any }) {

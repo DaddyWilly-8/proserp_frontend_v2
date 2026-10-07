@@ -20,6 +20,7 @@ import purchaseBillServices from '../../procurement/grns/purchaseBill-services';
 import PurchaseBillListItem from './PurchaseBillListItem';
 import PurchaseBillPaymentStatusSelector from './PurchaseBillPaymentStatusSelector';
 import { PurchaseBill } from './PurchaseBillType';
+import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
 
 interface FilterDate {
   from?: string | null;
@@ -131,7 +132,7 @@ const PurchaseBills = () => {
     []
   );
 
-  if (!mounted) return null;
+  if (!mounted) return <PageLoadingSkeleton />;
 
   if (!organizationHasSubscribed(MODULES.ACCOUNTS_AND_FINANCE)) {
     return <UnsubscribedAccess modules='Accounts & Finance' />;

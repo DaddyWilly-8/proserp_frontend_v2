@@ -129,6 +129,7 @@ function BillOfMaterialItemRow({
             <Grid size={{ xs: 6, md: 2 }} textAlign="end">
               <Tooltip title="Edit Item">
                 <IconButton
+                  component="span"
                   size="small"
                   onClick={(e) => {
                     e.stopPropagation();
@@ -140,6 +141,7 @@ function BillOfMaterialItemRow({
               </Tooltip>
               <Tooltip title="Remove Item">
                 <IconButton
+                  component="span"
                   size="small"
                   onClick={(e) => {
                     e.stopPropagation();

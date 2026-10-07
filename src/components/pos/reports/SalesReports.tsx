@@ -19,6 +19,7 @@ import { MODULES } from '@/utilities/constants/modules';
 import UnsubscribedAccess from '@/shared/Information/UnsubscribedAccess';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
 import UnauthorizedAccess from '@/shared/Information/UnauthorizedAccess';
+import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
 
 function SalesReports() {
     const searchParams = useSearchParams();
@@ -59,7 +60,7 @@ function SalesReports() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [mounted, searchParams]);
 
-    if (!mounted) return null;
+    if (!mounted) return <PageLoadingSkeleton />;
 
     if (!organizationHasSubscribed(MODULES.POINT_OF_SALE)) {
         return <UnsubscribedAccess modules={'Point of Sale (POS)'} />;

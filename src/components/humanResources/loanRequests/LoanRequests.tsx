@@ -22,6 +22,7 @@ import humanResourcesServices from '../humanResourcesServices';
 import LoanRequestsActionTail from './LoanRequestsActionTail';
 import LoanRequestsListItem from './LoanRequestsListItem';
 import { LoanRequestType } from './LoanRequestType';
+import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
 
 const STATUS_OPTIONS = [
   { label: 'In Review', value: 'in_review' },
@@ -111,7 +112,7 @@ const LoanRequests = ({
     setMounted(true);
   }, [selectedEmployees]);
 
-  if (!mounted) return null;
+  if (!mounted) return <PageLoadingSkeleton />;
   return (
     <>
       <Typography variant={'h4'} mb={2}>

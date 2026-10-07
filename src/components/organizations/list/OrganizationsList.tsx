@@ -18,6 +18,7 @@ import { useLanguage } from '@/app/[lang]/contexts/LanguageContext';
 import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import { Dictionary } from '@/dictionaries/type';
 import { signOut } from 'next-auth/react';
+import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
 
 interface QueryOptions<TQueryKey> {
   queryKey: string;
@@ -112,7 +113,7 @@ const OrganizationsList: React.FC<OrganizationsListProps> = ({ user }) => {
     }
   }, [authUser?.user, signOut, router, lang]);
 
-  if (!mounted) return null;
+  if (!mounted) return <PageLoadingSkeleton />;
 
   return (
     <OrganizationListContext.Provider value={{ refetchOrganizations }}>

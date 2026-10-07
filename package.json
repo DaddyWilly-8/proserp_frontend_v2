@@ -79,7 +79,6 @@
     "html-to-draftjs": "^1.5.0",
     "jsonwebtoken": "^9.0.2",
     "lodash": "^4.18.1",
-    "moment": "^2.30.1",
     "mongodb": "^6.15.0",
     "negotiator": "^1.0.0",
     "next": "16",

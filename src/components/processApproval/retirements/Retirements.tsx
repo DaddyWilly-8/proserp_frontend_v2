@@ -18,6 +18,7 @@ import RetirementsListItem from './RetirementsListItem';
 import LedgerSelectProvider from '@/components/accounts/ledgers/forms/LedgerSelectProvider';
 import CostCenterSelector from '../../masters/costCenters/CostCenterSelector';
 import { CostCenter } from '@/components/masters/costCenters/CostCenterType';
+import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
 
 interface FilterDate {
   from: string | null;
@@ -115,7 +116,7 @@ const Retirements = () => {
     return <UnauthorizedAccess />;
   }
 
-  if (!mounted) return null;
+  if (!mounted) return <PageLoadingSkeleton />;
 
   const multiCostCenters = authOrganization?.costCenters?.length > 1;
 

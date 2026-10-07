@@ -4,6 +4,7 @@ import React from 'react';
 import ModuleSettings from '../../sharedComponents/ModuleSettings';
 import { Card, Typography } from '@mui/material';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
+import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
 
 function PoSSettings() {
   const { authOrganization } = useJumboAuth();
@@ -33,7 +34,7 @@ function PoSSettings() {
     );
   }
 
-  if (!mounted) return null;
+  if (!mounted) return <PageLoadingSkeleton />;
 
   return (
     <>

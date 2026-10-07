@@ -36,6 +36,7 @@ import ApArAgingReport from './agingReport/ApArAgingReport';
 import IncomeStatement from './incomeStatement/IncomeStatement';
 import TrialBalance from './trial balance/TrialBalance';
 import XReport from './zReport/ZReport';
+import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
 
 function AccountsReports() {
   const searchParams = useSearchParams();
@@ -93,7 +94,7 @@ function AccountsReports() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mounted, searchParams]);
 
-  if (!mounted) return null;
+  if (!mounted) return <PageLoadingSkeleton />;
 
   if (!organizationHasSubscribed(MODULES.ACCOUNTS_AND_FINANCE)) {
     return <UnsubscribedAccess modules={'Accounts & Finance'} />;

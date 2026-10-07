@@ -3,31 +3,62 @@
 import { Backdrop } from "@mui/material";
 import React from "react";
 import { Div } from "@jumbo/shared";
-import Image from "next/image";
 import { keyframes } from "@emotion/react";
 import { useJumboAuth } from "@/app/providers/JumboAuthProvider";
-import { ASSET_IMAGES } from "@/utilities/constants/paths";
-import { useJumboTheme } from "@jumbo/components/JumboTheme/hooks";
 
 interface BackdropSpinnerProps {
   message?: string;
   isRouterTransfer?: boolean;
 }
 
-const spiralRotate = keyframes`
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+// The wordmark is ProsERP's own brand mark, not an organization's - its
+// color follows the app's light/dark mode (blue on light, white on dark),
+// never the org's own main/light/contrast colors, which live in the module
+// dots below it instead.
+//
+// The Backdrop itself is always a dark scrim (rgba(0,0,0,0.78)) regardless
+// of app theme, so the deep indigo used for the actual logo/primary.main
+// (#2113AD - correct on the white sidebar) reads muddy here. primary.light
+// is the theme's own brighter variant for exactly this situation.
+//
+// This component is the fallback for a Suspense boundary wrapping the whole
+// app in providers.tsx, so it mounts on every page navigation, not just
+// occasional dialogs - a gradient-clipped text layer animated with
+// mix-blend-mode was expensive enough to paint/composite on every mount
+// that navigation itself felt slower. Kept intentionally cheap: a flat
+// color plus a transform/opacity-only wave, nothing that forces a repaint
+// of a large text area every frame.
+const BRAND_BLUE = "#567FFB";
+const BRAND_WHITE = "#FFFFFF";
+
+const letterWave = keyframes`
+  0%, 60%, 100% { transform: translateY(0) scale(1); }
+  30% { transform: translateY(-12px) scale(1.04); }
+`;
+
+// Flashes each letter between brand blue and white - just a `color` swap,
+// not a gradient/blend-mode effect, so it stays cheap to repaint.
+const colorFlash = keyframes`
+  0%, 100% { color: ${BRAND_BLUE}; }
+  50% { color: ${BRAND_WHITE}; }
+`;
+
+const orbitPulse = keyframes`
+  0%, 100% { transform: translateY(0) scale(1); opacity: 0.4; }
+  50% { transform: translateY(-5px) scale(1.25); opacity: 1; }
 `;
 
 export const BackdropSpinner: React.FC<BackdropSpinnerProps> = ({
   message,
   isRouterTransfer
 }) => {
-  const { theme } = useJumboTheme();
   const { authOrganization } = useJumboAuth();
   const mainColor = authOrganization?.organization?.settings?.main_color || "#2113AD";
-  const lightColor = authOrganization?.organization?.settings?.light_color || "#bec5da";
+  const lightColor = authOrganization?.organization?.settings?.light_color || "#8da0f0";
   const contrastText = authOrganization?.organization?.settings?.contrast_text || "#FFFFFF";
+
+  const dotColors = [mainColor, lightColor, contrastText, lightColor, mainColor];
+  const WORDMARK = "ProsERP".split("");
 
   return (
     <Backdrop
@@ -35,87 +66,59 @@ export const BackdropSpinner: React.FC<BackdropSpinnerProps> = ({
         color: "#ffffff",
         zIndex: (theme) => theme.zIndex.drawer + 1,
         flexDirection: "column",
-        backgroundColor: "rgba(0, 0, 0, 0.7)",
+        backgroundColor: "rgba(0, 0, 0, 0.78)",
       }}
       open={true}
     >
+      {/* Wordmark + module dots on a plain dark backdrop */}
       <Div
         sx={{
-          position: "relative",
-          width: 150,
-          height: 150,
           display: "flex",
+          flexDirection: "column",
           alignItems: "center",
-          justifyContent: "center",
+          gap: 2.75,
         }}
       >
-        {/* Spiral arcs */}
-        <Div
-          sx={{
-            position: "absolute",
-            width: 140,
-            height: 140,
-            border: "5px solid transparent",
-            borderTopColor: mainColor,
-            borderRadius: "50%",
-            animation: `${spiralRotate} 2s linear infinite`,
-            boxShadow: `0 0 10px ${mainColor}80`,
-            clipPath: "polygon(0 0, 100% 0, 100% 50%, 0 50%)",
-          }}
-        />
-        <Div
-          sx={{
-            position: "absolute",
-            width: 120,
-            height: 120,
-            border: "5px solid transparent",
-            borderBottomColor: lightColor,
-            borderRadius: "50%",
-            animation: `${spiralRotate} 2s linear infinite 0.3s`,
-            boxShadow: `0 0 10px ${lightColor}80`,
-            clipPath: "polygon(0 50%, 100% 50%, 100% 100%, 0 100%)",
-          }}
-        />
-        <Div
-          sx={{
-            position: "absolute",
-            width: 100,
-            height: 100,
-            border: "5px solid transparent",
-            borderTopColor: contrastText,
-            borderRadius: "50%",
-            animation: `${spiralRotate} 2s linear infinite 0.6s`,
-            boxShadow: `0 0 10px ${contrastText}80`,
-            clipPath: "polygon(0 0, 100% 0, 100% 50%, 0 50%)",
-          }}
-        />
-        {/* Static logo in the center */}
-        <Div
-          sx={{
-            width: 100,
-            height: 100,
-            borderRadius: "50%",
-            overflow: "hidden",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            boxShadow: `0 0 10px ${mainColor}30`,
-            zIndex: 1,
-          }}
-        >
-          <Image
-            src={theme?.type === 'light' ? `${ASSET_IMAGES}/logos/proserp-blue.png` : `${ASSET_IMAGES}/logos/proserp-white.png`}
-            alt="ProsERP"
-            width={85}
-            height={85}
-            style={{ objectFit: "contain" }}
-            unoptimized
-          />
+        {/* Wordmark: each letter waves and flashes blue/white in sequence */}
+        <Div sx={{ display: "flex", alignItems: "center" }}>
+          {WORDMARK.map((letter, index) => (
+            <Div
+              key={index}
+              sx={{
+                display: "inline-block",
+                fontFamily: "NoirPro, Arial",
+                fontSize: { xs: "2rem", sm: "2.5rem" },
+                fontWeight: 700,
+                lineHeight: 1,
+                animation: `${letterWave} 1.3s ease-in-out infinite, ${colorFlash} 1.3s ease-in-out infinite`,
+                animationDelay: `${index * 0.08}s, ${index * 0.08}s`,
+              }}
+            >
+              {letter}
+            </Div>
+          ))}
+        </Div>
+
+        {/* Module dots - standing in for a progress bar */}
+        <Div sx={{ display: "flex", gap: 1.25 }}>
+          {dotColors.map((color, index) => (
+            <Div
+              key={index}
+              sx={{
+                width: 7,
+                height: 7,
+                borderRadius: "50%",
+                backgroundColor: color,
+                animation: `${orbitPulse} 1.1s ease-in-out infinite`,
+                animationDelay: `${index * 0.15}s`,
+              }}
+            />
+          ))}
         </Div>
       </Div>
 
       {!isRouterTransfer && message && (
-        <Div sx={{ p: 2, mt: 2 }}>
+        <Div sx={{ position: "relative", zIndex: 1, p: 2, mt: 2 }}>
           <h2 style={{ color: contrastText, textShadow: `0 0 5px ${mainColor}50` }}>{message}</h2>
         </Div>
       )}

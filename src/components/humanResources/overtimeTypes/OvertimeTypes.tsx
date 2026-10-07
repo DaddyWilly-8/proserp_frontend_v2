@@ -10,6 +10,7 @@ import humanResourcesServices from '../humanResourcesServices';
 import { OvertimeType } from './OvertimeType';
 import OvertimeTypeActionTail from './OvertimeTypeActionTail';
 import OvertimeTypesListItem from './OvertimeTypesListItem';
+import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
 
 const OvertimeTypes = () => {
   const params = useParams<{ keyword?: string }>();
@@ -52,7 +53,7 @@ const OvertimeTypes = () => {
     setMounted(true);
   }, [searchParams]);
 
-  if (!mounted) return null;
+  if (!mounted) return <PageLoadingSkeleton />;
 
   return (
     <>

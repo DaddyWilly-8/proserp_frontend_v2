@@ -22,6 +22,7 @@ import StoreSelector from '@/components/procurement/stores/StoreSelector';
 import assetsServices from './assets-services';
 import AssetRegisterListItem from './AssetRegisterListItem';
 import AssetRegisterActionTail from './AssetRegisterActionTail';
+import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
 
 export const AssetRegisterAppContext = createContext<{ productCategories?: any[]; stores?: any[] }>({});
 
@@ -81,7 +82,7 @@ const AssetRegister = () => {
     handleFilterChange('keyword', keyword);
   }, [handleFilterChange]);
 
-  if (!mounted) return null;
+  if (!mounted) return <PageLoadingSkeleton />;
 
   if (!organizationHasSubscribed(MODULES.ASSET_REGISTER)) {
     return <UnsubscribedAccess modules={'Asset Register'} />;

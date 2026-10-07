@@ -6,6 +6,7 @@ import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import UnauthorizedAccess from '@/shared/Information/UnauthorizedAccess';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
 import { Div } from '@jumbo/shared';
+import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
 
 const CounterProvider = React.lazy(() => import('./CounterProvider'));
 const CounterSelector = React.lazy(() => import('./CounterSelector'));
@@ -23,7 +24,7 @@ function SalesCounter() {
     document.title = 'Sales Counter';
   }, []);
 
-  if (!mounted) return null;
+  if (!mounted) return <PageLoadingSkeleton />;
 
   if(!checkOrganizationPermission(PERMISSIONS.SALES_READ)){
     return <UnauthorizedAccess/>;

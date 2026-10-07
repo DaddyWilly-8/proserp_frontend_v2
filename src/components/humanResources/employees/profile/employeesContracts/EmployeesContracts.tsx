@@ -9,6 +9,7 @@ import humanResourcesServices from '../../../humanResourcesServices';
 import { ContractType } from './ContractType';
 import EmployeesContractsActionTail from './EmployeesContractsActionTail';
 import EmployeesContractsListItem from './EmployeesContractsListItem';
+import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
 
 const EmployeesContracts = ({ employeeId }: { employeeId?: number }) => {
   const listRef = useRef<any>(null);
@@ -55,7 +56,7 @@ const EmployeesContracts = ({ employeeId }: { employeeId?: number }) => {
     setMounted(true);
   }, [params, searchParams, resolvedEmployeeId]);
 
-  if (!mounted) return null; // ⛔ Prevent mismatch during hydration
+  if (!mounted) return <PageLoadingSkeleton />;
 
   return (
     <JumboRqList

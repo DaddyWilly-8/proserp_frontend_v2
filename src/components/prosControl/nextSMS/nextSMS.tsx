@@ -9,6 +9,7 @@ import MultiTextMultiUsersForm from './MultiTextMultiUsersForm';
 import BalanceForm from './BalanceForm';
 import DeliveryReportsForm from './DeliveryReportsForm';
 import LogsForm from './LogsForm';
+import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
 
 interface SelectedTabContextType {
   activeTab: number;
@@ -34,7 +35,7 @@ function NextSMS() {
     { label: 'Check Balance', component: <BalanceForm/> }
   ];
 
-  if (!mounted) return null;
+  if (!mounted) return <PageLoadingSkeleton />;
 
   return (
     <SelectedTab.Provider value={{ activeTab, setActiveTab }}>

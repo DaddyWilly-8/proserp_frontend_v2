@@ -27,7 +27,7 @@ import {
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import { useQuery } from '@tanstack/react-query';
-import moment from 'moment';
+import dayjs from 'dayjs';
 import React, { lazy, Suspense, useState } from 'react';
 import posServices from '../../pos-services';
 import { useCounter } from '../CounterProvider';
@@ -237,7 +237,7 @@ const SalesListItemTabs: React.FC<SalesListItemTabsProps> = ({
   const tabIndex = getTabIndex();
 
   const isLessThan24Hours = (transaction_date: string | Date) => {
-    return moment().diff(moment(transaction_date), 'hours') < 24;
+    return dayjs().diff(dayjs(transaction_date), 'hours') < 24;
   };
 
   return (

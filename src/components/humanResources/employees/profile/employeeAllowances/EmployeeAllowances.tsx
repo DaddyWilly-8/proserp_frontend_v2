@@ -11,6 +11,7 @@ import humanResourcesServices from '../../../humanResourcesServices';
 import EmployeeAllowanceActionTail from './EmployeeAllowanceActionTail';
 import { EmployeeAllowanceType } from './EmployeeAllowanceType';
 import EmployeeAllowancesListItem from './EmployeeAllowancesListItem';
+import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
 
 const EmployeeAllowances = ({ employeeId }: { employeeId?: number }) => {
   const params = useParams<{ employee_id?: string }>();
@@ -65,7 +66,7 @@ const EmployeeAllowances = ({ employeeId }: { employeeId?: number }) => {
     setMounted(true);
   }, [params, searchParams, resolvedEmployeeId]);
 
-  if (!mounted) return null;
+  if (!mounted) return <PageLoadingSkeleton />;
 
   return (
     <JumboRqList

@@ -38,7 +38,14 @@ export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(() => new QueryClient({
     defaultOptions: {
       queries: {
-        refetchOnWindowFocus: false
+        refetchOnWindowFocus: false,
+        // Default staleTime is 0, so every component mount (including a
+        // re-mount from navigating away and back) was treated as stale and
+        // refetched instantly - this is why identical queries (e.g.
+        // getRequisitions, getProductSelectOptions) kept re-firing in rapid
+        // succession during normal use. 30s keeps data reasonably fresh
+        // while letting React Query serve from cache on quick re-visits.
+        staleTime: 30 * 1000,
       },
     },
   }));

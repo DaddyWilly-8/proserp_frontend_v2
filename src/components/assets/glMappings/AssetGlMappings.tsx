@@ -18,6 +18,7 @@ import productCategoryServices from '@/components/productAndServices/productCate
 import assetGlMappingsServices from './assetGlMappings-services';
 import AssetGlMappingListItem from './AssetGlMappingListItem';
 import AssetGlMappingActionTail from './AssetGlMappingActionTail';
+import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
 
 export const AssetGlMappingsAppContext = createContext<{ productCategories?: any[] }>({});
 
@@ -65,7 +66,7 @@ const AssetGlMappings = () => {
     }));
   }, []);
 
-  if (!mounted) return null;
+  if (!mounted) return <PageLoadingSkeleton />;
 
   if (!organizationHasSubscribed(MODULES.ASSET_REGISTER)) {
     return <UnsubscribedAccess modules={'Asset Register'} />;

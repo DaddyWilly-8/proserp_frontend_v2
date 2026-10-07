@@ -15,6 +15,7 @@ import { EmployeesProvider } from '../../EmployeesProvider';
 import LeaveRequestActionTail from './LeaveRequestActionTail';
 import { LeaveRequestType } from './LeaveRequestType';
 import LeaveRequestsListItem from './LeaveRequestsListItem';
+import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
 
 const LeaveRequests = ({ employeeId }: { employeeId?: number }) => {
   const { checkOrganizationPermission } = useJumboAuth();
@@ -81,7 +82,7 @@ const LeaveRequests = ({ employeeId }: { employeeId?: number }) => {
     setMounted(true);
   }, [params, searchParams, resolvedEmployeeId]);
 
-  if (!mounted) return null;
+  if (!mounted) return <PageLoadingSkeleton />;
 
   return (
     <EmployeesProvider>

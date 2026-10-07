@@ -10,6 +10,7 @@ import costCenterServices from './cost-center-services';
 import { useParams, useSearchParams } from 'next/navigation';
 import CostCenterActionTail from './CostCenterActionTail';
 import { CostCenter } from './CostCenterType';
+import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
 
 interface QueryParams {
   id?: string;
@@ -68,7 +69,7 @@ const CostCenters = () => {
     return <CostCenterListItem costCenter={costCenter} />;
   }, []);
 
-  if (!mounted) return null;
+  if (!mounted) return <PageLoadingSkeleton />;
 
   return (
     <>

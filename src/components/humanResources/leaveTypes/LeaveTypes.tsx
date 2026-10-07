@@ -10,6 +10,7 @@ import humanResourcesServices from '../humanResourcesServices';
 import LeaveTypeActionTail from './LeaveTypeActionTail';
 import LeaveTypesListItem from './LeaveTypesListItem';
 import { LeaveType } from './LeaveTypesType';
+import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
 
 const LeaveTypes = () => {
   const params = useParams<{ id?: string; keyword?: string }>();
@@ -41,7 +42,7 @@ const LeaveTypes = () => {
     setMounted(true);
   }, []);
 
-  if (!mounted) return null; // ⛔ Prevent mismatch during hydration
+  if (!mounted) return <PageLoadingSkeleton />;
 
   return (
     <>

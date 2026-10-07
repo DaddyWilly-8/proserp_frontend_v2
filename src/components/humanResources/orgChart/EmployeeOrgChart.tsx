@@ -10,6 +10,7 @@ import { MODULES } from '@/utilities/constants/modules';
 import UnsubscribedAccess from '@/shared/Information/UnsubscribedAccess';
 import UnauthorizedAccess from '@/shared/Information/UnauthorizedAccess';
 import { BackdropSpinner } from '@/shared/ProgressIndicators/BackdropSpinner';
+import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
 
 // Highcharts (imported statically inside this component) touches things it
 // shouldn't during SSR — TasksTreeView.jsx avoids this only because it's
@@ -30,7 +31,7 @@ export default function EmployeeOrgChart() {
     setMounted(true);
   }, []);
 
-  if (!mounted) return null; // ⛔ Prevent mismatch during hydration
+  if (!mounted) return <PageLoadingSkeleton />;
 
   if (!organizationHasSubscribed(MODULES.HUMAN_RESOURCES)) {
     return <UnsubscribedAccess modules={'Human Resources'} />;

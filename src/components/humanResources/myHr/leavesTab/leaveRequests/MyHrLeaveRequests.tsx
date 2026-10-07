@@ -8,6 +8,7 @@ import { useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import MyHrLeaveRequestsActionTail from './MyHrLeaveRequestsActionTail';
 import MyHrLeaveRequestsListItem from './MyHrLeaveRequestsListItem';
+import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
 
 const STATUS_OPTIONS = [
   { label: 'In Review', value: 'in_review' },
@@ -47,7 +48,7 @@ const MyHrLeaveRequests = () => {
     setMounted(true);
   }, [searchParams, status]);
 
-  if (!mounted) return null;
+  if (!mounted) return <PageLoadingSkeleton />;
 
   return (
     <>

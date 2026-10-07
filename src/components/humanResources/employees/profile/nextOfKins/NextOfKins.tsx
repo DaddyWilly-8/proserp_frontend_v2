@@ -10,6 +10,7 @@ import humanResourcesServices from '../../../humanResourcesServices';
 import NextOfKinActionTail from './NextOfKinActionTail';
 import { NextOfKinType } from './NextOfKinType';
 import NextOfKinsListItem from './NextOfKinsListItem';
+import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
 
 const NextOfKins = ({ employeeId }: { employeeId?: number }) => {
   const params = useParams<{ employee_id?: string }>();
@@ -61,7 +62,7 @@ const NextOfKins = ({ employeeId }: { employeeId?: number }) => {
     setMounted(true);
   }, [params, searchParams, resolvedEmployeeId]);
 
-  if (!mounted) return null;
+  if (!mounted) return <PageLoadingSkeleton />;
 
   return (
     <JumboRqList

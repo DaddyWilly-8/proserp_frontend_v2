@@ -19,6 +19,7 @@ import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import UnsubscribedAccess from '@/shared/Information/UnsubscribedAccess';
 import { Attachment } from './attachments/AttachmentsType';
 import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
+import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
 
 function FilesShelf() {
   const params = useParams<{ category?: string; id?: string; keyword?: string }>();
@@ -116,7 +117,7 @@ function FilesShelf() {
     setMounted(true);
   }, []);
 
-  if (!mounted) return null;
+  if (!mounted) return <PageLoadingSkeleton />;
 
   if (!authOrganization?.organization?.active_subscriptions?.length) {
     return <UnsubscribedAccess />;

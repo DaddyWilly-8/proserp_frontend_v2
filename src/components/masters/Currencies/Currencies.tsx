@@ -12,6 +12,7 @@ import CurrencyActionTail from './CurrencyActionTail';
 import CurrencyListItem from './CurrencyListItem';
 import CurrencySelectProvider from './CurrencySelectProvider';
 import { Currency } from './CurrencyType';
+import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
 
 const Currencies = () => {
   const params = useParams<{
@@ -60,7 +61,7 @@ const Currencies = () => {
     }));
   }, []);
 
-  if (!mounted) return null;
+  if (!mounted) return <PageLoadingSkeleton />;
 
   return (
     <CurrencySelectProvider>

@@ -14,6 +14,7 @@ import { LeaveAllocationType } from './LeaveAllocationType';
 import LeaveAllocationsListItem, {
   LEAVE_ALLOCATION_COLUMN_WIDTHS,
 } from './LeaveAllocationsListItem';
+import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
 
 const LeaveAllocationsListHeader = () => (
   <Box sx={{ display: { xs: 'none', md: 'block' } }}>
@@ -110,7 +111,7 @@ const LeaveAllocations = ({ employeeId }: { employeeId?: number }) => {
     setMounted(true);
   }, [params, searchParams, resolvedEmployeeId]);
 
-  if (!mounted) return null;
+  if (!mounted) return <PageLoadingSkeleton />;
 
   return (
     <JumboRqList

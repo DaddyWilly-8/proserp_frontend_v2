@@ -17,6 +17,7 @@ import LedgerGroupProvider from '../ledgerGroups/LedgerGroupProvider';
 import LedgerSelectProvider from '../ledgers/forms/LedgerSelectProvider';
 import TransactionsList from './TransactionsList';
 import { Transaction } from './TransactionTypes';
+import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
 
 type TransactionsAppState = {
   selectedTransactions: Transaction[];
@@ -118,7 +119,7 @@ export default function Transactions() {
     setMounted(true);
   }, []);
 
-  if (!mounted) return null; // ⛔ Prevent mismatch during hydration
+  if (!mounted) return <PageLoadingSkeleton />;
 
   if (!organizationHasSubscribed(MODULES.ACCOUNTS_AND_FINANCE)) {
     return <UnsubscribedAccess modules='Accounts & Finance' />;

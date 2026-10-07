@@ -17,6 +17,7 @@ import ProjectListItem from './ProjectListItem';
 import { Project } from './ProjectTypes';
 import projectsServices from './project-services';
 import StakeholderSelectProvider from '@/components/masters/stakeholders/StakeholderSelectProvider';
+import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
 
 const Projects = () => {
     const params = useParams<{ project?: string; id?: string; keyword?: string }>();
@@ -63,7 +64,7 @@ const Projects = () => {
       setMounted(true);
     }, []);
 
-    if (!mounted) return null;
+    if (!mounted) return <PageLoadingSkeleton />;
 
     if (!organizationHasSubscribed(MODULES.PROJECT_MANAGEMENT)) {
       return <UnsubscribedAccess modules="Project Management" />;

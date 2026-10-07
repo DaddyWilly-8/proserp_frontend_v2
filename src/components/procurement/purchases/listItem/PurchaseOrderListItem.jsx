@@ -236,6 +236,7 @@ const PurchaseOrderListItem = ({ order }) => {
               <Grid size={{ xs: 1, md: 1 }} textAlign={'right'}>
                 <Tooltip title='Attachments'>
                   <IconButton
+                    component='span'
                     size='small'
                     onClick={(event) => {
                       event.stopPropagation();

@@ -18,6 +18,7 @@ import ProductsProvider from '@/components/productAndServices/products/ProductsP
 import ProductsSelectProvider from '@/components/productAndServices/products/ProductsSelectProvider';
 import StationListItem from './StationListItem';
 import { Station } from './StationType';
+import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
 
 const Stations = () => {
   const params = useParams<{ station?: string; id?: string; keyword?: string }>();
@@ -57,7 +58,7 @@ const Stations = () => {
     setMounted(true);
   }, []);
 
-  if (!mounted) return null;
+  if (!mounted) return <PageLoadingSkeleton />;
 
   if (!organizationHasSubscribed(MODULES.FUEL_STATION)) {
     return <UnsubscribedAccess modules="Fuel Stations" />;

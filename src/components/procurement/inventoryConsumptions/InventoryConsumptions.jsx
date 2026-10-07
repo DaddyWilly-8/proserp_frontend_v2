@@ -19,6 +19,7 @@ import { MODULES } from '@/utilities/constants/modules';
 import UnsubscribedAccess from '@/shared/Information/UnsubscribedAccess';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
 import UnauthorizedAccess from '@/shared/Information/UnauthorizedAccess';
+import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
 
 const InventoryConsumptions = () => {
     const params = useParams();
@@ -62,7 +63,7 @@ const InventoryConsumptions = () => {
         setMounted(true);
       }, []);
     
-    if (!mounted) return null; // ⛔ Prevent mismatch during hydration
+    if (!mounted) return <PageLoadingSkeleton />;
 
     if(!organizationHasSubscribed(MODULES.PROCUREMENT_AND_SUPPLY)){
       return <UnsubscribedAccess modules={'Procurement & Supply'}/>

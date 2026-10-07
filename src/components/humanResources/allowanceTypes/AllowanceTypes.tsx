@@ -11,6 +11,7 @@ import humanResourcesServices from '../humanResourcesServices';
 import { AllowanceType } from './AllowanceType';
 import AllowanceTypeActionTail from './AllowanceTypeActionTail';
 import AllowanceTypesListItem from './AllowanceTypesListItem';
+import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
 
 const AllowanceTypes = () => {
   const params = useParams<{ keyword?: string }>();
@@ -53,7 +54,7 @@ const AllowanceTypes = () => {
     setMounted(true);
   }, [searchParams]);
 
-  if (!mounted) return null;
+  if (!mounted) return <PageLoadingSkeleton />;
 
   return (
     <>

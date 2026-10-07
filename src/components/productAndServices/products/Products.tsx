@@ -11,6 +11,7 @@ import UnsubscribedAccess from '@/shared/Information/UnsubscribedAccess';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
 import UnauthorizedAccess from '@/shared/Information/UnauthorizedAccess';
 import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
+import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
 
 const Products = () => {
     const [mounted, setMounted] = React.useState(false);
@@ -21,7 +22,7 @@ const Products = () => {
         setMounted(true);
     }, []);
 
-    if (!mounted) return null;
+    if (!mounted) return <PageLoadingSkeleton />;
 
     if(!organizationHasSubscribed(MODULES.PROCUREMENT_AND_SUPPLY)){
       return <UnsubscribedAccess modules={'Procurement & Supply'}/>

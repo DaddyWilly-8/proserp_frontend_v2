@@ -8,6 +8,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import MyHrLeaveBalancesListItem, {
   MY_HR_LEAVE_BALANCE_COLUMN_WIDTHS,
 } from './MyHrLeaveBalancesListItem';
+import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
 
 const YEAR_OPTIONS: Array<any> = [];
 let nextYear = dayjs().year() + 1;
@@ -97,7 +98,7 @@ const MyHrLeaveBalances = () => {
     setMounted(true);
   }, [searchParams, year]);
 
-  if (!mounted) return null;
+  if (!mounted) return <PageLoadingSkeleton />;
   return (
     <>
       <Grid container spacing={2} mb={2} mt={2} justifyContent='center'>

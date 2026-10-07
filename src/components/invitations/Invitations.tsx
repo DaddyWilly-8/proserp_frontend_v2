@@ -21,6 +21,7 @@ import { getSanitizedSearchKeyword } from '@/utilities/getSanitizedSearchKeyword
 import { useCallback, useEffect, useRef, useState } from 'react';
 import InvitationListItem from './InvitationListItem';
 import invitationsServices from './invitationsServices';
+import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
 
 interface QueryOptions {
   queryKey: string;
@@ -74,7 +75,7 @@ function OrganizationInvitations() {
     }));
   }, []);
 
-  if (!mounted) return null; // Prevent mismatch during hydration
+  if (!mounted) return <PageLoadingSkeleton />;
 
   return (
     <JumboRqList

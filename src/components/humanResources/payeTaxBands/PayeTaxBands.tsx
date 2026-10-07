@@ -10,6 +10,7 @@ import humanResourcesServices from '../humanResourcesServices';
 import PayeTaxBandActionTail from './PayeTaxBandActionTail';
 import { PayeTaxBandType } from './PayeTaxBandType';
 import PayeTaxBandsListItem from './PayeTaxBandsListItem';
+import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
 
 const PayeTaxBands = () => {
   const params = useParams<{ keyword?: string }>();
@@ -49,7 +50,7 @@ const PayeTaxBands = () => {
     setMounted(true);
   }, [searchParams]);
 
-  if (!mounted) return null;
+  if (!mounted) return <PageLoadingSkeleton />;
 
   return (
     <>

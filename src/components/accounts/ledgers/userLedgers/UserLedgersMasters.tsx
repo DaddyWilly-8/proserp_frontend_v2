@@ -8,6 +8,7 @@ import { PERMISSIONS } from '@/utilities/constants/permissions';
 import { Typography } from '@mui/material';
 import React from 'react';
 import UserLedgerLinksList from './UserLedgerLinksList';
+import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
 
 export default function UserLedgersMasters() {
   const { organizationHasSubscribed, checkOrganizationPermission } =
@@ -19,7 +20,7 @@ export default function UserLedgersMasters() {
     setMounted(true);
   }, []);
 
-  if (!mounted) return null;
+  if (!mounted) return <PageLoadingSkeleton />;
 
   if (!organizationHasSubscribed(MODULES.ACCOUNTS_AND_FINANCE)) {
     return <UnsubscribedAccess modules={'Accounts & Finance'} />;

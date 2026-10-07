@@ -28,6 +28,7 @@ import StakeholderSelectProvider from '../../masters/stakeholders/StakeholderSel
 import ProductInsights from './productInsights/ProductInsights';
 import PurchasesManifestReport from './purchasesManifest/PurchasesManifestReport';
 import PurchasesReport from './PurchasesReport';
+import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
 
 function ProcurementReports() {
   const css = useProsERPStyles();
@@ -63,7 +64,7 @@ function ProcurementReports() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mounted, searchParams]);
 
-  if (!mounted) return null; // ⛔ Prevent mismatch during hydration
+  if (!mounted) return <PageLoadingSkeleton />;
 
   if (!organizationHasSubscribed(MODULES.PROCUREMENT_AND_SUPPLY)) {
     return <UnsubscribedAccess modules={'Procurement & Supply'} />;

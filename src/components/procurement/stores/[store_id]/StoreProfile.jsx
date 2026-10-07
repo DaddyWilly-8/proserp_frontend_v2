@@ -10,6 +10,7 @@ import StoreProfileSidebar from './StoreProfileSidebar';
 import StoreSelectionForMobile from './StoreSelectionForMobile';
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 import JumboContentLayoutProvider from '@jumbo/components/JumboContentLayout/JumboContentLayoutProvider';
+import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
 
 function StoreProfile() {
     const { theme } = useJumboTheme();
@@ -41,7 +42,7 @@ function StoreProfile() {
         },
     }), [theme]);
 
-    if (!mounted) return null;
+    if (!mounted) return <PageLoadingSkeleton />;
 
     return (
         <StoreProfileProvider>

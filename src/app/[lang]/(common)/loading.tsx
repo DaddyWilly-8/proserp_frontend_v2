@@ -1,6 +1,5 @@
-import { BackdropSpinner } from '@/shared/ProgressIndicators/BackdropSpinner';
+import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
 
 export default function Loading() {
-  // You can add any UI inside Loading, including a Skeleton.
-  return <BackdropSpinner />;
+  return <PageLoadingSkeleton />;
 }

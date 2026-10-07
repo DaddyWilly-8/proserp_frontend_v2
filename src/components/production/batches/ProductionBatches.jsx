@@ -7,6 +7,7 @@ import productionBatchesServices from './productionBatchesServices';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import JumboCardQuick from '@jumbo/components/JumboCardQuick';
 import { useQuery } from '@tanstack/react-query';
+import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
 
 function ProductionBatches() {
   const [activeWorkCenter, setActiveWorkCenter] = useState(null);
@@ -33,7 +34,7 @@ function ProductionBatches() {
     return <LinearProgress />
   }
 
-  if (!mounted) return null;
+  if (!mounted) return <PageLoadingSkeleton />;
 
   return (
     <JumboCardQuick

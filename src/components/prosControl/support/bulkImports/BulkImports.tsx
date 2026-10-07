@@ -9,6 +9,7 @@ import { AddCircleOutline } from '@mui/icons-material';
 import StakeholdersBulkImportsContent from './StakeholdersBulkImports';
 import TransactionsBulkImportsContent from './TransactionsBulkImports';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
+import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
 
 interface SelectedTabContextType {
   activeTab: number;
@@ -26,7 +27,7 @@ function BulkImports() {
     setMounted(true);
   }, []);
 
-  if (!mounted) return null;
+  if (!mounted) return <PageLoadingSkeleton />;
 
   const hasStakeholderPermission = checkOrganizationPermission(PERMISSIONS.STAKEHOLDERS_CREATE);
   const hasTransactionPermission = checkOrganizationPermission(PERMISSIONS.ACCOUNTS_TRANSACTIONS_CREATE);

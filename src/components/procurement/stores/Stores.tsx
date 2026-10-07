@@ -16,6 +16,7 @@ import { PERMISSIONS } from '@/utilities/constants/permissions';
 import UnauthorizedAccess from '@/shared/Information/UnauthorizedAccess';
 import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import { Store } from './storeTypes';
+import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
 
 interface QueryOptions {
   queryKey: string;
@@ -67,7 +68,7 @@ const Stores: React.FC = () => {
         setMounted(true);
     }, []);
     
-    if (!mounted) return null;
+    if (!mounted) return <PageLoadingSkeleton />;
 
     if (!organizationHasSubscribed(MODULES.PROCUREMENT_AND_SUPPLY)) {
         return <UnsubscribedAccess modules={'Procurement & Supply'}/>;

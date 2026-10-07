@@ -16,6 +16,7 @@ import UnauthorizedAccess from '@/shared/Information/UnauthorizedAccess';
 import { useParams, useSearchParams } from 'next/navigation';
 import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import CurrencySelectProvider from '../Currencies/CurrencySelectProvider';
+import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
 
 function Stakeholders() {
     const params = useParams<{ category?: string; id?: string; keyword?: string }>();
@@ -75,7 +76,7 @@ function Stakeholders() {
         setMounted(true);
     }, []);
 
-    if (!mounted) return null; // ⛔ Prevent mismatch during hydration
+    if (!mounted) return <PageLoadingSkeleton />;
 
     if(!checkOrganizationPermission([PERMISSIONS.STAKEHOLDERS_READ, PERMISSIONS.STAKEHOLDERS_CREATE])){
         return <UnauthorizedAccess/>;

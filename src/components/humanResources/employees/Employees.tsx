@@ -23,6 +23,7 @@ import EmployeeActionTail from './EmployeeActionTail';
 import { EmployeesProvider } from './EmployeesProvider';
 import EmployeesListItem from './EmployeesListItem';
 import { Employee } from './EmployeesType';
+import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
 
 const Employees = () => {
   const listRef = useRef<any>(null);
@@ -122,7 +123,7 @@ const Employees = () => {
     setMounted(true);
   }, [params, searchParams]);
 
-  if (!mounted) return null; // ⛔ Prevent mismatch during hydration
+  if (!mounted) return <PageLoadingSkeleton />;
 
   return (
     <LedgerSelectProvider>

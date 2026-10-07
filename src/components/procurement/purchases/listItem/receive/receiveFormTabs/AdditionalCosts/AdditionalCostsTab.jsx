@@ -86,7 +86,7 @@ function AdditionalCostsTab({
         : 1,
       currency_name: additionalCost
         ? additionalCost.currency_name || additionalCost.currency?.name
-        : currencies.find((currency) => currency.id === 1).name_plural,
+        : currencies.find((currency) => currency.id === 1)?.name_plural,
       exchange_rate: additionalCost ? additionalCost.exchange_rate : 1,
       reference: additionalCost && additionalCost.reference,
       amount: additionalCost && additionalCost.amount,

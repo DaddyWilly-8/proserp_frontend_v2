@@ -15,6 +15,7 @@ import PayrollPeriodsListItem from './PayrollPeriodsListItem';
 import { PayrollPeriodType } from './PayrollPeriodType';
 import LedgerGroupProvider from '@/components/accounts/ledgerGroups/LedgerGroupProvider';
 import LedgerSelectProvider from '@/components/accounts/ledgers/forms/LedgerSelectProvider';
+import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
 
 const PayrollPeriods = () => {
   const params = useParams<{ keyword?: string }>();
@@ -53,7 +54,7 @@ const PayrollPeriods = () => {
     setMounted(true);
   }, [searchParams]);
 
-  if (!mounted) return null;
+  if (!mounted) return <PageLoadingSkeleton />;
 
   return (
     <LedgerSelectProvider>

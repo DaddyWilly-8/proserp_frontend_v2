@@ -13,6 +13,7 @@ import PayrollSalaryComponentsDashboard from '../payrollPeriods/PayrollSalaryCom
 import LeaveBalancesReport from './leaveBalances/LeaveBalancesReport';
 import LeaveRenewalsReport from './leaveRenewals/LeaveRenewalsReport';
 import StaffLoanReport from './staffLoans/StaffLoanReport';
+import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
 
 type ReportCardItem = {
   key: string;
@@ -100,7 +101,7 @@ export default function HumanResourcesReports() {
     setOpenDialog(true);
   }, [mounted, searchParams, reportCards]);
 
-  if (!mounted) return null;
+  if (!mounted) return <PageLoadingSkeleton />;
 
   return (
     <React.Fragment>

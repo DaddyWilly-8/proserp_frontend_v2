@@ -11,6 +11,7 @@ import humanResourcesServices from '../humanResourcesServices';
 import { DeductionType } from './DeductionType';
 import DeductionTypeActionTail from './DeductionTypeActionTail';
 import DeductionTypesListItem from './DeductionTypesListItem';
+import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
 
 const DeductionTypes = () => {
   const params = useParams<{ keyword?: string }>();
@@ -53,7 +54,7 @@ const DeductionTypes = () => {
     setMounted(true);
   }, [searchParams]);
 
-  if (!mounted) return null;
+  if (!mounted) return <PageLoadingSkeleton />;
 
   return (
     <>

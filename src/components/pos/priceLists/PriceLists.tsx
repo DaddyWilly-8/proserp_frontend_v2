@@ -12,6 +12,7 @@ import ProductsSelectProvider from '../../productAndServices/products/ProductsSe
 import { useParams, useSearchParams } from 'next/navigation';
 import { getSanitizedSearchKeyword } from '@/utilities/getSanitizedSearchKeyword';
 import { PriceList } from './PriceListType';
+import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
 
 function PriceLists({fuelPriceLists = false}: {fuelPriceLists?: boolean}) {
     const params = useParams<{ id?: string }>();
@@ -54,7 +55,7 @@ function PriceLists({fuelPriceLists = false}: {fuelPriceLists?: boolean}) {
         []
     );
 
-    if (!mounted) return null;
+    if (!mounted) return <PageLoadingSkeleton />;
 
     return (
         <ProductsSelectProvider>

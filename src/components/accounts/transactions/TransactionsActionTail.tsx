@@ -11,6 +11,7 @@ import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
 import UnauthorizedAccess from '@/shared/Information/UnauthorizedAccess';
+import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
 
 function TransactionsActionTail({type}:{type: TransactionTypes}) {
   const [openDialog, setOpenDialog] = useState(false);
@@ -25,7 +26,7 @@ function TransactionsActionTail({type}:{type: TransactionTypes}) {
     setMounted(true);
   }, []);
 
-  if (!mounted) return null; // ⛔ Prevent mismatch during hydration
+  if (!mounted) return <PageLoadingSkeleton />;
 
   if(!checkOrganizationPermission([
     PERMISSIONS.ACCOUNTS_TRANSACTIONS_READ,

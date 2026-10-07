@@ -17,6 +17,7 @@ import UnauthorizedAccess from '@/shared/Information/UnauthorizedAccess';
 import type { Outlet } from './OutletType';
 import OutletActionTail from './OutletActionTail';
 import outletServices from './outlet-services';
+import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
 
   const Outlet = () => {
     const params = useParams<{ category?: string; id?: string; keyword?: string }>();
@@ -68,7 +69,7 @@ import outletServices from './outlet-services';
       setMounted(true);
     }, []);
 
-    if (!mounted) return null;
+    if (!mounted) return <PageLoadingSkeleton />;
 
     if (!organizationHasSubscribed(MODULES.POINT_OF_SALE)) {
       return <UnsubscribedAccess modules="Point of Sale (POS)" />;

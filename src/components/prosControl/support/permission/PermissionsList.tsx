@@ -11,6 +11,7 @@ import supportServices from "../support-services";
 import PermissionsActionTail from "./PermissionsActionTail";
 import PermissionsListItem from "./PermissionsListItem";
 import { SelectedTab } from "../troubleshooting/Troubleshooting";
+import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
 
 // ---- Types ----
 interface QueryOptions {
@@ -78,7 +79,7 @@ const PermissionsList: React.FC = () => {
     }));
   }, []);
 
-  if (!mounted) return null; // ⛔ Prevent mismatch during hydration
+  if (!mounted) return <PageLoadingSkeleton />;
 
   return (
     <React.Fragment>

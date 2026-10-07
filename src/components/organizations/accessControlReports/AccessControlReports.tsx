@@ -9,6 +9,7 @@ import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
 import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import UnauthorizedAccess from '@/shared/Information/UnauthorizedAccess';
+import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
 
 const RolesPermissionsReport = lazy(() => import('./RolesPermissionsReport'));
 const UsersRolesReport = lazy(() => import('./UsersRolesReport'));
@@ -33,7 +34,7 @@ const AccessControlReports = () => {
     setMounted(true);
   }, []);
 
-  if (!mounted) return null;
+  if (!mounted) return <PageLoadingSkeleton />;
 
   if (!checkOrganizationPermission(PERMISSIONS.ACCESS_CONTROL_REPORTS_READ)) {
     return <UnauthorizedAccess />;

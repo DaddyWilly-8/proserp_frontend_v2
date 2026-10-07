@@ -17,6 +17,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import RFQListItem from './listItem/RFQListItem';
 import rfqServices from './rfq-services';
 import RFQActionTail from './RFQActionTail';
+import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
 
 // Status options with display names and values
 const STATUS_OPTIONS = [
@@ -90,7 +91,7 @@ function RFQs() {
 
   const renderItem = useCallback((rfq: any) => <RFQListItem rfq={rfq} />, []);
 
-  if (!mounted) return null;
+  if (!mounted) return <PageLoadingSkeleton />;
   if (!organizationHasSubscribed(MODULES.PROCUREMENT_AND_SUPPLY)) {
     return <UnsubscribedAccess modules={'Procurement & Supply'} />;
   }

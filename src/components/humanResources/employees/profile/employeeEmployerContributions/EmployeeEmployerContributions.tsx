@@ -11,6 +11,7 @@ import humanResourcesServices from '../../../humanResourcesServices';
 import EmployeeEmployerContributionActionTail from './EmployeeEmployerContributionActionTail';
 import { EmployeeEmployerContributionType } from './EmployeeEmployerContributionType';
 import EmployeeEmployerContributionsListItem from './EmployeeEmployerContributionsListItem';
+import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
 
 const EmployeeEmployerContributions = ({ employeeId }: { employeeId?: number }) => {
   const params = useParams<{ employee_id?: string }>();
@@ -69,7 +70,7 @@ const EmployeeEmployerContributions = ({ employeeId }: { employeeId?: number }) 
     setMounted(true);
   }, [params, searchParams, resolvedEmployeeId]);
 
-  if (!mounted) return null;
+  if (!mounted) return <PageLoadingSkeleton />;
 
   return (
     <JumboRqList

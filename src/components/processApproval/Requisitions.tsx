@@ -37,6 +37,7 @@ import RequisitionsTypeSelector from './RequisitionsTypeSelector';
 import RequisitionsWaitingForSelector from './RequisitionsWaitingForSelector';
 import MyRequisitionsToggle from './MyRequisitionsToggle';
 import { Requisition } from './RequisitionType';
+import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
 
 interface RequisitionContextType {
   isEditAction: boolean;
@@ -179,7 +180,7 @@ const Requisitions = () => {
     }));
   }, []);
 
-  if (!mounted) return null;
+  if (!mounted) return <PageLoadingSkeleton />;
 
   if (
     !checkOrganizationPermission([

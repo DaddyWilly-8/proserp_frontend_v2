@@ -3,7 +3,6 @@ import { createContext, useContext } from "react";
 import LedgerSelectProvider from '../../accounts/ledgers/forms/LedgerSelectProvider';
 import storeServices from '../../procurement/stores/store-services';
 import measurementUnitServices from '../../masters/measurementUnits/measurement-unit-services';
-import { LinearProgress } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
 import productCategoryServices from '../productCategories/productCategoryServices';
 import productServices from './productServices';
@@ -73,21 +72,21 @@ export default function ProductsProvider({children}){
         queryFn: () => storeServices.getStoreOptions({ mainOnly: true }) // ensure correct params
     });
 
-    if(isLoadingMeasurementUnits || isLoadingProductParams || isLoadingProductCategories || isLoadingStores){
-        return <LinearProgress/>
-    }
-    
+    // Used by 14+ files as a picker-options data source for forms/dialogs -
+    // the base page content underneath never needs this list itself, so
+    // blocking on it here held every one of those pages behind these calls.
     const contextValue = {
         ...productsApp,
         setSelectedProducts: setSelectedProducts,
         setProductsListRefresh: setProductsListRefresh,
-        productCategories,
-        brands : productParams.brands,
-        item_names: productParams.item_names,
-        models: productParams.models,
-        measurementUnits,
-        specifications: productParams.specifications,
-        storeOptions
+        productCategories: productCategories || [],
+        brands: productParams?.brands || [],
+        item_names: productParams?.item_names || [],
+        models: productParams?.models || [],
+        measurementUnits: measurementUnits || [],
+        specifications: productParams?.specifications || [],
+        storeOptions: storeOptions || [],
+        isLoadingProductOptions: isLoadingMeasurementUnits || isLoadingProductParams || isLoadingProductCategories || isLoadingStores,
     }
 
     return (

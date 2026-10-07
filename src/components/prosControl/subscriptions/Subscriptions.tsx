@@ -14,6 +14,7 @@ import SubscriptionItem from "@/components/organizations/profile/subscriptions/S
 import { PROS_CONTROL_PERMISSIONS } from "@/utilities/constants/prosControlPermissions";
 import UnauthorizedAccess from "@/shared/Information/UnauthorizedAccess";
 import { Subscription } from "@/components/organizations/profile/subscriptions/SubscriptionTypes";
+import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
 
 interface QueryOptions {
   queryKey: string;
@@ -81,7 +82,7 @@ const Subscriptions: React.FC = () => {
     }));
   }, []);
 
-  if (!mounted) return null; // ⛔ Prevent mismatch during hydration
+  if (!mounted) return <PageLoadingSkeleton />;
 
   if (
     !checkPermission([

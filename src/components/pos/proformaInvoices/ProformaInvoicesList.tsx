@@ -13,6 +13,7 @@ import { useParams, useSearchParams } from 'next/navigation';
 import { getSanitizedSearchKeyword } from '@/utilities/getSanitizedSearchKeyword';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { OutletType, useSalesOutlet } from '../outlet/OutletProvider';
+import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
 
 interface FilterDate {
   from?: string | null;
@@ -95,7 +96,7 @@ const RqList: React.FC<RqListProps> = ({ activeOutlet }) => {
     }));
   }, []);
 
-  if (!mounted) return null;
+  if (!mounted) return <PageLoadingSkeleton />;
 
   return (
     <JumboRqList

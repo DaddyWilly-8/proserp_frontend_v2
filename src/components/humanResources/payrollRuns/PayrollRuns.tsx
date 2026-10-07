@@ -31,6 +31,7 @@ import { PayrollPeriodType } from '../payrollPeriods/PayrollPeriodType';
 import PayrollRunActionTail from './PayrollRunActionTail';
 import PayrollRunsListItem from './PayrollRunsListItem';
 import { PayrollRunType } from './PayrollRunType';
+import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
 
 interface PayrollRunsProps {
   defaultStatus?: string;
@@ -244,7 +245,7 @@ const PayrollRuns = ({ defaultStatus, title }: PayrollRunsProps) => {
     []
   );
 
-  if (!mounted) return null;
+  if (!mounted) return <PageLoadingSkeleton />;
 
   return (
     <LedgerSelectProvider>

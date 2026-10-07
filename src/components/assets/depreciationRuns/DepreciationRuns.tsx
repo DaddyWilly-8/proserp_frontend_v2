@@ -15,6 +15,7 @@ import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import depreciationRunsServices from './depreciationRuns-services';
 import DepreciationRunListItem from './DepreciationRunListItem';
 import NewDepreciationRunActionTail from './NewDepreciationRunActionTail';
+import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
 
 const DepreciationRuns = () => {
   const listRef = useRef<any>(null);
@@ -66,7 +67,7 @@ const DepreciationRuns = () => {
     }));
   }, []);
 
-  if (!mounted) return null;
+  if (!mounted) return <PageLoadingSkeleton />;
 
   if (!organizationHasSubscribed(MODULES.ASSET_REGISTER)) {
     return <UnsubscribedAccess modules={'Asset Register'} />;

@@ -14,6 +14,7 @@ import { PERMISSIONS } from '@/utilities/constants/permissions';
 import UnauthorizedAccess from '@/shared/Information/UnauthorizedAccess';
 import { useParams } from 'next/navigation';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
+import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
 
 const ApprovalChains = () => {
   const params = useParams<{ category?: string; id?: string; keyword?: string }>();
@@ -63,7 +64,7 @@ const ApprovalChains = () => {
     setMounted(true);
   }, []);
 
-  if (!mounted) return null; // ⛔ Prevent mismatch during hydration
+  if (!mounted) return <PageLoadingSkeleton />;
 
   if(!checkOrganizationPermission([
     PERMISSIONS.APPROVAL_CHAINS_READ,

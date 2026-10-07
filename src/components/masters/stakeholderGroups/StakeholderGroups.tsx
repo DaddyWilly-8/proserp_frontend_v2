@@ -11,6 +11,7 @@ import UnauthorizedAccess from '@/shared/Information/UnauthorizedAccess';
 import stakeholderGroupServices from './stakeholderGroup-services';
 import StakeholderGroupListItem from './StakeholderGroupListItem';
 import StakeholderGroupActionTail from './StakeholderGroupActionTail';
+import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
 
 const StakeholderGroups = () => {
   const { checkOrganizationPermission } = useJumboAuth();
@@ -34,7 +35,7 @@ const StakeholderGroups = () => {
     setQueryOptions((state) => ({ ...state, queryParams: { ...state.queryParams, keyword } }));
   }, []);
 
-  if (!mounted) return null;
+  if (!mounted) return <PageLoadingSkeleton />;
 
   if (!checkOrganizationPermission(PERMISSIONS.STAKEHOLDER_GROUPS_READ)) {
     return <UnauthorizedAccess />;

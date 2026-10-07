@@ -6,6 +6,7 @@ import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { MODULES } from '@/utilities/constants/modules';
 import UnsubscribedAccess from '@/shared/Information/UnsubscribedAccess';
 import BankAccountsList from './list/BankAccountsList';
+import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
 
 export default function BankAccounts() {
   const { organizationHasSubscribed } = useJumboAuth();
@@ -15,7 +16,7 @@ export default function BankAccounts() {
     setMounted(true);
   }, []);
 
-  if (!mounted) return null;
+  if (!mounted) return <PageLoadingSkeleton />;
 
   if (!organizationHasSubscribed(MODULES.ACCOUNTS_AND_FINANCE)) {
     return <UnsubscribedAccess modules={'Accounts & Finance'} />;

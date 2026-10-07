@@ -15,6 +15,7 @@ import UserManagementListItem from './UserManagementListItem';
 import UserManagementActionTail from './UserManagementActionTail';
 import { User } from './UserManagementType';
 import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
+import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
 
 const UserManagement = () => {
     const params = useParams<{ id?: string }>();
@@ -68,7 +69,7 @@ const UserManagement = () => {
       }));
     }, []);
 
-    if (!mounted) return null;
+    if (!mounted) return <PageLoadingSkeleton />;
 
  if (!checkPermission([PROS_CONTROL_PERMISSIONS.USERS_READ])) {
    return <UnauthorizedAccess />;

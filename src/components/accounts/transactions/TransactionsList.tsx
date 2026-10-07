@@ -19,6 +19,7 @@ import { Transaction, TransactionTypes } from './TransactionTypes';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
 import { CostCenter } from '@/components/masters/costCenters/CostCenterType';
+import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
 
 interface QueryOptions {
   queryKey: string;
@@ -249,7 +250,7 @@ const TransactionsList: React.FC = () => {
         setMounted(true);
     }, []);
 
-    if (!mounted) return null;
+    if (!mounted) return <PageLoadingSkeleton />;
 
     const multiCostCenters = authOrganization?.costCenters?.length > 1;
 

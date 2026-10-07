@@ -11,6 +11,7 @@ import humanResourcesServices from '../../../humanResourcesServices';
 import EmployeeDeductionActionTail from './EmployeeDeductionActionTail';
 import { EmployeeDeductionType } from './EmployeeDeductionType';
 import EmployeeDeductionsListItem from './EmployeeDeductionsListItem';
+import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
 
 const EmployeeDeductions = ({ employeeId }: { employeeId?: number }) => {
   const params = useParams<{ employee_id?: string }>();
@@ -65,7 +66,7 @@ const EmployeeDeductions = ({ employeeId }: { employeeId?: number }) => {
     setMounted(true);
   }, [params, searchParams, resolvedEmployeeId]);
 
-  if (!mounted) return null;
+  if (!mounted) return <PageLoadingSkeleton />;
 
   return (
     <JumboRqList

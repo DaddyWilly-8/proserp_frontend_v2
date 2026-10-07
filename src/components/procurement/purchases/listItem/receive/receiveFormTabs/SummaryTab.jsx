@@ -28,7 +28,7 @@ function SummaryTab({
   const currency = order.currency;
   const baseCurrency = currencies.find(
     (currency) => !!currency?.is_base
-  ).symbol;
+  )?.symbol;
 
   const { checkOrganizationPermission } = useJumboAuth();
   const withPrices = [

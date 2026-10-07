@@ -40,31 +40,39 @@ const withPWA = withPWAInit({
 const nextConfig = {
   reactStrictMode: true,
 
-  // ✅ Turbopack configuration (Next.js 14+)
-  experimental: {
-    turbo: {
-      // ✅ Add rules for handling Highcharts modules
-      rules: {
-        '*.js': {
-          loaders: ['swc-loader'],
-        },
-        '*.mjs': {
-          loaders: ['swc-loader'],
-        },
-        '*.cjs': {
-          loaders: ['swc-loader'],
-        },
+  // ✅ Turbopack configuration - top-level `turbopack` key is the key this
+  // Next.js version actually reads; the previous `experimental.turbo`
+  // nesting was silently ignored (logged as an unrecognized key), so none
+  // of this - including the Highcharts aliases - was taking effect.
+  turbopack: {
+    root: __dirname,
+    // ✅ Add rules for handling Highcharts modules
+    rules: {
+      '*.js': {
+        loaders: ['swc-loader'],
       },
-      // ✅ Increase resolution cache for better performance
-      resolveAlias: {
-        // ✅ Ensure Highcharts modules resolve correctly
-        'highcharts/modules/exporting': 'highcharts/modules/exporting',
-        'highcharts/modules/export-data': 'highcharts/modules/export-data',
-        'highcharts/modules/offline-exporting': 'highcharts/modules/offline-exporting',
-        'highcharts/modules/treegraph': 'highcharts/modules/treegraph',
-        'highcharts/modules/treemap': 'highcharts/modules/treemap',
-        'highcharts/modules/gantt': 'highcharts/modules/gantt',
+      '*.mjs': {
+        loaders: ['swc-loader'],
       },
+      '*.cjs': {
+        loaders: ['swc-loader'],
+      },
+    },
+    // ✅ Increase resolution cache for better performance
+    resolveAlias: {
+      // ✅ Ensure Highcharts modules resolve correctly
+      'highcharts/modules/exporting': 'highcharts/modules/exporting',
+      'highcharts/modules/export-data': 'highcharts/modules/export-data',
+      'highcharts/modules/offline-exporting': 'highcharts/modules/offline-exporting',
+      'highcharts/modules/treegraph': 'highcharts/modules/treegraph',
+      'highcharts/modules/treemap': 'highcharts/modules/treemap',
+      'highcharts/modules/gantt': 'highcharts/modules/gantt',
+      // @react-pdf/renderer's PDFViewer pulls in pdfjs-dist, which tries to
+      // resolve the native 'canvas' package for server-side rendering. It's
+      // never actually used in the browser, but Turbopack (unlike webpack)
+      // doesn't silently ignore unresolvable optional deps, so it must be
+      // aliased to a stub.
+      canvas: './empty_module.js',
     },
   },
 

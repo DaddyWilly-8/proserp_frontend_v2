@@ -7,6 +7,7 @@ import { AdminPanelSettingsOutlined } from '@mui/icons-material';
 import Diversity3OutlinedIcon from '@mui/icons-material/Diversity3Outlined';
 import { Tab, Tabs, Typography } from '@mui/material';
 import React, { lazy, SyntheticEvent, useEffect, useState } from 'react'
+import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
 
 const ProsAfricansList = lazy(() => import('./ProsAfricansList'));
 const ProsAfricansRoles = lazy(() => import('./roles/ProsAfricanRoles'));
@@ -44,7 +45,7 @@ function ProsAfricans() {
     setMounted(true);
   }, []);
 
-  if (!mounted) return null; // ⛔ Prevent mismatch during hydration
+  if (!mounted) return <PageLoadingSkeleton />;
 
   if (!checkPermission(['ProsAfricans:Read', 'ProsAfricans:Manage'])) {
     return <UnauthorizedAccess/>;

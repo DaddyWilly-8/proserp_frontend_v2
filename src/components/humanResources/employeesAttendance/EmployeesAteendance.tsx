@@ -19,6 +19,7 @@ import humanResourcesServices from '../humanResourcesServices';
 import { EmployeeAttendanceType } from './EmployeeAttendanceType';
 import EmployeesAteendanceActionTail from './EmployeesAteendanceActionTail';
 import EmployeesAteendanceListItem from './EmployeesAteendanceListItem';
+import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
 
 const TYPE_OPTIONS = [
   { label: 'Present', value: 'present' },
@@ -65,7 +66,7 @@ const EmployeesAttendance = () => {
     setMounted(true);
   }, []);
 
-  if (!mounted) return null; // ⛔ Prevent mismatch during hydration
+  if (!mounted) return <PageLoadingSkeleton />;
   return (
     <>
       <Typography variant={'h4'} mb={2}>

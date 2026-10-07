@@ -8,6 +8,7 @@ import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { MODULES } from '@/utilities/constants/modules';
 import UnsubscribedAccess from '@/shared/Information/UnsubscribedAccess';
 import CurrencySelectProvider from '@/components/masters/Currencies/CurrencySelectProvider';
+import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
 
 export default function Ledgers() {
     const { organizationHasSubscribed } = useJumboAuth();
@@ -17,7 +18,7 @@ export default function Ledgers() {
         setMounted(true);
     }, []);
 
-    if (!mounted) return null;
+    if (!mounted) return <PageLoadingSkeleton />;
 
     if (!organizationHasSubscribed(MODULES.ACCOUNTS_AND_FINANCE)) {
         return <UnsubscribedAccess modules={'Accounts & Finance'} />;

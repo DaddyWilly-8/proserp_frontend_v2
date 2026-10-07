@@ -12,6 +12,7 @@ import DepartmentsListItem from './DepartmentsListItem';
 import { Department } from './DepartmentsType';
 import LedgerGroupProvider from '@/components/accounts/ledgerGroups/LedgerGroupProvider';
 import LedgerSelectProvider from '@/components/accounts/ledgers/forms/LedgerSelectProvider';
+import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
 
 const Departments = () => {
   const params = useParams<{ id?: string; keyword?: string }>();
@@ -52,7 +53,7 @@ const Departments = () => {
     setMounted(true);
   }, [params, searchParams]);
 
-  if (!mounted) return null; // ⛔ Prevent mismatch during hydration
+  if (!mounted) return <PageLoadingSkeleton />;
 
   return (
     <LedgerSelectProvider>

@@ -10,6 +10,7 @@ import { PERMISSIONS } from "@/utilities/constants/permissions";
 import { MODULES } from "@/utilities/constants/modules";
 import UnsubscribedAccess from "@/shared/Information/UnsubscribedAccess";
 import UnauthorizedAccess from "@/shared/Information/UnauthorizedAccess";
+import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
 
 export default function LedgerGroup() {
     const { checkOrganizationPermission, organizationHasSubscribed } = useJumboAuth();
@@ -19,7 +20,7 @@ export default function LedgerGroup() {
         setMounted(true);
     }, []);
 
-    if (!mounted) return null; // ⛔ Prevent mismatch during hydration
+    if (!mounted) return <PageLoadingSkeleton />;
 
     if (!organizationHasSubscribed(MODULES.ACCOUNTS_AND_FINANCE)) {
         return <UnsubscribedAccess modules={'Accounts & Finance'} />;

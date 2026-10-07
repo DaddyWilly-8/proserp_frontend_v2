@@ -10,6 +10,7 @@ import humanResourcesServices from '../humanResourcesServices';
 import BankActionTail from './BankActionTail';
 import BanksListItem from './BanksListItem';
 import { BankType } from './BankType';
+import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
 
 const Banks = () => {
   const params = useParams<{ keyword?: string }>();
@@ -46,7 +47,7 @@ const Banks = () => {
     setMounted(true);
   }, [searchParams]);
 
-  if (!mounted) return null;
+  if (!mounted) return <PageLoadingSkeleton />;
 
   return (
     <>

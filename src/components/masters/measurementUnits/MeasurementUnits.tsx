@@ -14,6 +14,7 @@ import { MeasurementUnit } from './MeasurementUnitType';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
 import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
+import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
 
 const MeasurementUnits = () => {
   const params = useParams<{ category?: string; id?: string; keyword?: string }>();
@@ -59,7 +60,7 @@ const MeasurementUnits = () => {
     setMounted(true);
   }, []);
 
-  if (!mounted) return null; // ⛔ Prevent mismatch during hydration
+  if (!mounted) return <PageLoadingSkeleton />;
 
   if(!checkOrganizationPermission(PERMISSIONS.MEASUREMENT_UNITS_READ)){
       return <UnauthorizedAccess/>;

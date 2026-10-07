@@ -16,6 +16,7 @@ import ProjectCategoryListItem from './ProjectCategoryListItem';
 import ProjectCategoryActionTail from './ProjectCategoryActionTail';
 import projectCategoryServices from './project-category-services';
 import { getSanitizedSearchKeyword } from '@/utilities/getSanitizedSearchKeyword';
+import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
 
 const ProjectCategories = () => {
     const params = useParams<{ project?: string; id?: string; keyword?: string }>();
@@ -59,7 +60,7 @@ const ProjectCategories = () => {
         setMounted(true);
     }, []);
 
-    if (!mounted) return null;
+    if (!mounted) return <PageLoadingSkeleton />;
 
     if (!organizationHasSubscribed(MODULES.PROJECT_MANAGEMENT)) {
         return <UnsubscribedAccess modules={'Project Management'} />;

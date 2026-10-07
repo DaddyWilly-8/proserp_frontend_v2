@@ -11,6 +11,7 @@ import humanResourcesServices from '../humanResourcesServices';
 import { EmployerContributionType } from './EmployerContributionType';
 import EmployerContributionTypeActionTail from './EmployerContributionTypeActionTail';
 import EmployerContributionTypesListItem from './EmployerContributionTypesListItem';
+import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
 
 const EmployerContributionTypes = () => {
   const params = useParams<{ keyword?: string }>();
@@ -57,7 +58,7 @@ const EmployerContributionTypes = () => {
     setMounted(true);
   }, [searchParams]);
 
-  if (!mounted) return null;
+  if (!mounted) return <PageLoadingSkeleton />;
 
   return (
     <>

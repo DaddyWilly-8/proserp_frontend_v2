@@ -11,6 +11,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { MyHrLoanRequestType } from './LoanRequestType';
 import MyHrLoanRequestsListItem from './MyHrLoanRequestsListItem';
 import MyHrLoansActionTail from './MyHrLoansActionTail';
+import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
 
 const STATUS_OPTIONS = [
   { label: 'In Review', value: 'in_review' },
@@ -61,7 +62,7 @@ const MyHrLoans = () => {
     setMounted(true);
   }, [searchParams, status]);
 
-  if (!mounted) return null;
+  if (!mounted) return <PageLoadingSkeleton />;
 
   return (
     <>
