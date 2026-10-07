@@ -45,14 +45,21 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  // /api is excluded here even though authMiddleware() already no-ops for
-  // it (pathname.startsWith('/api') → NextResponse.next()) — that no-op
-  // still runs on the Edge Runtime, which streams/buffers request bodies
-  // more restrictively than a normal Node.js route handler. A large
-  // multipart body (a file upload) passing through it first can fail even
-  // though the actual API route handles it fine on its own — confirmed by
-  // uploading a ~3.7MB PDF straight to Laravel (succeeds) vs through the
-  // app (failed with an empty response). Excluding /api changes no
-  // behavior, since the auth check was already a pass-through for it.
-  matcher: ['/((?!_next/static|_next/image|favicon.ico|assets|firebase-messaging-sw.js|api).*)'],
+  matcher: [
+    // /api is excluded here even though authMiddleware() already no-ops for
+    // it (pathname.startsWith('/api') → NextResponse.next()) — that no-op
+    // still runs on the Edge Runtime, which streams/buffers request bodies
+    // more restrictively than a normal Node.js route handler. A large
+    // multipart body (a file upload) passing through it first can fail even
+    // though the actual API route handles it fine on its own — confirmed by
+    // uploading a ~3.7MB PDF straight to Laravel (succeeds) vs through the
+    // app (failed with an empty response). Excluding /api changes no
+    // behavior for authMiddleware, EXCEPT for the one path below, which
+    // this same exclusion was silently making unreachable.
+    '/((?!_next/static|_next/image|favicon.ico|assets|firebase-messaging-sw.js|api).*)',
+    // Re-included on its own so the GET-signout redirect above actually
+    // runs - without this, NextAuth's default unstyled "Are you sure you
+    // want to sign out?" confirmation page renders instead.
+    '/api/auth/signout',
+  ],
 };

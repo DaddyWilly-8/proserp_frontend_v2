@@ -17,6 +17,7 @@ import React, {
 } from 'react';
 import { CostCenter } from '../masters/costCenters/CostCenterType';
 import QuickLinks from './QuickLinks';
+import { AnnouncementBanner } from '@/shared/AnnouncementBanner';
 
 const OrganizationCalendar = lazy(() => import('./OrganizationCalendar'));
 const Filters = lazy(() => import('./Filters'));
@@ -137,6 +138,19 @@ function Dashboard() {
     <React.Fragment>
       {authOrganization?.organization && (
         <DashboardContext.Provider value={{ chartFilters, setChartFilters }}>
+          <AnnouncementBanner
+            id='customer-service-month-2026'
+            startDate='2026-10-01'
+            endDate='2026-10-31'
+            message={
+              <>
+                <strong>Happy Customer Service Month!</strong> Thank you for
+                trusting ProsERP to be part of your business journey. Your
+                trust and continued partnership inspire us to serve you
+                better every day.
+              </>
+            }
+          />
           {active_subscriptions.length === 0 && (
             <Card sx={{ my: 1, p: 1 }}>
               <Alert sx={{ m: 1 }} severity='warning'>
