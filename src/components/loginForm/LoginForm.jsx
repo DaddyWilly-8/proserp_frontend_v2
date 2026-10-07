@@ -9,7 +9,7 @@ import {
   JumboInput,
   JumboOutlinedInput,
 } from '@jumbo/vendors/react-hook-form';
-import { Visibility, VisibilityOff } from '@mui/icons-material';
+import { Visibility, VisibilityOff, PersonOutline, LockOutlined } from '@mui/icons-material';
 import {
   Box,
   Button,
@@ -19,6 +19,8 @@ import {
   Stack,
   Typography,
 } from '@mui/material';
+import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
+import { BackdropSpinner } from '@/shared/ProgressIndicators/BackdropSpinner';
 import { getSession, signIn, useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useSnackbar } from 'notistack';
@@ -29,6 +31,8 @@ import organizationServices from '../organizations/organizationServices';
 const LoginForm = () => {
   const lang = useLanguage();
   const dictionary = useDictionary();
+  const { theme } = useJumboTheme();
+  const isDark = theme.type === 'dark';
 
   const [loading, setLoading] = React.useState(false);
   const { enqueueSnackbar } = useSnackbar();
@@ -140,105 +144,110 @@ const LoginForm = () => {
     });
   };
 
+  const labelColor = isDark ? 'rgba(255,255,255,0.75)' : 'text.secondary';
+  const iconColor = isDark ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.4)';
+  const inputBg = isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.02)';
+  const inputText = isDark ? '#fff' : 'text.primary';
+  const borderColor = isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.15)';
+  const placeholderColor = isDark ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.4)';
+  const checkboxOffColor = isDark ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.4)';
+  const checkboxLabelColor = isDark ? 'rgba(255,255,255,0.75)' : 'text.secondary';
+
+  const fieldLabelSx = { color: labelColor, fontWeight: 600, fontSize: '0.8rem', mb: 0.75 };
+  const fieldSx = {
+    '& .MuiOutlinedInput-root': {
+      borderRadius: '10px',
+      backgroundColor: inputBg,
+      color: inputText,
+      '& fieldset': { borderColor },
+      '&:hover fieldset': { borderColor: '#567FFB' },
+      '&.Mui-focused fieldset': { borderColor: '#567FFB', borderWidth: '2px' },
+    },
+    '& .MuiInputBase-input::placeholder': { color: placeholderColor, opacity: 1 },
+  };
+
   return (
     <Box>
-      <Typography
-        variant='h4'
-        mb={3}
-        align='center'
-        sx={{
-          background: 'linear-gradient(45deg, #0267a0, #00a8ff)',
-          WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent',
-          backgroundClip: 'text',
-          fontWeight: 700,
-          fontSize: { xs: '1.5rem', md: '2rem' },
-        }}
-      >
-        {dictionary.signin.form.title}
-      </Typography>
-
+      {(loading || isPending) && <BackdropSpinner />}
       <JumboForm
         validationSchema={validationSchema}
         onSubmit={handleLogin}
         onChange={() => {}}
       >
         <Stack spacing={2.5} mb={3}>
-          <JumboInput
-            fullWidth
-            fieldName={'email'}
-            label={dictionary.signin.form.fields.email.label}
-            placeholder={dictionary.signin.form.fields.email.placeholder}
-            sx={{
-              '& .MuiOutlinedInput-root': {
-                borderRadius: '12px',
-                '&:hover fieldset': {
-                  borderColor: '#0267a0',
-                },
-                '&.Mui-focused fieldset': {
-                  borderColor: '#0267a0',
-                  borderWidth: '2px',
-                },
-              },
-            }}
-          />
+          <Box>
+            <Typography sx={fieldLabelSx}>
+              {dictionary.signin.form.fields.email.label}
+            </Typography>
+            <JumboInput
+              fullWidth
+              fieldName={'email'}
+              placeholder={dictionary.signin.form.fields.email.placeholder}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position='start'>
+                    <PersonOutline sx={{ color: iconColor, fontSize: 20 }} />
+                  </InputAdornment>
+                ),
+              }}
+              sx={fieldSx}
+            />
+          </Box>
 
-          <JumboOutlinedInput
-            fieldName={'password'}
-            label={dictionary.signin.form.fields.password.label}
-            placeholder={dictionary.signin.form.fields.password.placeholder}
-            type={values.showPassword ? 'text' : 'password'}
-            margin='none'
-            endAdornment={
-              <InputAdornment position='end'>
-                <IconButton
-                  aria-label={
-                    values.showPassword ? 'Hide password' : 'Show password'
-                  }
-                  onClick={handleClickShowPassword}
-                  edge='end'
-                  sx={{
-                    color: '#0267a0',
-                    '&:hover': {
-                      backgroundColor: 'rgba(2, 103, 160, 0.1)',
-                    },
-                  }}
-                >
-                  {values.showPassword ? <Visibility /> : <VisibilityOff />}
-                </IconButton>
-              </InputAdornment>
-            }
-            sx={{
-              bgcolor: (theme) => theme.palette.background.paper,
-              borderRadius: '12px',
-              '& .MuiOutlinedInput-root': {
-                borderRadius: '12px',
-                '&:hover fieldset': {
-                  borderColor: '#0267a0',
-                },
-                '&.Mui-focused fieldset': {
-                  borderColor: '#0267a0',
-                  borderWidth: '2px',
-                },
-              },
-            }}
-          />
+          <Box sx={{ '& .MuiFormControl-root': { width: '100%' } }}>
+            <Typography sx={fieldLabelSx}>
+              {dictionary.signin.form.fields.password.label}
+            </Typography>
+            <JumboOutlinedInput
+              fieldName={'password'}
+              placeholder={dictionary.signin.form.fields.password.placeholder}
+              type={values.showPassword ? 'text' : 'password'}
+              fullWidth
+              margin='none'
+              startAdornment={
+                <InputAdornment position='start'>
+                  <LockOutlined sx={{ color: iconColor, fontSize: 20 }} />
+                </InputAdornment>
+              }
+              endAdornment={
+                <InputAdornment position='end'>
+                  <IconButton
+                    aria-label={
+                      values.showPassword ? 'Hide password' : 'Show password'
+                    }
+                    onClick={handleClickShowPassword}
+                    edge='end'
+                    sx={{ color: iconColor }}
+                  >
+                    {values.showPassword ? <Visibility /> : <VisibilityOff />}
+                  </IconButton>
+                </InputAdornment>
+              }
+              sx={{
+                borderRadius: '10px',
+                backgroundColor: inputBg,
+                color: inputText,
+                '& fieldset': { borderColor },
+                '&:hover fieldset': { borderColor: '#567FFB' },
+                '&.Mui-focused fieldset': { borderColor: '#567FFB', borderWidth: '2px' },
+              }}
+            />
+          </Box>
 
           <Stack
             direction={'row'}
             justifyContent={'space-between'}
             alignItems={'center'}
-            sx={{ px: 1 }}
+            sx={{ px: 0.5 }}
           >
             <JumboCheckbox
               fieldName='rememberMe'
               label={dictionary.signin.form.fields.rememberMe}
               defaultChecked
               sx={{
-                color: '#2196f3',
-                '&.Mui-checked': {
-                  color: '#2196f3',
-                },
+                color: checkboxOffColor,
+                '&.Mui-checked': { color: '#567FFB' },
+                '& + .MuiFormControlLabel-label': { color: checkboxLabelColor },
               }}
             />
           </Stack>
@@ -250,16 +259,16 @@ const LoginForm = () => {
             size='large'
             disabled={loading || isPending}
             sx={{
-              background: 'linear-gradient(45deg, #0267a0, #00a8ff)',
-              borderRadius: '12px',
+              background: 'linear-gradient(135deg, #2113AD 0%, #567FFB 100%)',
+              borderRadius: '10px',
               py: 1.5,
               fontSize: '1rem',
-              fontWeight: 600,
+              fontWeight: 700,
               textTransform: 'none',
-              boxShadow: '0 4px 15px 0 rgba(2, 103, 160, 0.3)',
+              boxShadow: '0 4px 15px 0 rgba(33, 19, 173, 0.4)',
               '&:hover': {
-                background: 'linear-gradient(45deg, #015a8a, #0095e0)',
-                boxShadow: '0 6px 20px 0 rgba(2, 103, 160, 0.4)',
+                background: 'linear-gradient(135deg, #1a0f8a 0%, #4068d8 100%)',
+                boxShadow: '0 6px 20px 0 rgba(33, 19, 173, 0.5)',
               },
               transition: 'all 0.3s ease',
             }}
