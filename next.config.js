@@ -46,18 +46,12 @@ const nextConfig = {
   // of this - including the Highcharts aliases - was taking effect.
   turbopack: {
     root: __dirname,
-    // ✅ Add rules for handling Highcharts modules
-    rules: {
-      '*.js': {
-        loaders: ['swc-loader'],
-      },
-      '*.mjs': {
-        loaders: ['swc-loader'],
-      },
-      '*.cjs': {
-        loaders: ['swc-loader'],
-      },
-    },
+    // Previously a `rules` block here forced '*.js'/'*.mjs'/'*.cjs' through
+    // swc-loader - harmless while this config was silently ignored (see
+    // comment above), but applying it for real broke middleware's own
+    // compilation (it couldn't parse Next's internal .js modules anymore).
+    // Turbopack already compiles JS/TS with SWC by default, so this rule
+    // was redundant even when working - dropped rather than scoped down.
     // ✅ Increase resolution cache for better performance
     resolveAlias: {
       // ✅ Ensure Highcharts modules resolve correctly
