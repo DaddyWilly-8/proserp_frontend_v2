@@ -181,7 +181,11 @@ const SignupForm = () => {
           inset: 0,
           overflow: 'auto',
           display: 'flex',
-          alignItems: 'center',
+          // Centering a child taller than the viewport (this form, once all
+          // fields are visible on a phone) clips its top out of scroll
+          // range - only the bottom stays reachable. Top-align on mobile
+          // instead so the whole card scrolls into view normally.
+          alignItems: { xs: 'flex-start', md: 'center' },
           justifyContent: 'center',
           backgroundColor: pageBg,
           p: 2,

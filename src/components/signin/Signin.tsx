@@ -60,7 +60,10 @@ export const Signin = () => {
         overflow: 'auto',
         p: { xs: 2, sm: 3, md: 4 },
         display: 'flex',
-        alignItems: 'center',
+        // Centering a child taller than the viewport clips its top out of
+        // scroll range on mobile - only the bottom stays reachable.
+        // Top-align there instead so the card scrolls into view normally.
+        alignItems: { xs: 'flex-start', md: 'center' },
         justifyContent: 'center',
         background: pageBg,
       }}
