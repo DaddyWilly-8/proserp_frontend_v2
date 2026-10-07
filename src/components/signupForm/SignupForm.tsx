@@ -279,7 +279,7 @@ const SignupForm = () => {
 
             <Typography textAlign="center" mt={3} variant="body2">
               Already have an account?{' '}
-              <Link href={`/${lang}/login`} underline="hover">
+              <Link href={`/${lang}/auth/signin`} underline="hover">
                 Sign in
               </Link>
             </Typography>
