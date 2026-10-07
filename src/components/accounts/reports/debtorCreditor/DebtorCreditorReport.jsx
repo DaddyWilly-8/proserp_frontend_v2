@@ -232,6 +232,7 @@ function DebtorCreditorReport({ setOpenDebtorsCreditorsDialog }) {
       : authOrganization?.costCenters.map((cost_center) => cost_center.id)
   );
   const [onlyStakeholderLinked, setOnlyStakeholderLinked] = useState(false);
+  const [includeZeroBalances, setIncludeZeroBalances] = useState(false);
   const [uploadFieldsKey, setUploadFieldsKey] = useState(0);
 
   const [isExporting, setIsExporting] = useState(false);
@@ -265,6 +266,7 @@ function DebtorCreditorReport({ setOpenDebtorsCreditorsDialog }) {
       ...filters,
       cost_center_ids: costCenterIds,
       only_stakeholder_linked: onlyStakeholderLinked,
+      include_zero_balances: includeZeroBalances,
     };
 
     const report =
@@ -429,7 +431,7 @@ function DebtorCreditorReport({ setOpenDebtorsCreditorsDialog }) {
                   }}
                 />
               </Grid>
-              <Grid size={{ xs: 12, md: 12, lg: 12 }}>
+              <Grid size={{ xs: 12, md: 6, lg: 6 }}>
                 <FormControlLabel
                   control={
                     <Checkbox
@@ -440,6 +442,19 @@ function DebtorCreditorReport({ setOpenDebtorsCreditorsDialog }) {
                     />
                   }
                   label='Stakeholders Only'
+                />
+              </Grid>
+              <Grid size={{ xs: 12, md: 6, lg: 6 }}>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={includeZeroBalances}
+                      onChange={(e) =>
+                        setIncludeZeroBalances(e.target.checked)
+                      }
+                    />
+                  }
+                  label='Show Zero Balances'
                 />
               </Grid>
               <Grid size={{ xs: 12, md: 12, lg: 12 }} textAlign='right'>
