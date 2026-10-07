@@ -28,6 +28,22 @@ function PurchaseOrderPaymentAndReceive({
   const canInstantReceive = checkOrganizationPermission(
     PERMISSIONS.PURCHASES_INSTANT_RECEIVE
   );
+  const isCashPurchase = order?.stakeholder?.name === 'Cash Purchase';
+
+  // A Cash Purchase order must always specify how it was paid, so
+  // instant_pay has to stay on. Selecting "Cash Purchase" on a new order
+  // already sets this (PurchaseOrderTopInformation's onChange), but an
+  // existing Cash Purchase order loaded for edit just restores whatever
+  // instant_pay was last saved as - correct it here if it somehow came
+  // back false.
+  React.useEffect(() => {
+    if (isCashPurchase && !instant_pay) {
+      setValue('instant_pay', true, {
+        shouldDirty: true,
+        shouldValidate: true,
+      });
+    }
+  }, [isCashPurchase, instant_pay, setValue]);
 
   //Get Store options
   React.useEffect(() => {
