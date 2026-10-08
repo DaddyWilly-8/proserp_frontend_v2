@@ -47,13 +47,20 @@ const NotificationBell = () => {
   const { data: unreadCount = 0 } = useQuery({
     queryKey: UNREAD_COUNT_KEY,
     queryFn: notificationServices.getUnreadCount,
-    refetchInterval: 30000,
+    // Every open tab for every logged-in user polls this on an interval -
+    // it was the single largest driver of Vercel's on-demand Function
+    // Invocations/Observability Events charges (see the billing report).
+    // 60s is still fresh enough for a badge count.
+    refetchInterval: 60000,
   });
 
   const { data: recentData, isLoading } = useQuery({
     queryKey: RECENT_LIST_KEY,
     queryFn: () => notificationServices.getList({ limit: 8 }),
-    refetchInterval: 30000,
+    // No refetchInterval - this list is only shown once the bell popover is
+    // opened, so polling it continuously in the background was wasted work.
+    // `invalidate()` below already refreshes it after any mark-read/delete
+    // action, and it refetches fresh each time the popover mounts/reopens.
   });
 
   const recentItems: NotificationItem[] = recentData?.data ?? [];
