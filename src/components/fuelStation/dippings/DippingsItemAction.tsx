@@ -1,6 +1,6 @@
 'use client';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
-import { FileExportGrid } from '@/components/sharedComponents/FileExportGrid';
+const FileExportGrid = dynamic(() => import('@/components/sharedComponents/FileExportGrid').then((mod) => mod.FileExportGrid), { ssr: false });
 import PreviewTopBar from '@/components/sharedComponents/PreviewTopBar';
 import { JumboDdMenu } from '@jumbo/components';
 import { useJumboDialog } from '@jumbo/components/JumboDialog/hooks/useJumboDialog';
@@ -29,10 +29,11 @@ import PDFContent from '../../pdf/PDFContent';
 import { useProductsSelect } from '../../productAndServices/products/ProductsSelectProvider';
 import fuelStationServices from '../fuelStationServices';
 import { DippingsFormContext } from './Dippings';
-import DippingsForm from './DippingsForm';
-import DippingsOnScreen from './DippingsOnScreen';
+const DippingsForm = dynamic(() => import('./DippingsForm'), { ssr: false });
+const DippingsOnScreen = dynamic(() => import('./DippingsOnScreen'), { ssr: false });
 import DippingsPDF from './DippingsPDF';
 import { Dipping, Station } from './DippingsTypes';
+import dynamic from 'next/dynamic';
 
 interface EditDippingProps {
   dipping: Dipping;

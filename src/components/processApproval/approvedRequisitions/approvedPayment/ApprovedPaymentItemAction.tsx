@@ -2,11 +2,11 @@
 
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import paymentServices from '@/components/accounts/transactions/payments/payment-services';
-import PaymentOnScreenPreview from '@/components/accounts/transactions/payments/PaymentOnScreenPreview';
+const PaymentOnScreenPreview = dynamic(() => import('@/components/accounts/transactions/payments/PaymentOnScreenPreview'), { ssr: false });
 import PaymentPDF from '@/components/accounts/transactions/payments/PaymentPDF';
 import PDFContent from '@/components/pdf/PDFContent';
 import TabbedAttachmentsDialog from '@/components/filesShelf/attachments/TabbedAttachmentsDialog';
-import { FileExportGrid } from '@/components/sharedComponents/FileExportGrid';
+const FileExportGrid = dynamic(() => import('@/components/sharedComponents/FileExportGrid').then((mod) => mod.FileExportGrid), { ssr: false });
 import PreviewTopBar from '@/components/sharedComponents/PreviewTopBar';
 import UnauthorizedAccess from '@/shared/Information/UnauthorizedAccess';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
@@ -38,7 +38,8 @@ import { useSnackbar } from 'notistack';
 import React, { useState } from 'react';
 import requisitionsServices from '../../requisitionsServices';
 import { ApprovalRequisition } from '../ApprovalRequisitionType';
-import ApprovedPaymentForm from './form/ApprovedPaymentForm';
+import dynamic from 'next/dynamic';
+const ApprovedPaymentForm = dynamic(() => import('./form/ApprovedPaymentForm'), { ssr: false });
 
 interface Payment {
   id: number;

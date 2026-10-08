@@ -10,9 +10,10 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { JumboDdMenu } from '@jumbo/components';
-import BillOfMaterialForm from './form/BillOfMaterialForm';
+const BillOfMaterialForm = dynamic(() => import('./form/BillOfMaterialForm'), { ssr: false });
 import BillOfMaterialPDF from './preview/BillOfMaterialPDF';
-import BillOfMaterialOnScreen from './preview/BillOfMaterialOnScreen';
+import dynamic from 'next/dynamic';
+const BillOfMaterialOnScreen = dynamic(() => import('./preview/BillOfMaterialOnScreen'), { ssr: false });
 
 const DocumentDialog = ({ billOfMaterial, organization, setOpenDocumentDialog }) => {
   const { data, isFetching } = useQuery({

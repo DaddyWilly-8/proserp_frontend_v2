@@ -25,10 +25,10 @@ import {
 import { useSnackbar } from 'notistack';
 import { useJumboDialog } from '@jumbo/components/JumboDialog/hooks/useJumboDialog';
 import inventoryTransferServices from '../inventoryTransfer-services';
-import InventoryTransferForm from '../form/InventoryTransferForm';
+const InventoryTransferForm = dynamic(() => import('../form/InventoryTransferForm'), { ssr: false });
 import InventoryTransferPDF from '../InventoryTransferPDF';
-import InventoryTransferReceiveForm from '../form/InventoryTransferReceiveForm';
-import InventoryTransferOnScreen from '../InventoryTransferOnScreen';
+const InventoryTransferReceiveForm = dynamic(() => import('../form/InventoryTransferReceiveForm'), { ssr: false });
+const InventoryTransferOnScreen = dynamic(() => import('../InventoryTransferOnScreen'), { ssr: false });
 import { useStoreProfile } from '../../StoreProfileProvider';
 import dayjs from 'dayjs';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
@@ -36,6 +36,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 import PDFContent from '@/components/pdf/PDFContent';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
+import dynamic from 'next/dynamic';
 
 const InventoryTransferListItemAction = ({ transfer }) => {
   const [openEditDialog, setOpenEditDialog] = useState(false);

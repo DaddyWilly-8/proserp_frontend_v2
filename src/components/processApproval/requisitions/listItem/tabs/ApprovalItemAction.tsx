@@ -3,7 +3,7 @@ import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import AttachmentForm from '@/components/filesShelf/attachments/AttachmentForm';
 import PDFContent from '@/components/pdf/PDFContent';
 import requisitionsServices from '@/components/processApproval/requisitionsServices';
-import { FileExportGrid } from '@/components/sharedComponents/FileExportGrid';
+const FileExportGrid = dynamic(() => import('@/components/sharedComponents/FileExportGrid').then((mod) => mod.FileExportGrid), { ssr: false });
 import PreviewTopBar from '@/components/sharedComponents/PreviewTopBar';
 import { Organization } from '@/types/auth-types';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
@@ -35,9 +35,10 @@ import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 import { useSnackbar } from 'notistack';
 import React, { useState } from 'react';
 import { Approval, Requisition } from '../../../RequisitionType';
-import ApprovalOnScreen from './ApprovalOnScreen';
+const ApprovalOnScreen = dynamic(() => import('./ApprovalOnScreen'), { ssr: false });
 import ApprovalPDF from './ApprovalPDF';
-import ApprovalForm from './form/ApprovalForm';
+import dynamic from 'next/dynamic';
+const ApprovalForm = dynamic(() => import('./form/ApprovalForm'), { ssr: false });
 dayjs.extend(isSameOrAfter);
 
 interface EditApprovalProps {

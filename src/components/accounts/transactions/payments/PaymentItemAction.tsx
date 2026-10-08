@@ -2,7 +2,7 @@
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import AttachmentForm from '@/components/filesShelf/attachments/AttachmentForm';
 import PDFContent from '@/components/pdf/PDFContent';
-import { FileExportGrid } from '@/components/sharedComponents/FileExportGrid';
+const FileExportGrid = dynamic(() => import('@/components/sharedComponents/FileExportGrid').then((mod) => mod.FileExportGrid), { ssr: false });
 import UnauthorizedAccess from '@/shared/Information/UnauthorizedAccess';
 import { AuthObject } from '@/types/auth-types';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
@@ -43,9 +43,10 @@ import { useSnackbar } from 'notistack';
 import React, { useState } from 'react';
 import { Transaction } from '../TransactionTypes';
 import paymentServices from './payment-services';
-import PaymentFormDialogContent from './PaymentFormDialogContent';
-import PaymentOnScreenPreview from './PaymentOnScreenPreview';
+const PaymentFormDialogContent = dynamic(() => import('./PaymentFormDialogContent'), { ssr: false });
+const PaymentOnScreenPreview = dynamic(() => import('./PaymentOnScreenPreview'), { ssr: false });
 import PaymentPDF from './PaymentPDF';
+import dynamic from 'next/dynamic';
 
 interface DocumentDialogProps {
   transaction: Transaction;

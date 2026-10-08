@@ -72,9 +72,13 @@ export default function ProductsProvider({children}){
         queryFn: () => storeServices.getStoreOptions({ mainOnly: true }) // ensure correct params
     });
 
-    // Used by 14+ files as a picker-options data source for forms/dialogs -
-    // the base page content underneath never needs this list itself, so
-    // blocking on it here held every one of those pages behind these calls.
+    // Only the create/edit/import dialogs (opened after the list has already
+    // rendered) need productCategories/measurementUnits/productParams/storeOptions,
+    // so the list itself is never blocked waiting for these to resolve. This
+    // provider wraps 14+ different list pages across the app (Purchases,
+    // Requisitions, Proformas, BOMs, Subcontracts, Stations, ...), so
+    // blocking here was dragging down page load across all of them, not
+    // just the Products page itself.
     const contextValue = {
         ...productsApp,
         setSelectedProducts: setSelectedProducts,
@@ -86,7 +90,7 @@ export default function ProductsProvider({children}){
         measurementUnits: measurementUnits || [],
         specifications: productParams?.specifications || [],
         storeOptions: storeOptions || [],
-        isLoadingProductOptions: isLoadingMeasurementUnits || isLoadingProductParams || isLoadingProductCategories || isLoadingStores,
+        isLoadingProductOptions: isLoadingMeasurementUnits || isLoadingProductParams || isLoadingProductCategories || isLoadingStores
     }
 
     return (

@@ -431,7 +431,8 @@
       "email": "Barua Pepe",
       "phone": "Simu",
       "roles": "Majukumu",
-      "noRoles": "Hakuna majukumu yaliyowekwa"
+      "noRoles": "Hakuna majukumu yaliyowekwa",
+      "showContacts": "Onyesha mawasiliano"
     },
     "approvalChains": {
       "processType": "Aina ya Mchakato",

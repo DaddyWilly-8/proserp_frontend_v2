@@ -4,9 +4,9 @@ import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import PDFContent from '@/components/pdf/PDFContent';
 import inventoryConsumptionsServices from '@/components/procurement/inventoryConsumptions/inventoryConsumptionsServices';
 import InventoryConsumptionPDF from '@/components/procurement/inventoryConsumptions/InventoryConsumptionPDF';
-import InventoryConsumptionsOnScreen from '@/components/procurement/inventoryConsumptions/InventoryConsumptionsOnScreen';
+const InventoryConsumptionsOnScreen = dynamic(() => import('@/components/procurement/inventoryConsumptions/InventoryConsumptionsOnScreen'), { ssr: false });
 import inventoryTransferServices from '@/components/procurement/stores/[store_id]/inventoryTransfer/inventoryTransfer-services';
-import InventoryTransferOnScreen from '@/components/procurement/stores/[store_id]/inventoryTransfer/InventoryTransferOnScreen';
+const InventoryTransferOnScreen = dynamic(() => import('@/components/procurement/stores/[store_id]/inventoryTransfer/InventoryTransferOnScreen'), { ssr: false });
 import InventoryTransferPDF from '@/components/procurement/stores/[store_id]/inventoryTransfer/InventoryTransferPDF';
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 import { HighlightOff, VisibilityOutlined } from '@mui/icons-material';
@@ -26,6 +26,7 @@ import {
 } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
 import React, { useState } from 'react';
+import dynamic from 'next/dynamic';
 
 interface ApprovedIssueItemActionProps {
   issue: any;

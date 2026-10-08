@@ -13,7 +13,7 @@ import {
 import React from 'react';
 import { useSnackbar } from 'notistack';
 import posServices from '../../../pos-services';
-import SaleReceiptForm from './SaleReceiptForm';
+const SaleReceiptForm = dynamic(() => import('./SaleReceiptForm'), { ssr: false });
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import PDFContent from '@/components/pdf/PDFContent';
@@ -21,6 +21,7 @@ import AttachmentForm from '@/components/filesShelf/attachments/AttachmentForm';
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 import ReceiptPDF from '@/components/accounts/transactions/receipts/ReceiptPDF';
 import { Organization } from '@/types/auth-types';
+import dynamic from 'next/dynamic';
 
 interface Receipt {
   id: string;

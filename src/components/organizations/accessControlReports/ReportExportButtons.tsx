@@ -2,16 +2,13 @@
 
 import { faFilePdf } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { LoadingButton } from '@mui/lab';
-import { Box, Tooltip } from '@mui/material';
+import { Box, Button, Tooltip } from '@mui/material';
 
 const ReportExportButtons = ({
   onExportPdf,
-  exportingPdf,
   pdfLabel,
 }: {
   onExportPdf: () => void;
-  exportingPdf?: boolean;
   pdfLabel: string;
 }) => {
   return (
@@ -27,13 +24,9 @@ const ReportExportButtons = ({
       }}
     >
       <Tooltip title={pdfLabel}>
-        <LoadingButton
-          onClick={onExportPdf}
-          loading={exportingPdf}
-          sx={{ width: 'fit-content', fontSize: 15 }}
-        >
+        <Button onClick={onExportPdf} sx={{ width: 'fit-content', fontSize: 15 }}>
           <FontAwesomeIcon color='red' size='lg' icon={faFilePdf} />
-        </LoadingButton>
+        </Button>
       </Tooltip>
     </Box>
   );

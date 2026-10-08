@@ -17,6 +17,10 @@ import { Logo } from '../logo/Logo';
 import { SidebarToggleButton } from '../sidebarToggleButton';
 import { ThemeModeOption } from './themeModeOptions/ThemeModeOption';
 
+// Both render a 40x40 circular control (IconButton/Avatar default size) -
+// a matching circular skeleton reserves that space from first paint instead
+// of popping in from nothing once the chunk loads, which otherwise shifts
+// everything else in the header and counts toward CLS on every page load.
 const headerIconSkeleton = (
   <Skeleton variant='circular' width={40} height={40} />
 );

@@ -13,7 +13,7 @@ import {
 import React from 'react';
 import { useSnackbar } from 'notistack';
 import posServices from '../../../pos-services';
-import SalesInvoiceEditForm from './SalesInvoiceEditForm';
+const SalesInvoiceEditForm = dynamic(() => import('./SalesInvoiceEditForm'), { ssr: false });
 import InvoicePDF from './InvoicePDF';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import PDFContent from '@/components/pdf/PDFContent';
@@ -23,6 +23,7 @@ import { Theme } from '@mui/material/styles';
 import { Organization } from '@/types/auth-types';
 import { Invoice } from '../SaleInvoices';
 import SalesInvoiceAdjustment from './saleAdjustment/form/SalesInvoiceAdjustment';
+import dynamic from 'next/dynamic';
 
 interface SaleInvoiceItemActionProps {
   selectedInvoice: Invoice | null;

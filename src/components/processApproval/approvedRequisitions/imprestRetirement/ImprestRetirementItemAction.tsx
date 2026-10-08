@@ -3,7 +3,7 @@
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import PDFContent from '@/components/pdf/PDFContent';
 import imprestRetirementServices from '@/components/processApproval/imprestRetirements/imprestRetirementServices';
-import { FileExportGrid } from '@/components/sharedComponents/FileExportGrid';
+const FileExportGrid = dynamic(() => import('@/components/sharedComponents/FileExportGrid').then((mod) => mod.FileExportGrid), { ssr: false });
 import PreviewTopBar from '@/components/sharedComponents/PreviewTopBar';
 import { useJumboDialog } from '@jumbo/components/JumboDialog/hooks/useJumboDialog';
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
@@ -31,10 +31,11 @@ import dayjs from 'dayjs';
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 import { useSnackbar } from 'notistack';
 import React, { useState } from 'react';
-import ImprestRetirementApprovalForm from './form/ImprestRetirementApprovalForm';
-import ImprestRetirementForm from './form/ImprestRetirementForm';
-import ImprestRetirementOnScreenPreview from './preview/ImprestRetirementOnScreenPreview';
+const ImprestRetirementApprovalForm = dynamic(() => import('./form/ImprestRetirementApprovalForm'), { ssr: false });
+const ImprestRetirementForm = dynamic(() => import('./form/ImprestRetirementForm'), { ssr: false });
+const ImprestRetirementOnScreenPreview = dynamic(() => import('./preview/ImprestRetirementOnScreenPreview'), { ssr: false });
 import ImprestRetirementPDF from './preview/ImprestRetirementPDF';
+import dynamic from 'next/dynamic';
 
 dayjs.extend(isSameOrAfter);
 

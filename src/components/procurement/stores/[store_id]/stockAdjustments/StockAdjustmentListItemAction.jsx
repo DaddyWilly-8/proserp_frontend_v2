@@ -2,18 +2,19 @@
 import { DeleteOutlined, EditOutlined, HighlightOffOutlined, MoreHorizOutlined, VisibilityOutlined } from '@mui/icons-material';
 import { Box, Button, Dialog, DialogContent, Grid, IconButton, LinearProgress, Skeleton, Tab, Tabs, Tooltip, useMediaQuery } from '@mui/material';
 import React, { useState } from 'react'
-import StockAdjustmentDialogForm from './StockAdjustmentDialogForm';
+const StockAdjustmentDialogForm = dynamic(() => import('./StockAdjustmentDialogForm'), { ssr: false });
 import stockAdjustmentServices from './stock-adjustment-services';
 import StockAdjustmentPDF from './StockAdjustmentPDF';
 import { useJumboDialog } from '@jumbo/components/JumboDialog/hooks/useJumboDialog';
 import { useSnackbar } from 'notistack';
-import StockAdjustmentOnScreen from './StockAdjustmentOnScreen';
+const StockAdjustmentOnScreen = dynamic(() => import('./StockAdjustmentOnScreen'), { ssr: false });
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 import PDFContent from '@/components/pdf/PDFContent';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
 import { JumboDdMenu } from '@jumbo/components';
+import dynamic from 'next/dynamic';
 
 const ActionDialogContent = ({ stockAdjustment, toggleOpen, action = 'open' }) => {
   const { data, isFetching } = useQuery({

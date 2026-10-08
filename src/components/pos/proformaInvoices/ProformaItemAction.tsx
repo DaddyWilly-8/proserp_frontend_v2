@@ -1,7 +1,7 @@
 'use client';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import AttachmentForm from '@/components/filesShelf/attachments/AttachmentForm';
-import { FileExportGrid } from '@/components/sharedComponents/FileExportGrid';
+const FileExportGrid = dynamic(() => import('@/components/sharedComponents/FileExportGrid').then((mod) => mod.FileExportGrid), { ssr: false });
 import PreviewTopBar from '@/components/sharedComponents/PreviewTopBar';
 import { Organization } from '@/types/auth-types';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
@@ -32,13 +32,14 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useSnackbar } from 'notistack';
 import React, { useState } from 'react';
 import PDFContent from '../../pdf/PDFContent';
-import ProformaOnScreen from '../onScreenPreviews/ProformaOnScreen';
+const ProformaOnScreen = dynamic(() => import('../onScreenPreviews/ProformaOnScreen'), { ssr: false });
 import { useSalesOutlet } from '../outlet/OutletProvider';
-import ProformaForm from './form/ProformaForm';
-import ProformaSaleForm from './form/ProformaSaleForm';
+const ProformaForm = dynamic(() => import('./form/ProformaForm'), { ssr: false });
+const ProformaSaleForm = dynamic(() => import('./form/ProformaSaleForm'), { ssr: false });
 import proformaServices from './proforma-services';
 import ProformaInvoicePDF from './ProformaInvoicePDF';
 import { Proforma } from './ProformaType';
+import dynamic from 'next/dynamic';
 
 interface EditProformaProps {
   proforma: Proforma;

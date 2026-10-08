@@ -2,7 +2,7 @@
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import AttachmentForm from '@/components/filesShelf/attachments/AttachmentForm';
 import PDFContent from '@/components/pdf/PDFContent';
-import { FileExportGrid } from '@/components/sharedComponents/FileExportGrid';
+const FileExportGrid = dynamic(() => import('@/components/sharedComponents/FileExportGrid').then((mod) => mod.FileExportGrid), { ssr: false });
 import PreviewTopBar from '@/components/sharedComponents/PreviewTopBar';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
 import { JumboDdMenu } from '@jumbo/components';
@@ -30,10 +30,11 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import { useSnackbar } from 'notistack';
 import React, { useState } from 'react';
-import InventoryConsumptionsForm from './form/InventoryConsumptionForm';
+const InventoryConsumptionsForm = dynamic(() => import('./form/InventoryConsumptionForm'), { ssr: false });
 import InventoryConsumptionPDF from './InventoryConsumptionPDF';
-import InventoryConsumptionsOnScreen from './InventoryConsumptionsOnScreen';
+const InventoryConsumptionsOnScreen = dynamic(() => import('./InventoryConsumptionsOnScreen'), { ssr: false });
 import inventoryConsumptionsServices from './inventoryConsumptionsServices';
+import dynamic from 'next/dynamic';
 
 const ActionDialogContent = ({
   inventoryConsumption,

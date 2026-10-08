@@ -2,7 +2,7 @@
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import PDFContent from '@/components/pdf/PDFContent';
 import projectsServices from '@/components/projectManagement/projects/project-services';
-import { FileExportGrid } from '@/components/sharedComponents/FileExportGrid';
+const FileExportGrid = dynamic(() => import('@/components/sharedComponents/FileExportGrid').then((mod) => mod.FileExportGrid), { ssr: false });
 import PreviewTopBar from '@/components/sharedComponents/PreviewTopBar';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
 import { useJumboDialog } from '@jumbo/components/JumboDialog/hooks/useJumboDialog';
@@ -33,9 +33,10 @@ import { useSnackbar } from 'notistack';
 import React, { useState } from 'react';
 import ClaimOnscreen from './ClaimOnscreen';
 import ClaimPDF from './ClaimPDF';
-import ProjectClaimsForm from './form/ProjectClaimsForm';
+const ProjectClaimsForm = dynamic(() => import('./form/ProjectClaimsForm'), { ssr: false });
 import ProjectClaimInvoiceDialog from './ProjectClaimInvoiceDialog';
 import { ProjectClaim } from './ProjectClaimType';
+import dynamic from 'next/dynamic';
 
 interface DocumentDialogProps {
   open: boolean;

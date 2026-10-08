@@ -2,7 +2,6 @@
 import { readableDate } from '@/app/helpers/input-sanitization-helpers';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { useLedgerSelect } from '@/components/accounts/ledgers/forms/LedgerSelectProvider';
-import { FileExportGrid } from '@/components/sharedComponents/FileExportGrid';
 import PreviewTopBar from '@/components/sharedComponents/PreviewTopBar';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
 import { JumboDdMenu } from '@jumbo/components';
@@ -31,15 +30,34 @@ import {
 import { Box } from '@mui/system';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import dayjs from 'dayjs';
+import dynamic from 'next/dynamic';
 import { useSnackbar } from 'notistack';
 import { useContext, useState } from 'react';
 import PDFContent from '../../pdf/PDFContent';
 import { useProductsSelect } from '../../productAndServices/products/ProductsSelectProvider';
 import fuelStationServices from '../fuelStationServices';
-import SalesShiftOnScreen from './preview/SalesShiftOnScreen';
 import SalesShiftPDF from './preview/SalesShiftPDF';
-import SaleShiftForm from './SaleShiftForm/SaleShiftForm';
 import { StationFormContext } from './SalesShifts';
+
+// This component is instantiated once per row in the sales shifts list, so
+// the edit form, on-screen preview, and Excel export are all loaded on
+// demand (only after a menu action opens a dialog) instead of being bundled
+// into every page load. PDFContent/SalesShiftPDF stay static imports -
+// double-wrapping them in dynamic()/lazy() has caused real runtime bugs
+// before (see memory: proserp-pdf-imports-no-dynamic).
+const FileExportGrid = dynamic(
+  () =>
+    import('@/components/sharedComponents/FileExportGrid').then(
+      (mod) => mod.FileExportGrid
+    ),
+  { ssr: false }
+);
+const SalesShiftOnScreen = dynamic(() => import('./preview/SalesShiftOnScreen'), {
+  ssr: false,
+});
+const SaleShiftForm = dynamic(() => import('./SaleShiftForm/SaleShiftForm'), {
+  ssr: false,
+});
 
 const EditShift = ({ ClosedShift, setOpenEditDialog }) => {
   const { data: shiftData, isFetching } = useQuery({

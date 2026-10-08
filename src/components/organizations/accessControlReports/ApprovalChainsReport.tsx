@@ -16,9 +16,11 @@ import {
 import { useSnackbar } from 'notistack';
 import { Div } from '@jumbo/shared';
 import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
+import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import accessControlReportsServices from './access-control-reports-services';
 import ReportExportButtons from './ReportExportButtons';
-import { downloadBlob, MIME_TYPES } from './downloadBlob';
+import PDFContent from '../../pdf/PDFContent';
+import ApprovalChainsPdfDocument from './ApprovalChainsPdfDocument';
 
 type ApprovalChainLevel = {
   id: number;
@@ -39,10 +41,12 @@ const ApprovalChainsReport = () => {
   const dictionary = useDictionary();
   const dict = dictionary.accessControlReports;
   const { enqueueSnackbar } = useSnackbar();
+  const { authOrganization, authUser } = useJumboAuth();
+  const user = authUser?.user;
 
   const [isFetching, setIsFetching] = useState(false);
   const [chains, setChains] = useState<ApprovalChain[]>([]);
-  const [exportingPdf, setExportingPdf] = useState(false);
+  const [showPdf, setShowPdf] = useState(false);
 
   const retrieveReport = async () => {
     setIsFetching(true);
@@ -61,24 +65,16 @@ const ApprovalChainsReport = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleExportPdf = async () => {
-    setExportingPdf(true);
-    try {
-      const data = await accessControlReportsServices.downloadPdfApprovalChains();
-      downloadBlob(data, MIME_TYPES.pdf, 'Approval Chains.pdf');
-    } catch (error) {
-      enqueueSnackbar(dict.messages.exportError, { variant: 'error' });
-    } finally {
-      setExportingPdf(false);
-    }
+  const handleTogglePdf = () => {
+    setShowPdf((prev) => !prev);
+    accessControlReportsServices.markApprovalChainsPdfExported().catch(() => {});
   };
 
   return (
     <Div>
       <Stack direction='row' justifyContent='flex-end' mb={2}>
         <ReportExportButtons
-          onExportPdf={handleExportPdf}
-          exportingPdf={exportingPdf}
+          onExportPdf={handleTogglePdf}
           pdfLabel={dict.buttons.exportPdf}
         />
       </Stack>
@@ -86,6 +82,12 @@ const ApprovalChainsReport = () => {
       {isFetching && <LinearProgress />}
 
       {!isFetching && (
+        showPdf ? (
+          <PDFContent
+            document={<ApprovalChainsPdfDocument chains={chains} authOrganization={authOrganization} user={user} />}
+            fileName='Approval Chains'
+          />
+        ) : (
         <TableContainer>
           <Table size='small'>
             <TableHead>
@@ -136,6 +138,7 @@ const ApprovalChainsReport = () => {
             </TableBody>
           </Table>
         </TableContainer>
+        )
       )}
     </Div>
   );

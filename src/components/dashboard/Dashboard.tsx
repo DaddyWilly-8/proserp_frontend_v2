@@ -17,8 +17,8 @@ import React, {
 } from 'react';
 import { CostCenter } from '../masters/costCenters/CostCenterType';
 import QuickLinks from './QuickLinks';
-import { AnnouncementBanner } from '@/shared/AnnouncementBanner';
 import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
+import { AnnouncementBanner } from '@/shared/AnnouncementBanner';
 
 const OrganizationCalendar = lazy(() => import('./OrganizationCalendar'));
 const Filters = lazy(() => import('./Filters'));

@@ -423,7 +423,8 @@
       "email": "Email",
       "phone": "Phone",
       "roles": "Roles",
-      "noRoles": "No roles assigned"
+      "noRoles": "No roles assigned",
+      "showContacts": "Show contact details"
     },
     "approvalChains": {
       "processType": "Process Type",

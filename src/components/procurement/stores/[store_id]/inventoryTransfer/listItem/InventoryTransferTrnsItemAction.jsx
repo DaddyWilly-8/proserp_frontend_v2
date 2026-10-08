@@ -12,9 +12,10 @@ import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { listItemContext } from './InventoryTransferListItem';
 import inventoryTransferServices from '../inventoryTransfer-services';
-import InventoryTransferTrnOnScreen from '../InventoryTransferTrnOnScreen';
+const InventoryTransferTrnOnScreen = dynamic(() => import('../InventoryTransferTrnOnScreen'), { ssr: false });
 import InventoryTransferTrnPDF from '../InventoryTransferTrnPDF';
 import PDFContent from '@/components/pdf/PDFContent';
+import dynamic from 'next/dynamic';
 
 // --- Extracted Component ---
 const DocumentDialog = ({ transferTrn, onClose }) => {

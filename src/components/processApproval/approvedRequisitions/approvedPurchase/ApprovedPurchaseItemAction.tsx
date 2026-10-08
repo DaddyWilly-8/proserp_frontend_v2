@@ -5,10 +5,10 @@ import { Currency } from '@/components/masters/Currencies/CurrencyType';
 import { Stakeholder } from '@/components/masters/stakeholders/StakeholderType';
 import PDFContent from '@/components/pdf/PDFContent';
 import purchaseServices from '@/components/procurement/purchases/purchase-services';
-import PurchaseOrderOnScreenPreview from '@/components/procurement/purchases/PurchaseOrderOnScreenPreview';
+const PurchaseOrderOnScreenPreview = dynamic(() => import('@/components/procurement/purchases/PurchaseOrderOnScreenPreview'), { ssr: false });
 import PurchaseOrderPDF from '@/components/procurement/purchases/PurchaseOrderPDF';
 import TabbedAttachmentsDialog from '@/components/filesShelf/attachments/TabbedAttachmentsDialog';
-import { FileExportGrid } from '@/components/sharedComponents/FileExportGrid';
+const FileExportGrid = dynamic(() => import('@/components/sharedComponents/FileExportGrid').then((mod) => mod.FileExportGrid), { ssr: false });
 import PreviewTopBar from '@/components/sharedComponents/PreviewTopBar';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
 import { JumboDdMenu } from '@jumbo/components';
@@ -42,7 +42,8 @@ import { useSnackbar } from 'notistack';
 import React, { useState } from 'react';
 import requisitionsServices from '../../requisitionsServices';
 import { PurchaseApprovalRequisition } from '../ApprovalRequisitionType';
-import ApprovedPurchaseForm from './form/ApprovedPurchaseForm';
+import dynamic from 'next/dynamic';
+const ApprovedPurchaseForm = dynamic(() => import('./form/ApprovedPurchaseForm'), { ssr: false });
 
 dayjs.extend(isSameOrAfter);
 

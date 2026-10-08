@@ -34,9 +34,10 @@ import { Transaction, TransactionTypes } from '@/components/accounts/transaction
 import SalesInvoiceAdjustment from './form/SalesInvoiceAdjustment';
 import posServices from '@/components/pos/pos-services';
 import StakeholderSelectProvider from '@/components/masters/stakeholders/StakeholderSelectProvider';
-import AdjustmentOnScreen from './AdjustmentOnScreen';
+const AdjustmentOnScreen = dynamic(() => import('./AdjustmentOnScreen'), { ssr: false });
 import PDFContent from '@/components/pdf/PDFContent';
 import AdjustmentPDF from './AdjustmentPDF';
+import dynamic from 'next/dynamic';
 
 interface SaleInvoiceAdjustmentItemActionProps {
   transaction: Transaction;

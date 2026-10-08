@@ -190,6 +190,7 @@ const RequisitionsListItem = ({ requisition }: RequisitionsListItemProps) => {
             >
               <Tooltip title='Attachments'>
                 <IconButton
+                  component='span'
                   size='small'
                   onClick={(event) => {
                     event.stopPropagation();

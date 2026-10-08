@@ -23,14 +23,15 @@ import { useSnackbar } from 'notistack';
 import React, { useState } from 'react';
 import { useJumboDialog } from '@jumbo/components/JumboDialog/hooks/useJumboDialog';
 import productionBatchesServices from './productionBatchesServices';
-import ProductionBatchesForm from './form/ProductionBatchesForm';
+const ProductionBatchesForm = dynamic(() => import('./form/ProductionBatchesForm'), { ssr: false });
 import BatchPDF from './preview/BatchPDF';
-import BatchOnScreen from './preview/BatchOnScreen';
+const BatchOnScreen = dynamic(() => import('./preview/BatchOnScreen'), { ssr: false });
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { JumboDdMenu } from '@jumbo/components';
 import PDFContent from '@/components/pdf/PDFContent';
+import dynamic from 'next/dynamic';
 
 const EditBatch = ({ batch, setOpenEditDialog }) => {
   const [isConsumptionDeletedInside, setIsConsumptionDeletedInside] = useState(false);

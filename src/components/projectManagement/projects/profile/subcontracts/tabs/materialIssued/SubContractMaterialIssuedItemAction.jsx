@@ -10,8 +10,9 @@ import PDFContent from '@/components/pdf/PDFContent';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { JumboDdMenu } from '@jumbo/components';
 import projectsServices from '@/components/projectManagement/projects/project-services';
-import SubContractMaterialIssuedOnScreen from './SubContractMaterialIssuedOnScreen';
+const SubContractMaterialIssuedOnScreen = dynamic(() => import('./SubContractMaterialIssuedOnScreen'), { ssr: false });
 import SubContractMaterialIssuedPDF from './SubContractMaterialIssuedPDF';
+import dynamic from 'next/dynamic';
 
 const DocumentDialog = ({ setOpenDocumentDialog, SubContractMaterialIssued, organization }) => {
     const {data:SubContractMaterialIssuedDetails,isFetching} = useQuery({

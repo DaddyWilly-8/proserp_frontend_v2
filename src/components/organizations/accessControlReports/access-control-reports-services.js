@@ -7,11 +7,11 @@ accessControlReportsServices.rolesPermissions = async () => {
   return data;
 }
 
-accessControlReportsServices.downloadPdfRolesPermissions = async () => {
-  const { data } = await axios.post(`/api/accessControlReports/rolesPermissions/pdf`, {}, {
-    responseType: 'blob',
-  });
-  return data;
+// PDF is rendered client-side (@react-pdf/renderer); this just records the
+// export in the audit trail. Fire-and-forget from the caller — a failure
+// here should never block the PDF the user already has on screen.
+accessControlReportsServices.markRolesPermissionsPdfExported = async () => {
+  await axios.post(`/api/accessControlReports/rolesPermissions/pdf-exported`, {});
 }
 
 accessControlReportsServices.usersRoles = async () => {
@@ -19,11 +19,8 @@ accessControlReportsServices.usersRoles = async () => {
   return data;
 }
 
-accessControlReportsServices.downloadPdfUsersRoles = async () => {
-  const { data } = await axios.post(`/api/accessControlReports/usersRoles/pdf`, {}, {
-    responseType: 'blob',
-  });
-  return data;
+accessControlReportsServices.markUsersRolesPdfExported = async () => {
+  await axios.post(`/api/accessControlReports/usersRoles/pdf-exported`, {});
 }
 
 accessControlReportsServices.approvalChains = async () => {
@@ -31,11 +28,8 @@ accessControlReportsServices.approvalChains = async () => {
   return data;
 }
 
-accessControlReportsServices.downloadPdfApprovalChains = async () => {
-  const { data } = await axios.post(`/api/accessControlReports/approvalChains/pdf`, {}, {
-    responseType: 'blob',
-  });
-  return data;
+accessControlReportsServices.markApprovalChainsPdfExported = async () => {
+  await axios.post(`/api/accessControlReports/approvalChains/pdf-exported`, {});
 }
 
 export default accessControlReportsServices;

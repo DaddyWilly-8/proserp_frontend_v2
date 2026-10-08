@@ -2,7 +2,7 @@
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import AttachmentForm from '@/components/filesShelf/attachments/AttachmentForm';
 import PDFContent from '@/components/pdf/PDFContent';
-import { FileExportGrid } from '@/components/sharedComponents/FileExportGrid';
+const FileExportGrid = dynamic(() => import('@/components/sharedComponents/FileExportGrid').then((mod) => mod.FileExportGrid), { ssr: false });
 import PreviewTopBar from '@/components/sharedComponents/PreviewTopBar';
 import UnauthorizedAccess from '@/shared/Information/UnauthorizedAccess';
 import { AuthObject } from '@/types/auth-types';
@@ -43,10 +43,11 @@ import dayjs, { Dayjs } from 'dayjs';
 import { useSnackbar } from 'notistack';
 import React, { useEffect, useState } from 'react';
 import { Transaction } from '../TransactionTypes';
-import JournalFormDialogContent from './JournalFormDialogContent';
-import JournalOnScreen from './JournalOnScreen';
+const JournalFormDialogContent = dynamic(() => import('./JournalFormDialogContent'), { ssr: false });
+const JournalOnScreen = dynamic(() => import('./JournalOnScreen'), { ssr: false });
 import JournalPDF from './JournalPDF';
 import journalServices from './journal-services';
+import dynamic from 'next/dynamic';
 
 interface DocumentDialogProps {
   transaction: Transaction;

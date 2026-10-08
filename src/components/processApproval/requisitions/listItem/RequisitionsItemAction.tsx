@@ -1,6 +1,5 @@
 'use client';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
-import { FileExportGrid } from '@/components/sharedComponents/FileExportGrid';
 import PreviewTopBar from '@/components/sharedComponents/PreviewTopBar';
 import { Organization } from '@/types/auth-types';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
@@ -27,15 +26,34 @@ import {
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
+import dynamic from 'next/dynamic';
 import { useSnackbar } from 'notistack';
 import React, { useContext, useState } from 'react';
 import PDFContent from '../../../pdf/PDFContent';
 import RequisitionPDF from '../../RequisitionPDF';
 import { requisitionContext } from '../../Requisitions';
-import RequisitionsOnScreen from '../../RequisitionsOnScreen';
 import requisitionsServices from '../../requisitionsServices';
 import { Requisition } from '../../RequisitionType';
-import RequisitionsForm from '../form/RequisitionsForm';
+
+// This component is instantiated once per row in the requisitions list, so
+// the edit form, on-screen preview, and Excel export are all loaded on
+// demand (only after a menu action opens a dialog) instead of being bundled
+// into every page load. PDFContent/RequisitionPDF stay static imports -
+// double-wrapping them in dynamic()/lazy() has caused real runtime bugs
+// before (see memory: proserp-pdf-imports-no-dynamic).
+const FileExportGrid = dynamic(
+  () =>
+    import('@/components/sharedComponents/FileExportGrid').then(
+      (mod) => mod.FileExportGrid
+    ),
+  { ssr: false }
+);
+const RequisitionsOnScreen = dynamic(() => import('../../RequisitionsOnScreen'), {
+  ssr: false,
+});
+const RequisitionsForm = dynamic(() => import('../form/RequisitionsForm'), {
+  ssr: false,
+});
 
 dayjs.extend(isSameOrAfter);
 

@@ -4,7 +4,7 @@ import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
 import PDFContent from '@/components/pdf/PDFContent';
 import projectsServices from '@/components/projectManagement/projects/project-services';
-import { FileExportGrid } from '@/components/sharedComponents/FileExportGrid';
+const FileExportGrid = dynamic(() => import('@/components/sharedComponents/FileExportGrid').then((mod) => mod.FileExportGrid), { ssr: false });
 import PreviewTopBar from '@/components/sharedComponents/PreviewTopBar';
 import { Organization } from '@/types/auth-types';
 import { useJumboDialog } from '@jumbo/components/JumboDialog/hooks/useJumboDialog';
@@ -33,11 +33,12 @@ import {
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useSnackbar } from 'notistack';
 import React, { useState } from 'react';
-import CertificateForm from './form/CertificateForm';
+const CertificateForm = dynamic(() => import('./form/CertificateForm'), { ssr: false });
+const CertificateOnScreen = dynamic(() => import('./preview/CertificateOnScreen'), { ssr: false });
 import CertificateInvoiceDialog from './CertificateInvoiceDialog';
-import CertificateOnScreen from './preview/CertificateOnScreen';
 import CertificatePDF from './preview/CertificatePDF';
 import { Certificate } from './CertificateType';
+import dynamic from 'next/dynamic';
 
 const DocumentDialog: React.FC<{
   open: boolean;

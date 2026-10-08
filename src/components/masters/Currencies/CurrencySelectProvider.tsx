@@ -18,9 +18,11 @@ interface CurrencySelectProviderProps {
     children: ReactNode;
 }
 
-// Used in 46+ files as a currency-picker data source for forms/dialogs - the
-// base page content underneath never needs this list itself, so blocking on
-// it here held every one of those pages behind a single API call.
+// Used at the top of ~45 pages/forms across the app - blocking render on
+// `currencies` here held every one of those pages behind a single API call
+// before showing anything. Consumers (Autocomplete/Select options) already
+// default to an empty array until `currencies` resolves, so there's nothing
+// here that actually needs to gate the whole page.
 function CurrencySelectProvider({ children }: CurrencySelectProviderProps) {
     const { data: result, isLoading } = useQuery({
         queryKey: ['currencies'],

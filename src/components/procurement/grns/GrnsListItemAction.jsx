@@ -1,7 +1,7 @@
 'use client';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import PDFContent from '@/components/pdf/PDFContent';
-import { FileExportGrid } from '@/components/sharedComponents/FileExportGrid';
+const FileExportGrid = dynamic(() => import('@/components/sharedComponents/FileExportGrid').then((mod) => mod.FileExportGrid), { ssr: false });
 import PreviewTopBar from '@/components/sharedComponents/PreviewTopBar';
 import { JumboDdMenu } from '@jumbo/components';
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
@@ -26,8 +26,9 @@ import { useState } from 'react';
 import AttachmentForm from '../../filesShelf/attachments/AttachmentForm';
 import { useCurrencySelect } from '../../masters/Currencies/CurrencySelectProvider';
 import grnServices from './grn-services';
-import GrnOnScreenPreview from './GrnOnScreenPreview';
+const GrnOnScreenPreview = dynamic(() => import('./GrnOnScreenPreview'), { ssr: false });
 import GrnPDF from './GrnPDF';
+import dynamic from 'next/dynamic';
 
 const DocumentDialog = ({
   grn_id,
