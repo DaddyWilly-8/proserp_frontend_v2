@@ -91,7 +91,11 @@ const SignupForm = () => {
   const { signUp, stopAuthLoading } = useJumboAuth();
   const router = useRouter();
   const lang = useLanguage();
+  // The app's actual theme (src/themes/main/{default,dark}.ts) - not a
+  // custom hardcoded palette, so this page matches whatever the rest of
+  // the app looks like once logged in, light or dark.
   const { theme } = useJumboTheme();
+  const { palette } = theme;
   const isDark = theme.type === 'dark';
 
   const [showPassword, setShowPassword] = useState(false);
@@ -143,34 +147,24 @@ const SignupForm = () => {
     }
   };
 
-  const pageBg = isDark ? '#11162a' : '#f5f7fb';
-  const cardBg = pageBg;
-  const cardBorder = isDark ? '1px solid rgba(255,255,255,0.08)' : 'none';
+  const pageBg = palette.background.default;
   const cardShadow = isDark
     ? '0 20px 60px rgba(0,0,0,0.5)'
     : '0 20px 60px rgba(0,0,0,0.1)';
-  const heading = isDark ? '#fff' : 'text.primary';
-  const subtext = isDark ? 'rgba(255,255,255,0.6)' : 'text.secondary';
-  const linkColor = isDark ? '#8FB4FF' : '#2113AD';
+  const brandGradient = `linear-gradient(135deg, ${palette.primary.main} 0%, ${palette.primary.light} 100%)`;
 
-  const labelColor = isDark ? 'rgba(255,255,255,0.75)' : 'text.secondary';
-  const iconColor = isDark ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.4)';
-  const inputBg = isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.02)';
-  const inputText = isDark ? '#fff' : 'text.primary';
-  const borderColor = isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.15)';
-
-  const fieldLabelSx = { color: labelColor, fontWeight: 600, fontSize: '0.8rem', mb: 0.75 };
+  const fieldLabelSx = { color: palette.text.secondary, fontWeight: 600, fontSize: '0.8rem', mb: 0.75 };
   const fieldSx = {
     '& .MuiOutlinedInput-root': {
       borderRadius: '10px',
-      backgroundColor: inputBg,
-      color: inputText,
-      '& fieldset': { borderColor },
-      '&:hover fieldset': { borderColor: '#567FFB' },
-      '&.Mui-focused fieldset': { borderColor: '#567FFB', borderWidth: '2px' },
+      backgroundColor: palette.background.paper,
+      color: palette.text.primary,
+      '& fieldset': { borderColor: palette.divider },
+      '&:hover fieldset': { borderColor: palette.primary.main },
+      '&.Mui-focused fieldset': { borderColor: palette.primary.main, borderWidth: '2px' },
     },
   };
-  const iconSx = { color: iconColor, fontSize: 20 };
+  const iconSx = { color: palette.text.secondary, fontSize: 20 };
 
   return (
     <FormProvider {...methods}>
@@ -199,17 +193,17 @@ const SignupForm = () => {
             flexDirection: { xs: 'column', md: 'row' },
             borderRadius: 4,
             overflow: 'hidden',
-            border: cardBorder,
+            border: isDark ? `1px solid ${palette.divider}` : 'none',
             boxShadow: cardShadow,
-            backgroundColor: cardBg,
+            backgroundColor: pageBg,
           }}
         >
           {/* LEFT PANEL */}
           <CardContent
             sx={{
               flex: { xs: '0 1 auto', md: 0.55 },
-              color: '#fff',
-              background: 'linear-gradient(135deg, #2113AD 0%, #567FFB 100%)',
+              color: palette.primary.contrastText,
+              background: brandGradient,
               display: 'flex',
               flexDirection: 'column',
               gap: { xs: 2, md: 4 },
@@ -269,15 +263,15 @@ const SignupForm = () => {
           </CardContent>
 
           {/* RIGHT PANEL */}
-          <CardContent sx={{ flex: 0.6, p: { xs: 3, md: 5 }, backgroundColor: cardBg }}>
+          <CardContent sx={{ flex: 0.6, p: { xs: 3, md: 5 }, backgroundColor: pageBg }}>
             <Stack direction="row" justifyContent="flex-end" alignItems="center" sx={{ mb: 1 }}>
               <ThemeModeOption />
             </Stack>
 
-            <Typography variant="h5" fontWeight={700} sx={{ color: heading, mb: 0.5 }}>
+            <Typography variant="h5" fontWeight={700} sx={{ color: palette.text.primary, mb: 0.5 }}>
               Create your account
             </Typography>
-            <Typography variant="body2" sx={{ color: subtext, mb: 3 }}>
+            <Typography variant="body2" sx={{ color: palette.text.secondary, mb: 3 }}>
               Fill in the details below to get started.
             </Typography>
 
@@ -374,7 +368,7 @@ const SignupForm = () => {
                             <IconButton
                               onClick={() => setShowPassword((s) => !s)}
                               edge="end"
-                              sx={{ color: iconColor }}
+                              sx={{ color: palette.text.secondary }}
                             >
                               {showPassword ? <Visibility /> : <VisibilityOff />}
                             </IconButton>
@@ -402,7 +396,7 @@ const SignupForm = () => {
                             <IconButton
                               onClick={() => setShowPasswordConfirm((s) => !s)}
                               edge="end"
-                              sx={{ color: iconColor }}
+                              sx={{ color: palette.text.secondary }}
                             >
                               {showPasswordConfirm ? (
                                 <Visibility />
@@ -433,12 +427,10 @@ const SignupForm = () => {
                     borderRadius: '10px',
                     textTransform: 'none',
                     fontWeight: 700,
-                    background:
-                      'linear-gradient(135deg, #2113AD 0%, #567FFB 100%)',
-                    boxShadow: '0 4px 15px 0 rgba(33, 19, 173, 0.4)',
+                    background: brandGradient,
+                    boxShadow: `0 4px 15px 0 ${palette.primary.main}66`,
                     '&:hover': {
-                      background:
-                        'linear-gradient(135deg, #1a0f8a 0%, #4068d8 100%)',
+                      background: `linear-gradient(135deg, ${palette.primary.dark} 0%, ${palette.primary.main} 100%)`,
                     },
                   }}
                 >
@@ -447,9 +439,9 @@ const SignupForm = () => {
               </Stack>
             </Box>
 
-            <Typography textAlign="center" mt={3} variant="body2" sx={{ color: subtext }}>
+            <Typography textAlign="center" mt={3} variant="body2" sx={{ color: palette.text.secondary }}>
               Already have an account?{' '}
-              <Link href={`/${lang}/auth/signin`} underline="hover" sx={{ color: linkColor }}>
+              <Link href={`/${lang}/auth/signin`} underline="hover" sx={{ color: palette.primary.main }}>
                 Sign in
               </Link>
             </Typography>

@@ -31,8 +31,11 @@ import organizationServices from '../organizations/organizationServices';
 const LoginForm = () => {
   const lang = useLanguage();
   const dictionary = useDictionary();
+  // The app's actual theme (src/themes/main/{default,dark}.ts) - not a
+  // custom hardcoded palette, so this page matches whatever the rest of
+  // the app looks like once logged in, light or dark.
   const { theme } = useJumboTheme();
-  const isDark = theme.type === 'dark';
+  const { palette } = theme;
 
   const [loading, setLoading] = React.useState(false);
   const { enqueueSnackbar } = useSnackbar();
@@ -144,26 +147,17 @@ const LoginForm = () => {
     });
   };
 
-  const labelColor = isDark ? 'rgba(255,255,255,0.75)' : 'text.secondary';
-  const iconColor = isDark ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.4)';
-  const inputBg = isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.02)';
-  const inputText = isDark ? '#fff' : 'text.primary';
-  const borderColor = isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.15)';
-  const placeholderColor = isDark ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.4)';
-  const checkboxOffColor = isDark ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.4)';
-  const checkboxLabelColor = isDark ? 'rgba(255,255,255,0.75)' : 'text.secondary';
-
-  const fieldLabelSx = { color: labelColor, fontWeight: 600, fontSize: '0.8rem', mb: 0.75 };
+  const fieldLabelSx = { color: palette.text.secondary, fontWeight: 600, fontSize: '0.8rem', mb: 0.75 };
   const fieldSx = {
     '& .MuiOutlinedInput-root': {
       borderRadius: '10px',
-      backgroundColor: inputBg,
-      color: inputText,
-      '& fieldset': { borderColor },
-      '&:hover fieldset': { borderColor: '#567FFB' },
-      '&.Mui-focused fieldset': { borderColor: '#567FFB', borderWidth: '2px' },
+      backgroundColor: palette.background.paper,
+      color: palette.text.primary,
+      '& fieldset': { borderColor: palette.divider },
+      '&:hover fieldset': { borderColor: palette.primary.main },
+      '&.Mui-focused fieldset': { borderColor: palette.primary.main, borderWidth: '2px' },
     },
-    '& .MuiInputBase-input::placeholder': { color: placeholderColor, opacity: 1 },
+    '& .MuiInputBase-input::placeholder': { color: palette.text.secondary, opacity: 1 },
   };
 
   return (
@@ -186,7 +180,7 @@ const LoginForm = () => {
               InputProps={{
                 startAdornment: (
                   <InputAdornment position='start'>
-                    <PersonOutline sx={{ color: iconColor, fontSize: 20 }} />
+                    <PersonOutline sx={{ color: palette.text.secondary, fontSize: 20 }} />
                   </InputAdornment>
                 ),
               }}
@@ -206,7 +200,7 @@ const LoginForm = () => {
               margin='none'
               startAdornment={
                 <InputAdornment position='start'>
-                  <LockOutlined sx={{ color: iconColor, fontSize: 20 }} />
+                  <LockOutlined sx={{ color: palette.text.secondary, fontSize: 20 }} />
                 </InputAdornment>
               }
               endAdornment={
@@ -217,7 +211,7 @@ const LoginForm = () => {
                     }
                     onClick={handleClickShowPassword}
                     edge='end'
-                    sx={{ color: iconColor }}
+                    sx={{ color: palette.text.secondary }}
                   >
                     {values.showPassword ? <Visibility /> : <VisibilityOff />}
                   </IconButton>
@@ -225,11 +219,11 @@ const LoginForm = () => {
               }
               sx={{
                 borderRadius: '10px',
-                backgroundColor: inputBg,
-                color: inputText,
-                '& fieldset': { borderColor },
-                '&:hover fieldset': { borderColor: '#567FFB' },
-                '&.Mui-focused fieldset': { borderColor: '#567FFB', borderWidth: '2px' },
+                backgroundColor: palette.background.paper,
+                color: palette.text.primary,
+                '& fieldset': { borderColor: palette.divider },
+                '&:hover fieldset': { borderColor: palette.primary.main },
+                '&.Mui-focused fieldset': { borderColor: palette.primary.main, borderWidth: '2px' },
               }}
             />
           </Box>
@@ -245,9 +239,9 @@ const LoginForm = () => {
               label={dictionary.signin.form.fields.rememberMe}
               defaultChecked
               sx={{
-                color: checkboxOffColor,
-                '&.Mui-checked': { color: '#567FFB' },
-                '& + .MuiFormControlLabel-label': { color: checkboxLabelColor },
+                color: palette.text.secondary,
+                '&.Mui-checked': { color: palette.primary.main },
+                '& + .MuiFormControlLabel-label': { color: palette.text.secondary },
               }}
             />
           </Stack>
@@ -259,16 +253,16 @@ const LoginForm = () => {
             size='large'
             disabled={loading || isPending}
             sx={{
-              background: 'linear-gradient(135deg, #2113AD 0%, #567FFB 100%)',
+              background: `linear-gradient(135deg, ${palette.primary.main} 0%, ${palette.primary.light} 100%)`,
               borderRadius: '10px',
               py: 1.5,
               fontSize: '1rem',
               fontWeight: 700,
               textTransform: 'none',
-              boxShadow: '0 4px 15px 0 rgba(33, 19, 173, 0.4)',
+              boxShadow: `0 4px 15px 0 ${palette.primary.main}66`,
               '&:hover': {
-                background: 'linear-gradient(135deg, #1a0f8a 0%, #4068d8 100%)',
-                boxShadow: '0 6px 20px 0 rgba(33, 19, 173, 0.5)',
+                background: `linear-gradient(135deg, ${palette.primary.dark} 0%, ${palette.primary.main} 100%)`,
+                boxShadow: `0 6px 20px 0 ${palette.primary.main}80`,
               },
               transition: 'all 0.3s ease',
             }}

@@ -38,19 +38,17 @@ const FEATURES = [
 export const Signin = () => {
   const dictionary = useDictionary();
   const lang = useLanguage();
+  // The app's actual theme (src/themes/main/{default,dark}.ts) - not a
+  // custom hardcoded palette, so this page matches whatever the rest of
+  // the app looks like once logged in, light or dark.
   const { theme } = useJumboTheme();
+  const { palette } = theme;
   const isDark = theme.type === 'dark';
 
-  const pageBg = isDark ? '#11162a' : '#f5f7fb';
-  const cardBg = pageBg;
-  const cardBorder = isDark ? '1px solid rgba(255,255,255,0.08)' : 'none';
+  const pageBg = palette.background.default;
   const cardShadow = isDark
     ? '0 20px 60px rgba(0,0,0,0.5)'
     : '0 20px 60px rgba(0,0,0,0.1)';
-  const heading = isDark ? '#fff' : 'text.primary';
-  const subtext = isDark ? 'rgba(255,255,255,0.6)' : 'text.secondary';
-  const linkColor = isDark ? '#8FB4FF' : '#2113AD';
-  const linkHover = isDark ? '#567FFB' : '#1a0f8a';
 
   return (
     <Box
@@ -74,20 +72,20 @@ export const Signin = () => {
           flexDirection: { xs: 'column', md: 'row' },
           borderRadius: 4,
           overflow: 'hidden',
-          border: cardBorder,
+          border: isDark ? `1px solid ${palette.divider}` : 'none',
           boxShadow: cardShadow,
           maxWidth: 920,
           width: '100%',
           mx: 'auto',
-          backgroundColor: cardBg,
+          backgroundColor: pageBg,
         }}
       >
         {/* Left brand panel */}
         <CardContent
           sx={{
             flex: { xs: '0 1 auto', md: '0 1 360px' },
-            background: 'linear-gradient(135deg, #2113AD 0%, #567FFB 100%)',
-            color: 'common.white',
+            background: `linear-gradient(135deg, ${palette.primary.main} 0%, ${palette.primary.light} 100%)`,
+            color: palette.primary.contrastText,
             p: { xs: 2.5, md: 5 },
             display: 'flex',
             flexDirection: 'column',
@@ -155,7 +153,7 @@ export const Signin = () => {
             flex: 1,
             p: { xs: 3, md: 5 },
             position: 'relative',
-            backgroundColor: cardBg,
+            backgroundColor: pageBg,
           }}
         >
           <Stack
@@ -167,10 +165,10 @@ export const Signin = () => {
             <ThemeModeOption />
           </Stack>
 
-          <Typography variant='h5' fontWeight={700} sx={{ color: heading, mb: 0.5 }}>
+          <Typography variant='h5' fontWeight={700} sx={{ color: palette.text.primary, mb: 0.5 }}>
             {dictionary.signin.form.title}
           </Typography>
-          <Typography variant='body2' sx={{ color: subtext, mb: 3 }}>
+          <Typography variant='body2' sx={{ color: palette.text.secondary, mb: 3 }}>
             Use your ProsERP account to continue.
           </Typography>
 
@@ -181,23 +179,23 @@ export const Signin = () => {
               <Link
                 underline='none'
                 href={`/${lang}/auth/reset-password`}
-                sx={{ color: linkColor }}
+                sx={{ color: palette.primary.main }}
               >
                 {dictionary.signin.forgotPassword.text}
               </Link>
             </Typography>
 
             <Typography variant='body1' align='center'>
-              <Box component='span' sx={{ color: subtext, mr: 1 }}>
+              <Box component='span' sx={{ color: palette.text.secondary, mr: 1 }}>
                 {dictionary.signin.accountPrompt.text}
               </Box>
               <Link
                 underline='none'
                 href={`/${lang}/auth/signup`}
                 sx={{
-                  color: linkColor,
+                  color: palette.primary.main,
                   fontWeight: 600,
-                  '&:hover': { color: linkHover },
+                  '&:hover': { color: palette.primary.light },
                 }}
               >
                 {dictionary.signin.accountPrompt.action}
