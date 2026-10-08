@@ -47,11 +47,11 @@ const NotificationBell = () => {
   const { data: unreadCount = 0 } = useQuery({
     queryKey: UNREAD_COUNT_KEY,
     queryFn: notificationServices.getUnreadCount,
-    // Every open tab for every logged-in user polls this on an interval -
-    // it was the single largest driver of Vercel's on-demand Function
-    // Invocations/Observability Events charges (see the billing report).
-    // 60s is still fresh enough for a badge count.
-    refetchInterval: 60000,
+    // No refetchInterval - polling this on every open tab for every
+    // logged-in user was the single largest driver of Vercel's on-demand
+    // Function Invocations/Observability Events charges (see the billing
+    // report). It now only fetches on mount (i.e. on page reload) and
+    // whenever invalidate() runs after a mark-read/delete action.
   });
 
   const { data: recentData, isLoading } = useQuery({
