@@ -8,7 +8,9 @@ import {
   Chip,
   Dialog,
   Divider,
+  MenuItem,
   Paper,
+  Select,
   Tab,
   Tabs,
   Typography,
@@ -46,12 +48,28 @@ export default function BankReconciliationWorkspace({ bankAccountId }: Props) {
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
   const [importDialogOpen, setImportDialogOpen] = useState(false);
   const [tab, setTab] = useState(0);
+  // null = "whichever statement the workspace defaults to" (the latest one).
+  // Set once the user explicitly picks a different statement from the
+  // selector below — otherwise an older, never-completed statement becomes
+  // permanently unreachable the moment a newer one is imported, since
+  // the backend always defaults to the latest by date.
+  const [selectedStatementId, setSelectedStatementId] = useState<number | null>(null);
 
   const { data, isLoading, isError, error } = useQuery({
-    queryKey: ['bank-reconciliation-workspace', bankAccountId],
-    queryFn: () => bankReconciliationServices.getReconciliationWorkspace(bankAccountId),
+    queryKey: ['bank-reconciliation-workspace', bankAccountId, selectedStatementId],
+    queryFn: () =>
+      bankReconciliationServices.getReconciliationWorkspace(
+        bankAccountId,
+        selectedStatementId ? { statement_id: selectedStatementId } : {}
+      ),
     retry: false,
   });
+
+  const { data: statementsData } = useQuery({
+    queryKey: ['bank-statements-list', bankAccountId],
+    queryFn: () => bankReconciliationServices.listStatements(bankAccountId),
+  });
+  const statements = statementsData?.statements ?? [];
 
   const completeMutation = useMutation({
     mutationFn: () => bankReconciliationServices.completeStatement(data.statement.id),
@@ -68,7 +86,9 @@ export default function BankReconciliationWorkspace({ bankAccountId }: Props) {
     onSuccess: (result) => {
       enqueueSnackbar(result.message || 'Statement deleted', { variant: 'success' });
       hideDialog();
+      setSelectedStatementId(null);
       queryClient.invalidateQueries({ queryKey: ['bank-reconciliation-workspace', bankAccountId] });
+      queryClient.invalidateQueries({ queryKey: ['bank-statements-list', bankAccountId] });
       queryClient.invalidateQueries({ queryKey: ['bank-accounts-list'] });
     },
     onError: (err: any) => enqueueSnackbar(err?.response?.data?.message || 'Failed to delete statement', { variant: 'error' }),
@@ -139,12 +159,31 @@ export default function BankReconciliationWorkspace({ bankAccountId }: Props) {
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2, flexWrap: 'wrap', gap: 1 }}>
           <Box>
             <Typography variant='h5'>{bankAccount?.ledger?.name}</Typography>
-            <Typography variant='body2' color='text.secondary' component='div' sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <span>
-                Statement {formatDate(statement.statement_date_from)} – {formatDate(statement.statement_date_to)}
-              </span>
-              <Chip size='small' label={statement.status} color={isCompleted ? 'success' : 'default'} />
-            </Typography>
+            {statements.length > 1 ? (
+              <Select
+                size='small'
+                value={statement.id}
+                onChange={(e) => {
+                  setSelectedStatementId(Number(e.target.value));
+                  setTab(0);
+                }}
+                sx={{ mt: 0.5, minWidth: 260 }}
+              >
+                {statements.map((s: any) => (
+                  <MenuItem key={s.id} value={s.id}>
+                    {formatDate(s.statement_date_from)} – {formatDate(s.statement_date_to)} ({s.status}
+                    {s.unmatched_lines_count > 0 ? `, ${s.unmatched_lines_count} unmatched` : ''})
+                  </MenuItem>
+                ))}
+              </Select>
+            ) : (
+              <Typography variant='body2' color='text.secondary' component='div' sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <span>
+                  Statement {formatDate(statement.statement_date_from)} – {formatDate(statement.statement_date_to)}
+                </span>
+                <Chip size='small' label={statement.status} color={isCompleted ? 'success' : 'default'} />
+              </Typography>
+            )}
           </Box>
           <Box sx={{ display: 'flex', gap: 1 }}>
             {!isCompleted && checkOrganizationPermission(PERMISSIONS.BANK_RECONCILIATION_CREATE) && (
@@ -335,6 +374,7 @@ export default function BankReconciliationWorkspace({ bankAccountId }: Props) {
             bankAccountId={bankAccountId}
             savedColumnMap={bankAccount?.column_map}
             toggleOpen={setImportDialogOpen}
+            onImported={() => setSelectedStatementId(null)}
           />
         )}
       </Dialog>

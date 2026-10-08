@@ -39,6 +39,7 @@ interface Props {
   bankAccountId: number;
   savedColumnMap?: ColumnMap | null;
   toggleOpen: (open: boolean) => void;
+  onImported?: () => void;
 }
 
 const FIELD_LABELS: Record<keyof ColumnMap, string> = {
@@ -56,7 +57,7 @@ const sanitizedNumber = (value: string): string => {
   return Number.isNaN(parsed) ? '' : String(parsed);
 };
 
-export default function ImportStatementDialog({ bankAccountId, savedColumnMap, toggleOpen }: Props) {
+export default function ImportStatementDialog({ bankAccountId, savedColumnMap, toggleOpen, onImported }: Props) {
   const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
 
@@ -103,7 +104,9 @@ export default function ImportStatementDialog({ bankAccountId, savedColumnMap, t
     onSuccess: (data) => {
       setImportResult(data);
       queryClient.invalidateQueries({ queryKey: ['bank-reconciliation-workspace', bankAccountId] });
+      queryClient.invalidateQueries({ queryKey: ['bank-statements-list', bankAccountId] });
       queryClient.invalidateQueries({ queryKey: ['bank-accounts-list'] });
+      onImported?.();
       enqueueSnackbar(data.message || 'Statement imported successfully', { variant: 'success' });
     },
     onError: (err: any) => enqueueSnackbar(getErrorMessage(err), { variant: 'error' }),
