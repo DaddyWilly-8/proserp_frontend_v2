@@ -46,21 +46,12 @@ const NotificationBell = () => {
 
   const { data: unreadCount = 0 } = useQuery({
     queryKey: UNREAD_COUNT_KEY,
-    queryFn: notificationServices.getUnreadCount,
-    // No refetchInterval - polling this on every open tab for every
-    // logged-in user was the single largest driver of Vercel's on-demand
-    // Function Invocations/Observability Events charges (see the billing
-    // report). It now only fetches on mount (i.e. on page reload) and
-    // whenever invalidate() runs after a mark-read/delete action.
+    queryFn: notificationServices.getUnreadCount
   });
 
   const { data: recentData, isLoading } = useQuery({
     queryKey: RECENT_LIST_KEY,
-    queryFn: () => notificationServices.getList({ limit: 8 }),
-    // No refetchInterval - this list is only shown once the bell popover is
-    // opened, so polling it continuously in the background was wasted work.
-    // `invalidate()` below already refreshes it after any mark-read/delete
-    // action, and it refetches fresh each time the popover mounts/reopens.
+    queryFn: () => notificationServices.getList({ limit: 8 })
   });
 
   const recentItems: NotificationItem[] = recentData?.data ?? [];
