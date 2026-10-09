@@ -3,6 +3,7 @@
 import { Link } from '@/components/nextLink';
 import { ASSET_IMAGES } from '@/utilities/constants/paths';
 import { Card, CardContent, Typography, Box, Stack } from '@mui/material';
+import { lighten } from '@mui/material/styles';
 import ShieldOutlined from '@mui/icons-material/ShieldOutlined';
 import GroupAddOutlined from '@mui/icons-material/GroupAddOutlined';
 import InsightsOutlined from '@mui/icons-material/InsightsOutlined';
@@ -46,6 +47,11 @@ export const Signin = () => {
   const isDark = theme.type === 'dark';
 
   const pageBg = palette.background.default;
+  // The dark theme's own primary.light (#A67FFB) is purple, not a lighter
+  // blue - using it for the brand gradient/hover made dark mode look
+  // purple instead of ProsERP's blue. Lighten primary.main itself instead,
+  // which stays in the blue family in both themes.
+  const brandLight = lighten(palette.primary.main, isDark ? 0.45 : 0.3);
   const cardShadow = isDark
     ? '0 20px 60px rgba(0,0,0,0.5)'
     : '0 20px 60px rgba(0,0,0,0.1)';
@@ -84,7 +90,7 @@ export const Signin = () => {
         <CardContent
           sx={{
             flex: { xs: '0 1 auto', md: '0 1 360px' },
-            background: `linear-gradient(135deg, ${palette.primary.main} 0%, ${palette.primary.light} 100%)`,
+            background: `linear-gradient(135deg, ${palette.primary.main} 0%, ${brandLight} 100%)`,
             color: palette.primary.contrastText,
             p: { xs: 2.5, md: 5 },
             display: 'flex',
@@ -195,7 +201,7 @@ export const Signin = () => {
                 sx={{
                   color: palette.primary.main,
                   fontWeight: 600,
-                  '&:hover': { color: palette.primary.light },
+                  '&:hover': { color: brandLight },
                 }}
               >
                 {dictionary.signin.accountPrompt.action}

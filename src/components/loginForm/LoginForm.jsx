@@ -20,6 +20,7 @@ import {
   Typography,
 } from '@mui/material';
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
+import { lighten, darken } from '@mui/material/styles';
 import { BackdropSpinner } from '@/shared/ProgressIndicators/BackdropSpinner';
 import { getSession, signIn, useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
@@ -36,6 +37,12 @@ const LoginForm = () => {
   // the app looks like once logged in, light or dark.
   const { theme } = useJumboTheme();
   const { palette } = theme;
+  // The dark theme's own primary.light/dark (#A67FFB/#5E3BB7) are purple,
+  // not blue shades - using them for the brand gradient made dark mode
+  // look purple instead of ProsERP's blue. Lighten/darken primary.main
+  // itself instead, which stays in the blue family in both themes.
+  const brandLight = lighten(palette.primary.main, theme.type === 'dark' ? 0.45 : 0.3);
+  const brandDark = darken(palette.primary.main, 0.3);
 
   const [loading, setLoading] = React.useState(false);
   const { enqueueSnackbar } = useSnackbar();
@@ -253,7 +260,7 @@ const LoginForm = () => {
             size='large'
             disabled={loading || isPending}
             sx={{
-              background: `linear-gradient(135deg, ${palette.primary.main} 0%, ${palette.primary.light} 100%)`,
+              background: `linear-gradient(135deg, ${palette.primary.main} 0%, ${brandLight} 100%)`,
               borderRadius: '10px',
               py: 1.5,
               fontSize: '1rem',
@@ -261,7 +268,7 @@ const LoginForm = () => {
               textTransform: 'none',
               boxShadow: `0 4px 15px 0 ${palette.primary.main}66`,
               '&:hover': {
-                background: `linear-gradient(135deg, ${palette.primary.dark} 0%, ${palette.primary.main} 100%)`,
+                background: `linear-gradient(135deg, ${brandDark} 0%, ${palette.primary.main} 100%)`,
                 boxShadow: `0 6px 20px 0 ${palette.primary.main}80`,
               },
               transition: 'all 0.3s ease',
