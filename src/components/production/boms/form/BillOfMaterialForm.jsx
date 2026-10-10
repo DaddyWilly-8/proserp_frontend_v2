@@ -31,6 +31,7 @@ import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as yup from 'yup';
 import billOfMaterialsServices from '../billOfMaterialsServices';
+import { wholeUnitQuantityTest } from '@/app/helpers/measurement-unit-helpers';
 import BillOfMaterialItemForm from './BillOfMaterialItemForm';
 import BillOfMaterialItemRow from './BillOfMaterialItemRow';
 
@@ -78,7 +79,8 @@ function BillOfMaterialForm({ toggleOpen, billOfMaterial }) {
         return schema
           .required('Quantity is required')
           .positive('Quantity must be a positive number')
-          .typeError('Quantity is required');
+          .typeError('Quantity is required')
+          .test(wholeUnitQuantityTest);
       }
       return schema;
     }),

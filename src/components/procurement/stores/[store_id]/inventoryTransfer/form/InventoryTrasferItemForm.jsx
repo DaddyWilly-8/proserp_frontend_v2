@@ -9,6 +9,7 @@ import { useStoreProfile } from '../../StoreProfileProvider';
 import { useProductsSelect } from '@/components/productAndServices/products/ProductsSelectProvider';
 import ProductSelect from '@/components/productAndServices/products/ProductSelect';
 import productServices from '@/components/productAndServices/products/productServices';
+import { wholeUnitQuantityTest } from '@/app/helpers/measurement-unit-helpers';
 
 function InventoryTrasferItemForm({ setClearFormKey, submitMainForm, submitItemForm, setSubmitItemForm, item = null, index = -1, setItems, items = [], setShowForm = null, sourceCostCenterId = null, transferDate, setIsDirty}) {
     const [isRetrieving, setIsRetrieving] = useState(false);
@@ -33,6 +34,7 @@ function InventoryTrasferItemForm({ setClearFormKey, submitMainForm, submitItemF
                     if (availableBalance === 'N/A' || !value) return true;
                     return value <= parseFloat(availableBalance);
                 })
+                .test(wholeUnitQuantityTest)
                 .test('current-balance-check', function(value) {
                     const currentBalance = parseFloat(this.parent.current_balance) || 0;
                     const availableBalance = parseFloat(this.parent.available_balance || 0);

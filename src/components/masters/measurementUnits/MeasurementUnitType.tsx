@@ -9,4 +9,5 @@ export interface MeasurementUnit {
   updated_at?: Date;
   deleted_at?: Date | null;
   conversion_factor?: number;
+  allows_fractional?: boolean;
 }

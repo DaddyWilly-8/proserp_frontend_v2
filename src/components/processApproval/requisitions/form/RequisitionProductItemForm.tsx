@@ -15,6 +15,7 @@ import { Organization } from '@/types/auth-types';
 import ProductQuickAdd from '@/components/productAndServices/products/ProductQuickAdd';
 import ProductBudgetCheckDetails from '../listItem/tabs/form/ProductBudgetCheckDetails';
 import { Currency } from '@/utilities/constants/countries';
+import { wholeUnitQuantityTest } from '@/app/helpers/measurement-unit-helpers';
 
 export interface RequisitionProductItem {
   product_id?: number;
@@ -85,7 +86,8 @@ function RequisitionProductItemForm({
             then: (schema) => schema
                 .required('Quantity is required')
                 .positive('Quantity must be a positive number')
-                .typeError('Quantity is required'),
+                .typeError('Quantity is required')
+                .test(wholeUnitQuantityTest),
             }),
     });
 

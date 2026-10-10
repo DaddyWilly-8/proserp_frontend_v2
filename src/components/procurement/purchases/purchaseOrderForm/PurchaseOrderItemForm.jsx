@@ -12,6 +12,7 @@ import CommaSeparatedField from '@/shared/Inputs/CommaSeparatedField';
 import { sanitizedNumber } from '@/app/helpers/input-sanitization-helpers';
 import ProductQuickAdd from '@/components/productAndServices/products/ProductQuickAdd';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
+import { wholeUnitQuantityTest } from '@/app/helpers/measurement-unit-helpers';
 
 function PurchaseOrderItemForm({ setClearFormKey, submitMainForm, submitItemForm, setSubmitItemForm, item = null, index = -1, setItems, items = [], setShowForm = null, checked, getLastPriceItems, setIsDirty }) {
     const [isRetrieving, setIsRetrieving] = useState(false);
@@ -32,7 +33,7 @@ function PurchaseOrderItemForm({ setClearFormKey, submitMainForm, submitItemForm
 
     const validationSchema = yup.object({
         product: yup.object().required('Product is required').typeError('Product is required'),
-        quantity: yup.number().positive('Quantity is required').required('Quantity is required').typeError('Quantity is required'),
+        quantity: yup.number().positive('Quantity is required').required('Quantity is required').typeError('Quantity is required').test(wholeUnitQuantityTest),
         rate: yup.number().required('Price is required').positive('Price is required').typeError('Price is required'),
     });
 

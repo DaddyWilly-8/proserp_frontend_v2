@@ -7,6 +7,7 @@ import ProductSelect from '@/components/productAndServices/products/ProductSelec
 import { useProductsSelect } from '@/components/productAndServices/products/ProductsSelectProvider';
 import CommaSeparatedField from '@/shared/Inputs/CommaSeparatedField';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
+import { wholeUnitQuantityTest } from '@/app/helpers/measurement-unit-helpers';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { Div } from '@jumbo/shared';
 import {
@@ -104,7 +105,8 @@ function ProductItemsTab({
       .positive('Quantity is required')
       .required('Quantity is required')
       .positive('Quantity is required')
-      .typeError('Quantity is required'),
+      .typeError('Quantity is required')
+      .test(wholeUnitQuantityTest),
     alternative_product_ids: yup
       .array()
       .of(yup.number())

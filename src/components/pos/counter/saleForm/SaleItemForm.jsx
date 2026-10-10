@@ -15,6 +15,7 @@ import productServices from '@/components/productAndServices/products/productSer
 import ProductSelect from '@/components/productAndServices/products/ProductSelect';
 import StoreSelector from '@/components/procurement/stores/StoreSelector';
 import { sanitizedNumber } from '@/app/helpers/input-sanitization-helpers';
+import { unitAllowsFractional, wholeUnitQuantityTest } from '@/app/helpers/measurement-unit-helpers';
 import CommaSeparatedField from '@/shared/Inputs/CommaSeparatedField';
 
 function SaleItemForm({
@@ -71,6 +72,7 @@ function SaleItemForm({
             .required("Quantity is required")
             .positive("Quantity must be positive")
             .typeError('Quantity is required')
+            .test(wholeUnitQuantityTest)
             .test(
                 'balance-check',
                 'Quantity exceeds available balance',
@@ -99,6 +101,7 @@ function SaleItemForm({
         quantity: yup.number()
             .positive("Quantity must be positive")
             .typeError('Quantity is required')
+            .test(wholeUnitQuantityTest)
     };
 
     // Define validation Schema
@@ -563,7 +566,14 @@ function SaleItemForm({
                             const rate = parseFloat(watch('rate')) || 0;
                             const vatMultiplier = 1 + (product?.vat_exempted !== 1 ? vat_factor : 0);
                             const effectiveRate = rate * vatMultiplier;
-                            const newQuantity = effectiveRate > 0 ? newAmount / effectiveRate : 0;
+                            const rawQuantity = effectiveRate > 0 ? newAmount / effectiveRate : 0;
+                            // An amount typed for a whole-units-only product (e.g. a
+                            // round bulk price) won't always divide evenly by the
+                            // rate - round the resulting quantity rather than let it
+                            // land on a fraction the product can't actually be sold in.
+                            const newQuantity = unitAllowsFractional(product, measurement_unit_id)
+                                ? rawQuantity
+                                : Math.round(rawQuantity);
 
                             setValue(`quantity`, Math.round(newQuantity * 100000000) / 100000000, {
                                 shouldValidate: true,

@@ -23,6 +23,7 @@ import * as yup from 'yup';
 import ProductSelect from '@/components/productAndServices/products/ProductSelect';
 import CommaSeparatedField from '@/shared/Inputs/CommaSeparatedField';
 import { sanitizedNumber } from '@/app/helpers/input-sanitization-helpers';
+import { wholeUnitQuantityTest } from '@/app/helpers/measurement-unit-helpers';
 import { RFQItem } from '../rfq-types';
 
 interface RFQItemFormProps {
@@ -41,6 +42,7 @@ interface Unit {
   id: number;
   name?: string;
   unit_symbol?: string;
+  allows_fractional?: boolean;
 }
 
 interface ProductWithUnits {
@@ -69,7 +71,7 @@ interface FormValues {
 
 const validationSchema = yup.object({
   product: yup.object().required('Product is required').typeError('Product is required'),
-  quantity: yup.number().required('Quantity is required').positive('Quantity is required').typeError('Quantity is required'),
+  quantity: yup.number().required('Quantity is required').positive('Quantity is required').typeError('Quantity is required').test(wholeUnitQuantityTest),
   remarks: yup.string().nullable(),
 });
 

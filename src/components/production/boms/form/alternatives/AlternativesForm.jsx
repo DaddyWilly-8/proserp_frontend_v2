@@ -10,6 +10,7 @@ import ProductSelect from '@/components/productAndServices/products/ProductSelec
 import { PERMISSIONS } from '@/utilities/constants/permissions';
 import CommaSeparatedField from '@/shared/Inputs/CommaSeparatedField';
 import { sanitizedNumber } from '@/app/helpers/input-sanitization-helpers';
+import { wholeUnitQuantityTest } from '@/app/helpers/measurement-unit-helpers';
 import ProductQuickAdd from '@/components/productAndServices/products/ProductQuickAdd';
 
 function AlternativesForm({alternativeIndex, alternative, setItems, alternatives=[], setAlternatives, setClearFormKey, submitMainForm, submitItemForm, setSubmitItemForm, setIsDirty, index = -1, setShowForm = null}) {
@@ -33,7 +34,8 @@ function AlternativesForm({alternativeIndex, alternative, setItems, alternatives
             return schema
               .required("Quantity is required")
               .positive("Quantity must be a positive number")
-              .typeError("Quantity must be a number");
+              .typeError("Quantity must be a number")
+              .test(wholeUnitQuantityTest);
           }
           return schema.nullable();
         }),

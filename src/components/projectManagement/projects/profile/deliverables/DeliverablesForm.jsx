@@ -143,7 +143,15 @@ const validationSchema = yup.object({
     quantity: yup
       .number()
       .required('Quantity is required')
-      .typeError('Quantity is required'),
+      .typeError('Quantity is required')
+      .test(
+        'whole-unit',
+        'This unit is whole-units-only — quantity cannot be a fraction',
+        function (value) {
+          const unit = measurementUnits?.find((u) => u.id === this.parent.measurement_unit_id);
+          return unit?.allows_fractional !== false || !value || Number.isInteger(value);
+        }
+      ),
     weighted_percentage: yup
       .number()
       .nullable()

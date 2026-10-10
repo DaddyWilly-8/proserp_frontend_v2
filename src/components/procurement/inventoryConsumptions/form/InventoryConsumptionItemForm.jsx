@@ -9,6 +9,7 @@ import productServices from '@/components/productAndServices/products/productSer
 import { useProductsSelect } from '@/components/productAndServices/products/ProductsSelectProvider';
 import ProductSelect from '@/components/productAndServices/products/ProductSelect';
 import { sanitizedNumber } from '@/app/helpers/input-sanitization-helpers';
+import { wholeUnitQuantityTest } from '@/app/helpers/measurement-unit-helpers';
 import LedgerSelect from '@/components/accounts/ledgers/forms/LedgerSelect';
 
 function InventoryConsumptionItemForm({ setClearFormKey, submitMainForm, submitItemForm, setSubmitItemForm, item = null,index = -1, setShowForm = null, items=[], setItems, getUpdatedBalanceItems, setIsDirty }) {
@@ -33,6 +34,7 @@ function InventoryConsumptionItemForm({ setClearFormKey, submitMainForm, submitI
                     if (availableBalance === 'N/A' || !value) return true;
                     return value <= parseFloat(availableBalance);
                 })
+                .test(wholeUnitQuantityTest)
                 .test('current-balance-check', function(value) {
                     const currentBalance = parseFloat(this.parent.current_balance) || 0;
                     const availableBalance = this.parent.available_balance;

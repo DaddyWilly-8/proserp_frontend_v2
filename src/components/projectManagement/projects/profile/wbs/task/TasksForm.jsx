@@ -171,7 +171,14 @@ const TasksForm = ({ setOpenDialog, task, activity }) => {
       .number()
       .positive('Quantity is required')
       .required('Quantity is required')
-      .typeError('Quantity is required'),
+      .typeError('Quantity is required')
+      .test(
+        'whole-unit',
+        'This unit is whole-units-only — quantity cannot be a fraction',
+        function (value) {
+          return this.parent.measurement_unit?.allows_fractional !== false || !value || Number.isInteger(value);
+        }
+      ),
     measurement_unit_id: yup
       .number()
       .required('Measurement Unit is required')
@@ -382,6 +389,7 @@ const TasksForm = ({ setOpenDialog, task, activity }) => {
                     frontError={errors && errors?.measurement_unit_id}
                     defaultValue={task?.measurement_unit_id}
                     onChange={(newValue) => {
+                      setValue('measurement_unit', newValue || null);
                       newValue
                         ? setValue(`measurement_unit_id`, newValue.id, {
                             shouldDirty: true,

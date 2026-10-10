@@ -61,7 +61,14 @@ function LedgerItemsTab({
     currency_id: yup.number().positive('Currency is required').required('Currency is required').typeError('Currency is required'),
     exchange_rate: yup.number().positive('Exchange rate is required').required('Exchange rate is required').typeError('Exchange rate is required'),
     rate: yup.number().positive('Rate is required').required("Rate is required").positive("Rate is required").typeError('Rate is required'),
-    quantity: yup.number().positive('Quantity is required').required("Quantity is required").positive("Quantity is required").typeError('Quantity is required'),
+    quantity: yup.number().positive('Quantity is required').required("Quantity is required").positive("Quantity is required").typeError('Quantity is required')
+      .test(
+        'whole-unit',
+        'This unit is whole-units-only — quantity cannot be a fraction',
+        function (value) {
+          return this.parent.measurement_unit?.allows_fractional !== false || !value || Number.isInteger(value);
+        }
+      ),
     measurement_unit_id: yup.number().required("Measurement Unit is required").typeError('Measurement Unit is required'),
   });
 

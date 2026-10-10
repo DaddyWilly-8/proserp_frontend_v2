@@ -4,9 +4,11 @@ import { Div } from '@jumbo/shared';
 import { LoadingButton } from '@mui/lab';
 import {
   Button,
+  Checkbox,
   DialogActions,
   DialogContent,
   DialogTitle,
+  FormControlLabel,
   Grid,
   TextField,
 } from '@mui/material';
@@ -119,6 +121,7 @@ const MeasurementUnitForm: React.FC<MeasurementUnitFormProps> = ({
     register,
     handleSubmit,
     setValue,
+    watch,
     formState: { errors },
   } = useForm<FormData>({
     resolver: yupResolver(validationSchema) as any,
@@ -126,6 +129,12 @@ const MeasurementUnitForm: React.FC<MeasurementUnitFormProps> = ({
       name: measurementUnit?.name || '',
       symbol: measurementUnit?.symbol || '',
       description: measurementUnit?.description || '',
+      // Matches the column's own default: every existing/new unit allows
+      // fractional quantities until someone explicitly turns it off for a
+      // discrete unit (Pieces, Units, Boxes...).
+      allows_fractional: measurementUnit?.id
+        ? measurementUnit?.allows_fractional !== false
+        : true,
     },
   });
 
@@ -212,6 +221,21 @@ const MeasurementUnitForm: React.FC<MeasurementUnitFormProps> = ({
                   minRows={2}
                   fullWidth
                   {...register('description')}
+                />
+              </Div>
+            </Grid>
+            <Grid size={12}>
+              <Div sx={{ mt: 1, mb: 1 }}>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={!!watch('allows_fractional')}
+                      onChange={(e) =>
+                        setValue('allows_fractional', e.target.checked)
+                      }
+                    />
+                  }
+                  label='Allows fractional quantities (uncheck for whole-units-only, e.g. Pieces)'
                 />
               </Div>
             </Grid>

@@ -25,6 +25,7 @@ import ProductSelect from '@/components/productAndServices/products/ProductSelec
 import { PERMISSIONS } from '@/utilities/constants/permissions';
 import CommaSeparatedField from '@/shared/Inputs/CommaSeparatedField';
 import { sanitizedNumber } from '@/app/helpers/input-sanitization-helpers';
+import { wholeUnitQuantityTest } from '@/app/helpers/measurement-unit-helpers';
 import ProductQuickAdd from '@/components/productAndServices/products/ProductQuickAdd';
 import { useProductsSelect } from '@/components/productAndServices/products/ProductsSelectProvider';
 
@@ -67,7 +68,8 @@ function BillOfMaterialItemForm({
         schema
           .required('Quantity is required')
           .positive('Quantity must be positive')
-          .typeError('Quantity is required'),
+          .typeError('Quantity is required')
+          .test(wholeUnitQuantityTest),
     }),
   });
 

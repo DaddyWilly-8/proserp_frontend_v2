@@ -194,6 +194,16 @@ function PurchaseOrderReceiveForm({ toggleOpen, order, grn }) {
               const unreceivedQuantity = this.parent.unreceived_quantity;
               return value <= unreceivedQuantity;
             }
+          )
+          .test(
+            'whole-unit',
+            'This product is sold in whole units — quantity cannot be a fraction',
+            function (value) {
+              const poItem = purchase_order_items?.find(
+                (item) => item.id === this.parent.purchase_order_item_id
+              );
+              return poItem?.measurement_unit?.allows_fractional !== false || !value || Number.isInteger(value);
+            }
           ),
       })
     ),

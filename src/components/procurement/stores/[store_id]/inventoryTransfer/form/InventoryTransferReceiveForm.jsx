@@ -36,7 +36,17 @@ function InventoryTransferReceiveForm({ toggleOpen, transfer }) {
           ) {
             const unreceivedQuantity = this.parent.unreceived_quantity;
             return value <= unreceivedQuantity;
-          }),
+          })
+          .test(
+            'whole-unit',
+            'This product is sold in whole units — quantity cannot be a fraction',
+            function (value) {
+              const transferItem = items?.find(
+                (item) => item.id === this.parent.inventory_transfer_item_id
+              );
+              return transferItem?.measurement_unit?.allows_fractional !== false || !value || Number.isInteger(value);
+            }
+          ),
       })
     ),
   });

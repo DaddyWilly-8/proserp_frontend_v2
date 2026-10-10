@@ -12,6 +12,7 @@ import productServices from '@/components/productAndServices/products/productSer
 import ProductSelect from '@/components/productAndServices/products/ProductSelect';
 import StoreSelector from '@/components/procurement/stores/StoreSelector';
 import { sanitizedNumber } from '@/app/helpers/input-sanitization-helpers';
+import { wholeUnitQuantityTest } from '@/app/helpers/measurement-unit-helpers';
 
 function MaterialIssuedForm({projectTaskIndex, taskProgressItem, material = null, index = -1, setShowForm = null, MaterialIssued=[], setMaterialIssued}) {
   const { project} = useProjectProfile();
@@ -31,6 +32,7 @@ function MaterialIssuedForm({projectTaskIndex, taskProgressItem, material = null
         .required("Quantity is required")
         .positive("Quantity must be positive")
         .typeError('Quantity is required')
+        .test(wholeUnitQuantityTest)
         .test(
           'balance-check',
           'Quantity exceeds available balance',

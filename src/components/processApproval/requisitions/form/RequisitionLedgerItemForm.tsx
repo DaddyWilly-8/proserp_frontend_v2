@@ -185,7 +185,15 @@ function RequisitionLedgerItemForm({
       .number()
       .required('Quantity is required')
       .positive('Quantity must be positive')
-      .typeError('Quantity is required'),
+      .typeError('Quantity is required')
+      .test(
+        'whole-unit',
+        'This unit is whole-units-only — quantity cannot be a fraction',
+        function (value) {
+          const unit = measurementUnits?.find((u: any) => u.id === this.parent.measurement_unit_id);
+          return unit?.allows_fractional !== false || !value || Number.isInteger(value);
+        }
+      ),
     rate: yup
       .number()
       .required('Rate is required')

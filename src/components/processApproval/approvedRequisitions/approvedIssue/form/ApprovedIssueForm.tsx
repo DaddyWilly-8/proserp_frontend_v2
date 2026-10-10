@@ -132,6 +132,20 @@ function ApprovedIssueForm({
       return;
     }
 
+    const fractionalWhereNotAllowed = itemsToIssue.find(
+      (item) =>
+        !Number.isInteger(Number(item?.issue_quantity)) &&
+        item?.measurement_unit?.allows_fractional === false
+    );
+
+    if (fractionalWhereNotAllowed) {
+      enqueueSnackbar(
+        `${fractionalWhereNotAllowed?.product?.name || 'This product'} is sold in whole units — quantity cannot be a fraction`,
+        { variant: 'error' }
+      );
+      return;
+    }
+
     const payloadItems = itemsToIssue.map((item) => ({
       requisition_approval_product_item_id: Number(item.id),
       quantity: Number(item.issue_quantity || 0),

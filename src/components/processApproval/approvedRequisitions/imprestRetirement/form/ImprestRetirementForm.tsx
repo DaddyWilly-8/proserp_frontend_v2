@@ -1,4 +1,5 @@
 import { sanitizedNumber } from '@/app/helpers/input-sanitization-helpers';
+import { unitAllowsFractional } from '@/app/helpers/measurement-unit-helpers';
 import LedgerSelect from '@/components/accounts/ledgers/forms/LedgerSelect';
 import userLedgerServices from '@/components/accounts/ledgers/user-ledger-services';
 import MeasurementSelector from '@/components/masters/measurementUnits/MeasurementSelector';
@@ -629,6 +630,20 @@ function ImprestRetirementForm({
       setClientError(
         'Each item requires source account/product, measurement unit, quantity greater than 0 and rate greater than 0.'
       );
+      return false;
+    }
+
+    const hasFractionalWhereNotAllowed = items.some((item) => {
+      const quantity = Number(item.quantity);
+      const isProductLine = String(item.line_type || 'EXPENSE') === 'PRODUCT';
+      if (!isProductLine || !Number.isFinite(quantity) || Number.isInteger(quantity)) {
+        return false;
+      }
+      return !unitAllowsFractional(item.product, item.measurement_unit_id);
+    });
+
+    if (hasFractionalWhereNotAllowed) {
+      setClientError('This product is sold in whole units — quantity cannot be a fraction.');
       return false;
     }
 
