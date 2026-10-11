@@ -6,6 +6,7 @@ import AdditionalCostsTab from './AdditionalCostsTab';
 function AdditionalCostsTabRow({
   additionalCost,
   setIsDirty,
+  registerSubmit,
   index,
   additionalCosts = [],
   setAdditionalCosts,
@@ -113,6 +114,7 @@ function AdditionalCostsTabRow({
         <AdditionalCostsTab
           additionalCost={additionalCost}
           setIsDirty={setIsDirty}
+          registerSubmit={registerSubmit}
           setShowForm={setShowForm}
           index={index}
           additionalCosts={additionalCosts}

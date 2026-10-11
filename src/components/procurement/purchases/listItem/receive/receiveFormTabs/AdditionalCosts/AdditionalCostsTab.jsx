@@ -23,7 +23,7 @@ import {
   TextField,
   Tooltip,
 } from '@mui/material';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as yup from 'yup';
 
@@ -32,6 +32,7 @@ function AdditionalCostsTab({
   setShowForm = null,
   additionalCost,
   setIsDirty,
+  registerSubmit = null,
   additionalCosts = [],
   setAdditionalCosts,
 }) {
@@ -130,6 +131,34 @@ function AdditionalCostsTab({
     setIsAdding(false);
     setShowForm && setShowForm(false);
   };
+
+  // Lets the parent tab-switch guard commit this row's edits (e.g. the
+  // "Owed to Supplier" checkbox) instead of only offering to discard them.
+  // updateItemsRef always points at the latest updateItems closure, so the
+  // registered submitter never runs against a stale additionalCosts/index
+  // captured back when the effect first mounted.
+  const updateItemsRef = useRef(updateItems);
+  updateItemsRef.current = updateItems;
+
+  useEffect(() => {
+    if (!registerSubmit) {
+      return;
+    }
+    registerSubmit(
+      () =>
+        new Promise((resolve, reject) => {
+          handleSubmit(
+            async (item) => {
+              await updateItemsRef.current(item);
+              resolve();
+            },
+            (validationErrors) => reject(validationErrors)
+          )();
+        })
+    );
+    return () => registerSubmit(null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [registerSubmit]);
 
   if (isAdding) {
     return <LinearProgress />;

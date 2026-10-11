@@ -92,6 +92,15 @@ function PurchaseOrderReceiveForm({ toggleOpen, order, grn }) {
   const [nextTab, setNextTab] = useState(null);
   const [showWarning, setShowWarning] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
+  const [savingDirtyCost, setSavingDirtyCost] = useState(false);
+
+  // Whichever Additional Cost row (or the "add new" form) is currently
+  // dirty registers its own submit here, so the tab-switch guard below can
+  // actually save that row's edit instead of only offering to discard it.
+  const activeAdditionalCostSubmitRef = useRef(null);
+  const registerAdditionalCostSubmit = useCallback((submitFn) => {
+    activeAdditionalCostSubmitRef.current = submitFn;
+  }, []);
 
   const handleTabChange = (event, newTab) => {
     if (isDirty) {
@@ -108,6 +117,28 @@ function PurchaseOrderReceiveForm({ toggleOpen, order, grn }) {
     setActiveTab(nextTab);
   };
 
+  const handleSaveDirtyCostAndContinue = async () => {
+    if (!activeAdditionalCostSubmitRef.current) {
+      setShowWarning(false);
+      setIsDirty(false);
+      setActiveTab(nextTab);
+      return;
+    }
+    setSavingDirtyCost(true);
+    try {
+      await activeAdditionalCostSubmitRef.current();
+      setShowWarning(false);
+      setIsDirty(false);
+      setActiveTab(nextTab);
+    } catch {
+      // Validation failed (e.g. a required field left blank) - close the
+      // dialog but stay on the tab so the user can see and fix the error.
+      setShowWarning(false);
+    } finally {
+      setSavingDirtyCost(false);
+    }
+  };
+
   const receiveOrder = useMutation({
     mutationFn: purchaseServices.receive,
     onSuccess: (data) => {
@@ -116,6 +147,11 @@ function PurchaseOrderReceiveForm({ toggleOpen, order, grn }) {
       queryClient.invalidateQueries({ queryKey: ['purchaseOrders'] });
       queryClient.invalidateQueries({ queryKey: ['purchaseOrderDetails'] });
       queryClient.invalidateQueries({ queryKey: ['purchaseOrderGrns'] });
+      // The GRN edit form itself is fed from this cache (PurchaseOrderGrnsItemAction's
+      // `['grns', { id }]` query) - without invalidating it, reopening "Edit"
+      // right after saving shows the pre-edit GRN (e.g. a just-unchecked
+      // "Owed to Supplier" reverting to checked on screen).
+      queryClient.invalidateQueries({ queryKey: ['grns'] });
     },
     onError: (error) => {
       enqueueSnackbar(error?.response?.data?.message, { variant: 'error' });
@@ -133,6 +169,7 @@ function PurchaseOrderReceiveForm({ toggleOpen, order, grn }) {
       queryClient.invalidateQueries({ queryKey: ['purchaseOrders'] });
       queryClient.invalidateQueries({ queryKey: ['purchaseOrderDetails'] });
       queryClient.invalidateQueries({ queryKey: ['purchaseOrderGrns'] });
+      queryClient.invalidateQueries({ queryKey: ['grns'] });
     },
     onError: (error) => {
       enqueueSnackbar(
@@ -361,10 +398,26 @@ function PurchaseOrderReceiveForm({ toggleOpen, order, grn }) {
 
   const updatePercentageAmt = useCallback(() => {
     setAdditionalCosts((prevCost) => {
+      const oldItems = order?.additional_costs || [];
+      // A cost still mirrored on the PO (oldItems, matched by ledger) gets
+      // its own recalculated-by-percentage entry below, so the version
+      // already sitting in prevCost must be dropped here to avoid a
+      // duplicate row. But a cost with NO PO-level mirror - most notably a
+      // GRN's own cost just unchecked from "Owed to Supplier", which now
+      // has nothing on the PO to match - must be kept as-is: the old
+      // `prepopulated === false` check dropped it too (undefined !== false),
+      // silently deleting the row the moment it stopped being owed to the
+      // supplier.
+      const mirroredLedgerIds = new Set(
+        oldItems.map((item) => item.ledger?.id).filter(Boolean)
+      );
       const newItems = prevCost
-        ? prevCost.filter((i) => i.prepopulated === false)
+        ? prevCost.filter(
+            (i) =>
+              i.prepopulated !== true &&
+              !mirroredLedgerIds.has(i.credit_ledger_id)
+          )
         : [];
-      const oldItems = order?.additional_costs;
       const updatedItems =
         oldItems.map((item) => {
           const calculatedPercentageAmt =
@@ -820,6 +873,7 @@ function PurchaseOrderReceiveForm({ toggleOpen, order, grn }) {
         {activeTab === 1 && (
           <AdditionalCostsTab
             setIsDirty={setIsDirty}
+            registerSubmit={registerAdditionalCostSubmit}
             additionalCosts={additionalCosts}
             setAdditionalCosts={setAdditionalCosts}
           />
@@ -863,6 +917,7 @@ function PurchaseOrderReceiveForm({ toggleOpen, order, grn }) {
                   setAdditionalCosts={setAdditionalCosts}
                   key={index}
                   setIsDirty={setIsDirty}
+                  registerSubmit={registerAdditionalCostSubmit}
                   additionalCost={additionalCost}
                   index={index}
                   percentageReceived={percentageReceived}
@@ -886,9 +941,18 @@ function PurchaseOrderReceiveForm({ toggleOpen, order, grn }) {
               size='small'
               onClick={handleDiscardChanges}
               color='secondary'
+              disabled={savingDirtyCost}
             >
               Discard
             </Button>
+            <LoadingButton
+              size='small'
+              variant='contained'
+              onClick={handleSaveDirtyCostAndContinue}
+              loading={savingDirtyCost}
+            >
+              Save
+            </LoadingButton>
           </DialogActions>
         </Dialog>
       </DialogContent>
