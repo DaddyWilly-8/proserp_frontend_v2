@@ -61,6 +61,8 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
   const [cashierLedgers, setCashierLedgers] = useState({});
   const [lastClosingReadings, setLastClosingReadings] = useState(null);
   const [lastClosingDipping, setLastClosingDipping] = useState([]);
+  const [duplicateShiftWarning, setDuplicateShiftWarning] = useState(null);
+  const duplicateShiftCheckIdRef = React.useRef(0);
 
   const isAutoSavingRef = React.useRef(false);
   const hasPendingAutoSaveRef = React.useRef(false);
@@ -484,6 +486,43 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
     }
   }, [activeStation.id, watch, enqueueSnackbar, SalesShift, setValue]);
 
+  // Heads-up only - the backend is the authoritative guard (it rejects a new
+  // shift whose period overlaps an existing one for the same station+shift,
+  // closed or not). This just warns before the user fills in the whole form,
+  // since the duplicate that caused the original cash-report incident was
+  // created a full day after the real shift had already been closed.
+  const checkDuplicateShift = useCallback(
+    async (shiftStart, shiftEnd, salesOutletShiftId) => {
+      const checkId = ++duplicateShiftCheckIdRef.current;
+      if (SalesShift?.id || !shiftStart || !shiftEnd || !salesOutletShiftId) {
+        setDuplicateShiftWarning(null);
+        return;
+      }
+      try {
+        const result = await fuelStationServices.getStationShifts({
+          stationId: activeStation.id,
+          sales_outlet_shift_id: salesOutletShiftId,
+          status: 'All',
+          from: shiftStart,
+          to: shiftEnd,
+          limit: 1,
+        });
+        if (checkId !== duplicateShiftCheckIdRef.current) return; // stale response
+        const hasExisting = (result?.data ?? []).length > 0;
+        setDuplicateShiftWarning(
+          hasExisting
+            ? 'A shift already exists for this station and period. Saving will be rejected - open and edit the existing shift instead.'
+            : null
+        );
+      } catch (error) {
+        if (checkId === duplicateShiftCheckIdRef.current) {
+          setDuplicateShiftWarning(null);
+        }
+      }
+    },
+    [SalesShift, activeStation.id]
+  );
+
   const getPumpOpeningValue = useCallback(
     (pumpId, cashierIndex) => {
       if (SalesShift?.id) {
@@ -658,6 +697,21 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
     retrieveLastShiftReadings,
     setValue,
     combineDateTime,
+  ]);
+
+  useEffect(() => {
+    const shiftStart = watch('shift_start');
+    const shiftEnd = watch('shift_end');
+    const salesOutletShiftId = watch('sales_outlet_shift_id');
+    const timeoutId = setTimeout(() => {
+      checkDuplicateShift(shiftStart, shiftEnd, salesOutletShiftId);
+    }, 400);
+    return () => clearTimeout(timeoutId);
+  }, [
+    watch('shift_start'),
+    watch('shift_end'),
+    watch('sales_outlet_shift_id'),
+    checkDuplicateShift,
   ]);
 
   const addCashiers = (selectedCashierIds) => {
@@ -1231,8 +1285,15 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
     } catch (err) {
       // const message = getApiErrorMessage(err);
       const message = getErrorMessage(err);
-      if (!options.silent) {
-        enqueueSnackbar(message, { variant: 'error' });
+      const isDuplicateShiftError =
+        !isUpdate &&
+        err?.response?.status === 422 &&
+        /already exists/i.test(err?.response?.data?.message ?? '');
+      if (!options.silent || isDuplicateShiftError) {
+        // A duplicate-shift rejection must always reach the user, even during a
+        // silent autosave tick - silently swallowing it would hide the exact
+        // condition this guard exists to surface.
+        enqueueSnackbar(message, { variant: 'error', persist: isDuplicateShiftError });
       } else {
         autoSaveDebug('Autosave failed', { message });
       }
@@ -1447,6 +1508,45 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
     toSnapshot,
   ]);
 
+  // Hoisted out of the "Select Cashiers" render so these hooks always run in
+  // the same order - they used to live inside an IIFE in the JSX below, which
+  // broke (fewer hooks rendered) once that section became conditionally
+  // skipped when a duplicate-shift warning is showing.
+  const cashierOptions = React.useMemo(() => cashiers || [], [cashiers]);
+  const cashierValue = React.useMemo(
+    () =>
+      cashierOptions.filter((c) =>
+        selectedCashiers.some((sc) => sc.id === c.id)
+      ),
+    [cashierOptions, selectedCashiers]
+  );
+  const handleCashierChange = React.useCallback(
+    (e, selectedValues) => {
+      const selectedIds = selectedValues.map((v) => v.id);
+      const currentCashierIds = selectedCashiers.map((c) => c.id);
+      const toRemove = currentCashierIds.filter(
+        (id) => !selectedIds.includes(id)
+      );
+      const toAdd = selectedIds.filter((id) => !currentCashierIds.includes(id));
+      toRemove.forEach((cashierId) => removeCashier(cashierId));
+      if (toAdd.length > 0) {
+        addCashiers(toAdd);
+      }
+    },
+    [selectedCashiers, addCashiers, removeCashier]
+  );
+
+  // The rest of the form only makes sense once a station+shift+period is
+  // actually picked - showing it earlier just invites filling in cashier/
+  // fuel-price data that gets thrown away the moment a period is chosen (or
+  // turns out to collide with an existing shift). Editing an existing shift
+  // always has these fields pre-filled, so this is a no-op there.
+  const hasValidShiftPeriod =
+    !!watch('sales_outlet_shift_id') &&
+    !!watch('shift_start') &&
+    !!watch('shift_end');
+  const showFormBody = hasValidShiftPeriod && !duplicateShiftWarning;
+
   return (
     <div
       onChangeCapture={markUserInteraction}
@@ -1611,70 +1711,51 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
                 </Div>
               </Grid>
 
+              {duplicateShiftWarning && (
+                <Grid size={12}>
+                  <Typography color='error' variant='body2' sx={{ mt: 0.5 }}>
+                    {duplicateShiftWarning}
+                  </Typography>
+                </Grid>
+              )}
+
+              {!duplicateShiftWarning && !hasValidShiftPeriod && (
+                <Grid size={12}>
+                  <Typography color='textSecondary' variant='body2' sx={{ mt: 0.5 }}>
+                    Select a sales outlet shift and start date to continue.
+                  </Typography>
+                </Grid>
+              )}
+
+              {showFormBody && (
+              <>
               <Grid size={{ xs: 12, md: 4, lg: 4 }}>
                 <Typography sx={{ mt: 1, mb: 1 }}>Select Cashiers</Typography>
-                {(() => {
-                  const cashierOptions = React.useMemo(
-                    () => cashiers || [],
-                    [cashiers]
-                  );
-                  const cashierValue = React.useMemo(
-                    () =>
-                      cashierOptions.filter((c) =>
-                        selectedCashiers.some((sc) => sc.id === c.id)
-                      ),
-                    [cashierOptions, selectedCashiers]
-                  );
-                  const handleCashierChange = React.useCallback(
-                    (e, selectedValues) => {
-                      const selectedIds = selectedValues.map((v) => v.id);
-                      const currentCashierIds = selectedCashiers.map(
-                        (c) => c.id
-                      );
-                      const toRemove = currentCashierIds.filter(
-                        (id) => !selectedIds.includes(id)
-                      );
-                      const toAdd = selectedIds.filter(
-                        (id) => !currentCashierIds.includes(id)
-                      );
-                      toRemove.forEach((cashierId) => removeCashier(cashierId));
-                      if (toAdd.length > 0) {
-                        addCashiers(toAdd);
-                      }
-                    },
-                    [selectedCashiers, addCashiers, removeCashier]
-                  );
-                  return (
-                    <Autocomplete
-                      multiple
-                      size='small'
-                      options={cashierOptions}
-                      disableCloseOnSelect
-                      getOptionLabel={(option) => option.name}
-                      renderOption={(props, option, { selected }) => {
-                        const { key, ...optionProps } = props;
-                        return (
-                          <li key={key} {...optionProps}>
-                            <Checkbox
-                              style={{ marginRight: 8 }}
-                              checked={selected}
-                            />
-                            {option.name}
-                          </li>
-                        );
-                      }}
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          label='Select Cashiers'
-                          placeholder='Choose Cashiers...'
-                        />
-                      )}
-                      onChange={handleCashierChange}
-                      value={cashierValue}
+                <Autocomplete
+                  multiple
+                  size='small'
+                  options={cashierOptions}
+                  disableCloseOnSelect
+                  getOptionLabel={(option) => option.name}
+                  renderOption={(props, option, { selected }) => {
+                    const { key, ...optionProps } = props;
+                    return (
+                      <li key={key} {...optionProps}>
+                        <Checkbox style={{ marginRight: 8 }} checked={selected} />
+                        {option.name}
+                      </li>
+                    );
+                  }}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label='Select Cashiers'
+                      placeholder='Choose Cashiers...'
                     />
-                  );
-                })()}
+                  )}
+                  onChange={handleCashierChange}
+                  value={cashierValue}
+                />
 
                 {!!lastClosingReadings &&
                   Object.keys(lastClosingReadings).length > 0 &&
@@ -1693,9 +1774,12 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
               <Grid size={{ xs: 12, md: 12, lg: 8 }}>
                 <FuelPrices watch={watch} />
               </Grid>
+              </>
+              )}
             </Grid>
           </form>
 
+          {showFormBody && (
           <Tabs
             value={activeTab}
             onChange={(e, newValue) => setActiveTab(newValue)}
@@ -1709,8 +1793,10 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
             <Tab label='Dipping' />
             <Tab label='Shift Summary' />
           </Tabs>
+          )}
         </DialogTitle>
 
+        {showFormBody && (
         <DialogContent>
           {activeTab === 0 && (
             <div>
@@ -1803,12 +1889,13 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
 
           {activeTab === 3 && <ShiftSummary paymentItems={paymentItems} />}
         </DialogContent>
+        )}
 
         <DialogActions>
           <Button size='small' onClick={() => setOpenDialog(false)}>
             Cancel
           </Button>
-          {activeTab > 0 && (
+          {showFormBody && activeTab > 0 && (
             <Button
               size='small'
               variant='outlined'
@@ -1818,7 +1905,7 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
               Previous
             </Button>
           )}
-          {activeTab < 3 && (
+          {showFormBody && activeTab < 3 && (
             <Button
               size='small'
               variant='outlined'
@@ -1828,14 +1915,16 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
               Next
             </Button>
           )}
-          <LoadingButton
-            loading={addMutation.isPending || updateMutation.isPending}
-            size='small'
-            variant='contained'
-            onClick={() => setShowHoldDialog(true)}
-          >
-            Hold
-          </LoadingButton>
+          {showFormBody && (
+            <LoadingButton
+              loading={addMutation.isPending || updateMutation.isPending}
+              size='small'
+              variant='contained'
+              onClick={() => setShowHoldDialog(true)}
+            >
+              Hold
+            </LoadingButton>
+          )}
           <Dialog
             open={showHoldDialog}
             onClose={() => setShowHoldDialog(false)}
@@ -1854,6 +1943,7 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
               </Button>
               <LoadingButton
                 loading={addMutation.isPending || updateMutation.isPending}
+                disabled={!showFormBody}
                 variant='contained'
                 color='warning'
                 onClick={(e) => {
@@ -1868,7 +1958,7 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
               </LoadingButton>
             </DialogActions>
           </Dialog>
-          {activeTab === 3 && (
+          {showFormBody && activeTab === 3 && (
             <>
               {checkOrganizationPermission([
                 PERMISSIONS.FUEL_SALES_SHIFTS_CLOSE,
