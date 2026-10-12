@@ -21,6 +21,7 @@ import * as yup from 'yup';
 import dayjs from 'dayjs';
 import { DatePicker } from '@mui/x-date-pickers';
 import LedgerSelect from '@/components/accounts/ledgers/forms/LedgerSelect';
+import CostCenterSelector from '@/components/masters/costCenters/CostCenterSelector';
 import CommaSeparatedField from '@/shared/Inputs/CommaSeparatedField';
 import { sanitizedNumber } from '@/app/helpers/input-sanitization-helpers';
 import assetsServices from '../register/assets-services';
@@ -66,6 +67,7 @@ const AssetDisposalDialogContent: React.FC<AssetDisposalDialogContentProps> = ({
         is: 'sold',
         then: (schema) => schema.required(dictionary.disposal.form.errors.validation.proceedsLedger.required).positive(),
       }),
+    cost_center_id: yup.number().nullable(),
     remarks: yup.string().nullable(),
   });
 
@@ -82,6 +84,7 @@ const AssetDisposalDialogContent: React.FC<AssetDisposalDialogContentProps> = ({
       disposal_method: 'sold',
       proceeds: 0,
       proceeds_ledger_id: null,
+      cost_center_id: asset.cost_center_id ?? null,
       remarks: '',
     },
   });
@@ -171,6 +174,19 @@ const AssetDisposalDialogContent: React.FC<AssetDisposalDialogContentProps> = ({
               </Grid>
             </>
           )}
+          <Grid size={{ xs: 12, md: 6 }}>
+            <CostCenterSelector
+              label={dictionary.disposal.form.labels.costCenter}
+              multiple={false}
+              defaultValue={asset.cost_center ?? null}
+              onChange={(newValue: any) => {
+                setValue('cost_center_id', newValue && !Array.isArray(newValue) ? newValue.id : null, {
+                  shouldValidate: true,
+                  shouldDirty: true,
+                });
+              }}
+            />
+          </Grid>
           <Grid size={12}>
             <TextField
               fullWidth

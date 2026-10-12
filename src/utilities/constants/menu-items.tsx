@@ -219,6 +219,12 @@ export async function getMenus(locale: string) {
           icon: icon('approvedProjectPaymentClaims'),
         },
         {
+          uri: `/${locale}/projectManagement/reports`,
+          label: sidebar.menuItem.reports,
+          type: 'nav-item',
+          icon: icon('reports'),
+        },
+        {
           label: sidebar.menuItem.masters,
           type: 'collapsible',
           icon: icon('accountTree'),

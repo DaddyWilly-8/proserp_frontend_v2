@@ -1,6 +1,6 @@
 'use client';
 import { useJumboDialog } from '@jumbo/components/JumboDialog/hooks/useJumboDialog';
-import { DeleteOutlined, EditOutlined, MoreHorizOutlined, PlayArrowOutlined, RemoveShoppingCartOutlined } from '@mui/icons-material';
+import { DeleteOutlined, EditOutlined, MoreHorizOutlined, PlayArrowOutlined, RemoveShoppingCartOutlined, SettingsBackupRestoreOutlined } from '@mui/icons-material';
 import { Dialog, Tooltip, useMediaQuery } from '@mui/material';
 import { useSnackbar } from 'notistack';
 import React, { useState } from 'react';
@@ -40,6 +40,15 @@ const AssetRegisterItemAction: React.FC<AssetRegisterItemActionProps> = ({ asset
     onError: (error: any) => enqueueSnackbar(getErrorMessage(error), { variant: 'error' }),
   });
 
+  const undoDisposal = useMutation({
+    mutationFn: assetsServices.undoDisposal,
+    onSuccess: () => {
+      enqueueSnackbar(dictionary.disposal.form.messages.undoSuccess, { variant: 'success' });
+      queryClient.invalidateQueries({ queryKey: ['assets'] });
+    },
+    onError: (error: any) => enqueueSnackbar(getErrorMessage(error), { variant: 'error' }),
+  });
+
   const canEdit = checkOrganizationPermission([PERMISSIONS.ASSETS_EDIT]);
   const canDispose = checkOrganizationPermission([PERMISSIONS.ASSETS_DISPOSE]);
   const canDelete = checkOrganizationPermission([PERMISSIONS.ASSETS_DELETE]);
@@ -53,6 +62,9 @@ const AssetRegisterItemAction: React.FC<AssetRegisterItemActionProps> = ({ asset
       : []),
     ...(['active', 'under_maintenance'].includes(asset.status) && canDispose
       ? [{ icon: <RemoveShoppingCartOutlined />, title: dictionary.register.list.actionsTitle.labels.dispose, action: 'dispose' }]
+      : []),
+    ...(asset.status === 'disposed' && canDispose
+      ? [{ icon: <SettingsBackupRestoreOutlined color="error" />, title: dictionary.disposal.form.buttons.undo, action: 'undo-disposal' }]
       : []),
     ...(canDelete
       ? [{ icon: <DeleteOutlined color="error" />, title: dictionary.register.list.actionsTitle.labels.delete, action: 'delete' }]
@@ -83,6 +95,18 @@ const AssetRegisterItemAction: React.FC<AssetRegisterItemActionProps> = ({ asset
         break;
       case 'dispose':
         setOpenDisposeDialog(true);
+        break;
+      case 'undo-disposal':
+        showDialog({
+          title: dictionary.disposal.form.buttons.undo,
+          content: dictionary.disposal.form.messages.undoConfirm,
+          onYes: () => {
+            hideDialog();
+            undoDisposal.mutate(asset.disposal);
+          },
+          onNo: () => hideDialog(),
+          variant: 'confirm',
+        });
         break;
       default:
         break;

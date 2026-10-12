@@ -204,6 +204,7 @@
         "disposalMethod": "Mbinu ya Uuzaji/Uondoaji",
         "proceeds": "Mapato",
         "proceedsLedger": "Daftari la Mapato",
+        "costCenter": "Kituo cha Gharama",
         "remarks": "Maelezo",
         "netBookValue": "Thamani Halisi ya Kitabu Wakati wa Uuzaji",
         "gainLoss": "Faida / (Hasara)"
@@ -212,7 +213,8 @@
       "buttons": { "save": "Ondoa", "cancel": "Ghairi", "undo": "Tengua Uuzaji" },
       "messages": {
         "success": "Mali imeuzwa/kuondolewa kikamilifu",
-        "undoSuccess": "Uuzaji/uondoaji umetenguliwa kikamilifu"
+        "undoSuccess": "Uuzaji/uondoaji umetenguliwa kikamilifu",
+        "undoConfirm": "Ukisema ndiyo, uondoaji huu utatenguliwa na mali itarejea kutumika. Hatua hii haiwezi kurudishwa."
       },
       "errors": {
         "validation": {

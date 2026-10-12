@@ -63,6 +63,24 @@ projectsServices.getApprovedSubcontractCertificates = async (params) => {
     return response.data;
 };
 
+// Live equivalent of the Project Engineer's manual monthly "PROJECT REPORT STATUS"
+// spreadsheet - contract value, physical progress, and the certified/billed/received/
+// outstanding revenue breakdown per project.
+projectsServices.getProjectStatusReport = async (params) => {
+    const response = await axios.get(
+        '/api/projectManagement/projectStatusReport',
+        { params }
+    );
+    return response.data;
+};
+
+projectsServices.exportProjectStatusReportToExcel = async (exportedData) => {
+    const { data } = await axios.post('/api/exports/excel/projectStatusReport', exportedData, {
+        responseType: 'blob',
+    });
+    return data;
+};
+
 projectsServices.getApprovedProjectPaymentClaims = async (params) => {
     const response = await axios.get(
         '/api/projectManagement/approvedProjectPaymentClaims',

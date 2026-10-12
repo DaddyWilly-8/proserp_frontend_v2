@@ -204,6 +204,7 @@
         "disposalMethod": "Disposal Method",
         "proceeds": "Proceeds",
         "proceedsLedger": "Proceeds Ledger",
+        "costCenter": "Cost Center",
         "remarks": "Remarks",
         "netBookValue": "Net Book Value at Disposal",
         "gainLoss": "Gain / (Loss)"
@@ -212,7 +213,8 @@
       "buttons": { "save": "Dispose", "cancel": "Cancel", "undo": "Undo Disposal" },
       "messages": {
         "success": "Asset was disposed of successfully",
-        "undoSuccess": "Disposal has been reversed successfully"
+        "undoSuccess": "Disposal has been reversed successfully",
+        "undoConfirm": "If you say yes, this disposal will be reversed and the asset will go back into service. This cannot be undone."
       },
       "errors": {
         "validation": {

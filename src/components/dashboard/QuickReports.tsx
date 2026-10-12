@@ -20,6 +20,7 @@ import {
   LeaderboardOutlined,
   ListAltOutlined,
   Money,
+  ReceiptLongOutlined,
   QueryStatsOutlined,
   RequestQuoteOutlined,
   SummarizeOutlined,
@@ -78,6 +79,9 @@ const StaffLoanReport = lazy(
 const PayrollSalaryComponentsDashboard = lazy(
   () => import('../humanResources/payrollPeriods/PayrollSalaryComponents/PayrollSalaryComponentsDashboard')
 );
+const ProjectStatusReport = lazy(
+  () => import('../projectManagement/projectStatusReport/ProjectStatusReport')
+);
 
 function QuickReports() {
   const { theme } = useJumboTheme();
@@ -101,6 +105,7 @@ function QuickReports() {
   const [openLeaveBalancesReport, setOpenLeaveBalancesReport] = useState(false);
   const [openStaffLoanReport, setOpenStaffLoanReport] = useState(false);
   const [openPayrollComponentsSummary, setOpenPayrollComponentsSummary] = useState(false);
+  const [openProjectStatusReport, setOpenProjectStatusReport] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const css = useProsERPStyles();
 
@@ -128,6 +133,7 @@ function QuickReports() {
     setOpenStaffLoanReport(false);
     setOpenPayrollComponentsSummary(false);
     setOpenShiftsSummaryReport(false);
+    setOpenProjectStatusReport(false);
   };
 
   return (
@@ -144,6 +150,7 @@ function QuickReports() {
           openLeaveBalancesReport ||
           openStaffLoanReport ||
           openPayrollComponentsSummary ||
+          openProjectStatusReport ||
           apArAgingDialogOpen
             ? 'lg'
             : fuelVouchersDialogOpen || openShiftsSummaryReport
@@ -166,7 +173,8 @@ function QuickReports() {
           openStaffLoanReport ||
           openPayrollComponentsSummary ||
           apArAgingDialogOpen ||
-          openShiftsSummaryReport
+          openShiftsSummaryReport ||
+          openProjectStatusReport
         }
       >
         {openSalesAndCashSummary && (
@@ -243,11 +251,15 @@ function QuickReports() {
         {openShiftsSummaryReport && (
           <ShiftsSummaryReport closeDialog={setOpenShiftsSummaryReport} />
         )}
+        {openProjectStatusReport && (
+          <ProjectStatusReport setOpenDialog={setOpenProjectStatusReport} />
+        )}
 
         {(debtorsCreditorsDialogOpen ||
           openDippingReport ||
           apArAgingDialogOpen ||
           openShiftsSummaryReport ||
+          openProjectStatusReport ||
           (fuelVouchersDialogOpen && !belowLargeScreen)) && (
           <DialogActions className={css.hiddenOnPrint}>
             <Button
@@ -523,7 +535,7 @@ function QuickReports() {
                   }}
                   onClick={() => handleOpenDialog(setOpenPayrollComponentsSummary)}
                 >
-                  <AssessmentOutlined sx={{ fontSize: '40px' }} />
+                  <ReceiptLongOutlined sx={{ fontSize: '40px' }} />
                   <Typography>Payroll Components Summary</Typography>
                 </Grid>
               )}
@@ -561,6 +573,24 @@ function QuickReports() {
                 >
                   <RequestQuoteOutlined sx={{ fontSize: '40px' }} />
                   <Typography>Staff Loans</Typography>
+                </Grid>
+              )}
+            {organizationHasSubscribed(MODULES.PROJECT_MANAGEMENT) &&
+              checkOrganizationPermission(PERMISSIONS.PROJECTS_REPORTS) && (
+                <Grid
+                  size={{ xs: 6, md: 2, lg: 1.5 }}
+                  p={1}
+                  textAlign={'center'}
+                  sx={{
+                    cursor: 'pointer',
+                    '&:hover': {
+                      bgcolor: 'action.hover',
+                    },
+                  }}
+                  onClick={() => handleOpenDialog(setOpenProjectStatusReport)}
+                >
+                  <AssessmentOutlined sx={{ fontSize: '40px' }} />
+                  <Typography>Project Status Report</Typography>
                 </Grid>
               )}
           </Grid>

@@ -231,6 +231,7 @@ export const PERMISSIONS = {
   PROJECTS_DELETE: 'Projects:Delete',
   PROJECTS_EDIT: 'Projects:Edit',
   PROJECTS_READ: 'Projects:Read',
+  PROJECTS_REPORTS: 'Projects:Reports',
 
   PROJECT_SUBCONTRACTS_CREATE: 'ProjectSubcontracts:Create',
   PROJECT_SUBCONTRACTS_EDIT: 'ProjectSubcontracts:Edit',

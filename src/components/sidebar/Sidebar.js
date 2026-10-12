@@ -493,6 +493,16 @@ function Sidebar({ menus }) {
                         );
                     }
                 }
+
+                // Project Management > Reports > Project Status Report
+                if (!checkOrganizationPermission(PERMISSIONS.PROJECTS_REPORTS)) {
+                    const projectsMenuIndex = updatedMenus.findIndex(menu => menu.label === dictionary.sidebar.menu.projectManagement);
+                    if (projectsMenuIndex >= 0) {
+                        updatedMenus[projectsMenuIndex].children = updatedMenus[projectsMenuIndex].children.filter(
+                            child => child.label !== dictionary.sidebar.menuItem.reports
+                        );
+                    }
+                }
             }
 
             if (organizationHasSubscribed(MODULES.ACCOUNTS_AND_FINANCE)) {
