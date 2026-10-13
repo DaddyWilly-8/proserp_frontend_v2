@@ -66,10 +66,11 @@ const colLetter = (index: number) => String.fromCharCode(65 + index);
 
 export async function exportProjectStatusReportExcel(exportedData: any) {
   try {
-    const { authOrganization, rows, totals } = exportedData as {
+    const { authOrganization, rows, totals, asAt } = exportedData as {
       authOrganization: any;
       rows: ProjectStatusReportRow[];
       totals: ProjectStatusReportTotals;
+      asAt?: string;
     };
 
     const orgName = authOrganization?.organization?.name || 'Organization';
@@ -89,7 +90,7 @@ export async function exportProjectStatusReportExcel(exportedData: any) {
     ws.getCell('A2').font = { bold: true, size: 14 };
     ws.mergeCells(`A2:${lastColLetter}2`);
 
-    ws.addRow([`As at: ${readableDate(undefined, true)}`]);
+    ws.addRow([`As at: ${readableDate(asAt, true)}`]);
     ws.mergeCells(`A3:${lastColLetter}3`);
 
     ws.addRow([]);

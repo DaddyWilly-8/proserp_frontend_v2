@@ -74,7 +74,7 @@ const totalValue = (totals: any, key: string): string => {
   }
 };
 
-const ProjectStatusReportPDF = ({ authOrganization, user, rows, totals }: any) => {
+const ProjectStatusReportPDF = ({ authOrganization, user, rows, totals, asAt }: any) => {
   const organization = authOrganization?.organization;
   const mainColor = organization?.settings?.main_color || '#2113AD';
   const lightColor = organization?.settings?.light_color || '#bec5da';
@@ -89,7 +89,7 @@ const ProjectStatusReportPDF = ({ authOrganization, user, rows, totals }: any) =
           </View>
           <View style={{ flex: 1, textAlign: 'right' }}>
             <Text style={{ ...pdfStyles.majorInfo, color: mainColor }}>Project Status Report</Text>
-            <Text style={pdfStyles.minInfo}>{`As at: ${readableDate(undefined, true)}`}</Text>
+            <Text style={pdfStyles.minInfo}>{`As at: ${readableDate(asAt, true)}`}</Text>
           </View>
         </View>
 

@@ -19,11 +19,14 @@ import {
   useMediaQuery,
 } from '@mui/material';
 import { HighlightOff } from '@mui/icons-material';
+import { DateTimePicker } from '@mui/x-date-pickers';
 import { useQuery } from '@tanstack/react-query';
+import dayjs from 'dayjs';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 import { FileExportGrid } from '@/components/sharedComponents/FileExportGrid';
 import PDFContent from '@/components/pdf/PDFContent';
+import { readableDate } from '@/app/helpers/input-sanitization-helpers';
 import projectsServices from '@/components/projectManagement/projects/project-services';
 import ProjectStatusReportPDF from './ProjectStatusReportPDF';
 
@@ -77,10 +80,11 @@ const ProjectStatusReport: React.FC<ProjectStatusReportProps> = ({ setOpenDialog
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
   const [isExporting, setIsExporting] = React.useState(false);
   const [showOnScreen, setShowOnScreen] = React.useState(true);
+  const [asAt, setAsAt] = React.useState(dayjs().toISOString());
 
-  const { data, isFetching } = useQuery({
-    queryKey: ['projectStatusReport'],
-    queryFn: () => projectsServices.getProjectStatusReport(),
+  const { data, isFetching, isError, error } = useQuery({
+    queryKey: ['projectStatusReport', asAt],
+    queryFn: () => projectsServices.getProjectStatusReport({ as_at: asAt }),
   });
 
   const rows: ProjectStatusReportRow[] = data?.data || [];
@@ -93,11 +97,12 @@ const ProjectStatusReport: React.FC<ProjectStatusReportProps> = ({ setOpenDialog
         authOrganization,
         rows,
         totals,
+        asAt,
       });
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `Project Status Report ${new Date().toISOString().slice(0, 10)}.xlsx`;
+      a.download = `Project Status Report ${readableDate(asAt, true)}.xlsx`;
       a.click();
       window.URL.revokeObjectURL(url);
     } finally {
@@ -126,7 +131,15 @@ const ProjectStatusReport: React.FC<ProjectStatusReportProps> = ({ setOpenDialog
             )}
           </Grid>
         </Grid>
-        <Grid container justifyContent="flex-end">
+        <Grid container columnSpacing={1} rowSpacing={1} alignItems="center" justifyContent="flex-end">
+          <Grid size={{ xs: 12, md: 4, lg: 3 }}>
+            <DateTimePicker
+              label="As at"
+              value={dayjs(asAt)}
+              slotProps={{ textField: { size: 'small', fullWidth: true } }}
+              onChange={(newValue) => setAsAt((newValue || dayjs()).toISOString())}
+            />
+          </Grid>
           <Grid>
             {rows.length > 0 && (
               <FileExportGrid
@@ -143,15 +156,20 @@ const ProjectStatusReport: React.FC<ProjectStatusReportProps> = ({ setOpenDialog
       <DialogContent>
         {isFetching ? (
           <LinearProgress />
+        ) : isError ? (
+          <Typography color="error" textAlign="center" py={3}>
+            {(error as any)?.response?.data?.message || 'Failed to load the Project Status Report.'}
+          </Typography>
         ) : !showOnScreen ? (
           <PDFContent
-            fileName={`Project Status Report ${new Date().toISOString().slice(0, 10)}`}
+            fileName={`Project Status Report ${readableDate(asAt, true)}`}
             document={
               <ProjectStatusReportPDF
                 authOrganization={authOrganization}
                 user={authUser?.user}
                 rows={rows}
                 totals={totals}
+                asAt={asAt}
               />
             }
           />
@@ -173,7 +191,6 @@ const ProjectStatusReport: React.FC<ProjectStatusReportProps> = ({ setOpenDialog
                   <TableCell align="right">Received Payments</TableCell>
                   <TableCell align="right">Certified Pending Payment</TableCell>
                   <TableCell align="right">Outstanding Liabilities</TableCell>
-                  <TableCell>Remarks</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -205,13 +222,12 @@ const ProjectStatusReport: React.FC<ProjectStatusReportProps> = ({ setOpenDialog
                       <AmountWithPercentage amount={row.certified_pending_payment} percentage={row.certified_pending_payment_percentage} />
                     </TableCell>
                     <TableCell align="right">{formatAmount(row.outstanding_liabilities)}</TableCell>
-                    <TableCell>{row.remarks || ''}</TableCell>
                   </TableRow>
                 ))}
 
                 {!isFetching && rows.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={14} align="center">
+                    <TableCell colSpan={13} align="center">
                       <Typography color="text.secondary" py={3}>No projects found.</Typography>
                     </TableCell>
                   </TableRow>
@@ -230,7 +246,6 @@ const ProjectStatusReport: React.FC<ProjectStatusReportProps> = ({ setOpenDialog
                     <TableCell align="right">{formatAmount(totals.received_payments)}</TableCell>
                     <TableCell align="right">{formatAmount(totals.certified_pending_payment)}</TableCell>
                     <TableCell align="right">{formatAmount(totals.outstanding_liabilities)}</TableCell>
-                    <TableCell />
                   </TableRow>
                 </TableBody>
               )}
