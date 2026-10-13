@@ -1545,7 +1545,21 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
     !!watch('sales_outlet_shift_id') &&
     !!watch('shift_start') &&
     !!watch('shift_end');
-  const showFormBody = hasValidShiftPeriod && !duplicateShiftWarning;
+
+  // Mirrors the backend guard in SalesShiftController::save() - a shift whose
+  // own shift_end isn't today can only be re-opened and saved by someone with
+  // the BackDate permission. This is a UX heads-up only; the backend rejects
+  // the save either way, so there's no bypass risk in getting this wrong here.
+  const isEditingPastShift =
+    !!SalesShift?.id &&
+    !!SalesShift?.shift_end &&
+    !dayjs(SalesShift.shift_end).isSame(dayjs(), 'day');
+  const pastShiftEditBlocked =
+    isEditingPastShift &&
+    !checkOrganizationPermission([PERMISSIONS.FUEL_SALES_SHIFTS_BACKDATE]);
+
+  const showFormBody =
+    hasValidShiftPeriod && !duplicateShiftWarning && !pastShiftEditBlocked;
 
   return (
     <div
@@ -1719,7 +1733,15 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
                 </Grid>
               )}
 
-              {!duplicateShiftWarning && !hasValidShiftPeriod && (
+              {!duplicateShiftWarning && pastShiftEditBlocked && (
+                <Grid size={12}>
+                  <Typography color='error' variant='body2' sx={{ mt: 0.5 }}>
+                    This shift closed on {dayjs(SalesShift.shift_end).format('DD MMM YYYY')}, not today. You don't have permission to edit a shift that isn't closing today.
+                  </Typography>
+                </Grid>
+              )}
+
+              {!duplicateShiftWarning && !pastShiftEditBlocked && !hasValidShiftPeriod && (
                 <Grid size={12}>
                   <Typography color='textSecondary' variant='body2' sx={{ mt: 0.5 }}>
                     Select a sales outlet shift and start date to continue.
