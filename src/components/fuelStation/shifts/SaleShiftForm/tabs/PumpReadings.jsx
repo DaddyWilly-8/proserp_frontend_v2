@@ -302,24 +302,37 @@ function PumpReadings({
                       
                       <Grid container spacing={1}>
                         <Grid size={12}>
-                          <TextField
-                            label="Opening Reading"
-                            fullWidth
-                            size="small"
-                            value={currentReading.opening}
-                            error={!!errors?.cashiers?.[cashierIndex]?.pump_readings?.[readingIndex]?.opening}
-                            helperText={errors?.cashiers?.[cashierIndex]?.pump_readings?.[readingIndex]?.opening?.message}
-                            onChange={(e) => {
-                              if (!hasLastReadings) {
-                                const value = e.target.value ? sanitizedNumber(e.target.value) : 0;
-                                handlePumpReadingChange(pump.id, 'opening', value);
-                              }
-                            }}
-                            InputProps={{
-                              inputComponent: CommaSeparatedField,
-                              readOnly: hasLastReadings
-                            }}
-                          />
+                          {(() => {
+                            // Locking must be per-pump, not station-wide: a brand-new
+                            // pump has no prior closing reading of its own even when
+                            // sibling pumps at the station do, and should stay editable
+                            // so the real starting meter value can be entered instead
+                            // of being silently forced to 0.
+                            const pumpHasLastReading = pump.lastClosing !== undefined;
+                            return (
+                              <TextField
+                                label="Opening Reading"
+                                fullWidth
+                                size="small"
+                                value={currentReading.opening}
+                                error={!!errors?.cashiers?.[cashierIndex]?.pump_readings?.[readingIndex]?.opening}
+                                helperText={
+                                  errors?.cashiers?.[cashierIndex]?.pump_readings?.[readingIndex]?.opening?.message ??
+                                  (!pumpHasLastReading ? 'No prior reading for this pump - enter its starting meter value.' : undefined)
+                                }
+                                onChange={(e) => {
+                                  if (!pumpHasLastReading) {
+                                    const value = e.target.value ? sanitizedNumber(e.target.value) : 0;
+                                    handlePumpReadingChange(pump.id, 'opening', value);
+                                  }
+                                }}
+                                InputProps={{
+                                  inputComponent: CommaSeparatedField,
+                                  readOnly: pumpHasLastReading
+                                }}
+                              />
+                            );
+                          })()}
                         </Grid>
                         
                         <Grid size={12}>
