@@ -104,6 +104,10 @@ function BillPicker({
     queryFn: () =>
       purchaseBillServices.listByStakeholder(stakeholderId as number, {
         currency_id: currencyId,
+        // Excludes a bill with nothing left to request for payment (already
+        // fully approved via an earlier requisition) or that's cancelled —
+        // see SupplierInvoiceController::index()'s only_linkable branch.
+        only_linkable: true,
       }),
     enabled: !!stakeholderId,
   });
