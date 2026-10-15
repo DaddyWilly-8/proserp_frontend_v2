@@ -9,6 +9,8 @@ function DippingReportPDF({
   organization,
   filters,
   activeStation,
+  showCumulativeDeviation = true,
+  showCalculatedStock = true,
 }) {
   const mainColor = organization.settings?.main_color || '#2113AD';
   const lightColor = organization.settings?.light_color || '#bec5da';
@@ -97,6 +99,66 @@ function DippingReportPDF({
     );
   }, [reportData]);
 
+  // Narrower table (one or both optional columns hidden) reads better as a
+  // tall page than as a wide one with empty space on the right.
+  const pageOrientation =
+    showCumulativeDeviation && showCalculatedStock ? 'landscape' : 'portrait';
+
+  // The three optional columns' widths get redistributed across whichever
+  // of them stay visible, so the table always fills the row instead of
+  // leaving blank space on the right where a hidden column used to be.
+  // Fixed columns (Period/Details/Opening/...) keep their original widths
+  // either way. Two separate weight sets because the header row and the
+  // inner tank-data rows were already using two different (but
+  // proportionally equivalent) width scales before this change.
+  const toggleVisibility = {
+    cumulativeDeviation: showCumulativeDeviation,
+    calculatedStock: showCalculatedStock,
+    stockDeviation: showCumulativeDeviation,
+  };
+  const computeToggleWidths = (weights, budget) => {
+    const visibleKeys = Object.keys(weights).filter(
+      (k) => toggleVisibility[k]
+    );
+    const total = visibleKeys.reduce((sum, k) => sum + weights[k], 0);
+    const result = { cumulativeDeviation: 0, calculatedStock: 0, stockDeviation: 0 };
+    if (total > 0) {
+      visibleKeys.forEach((k) => {
+        result[k] = (weights[k] / total) * budget;
+      });
+    }
+    return result;
+  };
+  // Header row: fixed columns (Period 6 + Details 15 + Opening 7 + Stock In 7
+  // + Stock Out 9 + Closing 7 + Tank Difference 10 + Deviation 6) sum to 67,
+  // leaving a 33% budget for the three optional columns (13 + 10 + 10 = 33).
+  const headerWidths = computeToggleWidths(
+    { cumulativeDeviation: 13, calculatedStock: 10, stockDeviation: 10 },
+    33
+  );
+  // Inner tank-data rows: fixed columns (tank name 9.5 + Opening 8 + Stock In
+  // 8 + Stock Out 10.2 + Closing 8 + Tank Difference 11.3 + Deviation 6.7)
+  // sum to 61.7, leaving a 38.3% budget for the three optional columns.
+  const dataWidths = computeToggleWidths(
+    { cumulativeDeviation: 14.5, calculatedStock: 11.3, stockDeviation: 11.4 },
+    38.3
+  );
+  // If both switches end up off at once, all three optional columns vanish
+  // and the redistribution above has nothing left to redistribute onto -
+  // the budget would otherwise just sit unused as blank space again. Give
+  // that leftover to Details/tank name (the one column every row already
+  // has) instead of leaving it empty.
+  const headerToggleUsed =
+    headerWidths.cumulativeDeviation +
+    headerWidths.calculatedStock +
+    headerWidths.stockDeviation;
+  const detailsWidth = 15 + (33 - headerToggleUsed);
+  const dataToggleUsed =
+    dataWidths.cumulativeDeviation +
+    dataWidths.calculatedStock +
+    dataWidths.stockDeviation;
+  const tankNameWidth = 9.5 + (38.3 - dataToggleUsed);
+
   return (
     <Document
       title={`Dipping Report | ${organization.name}`}
@@ -105,7 +167,7 @@ function DippingReportPDF({
       creator='Powered By ProsERP'
       producer='ProsERP'
     >
-      <Page size='A3' orientation='landscape' style={pdfStyles.page}>
+      <Page size='A3' orientation={pageOrientation} style={pdfStyles.page}>
         <View style={{ ...pdfStyles.tableRow, marginBottom: 20 }}>
           <View
             style={{ flex: 1, maxWidth: organization?.logo_path ? 130 : 250 }}
@@ -149,7 +211,7 @@ function DippingReportPDF({
                     ...pdfStyles.midInfo,
                     backgroundColor: mainColor,
                     color: contrastText,
-                    width: '15%',
+                    width: `${detailsWidth}%`,
                     textAlign: 'center',
                   }}
                 >
@@ -228,42 +290,48 @@ function DippingReportPDF({
                 >
                   Deviation
                 </Text>
-                <Text
-                  style={{
-                    ...pdfStyles.tableHeader,
-                    ...pdfStyles.tableCell,
-                    ...pdfStyles.midInfo,
-                    backgroundColor: mainColor,
-                    color: contrastText,
-                    width: '13%',
-                  }}
-                >
-                  Cumulative Deviation
-                </Text>
-                <Text
-                  style={{
-                    ...pdfStyles.tableHeader,
-                    ...pdfStyles.tableCell,
-                    ...pdfStyles.midInfo,
-                    backgroundColor: mainColor,
-                    color: contrastText,
-                    width: '10%',
-                  }}
-                >
-                  Calculated Stock
-                </Text>
-                <Text
-                  style={{
-                    ...pdfStyles.tableHeader,
-                    ...pdfStyles.tableCell,
-                    ...pdfStyles.midInfo,
-                    backgroundColor: mainColor,
-                    color: contrastText,
-                    width: '10%',
-                  }}
-                >
-                  Stock Deviation
-                </Text>
+                {showCumulativeDeviation && (
+                  <Text
+                    style={{
+                      ...pdfStyles.tableHeader,
+                      ...pdfStyles.tableCell,
+                      ...pdfStyles.midInfo,
+                      backgroundColor: mainColor,
+                      color: contrastText,
+                      width: `${headerWidths.cumulativeDeviation}%`,
+                    }}
+                  >
+                    Cumulative Deviation
+                  </Text>
+                )}
+                {showCalculatedStock && (
+                  <Text
+                    style={{
+                      ...pdfStyles.tableHeader,
+                      ...pdfStyles.tableCell,
+                      ...pdfStyles.midInfo,
+                      backgroundColor: mainColor,
+                      color: contrastText,
+                      width: `${headerWidths.calculatedStock}%`,
+                    }}
+                  >
+                    Calculated Stock
+                  </Text>
+                )}
+                {showCumulativeDeviation && (
+                  <Text
+                    style={{
+                      ...pdfStyles.tableHeader,
+                      ...pdfStyles.tableCell,
+                      ...pdfStyles.midInfo,
+                      backgroundColor: mainColor,
+                      color: contrastText,
+                      width: `${headerWidths.stockDeviation}%`,
+                    }}
+                  >
+                    Stock Deviation
+                  </Text>
+                )}
               </View>
 
               <View style={pdfStyles.tableRow}>
@@ -355,7 +423,7 @@ function DippingReportPDF({
                                   <Text
                                     style={{
                                       ...pdfStyles.tableCell,
-                                      width: '9.5%',
+                                      width: `${tankNameWidth}%`,
                                       backgroundColor:
                                         tankIndex % 2 === 0
                                           ? '#FFFFFF'
@@ -467,66 +535,69 @@ function DippingReportPDF({
                                       maximumFractionDigits: 2,
                                     }) || 0}
                                   </Text>
-                                  {/* cummulative deviation */}
-                                  <Text
-                                    style={{
-                                      ...pdfStyles.tableCell,
-                                      width: '14.5%',
-                                      backgroundColor:
-                                        tankIndex % 2 === 0
-                                          ? '#FFFFFF'
-                                          : lightColor,
-                                      textAlign: 'right',
-                                    }}
-                                  >
-                                    {tank.accumulated_deviation.toLocaleString(
-                                      'en-US',
-                                      {
-                                        minimumFractionDigits: 2,
-                                        maximumFractionDigits: 2,
-                                      }
-                                    ) || 0}
-                                  </Text>
-                                  {/* calculated stock */}
-                                  <Text
-                                    style={{
-                                      ...pdfStyles.tableCell,
-                                      width: '11.3%',
-                                      backgroundColor:
-                                        tankIndex % 2 === 0
-                                          ? '#FFFFFF'
-                                          : lightColor,
-                                      textAlign: 'right',
-                                    }}
-                                  >
-                                    {tank.calculated_stock?.toLocaleString(
-                                      'en-US',
-                                      {
-                                        minimumFractionDigits: 2,
-                                        maximumFractionDigits: 2,
-                                      }
-                                    ) || 0}
-                                  </Text>
-                                  {/* stock deviation */}
-                                  <Text
-                                    style={{
-                                      ...pdfStyles.tableCell,
-                                      width: '11.4%',
-                                      backgroundColor:
-                                        tankIndex % 2 === 0
-                                          ? '#FFFFFF'
-                                          : lightColor,
-                                      textAlign: 'right',
-                                    }}
-                                  >
-                                    {tank.cummulative_deviation?.toLocaleString(
-                                      'en-US',
-                                      {
-                                        minimumFractionDigits: 2,
-                                        maximumFractionDigits: 2,
-                                      }
-                                    ) || 0}
-                                  </Text>
+                                  {showCumulativeDeviation && (
+                                    <Text
+                                      style={{
+                                        ...pdfStyles.tableCell,
+                                        width: `${dataWidths.cumulativeDeviation}%`,
+                                        backgroundColor:
+                                          tankIndex % 2 === 0
+                                            ? '#FFFFFF'
+                                            : lightColor,
+                                        textAlign: 'right',
+                                      }}
+                                    >
+                                      {tank.accumulated_deviation.toLocaleString(
+                                        'en-US',
+                                        {
+                                          minimumFractionDigits: 2,
+                                          maximumFractionDigits: 2,
+                                        }
+                                      ) || 0}
+                                    </Text>
+                                  )}
+                                  {showCalculatedStock && (
+                                    <Text
+                                      style={{
+                                        ...pdfStyles.tableCell,
+                                        width: `${dataWidths.calculatedStock}%`,
+                                        backgroundColor:
+                                          tankIndex % 2 === 0
+                                            ? '#FFFFFF'
+                                            : lightColor,
+                                        textAlign: 'right',
+                                      }}
+                                    >
+                                      {tank.calculated_stock?.toLocaleString(
+                                        'en-US',
+                                        {
+                                          minimumFractionDigits: 2,
+                                          maximumFractionDigits: 2,
+                                        }
+                                      ) || 0}
+                                    </Text>
+                                  )}
+                                  {showCumulativeDeviation && (
+                                    <Text
+                                      style={{
+                                        ...pdfStyles.tableCell,
+                                        width: `${dataWidths.stockDeviation}%`,
+                                        backgroundColor:
+                                          tankIndex % 2 === 0
+                                            ? '#FFFFFF'
+                                            : lightColor,
+                                        textAlign: 'right',
+                                      }}
+                                    >
+                                      {tank.cummulative_deviation?.toLocaleString(
+                                        'en-US',
+                                        {
+                                          minimumFractionDigits: 2,
+                                          maximumFractionDigits: 2,
+                                        }
+                                      ) || 0}
+                                    </Text>
+                                  )}
                                 </View>
                               );
                             })}
@@ -538,7 +609,7 @@ function DippingReportPDF({
                                   ...pdfStyles.midInfo,
                                   backgroundColor: mainColor,
                                   color: contrastText,
-                                  width: '9.5%',
+                                  width: `${tankNameWidth}%`,
                                   fontWeight: 'bold',
                                 }}
                               >
@@ -658,55 +729,61 @@ function DippingReportPDF({
                                   }
                                 ) || 0}
                               </Text>
-                              <Text
-                                style={{
-                                  ...pdfStyles.tableCell,
-                                  ...pdfStyles.midInfo,
-                                  backgroundColor: mainColor,
-                                  color: contrastText,
-                                  width: '14.5%',
-                                  textAlign: 'right',
-                                  fontWeight: 'bold',
-                                }}
-                              ></Text>
-                              <Text
-                                style={{
-                                  ...pdfStyles.tableCell,
-                                  ...pdfStyles.midInfo,
-                                  backgroundColor: mainColor,
-                                  color: contrastText,
-                                  width: '11.3%',
-                                  textAlign: 'right',
-                                  fontWeight: 'bold',
-                                }}
-                              >
-                                {readingTotals.calculatedStock?.toLocaleString(
-                                  'en-US',
-                                  {
-                                    minimumFractionDigits: 2,
-                                    maximumFractionDigits: 2,
-                                  }
-                                ) || 0}
-                              </Text>
-                              <Text
-                                style={{
-                                  ...pdfStyles.tableCell,
-                                  ...pdfStyles.midInfo,
-                                  backgroundColor: mainColor,
-                                  color: contrastText,
-                                  width: '11.4%',
-                                  textAlign: 'right',
-                                  fontWeight: 'bold',
-                                }}
-                              >
-                                {readingTotals.cumulativeDeviation?.toLocaleString(
-                                  'en-US',
-                                  {
-                                    minimumFractionDigits: 2,
-                                    maximumFractionDigits: 2,
-                                  }
-                                ) || 0}
-                              </Text>
+                              {showCumulativeDeviation && (
+                                <Text
+                                  style={{
+                                    ...pdfStyles.tableCell,
+                                    ...pdfStyles.midInfo,
+                                    backgroundColor: mainColor,
+                                    color: contrastText,
+                                    width: `${dataWidths.cumulativeDeviation}%`,
+                                    textAlign: 'right',
+                                    fontWeight: 'bold',
+                                  }}
+                                ></Text>
+                              )}
+                              {showCalculatedStock && (
+                                <Text
+                                  style={{
+                                    ...pdfStyles.tableCell,
+                                    ...pdfStyles.midInfo,
+                                    backgroundColor: mainColor,
+                                    color: contrastText,
+                                    width: `${dataWidths.calculatedStock}%`,
+                                    textAlign: 'right',
+                                    fontWeight: 'bold',
+                                  }}
+                                >
+                                  {readingTotals.calculatedStock?.toLocaleString(
+                                    'en-US',
+                                    {
+                                      minimumFractionDigits: 2,
+                                      maximumFractionDigits: 2,
+                                    }
+                                  ) || 0}
+                                </Text>
+                              )}
+                              {showCumulativeDeviation && (
+                                <Text
+                                  style={{
+                                    ...pdfStyles.tableCell,
+                                    ...pdfStyles.midInfo,
+                                    backgroundColor: mainColor,
+                                    color: contrastText,
+                                    width: `${dataWidths.stockDeviation}%`,
+                                    textAlign: 'right',
+                                    fontWeight: 'bold',
+                                  }}
+                                >
+                                  {readingTotals.cumulativeDeviation?.toLocaleString(
+                                    'en-US',
+                                    {
+                                      minimumFractionDigits: 2,
+                                      maximumFractionDigits: 2,
+                                    }
+                                  ) || 0}
+                                </Text>
+                              )}
                             </View>
                           </View>
                         </View>
@@ -759,7 +836,7 @@ function DippingReportPDF({
                 backgroundColor: mainColor,
                 color: contrastText,
                 // flex: 2.15,
-                width: '15%',
+                width: `${detailsWidth}%`,
               }}
             >
               Details
@@ -842,45 +919,51 @@ function DippingReportPDF({
             >
               Deviation
             </Text>
-            <Text
-              style={{
-                ...pdfStyles.tableHeader,
-                ...pdfStyles.tableCell,
-                ...pdfStyles.midInfo,
-                backgroundColor: mainColor,
-                color: contrastText,
-                // flex: 1,
-                width: '13%',
-              }}
-            >
-              Cumulative Deviation
-            </Text>
-            <Text
-              style={{
-                ...pdfStyles.tableHeader,
-                ...pdfStyles.tableCell,
-                ...pdfStyles.midInfo,
-                backgroundColor: mainColor,
-                color: contrastText,
-                // flex: 0.9,
-                width: '10%',
-              }}
-            >
-              Calculated Stock
-            </Text>
-            <Text
-              style={{
-                ...pdfStyles.tableHeader,
-                ...pdfStyles.tableCell,
-                ...pdfStyles.midInfo,
-                backgroundColor: mainColor,
-                color: contrastText,
-                // flex: 0.9,
-                width: '10%',
-              }}
-            >
-              Stock Deviation
-            </Text>
+            {showCumulativeDeviation && (
+              <Text
+                style={{
+                  ...pdfStyles.tableHeader,
+                  ...pdfStyles.tableCell,
+                  ...pdfStyles.midInfo,
+                  backgroundColor: mainColor,
+                  color: contrastText,
+                  // flex: 1,
+                  width: `${headerWidths.cumulativeDeviation}%`,
+                }}
+              >
+                Cumulative Deviation
+              </Text>
+            )}
+            {showCalculatedStock && (
+              <Text
+                style={{
+                  ...pdfStyles.tableHeader,
+                  ...pdfStyles.tableCell,
+                  ...pdfStyles.midInfo,
+                  backgroundColor: mainColor,
+                  color: contrastText,
+                  // flex: 0.9,
+                  width: `${headerWidths.calculatedStock}%`,
+                }}
+              >
+                Calculated Stock
+              </Text>
+            )}
+            {showCumulativeDeviation && (
+              <Text
+                style={{
+                  ...pdfStyles.tableHeader,
+                  ...pdfStyles.tableCell,
+                  ...pdfStyles.midInfo,
+                  backgroundColor: mainColor,
+                  color: contrastText,
+                  // flex: 0.9,
+                  width: `${headerWidths.stockDeviation}%`,
+                }}
+              >
+                Stock Deviation
+              </Text>
+            )}
           </View>
 
           <View style={pdfStyles.tableRow}>
@@ -972,7 +1055,7 @@ function DippingReportPDF({
                                 backgroundColor:
                                   tankIndex % 2 === 0 ? '#FFFFFF' : lightColor,
                                 // flex: 1.05,
-                                width: '9.5%',
+                                width: `${tankNameWidth}%`,
                               }}
                             >
                               {tank.tank}
@@ -1073,57 +1156,69 @@ function DippingReportPDF({
                                 maximumFractionDigits: 2,
                               }) || 0}
                             </Text>
-                            {/* cummulative deviation */}
-                            <Text
-                              style={{
-                                ...pdfStyles.tableCell,
-                                backgroundColor:
-                                  tankIndex % 2 === 0 ? '#FFFFFF' : lightColor,
-                                // flex: 1,
-                                width: '14.5%',
-                                textAlign: 'right',
-                              }}
-                            >
-                              {commulativeTotal?.toLocaleString('en-US', {
-                                minimumFractionDigits: 2,
-                                maximumFractionDigits: 2,
-                              }) || 0}
-                            </Text>
-                            {/* calculated stock */}
-                            <Text
-                              style={{
-                                ...pdfStyles.tableCell,
-                                backgroundColor:
-                                  tankIndex % 2 === 0 ? '#FFFFFF' : lightColor,
-                                // flex: 1,
-                                width: '11.3%',
-                                textAlign: 'right',
-                              }}
-                            >
-                              {tank.calculated_stock?.toLocaleString('en-US', {
-                                minimumFractionDigits: 2,
-                                maximumFractionDigits: 2,
-                              }) || 0}
-                            </Text>
-                            {/* Stock deviation */}
-                            <Text
-                              style={{
-                                ...pdfStyles.tableCell,
-                                backgroundColor:
-                                  tankIndex % 2 === 0 ? '#FFFFFF' : lightColor,
-                                // flex: 1,
-                                width: '11.4%',
-                                textAlign: 'right',
-                              }}
-                            >
-                              {tank.cummulative_deviation?.toLocaleString(
-                                'en-US',
-                                {
+                            {showCumulativeDeviation && (
+                              <Text
+                                style={{
+                                  ...pdfStyles.tableCell,
+                                  backgroundColor:
+                                    tankIndex % 2 === 0
+                                      ? '#FFFFFF'
+                                      : lightColor,
+                                  // flex: 1,
+                                  width: `${dataWidths.cumulativeDeviation}%`,
+                                  textAlign: 'right',
+                                }}
+                              >
+                                {commulativeTotal?.toLocaleString('en-US', {
                                   minimumFractionDigits: 2,
                                   maximumFractionDigits: 2,
-                                }
-                              ) || 0}
-                            </Text>
+                                }) || 0}
+                              </Text>
+                            )}
+                            {showCalculatedStock && (
+                              <Text
+                                style={{
+                                  ...pdfStyles.tableCell,
+                                  backgroundColor:
+                                    tankIndex % 2 === 0
+                                      ? '#FFFFFF'
+                                      : lightColor,
+                                  // flex: 1,
+                                  width: `${dataWidths.calculatedStock}%`,
+                                  textAlign: 'right',
+                                }}
+                              >
+                                {tank.calculated_stock?.toLocaleString(
+                                  'en-US',
+                                  {
+                                    minimumFractionDigits: 2,
+                                    maximumFractionDigits: 2,
+                                  }
+                                ) || 0}
+                              </Text>
+                            )}
+                            {showCumulativeDeviation && (
+                              <Text
+                                style={{
+                                  ...pdfStyles.tableCell,
+                                  backgroundColor:
+                                    tankIndex % 2 === 0
+                                      ? '#FFFFFF'
+                                      : lightColor,
+                                  // flex: 1,
+                                  width: `${dataWidths.stockDeviation}%`,
+                                  textAlign: 'right',
+                                }}
+                              >
+                                {tank.cummulative_deviation?.toLocaleString(
+                                  'en-US',
+                                  {
+                                    minimumFractionDigits: 2,
+                                    maximumFractionDigits: 2,
+                                  }
+                                ) || 0}
+                              </Text>
+                            )}
                           </View>
                         );
                       })}
@@ -1135,7 +1230,7 @@ function DippingReportPDF({
                             ...pdfStyles.midInfo,
                             backgroundColor: mainColor,
                             color: contrastText,
-                            width: '9.5%',
+                            width: `${tankNameWidth}%`,
                             fontWeight: 'bold',
                           }}
                         >
@@ -1240,55 +1335,61 @@ function DippingReportPDF({
                             maximumFractionDigits: 2,
                           }) || 0}
                         </Text>
-                        <Text
-                          style={{
-                            ...pdfStyles.tableCell,
-                            ...pdfStyles.midInfo,
-                            backgroundColor: mainColor,
-                            color: contrastText,
-                            width: '14.5%',
-                            textAlign: 'right',
-                            fontWeight: 'bold',
-                          }}
-                        ></Text>
-                        <Text
-                          style={{
-                            ...pdfStyles.tableCell,
-                            ...pdfStyles.midInfo,
-                            backgroundColor: mainColor,
-                            color: contrastText,
-                            width: '11.3%',
-                            textAlign: 'right',
-                            fontWeight: 'bold',
-                          }}
-                        >
-                          {productTotals.calculatedStock?.toLocaleString(
-                            'en-US',
-                            {
-                              minimumFractionDigits: 2,
-                              maximumFractionDigits: 2,
-                            }
-                          ) || 0}
-                        </Text>
-                        <Text
-                          style={{
-                            ...pdfStyles.tableCell,
-                            ...pdfStyles.midInfo,
-                            backgroundColor: mainColor,
-                            color: contrastText,
-                            width: '11.4%',
-                            textAlign: 'right',
-                            fontWeight: 'bold',
-                          }}
-                        >
-                          {productTotals.cumulativeDeviation?.toLocaleString(
-                            'en-US',
-                            {
-                              minimumFractionDigits: 2,
-                              maximumFractionDigits: 2,
-                            }
-                          ) || 0}
-                        </Text>
+                        {showCumulativeDeviation && (
+                          <Text
+                            style={{
+                              ...pdfStyles.tableCell,
+                              ...pdfStyles.midInfo,
+                              backgroundColor: mainColor,
+                              color: contrastText,
+                              width: `${dataWidths.cumulativeDeviation}%`,
+                              textAlign: 'right',
+                              fontWeight: 'bold',
+                            }}
+                          ></Text>
+                        )}
+                        {showCalculatedStock && (
+                          <Text
+                            style={{
+                              ...pdfStyles.tableCell,
+                              ...pdfStyles.midInfo,
+                              backgroundColor: mainColor,
+                              color: contrastText,
+                              width: `${dataWidths.calculatedStock}%`,
+                              textAlign: 'right',
+                              fontWeight: 'bold',
+                            }}
+                          >
+                            {productTotals.calculatedStock?.toLocaleString(
+                              'en-US',
+                              {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2,
+                              }
+                            ) || 0}
+                          </Text>
+                        )}
+                        {showCumulativeDeviation && (
+                          <Text
+                            style={{
+                              ...pdfStyles.tableCell,
+                              ...pdfStyles.midInfo,
+                              backgroundColor: mainColor,
+                              color: contrastText,
+                              width: `${dataWidths.stockDeviation}%`,
+                              textAlign: 'right',
+                              fontWeight: 'bold',
+                            }}
+                          >
+                            {productTotals.cumulativeDeviation?.toLocaleString(
+                              'en-US',
+                              {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2,
+                              }
+                            ) || 0}
+                          </Text>
+                        )}
                       </View>
                     </View>
                   </View>

@@ -4,7 +4,33 @@ import { createWorkbook } from '../workBook';
 
 export async function exportDippingReportToExcel(exportedData: any) {
   try {
-    const { activeStation, filters, organization, reportData } = exportedData;
+    const {
+      activeStation,
+      filters,
+      organization,
+      reportData,
+      showCumulativeDeviation = true,
+      showCalculatedStock = true,
+    } = exportedData;
+
+    // J, K, L are always the trailing three columns, so whichever of them
+    // are hidden always come off the end - the remaining columns are always
+    // an unbroken run starting at A. Computed up front so the "full width"
+    // Summary title bar can merge to the real last column instead of a
+    // hardcoded L; reused again at the bottom for the actual column removal.
+    const columnsToRemove: number[] = [];
+    if (!showCumulativeDeviation) columnsToRemove.push(10, 12); // J, L
+    if (!showCalculatedStock) columnsToRemove.push(11); // K
+    const lastColLetter = String.fromCharCode(
+      65 + (12 - columnsToRemove.length) - 1
+    );
+
+    // Columns J (Cumulative Deviation) and L (Stock Deviation) are both
+    // running totals since the station's first dipping - left in place
+    // structurally either way (merges/borders/widths are unaffected), just
+    // blanked out when the toggle is off, so an uncorrected historical gap
+    // doesn't keep showing up on every export.
+    const cumCol = (value: any) => (showCumulativeDeviation ? value : '');
 
     const allReadings = reportData.flatMap((data: any) => data.readings); // Collect all readings in the same array
 
@@ -194,9 +220,9 @@ export async function exportDippingReportToExcel(exportedData: any) {
       ws.getCell(`G${dippingRow}`).value = 'Closing';
       ws.getCell(`H${dippingRow}`).value = 'Tank Difference';
       ws.getCell(`I${dippingRow}`).value = 'Deviation';
-      ws.getCell(`J${dippingRow}`).value = 'Cumulative Deviation';
+      ws.getCell(`J${dippingRow}`).value = cumCol('Cumulative Deviation');
       ws.getCell(`K${dippingRow}`).value = 'Calculated Stock';
-      ws.getCell(`L${dippingRow}`).value = 'Stock Deviation';
+      ws.getCell(`L${dippingRow}`).value = cumCol('Stock Deviation');
 
       //   SUBHEADING STYLING
       ws.getRow(dippingRow).height = 20;
@@ -286,11 +312,15 @@ export async function exportDippingReportToExcel(exportedData: any) {
           ws.getCell(`H${currentRow}`).numFmt = '#,###.00';
           ws.getCell(`I${currentRow}`).value = tank.deviation;
           ws.getCell(`I${currentRow}`).numFmt = '#,###.00';
-          ws.getCell(`J${currentRow}`).value = tank.accumulated_deviation;
+          ws.getCell(`J${currentRow}`).value = cumCol(
+            tank.accumulated_deviation
+          );
           ws.getCell(`J${currentRow}`).numFmt = '#,###.00';
           ws.getCell(`K${currentRow}`).value = tank.calculated_stock;
           ws.getCell(`K${currentRow}`).numFmt = '#,###.00';
-          ws.getCell(`L${currentRow}`).value = tank.cummulative_deviation;
+          ws.getCell(`L${currentRow}`).value = cumCol(
+            tank.cummulative_deviation
+          );
           ws.getCell(`L${currentRow}`).numFmt = '#,###.00';
 
           for (let col = 67; col <= 76; col++) {
@@ -323,8 +353,9 @@ export async function exportDippingReportToExcel(exportedData: any) {
             ws.getCell(`J${totalRow}`).value = ' ';
             ws.getCell(`K${totalRow}`).value =
               readingTotals.calculatedStock || 0;
-            ws.getCell(`L${totalRow}`).value =
-              readingTotals.cumulativeDeviation || 0;
+            ws.getCell(`L${totalRow}`).value = cumCol(
+              readingTotals.cumulativeDeviation || 0
+            );
 
             for (let col = 67; col <= 76; col++) {
               ws.getCell(`${String.fromCharCode(col)}${totalRow}`).border = {
@@ -370,7 +401,7 @@ export async function exportDippingReportToExcel(exportedData: any) {
 
     // ===== SUMAMARY ===== //
     const summaryRow = (ws.lastRow?.number ?? 0) + 1;
-    ws.mergeCells(`A${summaryRow}:L${summaryRow}`);
+    ws.mergeCells(`A${summaryRow}:${lastColLetter}${summaryRow}`);
     ws.getCell(`A${summaryRow}`).value = 'Summary';
     applyCellStyle(ws.getCell(`A${summaryRow}`), CELL_STYLES.tableHeader);
     ws.getRow(summaryRow).height = 20;
@@ -397,9 +428,9 @@ export async function exportDippingReportToExcel(exportedData: any) {
     ws.getCell(`G${summaryRow + 1}`).value = 'Closing';
     ws.getCell(`H${summaryRow + 1}`).value = 'Tank Difference';
     ws.getCell(`I${summaryRow + 1}`).value = 'Deviation';
-    ws.getCell(`J${summaryRow + 1}`).value = 'Cumulative Deviation';
+    ws.getCell(`J${summaryRow + 1}`).value = cumCol('Cumulative Deviation');
     ws.getCell(`K${summaryRow + 1}`).value = 'Calculated Stock';
-    ws.getCell(`L${summaryRow + 1}`).value = 'Stock Deviation';
+    ws.getCell(`L${summaryRow + 1}`).value = cumCol('Stock Deviation');
 
     //   SUMMARY SUBHEADING STYLING
     ws.getRow(summaryRow + 1).height = 20;
@@ -494,11 +525,14 @@ export async function exportDippingReportToExcel(exportedData: any) {
         ws.getCell(`H${currentRow + tankIndex}`).value =
           tank.tank_difference || 0;
         ws.getCell(`I${currentRow + tankIndex}`).value = tank.deviation || 0;
-        ws.getCell(`J${currentRow + tankIndex}`).value = commulativeTotal || 0;
+        ws.getCell(`J${currentRow + tankIndex}`).value = cumCol(
+          commulativeTotal || 0
+        );
         ws.getCell(`K${currentRow + tankIndex}`).value =
           tank.calculated_stock || 0;
-        ws.getCell(`L${currentRow + tankIndex}`).value =
-          tank.cummulative_deviation || 0;
+        ws.getCell(`L${currentRow + tankIndex}`).value = cumCol(
+          tank.cummulative_deviation || 0
+        );
 
         for (let col = 67; col <= 76; col++) {
           ws.getCell(
@@ -535,8 +569,9 @@ export async function exportDippingReportToExcel(exportedData: any) {
         ws.getCell(`I${totalRow}`).value = productTotals.deviation || 0;
         ws.getCell(`J${totalRow}`).value = ' ';
         ws.getCell(`K${totalRow}`).value = productTotals.calculatedStock || 0;
-        ws.getCell(`L${totalRow}`).value =
-          productTotals.cumulativeDeviation || 0;
+        ws.getCell(`L${totalRow}`).value = cumCol(
+          productTotals.cumulativeDeviation || 0
+        );
 
         for (let col = 67; col <= 76; col++) {
           ws.getCell(`${String.fromCharCode(col)}${totalRow}`).border = {
@@ -562,6 +597,18 @@ export async function exportDippingReportToExcel(exportedData: any) {
 
       currentRow += innerTanksLength + 1;
     });
+
+    // Physically remove hidden columns rather than leaving them blank, so the
+    // export matches the on-screen report exactly. Done last, after every
+    // cell/merge/border above is already written using the fixed A-L letter
+    // layout (J=Cumulative Deviation, K=Calculated Stock, L=Stock Deviation)
+    // - spliceColumns removes a column outright and shifts the rest left,
+    // so indices must be removed highest-first or the later removals would
+    // target the wrong (already-shifted) column. columnsToRemove was already
+    // computed at the top (also used there for the Summary title merge).
+    [...columnsToRemove]
+      .sort((a, b) => b - a)
+      .forEach((colIndex) => ws.spliceColumns(colIndex, 1));
 
     // Return Excel buffer
     return await wb.xlsx.writeBuffer();

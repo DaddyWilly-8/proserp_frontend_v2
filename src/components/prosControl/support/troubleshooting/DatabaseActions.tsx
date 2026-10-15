@@ -1,5 +1,5 @@
-import { Dialog, DialogActions, DialogContent, DialogTitle, Skeleton, Typography } from '@mui/material';
-import { CloseOutlined } from '@mui/icons-material';
+import { Accordion, AccordionDetails, AccordionSummary, Dialog, DialogActions, DialogContent, DialogTitle, Skeleton, Typography } from '@mui/material';
+import { CloseOutlined, ExpandMoreOutlined } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
 import { Alert, Autocomplete, Chip, Collapse, FormControl, FormControlLabel, FormHelperText, Grid, IconButton, LinearProgress, Radio, RadioGroup, TextField, Button } from '@mui/material';
 import React, { useState } from 'react';
@@ -7,6 +7,7 @@ import { useForm } from 'react-hook-form';
 import * as yup from "yup";
 import { yupResolver } from '@hookform/resolvers/yup';
 import supportServices from '../support-services';
+import ReportDetails from './ReportDetails';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import organizationServices from '@/components/organizations/organizationServices';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
@@ -47,6 +48,7 @@ function DatabaseActions() {
     
     const { checkPermission } = useJumboAuth();
     const [migrationResponse, setMigrationResponse] = useState('');
+    const [migrationDetails, setMigrationDetails] = useState<Record<string, unknown> | null>(null);
     const [alertSeverity, setAlertSeverity] = useState<'success' | 'error'>('success');
     const [alertOpen, setAlertOpen] = useState(false);
     const [openDialog, setOpenDialog] = useState(false);
@@ -102,11 +104,19 @@ function DatabaseActions() {
               setMigrationResponse(data.message);
               setAlertOpen(true);
           }
+          // Everything besides `message` - e.g. a script's affected_scopes/
+          // changed_rows/sample_changes, or the permission/approval-chain
+          // sync reports - used to be silently discarded here, so the only
+          // thing an admin ever saw was "N succeeded, N failed" with no way
+          // to tell what actually changed.
+          const { message, ...rest } = data || {};
+          setMigrationDetails(Object.keys(rest).length > 0 ? rest : null);
           setAlertSeverity('success');
           setIsLoadingSubmit(false);
       },
       onError: (error: any) => {
           setMigrationResponse(error?.response?.data?.message || 'Something went wrong');
+          setMigrationDetails(null);
           setAlertOpen(true);
           setAlertSeverity('error');
           setIsLoadingSubmit(false);
@@ -267,6 +277,19 @@ function DatabaseActions() {
                         {migrationResponse}
                     </Alert>
                 </Collapse>
+
+                {migrationDetails && (
+                    <Collapse in={alertOpen}>
+                        <Accordion sx={{ mb: 2 }}>
+                            <AccordionSummary expandIcon={<ExpandMoreOutlined />}>
+                                <Typography variant="body2">View details</Typography>
+                            </AccordionSummary>
+                            <AccordionDetails>
+                                <ReportDetails data={migrationDetails} />
+                            </AccordionDetails>
+                        </Accordion>
+                    </Collapse>
+                )}
             </form>
 
             <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="xs" fullWidth>

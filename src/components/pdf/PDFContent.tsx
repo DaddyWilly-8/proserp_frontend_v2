@@ -9,6 +9,13 @@ type PDFDocument = ReactElement<DocumentProps>;
 interface PDFContentProps {
   document: PDFDocument;
   fileName?: string;
+  // Forces the inner PDFViewer/PDFDownloadLink to remount rather than
+  // update in place. @react-pdf/renderer's usePDF hook pushes prop changes
+  // through pdfInstance.updateContainer(), which keeps content (text,
+  // tables) in sync but does not reliably re-resolve page-level attributes
+  // like Page's size/orientation on an update - only on first mount. A
+  // remount (change this key) is the reliable way to pick those up.
+  documentKey?: string | number;
 }
 
 const StyledDownloadLink = styled('div')(({ theme }) => ({
@@ -44,15 +51,16 @@ const PDFViewer = lazy(() =>
   }))
 );
 
-const PDFContent: React.FC<PDFContentProps> = ({ document, fileName = 'ProsERP document' }) => {
+const PDFContent: React.FC<PDFContentProps> = ({ document, fileName = 'ProsERP document', documentKey }) => {
   const isMobile = deviceType() === 'mobile';
-  
+
   if (isMobile) {
     return (
       <Suspense fallback={<BackdropSpinner />}>
         <StyledDownloadLink>
-          <PDFDownloadLink 
-            document={document} 
+          <PDFDownloadLink
+            key={documentKey}
+            document={document}
             fileName={`${fileName}.pdf`}
           >
             {({ loading }) => loading ? <BackdropSpinner /> : `Download ${fileName} PDF`}
@@ -64,7 +72,7 @@ const PDFContent: React.FC<PDFContentProps> = ({ document, fileName = 'ProsERP d
 
   return (
     <Suspense fallback={<BackdropSpinner />}>
-      <PDFViewer width="100%" height="600">
+      <PDFViewer key={documentKey} width="100%" height="600">
         {document}
       </PDFViewer>
     </Suspense>

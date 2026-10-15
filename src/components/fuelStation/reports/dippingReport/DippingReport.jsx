@@ -12,10 +12,12 @@ import {
   Autocomplete,
   DialogContent,
   DialogTitle,
+  FormControlLabel,
   Grid,
   IconButton,
   Skeleton,
   Stack,
+  Switch,
   TextField,
   Tooltip,
   Typography,
@@ -42,6 +44,15 @@ function DippingReport({ closeDialog }) {
 
   const [activeStation, setActiveStation] = useState(null);
   const [isExporting, setIsExporting] = useState(false);
+  // Display-only: the cumulative figures (Cumulative Deviation / Stock
+  // Deviation) are a running total since the station's first dipping, so a
+  // single uncorrected historical gap keeps showing up on every report
+  // indefinitely. This doesn't touch how anything is calculated, it only
+  // controls whether those two columns render - the period-specific Opening/
+  // Stock In/Stock Out/Closing/Tank Difference/Deviation figures are
+  // unaffected either way.
+  const [showCumulativeDeviation, setShowCumulativeDeviation] = useState(true);
+  const [showCalculatedStock, setShowCalculatedStock] = useState(true);
 
   useEffect(() => {
     if (stations?.length === 1) {
@@ -139,6 +150,8 @@ function DippingReport({ closeDialog }) {
         activeStation: activeStation,
         filters: filtersWithStation,
         organization: organization,
+        showCumulativeDeviation: showCumulativeDeviation,
+        showCalculatedStock: showCalculatedStock,
       });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -306,6 +319,32 @@ function DippingReport({ closeDialog }) {
                   gap: 1,
                 }}
               >
+                <FormControlLabel
+                  sx={{ mr: 1 }}
+                  control={
+                    <Switch
+                      size='small'
+                      checked={showCumulativeDeviation}
+                      onChange={(e) =>
+                        setShowCumulativeDeviation(e.target.checked)
+                      }
+                    />
+                  }
+                  label='Show cumulative deviation'
+                />
+                <FormControlLabel
+                  sx={{ mr: 1 }}
+                  control={
+                    <Switch
+                      size='small'
+                      checked={showCalculatedStock}
+                      onChange={(e) =>
+                        setShowCalculatedStock(e.target.checked)
+                      }
+                    />
+                  }
+                  label='Show calculated stock'
+                />
                 <FileExportGrid
                   exportExcel
                   handlExcelExport={handleExcelExport}
@@ -348,12 +387,27 @@ function DippingReport({ closeDialog }) {
           </div>
         ) : reportData && reportData?.length > 0 ? (
           <PDFContent
+            // react-pdf's PDFViewer pushes prop changes through
+            // pdfInstance.updateContainer(), which keeps content (text,
+            // tables) in sync but doesn't reliably re-resolve page-level
+            // attributes like Page's size/orientation on that update path -
+            // only on first mount. That's why toggling these switches
+            // changed the columns but not the page orientation. Keying both
+            // the wrapper and (via documentKey) the inner PDFViewer forces a
+            // real remount whenever either toggle changes, which does
+            // re-resolve orientation correctly (verified in isolation:
+            // @react-pdf/renderer itself produces the right MediaBox for
+            // each orientation when freshly rendered).
+            key={`${showCumulativeDeviation}-${showCalculatedStock}`}
+            documentKey={`${showCumulativeDeviation}-${showCalculatedStock}`}
             document={
               <DippingReportPDF
                 reportData={reportData}
                 activeStation={activeStation}
                 filters={filters}
                 organization={organization}
+                showCumulativeDeviation={showCumulativeDeviation}
+                showCalculatedStock={showCalculatedStock}
               />
             }
             fileName={downloadFileName}

@@ -15,7 +15,16 @@ function ZReportPDF({reportData, authOrganization, user, thermalPrinter}) {
     // 0.00 regardless of what was actually exempt/zero-rated.
     const taxRows = reportData.totals || [];
     const formatAmt = (value) => (parseFloat(value) || 0).toLocaleString('en-US', {maximumFractionDigits: 2, minimumFractionDigits: 2});
-    const taxRowLabel = (index, fallback) => taxRows[index]?.text ? `TAX ${taxRows[index].text}%` : fallback;
+    // smart_efd's own `text` field is always numeric ("B - 0.00", "E - 0.00")
+    // even though the real TRA printout uses the group's fixed code instead
+    // of a rate for every group but A (e.g. "TAX: E - EX") - A is the only
+    // group whose label is an actual percentage, and that rate is the
+    // org's configured VAT rate, not something smart_efd sends per report.
+    const vatPercentage = organization?.settings?.vat_percentage ?? 18;
+    const TAX_GROUP_CODES = { 1: 'SR', 2: 'ZR', 3: 'SR', 4: 'EX' };
+    const taxRowLabel = (index, letter) => index === 0
+        ? `TAX: A - ${Number(vatPercentage).toFixed(2)}%`
+        : `TAX: ${letter} - ${TAX_GROUP_CODES[index]}`;
 
     const PDF80mm = () => (
         <Page size={[80 * 2.83465, 297 * 2.83465]}  style={{...pdfStyles.page, padding: 10, scale: 0.7 }}>
@@ -269,7 +278,7 @@ function ZReportPDF({reportData, authOrganization, user, thermalPrinter}) {
             <React.Fragment key={letter}>
             <View style={{ ...pdfStyles.tableRow, marginTop: index > 0 ? 5 : 0}}>
               <View style={{ flex: 1}}>
-                <Text style={{...pdfStyles.minInfo}}>{taxRowLabel(index, `TAX ${letter} - 0.00%`)}</Text>
+                <Text style={{...pdfStyles.minInfo}}>{taxRowLabel(index, letter)}</Text>
               </View>
             </View>
             <View style={{ ...pdfStyles.tableRow}}>
@@ -705,7 +714,7 @@ function ZReportPDF({reportData, authOrganization, user, thermalPrinter}) {
                 <View style={{flex:0.55}}>
                 </View>
                 <View style={{ flex: 1}}>
-                    <Text style={{...pdfStyles.minInfo}}>{taxRowLabel(index, `TAX ${letter} - 0.00%`)}</Text>
+                    <Text style={{...pdfStyles.minInfo}}>{taxRowLabel(index, letter)}</Text>
                 </View>
                 <View style={{flex:1}}>
                 </View>
