@@ -158,7 +158,10 @@ const TasksForm = ({ setOpenDialog, task, activity }) => {
     name: yup
       .string()
       .required('Task name is required')
-      .typeError('Task name is required'),
+      .typeError('Task name is required')
+      // Matches project_tasks.name's actual column width (varchar(191)) - keeps this in sync
+      // with the backend's own max:191 rule instead of failing only after submit.
+      .max(191, 'Task name must not exceed 191 characters'),
     start_date: yup
       .string()
       .required('Start Date is required')
