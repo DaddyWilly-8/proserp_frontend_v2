@@ -3,6 +3,7 @@
 
 import { sanitizedNumber } from '@/app/helpers/input-sanitization-helpers';
 import LedgerSelect from '@/components/accounts/ledgers/forms/LedgerSelect';
+import CommaSeparatedField from '@/shared/Inputs/CommaSeparatedField';
 import { getErrorMessage } from '@/utilities/helpers/errorHandler';
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 import {
@@ -237,14 +238,11 @@ const PayPayablesDialog = ({
                       <TextField
                         size='small'
                         sx={{ minWidth: 110 }}
-                        value={
-                          amounts[rowKey(row)]
-                            ? Number(amounts[rowKey(row)]).toLocaleString()
-                            : ''
-                        }
+                        value={amounts[rowKey(row)] ?? ''}
                         disabled={!selected[rowKey(row)]}
-                        inputProps={{
-                          style: { textAlign: 'right' },
+                        InputProps={{
+                          inputComponent: CommaSeparatedField as any,
+                          inputProps: { style: { textAlign: 'right' } },
                         }}
                         onChange={(e) => {
                           const val =

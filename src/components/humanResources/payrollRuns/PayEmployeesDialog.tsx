@@ -3,6 +3,7 @@
 
 import { sanitizedNumber } from '@/app/helpers/input-sanitization-helpers';
 import LedgerSelect from '@/components/accounts/ledgers/forms/LedgerSelect';
+import CommaSeparatedField from '@/shared/Inputs/CommaSeparatedField';
 import { getErrorMessage } from '@/utilities/helpers/errorHandler';
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 import {
@@ -317,14 +318,11 @@ const PayEmployeesDialog = ({
                         <TextField
                           size='small'
                           sx={{ minWidth: 110 }}
-                          value={
-                            amounts[row.payslip_id]
-                              ? Number(amounts[row.payslip_id]).toLocaleString()
-                              : ''
-                          }
+                          value={amounts[row.payslip_id] ?? ''}
                           disabled={!selected[row.payslip_id]}
-                          inputProps={{
-                            style: { textAlign: 'right' },
+                          InputProps={{
+                            inputComponent: CommaSeparatedField as any,
+                            inputProps: { style: { textAlign: 'right' } },
                           }}
                           onChange={(e) => {
                             const val =
