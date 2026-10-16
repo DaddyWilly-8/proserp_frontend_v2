@@ -310,54 +310,71 @@ function DippingReport({ closeDialog }) {
               </Grid>
               <Grid
                 size={12}
-                textAlign='right'
                 sx={{
                   display: 'flex',
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  justifyContent: 'end',
+                  flexDirection: { xs: 'column', sm: 'row' },
+                  alignItems: { xs: 'stretch', sm: 'center' },
+                  justifyContent: 'space-between',
                   gap: 1,
                 }}
               >
-                <FormControlLabel
-                  sx={{ mr: 1 }}
-                  control={
-                    <Switch
-                      size='small'
-                      checked={showCumulativeDeviation}
-                      onChange={(e) =>
-                        setShowCumulativeDeviation(e.target.checked)
-                      }
-                    />
-                  }
-                  label='Show cumulative deviation'
-                />
-                <FormControlLabel
-                  sx={{ mr: 1 }}
-                  control={
-                    <Switch
-                      size='small'
-                      checked={showCalculatedStock}
-                      onChange={(e) =>
-                        setShowCalculatedStock(e.target.checked)
-                      }
-                    />
-                  }
-                  label='Show calculated stock'
-                />
-                <FileExportGrid
-                  exportExcel
-                  handlExcelExport={handleExcelExport}
-                  exportingExcel={isExporting}
-                />
-                <LoadingButton
-                  loading={isFetching}
-                  type='submit'
-                  size='small'
-                  variant='contained'
+                <Div
+                  sx={{
+                    display: 'flex',
+                    flexDirection: { xs: 'column', sm: 'row' },
+                    alignItems: { xs: 'flex-start', sm: 'center' },
+                    flexWrap: 'wrap',
+                    gap: { xs: 0, sm: 1 },
+                  }}
                 >
-                  Filter
-                </LoadingButton>
+                  <FormControlLabel
+                    control={
+                      <Switch
+                        size='small'
+                        checked={showCumulativeDeviation}
+                        onChange={(e) =>
+                          setShowCumulativeDeviation(e.target.checked)
+                        }
+                      />
+                    }
+                    label='Show cumulative deviation'
+                  />
+                  <FormControlLabel
+                    control={
+                      <Switch
+                        size='small'
+                        checked={showCalculatedStock}
+                        onChange={(e) =>
+                          setShowCalculatedStock(e.target.checked)
+                        }
+                      />
+                    }
+                    label='Show calculated stock'
+                  />
+                </Div>
+                <Div
+                  sx={{
+                    display: 'flex',
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: { xs: 'flex-end', sm: 'end' },
+                    gap: 1,
+                  }}
+                >
+                  <FileExportGrid
+                    exportExcel
+                    handlExcelExport={handleExcelExport}
+                    exportingExcel={isExporting}
+                  />
+                  <LoadingButton
+                    loading={isFetching}
+                    type='submit'
+                    size='small'
+                    variant='contained'
+                  >
+                    Filter
+                  </LoadingButton>
+                </Div>
               </Grid>
             </Grid>
           </form>
