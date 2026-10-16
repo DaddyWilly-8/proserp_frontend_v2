@@ -3,6 +3,7 @@
 import { sanitizedNumber } from '@/app/helpers/input-sanitization-helpers';
 import LedgerSelect from '@/components/accounts/ledgers/forms/LedgerSelect';
 import LedgerSelectProvider from '@/components/accounts/ledgers/forms/LedgerSelectProvider';
+import CommaSeparatedField from '@/shared/Inputs/CommaSeparatedField';
 import { getErrorMessage } from '@/utilities/helpers/errorHandler';
 import { useJumboDialog } from '@jumbo/components/JumboDialog/hooks/useJumboDialog';
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
@@ -332,14 +333,11 @@ const PayrollPaymentViewEditDialog = ({
                         {isEditing ? (
                           <TextField
                             size='small'
-                            value={
-                              amounts[item.journal_id]
-                                ? Number(
-                                    amounts[item.journal_id]
-                                  ).toLocaleString()
-                                : ''
-                            }
-                            inputProps={{ style: { textAlign: 'right' } }}
+                            value={amounts[item.journal_id] ?? ''}
+                            InputProps={{
+                              inputComponent: CommaSeparatedField as any,
+                              inputProps: { style: { textAlign: 'right' } },
+                            }}
                             onChange={(e) => {
                               const val =
                                 e.target.value === ''
