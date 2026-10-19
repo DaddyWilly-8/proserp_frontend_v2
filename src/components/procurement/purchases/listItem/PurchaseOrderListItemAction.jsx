@@ -46,6 +46,7 @@ import CloseOrReopenForm from './CloseOrReopenForm';
 import { listItemContext } from './PurchaseOrderListItem';
 import PurchaseGrnsReportOnScreen from './purchaseGrnsReport/PurchaseGrnsReportOnScreen';
 import PurchaseGrnsReportPDF from './purchaseGrnsReport/PurchaseGrnsReportPDF';
+import LedgerSelectProvider from '@/components/accounts/ledgers/forms/LedgerSelectProvider';
 const PurchaseOrderReceiveForm = lazy(
   () => import('./receive/PurchaseOrderReceiveForm')
 );
@@ -466,7 +467,9 @@ function PurchaseOrderListItemAction({ order }) {
           />
         )}
         {openBillDialog && (
-          <PurchaseBillFormDialog order={order} setOpenDialog={setOpenBillDialog} />
+          <LedgerSelectProvider>
+            <PurchaseBillFormDialog order={order} setOpenDialog={setOpenBillDialog} />
+          </LedgerSelectProvider>
         )}
       </Dialog>
 

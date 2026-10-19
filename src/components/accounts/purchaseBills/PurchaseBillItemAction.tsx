@@ -33,6 +33,7 @@ import { lazy, useState } from 'react';
 import purchaseBillServices from '../../procurement/grns/purchaseBill-services';
 import PurchaseBillDetailsDialog from './PurchaseBillDetailsDialog';
 import { PurchaseBill } from './PurchaseBillType';
+import LedgerSelectProvider from '../ledgers/forms/LedgerSelectProvider';
 
 const PurchaseBillFormDialog = lazy(
   () => import('../../procurement/grns/PurchaseBillFormDialog')
@@ -272,12 +273,14 @@ const PurchaseBillItemAction = ({ purchaseBill }: { purchaseBill: PurchaseBill }
         scroll='paper'
       >
         {openEditDialog && !isFetchingEditableBill && editableBill && (
-          <PurchaseBillFormDialog
-            grn={editableBill.source?.grnNo ? editableBill.source : undefined}
-            order={editableBill.source?.orderNo ? editableBill.source : undefined}
-            existingBill={editableBill}
-            setOpenDialog={setOpenEditDialog}
-          />
+          <LedgerSelectProvider>
+            <PurchaseBillFormDialog
+              grn={editableBill.source?.grnNo ? editableBill.source : undefined}
+              order={editableBill.source?.orderNo ? editableBill.source : undefined}
+              existingBill={editableBill}
+              setOpenDialog={setOpenEditDialog}
+            />
+          </LedgerSelectProvider>
         )}
       </Dialog>
 
