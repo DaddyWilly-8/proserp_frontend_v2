@@ -1,4 +1,5 @@
 const withPWAInit = require('@ducanh2912/next-pwa').default;
+const path = require('path');
 
 const withPWA = withPWAInit({
   dest: 'public',
@@ -84,6 +85,13 @@ const nextConfig = {
 
   // ✅ Webpack fallback for server-side
   webpack: (config, { isServer, dev }) => {
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      '@': path.resolve(__dirname, 'src'),
+      '@jumbo': path.resolve(__dirname, '@jumbo'),
+      '@assets': path.resolve(__dirname, '@assets'),
+    };
+
     // Fix for Highcharts on server
     if (isServer) {
       config.resolve.fallback = {
