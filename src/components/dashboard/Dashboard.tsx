@@ -155,7 +155,7 @@ function Dashboard() {
           {active_subscriptions.length === 0 && (
             <Card sx={{ my: 1, p: 1 }}>
               <Alert sx={{ m: 1 }} severity='warning'>
-                This organization doesn't have any active subscriptions. Please
+                This organization doesn&apos;t have any active subscriptions. Please
                 subscribe to the desired modules to continue using ProsERP
               </Alert>
             </Card>

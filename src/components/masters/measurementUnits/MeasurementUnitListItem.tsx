@@ -4,7 +4,7 @@ import MeasurementUnitItemAction from './MeasurementUnitItemAction';
 import { MeasurementUnit } from './MeasurementUnitType';
 import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
-const measurementUnitListItem = ({ measurementUnit }:{measurementUnit: MeasurementUnit}) => {
+const MeasurementUnitListItem = ({ measurementUnit }:{measurementUnit: MeasurementUnit}) => {
 const dictionary = useDictionary();
   return (
     <React.Fragment>
@@ -47,4 +47,4 @@ const dictionary = useDictionary();
   );
 };
 
-export default measurementUnitListItem;
+export default MeasurementUnitListItem;

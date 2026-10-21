@@ -1637,7 +1637,7 @@ const SalarySheetDialog = ({
                   display='block'
                   mt={1}
                 >
-                  * Basic Salary prorated — the employee's contract didn't
+                  * Basic Salary prorated — the employee&apos;s contract didn&apos;t
                   cover the full payroll month. Hover a marked figure for the
                   full configured amount.
                 </Typography>

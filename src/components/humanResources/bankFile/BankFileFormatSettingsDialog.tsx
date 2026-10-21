@@ -75,7 +75,7 @@ const BankFileFormatSettingsDialog = ({
       <DialogContent>
         <Stack spacing={2} sx={{ mt: 1 }}>
           <Alert severity='info' variant='outlined'>
-            These values come from your organization's own account at{' '}
+            These values come from your organization&apos;s own account at{' '}
             {format.label} — set once, reused on every export.
           </Alert>
           {format.fields.length === 0 && (

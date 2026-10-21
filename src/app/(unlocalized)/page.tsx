@@ -1,4 +1,4 @@
-import HomeRedirect from "./HomeRedirect";
+import HomeRedirect from "../HomeRedirect";
 
 export default function Home() {
   return <HomeRedirect />;

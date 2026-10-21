@@ -188,7 +188,7 @@ const LogOvertimeBatchDialog = ({
           <Typography variant='body2' color='text.secondary'>
             Add one row per employee/date, then save them all at once. Dates
             must fall within {monthName} {year}. A row with a problem is
-            skipped and reported — it won't block the others.
+            skipped and reported — it won&apos;t block the others.
           </Typography>
 
           {result && (

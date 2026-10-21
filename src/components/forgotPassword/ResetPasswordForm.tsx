@@ -199,7 +199,7 @@ const ResetPasswordForm: FC = () => {
             </Link>
           </Typography>
           <Typography textAlign={'center'} variant={'body1'} mb={1}>
-            Don't remember your email?{' '}
+            Don&apos;t remember your email?{' '}
             <Link underline='none' href='#'>
               Contact Support
             </Link>

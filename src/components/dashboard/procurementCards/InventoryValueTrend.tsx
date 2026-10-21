@@ -57,9 +57,7 @@ function InventoryValueTrend(props: InventoryValueTrendProps) {
   const midScreen = useMediaQuery(theme.breakpoints.down('lg'));
   const textColor = theme.palette.text.primary;
 
-  const dashboardFilters = useDashboardSettings?.()
-    ? useDashboardSettings()
-    : undefined;
+  const dashboardFilters = useDashboardSettings();
   const from = props.from ?? dashboardFilters?.chartFilters?.from;
   const to = props.to ?? dashboardFilters?.chartFilters?.to;
   const cost_center_ids =

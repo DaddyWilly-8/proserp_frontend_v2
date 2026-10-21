@@ -51,6 +51,7 @@ import StoreSelector from '@/components/procurement/stores/StoreSelector';
       </Select>
     </FormControl>
   ));
+  CustomSelect.displayName = 'CustomSelect';
   
   // Helper Function to Set Form Values
   const setFormValues = (setValue, index, item, watch) => {

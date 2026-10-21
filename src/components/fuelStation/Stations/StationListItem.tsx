@@ -45,6 +45,8 @@ const StationListItem = React.memo(
       const uniqueTankIds = new Set(
         station.fuel_pumps.map((pump) => pump.tank_id).filter(Boolean)
       );
+
+      StationListItem.displayName = 'StationListItem';
       return uniqueTankIds.size;
     }, [station.fuel_pumps]);
 

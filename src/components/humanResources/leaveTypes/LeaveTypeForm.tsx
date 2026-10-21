@@ -554,7 +554,7 @@ const LeaveTypeForm = ({ setOpenDialog, leaveType }: LeaveTypeFormProp) => {
                     display='block'
                     color='text.secondary'
                   >
-                    (Employees who don't have this leave type will get it
+                    (Employees who don&apos;t have this leave type will get it
                     allocated)
                   </Typography>
                 )}

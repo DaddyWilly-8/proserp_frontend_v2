@@ -170,7 +170,7 @@ const EmailVerificationNotice = () => {
           </Typography>
 
           <Typography textAlign="center" variant="body2">
-            Don't remember your email?{" "}
+            Don&apos;t remember your email?{" "}
             <Link href="/support" style={{ textDecoration: "none" }}>
               Contact Support
             </Link>

@@ -323,7 +323,7 @@ const TransactionsBulkImportsContent = () => {
             </Typography>
             <Typography variant="body2" color={isDark ? alpha(theme.palette.common.white, 0.8) : 'text.secondary'}>
               Rows without a Reference will be <strong>duplicated</strong> if you upload
-              this file twice. Make sure this is the first time you're uploading,
+              this file twice. Make sure this is the first time you&apos;re uploading,
               or remove already-imported rows first.
             </Typography>
           </Alert>

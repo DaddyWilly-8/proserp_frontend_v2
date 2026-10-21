@@ -27,7 +27,7 @@ import {
   Typography,
   useTheme,
 } from '@mui/material';
-import { useQuery } from '@tanstack/react-query';
+import { useQueries } from '@tanstack/react-query';
 import React, { useState } from 'react';
 import {
   Approval,
@@ -56,14 +56,40 @@ const FetchRelatableDetails = ({
   toggleOpen,
 }: FetchRelatableDetailsProps) => {
   const { authOrganization } = useJumboAuth();
+  const isPurchaseOrder = Boolean(
+    relatable && 'order_date' in relatable && relatable.order_date
+  );
+  const isCertificate = Boolean(
+    relatable && 'certificateNo' in relatable && relatable.certificateNo
+  );
+  const isBill = Boolean(
+    relatable && 'invoiceNo' in relatable && relatable.invoiceNo
+  );
+  const [orderQuery, certificateQuery, billQuery] = useQueries({
+    queries: [
+      {
+        queryKey: ['purchaseOrder', { id: relatable?.id }],
+        queryFn: async () => purchaseServices.orderDetails(relatable?.id),
+        enabled: isPurchaseOrder,
+      },
+      {
+        queryKey: ['subcontractCertificate', relatable?.id],
+        queryFn: () => projectsServices.getCertificateDetails(relatable?.id),
+        enabled: isCertificate,
+      },
+      {
+        queryKey: ['purchase-bill-details', relatable?.id],
+        queryFn: () => purchaseBillServices.details(relatable?.id),
+        enabled: isBill,
+      },
+    ],
+  });
+
   if (!relatable) return null;
 
   // If relatable has order_date, treat as purchase order
   if ('order_date' in relatable && relatable.order_date) {
-    const { data: orderDetails, isFetching } = useQuery({
-      queryKey: ['purchaseOrder', { id: relatable?.id }],
-      queryFn: async () => purchaseServices.orderDetails(relatable?.id),
-    });
+    const { data: orderDetails, isFetching } = orderQuery;
     if (isFetching) {
       return <LinearProgress />;
     }
@@ -74,10 +100,7 @@ const FetchRelatableDetails = ({
 
   // If relatable has certificateNo, treat as certificate
   if ('certificateNo' in relatable && relatable.certificateNo) {
-    const { data: certificateDetails, isFetching } = useQuery({
-      queryKey: ['subcontractCertificate', relatable?.id],
-      queryFn: () => projectsServices.getCertificateDetails(relatable?.id),
-    });
+    const { data: certificateDetails, isFetching } = certificateQuery;
     if (isFetching) {
       return <LinearProgress />;
     }
@@ -104,10 +127,7 @@ const FetchRelatableDetails = ({
 
   // If relatable has invoiceNo, treat as a Bill (Supplier Invoice)
   if ('invoiceNo' in relatable && (relatable as any).invoiceNo) {
-    const { data: billDetails, isFetching } = useQuery({
-      queryKey: ['purchase-bill-details', relatable?.id],
-      queryFn: () => purchaseBillServices.details(relatable?.id),
-    });
+    const { data: billDetails, isFetching } = billQuery;
     if (isFetching) {
       return <LinearProgress />;
     }

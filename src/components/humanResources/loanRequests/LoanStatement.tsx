@@ -368,7 +368,7 @@ const LoanStatement = ({ loanId, service }: LoanStatementProps) => {
       {history.length === 0 ? (
         <Alert severity='info' variant='outlined' sx={{ mb: 3 }}>
           No repayments recovered yet — manual repayments will appear here
-          once Accounts receipts them, labeled "Manual" alongside payroll
+          once Accounts receipts them, labeled &quot;Manual&quot; alongside payroll
           installments.
         </Alert>
       ) : (
@@ -476,11 +476,11 @@ const LoanStatement = ({ loanId, service }: LoanStatementProps) => {
         fullWidth
         maxWidth='xs'
       >
-        <DialogTitle>Skip a Period's Recovery</DialogTitle>
+        <DialogTitle>Skip a Period&apos;s Recovery</DialogTitle>
         <DialogContent>
           <Stack spacing={2} sx={{ mt: 1 }}>
             <Alert severity='info' variant='outlined'>
-              That period's installment is excused, not lost — it's collected
+              That period&apos;s installment is excused, not lost — it&apos;s collected
               one period later instead, and the loan still recovers in full.
             </Alert>
             <Autocomplete

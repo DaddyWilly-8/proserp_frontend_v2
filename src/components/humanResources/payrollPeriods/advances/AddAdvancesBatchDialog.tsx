@@ -168,7 +168,7 @@ const AddAdvancesBatchDialog = ({
             automatically logs a matching deduction in this same period to
             recover it — no separate step needed. A row with a problem (e.g.
             an employee already paid an advance this period) is skipped and
-            reported — it won't block the others.
+            reported — it won&apos;t block the others.
           </Typography>
 
           {result && (

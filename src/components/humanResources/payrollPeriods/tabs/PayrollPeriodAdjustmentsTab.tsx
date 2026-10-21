@@ -996,7 +996,7 @@ const PayrollPeriodAdjustmentsTab = ({
       return (
         <Alert severity='info' sx={{ borderRadius: 2 }}>
           No {type === 'allowance' ? 'allowances' : 'deductions'} uploaded for
-          this period. Use the "Upload Adjustments" button to add some.
+          this period. Use the &quot;Upload Adjustments&quot; button to add some.
         </Alert>
       );
     }
@@ -1006,8 +1006,8 @@ const PayrollPeriodAdjustmentsTab = ({
     if (items.length === 0) {
       return (
         <Alert severity='info' sx={{ borderRadius: 2 }}>
-          No {type === 'allowance' ? 'allowances' : 'deductions'} match "
-          {searchQuery}".
+          No {type === 'allowance' ? 'allowances' : 'deductions'} match &quot;
+          {searchQuery}&quot;.
         </Alert>
       );
     }
@@ -1131,7 +1131,7 @@ const PayrollPeriodAdjustmentsTab = ({
     if (allItems.length === 0) {
       return (
         <Alert severity='info' sx={{ borderRadius: 2 }}>
-          No overtime logged for this period yet. Use the "Log Overtime"
+          No overtime logged for this period yet. Use the &quot;Log Overtime&quot;
           button to add an entry.
         </Alert>
       );
@@ -1142,7 +1142,7 @@ const PayrollPeriodAdjustmentsTab = ({
     if (items.length === 0) {
       return (
         <Alert severity='info' sx={{ borderRadius: 2 }}>
-          No overtime entries match "{searchQuery}".
+          No overtime entries match &quot;{searchQuery}&quot;.
         </Alert>
       );
     }
@@ -1267,7 +1267,7 @@ const PayrollPeriodAdjustmentsTab = ({
     if (allItems.length === 0) {
       return (
         <Alert severity='info' sx={{ borderRadius: 2 }}>
-          No absences logged for this period yet. Use the "Log Absence"
+          No absences logged for this period yet. Use the &quot;Log Absence&quot;
           button to add an entry.
         </Alert>
       );
@@ -1278,7 +1278,7 @@ const PayrollPeriodAdjustmentsTab = ({
     if (items.length === 0) {
       return (
         <Alert severity='info' sx={{ borderRadius: 2 }}>
-          No absence entries match "{searchQuery}".
+          No absence entries match &quot;{searchQuery}&quot;.
         </Alert>
       );
     }
@@ -1412,8 +1412,8 @@ const PayrollPeriodAdjustmentsTab = ({
     if (allItems.length === 0) {
       return (
         <Alert severity='info' sx={{ borderRadius: 2 }}>
-          No leave has been bought back for this period yet. Use the "Buy
-          Leave" button to add an entry.
+          No leave has been bought back for this period yet. Use the &quot;Buy
+          Leave&quot; button to add an entry.
         </Alert>
       );
     }
@@ -1423,7 +1423,7 @@ const PayrollPeriodAdjustmentsTab = ({
     if (items.length === 0) {
       return (
         <Alert severity='info' sx={{ borderRadius: 2 }}>
-          No leave encashment entries match "{searchQuery}".
+          No leave encashment entries match &quot;{searchQuery}&quot;.
         </Alert>
       );
     }
@@ -1549,11 +1549,11 @@ const PayrollPeriodAdjustmentsTab = ({
       {isPeriodLocked && (
         <Alert severity='warning' sx={{ borderRadius: 2, mb: 2 }}>
           <Typography variant='body2' fontWeight={600} gutterBottom>
-            This period's payroll run is already {lockedRun?.status}
+            This period&apos;s payroll run is already {lockedRun?.status}
           </Typography>
           <Typography variant='body2' color='text.secondary'>
             Adjustments, overtime, absences, and leave encashments are
-            read-only below — anything added or changed here wouldn't be
+            read-only below — anything added or changed here wouldn&apos;t be
             reflected in that run. Generate a new run for this period to
             apply changes, or make them while a run for it is still in
             Draft.
@@ -1885,9 +1885,9 @@ const PayrollPeriodAdjustmentsTab = ({
             </Typography>
             <Typography variant='body2' color='text.secondary'>
               Hours logged here for monthly-paid employees are converted to an
-              "Overtime Pay" amount when the payroll run is generated, using
-              each employee's standard hours per month and the selected
-              overtime type's multiplier.
+              &quot;Overtime Pay&quot; amount when the payroll run is generated, using
+              each employee&apos;s standard hours per month and the selected
+              overtime type&apos;s multiplier.
             </Typography>
           </Alert>
 
@@ -1940,8 +1940,8 @@ const PayrollPeriodAdjustmentsTab = ({
             </Typography>
             <Typography variant='body2' color='text.secondary'>
               Hours logged here for monthly-paid employees are converted to a
-              pre-tax "Absence Deduction" amount when the payroll run is
-              generated, using each employee's standard hours per month —
+              pre-tax &quot;Absence Deduction&quot; amount when the payroll run is
+              generated, using each employee&apos;s standard hours per month —
               deducted from basic salary before PAYE, the reverse of Overtime.
             </Typography>
           </Alert>
@@ -1995,8 +1995,8 @@ const PayrollPeriodAdjustmentsTab = ({
             </Typography>
             <Typography variant='body2' color='text.secondary'>
               Employer-bought leave days. Each entry pays out as a taxable
-              "Leave Encashment" allowance on this period's payslip and
-              deducts the days bought from the employee's leave balance for
+              &quot;Leave Encashment&quot; allowance on this period&apos;s payslip and
+              deducts the days bought from the employee&apos;s leave balance for
               the year. Deleting an entry restores the days.
             </Typography>
           </Alert>

@@ -700,7 +700,7 @@ const EmployerContributionTypeForm = ({
                     display='block'
                     color='text.secondary'
                   >
-                    (Employees who don't have this contribution will get it
+                    (Employees who don&apos;t have this contribution will get it
                     added)
                   </Typography>
                 )}

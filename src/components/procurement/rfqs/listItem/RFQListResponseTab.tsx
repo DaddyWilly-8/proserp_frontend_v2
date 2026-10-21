@@ -291,7 +291,7 @@ const RFQListResponseTab: React.FC<RFQListResponseTabProps> = ({ details, rfqId 
         </DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Are you sure you want to delete the response from "{deleteDialog.name || 'this supplier'}"? This action cannot be undone.
+            Are you sure you want to delete the response from &quot;{deleteDialog.name || 'this supplier'}&quot;? This action cannot be undone.
           </DialogContentText>
         </DialogContent>
         <DialogActions sx={{ p: 2, pt: 0 }}>

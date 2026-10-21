@@ -575,7 +575,7 @@ const AllowanceTypeForm = ({
                     display='block'
                     color='text.secondary'
                   >
-                    (Employees who don't have this allowance will get it
+                    (Employees who don&apos;t have this allowance will get it
                     added)
                   </Typography>
                 )}

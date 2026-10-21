@@ -1561,7 +1561,7 @@ const SalarySheetPDF = ({
 
         {rows.some((entry) => entry.computed.proration) && (
           <Text style={{ fontSize: 7, color: '#B45309', marginTop: 4 }}>
-            * Basic Salary prorated — the employee's contract didn't cover
+            * Basic Salary prorated — the employee&apos;s contract didn&apos;t cover
             the full payroll month.
           </Text>
         )}

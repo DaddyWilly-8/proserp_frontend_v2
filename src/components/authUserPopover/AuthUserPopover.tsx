@@ -69,39 +69,48 @@ export const AuthUserPopover: React.FC<AuthUserPopoverProps> = ({
     React.useState<boolean>(false);
   const hasTriggeredAutoLogout = React.useRef(false);
 
-  if (!authContext) {
-    console.error('Auth context not available');
-    return null;
-  }
-
-  const { authData, authOrganization, resetAuth, isLoading } = authContext;
-
   const logout = React.useCallback(() => {
+    if (!authContext) return;
+
     (async () => {
       await signOut({
         callbackUrl: `/${lang}/auth/signin`,
       });
-      resetAuth();
+      authContext.resetAuth();
     })();
-  }, [lang, resetAuth]);
+  }, [authContext, lang]);
 
   const switchOrganization = React.useCallback(() => {
     router.push(`/${lang}/organizations`);
   }, [router, lang]);
 
-  const user: User | undefined = authData?.authUser?.user;
-  const organization: Organization | undefined = authOrganization?.organization;
+  const user: User | undefined = authContext?.authData?.authUser?.user;
+  const organization: Organization | undefined =
+    authContext?.authOrganization?.organization;
 
-  const mainColor = authOrganization?.organization?.settings.main_color || '';
+  const mainColor =
+    authContext?.authOrganization?.organization?.settings.main_color || '';
 
   React.useEffect(() => {
-    if (isLoading || user || hasTriggeredAutoLogout.current) {
+    if (
+      !authContext ||
+      authContext.isLoading ||
+      user ||
+      hasTriggeredAutoLogout.current
+    ) {
       return;
     }
 
     hasTriggeredAutoLogout.current = true;
     logout();
-  }, [isLoading, user, logout]);
+  }, [authContext, user, logout]);
+
+  if (!authContext) {
+    console.error('Auth context not available');
+    return null;
+  }
+
+  const { authData } = authContext;
 
   if (!user) {
     return null;

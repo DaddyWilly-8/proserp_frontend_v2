@@ -1,6 +1,5 @@
 import pdfStyles from '@/components/pdf/pdf-styles';
 import { Text, View } from '@react-pdf/renderer';
-import { useMemo } from 'react';
 
 export default function CashierListSummaryPDF({
   shiftData,
@@ -540,7 +539,7 @@ export default function CashierListSummaryPDF({
             let pumpReadingsSubTotal = 0;
 
             // create adjustments grouped by tanks
-            const groupedAdjustments = useMemo(() => {
+            const groupedAdjustments = (() => {
               // 1. flatten all adjustments
               const allAdjustments = cashier.tank_adjustments;
 
@@ -584,7 +583,7 @@ export default function CashierListSummaryPDF({
               );
 
               return finalArray.filter(Boolean);
-            }, [cashier, shiftData.shift_tanks, shiftData.fuel_prices]);
+            })();
 
             return (
               <View

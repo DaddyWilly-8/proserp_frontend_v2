@@ -397,11 +397,11 @@ const PayrollPeriodAdvancesTab = ({
         {isPeriodLocked && (
           <Alert severity='warning' sx={{ borderRadius: 2 }}>
             <Typography variant='body2' fontWeight={600} gutterBottom>
-              This period's payroll run is already {lockedRun?.status}
+              This period&apos;s payroll run is already {lockedRun?.status}
             </Typography>
             <Typography variant='body2' color='text.secondary'>
               Uploading, editing, or deleting advances is read-only below —
-              changes here wouldn't be reflected in that run. Generate a new
+              changes here wouldn&apos;t be reflected in that run. Generate a new
               run for this period to apply changes, or make them while a run
               for it is still in Draft. Paying or marking already-uploaded
               advances as paid is unaffected.
@@ -595,12 +595,12 @@ const PayrollPeriodAdvancesTab = ({
           </Box>
         ) : advances.length === 0 ? (
           <Alert severity='info' sx={{ borderRadius: 2 }}>
-            No advances uploaded for this period. Use the "Upload Advances"
+            No advances uploaded for this period. Use the &quot;Upload Advances&quot;
             button to add some.
           </Alert>
         ) : filteredAdvances.length === 0 ? (
           <Alert severity='info' sx={{ borderRadius: 2 }}>
-            No advances match "{search}".
+            No advances match &quot;{search}&quot;.
           </Alert>
         ) : (
           <TableContainer component={Paper} variant='outlined' sx={{ borderRadius: 2 }}>
@@ -746,7 +746,7 @@ const PayrollPeriodAdvancesTab = ({
               </Typography>
               <Typography variant='body2' color='text.secondary'>
                 Download the template, fill in the employees and amounts, and
-                upload the file. Re-uploading will overwrite an employee's
+                upload the file. Re-uploading will overwrite an employee&apos;s
                 unpaid advance for this period rather than duplicating it.
               </Typography>
             </Alert>

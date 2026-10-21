@@ -26,7 +26,7 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
-import { useQuery } from '@tanstack/react-query';
+import { useQueries } from '@tanstack/react-query';
 import React, { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { RequisitionLedgerItem } from '../../RequisitionType';
 import LedgerBudgetCheckDetails from '../listItem/tabs/form/LedgerBudgetCheckDetails';
@@ -58,16 +58,39 @@ const FetchRelatableDetails = ({
   ledger_item,
 }: FetchRelatableDetailsProps & { ledger_item: RequisitionLedgerItem }) => {
   const { authOrganization } = useJumboAuth();
+  const isPurchaseOrder =
+    relatable?.relatable_type === 'purchase' ||
+    ledger_item.relatable_type === 'purchase';
+  const isCertificate =
+    relatable?.relatable_type === 'subcontract_certificate' ||
+    ledger_item.relatable_type === 'subcontract_certificate';
+  const isBill =
+    relatable?.relatable_type === 'bill' ||
+    ledger_item.relatable_type === 'bill';
+  const [orderQuery, certificateQuery, billQuery] = useQueries({
+    queries: [
+      {
+        queryKey: ['purchaseOrder', relatable?.id],
+        queryFn: () => purchaseServices.orderDetails(relatable?.id),
+        enabled: Boolean(relatable && isPurchaseOrder),
+      },
+      {
+        queryKey: ['subcontractCertificate', relatable?.id],
+        queryFn: () => projectsServices.getCertificateDetails(relatable?.id),
+        enabled: Boolean(relatable && isCertificate),
+      },
+      {
+        queryKey: ['purchase-bill-details', relatable?.id],
+        queryFn: () => purchaseBillServices.details(relatable?.id),
+        enabled: Boolean(relatable && isBill),
+      },
+    ],
+  });
+
   if (!relatable) return null;
 
-  if (
-    relatable.relatable_type === 'purchase' ||
-    ledger_item.relatable_type === 'purchase'
-  ) {
-    const { data: orderDetails, isFetching } = useQuery({
-      queryKey: ['purchaseOrder', relatable?.id],
-      queryFn: () => purchaseServices.orderDetails(relatable?.id),
-    });
+  if (isPurchaseOrder) {
+    const { data: orderDetails, isFetching } = orderQuery;
     if (isFetching) {
       return <LinearProgress />;
     }
@@ -76,14 +99,8 @@ const FetchRelatableDetails = ({
     );
   }
 
-  if (
-    relatable.relatable_type === 'subcontract_certificate' ||
-    ledger_item.relatable_type === 'subcontract_certificate'
-  ) {
-    const { data: certificateDetails, isFetching } = useQuery({
-      queryKey: ['subcontractCertificate', relatable?.id],
-      queryFn: () => projectsServices.getCertificateDetails(relatable?.id),
-    });
+  if (isCertificate) {
+    const { data: certificateDetails, isFetching } = certificateQuery;
     if (isFetching) {
       return <LinearProgress />;
     }
@@ -96,14 +113,8 @@ const FetchRelatableDetails = ({
     );
   }
 
-  if (
-    relatable.relatable_type === 'bill' ||
-    ledger_item.relatable_type === 'bill'
-  ) {
-    const { data: billDetails, isFetching } = useQuery({
-      queryKey: ['purchase-bill-details', relatable?.id],
-      queryFn: () => purchaseBillServices.details(relatable?.id),
-    });
+  if (isBill) {
+    const { data: billDetails, isFetching } = billQuery;
     if (isFetching) {
       return <LinearProgress />;
     }

@@ -185,7 +185,7 @@ const AddAdjustmentsBatchDialog = ({
           <Typography variant='body2' color='text.secondary'>
             Add one row per employee/{kind}, then save them all at once. A
             row with a problem (e.g. a duplicate) is skipped and reported —
-            it won't block the others.
+            it won&apos;t block the others.
           </Typography>
 
           {result && (

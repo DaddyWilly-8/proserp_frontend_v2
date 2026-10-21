@@ -58,19 +58,8 @@ function StoreProfileContent() {
     setContent(newValue);
   };
 
-  if(isFetchingStore){
-    return <LinearProgress/>
-  }
-
   let contentComponent;
   let documentTitle = '';
-
-  // Set document title
-  useEffect(() => {
-    if (documentTitle) {
-      document.title = documentTitle;
-    }
-  }, [documentTitle]);
 
 
   // Permission constants for easier checks
@@ -154,6 +143,16 @@ function StoreProfileContent() {
     if (hasStoresReports) {
       availableTabs.push({ label: "Reports", value: TAB_INDICES.REPORTS });
     }
+  }
+
+  useEffect(() => {
+    if (documentTitle) {
+      document.title = documentTitle;
+    }
+  }, [documentTitle]);
+
+  if (isFetchingStore) {
+    return <LinearProgress />;
   }
 
   // If only transfer permission, force tab selection to Transfers

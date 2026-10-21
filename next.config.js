@@ -102,36 +102,36 @@ const nextConfig = {
       config.devtool = 'cheap-module-source-map';
     }
 
-    // ✅ Optimize bundle size
-    config.optimization = {
-      ...config.optimization,
-      splitChunks: {
-        chunks: 'all',
-        cacheGroups: {
-          // ✅ Separate Highcharts into its own chunk
-          highcharts: {
-            test: /[\\/]node_modules[\\/](highcharts|highcharts-react-official)[\\/]/,
-            name: 'highcharts',
-            priority: 30,
-            enforce: true,
-          },
-          // ✅ Separate MUI into its own chunk
-          mui: {
-            test: /[\\/]node_modules[\\/](@mui|@emotion)[\\/]/,
-            name: 'mui',
-            priority: 20,
-            enforce: true,
-          },
-          // ✅ Separate vendors into their own chunk
-          vendor: {
-            test: /[\\/]node_modules[\\/]/,
-            name: 'vendor',
-            priority: 10,
-            chunks: 'all',
+    if (!isServer) {
+      // Keep custom client-side vendor chunks out of the server runtime.
+      // ✅ Optimize bundle size
+      config.optimization = {
+        ...config.optimization,
+        splitChunks: {
+          chunks: 'all',
+          cacheGroups: {
+            highcharts: {
+              test: /[\\/]node_modules[\\/](highcharts|highcharts-react-official)[\\/]/,
+              name: 'highcharts',
+              priority: 30,
+              enforce: true,
+            },
+            mui: {
+              test: /[\\/]node_modules[\\/](@mui|@emotion)[\\/]/,
+              name: 'mui',
+              priority: 20,
+              enforce: true,
+            },
+            vendor: {
+              test: /[\\/]node_modules[\\/]/,
+              name: 'vendor',
+              priority: 10,
+              chunks: 'all',
+            },
           },
         },
-      },
-    };
+      };
+    }
 
     return config;
   },

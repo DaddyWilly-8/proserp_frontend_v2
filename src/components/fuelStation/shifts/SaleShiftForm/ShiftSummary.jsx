@@ -1284,7 +1284,7 @@ function ShiftSummary({ paymentItems = [] }) {
 
       {allCashiers.length === 0 && (
         <Alert severity="info" sx={{ mt: 2 }}>
-          No cashiers added yet. Please add cashiers in the "Cashiers Records" tab.
+          No cashiers added yet. Please add cashiers in the &quot;Cashiers Records&quot; tab.
         </Alert>
       )}
     </div>

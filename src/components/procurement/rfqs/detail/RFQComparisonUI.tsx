@@ -158,8 +158,8 @@ const RFQComparisonUI: React.FC<RFQComparisonProps> = ({ comparison, rfqDetails,
         <Stack direction="row" alignItems="center" spacing={1}>
           <ReceiptOutlined />
           <Typography variant="body2">
-            Select the best quote per item, then click "Award" under a supplier's column to create a
-            purchase order from that supplier's selected items.
+            Select the best quote per item, then click &quot;Award&quot; under a supplier&apos;s column to create a
+            purchase order from that supplier&apos;s selected items.
           </Typography>
         </Stack>
       </Alert>

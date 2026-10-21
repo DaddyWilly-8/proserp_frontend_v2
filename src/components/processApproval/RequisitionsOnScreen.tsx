@@ -25,7 +25,7 @@ import {
   Typography,
   useTheme,
 } from '@mui/material';
-import { useQuery } from '@tanstack/react-query';
+import { useQueries } from '@tanstack/react-query';
 import React, { useState } from 'react';
 import purchaseServices from '../procurement/purchases/purchase-services';
 import RelatableOrderDetails from './requisitions/listItem/tabs/form/RelatableOrderDetails';
@@ -49,13 +49,33 @@ const FetchRelatableDetails: React.FC<{
   toggleOpen: (open: boolean) => void;
 }> = ({ relatable, toggleOpen }) => {
   const { authOrganization } = useJumboAuth();
+  const isPurchaseOrder = Boolean(relatable?.order_date);
+  const isCertificate = Boolean(relatable?.certificate_date);
+  const isBill = Boolean(relatable?.invoiceNo);
+  const [orderQuery, certificateQuery, billQuery] = useQueries({
+    queries: [
+      {
+        queryKey: ['purchaseOrder', relatable?.id],
+        queryFn: () => purchaseServices.orderDetails(relatable?.id),
+        enabled: isPurchaseOrder,
+      },
+      {
+        queryKey: ['subcontractCertificate', relatable?.id],
+        queryFn: () => projectsServices.getCertificateDetails(relatable?.id),
+        enabled: isCertificate,
+      },
+      {
+        queryKey: ['purchase-bill-details', relatable?.id],
+        queryFn: () => purchaseBillServices.details(relatable?.id),
+        enabled: isBill,
+      },
+    ],
+  });
+
   if (!relatable) return null;
 
   if (relatable.order_date) {
-    const { data: orderDetails, isFetching } = useQuery({
-      queryKey: ['purchaseOrder', relatable?.id],
-      queryFn: () => purchaseServices.orderDetails(relatable?.id),
-    });
+    const { data: orderDetails, isFetching } = orderQuery;
     if (isFetching) {
       return <LinearProgress />;
     }
@@ -65,10 +85,7 @@ const FetchRelatableDetails: React.FC<{
   }
 
   if (relatable.certificate_date) {
-    const { data: certificateDetails, isFetching } = useQuery({
-      queryKey: ['subcontractCertificate', relatable?.id],
-      queryFn: () => projectsServices.getCertificateDetails(relatable?.id),
-    });
+    const { data: certificateDetails, isFetching } = certificateQuery;
     if (isFetching) {
       return <LinearProgress />;
     }
@@ -94,10 +111,7 @@ const FetchRelatableDetails: React.FC<{
   }
 
   if (relatable.invoiceNo) {
-    const { data: billDetails, isFetching } = useQuery({
-      queryKey: ['purchase-bill-details', relatable?.id],
-      queryFn: () => purchaseBillServices.details(relatable?.id),
-    });
+    const { data: billDetails, isFetching } = billQuery;
     if (isFetching) {
       return <LinearProgress />;
     }

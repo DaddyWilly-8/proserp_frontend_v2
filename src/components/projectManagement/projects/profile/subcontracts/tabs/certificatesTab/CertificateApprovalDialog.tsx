@@ -162,7 +162,7 @@ const CertificateApprovalDialog = ({
         <Stack spacing={2} sx={{ mt: 1 }}>
           {!pendingLevel && (
             <Alert severity='info'>
-              This certificate isn't open for a new Approve/Hold/Reject decision right now - the
+              This certificate isn&apos;t open for a new Approve/Hold/Reject decision right now - the
               only action available is sending it back to the requester for correction.
             </Alert>
           )}

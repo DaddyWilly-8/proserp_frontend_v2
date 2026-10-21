@@ -213,7 +213,7 @@ function LeaveRenewalsReportContent({ onClose }: { onClose?: () => void }) {
           <Grid size={{ xs: 12 }} textAlign='center' marginBottom={2} sx={onClose ? { px: 4 } : undefined}>
             <Typography variant='h3'>Leave Renewals</Typography>
             <Typography variant='body2' color='text.secondary'>
-              See which employees need a fresh leave allocation, and bulk-allocate without touching the leave type's own settings
+              See which employees need a fresh leave allocation, and bulk-allocate without touching the leave type&apos;s own settings
             </Typography>
           </Grid>
 

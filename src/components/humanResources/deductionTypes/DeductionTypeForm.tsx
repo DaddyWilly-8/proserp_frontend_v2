@@ -620,11 +620,11 @@ const DeductionTypeForm = ({
                       color='text.secondary'
                       sx={{ display: 'block', mt: 0.5 }}
                     >
-                      Absence deductions aren't owed to anyone — the hours were
+                      Absence deductions aren&apos;t owed to anyone — the hours were
                       simply never earned. Optional: leave this blank and
                       posting automatically credits back whichever Salary
                       Expense account basic salary was debited to for that
-                      employee (their department's, or the fallback chosen when
+                      employee (their department&apos;s, or the fallback chosen when
                       posting). Only map a ledger here if you want absence
                       deductions to post to their own separate account instead.
                     </Typography>
@@ -751,7 +751,7 @@ const DeductionTypeForm = ({
                     display='block'
                     color='text.secondary'
                   >
-                    (Employees who don't have this deduction will get it added)
+                    (Employees who don&apos;t have this deduction will get it added)
                   </Typography>
                 )}
               </Typography>

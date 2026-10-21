@@ -265,7 +265,7 @@ const ReportDocument = ({ reportData, authOrganization, user }) => {
         >
           <View style={{ ...pdfStyles.tableHeader, flex: 1.02 }}>
             <Text style={pdfStyles.tableCellText}>
-              Total Liabilities and Owner's Equity
+              Total Liabilities and Owner&apos;s Equity
             </Text>
           </View>
           <View style={{ ...pdfStyles.tableHeader, flex: 1 }}>

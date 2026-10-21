@@ -5,7 +5,7 @@ const API_BASE = process.env.API_BASE_URL!;
 
 export async function GET(
   request: NextRequest,
-  context: { params: Promise<{ id: string }> | { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   const resolvedParams = await context.params;
   const storeId = resolvedParams?.id;

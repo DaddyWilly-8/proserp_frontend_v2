@@ -560,11 +560,11 @@ export const JumboAuthProvider = ({
       if (!activeSubscriptions) return undefined;
 
       for (const subscription of activeSubscriptions) {
-        const module = subscription.modules.find(
+        const subscriptionModule = subscription.modules.find(
           (m) => m.id === setting.module_id
         );
-        if (module) {
-          const settingValue = module.settings?.find(
+        if (subscriptionModule) {
+          const settingValue = subscriptionModule.settings?.find(
             (s) => s.id === setting.id
           )?.value;
           if (settingValue !== undefined) return settingValue;

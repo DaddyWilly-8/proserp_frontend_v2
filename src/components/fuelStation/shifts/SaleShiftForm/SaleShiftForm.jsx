@@ -1736,7 +1736,7 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
               {!duplicateShiftWarning && pastShiftEditBlocked && (
                 <Grid size={12}>
                   <Typography color='error' variant='body2' sx={{ mt: 0.5 }}>
-                    This shift closed on {dayjs(SalesShift.shift_end).format('DD MMM YYYY')}, not today. You don't have permission to edit a shift that isn't closing today.
+                    This shift closed on {dayjs(SalesShift.shift_end).format('DD MMM YYYY')}, not today. You don&apos;t have permission to edit a shift that isn&apos;t closing today.
                   </Typography>
                 </Grid>
               )}

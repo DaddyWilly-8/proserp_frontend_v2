@@ -115,14 +115,14 @@ const AssetBookingQuickAddForm: React.FC<AssetBookingQuickAddFormProps> = ({
       {asset && !asset.billing_product_id && (
         <Grid size={12}>
           <Alert severity="info">
-            {asset.code} has no billing product mapped — you'll need to add the appropriate item to this sale manually.
+            {asset.code} has no billing product mapped — you&apos;ll need to add the appropriate item to this sale manually.
           </Alert>
         </Grid>
       )}
       {needsRateForBilling && (
         <Grid size={12}>
           <Alert severity="warning">
-            Enter a rate to add {asset.billing_product?.item_name || 'the billing product'} as a line item on this sale — it won't be added automatically without one.
+            Enter a rate to add {asset.billing_product?.item_name || 'the billing product'} as a line item on this sale — it won&apos;t be added automatically without one.
           </Alert>
         </Grid>
       )}
