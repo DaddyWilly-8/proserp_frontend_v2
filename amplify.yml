@@ -1,0 +1,19 @@
+version: 1
+frontend:
+  phases:
+    preBuild:
+      commands:
+        # NODE_ENV=production makes yarn skip devDependencies, but `next build`
+        # needs typescript/eslint from them - force them to install.
+        - yarn install --frozen-lockfile --production=false
+    build:
+      commands:
+        - yarn run build
+  artifacts:
+    baseDirectory: .next
+    files:
+      - '**/*'
+  cache:
+    paths:
+      - .next/cache/**/*
+      - node_modules/**/*
