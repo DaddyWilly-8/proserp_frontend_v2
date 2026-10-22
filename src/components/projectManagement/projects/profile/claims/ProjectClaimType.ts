@@ -19,6 +19,7 @@ export interface ProjectClaimApproval {
   approval_chain_level_id?: number;
   status?: 'approved' | 'on hold' | 'rejected' | 'returned';
   is_final?: boolean;
+  is_superseded?: boolean;
   remarks?: string | null;
   approval_date?: string | null;
   creator?: {
@@ -64,6 +65,8 @@ export interface ProjectClaim {
   approval_chain_id?: number | null;
   approval_chain?: ProjectClaimApprovalChain | null;
   approvals?: ProjectClaimApproval[];
+  // Who submitted it - the list responses include this so Withdraw can be offered to them.
+  created_by?: number | string;
   // Present on the org-wide "Approved Project Payment Claims" list
   // (project-payment-claims org-wide endpoint) — not on the project-scoped list.
   project_id?: number | string;

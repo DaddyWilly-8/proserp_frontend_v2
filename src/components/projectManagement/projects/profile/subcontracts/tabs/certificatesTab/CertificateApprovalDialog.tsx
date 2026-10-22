@@ -16,6 +16,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import { useSnackbar } from 'notistack';
 import { useEffect, useState } from 'react';
+import { getLatestCurrentApproval } from '@/components/projectManagement/approvals/currentApprovalCycle';
 import projectsServices from '@/components/projectManagement/projects/project-services';
 import { Certificate, CertificateApproval } from './CertificateType';
 
@@ -54,7 +55,9 @@ export const getNextPendingCertificateApprovalLevel = (
 
   if (!levels.length) return undefined;
 
-  const latestApproval = certificate.approvals?.[certificate.approvals.length - 1];
+  // Only the current review cycle counts - a return that's been superseded by a resubmit means
+  // the chain starts again from its first level.
+  const latestApproval = getLatestCurrentApproval(certificate.approvals);
   if (!latestApproval) return levels[0];
 
   if (getCertificateApprovalDecision(latestApproval) !== 'approved') return undefined;
@@ -85,7 +88,7 @@ const CertificateApprovalDialog = ({
   const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
   const pendingLevel = getNextPendingCertificateApprovalLevel(certificate);
-  const latestApproval = certificate.approvals?.[certificate.approvals.length - 1];
+  const latestApproval = getLatestCurrentApproval(certificate.approvals);
 
   useEffect(() => {
     if (!open) return;

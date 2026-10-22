@@ -17,6 +17,7 @@ export interface CertificateApproval {
   approval_chain_level_id?: number;
   status?: 'approved' | 'on hold' | 'rejected' | 'returned';
   is_final?: boolean;
+  is_superseded?: boolean;
   remarks?: string | null;
   approval_date?: string | null;
   creator?: {
@@ -65,6 +66,8 @@ export interface Certificate {
   approval_chain_id?: number | null;
   approval_chain?: CertificateApprovalChain | null;
   approvals?: CertificateApproval[];
+  // Who submitted it - the list responses include this so Withdraw can be offered to them.
+  created_by?: number | string;
   // Present on the org-wide "Approved Subcontract Certificates" list
   // (project-subcontract-certificates endpoint) — not on the subcontract-scoped list.
   project_subcontract_id?: number | string;

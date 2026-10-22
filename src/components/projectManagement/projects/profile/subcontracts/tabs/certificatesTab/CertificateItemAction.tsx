@@ -1,6 +1,7 @@
 'use client';
 
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
+import { getLatestCurrentApproval } from '@/components/projectManagement/approvals/currentApprovalCycle';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
 import PDFContent from '@/components/pdf/PDFContent';
 import projectsServices from '@/components/projectManagement/projects/project-services';
@@ -14,6 +15,7 @@ import {
   EditOutlined,
   HighlightOff,
   ReceiptLongOutlined,
+  UndoOutlined,
   VisibilityOutlined,
 } from '@mui/icons-material';
 import {
@@ -213,7 +215,7 @@ const CertificateItemAction: React.FC<{ certificate: Certificate }> = ({
   const { showDialog, hideDialog } = useJumboDialog();
   const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
-  const { authOrganization, checkOrganizationPermission } = useJumboAuth();
+  const { authOrganization, authUser, checkOrganizationPermission } = useJumboAuth();
   const organization = authOrganization?.organization;
 
   const { theme } = useJumboTheme();
@@ -237,6 +239,19 @@ const CertificateItemAction: React.FC<{ certificate: Certificate }> = ({
 
   // Whether invoicing this certificate creates a real, documented Supplier Bill — if so, Create
   // Invoice collects its due date/reference instead of a plain yes/no confirm.
+  const { mutate: withdrawCertificate } = useMutation({
+    mutationFn: () => projectsServices.withdrawCertificate(certificate.id),
+    onSuccess: (data: any) => {
+      queryClient.invalidateQueries({ queryKey: ['Certificates'] });
+      enqueueSnackbar(data.message, { variant: 'success' });
+    },
+    onError: (error: any) => {
+      enqueueSnackbar(error?.response?.data?.message || 'Failed to withdraw', {
+        variant: 'error',
+      });
+    },
+  });
+
   const generatesBills = !!organization?.settings?.generate_invoices_for_project_certificates;
 
   const { mutate: invoiceCertificate } = useMutation({
@@ -277,6 +292,15 @@ const CertificateItemAction: React.FC<{ certificate: Certificate }> = ({
 
   const canEdit = !isLocked && checkOrganizationPermission(PERMISSIONS.PROJECT_SUBCONTRACTS_EDIT);
   const canCreateInvoice = canInvoice && checkOrganizationPermission(PERMISSIONS.PROJECT_SUBCONTRACTS_EDIT);
+  // The submitter can pull their own certificate back until an approver has acted on it - the
+  // backend enforces the same rules (ProjectSubcontractCertificateApprovalController::withdraw()).
+  const canWithdraw =
+    certificate.status === 'in_review' &&
+    hasApprovalChain &&
+    !!authUser?.user?.id &&
+    String(certificate.created_by) === String(authUser.user.id) &&
+    !getLatestCurrentApproval(certificate.approvals) &&
+    checkOrganizationPermission(PERMISSIONS.PROJECT_SUBCONTRACTS_EDIT);
   const canDelete = !certificate.has_approved_payment_request && checkOrganizationPermission(PERMISSIONS.PROJECT_SUBCONTRACTS_DELETE);
 
   const handleInvoice = () => {
@@ -295,6 +319,20 @@ const CertificateItemAction: React.FC<{ certificate: Certificate }> = ({
         variant: 'confirm',
       });
     }
+  };
+
+  const handleWithdraw = () => {
+    showDialog({
+      title: 'Withdraw Certificate',
+      content:
+        'This takes the certificate out of the approval queue so you can correct it. You will need to edit and resubmit it for approval. Continue?',
+      variant: 'confirm',
+      onYes: () => {
+        hideDialog();
+        withdrawCertificate();
+      },
+      onNo: hideDialog,
+    });
   };
 
   const handleDelete = () => {
@@ -350,6 +388,14 @@ const CertificateItemAction: React.FC<{ certificate: Certificate }> = ({
         <Tooltip title='Edit'>
           <IconButton onClick={() => setOpenEditDialog(true)}>
             <EditOutlined />
+          </IconButton>
+        </Tooltip>
+      )}
+
+      {canWithdraw && (
+        <Tooltip title='Withdraw'>
+          <IconButton onClick={handleWithdraw}>
+            <UndoOutlined />
           </IconButton>
         </Tooltip>
       )}

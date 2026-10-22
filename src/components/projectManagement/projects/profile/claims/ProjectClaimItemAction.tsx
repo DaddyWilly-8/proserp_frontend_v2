@@ -1,6 +1,7 @@
 'use client';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import PDFContent from '@/components/pdf/PDFContent';
+import { getLatestCurrentApproval } from '@/components/projectManagement/approvals/currentApprovalCycle';
 import projectsServices from '@/components/projectManagement/projects/project-services';
 const FileExportGrid = dynamic(() => import('@/components/sharedComponents/FileExportGrid').then((mod) => mod.FileExportGrid), { ssr: false });
 import PreviewTopBar from '@/components/sharedComponents/PreviewTopBar';
@@ -12,6 +13,7 @@ import {
   EditOutlined,
   HighlightOff,
   ReceiptLongOutlined,
+  UndoOutlined,
   VisibilityOutlined,
 } from '@mui/icons-material';
 import {
@@ -217,7 +219,7 @@ const ProjectClaimItemAction: React.FC<ProjectClaimItemActionProps> = ({
 
   const { authOrganization } = useJumboAuth();
   const organization = authOrganization?.organization;
-  const { checkOrganizationPermission } = useJumboAuth();
+  const { authUser, checkOrganizationPermission } = useJumboAuth();
 
   const { theme } = useJumboTheme();
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
@@ -232,6 +234,19 @@ const ProjectClaimItemAction: React.FC<ProjectClaimItemActionProps> = ({
     },
     onError: (error: any) => {
       enqueueSnackbar(error?.response?.data?.message || 'Delete failed', {
+        variant: 'error',
+      });
+    },
+  });
+
+  const { mutate: withdrawClaim } = useMutation({
+    mutationFn: (id: number) => projectsServices.withdrawClaim(id),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['projectProjectClaims'] });
+      enqueueSnackbar(data.message, { variant: 'success' });
+    },
+    onError: (error: any) => {
+      enqueueSnackbar(error?.response?.data?.message || 'Failed to withdraw', {
         variant: 'error',
       });
     },
@@ -280,6 +295,16 @@ const ProjectClaimItemAction: React.FC<ProjectClaimItemActionProps> = ({
   const canEdit = !isLocked && checkOrganizationPermission(PERMISSIONS.PROJECT_CLAIMS_UPDATE);
   const canCreateInvoice = canInvoice && checkOrganizationPermission(PERMISSIONS.PROJECT_CLAIMS_UPDATE);
   const canDelete = checkOrganizationPermission(PERMISSIONS.PROJECT_CLAIMS_DELETE);
+  // The submitter can pull their own claim back until an approver has acted on it (after that
+  // it's the approver's signature on the line, so only an approver can return it). The backend
+  // enforces the same rules - see ProjectPaymentClaimApprovalController::withdraw().
+  const canWithdraw =
+    claim.status === 'in_review' &&
+    hasApprovalChain &&
+    !!authUser?.user?.id &&
+    String(claim.created_by) === String(authUser.user.id) &&
+    !getLatestCurrentApproval(claim.approvals) &&
+    checkOrganizationPermission(PERMISSIONS.PROJECT_CLAIMS_UPDATE);
 
   const handleInvoice = () => {
     if (generatesInvoices) {
@@ -297,6 +322,20 @@ const ProjectClaimItemAction: React.FC<ProjectClaimItemActionProps> = ({
         onNo: hideDialog,
       });
     }
+  };
+
+  const handleWithdraw = () => {
+    showDialog({
+      title: 'Withdraw Claim',
+      content:
+        'This takes the claim out of the approval queue so you can correct it. You will need to edit and resubmit it for approval. Continue?',
+      variant: 'confirm',
+      onYes: () => {
+        hideDialog();
+        withdrawClaim(claim.id);
+      },
+      onNo: hideDialog,
+    });
   };
 
   const handleDelete = () => {
@@ -350,6 +389,14 @@ const ProjectClaimItemAction: React.FC<ProjectClaimItemActionProps> = ({
         <Tooltip title='Edit'>
           <IconButton onClick={() => setOpenEditDialog(true)}>
             <EditOutlined />
+          </IconButton>
+        </Tooltip>
+      )}
+
+      {canWithdraw && (
+        <Tooltip title='Withdraw'>
+          <IconButton onClick={handleWithdraw}>
+            <UndoOutlined />
           </IconButton>
         </Tooltip>
       )}

@@ -16,6 +16,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import { useSnackbar } from 'notistack';
 import { useEffect, useState } from 'react';
+import { getLatestCurrentApproval } from '@/components/projectManagement/approvals/currentApprovalCycle';
 import projectsServices from '@/components/projectManagement/projects/project-services';
 import { ProjectClaim } from './ProjectClaimType';
 
@@ -54,7 +55,9 @@ export const getNextPendingProjectClaimApprovalLevel = (
 
   if (!levels.length) return undefined;
 
-  const latestApproval = claim.approvals?.[claim.approvals.length - 1];
+  // Only the current review cycle counts - a return that's been superseded by a resubmit means
+  // the chain starts again from its first level.
+  const latestApproval = getLatestCurrentApproval(claim.approvals);
   if (!latestApproval) return levels[0];
 
   if (getProjectClaimApprovalDecision(latestApproval) !== 'approved') return undefined;
@@ -85,7 +88,7 @@ const ProjectClaimApprovalDialog = ({
   const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
   const pendingLevel = getNextPendingProjectClaimApprovalLevel(claim);
-  const latestApproval = claim.approvals?.[claim.approvals.length - 1];
+  const latestApproval = getLatestCurrentApproval(claim.approvals);
 
   useEffect(() => {
     if (!open) return;

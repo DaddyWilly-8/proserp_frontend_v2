@@ -120,9 +120,6 @@ function MaterialIssuedForm({projectTaskIndex, taskProgressItem, material = null
       setIsRetrieving(true);
   
       try {
-        const currentQuantity = material
-          ? (parseFloat(quantity) || parseFloat(material?.quantity) || 0)
-          : 0;
         const pickedUnit = combinedUnits?.find(unit => unit.id === measurement_unit_id);
 
         // Build a stable snapshot so current task uses the latest local rows before context sync completes.
@@ -186,10 +183,12 @@ function MaterialIssuedForm({projectTaskIndex, taskProgressItem, material = null
 
         const availableBalance = storeBalance?.current_balance || 0;
         const current_balance = storeBalance?.current_balance || 0;
-        const editableQuantity = material?.id ? (parseFloat(currentQuantity) || 0) : 0;
+        // A saved line has already taken its saved quantity out of the store, so that's what
+        // an edit gets back — not whatever is being typed now, or the check can never fail.
+        const editableQuantity = material?.id ? (parseFloat(material?.quantity) || 0) : 0;
 
         await setValue(`available_balance`, (availableBalance + editableQuantity) - existingQuantity);
-        await setValue(`current_balance`, parseFloat(current_balance) + parseFloat(currentQuantity || 0));
+        await setValue(`current_balance`, parseFloat(current_balance) + editableQuantity);
       } catch (error) {
         console.error('Error retrieving balances:', error);
       } finally {
