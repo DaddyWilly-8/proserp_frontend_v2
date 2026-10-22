@@ -16,6 +16,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import { useSnackbar } from 'notistack';
 import { useEffect, useState } from 'react';
+import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { getLatestCurrentApproval } from '@/components/projectManagement/approvals/currentApprovalCycle';
 import projectsServices from '@/components/projectManagement/projects/project-services';
 import { Certificate, CertificateApproval } from './CertificateType';
@@ -28,6 +29,9 @@ interface CertificateApprovalDialogProps {
   open: boolean;
   belowLargeScreen: boolean;
   certificate: Certificate;
+  // When given, the dialog edits that existing decision (the signed-in user's own latest one)
+  // instead of recording a new one.
+  approval?: CertificateApproval;
   onClose: () => void;
 }
 
@@ -79,6 +83,7 @@ const CertificateApprovalDialog = ({
   open,
   belowLargeScreen,
   certificate,
+  approval,
   onClose,
 }: CertificateApprovalDialogProps) => {
   const [remarks, setRemarks] = useState('');
@@ -87,19 +92,35 @@ const CertificateApprovalDialog = ({
 
   const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
+  const { hasOrganizationRole } = useJumboAuth();
   const pendingLevel = getNextPendingCertificateApprovalLevel(certificate);
+  // Approve / Hold are a signature at the pending level, so only someone holding that level's role
+  // may record them (the backend refuses anyone else). Anyone who can open this dialog can still
+  // Return - that's open to any approver.
+  // Editing one of your own decisions acts at the level that decision was made at, not the pending
+  // one - so that's whose role matters then.
+  const decisionLevel = approval
+    ? certificate.approval_chain?.levels?.find(
+        (level) => Number(level.id) === Number(approval.approval_chain_level_id)
+      )
+    : pendingLevel;
+  const pendingRoleName = decisionLevel?.role?.name || '';
+  const canDecide = !!decisionLevel && (!pendingRoleName || hasOrganizationRole(pendingRoleName));
   const latestApproval = getLatestCurrentApproval(certificate.approvals);
 
   useEffect(() => {
     if (!open) return;
 
-    setRemarks('');
+    setRemarks(approval?.remarks || '');
     setApprovalDate(DEFAULT_APPROVAL_DATE());
     setRemarksError('');
   }, [open]);
 
   const { mutate: addApproval, isPending: isSubmitting } = useMutation({
-    mutationFn: projectsServices.addSubcontractCertificateApproval,
+    mutationFn: (payload: any) =>
+      approval
+        ? projectsServices.updateSubcontractCertificateApproval(approval.id, payload)
+        : projectsServices.addSubcontractCertificateApproval(payload),
     onSuccess: (data: any) => {
       queryClient.invalidateQueries({
         queryKey: ['CertificateDetails', { id: certificate.id }],
@@ -117,12 +138,30 @@ const CertificateApprovalDialog = ({
   });
 
   const handleDecision = (status: CertificateApprovalDecision) => {
+    if (status !== 'returned' && !canDecide) return;
+    // A return isn't a change to a decision - it's the requester's to act on.
+    if (approval && status === 'returned') return;
+
     if (status !== 'approved' && !remarks.trim()) {
       setRemarksError('Remarks are required');
       return;
     }
 
     setRemarksError('');
+
+    if (approval) {
+      if (status !== 'approved' && !remarks.trim()) {
+        setRemarksError('Remarks are required');
+        return;
+      }
+
+      addApproval({
+        status,
+        remarks: remarks.trim() || undefined,
+        approval_date: approvalDate || undefined,
+      } as any);
+      return;
+    }
 
     // A return can happen from any point in the chain's progress (mid-review, on hold, or even
     // after a final approval) where there's no well-defined "next level" left - fall back to the
@@ -160,10 +199,16 @@ const CertificateApprovalDialog = ({
       fullScreen={belowLargeScreen}
       scroll={belowLargeScreen ? 'body' : 'paper'}
     >
-      <DialogTitle>Certificate Approval</DialogTitle>
+      <DialogTitle>{approval ? 'Change My Decision' : 'Certificate Approval'}</DialogTitle>
       <DialogContent>
         <Stack spacing={2} sx={{ mt: 1 }}>
-          {!pendingLevel && (
+          {!!decisionLevel && !canDecide && (
+            <Alert severity='warning'>
+              Only a {pendingRoleName} can approve or hold this certificate at this stage. You can still
+              send it back to the requester for correction.
+            </Alert>
+          )}
+          {!approval && !pendingLevel && (
             <Alert severity='info'>
               This certificate isn't open for a new Approve/Hold/Reject decision right now - the
               only action available is sending it back to the requester for correction.
@@ -197,35 +242,39 @@ const CertificateApprovalDialog = ({
         <Button onClick={onClose} disabled={isSubmitting}>
           Cancel
         </Button>
-        <LoadingButton
-          loading={isSubmitting}
-          variant='contained'
-          color='info'
-          size='small'
-          onClick={() => handleDecision('returned')}
-        >
-          Return
-        </LoadingButton>
-        <LoadingButton
-          loading={isSubmitting}
-          variant='contained'
-          color='warning'
-          size='small'
-          disabled={!pendingLevel}
-          onClick={() => handleDecision('on hold')}
-        >
-          Hold
-        </LoadingButton>
-        <LoadingButton
-          loading={isSubmitting}
-          variant='contained'
-          color='success'
-          size='small'
-          disabled={!pendingLevel}
-          onClick={() => handleDecision('approved')}
-        >
-          Approve
-        </LoadingButton>
+        {!approval && (
+          <LoadingButton
+            loading={isSubmitting}
+            variant='contained'
+            color='info'
+            size='small'
+            onClick={() => handleDecision('returned')}
+          >
+            Return
+          </LoadingButton>
+        )}
+        {canDecide && (
+          <LoadingButton
+            loading={isSubmitting}
+            variant='contained'
+            color='warning'
+            size='small'
+            onClick={() => handleDecision('on hold')}
+          >
+            Hold
+          </LoadingButton>
+        )}
+        {canDecide && (
+          <LoadingButton
+            loading={isSubmitting}
+            variant='contained'
+            color='success'
+            size='small'
+            onClick={() => handleDecision('approved')}
+          >
+            Approve
+          </LoadingButton>
+        )}
       </DialogActions>
     </Dialog>
   );

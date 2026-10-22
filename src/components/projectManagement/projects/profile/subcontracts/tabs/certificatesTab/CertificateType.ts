@@ -14,6 +14,7 @@ export interface ApprovalChainLevel {
 
 export interface CertificateApproval {
   id?: number;
+  created_by?: number | string;
   approval_chain_level_id?: number;
   status?: 'approved' | 'on hold' | 'rejected' | 'returned';
   is_final?: boolean;

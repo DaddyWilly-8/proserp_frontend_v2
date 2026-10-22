@@ -294,7 +294,9 @@ const ProjectClaimItemAction: React.FC<ProjectClaimItemActionProps> = ({
 
   const canEdit = !isLocked && checkOrganizationPermission(PERMISSIONS.PROJECT_CLAIMS_UPDATE);
   const canCreateInvoice = canInvoice && checkOrganizationPermission(PERMISSIONS.PROJECT_CLAIMS_UPDATE);
-  const canDelete = checkOrganizationPermission(PERMISSIONS.PROJECT_CLAIMS_DELETE);
+  // Same locks as editing - a claim under review/approval (or invoiced, where that's a real posted
+  // invoice) can't be deleted; the backend enforces it too. Withdraw it or have it returned first.
+  const canDelete = !isLocked && checkOrganizationPermission(PERMISSIONS.PROJECT_CLAIMS_DELETE);
   // The submitter can pull their own claim back until an approver has acted on it (after that
   // it's the approver's signature on the line, so only an approver can return it). The backend
   // enforces the same rules - see ProjectPaymentClaimApprovalController::withdraw().

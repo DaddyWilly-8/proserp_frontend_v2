@@ -16,6 +16,7 @@ export interface ApprovalChainLevel {
 
 export interface ProjectClaimApproval {
   id?: number;
+  created_by?: number | string;
   approval_chain_level_id?: number;
   status?: 'approved' | 'on hold' | 'rejected' | 'returned';
   is_final?: boolean;

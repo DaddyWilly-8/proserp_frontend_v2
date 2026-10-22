@@ -301,7 +301,9 @@ const CertificateItemAction: React.FC<{ certificate: Certificate }> = ({
     String(certificate.created_by) === String(authUser.user.id) &&
     !getLatestCurrentApproval(certificate.approvals) &&
     checkOrganizationPermission(PERMISSIONS.PROJECT_SUBCONTRACTS_EDIT);
-  const canDelete = !certificate.has_approved_payment_request && checkOrganizationPermission(PERMISSIONS.PROJECT_SUBCONTRACTS_DELETE);
+  // Same locks as editing (isLocked also covers an approved payment request) - the backend enforces
+  // it too. Withdraw it or have it returned first.
+  const canDelete = !isLocked && checkOrganizationPermission(PERMISSIONS.PROJECT_SUBCONTRACTS_DELETE);
 
   const handleInvoice = () => {
     if (generatesBills) {
