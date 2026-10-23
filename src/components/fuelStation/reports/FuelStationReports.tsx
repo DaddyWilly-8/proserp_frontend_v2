@@ -1,6 +1,8 @@
 'use client';
 
 import useProsERPStyles from '@/app/helpers/style-helpers';
+import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
+import { PERMISSIONS } from '@/utilities/constants/permissions';
 import LedgerSelectProvider from '@/components/accounts/ledgers/forms/LedgerSelectProvider';
 import StakeholderSelectProvider from '@/components/masters/stakeholders/StakeholderSelectProvider';
 import {
@@ -23,6 +25,7 @@ import {
 import React, { ReactNode, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import DippingReport from './dippingReport/DippingReport';
+import TankStockReport from './tankStockReport/TankStockReport';
 import FuelVouchersReport from './FuelVouchersReport/FuelVouchersReport';
 import StockSalesSummaryReport from './stockSalesSummaryReport/StockSalesSummaryReport';
 import ShiftsSummaryReport from './shiftsSummaryReport/ShiftsSummaryReport';
@@ -33,6 +36,11 @@ interface ReportProps {
 const FuelStationReports: React.FC = () => {
   const searchParams = useSearchParams();
   const css = useProsERPStyles();
+  const { checkOrganizationPermission } = useJumboAuth();
+  const canViewTankStockReport = checkOrganizationPermission([
+    PERMISSIONS.STORES_REPORTS,
+    PERMISSIONS.FUEL_STATIONS_REPORTS,
+  ]);
 
   const [openReportDialog, setOpenReportDialog] = useState<boolean>(false);
   const [report, setReport] = useState<ReactNode | null>(null);
@@ -57,6 +65,8 @@ const FuelStationReports: React.FC = () => {
     if (!reportParam) return;
     if (reportParam === 'dipping-report') {
       openReport(DippingReport);
+    } else if (reportParam === 'tank-stock-report') {
+      if (canViewTankStockReport) openReport(TankStockReport);
     } else if (reportParam === 'fv-report') {
       openReport(FuelVouchersReport);
     } else if (reportParam === 'stock-sales-summary-report') {
@@ -116,6 +126,26 @@ const FuelStationReports: React.FC = () => {
               />
               <Typography mt={1}>Dipping Report</Typography>
             </Grid>
+
+            {/* Tank Stock Report */}
+            {canViewTankStockReport && (
+            <Grid
+              sx={{
+                cursor: 'pointer',
+                '&:hover': { bgcolor: 'action.hover' },
+              }}
+              size={{ xs: 6, md: 3, lg: 2 }}
+              p={2}
+              onClick={() => openReport(TankStockReport)}
+            >
+              <FontAwesomeIcon
+                size='lg'
+                icon={faChartColumn}
+                style={{ fontSize: '48px' }}
+              />
+              <Typography mt={1}>Tank Stock Report</Typography>
+            </Grid>
+            )}
 
             {/* Fuel Vouchers Report */}
             <Grid
