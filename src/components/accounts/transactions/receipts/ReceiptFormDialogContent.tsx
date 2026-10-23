@@ -50,6 +50,8 @@ interface ReceiptItem {
   // to, mirroring PaymentItem's Bill/Purchase Order link.
   relatable_type?: 'invoice' | null;
   relatable_id?: number | null;
+  // 'fuel_voucher_invoice' when the linked invoice is a Fuel Voucher invoice
+  relatable_kind?: string | null;
   relatableNo?: string;
 }
 
@@ -355,6 +357,7 @@ function ReceiptFormDialogContent({
         description: item.description,
         relatable_type: item.relatable_type || undefined,
         relatable_id: item.relatable_id || undefined,
+        relatable_kind: item.relatable_kind || undefined,
       })),
     };
     await saveReceipt.mutate(updatedData);

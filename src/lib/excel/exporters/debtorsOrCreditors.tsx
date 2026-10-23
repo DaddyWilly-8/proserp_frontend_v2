@@ -1,11 +1,14 @@
 import { readableDate } from '@/app/helpers/input-sanitization-helpers';
+import dayjs from 'dayjs';
 import { applyCellStyle, CELL_STYLES } from '../styles';
 import { createWorkbook } from '../workBook';
 
 export async function exportDebtorsOrCreditorsToExcel(exportedData: any) {
   try {
     const { authOrganization, reportData, user } = exportedData;
-    const reportPeriod = `As at: ${readableDate(reportData.filters.as_at, true)}`;
+    const reportPeriod = reportData.filters.from
+      ? `Period: ${readableDate(reportData.filters.from, true)} to ${readableDate(reportData.filters.to, true)}`
+      : `Up to: ${readableDate(reportData.filters.to, true)}`;
 
     const rootGroup = reportData.debtors || reportData.creditors;
 
@@ -22,14 +25,10 @@ export async function exportDebtorsOrCreditorsToExcel(exportedData: any) {
     };
 
     // column widths
+    // Name, then Opening / Current / Closing x Debit / Credit / Net
     const baseColumns = [
-      { width: reportData.filters?.cost_centers?.length ? 30 : 10 },
-      { width: 25 },
-      { width: 25 },
-      { width: 25 },
-      { width: 25 },
-      { width: 25 },
-      { width: 25 },
+      { width: 40 },
+      ...Array.from({ length: 9 }, () => ({ width: 18 })),
     ];
 
     ws.columns = baseColumns;
@@ -120,20 +119,77 @@ export async function exportDebtorsOrCreditorsToExcel(exportedData: any) {
 
     ws.addRow([]);
 
-    // HEADER ROW AND DATA ROWS
-    const dataRow = (ws.lastRow?.number ?? 0) + 1;
-    const headerRow = ws.getRow(dataRow);
-    headerRow.height = 25;
+    // HEADER ROWS (period group row + Debit/Credit/Net row) AND DATA ROWS
+    const groupRow = (ws.lastRow?.number ?? 0) + 1;
+    const subRow = groupRow + 1;
+    const periods = ['Opening', 'Current', 'Closing'];
+    const periodKeys = ['opening', 'current', 'closing'];
+    const lastColumn = 10; // A (name) + 9 period columns
 
-    ws.mergeCells(`A${dataRow}:E${dataRow}`);
-    ws.getCell(`A${dataRow}`).value = 'Name';
-    ws.getCell(`F${dataRow}`).value = 'Amount';
+    ws.mergeCells(`A${groupRow}:A${subRow}`);
+    ws.getCell(`A${groupRow}`).value = 'Name';
+    // Each period heading carries the date range it covers on a second line
+    const shortDate = (date: any) => dayjs(date).format('DD MMM YYYY');
+    const { from, to } = reportData.filters;
+    const ranges = [
+      from ? `before ${shortDate(from)}` : '-',
+      from ? `${shortDate(from)} - ${shortDate(to)}` : `up to ${shortDate(to)}`,
+      `as at ${shortDate(to)}`,
+    ];
+    ws.getRow(groupRow).height = 32;
+    periods.forEach((label, i) => {
+      const start = 2 + i * 3;
+      ws.mergeCells(groupRow, start, groupRow, start + 2);
+      ws.getCell(groupRow, start).value = `${label}\n${ranges[i]}`;
+      ['Debit', 'Credit', 'Net'].forEach((sub, j) => {
+        ws.getCell(subRow, start + j).value = sub;
+      });
+    });
 
     const thinBorder = {
       top: { style: 'thin' as const, color: { argb: 'FF000000' } },
       bottom: { style: 'thin' as const, color: { argb: 'FF000000' } },
       left: { style: 'thin' as const, color: { argb: 'FF000000' } },
       right: { style: 'thin' as const, color: { argb: 'FF000000' } },
+    };
+
+    for (let r = groupRow; r <= subRow; r++) {
+      for (let c = 1; c <= lastColumn; c++) {
+        const cell = ws.getCell(r, c);
+        cell.border = thinBorder;
+        applyCellStyle(cell, CELL_STYLES.tableHeader);
+        cell.alignment = {
+          horizontal: 'center',
+          vertical: 'middle',
+          wrapText: true,
+        };
+      }
+    }
+
+    // Writes the nine Opening/Current/Closing cells for a node.
+    const writePeriodCells = (row: number, node: any, bold: boolean) => {
+      periodKeys.forEach((key, i) => {
+        const start = 2 + i * 3;
+        const figures = node[key];
+        const values: (number | string)[] = [
+          figures?.debit || '',
+          figures?.credit || '',
+          figures?.net?.amount
+            ? `${figures.net.amount.toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })} ${figures.net.side}`
+            : '',
+        ];
+        values.forEach((value, j) => {
+          const cell = ws.getCell(row, start + j);
+          cell.value = value;
+          cell.numFmt = '#,##0.00;[Red]-#,##0.00';
+          cell.alignment = { horizontal: 'right', vertical: 'middle' };
+          cell.border = thinBorder;
+          if (bold) cell.font = { bold: true };
+        });
+      });
     };
 
     // Writes one row per tree node (ledger-group or leaf ledger), group
@@ -148,19 +204,13 @@ export async function exportDebtorsOrCreditorsToExcel(exportedData: any) {
     ) => {
       const row = (ws.lastRow?.number ?? 0) + 1;
 
-      ws.mergeCells(`A${row}:E${row}`);
       const nameCell = ws.getCell(`A${row}`);
       nameCell.value = node.name;
       nameCell.alignment = { indent: level };
       nameCell.border = thinBorder;
       if (isGroup) nameCell.font = { bold: true };
 
-      const amountCell = ws.getCell(`F${row}`);
-      amountCell.value = node.amount;
-      amountCell.numFmt = '#,##0.00;[Red]-#,##0.00';
-      amountCell.alignment = { horizontal: 'right', vertical: 'middle' };
-      amountCell.border = thinBorder;
-      if (isGroup) amountCell.font = { bold: true };
+      writePeriodCells(row, node, isGroup);
 
       if (level > 0) {
         ws.getRow(row).outlineLevel = level;
@@ -180,48 +230,16 @@ export async function exportDebtorsOrCreditorsToExcel(exportedData: any) {
       writeGroupTreeRow(rootGroup, 0, true);
     }
 
-    const total = reportData.total ?? 0;
-    const totalRow = (ws.lastRow?.number ?? 0) + 1;
-
-    // TOTAL ROW STYLING
-    for (let c = 65; c < 71; c++) {
-      ws.getCell(`${String.fromCharCode(c)}${totalRow}`).border = {
-        top: { style: 'thin', color: { argb: 'FF000000' } },
-        bottom: { style: 'thin', color: { argb: 'FF000000' } },
-        left: { style: 'thin', color: { argb: 'FF000000' } },
-        right: { style: 'thin', color: { argb: 'FF000000' } },
-      };
-      applyCellStyle(
-        ws.getCell(`${String.fromCharCode(c)}${totalRow}`),
-        CELL_STYLES.tableHeader
-      );
-    }
-
     // TOTAL ROW
+    const totalRow = (ws.lastRow?.number ?? 0) + 1;
     ws.getRow(totalRow).height = 20;
-    ws.mergeCells(`A${totalRow}:E${totalRow}`);
     ws.getCell(`A${totalRow}`).value = 'Total';
-    ws.getCell(`A${totalRow}`).font = { bold: true, size: 11 };
-
-    ws.getCell(`F${totalRow}`).value = total;
-    ws.getCell(`F${totalRow}`).numFmt = '#,##0.00;[Red]-#,##0.00';
-    ws.getCell(`F${totalRow}`).alignment = {
-      horizontal: 'right',
-      vertical: 'middle',
-    };
-
-    // DATA HEADER ROWS STYLING
-    for (let c = 65; c < 71; c++) {
-      ws.getCell(`${String.fromCharCode(c)}${dataRow}`).border = {
-        top: { style: 'thin', color: { argb: 'FF000000' } },
-        bottom: { style: 'thin', color: { argb: 'FF000000' } },
-        left: { style: 'thin', color: { argb: 'FF000000' } },
-        right: { style: 'thin', color: { argb: 'FF000000' } },
-      };
-      applyCellStyle(
-        ws.getCell(`${String.fromCharCode(c)}${dataRow}`),
-        CELL_STYLES.tableHeader
-      );
+    writePeriodCells(totalRow, reportData.total ?? {}, true);
+    for (let c = 1; c <= lastColumn; c++) {
+      const cell = ws.getCell(totalRow, c);
+      cell.border = thinBorder;
+      applyCellStyle(cell, CELL_STYLES.tableHeader);
+      if (c > 1) cell.alignment = { horizontal: 'right', vertical: 'middle' };
     }
 
     // Return Excel buffer

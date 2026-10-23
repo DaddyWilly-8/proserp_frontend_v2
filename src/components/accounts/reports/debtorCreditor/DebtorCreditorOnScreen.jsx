@@ -14,12 +14,7 @@ import {
 } from '@mui/material';
 import dayjs from 'dayjs';
 import React, { useState } from 'react';
-
-const formatAmount = (amount) =>
-  (amount ?? 0).toLocaleString('en-US', {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  });
+import { PeriodCells, PeriodTableHead } from '../periodColumns';
 
 const DebtorCreditorOnScreen = ({ reportData, authOrganization, user }) => {
   const { currencies } = useCurrencySelect();
@@ -54,9 +49,11 @@ const DebtorCreditorOnScreen = ({ reportData, authOrganization, user }) => {
     reportData?.filters?.cost_centers?.map((itm) => cost_center_id.push(itm?.id));
 
     setLiabilitiesPayload({
-      from: dayjs(organization?.recording_start_date).toISOString(),
-      to: reportData?.filters?.as_at
-        ? dayjs(reportData?.filters?.as_at).toISOString()
+      from: reportData?.filters?.from
+        ? dayjs(reportData.filters.from).toISOString()
+        : dayjs(organization?.recording_start_date).toISOString(),
+      to: reportData?.filters?.to
+        ? dayjs(reportData.filters.to).toISOString()
         : dayjs().toISOString(),
       cost_center_ids: cost_center_id,
       with_item_description: true,
@@ -88,15 +85,10 @@ const DebtorCreditorOnScreen = ({ reportData, authOrganization, user }) => {
             {level > 0 && hasChildren && (isOpen ? <KeyboardArrowDown /> : <KeyboardArrowRight />)}
             <span style={{ marginLeft: 5 }}>{group.name}</span>
           </TableCell>
-          <TableCell
-            align='right'
-            sx={{
-              color: level === 0 ? contrastText : group.amount < 0 ? 'error.main' : undefined,
-              fontWeight: 'bold',
-            }}
-          >
-            {formatAmount(group.amount)}
-          </TableCell>
+          <PeriodCells
+            node={group}
+            sx={{ color: level === 0 ? contrastText : undefined, fontWeight: 'bold' }}
+          />
         </TableRow>
         {isOpen && group.children?.map((child) => renderGroup(child, level + 1))}
         {isOpen && group.ledgers?.map((ledger, index) => (
@@ -108,17 +100,14 @@ const DebtorCreditorOnScreen = ({ reportData, authOrganization, user }) => {
             }}
           >
             <TableCell style={{ paddingLeft: (level + 1) * 20 }}>{ledger.name}</TableCell>
-            <TableCell
-              align='right'
-              onClick={() => handleViewLedger(ledger)}
+            <PeriodCells
+              node={ledger}
               sx={{
                 cursor: 'pointer',
-                color: ledger.amount < 0 ? 'error.main' : undefined,
                 '&:hover': { color: 'primary.main' },
               }}
-            >
-              {formatAmount(ledger.amount)}
-            </TableCell>
+              onClick={() => handleViewLedger(ledger)}
+            />
           </TableRow>
         ))}
       </React.Fragment>
@@ -131,14 +120,12 @@ const DebtorCreditorOnScreen = ({ reportData, authOrganization, user }) => {
         <TableContainer component={TablePaper}>
           <Table>
             <TableHead>
-              <TableRow>
-                <TableCell sx={{ backgroundColor: mainColor, color: contrastText }}>
-                  Name
-                </TableCell>
-                <TableCell align='right' sx={{ backgroundColor: mainColor, color: contrastText }}>
-                  Amount
-                </TableCell>
-              </TableRow>
+              <PeriodTableHead
+                leadingLabels={['Name']}
+                backgroundColor={mainColor}
+                color={contrastText}
+                filters={reportData.filters}
+              />
             </TableHead>
             <TableBody>
               {renderGroup(rootGroup, 0)}
@@ -146,9 +133,10 @@ const DebtorCreditorOnScreen = ({ reportData, authOrganization, user }) => {
                 <TableCell sx={{ backgroundColor: mainColor, color: contrastText, borderBottom: 'none' }}>
                   Total
                 </TableCell>
-                <TableCell align='right' sx={{ backgroundColor: mainColor, color: contrastText, borderBottom: 'none' }}>
-                  {formatAmount(reportData.total)}
-                </TableCell>
+                <PeriodCells
+                  node={reportData.total}
+                  sx={{ backgroundColor: mainColor, color: contrastText, borderBottom: 'none', fontWeight: 'bold' }}
+                />
               </TableRow>
             </TableBody>
           </Table>

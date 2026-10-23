@@ -45,6 +45,8 @@ type TransactionItem = {
   description: string;
   relatable_type?: ItemRelatableType | null;
   relatable_id?: number | null;
+  // 'fuel_voucher_invoice' when the linked "invoice" is a Fuel Voucher invoice
+  relatable_kind?: string | null;
   relatable?: PurchaseOrderOption | BillOption | InvoiceOption | null;
   relatableNo?: string;
 };
@@ -244,6 +246,7 @@ const TransactionItemForm: React.FC<TransactionItemFormProps> = ({
               id: item.relatable_id,
               orderNo: item.relatableNo,
               invoiceNo: item.relatableNo,
+              kind: item.relatable_kind ?? undefined,
             } as any)
           : null),
     },
@@ -368,6 +371,7 @@ const TransactionItemForm: React.FC<TransactionItemFormProps> = ({
       description: formData.description,
       relatable_type: formData.relatable_type || null,
       relatable_id: relatable?.id ?? null,
+      relatable_kind: (relatable as InvoiceOption | null)?.kind === 'fuel_voucher_invoice' ? 'fuel_voucher_invoice' : null,
       relatable: relatable ?? null,
       relatableNo:
         (relatable as any)?.orderNo ||

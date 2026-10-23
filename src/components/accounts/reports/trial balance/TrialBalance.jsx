@@ -34,17 +34,38 @@ import pdfStyles from '../../../pdf/pdf-styles';
 import PDFContent from '../../../pdf/PDFContent';
 import PdfLogo from '../../../pdf/PdfLogo';
 import financialReportsServices from '../financial-reports-services';
+import {
+  PeriodPdfHeader,
+  PDF_PAGE_STYLE,
+  PeriodPdfRow,
+  hasPeriodActivity,
+  periodSubtitle,
+} from '../periodColumns';
 import TrialBalanceGroupedOnScreen from './TrialBalanceGroupedOnScreen';
 import TrialBalanceOnScreen from './TrialBalanceOnScreen';
 
-const ReportDocumet = ({ reportData, authOrganization, user }) => {
+// Grouped tree -> indented rows, as on screen and in the Balance Sheet PDF:
+// a group row, then its sub-groups, then its own ledgers.
+const flattenGroupsForPdf = (groups, level = 0) =>
+  groups.flatMap((group) => [
+    { label: group.name, node: group, level, isGroup: true },
+    ...flattenGroupsForPdf(group.children ?? [], level + 1),
+    ...(group.ledgers ?? []).map((ledger) => ({
+      label: ledger.name,
+      node: ledger,
+      level: level + 1,
+      isGroup: false,
+    })),
+  ]);
+
+const ReportDocumet = ({ reportData, authOrganization, user, grouped }) => {
   const mainColor =
     authOrganization.organization.settings?.main_color || '#2113AD';
   const lightColor =
     authOrganization.organization.settings?.light_color || '#bec5da';
   const contrastText =
     authOrganization.organization.settings?.contrast_text || '#FFFFFF';
-  const reportPeriod = `As at: ${readableDate(reportData.filters.as_at, true)}`;
+  const reportPeriod = periodSubtitle(reportData.filters, readableDate);
   const costCenters = reportData.filters.cost_centers;
 
   return reportData ? (
@@ -53,7 +74,7 @@ const ReportDocumet = ({ reportData, authOrganization, user }) => {
       producer='ProsERP'
       title={`Trial Balance ${reportPeriod}`}
     >
-      <Page size='A4' style={pdfStyles.page}>
+      <Page size='A4' orientation='landscape' style={PDF_PAGE_STYLE}>
         <View style={pdfStyles.table}>
           <View style={{ ...pdfStyles.tableRow, marginBottom: 20 }}>
             <View style={{ flex: 1, maxWidth: 120 }}>
@@ -98,154 +119,69 @@ const ReportDocumet = ({ reportData, authOrganization, user }) => {
           </View>
         </View>
         <View style={pdfStyles.table}>
-          <View style={pdfStyles.tableRow}>
-            <Text
-              style={{
-                ...pdfStyles.tableHeader,
-                backgroundColor: mainColor,
-                color: contrastText,
-                flex: 0.3,
-              }}
-            >
-              S/N
-            </Text>
-            <Text
-              style={{
-                ...pdfStyles.tableHeader,
-                backgroundColor: mainColor,
-                color: contrastText,
-                flex: 3,
-              }}
-            >
-              Ledger Name
-            </Text>
-            <Text
-              style={{
-                ...pdfStyles.tableHeader,
-                backgroundColor: mainColor,
-                color: contrastText,
-                flex: 1,
-              }}
-            >
-              Debit
-            </Text>
-            <Text
-              style={{
-                ...pdfStyles.tableHeader,
-                backgroundColor: mainColor,
-                color: contrastText,
-                flex: 1,
-              }}
-            >
-              Credit
-            </Text>
-          </View>
-
-          {reportData.ledgers
-            .filter((ledger) => ledger.balance.amount !== 0)
-            .map((ledger, index) => (
-              <View key={index} style={pdfStyles.tableRow}>
-                <Text
-                  style={{
-                    ...pdfStyles.tableCell,
-                    backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor,
-                    flex: 0.3,
-                  }}
-                >
-                  {index + 1}
-                </Text>
-                <Text
-                  style={{
-                    ...pdfStyles.tableCell,
-                    backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor,
-                    flex: 3,
-                  }}
-                >
-                  {ledger.name}
-                </Text>
-                <Text
-                  style={{
-                    ...pdfStyles.tableCell,
-                    backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor,
-                    flex: 1,
-                    textAlign: 'right',
-                  }}
-                >
-                  {ledger.balance.side === 'DR' &&
-                    ledger.balance.amount?.toLocaleString('en-US', {
-                      maximumFractionDigits: 2,
-                      minimumFractionDigits: 2,
-                    })}
-                </Text>
-                <Text
-                  style={{
-                    ...pdfStyles.tableCell,
-                    backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor,
-                    flex: 1,
-                    textAlign: 'right',
-                  }}
-                >
-                  {ledger.balance.side === 'CR' &&
-                    ledger.balance.amount?.toLocaleString('en-US', {
-                      maximumFractionDigits: 2,
-                      minimumFractionDigits: 2,
-                    })}
-                </Text>
-              </View>
-            ))}
-          <View style={pdfStyles.tableRow}>
-            <Text
-              style={{
-                ...pdfStyles.tableHeader,
-                backgroundColor: mainColor,
-                color: contrastText,
-                flex: 3.5,
-              }}
-            >
-              TOTAL
-            </Text>
-            <Text
-              style={{
-                ...pdfStyles.tableHeader,
-                backgroundColor: mainColor,
-                color: contrastText,
-                textAlign: 'right',
-                flex: 1,
-              }}
-            >
+          {grouped ? (
+            <>
+              <PeriodPdfHeader
+                leading={[{ label: 'Ledger Group', flex: 3.4 }]}
+                mainColor={mainColor}
+                contrastText={contrastText}
+              filters={reportData.filters}
+              />
+              {flattenGroupsForPdf(reportData.groups ?? []).map((row, index) => (
+                <PeriodPdfRow
+                  key={index}
+                  leading={[
+                    { text: row.label, flex: 3.4, indent: row.level },
+                  ]}
+                  node={row.node}
+                  backgroundColor={
+                    row.isGroup && row.level === 0 ? lightColor : '#FFFFFF'
+                  }
+                  bold={row.isGroup}
+                />
+              ))}
+              <PeriodPdfRow
+                leading={[{ text: 'TOTAL', flex: 3.4 }]}
+                node={reportData.totals}
+                backgroundColor={lightColor}
+                bold
+              />
+            </>
+          ) : (
+            <>
+              <PeriodPdfHeader
+                leading={[
+                  { label: 'S/N', flex: 0.4 },
+                  { label: 'Ledger Name', flex: 3 },
+                ]}
+                mainColor={mainColor}
+                contrastText={contrastText}
+              filters={reportData.filters}
+              />
               {reportData.ledgers
-                .filter((ledger) => ledger.balance.side === 'DR')
-                .reduce(
-                  (totalDebits, ledger) => totalDebits + ledger.balance.amount,
-                  0
-                )
-                .toLocaleString('en-US', {
-                  maximumFractionDigits: 2,
-                  minimumFractionDigits: 2,
-                })}
-            </Text>
-            <Text
-              style={{
-                ...pdfStyles.tableHeader,
-                backgroundColor: mainColor,
-                color: contrastText,
-                textAlign: 'right',
-                flex: 1,
-              }}
-            >
-              {reportData.ledgers
-                .filter((ledger) => ledger.balance.side === 'CR')
-                .reduce(
-                  (totalCredits, ledger) =>
-                    totalCredits + ledger.balance.amount,
-                  0
-                )
-                .toLocaleString('en-US', {
-                  maximumFractionDigits: 2,
-                  minimumFractionDigits: 2,
-                })}
-            </Text>
-          </View>
+                .filter(hasPeriodActivity)
+                .map((ledger, index) => (
+                  <PeriodPdfRow
+                    key={index}
+                    leading={[
+                      { text: String(index + 1), flex: 0.4 },
+                      { text: ledger.name, flex: 3 },
+                    ]}
+                    node={ledger}
+                    backgroundColor={index % 2 === 0 ? '#FFFFFF' : lightColor}
+                  />
+                ))}
+              <PeriodPdfRow
+                leading={[
+                  { text: '', flex: 0.4 },
+                  { text: 'TOTAL', flex: 3 },
+                ]}
+                node={reportData.totals}
+                backgroundColor={lightColor}
+                bold
+              />
+            </>
+          )}
         </View>
       </Page>
     </Document>
@@ -264,16 +200,21 @@ function TrialBalance({ setOpenTrialBalanceDialog }) {
     checkOrganizationPermission,
   } = useJumboAuth();
   const validationSchema = yup.object({
-    as_at: yup
+    from: yup
       .string()
-      .required('Date is required')
-      .typeError('Date is required'),
+      .required('From date is required')
+      .typeError('From date is required'),
+    to: yup
+      .string()
+      .required('To date is required')
+      .typeError('To date is required'),
   });
 
   const { setValue, watch, handleSubmit } = useForm({
     resolver: yupResolver(validationSchema),
     defaultValues: {
-      as_at: dayjs().toISOString(),
+      from: dayjs().startOf('year').toISOString(),
+      to: dayjs().toISOString(),
       cost_center_ids: checkOrganizationPermission(PERMISSIONS.COST_CENTERS_ALL)
         ? 'all'
         : authOrganization?.costCenters.map((cost_center) => cost_center.id),
@@ -300,7 +241,8 @@ function TrialBalance({ setOpenTrialBalanceDialog }) {
 
       // Get all current filter parameters
       const filters = {
-        as_at: watch('as_at'),
+        from: watch('from'),
+        to: watch('to'),
         cost_center_ids: watch('cost_center_ids'),
       };
 
@@ -316,7 +258,7 @@ function TrialBalance({ setOpenTrialBalanceDialog }) {
 
       const link = document.createElement('a');
       link.href = window.URL.createObjectURL(blob);
-      link.download = `Trial Balance ${viewMode === 'grouped' ? 'Grouped ' : ''}${readableDate(filters.as_at, true)}.xlsx`;
+      link.download = `Trial Balance ${viewMode === 'grouped' ? 'Grouped ' : ''}${readableDate(filters.from, true)} to ${readableDate(filters.to, true)}.xlsx`;
       link.click();
       setIsDownloadingTemplate(false);
     } catch (error) {
@@ -337,7 +279,7 @@ function TrialBalance({ setOpenTrialBalanceDialog }) {
     setisFetching(false);
   };
 
-  const downloadFileName = `Trial Balance as of ${readableDate(watch('as_at'), true)}`;
+  const downloadFileName = `Trial Balance${viewMode === 'grouped' ? ' Grouped' : ''} ${readableDate(watch('from'), true)} to ${readableDate(watch('to'), true)}`;
 
   return (
     <>
@@ -371,7 +313,7 @@ function TrialBalance({ setOpenTrialBalanceDialog }) {
               alignItems='center'
               justifyContent='center'
             >
-              <Grid size={{ xs: 12, md: 8 }}>
+              <Grid size={{ xs: 12, md: 6 }}>
                 <CostCenterSelector
                   label='Cost Centers (leave empty for all)'
                   multiple={true}
@@ -404,10 +346,37 @@ function TrialBalance({ setOpenTrialBalanceDialog }) {
                   }}
                 />
               </Grid>
-              <Grid size={{ xs: 12, md: 4 }}>
+              <Grid size={{ xs: 12, md: 3 }}>
                 <Div sx={{ mt: 1, mb: 1 }}>
                   <DateTimePicker
-                    label='As at (MM/DD/YYYY)'
+                    label='From (MM/DD/YYYY)'
+                    defaultValue={dayjs().startOf('year')}
+                    minDate={dayjs(
+                      authOrganization?.organization.recording_start_date
+                    )}
+                    slotProps={{
+                      textField: {
+                        size: 'small',
+                        fullWidth: true,
+                      },
+                    }}
+                    onChange={(newValue) => {
+                      setValue(
+                        'from',
+                        newValue ? newValue.toISOString() : null,
+                        {
+                          shouldValidate: true,
+                          shouldDirty: true,
+                        }
+                      );
+                    }}
+                  />
+                </Div>
+              </Grid>
+              <Grid size={{ xs: 12, md: 3 }}>
+                <Div sx={{ mt: 1, mb: 1 }}>
+                  <DateTimePicker
+                    label='To (MM/DD/YYYY)'
                     defaultValue={dayjs()}
                     minDate={dayjs(
                       authOrganization?.organization.recording_start_date
@@ -420,7 +389,7 @@ function TrialBalance({ setOpenTrialBalanceDialog }) {
                     }}
                     onChange={(newValue) => {
                       setValue(
-                        'as_at',
+                        'to',
                         newValue ? newValue.toISOString() : null,
                         {
                           shouldValidate: true,
@@ -501,7 +470,10 @@ function TrialBalance({ setOpenTrialBalanceDialog }) {
                 <PDFContent
                   document={
                     <ReportDocumet
-                      reportData={reportData}
+                      reportData={
+                        viewMode === 'grouped' ? groupedReportData : reportData
+                      }
+                      grouped={viewMode === 'grouped'}
                       authOrganization={authOrganization}
                       user={user}
                     />

@@ -158,7 +158,9 @@ function QuickReports() {
           openProjectStatusReport ||
           apArAgingDialogOpen
             ? 'lg'
-            : fuelVouchersDialogOpen || openShiftsSummaryReport
+            : fuelVouchersDialogOpen ||
+                openShiftsSummaryReport ||
+                debtorsCreditorsDialogOpen
               ? 'xl'
               : 'md'
         }

@@ -37,6 +37,12 @@ import pdfStyles from '../../../pdf/pdf-styles';
 import PDFContent from '../../../pdf/PDFContent';
 import PdfLogo from '../../../pdf/PdfLogo';
 import financialReportsServices from '../financial-reports-services';
+import {
+  PDF_PAGE_STYLE,
+  PeriodPdfHeader,
+  PeriodPdfRow,
+  periodSubtitle,
+} from '../periodColumns';
 import DebtorCreditorOnScreen from './DebtorCreditorOnScreen';
 
 // Flattens the grouped debtors/creditors tree into indented rows, same
@@ -44,10 +50,10 @@ import DebtorCreditorOnScreen from './DebtorCreditorOnScreen';
 // the Excel export — group rows first, then that group's ledgers, before
 // moving to the next sibling.
 const flattenGroupTree = (group, level, rows = []) => {
-  rows.push({ name: group.name, amount: group.amount, level, isGroup: true });
+  rows.push({ name: group.name, node: group, level, isGroup: true });
   (group.children || []).forEach((child) => flattenGroupTree(child, level + 1, rows));
   (group.ledgers || []).forEach((ledger) =>
-    rows.push({ name: ledger.name, amount: ledger.amount, level: level + 1, isGroup: false })
+    rows.push({ name: ledger.name, node: ledger, level: level + 1, isGroup: false })
   );
   return rows;
 };
@@ -59,7 +65,7 @@ const ReportDocumet = ({ reportData, authOrganization, user }) => {
     authOrganization.organization.settings?.light_color || '#bec5da';
   const contrastText =
     authOrganization.organization.settings?.contrast_text || '#FFFFFF';
-  const reportPeriod = `As at: ${readableDate(reportData.filters.as_at, true)}`;
+  const reportPeriod = periodSubtitle(reportData.filters, readableDate);
   const rootGroup = reportData.debtors || reportData.creditors;
   const rows = rootGroup ? flattenGroupTree(rootGroup, 0) : [];
 
@@ -69,7 +75,7 @@ const ReportDocumet = ({ reportData, authOrganization, user }) => {
       producer='ProsERP'
       title={reportData.debtors ? `Debtors Report` : `Creditors Report`}
     >
-      <Page size='A4' style={pdfStyles.page}>
+      <Page size='A4' orientation='landscape' style={PDF_PAGE_STYLE}>
         <View style={pdfStyles.table}>
           <View style={{ ...pdfStyles.tableRow, marginBottom: 20 }}>
             <View style={{ flex: 1, maxWidth: 120 }}>
@@ -114,95 +120,31 @@ const ReportDocumet = ({ reportData, authOrganization, user }) => {
           </View>
         </View>
         <View style={{ ...pdfStyles.table, minHeight: 230 }}>
-          <View style={pdfStyles.tableRow}>
-            <Text
-              style={{
-                ...pdfStyles.tableHeader,
-                backgroundColor: mainColor,
-                color: contrastText,
-                flex: 7.5,
-              }}
-            >
-              Name
-            </Text>
-            <Text
-              style={{
-                ...pdfStyles.tableHeader,
-                backgroundColor: mainColor,
-                color: contrastText,
-                flex: 1.5,
-              }}
-            >
-              Amount
-            </Text>
-          </View>
+          <PeriodPdfHeader
+            leading={[{ label: 'Name', flex: 3 }]}
+            mainColor={mainColor}
+            contrastText={contrastText}
+          filters={reportData.filters}
+          />
           {rows.map((row, index) => (
-            <View key={index} style={pdfStyles.tableRow}>
-              <Text
-                style={{
-                  ...pdfStyles.tableCell,
-                  backgroundColor: row.isGroup
-                    ? lightColor
-                    : index % 2 === 0
-                      ? '#FFFFFF'
-                      : lightColor,
-                  flex: 7.5,
-                  paddingLeft: 4 + row.level * 10,
-                  fontWeight: row.isGroup ? 'bold' : 'normal',
-                }}
-              >
-                {row.name}
-              </Text>
-              <Text
-                style={{
-                  ...pdfStyles.tableCell,
-                  backgroundColor: row.isGroup
-                    ? lightColor
-                    : index % 2 === 0
-                      ? '#FFFFFF'
-                      : lightColor,
-                  flex: 1.5,
-                  textAlign: 'right',
-                  fontWeight: row.isGroup ? 'bold' : 'normal',
-                  color: row.amount < 0 ? '#D32F2F' : undefined,
-                }}
-              >
-                {row.amount.toLocaleString('en-US', {
-                  maximumFractionDigits: 2,
-                  minimumFractionDigits: 2,
-                })}
-              </Text>
-            </View>
+            <PeriodPdfRow
+              key={index}
+              leading={[
+                { text: row.name, flex: 3, indent: row.level },
+              ]}
+              node={row.node}
+              backgroundColor={
+                row.isGroup ? lightColor : index % 2 === 0 ? '#FFFFFF' : lightColor
+              }
+              bold={row.isGroup}
+            />
           ))}
-          <View style={pdfStyles.tableRow}>
-            <Text
-              style={{
-                ...pdfStyles.tableHeader,
-                backgroundColor: mainColor,
-                color: contrastText,
-                flex: 7.5,
-                paddingLeft: 10,
-              }}
-            >
-              Total
-            </Text>
-            <Text
-              style={{
-                ...pdfStyles.tableHeader,
-                backgroundColor: mainColor,
-                color: (reportData.total ?? 0) < 0 ? '#FF8A80' : contrastText,
-                flex: 1.5,
-                textAlign: 'right',
-                fontSize: '9px',
-              }}
-            >
-              {(reportData.total ?? 0)
-                .toLocaleString('en-US', {
-                  maximumFractionDigits: 2,
-                  minimumFractionDigits: 2,
-                })}
-            </Text>
-          </View>
+          <PeriodPdfRow
+            leading={[{ text: 'Total', flex: 3 }]}
+            node={reportData.total}
+            backgroundColor={lightColor}
+            bold
+          />
         </View>
       </Page>
     </Document>
@@ -242,16 +184,21 @@ function DebtorCreditorReport({ setOpenDebtorsCreditorsDialog }) {
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
 
   const validationSchema = yup.object({
-    as_at: yup
+    from: yup
       .string()
-      .required('Date is required')
-      .typeError('Date is required'),
+      .required('From date is required')
+      .typeError('From date is required'),
+    to: yup
+      .string()
+      .required('To date is required')
+      .typeError('To date is required'),
   });
 
   const { setValue, handleSubmit, reset } = useForm({
     resolver: yupResolver(validationSchema),
     defaultValues: {
-      as_at: dayjs().toISOString(),
+      from: dayjs().startOf('year').toISOString(),
+      to: dayjs().toISOString(),
       cost_center_ids: authOrganization?.costCenters.map(
         (cost_center) => cost_center.id
       ),
@@ -295,7 +242,7 @@ function DebtorCreditorReport({ setOpenDebtorsCreditorsDialog }) {
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `${reportData?.debtors ? 'Debtors Report' : 'Creditors Report'} ${readableDate(reportData?.filters?.as_at, true)}.xlsx`;
+      a.download = `${reportData?.debtors ? 'Debtors Report' : 'Creditors Report'} ${readableDate(reportData?.filters?.from, true)} to ${readableDate(reportData?.filters?.to, true)}.xlsx`;
       a.click();
       window.URL.revokeObjectURL(url);
     } catch (e) {
@@ -311,7 +258,7 @@ function DebtorCreditorReport({ setOpenDebtorsCreditorsDialog }) {
 
   document.title = `${selectedType.charAt(0).toUpperCase() + selectedType.slice(1)} Report`;
 
-  const downloadFileName = `${reportData?.debtors ? 'Debtors Report' : 'Creditors Report'} ${readableDate(reportData?.filters?.as_at)}`;
+  const downloadFileName = `${reportData?.debtors ? 'Debtors Report' : 'Creditors Report'} ${readableDate(reportData?.filters?.from)} to ${readableDate(reportData?.filters?.to)}`;
 
   return (
     <>
@@ -345,36 +292,10 @@ function DebtorCreditorReport({ setOpenDebtorsCreditorsDialog }) {
               key={uploadFieldsKey}
               alignItems='center'
               justifyContent='center'
+              sx={{ mt: 1 }}
             >
-              <Grid size={{ xs: 12, md: 6, lg: 3 }}>
-                <Div sx={{ mt: 1, mb: 1 }}>
-                  <DateTimePicker
-                    label='As at'
-                    minDate={dayjs(
-                      authOrganization?.organization.recording_start_date
-                    )}
-                    defaultValue={dayjs()}
-                    slotProps={{
-                      textField: {
-                        size: 'small',
-                        fullWidth: true,
-                      },
-                    }}
-                    onChange={(newValue) => {
-                      setValue(
-                        'as_at',
-                        newValue ? newValue.toISOString() : null,
-                        {
-                          shouldValidate: true,
-                          shouldDirty: true,
-                        }
-                      );
-                    }}
-                  />
-                </Div>
-              </Grid>
-              <Grid size={{ xs: 12, md: 6, lg: 3 }}>
-                <Div sx={{ mt: 1, mb: 1 }}>
+              <Grid size={{ xs: 12, sm: 6, lg: 2 }}>
+                <Div>
                   <FormControl
                     fullWidth
                     size='small'
@@ -395,7 +316,61 @@ function DebtorCreditorReport({ setOpenDebtorsCreditorsDialog }) {
                   </FormControl>
                 </Div>
               </Grid>
-              <Grid size={{ xs: 12, md: 12, lg: 6 }}>
+              <Grid size={{ xs: 12, sm: 6, lg: 3 }}>
+                <Div>
+                  <DateTimePicker
+                    label='From'
+                    minDate={dayjs(
+                      authOrganization?.organization.recording_start_date
+                    )}
+                    defaultValue={dayjs().startOf('year')}
+                    slotProps={{
+                      textField: {
+                        size: 'small',
+                        fullWidth: true,
+                      },
+                    }}
+                    onChange={(newValue) => {
+                      setValue(
+                        'from',
+                        newValue ? newValue.toISOString() : null,
+                        {
+                          shouldValidate: true,
+                          shouldDirty: true,
+                        }
+                      );
+                    }}
+                  />
+                </Div>
+              </Grid>
+              <Grid size={{ xs: 12, sm: 6, lg: 3 }}>
+                <Div>
+                  <DateTimePicker
+                    label='To'
+                    minDate={dayjs(
+                      authOrganization?.organization.recording_start_date
+                    )}
+                    defaultValue={dayjs()}
+                    slotProps={{
+                      textField: {
+                        size: 'small',
+                        fullWidth: true,
+                      },
+                    }}
+                    onChange={(newValue) => {
+                      setValue(
+                        'to',
+                        newValue ? newValue.toISOString() : null,
+                        {
+                          shouldValidate: true,
+                          shouldDirty: true,
+                        }
+                      );
+                    }}
+                  />
+                </Div>
+              </Grid>
+              <Grid size={{ xs: 12, sm: 6, lg: 4 }}>
                 <CostCenterSelector
                   label='Cost Centers (leave empty for all)'
                   multiple={true}
@@ -431,37 +406,39 @@ function DebtorCreditorReport({ setOpenDebtorsCreditorsDialog }) {
                   }}
                 />
               </Grid>
-              <Grid size={{ xs: 12, md: 6, lg: 6 }}>
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      checked={onlyStakeholderLinked}
-                      onChange={(e) =>
-                        setOnlyStakeholderLinked(e.target.checked)
-                      }
-                    />
-                  }
-                  label='Stakeholders Only'
-                />
+              <Grid size={{ xs: 12, md: 6 }}>
+                <Stack direction='row' flexWrap='wrap' columnGap={2}>
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={onlyStakeholderLinked}
+                        onChange={(e) =>
+                          setOnlyStakeholderLinked(e.target.checked)
+                        }
+                      />
+                    }
+                    label='Stakeholders Only'
+                  />
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={includeZeroBalances}
+                        onChange={(e) =>
+                          setIncludeZeroBalances(e.target.checked)
+                        }
+                      />
+                    }
+                    label='Show Zero Balances'
+                  />
+                </Stack>
               </Grid>
-              <Grid size={{ xs: 12, md: 6, lg: 6 }}>
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      checked={includeZeroBalances}
-                      onChange={(e) =>
-                        setIncludeZeroBalances(e.target.checked)
-                      }
-                    />
-                  }
-                  label='Show Zero Balances'
-                />
-              </Grid>
-              <Grid size={{ xs: 12, md: 12, lg: 12 }} textAlign='right'>
+              <Grid size={{ xs: 12, md: 6 }} textAlign='right'>
                 <Stack
                   direction='row'
                   spacing={0.5}
-                  justifyContent='flex-end'
+                  justifyContent={{ xs: 'center', md: 'flex-end' }}
+                  flexWrap='wrap'
+                  rowGap={0.5}
                   alignItems='center'
                 >
                   <>

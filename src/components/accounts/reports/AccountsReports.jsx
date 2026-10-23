@@ -103,19 +103,18 @@ function AccountsReports() {
   if (!checkOrganizationPermission(PERMISSIONS.ACCOUNTS_REPORTS)) {
     return <UnauthorizedAccess />;
   }
+  const wideReport = openBalanceSheet || openTrialBalance || openDialog;
   return (
     <React.Fragment>
       <LedgerSelectProvider>
         <Dialog
           scroll={belowLargeScreen ? 'body' : 'paper'}
           fullWidth
+          // Balance Sheet, Trial Balance and Debtors/Creditors share one wide
+          // size (Opening/Current/Closing x Debit/Credit/Net needs the room);
+          // below the large breakpoint they go full screen instead.
           maxWidth={
-            openCashierReport ||
-            openIncomeStatement ||
-            openDialog ||
-            openTrialBalance
-              ? 'lg'
-              : 'md'
+            wideReport ? 'xl' : openCashierReport || openIncomeStatement ? 'lg' : 'md'
           }
           fullScreen={
             (openBalanceSheet ||

@@ -47,6 +47,7 @@ function BalanceSheetTrend() {
 
   const { theme } = useJumboTheme();
   const smallScreen = useMediaQuery(theme.breakpoints.down('md'));
+  const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
   const midScreen = useMediaQuery(theme.breakpoints.down('lg'));
   const xlScreen = useMediaQuery(theme.breakpoints.up('lg'));
 
@@ -210,9 +211,9 @@ function BalanceSheetTrend() {
       <Dialog
         open={openDialog}
         fullWidth
-        scroll={smallScreen ? 'body' : 'paper'}
-        fullScreen={smallScreen}
-        maxWidth='md'
+        scroll={belowLargeScreen ? 'body' : 'paper'}
+        fullScreen={belowLargeScreen}
+        maxWidth='xl'
       >
         <BalanceSheet as_at={to} setOpenBalanceSheettDialog={setOpenDialog} />
         <DialogActions>

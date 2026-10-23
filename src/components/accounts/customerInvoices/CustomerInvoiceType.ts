@@ -4,8 +4,9 @@ export interface CustomerInvoiceStakeholder {
 }
 
 export interface CustomerInvoiceSource {
-  // 'Sale' for invoices raised from POS sales, 'ProjectPaymentClaim' for IPC invoices
-  type: 'Sale' | 'ProjectPaymentClaim';
+  // 'Sale' for invoices raised from POS sales, 'ProjectPaymentClaim' for IPC invoices,
+  // 'FuelVoucher' for batch invoices raised over fuel vouchers
+  type: 'Sale' | 'ProjectPaymentClaim' | 'FuelVoucher';
   no?: string | null;
 }
 
@@ -33,6 +34,10 @@ export interface CustomerInvoicePayingReceipt {
 
 export interface CustomerInvoice {
   id: number;
+  // Fuel Voucher invoices are listed with Customer Invoices but are a separate record,
+  // so ids can repeat across kinds - list_key is the unique one.
+  kind?: 'customer_invoice' | 'fuel_voucher_invoice';
+  list_key?: string;
   invoiceNo: string;
   transaction_date: string;
   due_date?: string | null;

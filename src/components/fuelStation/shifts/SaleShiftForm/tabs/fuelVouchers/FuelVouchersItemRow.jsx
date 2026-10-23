@@ -1,4 +1,4 @@
-import { DisabledByDefault, EditOutlined } from '@mui/icons-material'
+import { DisabledByDefault, EditOutlined, LockOutlined } from '@mui/icons-material'
 import { Divider, Grid, IconButton, Tooltip, Typography } from '@mui/material'
 import React, { useState } from 'react'
 import FuelVouchers from './FuelVouchers';
@@ -66,6 +66,12 @@ function FuelVouchersItemRow({ fuelVoucher, index, productPrices, fuelVouchers=[
                             </Tooltip>
                         </Grid>
                          <Grid size={{xs: 12, md: 12, lg: 1}} textAlign={'end'}>
+                            {fuelVoucher.fuel_voucher_invoice_id ? (
+                                // Invoiced vouchers are frozen; the server refuses any change to them
+                                <Tooltip title={`Invoiced (${fuelVoucher.invoice_no}) - delete the invoice to change this voucher`}>
+                                    <LockOutlined fontSize='small' color='disabled'/>
+                                </Tooltip>
+                            ) : (<>
                             <Tooltip title='Edit Fuel Voucher'>
                                 <IconButton size='small' onClick={() => {setShowForm(true)}}>
                                     <EditOutlined fontSize='small'/>
@@ -82,6 +88,7 @@ function FuelVouchersItemRow({ fuelVoucher, index, productPrices, fuelVouchers=[
                                     <DisabledByDefault fontSize='small' color='error'/>
                                 </IconButton>
                             </Tooltip>
+                            </>)}
                         </Grid>
                     </Grid>
                 ) : (

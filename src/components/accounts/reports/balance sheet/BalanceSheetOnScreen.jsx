@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
-import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
 import { KeyboardArrowDown, KeyboardArrowRight } from '@mui/icons-material';
+import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
+import React, { useState } from 'react';
+import { PeriodCells, PeriodTableHead, hasPeriodActivity } from '../periodColumns';
 
 const BalanceSheetOnScreen = ({ reportData }) => {
   const [openRows, setOpenRows] = useState([]);
@@ -13,86 +14,64 @@ const BalanceSheetOnScreen = ({ reportData }) => {
     );
   };
 
-  const renderChildren = (children, level, levelName) => {
-    let totalLevelAmount = 0;
-
-    return (
-      <>
-        {children.map((child, index) => {
-          if (!!child.amount) {
-            totalLevelAmount += child.amount;
-
-            return (
-              <React.Fragment key={index}>
-                <TableRow onClick={() => toggleRow(child.id)} sx={{ cursor: 'pointer', '&:hover': { bgcolor: 'action.hover' }}}>
-                  <TableCell style={{ paddingLeft: level * 20 }}>
-                    {child.children && child.children.length > 0 && (
-                      <>
-                        {openRows.includes(child.id) ? (
-                          <KeyboardArrowDown/>
-                        ) : (
-                          <KeyboardArrowRight/>
-                        )}
-                      </>
-                    )}
-                    <span style={{ fontWeight: openRows.includes(child.id) ? 'bold' : 'normal', marginLeft: level === 0 ? 5 : level === 1 ? 10 : 15 }}>{child.name}</span>
-                  </TableCell>
-                  <TableCell align="right" style={{ fontWeight: openRows.includes(child.id) ? 'bold' : 'normal' }}>{child.amount?.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
-                </TableRow>
-                {openRows.includes(child.id) && child.children && child.children.length > 0 && renderChildren(child.children, level + 1, child.name)}
-              </React.Fragment>
-            );
-          }
-          return null;
-        })}
-        {!!totalLevelAmount && (
-          <TableRow sx={{cursor: 'pointer', '&:hover': {bgcolor: 'action.hover'}}}>
-            <TableCell style={{ paddingLeft: level * 20 }}>
-              <span>Total {levelName}</span>
-            </TableCell>
-            <TableCell align="right"><span>{totalLevelAmount?.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span></TableCell>
-          </TableRow>
-        )}
-      </>
-    );
-  };
-
+  // Each expanded node is followed by its own "Total <name>" row; the node
+  // already carries the rolled-up figures, so the total just repeats them.
+  const renderChildren = (parent, level) => (
+    <>
+      {parent.children.filter(hasPeriodActivity).map((child) => {
+        const isOpen = openRows.includes(child.id);
+        return (
+          <React.Fragment key={child.id}>
+            <TableRow onClick={() => toggleRow(child.id)} sx={{ cursor: 'pointer', '&:hover': { bgcolor: 'action.hover' }}}>
+              <TableCell style={{ paddingLeft: level * 20 }}>
+                {child.children?.length > 0 && (isOpen ? <KeyboardArrowDown/> : <KeyboardArrowRight/>)}
+                <span style={{ fontWeight: isOpen ? 'bold' : 'normal', marginLeft: level === 0 ? 5 : level === 1 ? 10 : 15 }}>{child.name}</span>
+              </TableCell>
+              <PeriodCells node={child} sx={{ fontWeight: isOpen ? 'bold' : 'normal' }} />
+            </TableRow>
+            {isOpen && child.children?.length > 0 && renderChildren(child, level + 1)}
+          </React.Fragment>
+        );
+      })}
+      <TableRow sx={{ '&:hover': { bgcolor: 'action.hover' } }}>
+        <TableCell style={{ paddingLeft: level * 20 }}>
+          <span>Total {parent.name}</span>
+        </TableCell>
+        <PeriodCells node={parent} />
+      </TableRow>
+    </>
+  );
 
   return (
     <TableContainer component={Paper}>
       <Table size="small" aria-label="balance-sheet">
         <TableHead>
-          <TableRow>
-            <TableCell>CATEGORY</TableCell>
-            <TableCell align="right">AMOUNT</TableCell>
-          </TableRow>
+          <PeriodTableHead
+            leadingLabels={['CATEGORY']}
+            backgroundColor='transparent'
+            color='inherit'
+            filters={reportData.filters}
+          />
         </TableHead>
         <TableBody>
-          {reportData.balanceSheetData?.map((component, index) => (
-            <React.Fragment key={index}>
-              {
+          {reportData.balanceSheetData?.map((component, index) => {
+            const isOpen = openRows.includes(component.id);
+            return (
+              <React.Fragment key={component.id}>
                 <TableRow onClick={() => toggleRow(component.id)} sx={{cursor: 'pointer', '&:hover': {bgcolor: 'action.hover'}}}>
                   <TableCell>
-                    {component.children && component.children.length > 0 && (
-                      <>
-                        {openRows.includes(component.id) ? (
-                          <KeyboardArrowDown/>
-                        ) : (
-                          <KeyboardArrowRight/>
-                        )}
-                      </>
-                    )}
-                    <span style={{ marginLeft: 5, fontWeight: openRows.includes(component.id) ? 'bold' : 'normal' }}>{component.name}</span>
+                    {component.children?.length > 0 && (isOpen ? <KeyboardArrowDown/> : <KeyboardArrowRight/>)}
+                    <span style={{ marginLeft: 5, fontWeight: isOpen ? 'bold' : 'normal' }}>{component.name}</span>
                   </TableCell>
-                  <TableCell align="right">{component.amount?.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
+                  <PeriodCells node={component} />
                 </TableRow>
-              }
-              {!!component.amount && openRows.includes(component.id) && component.children && component.children.length > 0 && renderChildren(component.children, index + 1, component.name)}
-            </React.Fragment>
-          ))}
+                {hasPeriodActivity(component) && isOpen && component.children?.length > 0 && renderChildren(component, index + 1)}
+              </React.Fragment>
+            );
+          })}
         </TableBody>
       </Table>
-    </TableContainer >
+    </TableContainer>
   );
 };
 

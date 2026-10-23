@@ -20,7 +20,9 @@ function CustomerInvoiceListItem({ invoice }: { invoice: CustomerInvoice }) {
     paymentStatus !== 'paid' && !!invoice.due_date && new Date(invoice.due_date).getTime() < Date.now();
 
   const sourceLabel =
-    invoice.source?.type === 'ProjectPaymentClaim'
+    invoice.source?.type === 'FuelVoucher'
+      ? 'Fuel Vouchers'
+      : invoice.source?.type === 'ProjectPaymentClaim'
       ? `Project Payment Claim ${invoice.source.no ?? ''}`.trim()
       : invoice.source?.no
         ? `Sale ${invoice.source.no}`

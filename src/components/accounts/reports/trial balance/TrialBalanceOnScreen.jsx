@@ -1,40 +1,40 @@
 import { readableDate } from '@/app/helpers/input-sanitization-helpers';
-import { 
-  Grid, 
-  Typography, 
-  Divider, 
-  Paper, 
-  TableContainer, 
-  Table, 
-  TableHead, 
-  TableRow, 
-  TableCell, 
+import {
+  Divider,
+  Grid,
+  Paper,
+  Table,
   TableBody,
-  useTheme 
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Typography,
+  useTheme,
 } from '@mui/material';
 import React from 'react';
+import {
+  PeriodCells,
+  PeriodTableHead,
+  hasPeriodActivity,
+} from '../periodColumns';
 
-const TrialBalanceOnScreen = ({ reportData, authOrganization, user }) => {
+const TrialBalanceOnScreen = ({ reportData, authOrganization }) => {
   const theme = useTheme();
-  
+
   if (!reportData) return null;
 
   const mainColor = authOrganization?.organization.settings?.main_color || "#2113AD";
-  const headerColor = theme.type === 'dark' ? '#29f096' : (authOrganization?.organization.settings?.main_color || "#2113AD");
+  const headerColor = theme.type === 'dark' ? '#29f096' : mainColor;
   const contrastText = authOrganization?.organization.settings?.contrast_text || "#FFFFFF";
 
-  const debitLedgers = reportData.ledgers.filter(ledger => ledger.balance.side === 'DR');
-  const creditLedgers = reportData.ledgers.filter(ledger => ledger.balance.side === 'CR');
-  const nonZeroLedgers = reportData.ledgers.filter(ledger => ledger.balance.amount !== 0);
-
-  const totalDebits = debitLedgers.reduce((total, ledger) => total + ledger.balance.amount, 0);
-  const totalCredits = creditLedgers.reduce((total, ledger) => total + ledger.balance.amount, 0);
+  const ledgers = reportData.ledgers.filter(hasPeriodActivity);
+  const totalSx = { backgroundColor: mainColor, color: contrastText, borderBottom: 'none', fontWeight: 'bold' };
 
   return (
     <div>
       <Divider style={{ margin: '20px 0' }} />
 
-      {/* Cost Centers and Printed Information */}
       <Grid container spacing={1}>
         <Grid size={12}>
           <Typography variant="subtitle1" style={{ color: headerColor }}>
@@ -46,92 +46,35 @@ const TrialBalanceOnScreen = ({ reportData, authOrganization, user }) => {
         </Grid>
       </Grid>
 
-      {/* Ledger Table */}
       <TableContainer component={Paper}>
-        <Table>
+        <Table size="small">
           <TableHead>
-            <TableRow>
-              <TableCell sx={{ backgroundColor: mainColor, color: contrastText }}>
-                S/N
-              </TableCell>
-              <TableCell sx={{ backgroundColor: mainColor, color: contrastText }}>
-                Ledger Name
-              </TableCell>
-              <TableCell sx={{ backgroundColor: mainColor, color: contrastText, textAlign: 'right' }}>
-                Debit
-              </TableCell>
-              <TableCell sx={{ backgroundColor: mainColor, color: contrastText, textAlign: 'right' }}>
-                Credit
-              </TableCell>
-            </TableRow>
+            <PeriodTableHead
+              leadingLabels={['S/N', 'Ledger Name']}
+              backgroundColor={mainColor}
+              color={contrastText}
+              filters={reportData.filters}
+            />
           </TableHead>
           <TableBody>
-            {nonZeroLedgers.map((ledger, index) => (
-              <TableRow 
-                key={index} 
-                sx={{ 
-                  backgroundColor: index % 2 === 0 
-                    ? theme.palette.background.paper 
+            {ledgers.map((ledger, index) => (
+              <TableRow
+                key={index}
+                sx={{
+                  backgroundColor: index % 2 === 0
+                    ? theme.palette.background.paper
                     : theme.palette.action.hover
                 }}
               >
                 <TableCell>{index + 1}</TableCell>
                 <TableCell>{ledger.name}</TableCell>
-                <TableCell sx={{ textAlign: 'right' }}>
-                  {ledger.balance.side === 'DR' &&
-                    ledger.balance.amount?.toLocaleString('en-US', {
-                      maximumFractionDigits: 2,
-                      minimumFractionDigits: 2,
-                    })}
-                </TableCell>
-                <TableCell sx={{ textAlign: 'right' }}>
-                  {ledger.balance.side === 'CR' &&
-                    ledger.balance.amount?.toLocaleString('en-US', {
-                      maximumFractionDigits: 2,
-                      minimumFractionDigits: 2,
-                    })}
-                </TableCell>
+                <PeriodCells node={ledger} />
               </TableRow>
             ))}
-            
-            {/* Total Row */}
+
             <TableRow>
-              <TableCell 
-                colSpan={2} 
-                sx={{ 
-                  backgroundColor: mainColor, 
-                  color: contrastText,
-                  borderBottom: 'none'
-                }}
-              >
-                TOTAL
-              </TableCell>
-              <TableCell 
-                sx={{ 
-                  backgroundColor: mainColor, 
-                  color: contrastText, 
-                  textAlign: 'right',
-                  borderBottom: 'none'
-                }}
-              >
-                {totalDebits.toLocaleString('en-US', {
-                  maximumFractionDigits: 2,
-                  minimumFractionDigits: 2,
-                })}
-              </TableCell>
-              <TableCell 
-                sx={{ 
-                  backgroundColor: mainColor, 
-                  color: contrastText, 
-                  textAlign: 'right',
-                  borderBottom: 'none'
-                }}
-              >
-                {totalCredits.toLocaleString('en-US', {
-                  maximumFractionDigits: 2,
-                  minimumFractionDigits: 2,
-                })}
-              </TableCell>
+              <TableCell colSpan={2} sx={totalSx}>TOTAL</TableCell>
+              <PeriodCells node={reportData.totals} sx={totalSx} />
             </TableRow>
           </TableBody>
         </Table>

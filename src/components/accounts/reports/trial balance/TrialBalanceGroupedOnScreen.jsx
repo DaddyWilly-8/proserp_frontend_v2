@@ -1,9 +1,7 @@
 import React, { useState } from 'react';
 import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, useTheme } from '@mui/material';
 import { KeyboardArrowDown, KeyboardArrowRight } from '@mui/icons-material';
-
-const formatAmount = (amount) =>
-  amount?.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+import { PeriodCells, PeriodTableHead } from '../periodColumns';
 
 const TrialBalanceGroupedOnScreen = ({ reportData, authOrganization }) => {
   const theme = useTheme();
@@ -37,23 +35,13 @@ const TrialBalanceGroupedOnScreen = ({ reportData, authOrganization }) => {
             {hasChildren && (isOpen ? <KeyboardArrowDown /> : <KeyboardArrowRight />)}
             <span style={{ fontWeight: 'bold', marginLeft: 5 }}>{group.name}</span>
           </TableCell>
-          <TableCell align="right" sx={{ fontWeight: 'bold' }}>
-            {group.balance?.side === 'DR' && formatAmount(group.balance.amount)}
-          </TableCell>
-          <TableCell align="right" sx={{ fontWeight: 'bold' }}>
-            {group.balance?.side === 'CR' && formatAmount(group.balance.amount)}
-          </TableCell>
+          <PeriodCells node={group} sx={{ fontWeight: 'bold' }} />
         </TableRow>
         {isOpen && group.children?.map((child) => renderGroup(child, level + 1))}
         {isOpen && group.ledgers?.map((ledger) => (
           <TableRow key={`l-${ledger.id}`}>
             <TableCell style={{ paddingLeft: (level + 1) * 20 }}>{ledger.name}</TableCell>
-            <TableCell align="right">
-              {ledger.balance?.side === 'DR' && formatAmount(ledger.balance.amount)}
-            </TableCell>
-            <TableCell align="right">
-              {ledger.balance?.side === 'CR' && formatAmount(ledger.balance.amount)}
-            </TableCell>
+            <PeriodCells node={ledger} />
           </TableRow>
         ))}
       </React.Fragment>
@@ -64,11 +52,12 @@ const TrialBalanceGroupedOnScreen = ({ reportData, authOrganization }) => {
     <TableContainer component={Paper}>
       <Table size="small" aria-label="trial-balance-grouped">
         <TableHead>
-          <TableRow>
-            <TableCell sx={{ backgroundColor: headerColor, color: contrastText }}>LEDGER GROUP</TableCell>
-            <TableCell align="right" sx={{ backgroundColor: headerColor, color: contrastText }}>DEBIT</TableCell>
-            <TableCell align="right" sx={{ backgroundColor: headerColor, color: contrastText }}>CREDIT</TableCell>
-          </TableRow>
+          <PeriodTableHead
+            leadingLabels={['LEDGER GROUP']}
+            backgroundColor={headerColor}
+            color={contrastText}
+            filters={reportData.filters}
+          />
         </TableHead>
         <TableBody>
           {reportData.groups?.map((group) => renderGroup(group, 0))}
@@ -76,12 +65,10 @@ const TrialBalanceGroupedOnScreen = ({ reportData, authOrganization }) => {
             <TableCell sx={{ backgroundColor: mainColor, color: contrastText, borderBottom: 'none' }}>
               TOTAL
             </TableCell>
-            <TableCell align="right" sx={{ backgroundColor: mainColor, color: contrastText, borderBottom: 'none' }}>
-              {formatAmount(reportData.totalDebit)}
-            </TableCell>
-            <TableCell align="right" sx={{ backgroundColor: mainColor, color: contrastText, borderBottom: 'none' }}>
-              {formatAmount(reportData.totalCredit)}
-            </TableCell>
+            <PeriodCells
+              node={reportData.totals}
+              sx={{ backgroundColor: mainColor, color: contrastText, borderBottom: 'none', fontWeight: 'bold' }}
+            />
           </TableRow>
         </TableBody>
       </Table>

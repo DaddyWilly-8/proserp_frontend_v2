@@ -41,4 +41,21 @@ customerInvoiceServices.unmarkPaid = async (id) => {
   return data;
 };
 
+// Fuel Voucher invoices share the Customer Invoices list but live in their own table, so
+// their details and paid-override go through separate endpoints.
+customerInvoiceServices.fuelVoucherInvoiceDetails = async (id) => {
+  const { data } = await axios.get(`/api/accountsAndFinance/customerInvoices/fuelVoucherInvoices/${id}`);
+  return data;
+};
+
+customerInvoiceServices.markFuelVoucherInvoicePaid = async (id) => {
+  const { data } = await axios.post(`/api/accountsAndFinance/customerInvoices/fuelVoucherInvoices/${id}/markPaid`);
+  return data;
+};
+
+customerInvoiceServices.unmarkFuelVoucherInvoicePaid = async (id) => {
+  const { data } = await axios.post(`/api/accountsAndFinance/customerInvoices/fuelVoucherInvoices/${id}/unmarkPaid`);
+  return data;
+};
+
 export default customerInvoiceServices;
