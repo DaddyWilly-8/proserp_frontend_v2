@@ -5,7 +5,9 @@ import { createWorkbook } from '../workBook';
 
 export async function exportDebtorsOrCreditorsToExcel(exportedData: any) {
   try {
-    const { authOrganization, reportData, user } = exportedData;
+    const { authOrganization, reportData, user, netOnly = false } = exportedData;
+    // Net-only shows one column per period instead of Debit / Credit / Net
+    const subCount = netOnly ? 1 : 3;
     const reportPeriod = reportData.filters.from
       ? `Period: ${readableDate(reportData.filters.from, true)} to ${readableDate(reportData.filters.to, true)}`
       : `Up to: ${readableDate(reportData.filters.to, true)}`;
@@ -28,7 +30,7 @@ export async function exportDebtorsOrCreditorsToExcel(exportedData: any) {
     // Name, then Opening / Current / Closing x Debit / Credit / Net
     const baseColumns = [
       { width: 40 },
-      ...Array.from({ length: 9 }, () => ({ width: 18 })),
+      ...Array.from({ length: 3 * subCount }, () => ({ width: 18 })),
     ];
 
     ws.columns = baseColumns;
@@ -121,12 +123,13 @@ export async function exportDebtorsOrCreditorsToExcel(exportedData: any) {
 
     // HEADER ROWS (period group row + Debit/Credit/Net row) AND DATA ROWS
     const groupRow = (ws.lastRow?.number ?? 0) + 1;
-    const subRow = groupRow + 1;
+    // Net-only has no Debit/Credit/Net row: one heading row carries everything
+    const subRow = netOnly ? groupRow : groupRow + 1;
     const periods = ['Opening', 'Current', 'Closing'];
     const periodKeys = ['opening', 'current', 'closing'];
-    const lastColumn = 10; // A (name) + 9 period columns
+    const lastColumn = 1 + 3 * subCount; // A (name) + the period columns
 
-    ws.mergeCells(`A${groupRow}:A${subRow}`);
+    if (!netOnly) ws.mergeCells(`A${groupRow}:A${subRow}`);
     ws.getCell(`A${groupRow}`).value = 'Name';
     // Each period heading carries the date range it covers on a second line
     const shortDate = (date: any) => dayjs(date).format('DD MMM YYYY');
@@ -138,12 +141,14 @@ export async function exportDebtorsOrCreditorsToExcel(exportedData: any) {
     ];
     ws.getRow(groupRow).height = 32;
     periods.forEach((label, i) => {
-      const start = 2 + i * 3;
-      ws.mergeCells(groupRow, start, groupRow, start + 2);
+      const start = 2 + i * subCount;
+      if (subCount > 1) ws.mergeCells(groupRow, start, groupRow, start + subCount - 1);
       ws.getCell(groupRow, start).value = `${label}\n${ranges[i]}`;
-      ['Debit', 'Credit', 'Net'].forEach((sub, j) => {
-        ws.getCell(subRow, start + j).value = sub;
-      });
+      if (!netOnly) {
+        ['Debit', 'Credit', 'Net'].forEach((sub, j) => {
+          ws.getCell(subRow, start + j).value = sub;
+        });
+      }
     });
 
     const thinBorder = {
@@ -169,18 +174,18 @@ export async function exportDebtorsOrCreditorsToExcel(exportedData: any) {
     // Writes the nine Opening/Current/Closing cells for a node.
     const writePeriodCells = (row: number, node: any, bold: boolean) => {
       periodKeys.forEach((key, i) => {
-        const start = 2 + i * 3;
+        const start = 2 + i * subCount;
         const figures = node[key];
-        const values: (number | string)[] = [
-          figures?.debit || '',
-          figures?.credit || '',
+        const netText =
           figures?.net?.amount
             ? `${figures.net.amount.toLocaleString('en-US', {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2,
               })} ${figures.net.side}`
-            : '',
-        ];
+            : '';
+        const values: (number | string)[] = netOnly
+          ? [netText]
+          : [figures?.debit || '', figures?.credit || '', netText];
         values.forEach((value, j) => {
           const cell = ws.getCell(row, start + j);
           cell.value = value;

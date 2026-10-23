@@ -42,6 +42,8 @@ export interface CustomerInvoice {
   transaction_date: string;
   due_date?: string | null;
   manually_paid_at?: string | null;
+  // Fuel Voucher invoices only: receipts are linked to it, so it can't be deleted
+  has_receipts?: boolean;
   internal_reference?: string | null;
   customer_reference?: string | null;
   stakeholder?: CustomerInvoiceStakeholder;

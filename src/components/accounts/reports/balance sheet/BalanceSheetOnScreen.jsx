@@ -3,7 +3,7 @@ import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow
 import React, { useState } from 'react';
 import { PeriodCells, PeriodTableHead, hasPeriodActivity } from '../periodColumns';
 
-const BalanceSheetOnScreen = ({ reportData }) => {
+const BalanceSheetOnScreen = ({ reportData, netOnly }) => {
   const [openRows, setOpenRows] = useState([]);
 
   const toggleRow = (rowId) => {
@@ -27,7 +27,7 @@ const BalanceSheetOnScreen = ({ reportData }) => {
                 {child.children?.length > 0 && (isOpen ? <KeyboardArrowDown/> : <KeyboardArrowRight/>)}
                 <span style={{ fontWeight: isOpen ? 'bold' : 'normal', marginLeft: level === 0 ? 5 : level === 1 ? 10 : 15 }}>{child.name}</span>
               </TableCell>
-              <PeriodCells node={child} sx={{ fontWeight: isOpen ? 'bold' : 'normal' }} />
+              <PeriodCells netOnly={netOnly} node={child} sx={{ fontWeight: isOpen ? 'bold' : 'normal' }} />
             </TableRow>
             {isOpen && child.children?.length > 0 && renderChildren(child, level + 1)}
           </React.Fragment>
@@ -37,7 +37,7 @@ const BalanceSheetOnScreen = ({ reportData }) => {
         <TableCell style={{ paddingLeft: level * 20 }}>
           <span>Total {parent.name}</span>
         </TableCell>
-        <PeriodCells node={parent} />
+        <PeriodCells netOnly={netOnly} node={parent} />
       </TableRow>
     </>
   );
@@ -46,7 +46,7 @@ const BalanceSheetOnScreen = ({ reportData }) => {
     <TableContainer component={Paper}>
       <Table size="small" aria-label="balance-sheet">
         <TableHead>
-          <PeriodTableHead
+          <PeriodTableHead netOnly={netOnly}
             leadingLabels={['CATEGORY']}
             backgroundColor='transparent'
             color='inherit'
@@ -63,7 +63,7 @@ const BalanceSheetOnScreen = ({ reportData }) => {
                     {component.children?.length > 0 && (isOpen ? <KeyboardArrowDown/> : <KeyboardArrowRight/>)}
                     <span style={{ marginLeft: 5, fontWeight: isOpen ? 'bold' : 'normal' }}>{component.name}</span>
                   </TableCell>
-                  <PeriodCells node={component} />
+                  <PeriodCells netOnly={netOnly} node={component} />
                 </TableRow>
                 {hasPeriodActivity(component) && isOpen && component.children?.length > 0 && renderChildren(component, index + 1)}
               </React.Fragment>

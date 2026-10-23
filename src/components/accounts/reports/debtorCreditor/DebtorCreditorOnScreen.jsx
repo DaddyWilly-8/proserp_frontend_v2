@@ -16,7 +16,7 @@ import dayjs from 'dayjs';
 import React, { useState } from 'react';
 import { PeriodCells, PeriodTableHead } from '../periodColumns';
 
-const DebtorCreditorOnScreen = ({ reportData, authOrganization, user }) => {
+const DebtorCreditorOnScreen = ({ reportData, authOrganization, user, netOnly }) => {
   const { currencies } = useCurrencySelect();
   const baseCurrency = currencies?.find((c) => c.is_base === 1);
   const organization = authOrganization?.organization;
@@ -85,7 +85,7 @@ const DebtorCreditorOnScreen = ({ reportData, authOrganization, user }) => {
             {level > 0 && hasChildren && (isOpen ? <KeyboardArrowDown /> : <KeyboardArrowRight />)}
             <span style={{ marginLeft: 5 }}>{group.name}</span>
           </TableCell>
-          <PeriodCells
+          <PeriodCells netOnly={netOnly}
             node={group}
             sx={{ color: level === 0 ? contrastText : undefined, fontWeight: 'bold' }}
           />
@@ -100,7 +100,7 @@ const DebtorCreditorOnScreen = ({ reportData, authOrganization, user }) => {
             }}
           >
             <TableCell style={{ paddingLeft: (level + 1) * 20 }}>{ledger.name}</TableCell>
-            <PeriodCells
+            <PeriodCells netOnly={netOnly}
               node={ledger}
               sx={{
                 cursor: 'pointer',
@@ -120,7 +120,7 @@ const DebtorCreditorOnScreen = ({ reportData, authOrganization, user }) => {
         <TableContainer component={TablePaper}>
           <Table>
             <TableHead>
-              <PeriodTableHead
+              <PeriodTableHead netOnly={netOnly}
                 leadingLabels={['Name']}
                 backgroundColor={mainColor}
                 color={contrastText}
@@ -133,7 +133,7 @@ const DebtorCreditorOnScreen = ({ reportData, authOrganization, user }) => {
                 <TableCell sx={{ backgroundColor: mainColor, color: contrastText, borderBottom: 'none' }}>
                   Total
                 </TableCell>
-                <PeriodCells
+                <PeriodCells netOnly={netOnly}
                   node={reportData.total}
                   sx={{ backgroundColor: mainColor, color: contrastText, borderBottom: 'none', fontWeight: 'bold' }}
                 />

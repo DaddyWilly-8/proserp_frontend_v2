@@ -21,7 +21,8 @@ export const fuelInvoiceDetails = (invoice) =>
     !!invoice.from_date &&
       !!invoice.to_date && {
         label: 'Period',
-        value: `${readableDate(invoice.from_date, false)} - ${readableDate(invoice.to_date, false)}`,
+        // The period is picked to the time of day, so it is shown with the time
+        value: `${readableDate(invoice.from_date, true)} - ${readableDate(invoice.to_date, true)}`,
       },
     !!invoice.internal_reference && {
       label: 'Internal Reference',

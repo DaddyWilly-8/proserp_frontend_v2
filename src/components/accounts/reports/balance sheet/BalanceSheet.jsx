@@ -11,10 +11,12 @@ import { LoadingButton } from '@mui/lab';
 import {
   DialogContent,
   DialogTitle,
+  FormControlLabel,
   Grid,
   IconButton,
   LinearProgress,
   Stack,
+  Switch,
   Tooltip,
   Typography,
   useMediaQuery,
@@ -53,7 +55,7 @@ const flattenForPdf = (nodes, level) =>
     ];
   });
 
-const ReportDocument = ({ reportData, authOrganization, user }) => {
+const ReportDocument = ({ reportData, authOrganization, user, netOnly }) => {
   const mainColor =
     authOrganization.organization.settings?.main_color || '#2113AD';
   const contrastText =
@@ -99,14 +101,14 @@ const ReportDocument = ({ reportData, authOrganization, user }) => {
           </View>
         </View>
         <View style={{ ...pdfStyles.table, marginTop: 15 }}>
-          <PeriodPdfHeader
+          <PeriodPdfHeader netOnly={netOnly}
             leading={[{ label: 'Category', flex: 3 }]}
             mainColor={mainColor}
             contrastText={contrastText}
           filters={reportData.filters}
           />
           {flattenForPdf(reportData?.balanceSheetData ?? [], 0).map((row, index) => (
-            <PeriodPdfRow
+            <PeriodPdfRow netOnly={netOnly}
               key={index}
               leading={[{ text: row.label, flex: 3, indent: row.level }]}
               node={row.node}
@@ -138,6 +140,7 @@ function BalanceSheet({ as_at, setOpenBalanceSheettDialog }) {
     React.useState(false);
   const [uploadFieldsKey, setUploadFieldsKey] = useState(0);
   const [showOnScreen, setShowOnScreen] = useState(true);
+  const [netOnly, setNetOnly] = useState(false);
 
   const { theme } = useJumboTheme();
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
@@ -183,6 +186,7 @@ function BalanceSheet({ as_at, setOpenBalanceSheettDialog }) {
         from: watch('from'),
         to: watch('to'),
         display_as: 'excel',
+        net_only: netOnly,
       });
 
       const blob = new Blob([responseData], {
@@ -317,6 +321,17 @@ function BalanceSheet({ as_at, setOpenBalanceSheettDialog }) {
                   alignItems='center'
                 >
                   <>
+                    <FormControlLabel
+                    control={
+                      <Switch
+                        size='small'
+                        checked={netOnly}
+                        onChange={(e) => setNetOnly(e.target.checked)}
+                      />
+                    }
+                    label='Net only'
+                    sx={{ mr: 0.5 }}
+                  />
                     {reportData && (
                       <FileExportGrid
                         exportExcel
@@ -355,12 +370,13 @@ function BalanceSheet({ as_at, setOpenBalanceSheettDialog }) {
                   reportData={reportData}
                   authOrganization={authOrganization}
                   user={user}
+                  netOnly={netOnly}
                 />
               }
               fileName={`Balance Sheet ${readableDate(reportData?.filters?.from, true)} to ${readableDate(reportData?.filters?.to, true)}`}
             />
           ) : (
-            <BalanceSheetOnScreen reportData={reportData} />
+            <BalanceSheetOnScreen reportData={reportData} netOnly={netOnly} />
           ))
         )}
       </DialogContent>

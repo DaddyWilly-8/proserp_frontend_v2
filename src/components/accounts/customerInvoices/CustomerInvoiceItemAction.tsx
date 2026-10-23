@@ -71,9 +71,11 @@ const CustomerInvoiceItemAction = ({ invoice }: { invoice: CustomerInvoice }) =>
   });
 
   const canEdit = checkOrganizationPermission(PERMISSIONS.ACCOUNTS_TRANSACTIONS_CREATE);
-  // Fuel Voucher invoices are raised and removed with the same access as the fuel reports
+  // Fuel Voucher invoices are raised and removed with the same access as the fuel reports,
+  // but once a receipt is linked to one it is part of the payment record and stays
   const canDeleteFuelInvoice =
     isFuelVoucherInvoice &&
+    !invoice.has_receipts &&
     organizationHasSubscribed(MODULES.FUEL_STATION) &&
     checkOrganizationPermission([PERMISSIONS.STORES_REPORTS, PERMISSIONS.FUEL_STATIONS_REPORTS]);
 

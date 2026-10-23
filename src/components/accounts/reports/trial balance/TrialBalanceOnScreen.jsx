@@ -19,7 +19,7 @@ import {
   hasPeriodActivity,
 } from '../periodColumns';
 
-const TrialBalanceOnScreen = ({ reportData, authOrganization }) => {
+const TrialBalanceOnScreen = ({ reportData, authOrganization, netOnly }) => {
   const theme = useTheme();
 
   if (!reportData) return null;
@@ -49,7 +49,7 @@ const TrialBalanceOnScreen = ({ reportData, authOrganization }) => {
       <TableContainer component={Paper}>
         <Table size="small">
           <TableHead>
-            <PeriodTableHead
+            <PeriodTableHead netOnly={netOnly}
               leadingLabels={['S/N', 'Ledger Name']}
               backgroundColor={mainColor}
               color={contrastText}
@@ -68,13 +68,13 @@ const TrialBalanceOnScreen = ({ reportData, authOrganization }) => {
               >
                 <TableCell>{index + 1}</TableCell>
                 <TableCell>{ledger.name}</TableCell>
-                <PeriodCells node={ledger} />
+                <PeriodCells netOnly={netOnly} node={ledger} />
               </TableRow>
             ))}
 
             <TableRow>
               <TableCell colSpan={2} sx={totalSx}>TOTAL</TableCell>
-              <PeriodCells node={reportData.totals} sx={totalSx} />
+              <PeriodCells netOnly={netOnly} node={reportData.totals} sx={totalSx} />
             </TableRow>
           </TableBody>
         </Table>

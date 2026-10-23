@@ -58,7 +58,7 @@ const flattenGroupTree = (group, level, rows = []) => {
   return rows;
 };
 
-const ReportDocumet = ({ reportData, authOrganization, user }) => {
+const ReportDocumet = ({ reportData, authOrganization, user, netOnly }) => {
   const mainColor =
     authOrganization.organization.settings?.main_color || '#2113AD';
   const lightColor =
@@ -120,14 +120,14 @@ const ReportDocumet = ({ reportData, authOrganization, user }) => {
           </View>
         </View>
         <View style={{ ...pdfStyles.table, minHeight: 230 }}>
-          <PeriodPdfHeader
+          <PeriodPdfHeader netOnly={netOnly}
             leading={[{ label: 'Name', flex: 3 }]}
             mainColor={mainColor}
             contrastText={contrastText}
           filters={reportData.filters}
           />
           {rows.map((row, index) => (
-            <PeriodPdfRow
+            <PeriodPdfRow netOnly={netOnly}
               key={index}
               leading={[
                 { text: row.name, flex: 3, indent: row.level },
@@ -139,7 +139,7 @@ const ReportDocumet = ({ reportData, authOrganization, user }) => {
               bold={row.isGroup}
             />
           ))}
-          <PeriodPdfRow
+          <PeriodPdfRow netOnly={netOnly}
             leading={[{ text: 'Total', flex: 3 }]}
             node={reportData.total}
             backgroundColor={lightColor}
@@ -175,6 +175,7 @@ function DebtorCreditorReport({ setOpenDebtorsCreditorsDialog }) {
   );
   const [onlyStakeholderLinked, setOnlyStakeholderLinked] = useState(false);
   const [includeZeroBalances, setIncludeZeroBalances] = useState(false);
+  const [netOnly, setNetOnly] = useState(false);
   const [uploadFieldsKey, setUploadFieldsKey] = useState(0);
 
   const [isExporting, setIsExporting] = useState(false);
@@ -230,6 +231,7 @@ function DebtorCreditorReport({ setOpenDebtorsCreditorsDialog }) {
     reportData: reportData,
     authOrganization: authOrganization,
     user: user,
+    netOnly,
   };
 
   const handlExcelExport = async (exportedData) => {
@@ -481,6 +483,7 @@ function DebtorCreditorReport({ setOpenDebtorsCreditorsDialog }) {
                   reportData={reportData}
                   authOrganization={authOrganization}
                   user={user}
+                  netOnly={netOnly}
                 />
               ) : (
                 <PDFContent
@@ -489,6 +492,7 @@ function DebtorCreditorReport({ setOpenDebtorsCreditorsDialog }) {
                       reportData={reportData}
                       authOrganization={authOrganization}
                       user={user}
+                      netOnly={netOnly}
                     />
                   }
                   fileName={downloadFileName}

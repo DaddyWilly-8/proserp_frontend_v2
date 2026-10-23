@@ -3,7 +3,7 @@ import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow
 import { KeyboardArrowDown, KeyboardArrowRight } from '@mui/icons-material';
 import { PeriodCells, PeriodTableHead } from '../periodColumns';
 
-const TrialBalanceGroupedOnScreen = ({ reportData, authOrganization }) => {
+const TrialBalanceGroupedOnScreen = ({ reportData, authOrganization, netOnly }) => {
   const theme = useTheme();
   const [openRows, setOpenRows] = useState([]);
 
@@ -35,13 +35,13 @@ const TrialBalanceGroupedOnScreen = ({ reportData, authOrganization }) => {
             {hasChildren && (isOpen ? <KeyboardArrowDown /> : <KeyboardArrowRight />)}
             <span style={{ fontWeight: 'bold', marginLeft: 5 }}>{group.name}</span>
           </TableCell>
-          <PeriodCells node={group} sx={{ fontWeight: 'bold' }} />
+          <PeriodCells netOnly={netOnly} node={group} sx={{ fontWeight: 'bold' }} />
         </TableRow>
         {isOpen && group.children?.map((child) => renderGroup(child, level + 1))}
         {isOpen && group.ledgers?.map((ledger) => (
           <TableRow key={`l-${ledger.id}`}>
             <TableCell style={{ paddingLeft: (level + 1) * 20 }}>{ledger.name}</TableCell>
-            <PeriodCells node={ledger} />
+            <PeriodCells netOnly={netOnly} node={ledger} />
           </TableRow>
         ))}
       </React.Fragment>
@@ -52,7 +52,7 @@ const TrialBalanceGroupedOnScreen = ({ reportData, authOrganization }) => {
     <TableContainer component={Paper}>
       <Table size="small" aria-label="trial-balance-grouped">
         <TableHead>
-          <PeriodTableHead
+          <PeriodTableHead netOnly={netOnly}
             leadingLabels={['LEDGER GROUP']}
             backgroundColor={headerColor}
             color={contrastText}
@@ -65,7 +65,7 @@ const TrialBalanceGroupedOnScreen = ({ reportData, authOrganization }) => {
             <TableCell sx={{ backgroundColor: mainColor, color: contrastText, borderBottom: 'none' }}>
               TOTAL
             </TableCell>
-            <PeriodCells
+            <PeriodCells netOnly={netOnly}
               node={reportData.totals}
               sx={{ backgroundColor: mainColor, color: contrastText, borderBottom: 'none', fontWeight: 'bold' }}
             />

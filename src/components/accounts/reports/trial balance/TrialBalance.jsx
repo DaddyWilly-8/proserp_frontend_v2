@@ -12,10 +12,12 @@ import { LoadingButton } from '@mui/lab';
 import {
   DialogContent,
   DialogTitle,
+  FormControlLabel,
   Grid,
   IconButton,
   LinearProgress,
   Stack,
+  Switch,
   ToggleButton,
   ToggleButtonGroup,
   Tooltip,
@@ -58,7 +60,13 @@ const flattenGroupsForPdf = (groups, level = 0) =>
     })),
   ]);
 
-const ReportDocumet = ({ reportData, authOrganization, user, grouped }) => {
+const ReportDocumet = ({
+  reportData,
+  authOrganization,
+  user,
+  grouped,
+  netOnly,
+}) => {
   const mainColor =
     authOrganization.organization.settings?.main_color || '#2113AD';
   const lightColor =
@@ -121,14 +129,14 @@ const ReportDocumet = ({ reportData, authOrganization, user, grouped }) => {
         <View style={pdfStyles.table}>
           {grouped ? (
             <>
-              <PeriodPdfHeader
+              <PeriodPdfHeader netOnly={netOnly}
                 leading={[{ label: 'Ledger Group', flex: 3.4 }]}
                 mainColor={mainColor}
                 contrastText={contrastText}
               filters={reportData.filters}
               />
               {flattenGroupsForPdf(reportData.groups ?? []).map((row, index) => (
-                <PeriodPdfRow
+                <PeriodPdfRow netOnly={netOnly}
                   key={index}
                   leading={[
                     { text: row.label, flex: 3.4, indent: row.level },
@@ -140,7 +148,7 @@ const ReportDocumet = ({ reportData, authOrganization, user, grouped }) => {
                   bold={row.isGroup}
                 />
               ))}
-              <PeriodPdfRow
+              <PeriodPdfRow netOnly={netOnly}
                 leading={[{ text: 'TOTAL', flex: 3.4 }]}
                 node={reportData.totals}
                 backgroundColor={lightColor}
@@ -149,7 +157,7 @@ const ReportDocumet = ({ reportData, authOrganization, user, grouped }) => {
             </>
           ) : (
             <>
-              <PeriodPdfHeader
+              <PeriodPdfHeader netOnly={netOnly}
                 leading={[
                   { label: 'S/N', flex: 0.4 },
                   { label: 'Ledger Name', flex: 3 },
@@ -161,7 +169,7 @@ const ReportDocumet = ({ reportData, authOrganization, user, grouped }) => {
               {reportData.ledgers
                 .filter(hasPeriodActivity)
                 .map((ledger, index) => (
-                  <PeriodPdfRow
+                  <PeriodPdfRow netOnly={netOnly}
                     key={index}
                     leading={[
                       { text: String(index + 1), flex: 0.4 },
@@ -171,7 +179,7 @@ const ReportDocumet = ({ reportData, authOrganization, user, grouped }) => {
                     backgroundColor={index % 2 === 0 ? '#FFFFFF' : lightColor}
                   />
                 ))}
-              <PeriodPdfRow
+              <PeriodPdfRow netOnly={netOnly}
                 leading={[
                   { text: '', flex: 0.4 },
                   { text: 'TOTAL', flex: 3 },
@@ -229,6 +237,7 @@ function TrialBalance({ setOpenTrialBalanceDialog }) {
   const [uploadFieldsKey, setUploadFieldsKey] = useState(0);
   const [showOnScreen, setShowOnScreen] = useState(true);
   const [viewMode, setViewMode] = useState('flat');
+  const [netOnly, setNetOnly] = useState(false);
 
   //Screen handling constants
   const { theme } = useJumboTheme();
@@ -244,6 +253,7 @@ function TrialBalance({ setOpenTrialBalanceDialog }) {
         from: watch('from'),
         to: watch('to'),
         cost_center_ids: watch('cost_center_ids'),
+        net_only: netOnly,
       };
 
       // Pass all filters to the service
@@ -408,6 +418,17 @@ function TrialBalance({ setOpenTrialBalanceDialog }) {
                   alignItems='center'
                 >
                   <>
+                    <FormControlLabel
+                    control={
+                      <Switch
+                        size='small'
+                        checked={netOnly}
+                        onChange={(e) => setNetOnly(e.target.checked)}
+                      />
+                    }
+                    label='Net only'
+                    sx={{ mr: 0.5 }}
+                  />
                     {reportData && (
                       <ToggleButtonGroup
                         size='small'
@@ -459,11 +480,13 @@ function TrialBalance({ setOpenTrialBalanceDialog }) {
                   <TrialBalanceGroupedOnScreen
                     reportData={groupedReportData}
                     authOrganization={authOrganization}
+                    netOnly={netOnly}
                   />
                 ) : (
                   <TrialBalanceOnScreen
                     reportData={reportData}
                     authOrganization={authOrganization}
+                    netOnly={netOnly}
                   />
                 )
               ) : (
@@ -474,6 +497,7 @@ function TrialBalance({ setOpenTrialBalanceDialog }) {
                         viewMode === 'grouped' ? groupedReportData : reportData
                       }
                       grouped={viewMode === 'grouped'}
+                      netOnly={netOnly}
                       authOrganization={authOrganization}
                       user={user}
                     />

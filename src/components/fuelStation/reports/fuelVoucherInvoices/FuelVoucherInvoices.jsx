@@ -32,7 +32,7 @@ import {
   Typography,
   useMediaQuery,
 } from '@mui/material';
-import { DatePicker } from '@mui/x-date-pickers';
+import { DatePicker, DateTimePicker } from '@mui/x-date-pickers';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import { useSnackbar } from 'notistack';
@@ -72,7 +72,7 @@ function FuelVoucherInvoices({ closeDialog, onCreated }) {
   const [customer, setCustomer] = useState(null);
   const [station, setStation] = useState(null);
   const [from, setFrom] = useState(dayjs().startOf('month'));
-  const [to, setTo] = useState(dayjs());
+  const [to, setTo] = useState(dayjs().endOf('day'));
   const [invoiceDate, setInvoiceDate] = useState(dayjs());
   const [dueDate, setDueDate] = useState(null);
   const [internalReference, setInternalReference] = useState('');
@@ -108,8 +108,8 @@ function FuelVoucherInvoices({ closeDialog, onCreated }) {
       const data = await fuelStationServices.uninvoicedFuelVouchers({
         stakeholder_id: customer.id,
         station_id: station?.id,
-        from: from.format('YYYY-MM-DD'),
-        to: to.format('YYYY-MM-DD'),
+        from: from.toISOString(),
+        to: to.toISOString(),
       });
       setVouchers(data);
       setVoucherKeyword('');
@@ -165,8 +165,8 @@ function FuelVoucherInvoices({ closeDialog, onCreated }) {
         voucher_ids: selectedIds,
         invoice_date: invoiceDate.format('YYYY-MM-DD'),
         due_date: dueDate ? dueDate.format('YYYY-MM-DD') : null,
-        from_date: from.format('YYYY-MM-DD'),
-        to_date: to.format('YYYY-MM-DD'),
+        from_date: from.toISOString(),
+        to_date: to.toISOString(),
         internal_reference: internalReference || null,
         customer_reference: customerReference || null,
         terms_and_instructions: terms || null,
@@ -297,10 +297,11 @@ function FuelVoucherInvoices({ closeDialog, onCreated }) {
                   }}
                 />
               </Grid>
-              <Grid size={{ xs: 6, md: 2 }}>
-                <DatePicker
+              <Grid size={{ xs: 12, sm: 6, md: 2 }}>
+                <DateTimePicker
                   label='From'
                   value={from}
+                  ampm={false}
                   minDate={dayjs(organization.recording_start_date)}
                   slotProps={{ textField: { size: 'small', fullWidth: true } }}
                   onChange={(value) => {
@@ -309,10 +310,11 @@ function FuelVoucherInvoices({ closeDialog, onCreated }) {
                   }}
                 />
               </Grid>
-              <Grid size={{ xs: 6, md: 2 }}>
-                <DatePicker
+              <Grid size={{ xs: 12, sm: 6, md: 2 }}>
+                <DateTimePicker
                   label='To'
                   value={to}
+                  ampm={false}
                   minDate={from}
                   slotProps={{ textField: { size: 'small', fullWidth: true } }}
                   onChange={(value) => {
