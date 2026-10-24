@@ -140,7 +140,7 @@ function BalanceSheet({ as_at, setOpenBalanceSheettDialog }) {
     React.useState(false);
   const [uploadFieldsKey, setUploadFieldsKey] = useState(0);
   const [showOnScreen, setShowOnScreen] = useState(true);
-  const [netOnly, setNetOnly] = useState(false);
+  const [netOnly, setNetOnly] = useState(true);
 
   const { theme } = useJumboTheme();
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));

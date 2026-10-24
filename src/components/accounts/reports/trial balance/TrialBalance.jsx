@@ -237,7 +237,7 @@ function TrialBalance({ setOpenTrialBalanceDialog }) {
   const [uploadFieldsKey, setUploadFieldsKey] = useState(0);
   const [showOnScreen, setShowOnScreen] = useState(true);
   const [viewMode, setViewMode] = useState('flat');
-  const [netOnly, setNetOnly] = useState(false);
+  const [netOnly, setNetOnly] = useState(true);
 
   //Screen handling constants
   const { theme } = useJumboTheme();

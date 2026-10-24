@@ -175,7 +175,7 @@ function DebtorCreditorReport({ setOpenDebtorsCreditorsDialog }) {
   );
   const [onlyStakeholderLinked, setOnlyStakeholderLinked] = useState(false);
   const [includeZeroBalances, setIncludeZeroBalances] = useState(false);
-  const [netOnly, setNetOnly] = useState(false);
+  const [netOnly, setNetOnly] = useState(true);
   const [uploadFieldsKey, setUploadFieldsKey] = useState(0);
 
   const [isExporting, setIsExporting] = useState(false);
