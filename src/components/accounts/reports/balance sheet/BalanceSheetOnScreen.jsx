@@ -8,7 +8,7 @@ import {
   pruneZeroNetTree,
 } from '../periodColumns';
 
-const BalanceSheetOnScreen = ({ reportData, netOnly }) => {
+const BalanceSheetOnScreen = ({ reportData, netOnly, closingOnly }) => {
   const [openRows, setOpenRows] = useState([]);
 
   const toggleRow = (rowId) => {
@@ -23,7 +23,7 @@ const BalanceSheetOnScreen = ({ reportData, netOnly }) => {
   // already carries the rolled-up figures, so the total just repeats them.
   const renderChildren = (parent, level) => (
     <>
-      {parent.children.filter(hasPeriodActivity).map((child) => {
+      {parent.children.filter((n) => hasPeriodActivity(n, closingOnly)).map((child) => {
         const isOpen = openRows.includes(child.id);
         return (
           <React.Fragment key={child.id}>
@@ -32,7 +32,7 @@ const BalanceSheetOnScreen = ({ reportData, netOnly }) => {
                 {child.children?.length > 0 && (isOpen ? <KeyboardArrowDown/> : <KeyboardArrowRight/>)}
                 <span style={{ fontWeight: isOpen ? 'bold' : 'normal', marginLeft: level === 0 ? 5 : level === 1 ? 10 : 15 }}>{child.name}</span>
               </TableCell>
-              <PeriodCells netOnly={netOnly} node={child} sx={{ fontWeight: isOpen ? 'bold' : 'normal' }} />
+              <PeriodCells netOnly={netOnly} closingOnly={closingOnly} node={child} sx={{ fontWeight: isOpen ? 'bold' : 'normal' }} />
             </TableRow>
             {isOpen && child.children?.length > 0 && renderChildren(child, level + 1)}
           </React.Fragment>
@@ -42,7 +42,7 @@ const BalanceSheetOnScreen = ({ reportData, netOnly }) => {
         <TableCell style={{ paddingLeft: level * 20 }}>
           <span>Total {parent.name}</span>
         </TableCell>
-        <PeriodCells netOnly={netOnly} node={parent} />
+        <PeriodCells netOnly={netOnly} closingOnly={closingOnly} node={parent} />
       </TableRow>
     </>
   );
@@ -51,7 +51,7 @@ const BalanceSheetOnScreen = ({ reportData, netOnly }) => {
     <TableContainer component={Paper}>
       <Table size="small" aria-label="balance-sheet">
         <TableHead>
-          <PeriodTableHead netOnly={netOnly}
+          <PeriodTableHead netOnly={netOnly} closingOnly={closingOnly}
             leadingLabels={['CATEGORY']}
             backgroundColor='transparent'
             color='inherit'
@@ -60,7 +60,9 @@ const BalanceSheetOnScreen = ({ reportData, netOnly }) => {
         </TableHead>
         <TableBody>
           {(netOnly
-            ? reportData.balanceSheetData?.map(pruneZeroNetTree)
+            ? reportData.balanceSheetData?.map((n) =>
+                pruneZeroNetTree(n, closingOnly)
+              )
             : reportData.balanceSheetData
           )?.map((component, index) => {
             const isOpen = openRows.includes(component.id);
@@ -71,9 +73,9 @@ const BalanceSheetOnScreen = ({ reportData, netOnly }) => {
                     {component.children?.length > 0 && (isOpen ? <KeyboardArrowDown/> : <KeyboardArrowRight/>)}
                     <span style={{ marginLeft: 5, fontWeight: isOpen ? 'bold' : 'normal' }}>{component.name}</span>
                   </TableCell>
-                  <PeriodCells netOnly={netOnly} node={component} />
+                  <PeriodCells netOnly={netOnly} closingOnly={closingOnly} node={component} />
                 </TableRow>
-                {hasPeriodActivity(component) && isOpen && component.children?.length > 0 && renderChildren(component, index + 1)}
+                {hasPeriodActivity(component, closingOnly) && isOpen && component.children?.length > 0 && renderChildren(component, index + 1)}
               </React.Fragment>
             );
           })}

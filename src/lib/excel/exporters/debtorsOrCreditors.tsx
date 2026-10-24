@@ -25,9 +25,17 @@ const pruneZeroNetTree = (root: any) => ({
 
 export async function exportDebtorsOrCreditorsToExcel(exportedData: any) {
   try {
-    const { authOrganization, reportData, user, netOnly = false } = exportedData;
+    const {
+      authOrganization,
+      reportData,
+      user,
+      netOnly = false,
+      closingOnly = false,
+    } = exportedData;
     // Net-only shows one column per period instead of Debit / Credit / Net
     const subCount = netOnly ? 1 : 3;
+    // Closing-only shows just the Closing period instead of Opening / Current / Closing
+    const periodCount = closingOnly ? 1 : 3;
     const reportPeriod = reportData.filters.from
       ? `Period: ${readableDate(reportData.filters.from, true)} to ${readableDate(reportData.filters.to, true)}`
       : `Up to: ${readableDate(reportData.filters.to, true)}`;
@@ -52,7 +60,7 @@ export async function exportDebtorsOrCreditorsToExcel(exportedData: any) {
     // Name, then Opening / Current / Closing x Debit / Credit / Net
     const baseColumns = [
       { width: 40 },
-      ...Array.from({ length: 3 * subCount }, () => ({ width: 18 })),
+      ...Array.from({ length: periodCount * subCount }, () => ({ width: 18 })),
     ];
 
     ws.columns = baseColumns;
@@ -147,25 +155,31 @@ export async function exportDebtorsOrCreditorsToExcel(exportedData: any) {
     const groupRow = (ws.lastRow?.number ?? 0) + 1;
     // Net-only has no Debit/Credit/Net row: one heading row carries everything
     const subRow = netOnly ? groupRow : groupRow + 1;
-    const periods = ['Opening', 'Current', 'Closing'];
-    const periodKeys = ['opening', 'current', 'closing'];
-    const lastColumn = 1 + 3 * subCount; // A (name) + the period columns
+    const allPeriods = ['Opening', 'Current', 'Closing'];
+    const allKeys = ['opening', 'current', 'closing'];
+    const periods = closingOnly ? allPeriods.slice(-1) : allPeriods;
+    const periodKeys = closingOnly ? allKeys.slice(-1) : allKeys;
+    const lastColumn = 1 + periodCount * subCount; // A (name) + the period columns
 
     if (!netOnly) ws.mergeCells(`A${groupRow}:A${subRow}`);
     ws.getCell(`A${groupRow}`).value = 'Name';
     // Each period heading carries the date range it covers on a second line
     const shortDate = (date: any) => dayjs(date).format('DD MMM YYYY');
     const { from, to } = reportData.filters;
-    const ranges = [
+    const allRanges = [
       from ? `before ${shortDate(from)}` : '-',
       from ? `${shortDate(from)} - ${shortDate(to)}` : `up to ${shortDate(to)}`,
       `as at ${shortDate(to)}`,
     ];
+    const ranges = closingOnly ? allRanges.slice(-1) : allRanges;
     ws.getRow(groupRow).height = 32;
     periods.forEach((label, i) => {
       const start = 2 + i * subCount;
       if (subCount > 1) ws.mergeCells(groupRow, start, groupRow, start + subCount - 1);
-      ws.getCell(groupRow, start).value = `${label}\n${ranges[i]}`;
+      // Closing-only: the "as at" date alone heads the column
+      ws.getCell(groupRow, start).value = closingOnly
+        ? ranges[i]
+        : `${label}\n${ranges[i]}`;
       if (!netOnly) {
         ['Debit', 'Credit', 'Net'].forEach((sub, j) => {
           ws.getCell(subRow, start + j).value = sub;

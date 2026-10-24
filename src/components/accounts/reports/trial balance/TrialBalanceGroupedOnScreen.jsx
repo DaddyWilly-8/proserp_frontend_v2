@@ -3,7 +3,7 @@ import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow
 import { KeyboardArrowDown, KeyboardArrowRight } from '@mui/icons-material';
 import { PeriodCells, PeriodTableHead, pruneZeroNetTree } from '../periodColumns';
 
-const TrialBalanceGroupedOnScreen = ({ reportData, authOrganization, netOnly }) => {
+const TrialBalanceGroupedOnScreen = ({ reportData, authOrganization, netOnly, closingOnly }) => {
   const theme = useTheme();
   const [openRows, setOpenRows] = useState([]);
 
@@ -35,13 +35,13 @@ const TrialBalanceGroupedOnScreen = ({ reportData, authOrganization, netOnly }) 
             {hasChildren && (isOpen ? <KeyboardArrowDown /> : <KeyboardArrowRight />)}
             <span style={{ fontWeight: 'bold', marginLeft: 5 }}>{group.name}</span>
           </TableCell>
-          <PeriodCells netOnly={netOnly} node={group} sx={{ fontWeight: 'bold' }} />
+          <PeriodCells netOnly={netOnly} closingOnly={closingOnly} node={group} sx={{ fontWeight: 'bold' }} />
         </TableRow>
         {isOpen && group.children?.map((child) => renderGroup(child, level + 1))}
         {isOpen && group.ledgers?.map((ledger) => (
           <TableRow key={`l-${ledger.id}`}>
             <TableCell style={{ paddingLeft: (level + 1) * 20 }}>{ledger.name}</TableCell>
-            <PeriodCells netOnly={netOnly} node={ledger} />
+            <PeriodCells netOnly={netOnly} closingOnly={closingOnly} node={ledger} />
           </TableRow>
         ))}
       </React.Fragment>
@@ -52,7 +52,7 @@ const TrialBalanceGroupedOnScreen = ({ reportData, authOrganization, netOnly }) 
     <TableContainer component={Paper}>
       <Table size="small" aria-label="trial-balance-grouped">
         <TableHead>
-          <PeriodTableHead netOnly={netOnly}
+          <PeriodTableHead netOnly={netOnly} closingOnly={closingOnly}
             leadingLabels={['LEDGER GROUP']}
             backgroundColor={headerColor}
             color={contrastText}
@@ -61,14 +61,16 @@ const TrialBalanceGroupedOnScreen = ({ reportData, authOrganization, netOnly }) 
         </TableHead>
         <TableBody>
           {(netOnly
-            ? reportData.groups?.map(pruneZeroNetTree)
+            ? reportData.groups?.map((group) =>
+                pruneZeroNetTree(group, closingOnly)
+              )
             : reportData.groups
           )?.map((group) => renderGroup(group, 0))}
           <TableRow>
             <TableCell sx={{ backgroundColor: mainColor, color: contrastText, borderBottom: 'none' }}>
               TOTAL
             </TableCell>
-            <PeriodCells netOnly={netOnly}
+            <PeriodCells netOnly={netOnly} closingOnly={closingOnly}
               node={reportData.totals}
               sx={{ backgroundColor: mainColor, color: contrastText, borderBottom: 'none', fontWeight: 'bold' }}
             />

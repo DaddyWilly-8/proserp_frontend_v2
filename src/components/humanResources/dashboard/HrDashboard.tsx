@@ -264,11 +264,11 @@ const HrDashboard = () => {
       </Grid>
 
       <Grid container spacing={2}>
-        <Grid size={{ xs: 12, lg: 6 }} ref={leaveRef}>
+        <Grid size={{ xs: 12, md: 6 }} ref={leaveRef}>
           <JumboCardQuick
             title='Employees On Leave Today'
             sx={{ height: DETAIL_CARD_HEIGHT, display: 'flex', flexDirection: 'column' }}
-            wrapperSx={{ overflowY: 'auto', flex: 1 }}
+            wrapperSx={{ overflow: 'auto', flex: 1 }}
           >
             {smallScreen ? (
               onLeave.length === 0 ? (
@@ -353,11 +353,11 @@ const HrDashboard = () => {
           </JumboCardQuick>
         </Grid>
 
-        <Grid size={{ xs: 12, lg: 6 }} ref={loansRef}>
+        <Grid size={{ xs: 12, md: 6 }} ref={loansRef}>
           <JumboCardQuick
             title='Employees With Active Loans'
             sx={{ height: DETAIL_CARD_HEIGHT, display: 'flex', flexDirection: 'column' }}
-            wrapperSx={{ overflowY: 'auto', flex: 1 }}
+            wrapperSx={{ overflow: 'auto', flex: 1 }}
           >
             {smallScreen ? (
               loans.rows.length === 0 ? (
@@ -431,11 +431,11 @@ const HrDashboard = () => {
           </JumboCardQuick>
         </Grid>
 
-        <Grid size={{ xs: 12, lg: 6 }} ref={contractsRef}>
+        <Grid size={{ xs: 12, md: 6 }} ref={contractsRef}>
           <JumboCardQuick
             title='Contracts Expiring Within 30 Days'
             sx={{ height: DETAIL_CARD_HEIGHT, display: 'flex', flexDirection: 'column' }}
-            wrapperSx={{ overflowY: 'auto', flex: 1 }}
+            wrapperSx={{ overflow: 'auto', flex: 1 }}
           >
             {smallScreen ? (
               expiringContracts.length === 0 ? (
@@ -530,11 +530,11 @@ const HrDashboard = () => {
           </JumboCardQuick>
         </Grid>
 
-        <Grid size={{ xs: 12, lg: 6 }} ref={birthdaysRef}>
+        <Grid size={{ xs: 12, md: 6 }} ref={birthdaysRef}>
           <JumboCardQuick
             title='Upcoming Birthdays (30 Days)'
             sx={{ height: DETAIL_CARD_HEIGHT, display: 'flex', flexDirection: 'column' }}
-            wrapperSx={{ overflowY: 'auto', flex: 1 }}
+            wrapperSx={{ overflow: 'auto', flex: 1 }}
           >
             {smallScreen ? (
               birthdays.length === 0 ? (

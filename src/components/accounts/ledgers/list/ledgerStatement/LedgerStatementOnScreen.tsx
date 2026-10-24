@@ -8,6 +8,7 @@ import {
   Table,
   TableBody,
   TableCell,
+  TableContainer,
   TableHead,
   TableRow,
   Typography,
@@ -242,6 +243,7 @@ const LedgerStatementOnScreen: React.FC<LedgerStatementOnScreenProps> = ({
         </Grid>
       </Grid>
 
+      <TableContainer>
       <Table>
         <TableHead>
           <TableRow>
@@ -428,6 +430,7 @@ const LedgerStatementOnScreen: React.FC<LedgerStatementOnScreenProps> = ({
           </TableRow>
         </TableBody>
       </Table>
+      </TableContainer>
     </Box>
   ) : null;
 };

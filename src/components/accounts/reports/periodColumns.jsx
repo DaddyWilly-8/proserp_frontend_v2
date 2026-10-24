@@ -12,6 +12,9 @@ export const PERIODS = [
   ['current', 'Current'],
   ['closing', 'Closing'],
 ];
+// With `closingOnly` just the Closing period is shown (no Opening / Current).
+const periodsFor = (closingOnly) => (closingOnly ? PERIODS.slice(-1) : PERIODS);
+
 // With `netOnly` each period collapses to its single Net column. flex only
 // matters for the PDF; Net is wider there because it carries the DR/CR suffix.
 const subColumns = (netOnly) =>
@@ -47,31 +50,34 @@ export const formatAmount = (amount) =>
 export const formatNet = (net) =>
   net?.amount ? `${formatAmount(net.amount)} ${net.side}` : '';
 
-export const hasPeriodActivity = (node) =>
-  PERIODS.some(([key]) => node[key]?.debit || node[key]?.credit);
+// Visibility is judged on the periods actually shown (see closingOnly).
+export const hasPeriodActivity = (node, closingOnly = false) =>
+  periodsFor(closingOnly).some(
+    ([key]) => node[key]?.debit || node[key]?.credit
+  );
 
-export const hasNetBalance = (node) =>
-  PERIODS.some(([key]) => node[key]?.net?.amount);
+export const hasNetBalance = (node, closingOnly = false) =>
+  periodsFor(closingOnly).some(([key]) => node[key]?.net?.amount);
 
 /**
  * Net-only view: drops nodes whose Opening, Current and Closing nets are all
  * zero. A group stays if it has a net of its own or anything non-zero beneath
  * it (offsetting ledgers can net a group to zero without being empty).
  */
-export const pruneZeroNetList = (nodes = []) =>
+export const pruneZeroNetList = (nodes = [], closingOnly = false) =>
   nodes.flatMap((node) => {
-    const children = pruneZeroNetList(node.children);
-    const ledgers = pruneZeroNetList(node.ledgers);
-    return hasNetBalance(node) || children.length || ledgers.length
+    const children = pruneZeroNetList(node.children, closingOnly);
+    const ledgers = pruneZeroNetList(node.ledgers, closingOnly);
+    return hasNetBalance(node, closingOnly) || children.length || ledgers.length
       ? [{ ...node, children, ledgers }]
       : [];
   });
 
 /** As pruneZeroNetList, but the root itself is always kept. */
-export const pruneZeroNetTree = (root) => ({
+export const pruneZeroNetTree = (root, closingOnly = false) => ({
   ...root,
-  children: pruneZeroNetList(root.children),
-  ledgers: pruneZeroNetList(root.ledgers),
+  children: pruneZeroNetList(root.children, closingOnly),
+  ledgers: pruneZeroNetList(root.ledgers, closingOnly),
 });
 
 // A net on the opposite side to the account's normal side (e.g. an asset or a
@@ -87,8 +93,8 @@ export const isNegativeNet = (node, period) =>
 export const NEGATIVE_COLOR = '#D32F2F';
 
 /** Flat list of { value, negative } for every figure cell of a node, in column order. */
-const periodCells = (node, netOnly) =>
-  PERIODS.flatMap(([key]) => {
+const periodCells = (node, netOnly, closingOnly) =>
+  periodsFor(closingOnly).flatMap(([key]) => {
     const values = periodValues(node, key, netOnly);
     return values.map((value, i) => ({
       value,
@@ -117,6 +123,7 @@ export const PeriodTableHead = ({
   color,
   filters,
   netOnly = false,
+  closingOnly = false,
 }) => {
   const ranges = periodRanges(filters);
   const headerSx = { backgroundColor, color, fontWeight: 'bold' };
@@ -134,7 +141,7 @@ export const PeriodTableHead = ({
             {label}
           </TableCell>
         ))}
-        {PERIODS.map(([key, label]) => (
+        {periodsFor(closingOnly).map(([key, label]) => (
           <TableCell
             key={key}
             colSpan={subColumns(netOnly).length}
@@ -144,7 +151,8 @@ export const PeriodTableHead = ({
               borderLeft: '1px solid rgba(255,255,255,0.4)',
             }}
           >
-            {label}
+            {/* Closing-only: the "as at" date alone heads the column */}
+            {!closingOnly && label}
             <Typography
               variant='caption'
               component='div'
@@ -158,7 +166,7 @@ export const PeriodTableHead = ({
       {/* Net-only has a single sub-column per period, so its "Net" label row adds nothing. */}
       {!netOnly && (
       <TableRow>
-        {PERIODS.flatMap(([key]) =>
+        {periodsFor(closingOnly).flatMap(([key]) =>
           subColumns(netOnly).map(({ label }, i) => (
             <TableCell
               key={`${key}-${label}`}
@@ -181,8 +189,14 @@ export const PeriodTableHead = ({
 };
 
 /** The Opening/Current/Closing cells (nine, or three when netOnly) for one node. */
-export const PeriodCells = ({ node, sx, onClick, netOnly = false }) =>
-  periodCells(node, netOnly).map(({ value, negative }, i) => (
+export const PeriodCells = ({
+  node,
+  sx,
+  onClick,
+  netOnly = false,
+  closingOnly = false,
+}) =>
+  periodCells(node, netOnly, closingOnly).map(({ value, negative }, i) => (
     <TableCell
       key={i}
       align='right'
@@ -215,9 +229,9 @@ const CELL_BORDER = {
 // Column widths are explicit percentages (border-box in the PDF engine), not
 // flex: flex widths add each cell's padding and border on top of its share,
 // so the header's grouped columns and the data rows drifted out of line.
-const totalFlex = (leading, netOnly) =>
+const totalFlex = (leading, netOnly, closingOnly) =>
   leading.reduce((sum, { flex }) => sum + flex, 0) +
-  PERIODS.length * groupFlex(netOnly);
+  periodsFor(closingOnly).length * groupFlex(netOnly);
 const pct = (flex, total) => `${(flex / total) * 100}%`;
 
 // Every cell is a bordered View wrapping its Text: a View stretches to the
@@ -240,9 +254,10 @@ export const PeriodPdfHeader = ({
   contrastText,
   filters,
   netOnly = false,
+  closingOnly = false,
 }) => {
   const ranges = periodRanges(filters);
-  const total = totalFlex(leading, netOnly);
+  const total = totalFlex(leading, netOnly, closingOnly);
   const groupWidth = groupFlex(netOnly);
   const text = {
     color: contrastText,
@@ -258,13 +273,13 @@ export const PeriodPdfHeader = ({
           <Text style={text}>{label}</Text>
         </View>
       ))}
-      {PERIODS.map(([key, label]) => (
+      {periodsFor(closingOnly).map(([key, label]) => (
         <View
           key={key}
           style={{ width: pct(groupWidth, total), flexDirection: 'column' }}
         >
           <View style={box('100%', { alignItems: 'center' })}>
-            <Text style={text}>{label}</Text>
+            {!closingOnly && <Text style={text}>{label}</Text>}
             <Text style={{ ...text, fontWeight: 'normal', fontSize: 5.5 }}>
               {ranges[key]}
             </Text>
@@ -296,8 +311,9 @@ export const PeriodPdfRow = ({
   backgroundColor,
   bold,
   netOnly = false,
+  closingOnly = false,
 }) => {
-  const total = totalFlex(leading, netOnly);
+  const total = totalFlex(leading, netOnly, closingOnly);
   const subs = subColumns(netOnly);
   const box = (width, extra) =>
     pdfBox(width, { borderColor: '#9E9E9E', backgroundColor, ...extra });
@@ -316,7 +332,7 @@ export const PeriodPdfRow = ({
           </View>
         </View>
       ))}
-      {periodCells(node, netOnly).map(({ value, negative }, i) => (
+      {periodCells(node, netOnly, closingOnly).map(({ value, negative }, i) => (
         <View
           key={i}
           style={box(pct(subs[i % subs.length].flex, total), {

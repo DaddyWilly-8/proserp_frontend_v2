@@ -79,13 +79,13 @@ const AuditTrailTab = ({ employeeId }: AuditTrailTabProps) => {
           hideItemsPerPage={true}
           actionTail={
             <Grid container columnSpacing={1} rowSpacing={1}>
-              <Grid size={{ xs: 12, lg: 6 }} alignItems="center">
+              <Grid size={{ xs: 12, md: 6 }} alignItems="center">
                 <MovementTypeSelector
                   value={movementType}
                   onChange={handleMovementTypeChange}
                 />
               </Grid>
-              <Grid size={{ xs: 12, lg: 6 }}>
+              <Grid size={{ xs: 12, md: 6 }}>
                 <Stack direction="row">
                   <JumboSearch
                     onChange={handleOnChange}

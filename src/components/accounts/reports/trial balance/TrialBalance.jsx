@@ -68,6 +68,7 @@ const ReportDocumet = ({
   user,
   grouped,
   netOnly,
+  closingOnly,
 }) => {
   const mainColor =
     authOrganization.organization.settings?.main_color || '#2113AD';
@@ -84,7 +85,7 @@ const ReportDocumet = ({
       producer='ProsERP'
       title={`Trial Balance ${reportPeriod}`}
     >
-      <Page size='A4' orientation='landscape' style={PDF_PAGE_STYLE}>
+      <Page size='A4' orientation={closingOnly ? 'portrait' : 'landscape'} style={PDF_PAGE_STYLE}>
         <View style={pdfStyles.table}>
           <View style={{ ...pdfStyles.tableRow, marginBottom: 20 }}>
             <View style={{ flex: 1, maxWidth: 120 }}>
@@ -131,7 +132,7 @@ const ReportDocumet = ({
         <View style={pdfStyles.table}>
           {grouped ? (
             <>
-              <PeriodPdfHeader netOnly={netOnly}
+              <PeriodPdfHeader netOnly={netOnly} closingOnly={closingOnly}
                 leading={[{ label: 'Ledger Group', flex: 3.4 }]}
                 mainColor={mainColor}
                 contrastText={contrastText}
@@ -139,10 +140,12 @@ const ReportDocumet = ({
               />
               {flattenGroupsForPdf(
                 (netOnly
-                  ? reportData.groups?.map(pruneZeroNetTree)
+                  ? reportData.groups?.map((group) =>
+                      pruneZeroNetTree(group, closingOnly)
+                    )
                   : reportData.groups) ?? []
               ).map((row, index) => (
-                <PeriodPdfRow netOnly={netOnly}
+                <PeriodPdfRow netOnly={netOnly} closingOnly={closingOnly}
                   key={index}
                   leading={[
                     { text: row.label, flex: 3.4, indent: row.level },
@@ -154,7 +157,7 @@ const ReportDocumet = ({
                   bold={row.isGroup}
                 />
               ))}
-              <PeriodPdfRow netOnly={netOnly}
+              <PeriodPdfRow netOnly={netOnly} closingOnly={closingOnly}
                 leading={[{ text: 'TOTAL', flex: 3.4 }]}
                 node={reportData.totals}
                 backgroundColor={lightColor}
@@ -163,7 +166,7 @@ const ReportDocumet = ({
             </>
           ) : (
             <>
-              <PeriodPdfHeader netOnly={netOnly}
+              <PeriodPdfHeader netOnly={netOnly} closingOnly={closingOnly}
                 leading={[
                   { label: 'S/N', flex: 0.4 },
                   { label: 'Ledger Name', flex: 3 },
@@ -173,9 +176,13 @@ const ReportDocumet = ({
               filters={reportData.filters}
               />
               {reportData.ledgers
-                .filter(netOnly ? hasNetBalance : hasPeriodActivity)
+                .filter((ledger) =>
+                  netOnly
+                    ? hasNetBalance(ledger, closingOnly)
+                    : hasPeriodActivity(ledger, closingOnly)
+                )
                 .map((ledger, index) => (
-                  <PeriodPdfRow netOnly={netOnly}
+                  <PeriodPdfRow netOnly={netOnly} closingOnly={closingOnly}
                     key={index}
                     leading={[
                       { text: String(index + 1), flex: 0.4 },
@@ -185,7 +192,7 @@ const ReportDocumet = ({
                     backgroundColor={index % 2 === 0 ? '#FFFFFF' : lightColor}
                   />
                 ))}
-              <PeriodPdfRow netOnly={netOnly}
+              <PeriodPdfRow netOnly={netOnly} closingOnly={closingOnly}
                 leading={[
                   { text: '', flex: 0.4 },
                   { text: 'TOTAL', flex: 3 },
@@ -244,6 +251,7 @@ function TrialBalance({ setOpenTrialBalanceDialog }) {
   const [showOnScreen, setShowOnScreen] = useState(true);
   const [viewMode, setViewMode] = useState('flat');
   const [netOnly, setNetOnly] = useState(true);
+  const [closingOnly, setClosingOnly] = useState(true);
 
   //Screen handling constants
   const { theme } = useJumboTheme();
@@ -260,6 +268,7 @@ function TrialBalance({ setOpenTrialBalanceDialog }) {
         to: watch('to'),
         cost_center_ids: watch('cost_center_ids'),
         net_only: netOnly,
+        closing_only: closingOnly,
       };
 
       // Pass all filters to the service
@@ -329,7 +338,7 @@ function TrialBalance({ setOpenTrialBalanceDialog }) {
               alignItems='center'
               justifyContent='center'
             >
-              <Grid size={{ xs: 12, md: 6 }}>
+              <Grid size={{ xs: 12, lg: 6 }}>
                 <CostCenterSelector
                   label='Cost Centers (leave empty for all)'
                   multiple={true}
@@ -362,7 +371,7 @@ function TrialBalance({ setOpenTrialBalanceDialog }) {
                   }}
                 />
               </Grid>
-              <Grid size={{ xs: 12, md: 3 }}>
+              <Grid size={{ xs: 12, sm: 6, lg: 3 }}>
                 <Div sx={{ mt: 1, mb: 1 }}>
                   <DateTimePicker
                     label='From (MM/DD/YYYY)'
@@ -389,7 +398,7 @@ function TrialBalance({ setOpenTrialBalanceDialog }) {
                   />
                 </Div>
               </Grid>
-              <Grid size={{ xs: 12, md: 3 }}>
+              <Grid size={{ xs: 12, sm: 6, lg: 3 }}>
                 <Div sx={{ mt: 1, mb: 1 }}>
                   <DateTimePicker
                     label='To (MM/DD/YYYY)'
@@ -416,39 +425,63 @@ function TrialBalance({ setOpenTrialBalanceDialog }) {
                   />
                 </Div>
               </Grid>
-              <Grid size={{ xs: 12 }} textAlign='right'>
-                <Stack
-                  direction='row'
-                  spacing={0.5}
-                  justifyContent='flex-end'
-                  alignItems='center'
-                >
-                  <>
-                    <FormControlLabel
-                    control={
-                      <Switch
-                        size='small'
-                        checked={netOnly}
-                        onChange={(e) => setNetOnly(e.target.checked)}
+              <Grid size={{ xs: 12 }}>
+                {/* Options and export buttons share a row; Filter sits below it on the right */}
+                <Stack direction='column' spacing={1} useFlexGap>
+                  <Stack
+                    direction='row'
+                    useFlexGap
+                    flexWrap='wrap'
+                    columnGap={1}
+                    rowGap={0.5}
+                    justifyContent='space-between'
+                    alignItems='center'
+                  >
+                    <Stack
+                      direction='row'
+                      useFlexGap
+                      flexWrap='wrap'
+                      columnGap={1}
+                      rowGap={0.5}
+                      alignItems='center'
+                    >
+                      <FormControlLabel
+                        control={
+                          <Switch
+                            size='small'
+                            checked={netOnly}
+                            onChange={(e) => setNetOnly(e.target.checked)}
+                          />
+                        }
+                        label='Net only'
+                        sx={{ mr: 0.5 }}
                       />
-                    }
-                    label='Net only'
-                    sx={{ mr: 0.5 }}
-                  />
-                    {reportData && (
-                      <ToggleButtonGroup
-                        size='small'
-                        color='primary'
-                        exclusive
-                        value={viewMode}
-                        onChange={(event, newViewMode) => {
-                          if (newViewMode) setViewMode(newViewMode);
-                        }}
-                      >
-                        <ToggleButton value='flat'>Flat</ToggleButton>
-                        <ToggleButton value='grouped'>Grouped</ToggleButton>
-                      </ToggleButtonGroup>
-                    )}
+                      <FormControlLabel
+                        control={
+                          <Switch
+                            size='small'
+                            checked={closingOnly}
+                            onChange={(e) => setClosingOnly(e.target.checked)}
+                          />
+                        }
+                        label='Closing only'
+                        sx={{ mr: 0.5 }}
+                      />
+                      {reportData && (
+                        <ToggleButtonGroup
+                          size='small'
+                          color='primary'
+                          exclusive
+                          value={viewMode}
+                          onChange={(event, newViewMode) => {
+                            if (newViewMode) setViewMode(newViewMode);
+                          }}
+                        >
+                          <ToggleButton value='flat'>Flat</ToggleButton>
+                          <ToggleButton value='grouped'>Grouped</ToggleButton>
+                        </ToggleButtonGroup>
+                      )}
+                    </Stack>
                     {reportData && (
                       <FileExportGrid
                         exportExcel
@@ -460,6 +493,8 @@ function TrialBalance({ setOpenTrialBalanceDialog }) {
                         }}
                       />
                     )}
+                  </Stack>
+                  <Stack direction='row' justifyContent='flex-end'>
                     <LoadingButton
                       loading={isFetching}
                       type='submit'
@@ -468,7 +503,7 @@ function TrialBalance({ setOpenTrialBalanceDialog }) {
                     >
                       Filter
                     </LoadingButton>
-                  </>
+                  </Stack>
                 </Stack>
               </Grid>
             </Grid>
@@ -487,12 +522,14 @@ function TrialBalance({ setOpenTrialBalanceDialog }) {
                     reportData={groupedReportData}
                     authOrganization={authOrganization}
                     netOnly={netOnly}
+                    closingOnly={closingOnly}
                   />
                 ) : (
                   <TrialBalanceOnScreen
                     reportData={reportData}
                     authOrganization={authOrganization}
                     netOnly={netOnly}
+                    closingOnly={closingOnly}
                   />
                 )
               ) : (
@@ -504,6 +541,7 @@ function TrialBalance({ setOpenTrialBalanceDialog }) {
                       }
                       grouped={viewMode === 'grouped'}
                       netOnly={netOnly}
+                      closingOnly={closingOnly}
                       authOrganization={authOrganization}
                       user={user}
                     />

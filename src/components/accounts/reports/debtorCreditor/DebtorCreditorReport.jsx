@@ -10,7 +10,7 @@ import { Div, Span } from '@jumbo/shared';
 import { HighlightOff } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
 import {
-  Checkbox,
+  Box,
   DialogContent,
   DialogTitle,
   FormControl,
@@ -22,6 +22,7 @@ import {
   MenuItem,
   Select,
   Stack,
+  Switch,
   Tooltip,
   Typography,
   useMediaQuery,
@@ -59,7 +60,13 @@ const flattenGroupTree = (group, level, rows = []) => {
   return rows;
 };
 
-const ReportDocumet = ({ reportData, authOrganization, user, netOnly }) => {
+const ReportDocumet = ({
+  reportData,
+  authOrganization,
+  user,
+  netOnly,
+  closingOnly,
+}) => {
   const mainColor =
     authOrganization.organization.settings?.main_color || '#2113AD';
   const lightColor =
@@ -69,7 +76,9 @@ const ReportDocumet = ({ reportData, authOrganization, user, netOnly }) => {
   const reportPeriod = periodSubtitle(reportData.filters, readableDate);
   const rawRootGroup = reportData.debtors || reportData.creditors;
   const rootGroup =
-    rawRootGroup && netOnly ? pruneZeroNetTree(rawRootGroup) : rawRootGroup;
+    rawRootGroup && netOnly
+      ? pruneZeroNetTree(rawRootGroup, closingOnly)
+      : rawRootGroup;
   const rows = rootGroup ? flattenGroupTree(rootGroup, 0) : [];
 
   return reportData ? (
@@ -78,7 +87,7 @@ const ReportDocumet = ({ reportData, authOrganization, user, netOnly }) => {
       producer='ProsERP'
       title={reportData.debtors ? `Debtors Report` : `Creditors Report`}
     >
-      <Page size='A4' orientation='landscape' style={PDF_PAGE_STYLE}>
+      <Page size='A4' orientation={closingOnly ? 'portrait' : 'landscape'} style={PDF_PAGE_STYLE}>
         <View style={pdfStyles.table}>
           <View style={{ ...pdfStyles.tableRow, marginBottom: 20 }}>
             <View style={{ flex: 1, maxWidth: 120 }}>
@@ -123,14 +132,14 @@ const ReportDocumet = ({ reportData, authOrganization, user, netOnly }) => {
           </View>
         </View>
         <View style={{ ...pdfStyles.table, minHeight: 230 }}>
-          <PeriodPdfHeader netOnly={netOnly}
+          <PeriodPdfHeader netOnly={netOnly} closingOnly={closingOnly}
             leading={[{ label: 'Name', flex: 3 }]}
             mainColor={mainColor}
             contrastText={contrastText}
           filters={reportData.filters}
           />
           {rows.map((row, index) => (
-            <PeriodPdfRow netOnly={netOnly}
+            <PeriodPdfRow netOnly={netOnly} closingOnly={closingOnly}
               key={index}
               leading={[
                 { text: row.name, flex: 3, indent: row.level },
@@ -142,7 +151,7 @@ const ReportDocumet = ({ reportData, authOrganization, user, netOnly }) => {
               bold={row.isGroup}
             />
           ))}
-          <PeriodPdfRow netOnly={netOnly}
+          <PeriodPdfRow netOnly={netOnly} closingOnly={closingOnly}
             leading={[{ text: 'Total', flex: 3 }]}
             node={reportData.total}
             backgroundColor={lightColor}
@@ -179,6 +188,7 @@ function DebtorCreditorReport({ setOpenDebtorsCreditorsDialog }) {
   const [onlyStakeholderLinked, setOnlyStakeholderLinked] = useState(false);
   const [includeZeroBalances, setIncludeZeroBalances] = useState(false);
   const [netOnly, setNetOnly] = useState(true);
+  const [closingOnly, setClosingOnly] = useState(true);
   const [uploadFieldsKey, setUploadFieldsKey] = useState(0);
 
   const [isExporting, setIsExporting] = useState(false);
@@ -235,6 +245,7 @@ function DebtorCreditorReport({ setOpenDebtorsCreditorsDialog }) {
     authOrganization: authOrganization,
     user: user,
     netOnly,
+    closingOnly,
   };
 
   const handlExcelExport = async (exportedData) => {
@@ -411,42 +422,74 @@ function DebtorCreditorReport({ setOpenDebtorsCreditorsDialog }) {
                   }}
                 />
               </Grid>
-              <Grid size={{ xs: 12, md: 6 }}>
-                <Stack direction='row' flexWrap='wrap' columnGap={2}>
-                  <FormControlLabel
-                    control={
-                      <Checkbox
-                        checked={onlyStakeholderLinked}
-                        onChange={(e) =>
-                          setOnlyStakeholderLinked(e.target.checked)
+              <Grid size={{ xs: 12 }}>
+                {/* Options and export buttons share a row; Filter sits below it on the right */}
+                <Stack direction='column' spacing={1} useFlexGap>
+                  <Stack
+                    direction='row'
+                    useFlexGap
+                    flexWrap='wrap'
+                    columnGap={1}
+                    rowGap={0.5}
+                    justifyContent='space-between'
+                    alignItems='center'
+                  >
+                    {/* Grid keeps the switches aligned in columns across rows */}
+                    <Box
+                      sx={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+                        // Tablets (portrait included) have room for all four on one line.
+                        // A top-level media query: raw media strings aren't valid keys
+                        // inside a breakpoint object like { xs, md }.
+                        '@media (min-width:700px)': {
+                          gridTemplateColumns: 'repeat(4, auto)',
+                        },
+                        columnGap: 2,
+                        alignItems: 'center',
+                      }}
+                    >
+                      <FormControlLabel
+                        control={
+                          <Switch
+                            size='small'
+                            checked={onlyStakeholderLinked}
+                            onChange={(e) => setOnlyStakeholderLinked(e.target.checked)}
+                          />
                         }
+                        label='Stakeholders Only'
                       />
-                    }
-                    label='Stakeholders Only'
-                  />
-                  <FormControlLabel
-                    control={
-                      <Checkbox
-                        checked={includeZeroBalances}
-                        onChange={(e) =>
-                          setIncludeZeroBalances(e.target.checked)
+                      <FormControlLabel
+                        control={
+                          <Switch
+                            size='small'
+                            checked={includeZeroBalances}
+                            onChange={(e) => setIncludeZeroBalances(e.target.checked)}
+                          />
                         }
+                        label='Show Zero Balances'
                       />
-                    }
-                    label='Show Zero Balances'
-                  />
-                </Stack>
-              </Grid>
-              <Grid size={{ xs: 12, md: 6 }} textAlign='right'>
-                <Stack
-                  direction='row'
-                  spacing={0.5}
-                  justifyContent={{ xs: 'center', md: 'flex-end' }}
-                  flexWrap='wrap'
-                  rowGap={0.5}
-                  alignItems='center'
-                >
-                  <>
+                      <FormControlLabel
+                        control={
+                          <Switch
+                            size='small'
+                            checked={netOnly}
+                            onChange={(e) => setNetOnly(e.target.checked)}
+                          />
+                        }
+                        label='Net Only'
+                      />
+                      <FormControlLabel
+                        control={
+                          <Switch
+                            size='small'
+                            checked={closingOnly}
+                            onChange={(e) => setClosingOnly(e.target.checked)}
+                          />
+                        }
+                        label='Closing Only'
+                      />
+                    </Box>
                     {reportData && (
                       <FileExportGrid
                         exportExcel
@@ -458,7 +501,8 @@ function DebtorCreditorReport({ setOpenDebtorsCreditorsDialog }) {
                         }}
                       />
                     )}
-
+                  </Stack>
+                  <Stack direction='row' justifyContent='flex-end'>
                     <LoadingButton
                       loading={isFetching}
                       type='submit'
@@ -467,7 +511,7 @@ function DebtorCreditorReport({ setOpenDebtorsCreditorsDialog }) {
                     >
                       Filter
                     </LoadingButton>
-                  </>
+                  </Stack>
                 </Stack>
               </Grid>
             </Grid>
@@ -487,6 +531,7 @@ function DebtorCreditorReport({ setOpenDebtorsCreditorsDialog }) {
                   authOrganization={authOrganization}
                   user={user}
                   netOnly={netOnly}
+                  closingOnly={closingOnly}
                 />
               ) : (
                 <PDFContent
@@ -496,6 +541,7 @@ function DebtorCreditorReport({ setOpenDebtorsCreditorsDialog }) {
                       authOrganization={authOrganization}
                       user={user}
                       netOnly={netOnly}
+                      closingOnly={closingOnly}
                     />
                   }
                   fileName={downloadFileName}

@@ -20,7 +20,7 @@ import {
   hasPeriodActivity,
 } from '../periodColumns';
 
-const TrialBalanceOnScreen = ({ reportData, authOrganization, netOnly }) => {
+const TrialBalanceOnScreen = ({ reportData, authOrganization, netOnly, closingOnly }) => {
   const theme = useTheme();
 
   if (!reportData) return null;
@@ -30,7 +30,10 @@ const TrialBalanceOnScreen = ({ reportData, authOrganization, netOnly }) => {
   const contrastText = authOrganization?.organization.settings?.contrast_text || "#FFFFFF";
 
   const ledgers = reportData.ledgers.filter(
-    netOnly ? hasNetBalance : hasPeriodActivity
+    (ledger) =>
+      netOnly
+        ? hasNetBalance(ledger, closingOnly)
+        : hasPeriodActivity(ledger, closingOnly)
   );
   const totalSx = { backgroundColor: mainColor, color: contrastText, borderBottom: 'none', fontWeight: 'bold' };
 
@@ -52,7 +55,7 @@ const TrialBalanceOnScreen = ({ reportData, authOrganization, netOnly }) => {
       <TableContainer component={Paper}>
         <Table size="small">
           <TableHead>
-            <PeriodTableHead netOnly={netOnly}
+            <PeriodTableHead netOnly={netOnly} closingOnly={closingOnly}
               leadingLabels={['S/N', 'Ledger Name']}
               backgroundColor={mainColor}
               color={contrastText}
@@ -71,13 +74,13 @@ const TrialBalanceOnScreen = ({ reportData, authOrganization, netOnly }) => {
               >
                 <TableCell>{index + 1}</TableCell>
                 <TableCell>{ledger.name}</TableCell>
-                <PeriodCells netOnly={netOnly} node={ledger} />
+                <PeriodCells netOnly={netOnly} closingOnly={closingOnly} node={ledger} />
               </TableRow>
             ))}
 
             <TableRow>
               <TableCell colSpan={2} sx={totalSx}>TOTAL</TableCell>
-              <PeriodCells netOnly={netOnly} node={reportData.totals} sx={totalSx} />
+              <PeriodCells netOnly={netOnly} closingOnly={closingOnly} node={reportData.totals} sx={totalSx} />
             </TableRow>
           </TableBody>
         </Table>

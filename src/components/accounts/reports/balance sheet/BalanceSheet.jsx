@@ -44,19 +44,27 @@ import BalanceSheetOnScreen from './BalanceSheetOnScreen';
 
 // Walks the balance sheet tree into indented rows; a node with visible
 // children is followed by its own "Total" row, as on screen.
-const flattenForPdf = (nodes, level) =>
-  nodes.filter(hasPeriodActivity).flatMap((node) => {
-    const visibleChildren = (node.children ?? []).filter(hasPeriodActivity);
+const flattenForPdf = (nodes, level, closingOnly) =>
+  nodes.filter((n) => hasPeriodActivity(n, closingOnly)).flatMap((node) => {
+    const visibleChildren = (node.children ?? []).filter((n) =>
+      hasPeriodActivity(n, closingOnly)
+    );
     return [
       { label: node.name, level, node, bold: level === 0, shaded: level === 0 },
-      ...flattenForPdf(visibleChildren, level + 1),
+      ...flattenForPdf(visibleChildren, level + 1, closingOnly),
       ...(visibleChildren.length > 0
         ? [{ label: `Total ${node.name}`, level, node, bold: true, shaded: false }]
         : []),
     ];
   });
 
-const ReportDocument = ({ reportData, authOrganization, user, netOnly }) => {
+const ReportDocument = ({
+  reportData,
+  authOrganization,
+  user,
+  netOnly,
+  closingOnly,
+}) => {
   const mainColor =
     authOrganization.organization.settings?.main_color || '#2113AD';
   const contrastText =
@@ -71,7 +79,7 @@ const ReportDocument = ({ reportData, authOrganization, user, netOnly }) => {
       producer='ProsERP'
       title={`Balance Sheet ${reportPeriod}`}
     >
-      <Page size='A4' orientation='landscape' style={PDF_PAGE_STYLE}>
+      <Page size='A4' orientation={closingOnly ? 'portrait' : 'landscape'} style={PDF_PAGE_STYLE}>
         <View style={pdfStyles.table}>
           <View style={{ ...pdfStyles.tableRow, marginBottom: 20 }}>
             <View style={{ flex: 1, maxWidth: 120 }}>
@@ -102,7 +110,7 @@ const ReportDocument = ({ reportData, authOrganization, user, netOnly }) => {
           </View>
         </View>
         <View style={{ ...pdfStyles.table, marginTop: 15 }}>
-          <PeriodPdfHeader netOnly={netOnly}
+          <PeriodPdfHeader netOnly={netOnly} closingOnly={closingOnly}
             leading={[{ label: 'Category', flex: 3 }]}
             mainColor={mainColor}
             contrastText={contrastText}
@@ -110,11 +118,14 @@ const ReportDocument = ({ reportData, authOrganization, user, netOnly }) => {
           />
           {flattenForPdf(
             (netOnly
-              ? reportData?.balanceSheetData?.map(pruneZeroNetTree)
+              ? reportData?.balanceSheetData?.map((n) =>
+                  pruneZeroNetTree(n, closingOnly)
+                )
               : reportData?.balanceSheetData) ?? [],
-            0
+            0,
+            closingOnly
           ).map((row, index) => (
-            <PeriodPdfRow netOnly={netOnly}
+            <PeriodPdfRow netOnly={netOnly} closingOnly={closingOnly}
               key={index}
               leading={[{ text: row.label, flex: 3, indent: row.level }]}
               node={row.node}
@@ -147,6 +158,7 @@ function BalanceSheet({ as_at, setOpenBalanceSheettDialog }) {
   const [uploadFieldsKey, setUploadFieldsKey] = useState(0);
   const [showOnScreen, setShowOnScreen] = useState(true);
   const [netOnly, setNetOnly] = useState(true);
+  const [closingOnly, setClosingOnly] = useState(true);
 
   const { theme } = useJumboTheme();
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
@@ -193,6 +205,7 @@ function BalanceSheet({ as_at, setOpenBalanceSheettDialog }) {
         to: watch('to'),
         display_as: 'excel',
         net_only: netOnly,
+        closing_only: closingOnly,
       });
 
       const blob = new Blob([responseData], {
@@ -265,7 +278,7 @@ function BalanceSheet({ as_at, setOpenBalanceSheettDialog }) {
               alignItems='center'
               justifyContent='center'
             >
-              <Grid size={{ xs: 12, md: 3 }}>
+              <Grid size={{ xs: 12, sm: 6, lg: 3 }}>
                 <Div sx={{ mt: 1, mb: 1 }}>
                   <DateTimePicker
                     label='From (MM/DD/YYYY)'
@@ -292,7 +305,7 @@ function BalanceSheet({ as_at, setOpenBalanceSheettDialog }) {
                   />
                 </Div>
               </Grid>
-              <Grid size={{ xs: 12, md: 3 }}>
+              <Grid size={{ xs: 12, sm: 6, lg: 3 }}>
                 <Div sx={{ mt: 1, mb: 1 }}>
                   <DateTimePicker
                     label='To (MM/DD/YYYY)'
@@ -319,25 +332,49 @@ function BalanceSheet({ as_at, setOpenBalanceSheettDialog }) {
                   />
                 </Div>
               </Grid>
-              <Grid size={{ xs: 12, md: 6 }} textAlign='right'>
-                <Stack
-                  direction='row'
-                  spacing={0.5}
-                  justifyContent='end'
-                  alignItems='center'
-                >
-                  <>
-                    <FormControlLabel
-                    control={
-                      <Switch
-                        size='small'
-                        checked={netOnly}
-                        onChange={(e) => setNetOnly(e.target.checked)}
+              <Grid size={{ xs: 12 }}>
+                {/* Options and export buttons share a row; Filter sits below it on the right */}
+                <Stack direction='column' spacing={1} useFlexGap>
+                  <Stack
+                    direction='row'
+                    useFlexGap
+                    flexWrap='wrap'
+                    columnGap={1}
+                    rowGap={0.5}
+                    justifyContent='space-between'
+                    alignItems='center'
+                  >
+                    <Stack
+                      direction='row'
+                      useFlexGap
+                      flexWrap='wrap'
+                      columnGap={1}
+                      rowGap={0.5}
+                      alignItems='center'
+                    >
+                      <FormControlLabel
+                        control={
+                          <Switch
+                            size='small'
+                            checked={netOnly}
+                            onChange={(e) => setNetOnly(e.target.checked)}
+                          />
+                        }
+                        label='Net only'
+                        sx={{ mr: 0.5 }}
                       />
-                    }
-                    label='Net only'
-                    sx={{ mr: 0.5 }}
-                  />
+                      <FormControlLabel
+                        control={
+                          <Switch
+                            size='small'
+                            checked={closingOnly}
+                            onChange={(e) => setClosingOnly(e.target.checked)}
+                          />
+                        }
+                        label='Closing only'
+                        sx={{ mr: 0.5 }}
+                      />
+                    </Stack>
                     {reportData && (
                       <FileExportGrid
                         exportExcel
@@ -349,6 +386,8 @@ function BalanceSheet({ as_at, setOpenBalanceSheettDialog }) {
                         }}
                       />
                     )}
+                  </Stack>
+                  <Stack direction='row' justifyContent='flex-end'>
                     <LoadingButton
                       loading={isFetching}
                       type='submit'
@@ -357,7 +396,7 @@ function BalanceSheet({ as_at, setOpenBalanceSheettDialog }) {
                     >
                       Filter
                     </LoadingButton>
-                  </>
+                  </Stack>
                 </Stack>
               </Grid>
             </Grid>
@@ -377,12 +416,17 @@ function BalanceSheet({ as_at, setOpenBalanceSheettDialog }) {
                   authOrganization={authOrganization}
                   user={user}
                   netOnly={netOnly}
+                  closingOnly={closingOnly}
                 />
               }
               fileName={`Balance Sheet ${readableDate(reportData?.filters?.from, true)} to ${readableDate(reportData?.filters?.to, true)}`}
             />
           ) : (
-            <BalanceSheetOnScreen reportData={reportData} netOnly={netOnly} />
+            <BalanceSheetOnScreen
+              reportData={reportData}
+              netOnly={netOnly}
+              closingOnly={closingOnly}
+            />
           ))
         )}
       </DialogContent>

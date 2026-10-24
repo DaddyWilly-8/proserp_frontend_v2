@@ -16,7 +16,7 @@ import dayjs from 'dayjs';
 import React, { useState } from 'react';
 import { PeriodCells, PeriodTableHead, pruneZeroNetTree } from '../periodColumns';
 
-const DebtorCreditorOnScreen = ({ reportData, authOrganization, user, netOnly }) => {
+const DebtorCreditorOnScreen = ({ reportData, authOrganization, user, netOnly, closingOnly }) => {
   const { currencies } = useCurrencySelect();
   const baseCurrency = currencies?.find((c) => c.is_base === 1);
   const organization = authOrganization?.organization;
@@ -32,7 +32,9 @@ const DebtorCreditorOnScreen = ({ reportData, authOrganization, user, netOnly })
 
   const rawRootGroup = reportData?.debtors || reportData?.creditors;
   const rootGroup =
-    rawRootGroup && netOnly ? pruneZeroNetTree(rawRootGroup) : rawRootGroup;
+    rawRootGroup && netOnly
+      ? pruneZeroNetTree(rawRootGroup, closingOnly)
+      : rawRootGroup;
   // debtors are rooted at the Accounts Receivable group (increases with
   // debit), creditors at Accounts Payable (increases with credit) — fixed
   // per report type, so this doesn't need to travel per-ledger anymore.
@@ -87,7 +89,7 @@ const DebtorCreditorOnScreen = ({ reportData, authOrganization, user, netOnly })
             {level > 0 && hasChildren && (isOpen ? <KeyboardArrowDown /> : <KeyboardArrowRight />)}
             <span style={{ marginLeft: 5 }}>{group.name}</span>
           </TableCell>
-          <PeriodCells netOnly={netOnly}
+          <PeriodCells netOnly={netOnly} closingOnly={closingOnly}
             node={group}
             sx={{ color: level === 0 ? contrastText : undefined, fontWeight: 'bold' }}
           />
@@ -102,7 +104,7 @@ const DebtorCreditorOnScreen = ({ reportData, authOrganization, user, netOnly })
             }}
           >
             <TableCell style={{ paddingLeft: (level + 1) * 20 }}>{ledger.name}</TableCell>
-            <PeriodCells netOnly={netOnly}
+            <PeriodCells netOnly={netOnly} closingOnly={closingOnly}
               node={ledger}
               sx={{
                 cursor: 'pointer',
@@ -122,7 +124,7 @@ const DebtorCreditorOnScreen = ({ reportData, authOrganization, user, netOnly })
         <TableContainer component={TablePaper}>
           <Table>
             <TableHead>
-              <PeriodTableHead netOnly={netOnly}
+              <PeriodTableHead netOnly={netOnly} closingOnly={closingOnly}
                 leadingLabels={['Name']}
                 backgroundColor={mainColor}
                 color={contrastText}
@@ -135,7 +137,7 @@ const DebtorCreditorOnScreen = ({ reportData, authOrganization, user, netOnly })
                 <TableCell sx={{ backgroundColor: mainColor, color: contrastText, borderBottom: 'none' }}>
                   Total
                 </TableCell>
-                <PeriodCells netOnly={netOnly}
+                <PeriodCells netOnly={netOnly} closingOnly={closingOnly}
                   node={reportData.total}
                   sx={{ backgroundColor: mainColor, color: contrastText, borderBottom: 'none', fontWeight: 'bold' }}
                 />
