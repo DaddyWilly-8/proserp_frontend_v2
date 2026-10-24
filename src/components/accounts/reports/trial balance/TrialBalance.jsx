@@ -40,7 +40,9 @@ import {
   PeriodPdfHeader,
   PDF_PAGE_STYLE,
   PeriodPdfRow,
+  hasNetBalance,
   hasPeriodActivity,
+  pruneZeroNetTree,
   periodSubtitle,
 } from '../periodColumns';
 import TrialBalanceGroupedOnScreen from './TrialBalanceGroupedOnScreen';
@@ -135,7 +137,11 @@ const ReportDocumet = ({
                 contrastText={contrastText}
               filters={reportData.filters}
               />
-              {flattenGroupsForPdf(reportData.groups ?? []).map((row, index) => (
+              {flattenGroupsForPdf(
+                (netOnly
+                  ? reportData.groups?.map(pruneZeroNetTree)
+                  : reportData.groups) ?? []
+              ).map((row, index) => (
                 <PeriodPdfRow netOnly={netOnly}
                   key={index}
                   leading={[
@@ -167,7 +173,7 @@ const ReportDocumet = ({
               filters={reportData.filters}
               />
               {reportData.ledgers
-                .filter(hasPeriodActivity)
+                .filter(netOnly ? hasNetBalance : hasPeriodActivity)
                 .map((ledger, index) => (
                   <PeriodPdfRow netOnly={netOnly}
                     key={index}

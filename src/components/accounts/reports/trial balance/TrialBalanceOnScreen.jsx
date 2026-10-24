@@ -16,6 +16,7 @@ import React from 'react';
 import {
   PeriodCells,
   PeriodTableHead,
+  hasNetBalance,
   hasPeriodActivity,
 } from '../periodColumns';
 
@@ -28,7 +29,9 @@ const TrialBalanceOnScreen = ({ reportData, authOrganization, netOnly }) => {
   const headerColor = theme.type === 'dark' ? '#29f096' : mainColor;
   const contrastText = authOrganization?.organization.settings?.contrast_text || "#FFFFFF";
 
-  const ledgers = reportData.ledgers.filter(hasPeriodActivity);
+  const ledgers = reportData.ledgers.filter(
+    netOnly ? hasNetBalance : hasPeriodActivity
+  );
   const totalSx = { backgroundColor: mainColor, color: contrastText, borderBottom: 'none', fontWeight: 'bold' };
 
   return (

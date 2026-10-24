@@ -50,6 +50,52 @@ export const formatNet = (net) =>
 export const hasPeriodActivity = (node) =>
   PERIODS.some(([key]) => node[key]?.debit || node[key]?.credit);
 
+export const hasNetBalance = (node) =>
+  PERIODS.some(([key]) => node[key]?.net?.amount);
+
+/**
+ * Net-only view: drops nodes whose Opening, Current and Closing nets are all
+ * zero. A group stays if it has a net of its own or anything non-zero beneath
+ * it (offsetting ledgers can net a group to zero without being empty).
+ */
+export const pruneZeroNetList = (nodes = []) =>
+  nodes.flatMap((node) => {
+    const children = pruneZeroNetList(node.children);
+    const ledgers = pruneZeroNetList(node.ledgers);
+    return hasNetBalance(node) || children.length || ledgers.length
+      ? [{ ...node, children, ledgers }]
+      : [];
+  });
+
+/** As pruneZeroNetList, but the root itself is always kept. */
+export const pruneZeroNetTree = (root) => ({
+  ...root,
+  children: pruneZeroNetList(root.children),
+  ledgers: pruneZeroNetList(root.ledgers),
+});
+
+// A net on the opposite side to the account's normal side (e.g. an asset or a
+// debtor in credit, a liability or a creditor in debit) is a negative balance.
+// Nodes without a normal_side (report totals) are never flagged.
+export const isNegativeNet = (node, period) =>
+  Boolean(
+    node.normal_side &&
+      node[period]?.net?.amount &&
+      node[period].net.side !== node.normal_side
+  );
+
+export const NEGATIVE_COLOR = '#D32F2F';
+
+/** Flat list of { value, negative } for every figure cell of a node, in column order. */
+const periodCells = (node, netOnly) =>
+  PERIODS.flatMap(([key]) => {
+    const values = periodValues(node, key, netOnly);
+    return values.map((value, i) => ({
+      value,
+      negative: i === values.length - 1 && isNegativeNet(node, key),
+    }));
+  });
+
 const periodValues = (node, period, netOnly) =>
   netOnly
     ? [formatNet(node[period]?.net)]
@@ -136,12 +182,18 @@ export const PeriodTableHead = ({
 
 /** The Opening/Current/Closing cells (nine, or three when netOnly) for one node. */
 export const PeriodCells = ({ node, sx, onClick, netOnly = false }) =>
-  PERIODS.flatMap(([key]) => periodValues(node, key, netOnly)).map((value, i) => (
+  periodCells(node, netOnly).map(({ value, negative }, i) => (
     <TableCell
       key={i}
       align='right'
       onClick={onClick}
-      sx={{ whiteSpace: 'nowrap', ...periodBorder(i, netOnly), ...sx }}
+      sx={{
+        whiteSpace: 'nowrap',
+        ...periodBorder(i, netOnly),
+        ...sx,
+        // Rows that set their own text colour sit on a coloured background (totals, root row)
+        ...(negative && !sx?.color ? { color: NEGATIVE_COLOR } : {}),
+      }}
     >
       {value}
     </TableCell>
@@ -264,14 +316,16 @@ export const PeriodPdfRow = ({
           </View>
         </View>
       ))}
-      {PERIODS.flatMap(([key]) => periodValues(node, key, netOnly)).map((value, i) => (
+      {periodCells(node, netOnly).map(({ value, negative }, i) => (
         <View
           key={i}
           style={box(pct(subs[i % subs.length].flex, total), {
             alignItems: 'flex-end',
           })}
         >
-          <Text style={text}>{value}</Text>
+          <Text style={negative ? { ...text, color: NEGATIVE_COLOR } : text}>
+            {value}
+          </Text>
         </View>
       ))}
     </View>

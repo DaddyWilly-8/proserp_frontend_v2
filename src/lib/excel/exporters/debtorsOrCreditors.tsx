@@ -3,6 +3,26 @@ import dayjs from 'dayjs';
 import { applyCellStyle, CELL_STYLES } from '../styles';
 import { createWorkbook } from '../workBook';
 
+// Net-only view: drops nodes whose Opening, Current and Closing nets are all
+// zero; a group stays if it, or anything beneath it, has a non-zero net.
+// (Same rule as the on-screen/PDF pruning in reports/periodColumns.jsx, kept
+// local so this server-side exporter doesn't import React components.)
+const hasNetBalance = (node: any) =>
+  ['opening', 'current', 'closing'].some((key) => node[key]?.net?.amount);
+const pruneZeroNetList = (nodes: any[] = []): any[] =>
+  nodes.flatMap((node) => {
+    const children = pruneZeroNetList(node.children);
+    const ledgers = pruneZeroNetList(node.ledgers);
+    return hasNetBalance(node) || children.length || ledgers.length
+      ? [{ ...node, children, ledgers }]
+      : [];
+  });
+const pruneZeroNetTree = (root: any) => ({
+  ...root,
+  children: pruneZeroNetList(root.children),
+  ledgers: pruneZeroNetList(root.ledgers),
+});
+
 export async function exportDebtorsOrCreditorsToExcel(exportedData: any) {
   try {
     const { authOrganization, reportData, user, netOnly = false } = exportedData;
@@ -12,7 +32,9 @@ export async function exportDebtorsOrCreditorsToExcel(exportedData: any) {
       ? `Period: ${readableDate(reportData.filters.from, true)} to ${readableDate(reportData.filters.to, true)}`
       : `Up to: ${readableDate(reportData.filters.to, true)}`;
 
-    const rootGroup = reportData.debtors || reportData.creditors;
+    const rawRootGroup = reportData.debtors || reportData.creditors;
+    const rootGroup =
+      rawRootGroup && netOnly ? pruneZeroNetTree(rawRootGroup) : rawRootGroup;
 
     // create workbook and worksheet
     const wb = createWorkbook();
@@ -192,7 +214,19 @@ export async function exportDebtorsOrCreditorsToExcel(exportedData: any) {
           cell.numFmt = '#,##0.00;[Red]-#,##0.00';
           cell.alignment = { horizontal: 'right', vertical: 'middle' };
           cell.border = thinBorder;
-          if (bold) cell.font = { bold: true };
+          // A net on the opposite side to the node's normal side is a negative balance
+          const isNet = j === values.length - 1;
+          const negative =
+            isNet &&
+            node.normal_side &&
+            figures?.net?.amount &&
+            figures.net.side !== node.normal_side;
+          if (bold || negative) {
+            cell.font = {
+              ...(bold ? { bold: true } : {}),
+              ...(negative ? { color: { argb: 'FFD32F2F' } } : {}),
+            };
+          }
         });
       });
     };

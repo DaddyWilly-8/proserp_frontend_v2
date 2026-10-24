@@ -38,6 +38,7 @@ import PDFContent from '../../../pdf/PDFContent';
 import PdfLogo from '../../../pdf/PdfLogo';
 import financialReportsServices from '../financial-reports-services';
 import {
+  pruneZeroNetTree,
   PDF_PAGE_STYLE,
   PeriodPdfHeader,
   PeriodPdfRow,
@@ -66,7 +67,9 @@ const ReportDocumet = ({ reportData, authOrganization, user, netOnly }) => {
   const contrastText =
     authOrganization.organization.settings?.contrast_text || '#FFFFFF';
   const reportPeriod = periodSubtitle(reportData.filters, readableDate);
-  const rootGroup = reportData.debtors || reportData.creditors;
+  const rawRootGroup = reportData.debtors || reportData.creditors;
+  const rootGroup =
+    rawRootGroup && netOnly ? pruneZeroNetTree(rawRootGroup) : rawRootGroup;
   const rows = rootGroup ? flattenGroupTree(rootGroup, 0) : [];
 
   return reportData ? (

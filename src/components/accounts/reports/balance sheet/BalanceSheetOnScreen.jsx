@@ -1,7 +1,12 @@
 import { KeyboardArrowDown, KeyboardArrowRight } from '@mui/icons-material';
 import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
 import React, { useState } from 'react';
-import { PeriodCells, PeriodTableHead, hasPeriodActivity } from '../periodColumns';
+import {
+  PeriodCells,
+  PeriodTableHead,
+  hasPeriodActivity,
+  pruneZeroNetTree,
+} from '../periodColumns';
 
 const BalanceSheetOnScreen = ({ reportData, netOnly }) => {
   const [openRows, setOpenRows] = useState([]);
@@ -54,7 +59,10 @@ const BalanceSheetOnScreen = ({ reportData, netOnly }) => {
           />
         </TableHead>
         <TableBody>
-          {reportData.balanceSheetData?.map((component, index) => {
+          {(netOnly
+            ? reportData.balanceSheetData?.map(pruneZeroNetTree)
+            : reportData.balanceSheetData
+          )?.map((component, index) => {
             const isOpen = openRows.includes(component.id);
             return (
               <React.Fragment key={component.id}>

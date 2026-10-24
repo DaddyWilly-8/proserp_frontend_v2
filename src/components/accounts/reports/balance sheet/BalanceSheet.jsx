@@ -37,6 +37,7 @@ import {
   PDF_PAGE_STYLE,
   PeriodPdfRow,
   hasPeriodActivity,
+  pruneZeroNetTree,
   periodSubtitle,
 } from '../periodColumns';
 import BalanceSheetOnScreen from './BalanceSheetOnScreen';
@@ -107,7 +108,12 @@ const ReportDocument = ({ reportData, authOrganization, user, netOnly }) => {
             contrastText={contrastText}
           filters={reportData.filters}
           />
-          {flattenForPdf(reportData?.balanceSheetData ?? [], 0).map((row, index) => (
+          {flattenForPdf(
+            (netOnly
+              ? reportData?.balanceSheetData?.map(pruneZeroNetTree)
+              : reportData?.balanceSheetData) ?? [],
+            0
+          ).map((row, index) => (
             <PeriodPdfRow netOnly={netOnly}
               key={index}
               leading={[{ text: row.label, flex: 3, indent: row.level }]}

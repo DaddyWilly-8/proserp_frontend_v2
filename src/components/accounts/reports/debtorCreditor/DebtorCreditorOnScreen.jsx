@@ -14,7 +14,7 @@ import {
 } from '@mui/material';
 import dayjs from 'dayjs';
 import React, { useState } from 'react';
-import { PeriodCells, PeriodTableHead } from '../periodColumns';
+import { PeriodCells, PeriodTableHead, pruneZeroNetTree } from '../periodColumns';
 
 const DebtorCreditorOnScreen = ({ reportData, authOrganization, user, netOnly }) => {
   const { currencies } = useCurrencySelect();
@@ -30,7 +30,9 @@ const DebtorCreditorOnScreen = ({ reportData, authOrganization, user, netOnly })
   const [openRows, setOpenRows] = useState([]);
   const [liabilitiesPayload, setLiabilitiesPayload] = useState(null);
 
-  const rootGroup = reportData?.debtors || reportData?.creditors;
+  const rawRootGroup = reportData?.debtors || reportData?.creditors;
+  const rootGroup =
+    rawRootGroup && netOnly ? pruneZeroNetTree(rawRootGroup) : rawRootGroup;
   // debtors are rooted at the Accounts Receivable group (increases with
   // debit), creditors at Accounts Payable (increases with credit) — fixed
   // per report type, so this doesn't need to travel per-ledger anymore.

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, useTheme } from '@mui/material';
 import { KeyboardArrowDown, KeyboardArrowRight } from '@mui/icons-material';
-import { PeriodCells, PeriodTableHead } from '../periodColumns';
+import { PeriodCells, PeriodTableHead, pruneZeroNetTree } from '../periodColumns';
 
 const TrialBalanceGroupedOnScreen = ({ reportData, authOrganization, netOnly }) => {
   const theme = useTheme();
@@ -60,7 +60,10 @@ const TrialBalanceGroupedOnScreen = ({ reportData, authOrganization, netOnly }) 
           />
         </TableHead>
         <TableBody>
-          {reportData.groups?.map((group) => renderGroup(group, 0))}
+          {(netOnly
+            ? reportData.groups?.map(pruneZeroNetTree)
+            : reportData.groups
+          )?.map((group) => renderGroup(group, 0))}
           <TableRow>
             <TableCell sx={{ backgroundColor: mainColor, color: contrastText, borderBottom: 'none' }}>
               TOTAL
