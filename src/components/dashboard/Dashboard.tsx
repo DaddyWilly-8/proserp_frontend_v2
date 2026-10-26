@@ -139,7 +139,7 @@ function Dashboard() {
     <React.Fragment>
       {authOrganization?.organization && (
         <DashboardContext.Provider value={{ chartFilters, setChartFilters }}>
-          <AnnouncementBanner
+          {/* <AnnouncementBanner
             id='customer-service-month-2026'
             startDate='2026-10-01'
             endDate='2026-10-31'
@@ -151,7 +151,7 @@ function Dashboard() {
                 better every day.
               </>
             }
-          />
+          /> */}
           {active_subscriptions.length === 0 && (
             <Card sx={{ my: 1, p: 1 }}>
               <Alert sx={{ m: 1 }} severity='warning'>
