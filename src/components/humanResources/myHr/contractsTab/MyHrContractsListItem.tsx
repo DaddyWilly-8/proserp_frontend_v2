@@ -4,6 +4,7 @@ import { readableDate } from '@/app/helpers/input-sanitization-helpers';
 import { Chip, Divider, Grid, Tooltip, Typography } from '@mui/material';
 import { formatMoney } from '../../payrollRuns/payrollUtils';
 import { MyHrContract } from './contractsType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const formatLabel = (value?: string | null) => {
   if (!value) return '—';
@@ -26,6 +27,8 @@ const statusColor = (status?: string): 'success' | 'default' | 'warning' => {
 };
 
 const MyHrContractsListItem = ({ contract }: { contract: MyHrContract }) => {
+  const dictionary = useDictionary();
+  const t = dictionary.humanResources.myHr.contracts;
   return (
     <>
       <Divider />
@@ -44,7 +47,7 @@ const MyHrContractsListItem = ({ contract }: { contract: MyHrContract }) => {
         container
       >
         <Grid size={{ xs: 12, md: 3.5 }}>
-          <Tooltip title='Designation'>
+          <Tooltip title={dictionary.tooltips.designation}>
             <div>
               <Typography
                 variant='h5'
@@ -63,7 +66,7 @@ const MyHrContractsListItem = ({ contract }: { contract: MyHrContract }) => {
         </Grid>
 
         <Grid size={{ xs: 12, md: 3.5 }}>
-          <Tooltip title='Contract Period'>
+          <Tooltip title={dictionary.tooltips.contractPeriod}>
             <div>
               <Typography noWrap>
                 {contract.start_date
@@ -72,12 +75,14 @@ const MyHrContractsListItem = ({ contract }: { contract: MyHrContract }) => {
                 {' – '}
                 {contract.end_date
                   ? readableDate(contract.end_date, false)
-                  : 'Present'}
+                  : t.present}
               </Typography>
               {contract.probation_end_date && (
                 <Typography variant='body2' color='text.secondary' noWrap>
-                  Probation ends{' '}
-                  {readableDate(contract.probation_end_date, false)}
+                  {t.probationEnds.replace(
+                    '{date}',
+                    readableDate(contract.probation_end_date, false)
+                  )}
                 </Typography>
               )}
             </div>
@@ -85,7 +90,7 @@ const MyHrContractsListItem = ({ contract }: { contract: MyHrContract }) => {
         </Grid>
 
         <Grid size={{ xs: 12, md: 2.5 }}>
-          <Tooltip title='Basic Salary'>
+          <Tooltip title={dictionary.tooltips.basicSalary}>
             <div>
               <Typography noWrap>
                 {formatMoney(contract.basic_salary)}

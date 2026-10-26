@@ -25,6 +25,7 @@ import LedgerSelect from '@/components/accounts/ledgers/forms/LedgerSelect';
 import { useLedgerSelect } from '@/components/accounts/ledgers/forms/LedgerSelectProvider';
 import projectsServices from '@/components/projectManagement/projects/project-services';
 import debounce from 'lodash/debounce';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface Deliverable {
   id: number;
@@ -90,23 +91,24 @@ interface FormValues {
   amount?: number; // Add amount field
 }
 
-const validationSchema = yup.object({
-  project_deliverable_id: yup
-    .number()
-    .required('Deliverable is required')
-    .typeError('Deliverable is required'),
+const getValidationSchema = (t: any) =>
+  yup.object({
+    project_deliverable_id: yup
+      .number()
+      .required(t.errors.deliverableRequired)
+      .typeError(t.errors.deliverableRequired),
 
-  revenue_ledger_id: yup
-    .number()
-    .required('Revenue Ledger is required')
-    .typeError('Revenue Ledger is required'),
+    revenue_ledger_id: yup
+      .number()
+      .required(t.errors.revenueLedgerRequired)
+      .typeError(t.errors.revenueLedgerRequired),
 
-  certified_quantity: yup
-    .number()
-    .required('Quantity is required')
-    .positive('Quantity must be positive')
-    .typeError('Valid quantity is required'),
-});
+    certified_quantity: yup
+      .number()
+      .required(t.errors.quantityRequired)
+      .positive(t.errors.quantityPositive)
+      .typeError(t.errors.quantityValid),
+  });
 
 const ClaimedDeliverablesItemForm: React.FC<ClaimedDeliverablesItemFormProps> = ({
   setClearFormKey,
@@ -123,6 +125,9 @@ const ClaimedDeliverablesItemForm: React.FC<ClaimedDeliverablesItemFormProps> = 
   selectedCurrencyId,
   selectedCurrencySymbol = '', // Default currency symbol
 }) => {
+  const dictionary = useDictionary();
+  const t = dictionary.forms.projects.claimedDeliverables;
+  const sh = dictionary.forms.projects.shared;
   const { deliverable_groups }: { deliverable_groups: ProjectDeliverableGroup[] } = useProjectProfile() as any;
   const { ungroupedLedgerOptions } = useLedgerSelect();
   const [isAdding, setIsAdding] = useState(false);
@@ -143,7 +148,7 @@ const ClaimedDeliverablesItemForm: React.FC<ClaimedDeliverablesItemFormProps> = 
     reset,
     trigger,
   } = useForm<FormValues>({
-    resolver: yupResolver(validationSchema) as any,
+    resolver: yupResolver(getValidationSchema(t)) as any,
     context: { deliverableItems, index },
     defaultValues: {
       project_deliverable_id: deliverableItem?.project_deliverable_id || deliverableItem?.project_deliverable?.id,
@@ -335,11 +340,11 @@ const ClaimedDeliverablesItemForm: React.FC<ClaimedDeliverablesItemFormProps> = 
           isOptionEqualToValue={(option, value) => option.id === value?.id}
           value={selectedDeliverable || null}
           loading={isLoadingOptions || isSearching}
-          loadingText="Loading..."
+          loadingText={t.messages.loading}
           noOptionsText={
             searchInput.length >= 2 
-              ? 'No deliverables found' 
-              : 'Type at least 2 characters to search'
+              ? t.messages.noDeliverables
+              : t.messages.typeToSearch
           }
           onOpen={handleOpen}
           onInputChange={handleSearchChange}
@@ -366,7 +371,7 @@ const ClaimedDeliverablesItemForm: React.FC<ClaimedDeliverablesItemFormProps> = 
           renderInput={(params) => (
             <TextField
               {...params}
-              label="Deliverable"
+              label={t.labels.deliverable}
               size="small"
               fullWidth
               error={!!errors.project_deliverable_id}
@@ -414,7 +419,7 @@ const ClaimedDeliverablesItemForm: React.FC<ClaimedDeliverablesItemFormProps> = 
       <Grid size={{ xs: 12, md: 3.5 }}>
         <LedgerSelect
           multiple={false}
-          label="Revenue Ledger"
+          label={t.labels.revenueLedger}
           defaultValue={ungroupedLedgerOptions?.find((l) => l.id === watch('revenue_ledger_id'))}
           allowedGroups={['Revenue', 'Accounts Receivable']}
           frontError={errors.revenue_ledger_id}
@@ -433,7 +438,7 @@ const ClaimedDeliverablesItemForm: React.FC<ClaimedDeliverablesItemFormProps> = 
           <LinearProgress />
         ) : (
           <TextField
-            label="Certified Quantity"
+            label={t.labels.certifiedQuantity}
             fullWidth
             size="small"
             value={watch('certified_quantity') ?? ''}
@@ -463,7 +468,7 @@ const ClaimedDeliverablesItemForm: React.FC<ClaimedDeliverablesItemFormProps> = 
       {/* Rate */}
       <Grid size={{ xs: 12, md: 1.5 }}>
         <TextField
-          label="Rate"
+          label={t.labels.rate}
           fullWidth
           size="small"
           value={watch('rate') ?? ''}
@@ -483,7 +488,7 @@ const ClaimedDeliverablesItemForm: React.FC<ClaimedDeliverablesItemFormProps> = 
       {/* Amount - Read-only field showing total */}
       <Grid size={{ xs: 12, md: 1.5 }}>
         <TextField
-          label="Amount"
+          label={t.labels.amount}
           fullWidth
           size="small"
           value={calculatedAmount.toLocaleString('en-US', {
@@ -510,7 +515,7 @@ const ClaimedDeliverablesItemForm: React.FC<ClaimedDeliverablesItemFormProps> = 
           fullWidth
           multiline
           rows={2}
-          label="Remarks"
+          label={t.labels.remarks}
           value={watch('remarks') ?? ''}
           onChange={(e) =>
             setValue('remarks', e.target.value, {
@@ -531,11 +536,11 @@ const ClaimedDeliverablesItemForm: React.FC<ClaimedDeliverablesItemFormProps> = 
           startIcon={isAdding ? <CircularProgress size={16} color="inherit" /> : deliverableItem ? <CheckOutlined /> : <AddOutlined />}
           sx={{ mb: 0.5 }}
         >
-          {deliverableItem ? 'Done' : 'Add'}
+          {deliverableItem ? sh.done : sh.add}
         </Button>
 
         {deliverableItem && setShowForm && (
-          <Tooltip title="Cancel Edit">
+          <Tooltip title={dictionary.tooltips.cancelEdit}>
             <IconButton size="small" onClick={() => setShowForm(false)}>
               <DisabledByDefaultOutlined fontSize="small" color="error" />
             </IconButton>

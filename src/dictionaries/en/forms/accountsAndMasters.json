@@ -1,0 +1,718 @@
+{
+  "transactions": {
+    "itemForm": {
+      "labels": {
+        "payDebit": "Pay (Debit)",
+        "toDebit": "To (Debit)",
+        "debit": "Debit",
+        "fromCredit": "From (Credit)",
+        "credit": "Credit",
+        "linkTo": "Link To (optional)",
+        "description": "Description",
+        "amount": "Amount",
+        "purchaseOrder": "Purchase Order",
+        "bill": "Bill",
+        "invoice": "Invoice"
+      },
+      "buttons": {
+        "done": "Done",
+        "add": "Add"
+      },
+      "errors": {
+        "validation": {
+          "debitRequired": "Debit account is required",
+          "creditRequired": "Credit account is required",
+          "sameAccounts": "Debit and credit accounts cannot be the same",
+          "descriptionRequired": "Description is required",
+          "amountRequired": "Amount is required",
+          "amountPositive": "Amount must be greater than 0",
+          "amountExceedsRelatable": "Amount should not exceed unapproved amount of selected relatable",
+          "amountExceedsCapped": "Amount should not exceed unapproved amount ({max}) — capped against {purchaseOrderNo}, not this Bill itself",
+          "amountExceedsMax": "Amount should not exceed unapproved amount ({max}) of selected relatable",
+          "currencyMismatch": "Ledger currency does not match the selected currency.",
+          "currencyMustMatch": "Ledger currency must match the selected currency."
+        }
+      }
+    },
+    "itemRow": {
+      "labels": {
+        "bill": "Bill",
+        "invoice": "Invoice",
+        "purchaseOrder": "P.O"
+      }
+    },
+    "reconciled": {
+      "title": "Transaction",
+      "alert": "This transaction is matched in a bank reconciliation, so most fields are locked to protect that match. Only its cost centers can still be changed here.",
+      "labels": {
+        "date": "Date",
+        "narration": "Narration",
+        "costCenters": "Cost Centers"
+      },
+      "buttons": {
+        "cancel": "Cancel",
+        "save": "Save"
+      },
+      "messages": {
+        "updateSuccess": "Cost centers updated successfully"
+      }
+    }
+  },
+  "payments": {
+    "form": {
+      "title": {
+        "new": "New Payment Form",
+        "edit": "Edit: {voucherNo}",
+        "duplicate": "Duplicate: {voucherNo}"
+      },
+      "labels": {
+        "paymentDate": "Payment Date (MM/DD/YYYY)",
+        "payFromCredit": "Pay From (Credit)",
+        "reference": "Reference",
+        "exchangeRate": "Exchange Rate",
+        "costCenters": "Cost Centers",
+        "narration": "Narration"
+      },
+      "tooltips": {
+        "currencyLocked": "Currency is locked because an item has been added. Remove all items first to change currency."
+      },
+      "dialogs": {
+        "unsavedChanges": {
+          "title": "Unsaved Changes",
+          "message": "Last item was not added to the list",
+          "addAndSubmit": "Add and Submit",
+          "submitWithoutAdd": "Submit without add"
+        }
+      },
+      "buttons": {
+        "cancel": "Cancel",
+        "submit": "Submit",
+        "createSchedule": "Create Schedule"
+      },
+      "errors": {
+        "validation": {
+          "narrationRequired": "Narration is required",
+          "creditLedgerRequired": "Paying (credit) account is required",
+          "currencyRequired": "Currency is required",
+          "exchangeRateRequired": "Exchange rate is required",
+          "paymentDateRequired": "Payment Date is required",
+          "itemsRequired": "You must add at least one item",
+          "costCenterRequired": "At least one cost center is required"
+        }
+      }
+    }
+  },
+  "receipts": {
+    "form": {
+      "labels": {
+        "reference": "Reference",
+        "exchangeRate": "Exchange Rate",
+        "costCenters": "Cost Centers",
+        "narration": "Narration",
+        "date": "Receipt Date (MM/DD/YYYY)",
+        "receivingAccountDebit": "Receiving Account (Debit)"
+      },
+      "dialogs": {
+        "unsavedChanges": {
+          "title": "Unsaved Changes",
+          "message": "Last item was not added to the list",
+          "addAndSubmit": "Add and Submit",
+          "submitWithoutAdd": "Submit without add"
+        }
+      },
+      "buttons": {
+        "cancel": "Cancel",
+        "submit": "Submit",
+        "createSchedule": "Create Schedule"
+      },
+      "errors": {
+        "validation": {
+          "narrationRequired": "Narration is required",
+          "currencyRequired": "Currency is required",
+          "exchangeRateRequired": "Exchange rate is required",
+          "itemsRequired": "You must add at least one item",
+          "costCenterRequired": "At least one cost center is required",
+          "descriptionRequired": "Description is required",
+          "amountRequired": "Amount is required",
+          "amountPositive": "Amount must be greater than 0",
+          "dateRequired": "Receipt Date is required",
+          "receivingAccountRequired": "Receiving Account is required",
+          "receiveFromRequired": "Receive From (Credit) account is required"
+        }
+      },
+      "title": {
+        "new": "New Receipt Form",
+        "edit": "Edit {voucherNo}"
+      }
+    }
+  },
+  "transfers": {
+    "form": {
+      "labels": {
+        "reference": "Reference",
+        "exchangeRate": "Exchange Rate",
+        "costCenters": "Cost Centers",
+        "narration": "Narration",
+        "date": "Transfer Date (MM/DD/YYYY)",
+        "transferFromCredit": "Transfer From (Credit)"
+      },
+      "dialogs": {
+        "unsavedChanges": {
+          "title": "Unsaved Changes",
+          "message": "Last item was not added to the list",
+          "addAndSubmit": "Add and Submit",
+          "submitWithoutAdd": "Submit without add"
+        }
+      },
+      "buttons": {
+        "cancel": "Cancel",
+        "submit": "Submit",
+        "createSchedule": "Create Schedule"
+      },
+      "errors": {
+        "validation": {
+          "narrationRequired": "Narration is required",
+          "currencyRequired": "Currency is required",
+          "exchangeRateRequired": "Exchange rate is required",
+          "itemsRequired": "You must add at least one item",
+          "costCenterRequired": "At least one cost center is required",
+          "descriptionRequired": "Description is required",
+          "amountRequired": "Amount is required",
+          "amountPositive": "Amount must be greater than 0",
+          "dateRequired": "Transfer Date is required",
+          "fromLedgerRequired": "Transfer from (credit) Ledger is required",
+          "toAccountRequired": "Transfer to (Debit) account is required",
+          "foreignCurrencies": "Transfers between two different foreign currencies are not supported directly. Post through a base-currency clearing entry instead."
+        }
+      },
+      "title": {
+        "new": "New Transfer Form",
+        "edit": "Edit {voucherNo}"
+      }
+    }
+  },
+  "journals": {
+    "form": {
+      "labels": {
+        "reference": "Reference",
+        "exchangeRate": "Exchange Rate",
+        "costCenters": "Cost Centers",
+        "narration": "Narration",
+        "date": "Journal Date (MM/DD/YYYY)"
+      },
+      "dialogs": {
+        "unsavedChanges": {
+          "title": "Unsaved Changes",
+          "message": "Last item was not added to the list",
+          "addAndSubmit": "Add and Submit",
+          "submitWithoutAdd": "Submit without add"
+        }
+      },
+      "buttons": {
+        "cancel": "Cancel",
+        "submit": "Submit",
+        "createSchedule": "Create Schedule"
+      },
+      "errors": {
+        "validation": {
+          "narrationRequired": "Narration is required",
+          "currencyRequired": "Currency is required",
+          "exchangeRateRequired": "Exchange rate is required",
+          "itemsRequired": "You must add at least one item",
+          "costCenterRequired": "At least one cost center is required",
+          "dateRequired": "Journal Date is required",
+          "foreignCurrencies": "Entries between two different foreign currencies are not supported directly. Post through a base-currency clearing entry instead."
+        }
+      },
+      "title": {
+        "new": "New Journal Form",
+        "edit": "Edit: {voucherNo}",
+        "duplicate": "Duplicate: {voucherNo}"
+      }
+    },
+    "itemForm": {
+      "labels": {
+        "debit": "Debit",
+        "credit": "Credit",
+        "description": "Description",
+        "amount": "Amount",
+        "diffOpeningBalances": "Diff. in Opening Balances"
+      },
+      "buttons": {
+        "done": "Done",
+        "add": "Add"
+      },
+      "errors": {
+        "validation": {
+          "debitRequired": "Debit account is required",
+          "debitPositive": "Debit account must be a positive number",
+          "creditRequired": "Credit account is required",
+          "creditPositive": "Credit account must be a positive number",
+          "sameAccounts": "Debit and credit accounts cannot be the same",
+          "descriptionRequired": "Description is required",
+          "amountRequired": "Amount is required",
+          "amountPositive": "Amount must be greater than 0",
+          "amountNumber": "Amount must be a number",
+          "debitCurrencyMustMatch": "Debit ledger currency must match the selected currency.",
+          "creditCurrencyMustMatch": "Credit ledger currency must match the selected currency."
+        }
+      }
+    }
+  },
+  "ledgers": {
+    "form": {
+      "title": {
+        "create": "Create New Ledger",
+        "edit": "Edit {name}",
+        "quickAddCredit": "Quick Add Credit Ledger",
+        "quickAddDebit": "Quick Add Debit Ledger"
+      },
+      "sections": {
+        "openingBalanceDetails": "Opening Balance Details"
+      },
+      "labels": {
+        "ledgerName": "Ledger Name",
+        "ledgerGroup": "Ledger Group",
+        "alias": "Alias (Optional)",
+        "code": "Code (Optional)",
+        "currency": "Currency (Optional)",
+        "description": "Description (Optional)",
+        "openingBalance": "Opening Balance (Optional)",
+        "credit": "Credit",
+        "debit": "Debit",
+        "asAt": "As at (MM/DD/YYYY)",
+        "costCenters": "Cost Centers"
+      },
+      "buttons": {
+        "cancel": "Cancel",
+        "submit": "Submit",
+        "add": "Add"
+      },
+      "messages": {
+        "createSuccess": "Ledger created successfully",
+        "updateSuccess": "Ledger updated successfully",
+        "somethingWentWrong": "Something went wrong"
+      },
+      "errors": {
+        "validation": {
+          "nameRequired": "Ledger Name is required",
+          "groupRequired": "Ledger Group is required",
+          "balanceSideRequired": "Is the balance Credit or Debit",
+          "balanceDateRequired": "Select the date of the balance you entered"
+        }
+      }
+    },
+    "quickGroup": {
+      "title": "Quick Add Ledger Group",
+      "labels": {
+        "name": "Ledger Group Name",
+        "alias": "Alias (optional)",
+        "parentGroup": "Parent Group",
+        "description": "Description (optional)"
+      },
+      "buttons": {
+        "cancel": "Cancel",
+        "add": "Add"
+      },
+      "errors": {
+        "validation": {
+          "nameRequired": "Ledger Group Name is required",
+          "selectFromOptions": "Please select a group from the given options",
+          "parentRequired": "Parent Group is required"
+        }
+      }
+    },
+    "userLedgerAction": {
+      "title": {
+        "link": "Link User to Imprest Ledger",
+        "unlink": "Unlink User from Imprest Ledger"
+      },
+      "buttons": {
+        "link": "Link User",
+        "unlink": "Unlink User",
+        "cancel": "Cancel"
+      },
+      "labels": {
+        "selectUser": "Select User"
+      },
+      "confirm": {
+        "link": "Are you sure you want to link {user} to {ledger}?",
+        "unlink": "Are you sure you want to unlink {user} from {ledger}?"
+      },
+      "messages": {
+        "linkSuccess": "Ledger linked successfully",
+        "unlinkSuccess": "Ledger unlinked successfully",
+        "linkFailed": "Failed to link user to ledger",
+        "unlinkFailed": "Failed to unlink user from ledger",
+        "userNotLinked": "Selected user is not linked to this imprest ledger"
+      },
+      "errors": {
+        "validation": {
+          "userRequired": "User is required"
+        }
+      }
+    },
+    "merge": {
+      "title": "Ledgers Merge",
+      "labels": {
+        "ledgerToRemain": "Ledger To Remain",
+        "ledgersToDissolve": "Ledgers To Dissolve",
+        "typeToConfirm": "Type \"{name}\" to confirm"
+      },
+      "alert": {
+        "cannotBeUndone": "This cannot be undone",
+        "willBeMerged": "{ledgers} will be merged into {target} and deleted."
+      },
+      "buttons": {
+        "cancel": "Cancel",
+        "merge": "Merge",
+        "confirmAndMerge": "Confirm & Merge"
+      },
+      "errors": {
+        "validation": {
+          "selectRemaining": "Please select a ledger to remain",
+          "selectDissolve": "Please select ledgers to dissolve",
+          "selectAtLeastOne": "Please select at least one ledger to dissolve"
+        }
+      }
+    },
+    "select": {
+      "label": "Select Ledger",
+      "loading": "Loading ledgers..."
+    },
+    "statementFilter": {
+      "labels": {
+        "costCenters": "Cost Centers",
+        "from": "From (MM/DD/YYYY)",
+        "to": "To (MM/DD/YYYY)",
+        "detailed": "Detailed",
+        "showCancellations": "Show Cancellations"
+      },
+      "buttons": {
+        "filter": "Filter",
+        "close": "Close"
+      }
+    }
+  },
+  "bankReconciliation": {
+    "accountForm": {
+      "title": {
+        "create": "Create Bank Account",
+        "edit": "Edit {name}",
+        "defaultName": "Bank Account"
+      },
+      "labels": {
+        "ledger": "Bank / Cash Ledger",
+        "bank": "Bank (Optional)",
+        "iban": "IBAN (Optional)",
+        "swiftCode": "SWIFT Code (Optional)",
+        "autoMatchTolerance": "Auto-Match Day Tolerance",
+        "accountNumber": "Account Number (Optional)"
+      },
+      "helperText": {
+        "autoMatchTolerance": "How many days before/after a statement line’s date to search for a matching book entry when auto-matching on import. 0 = same day only. Raise this if this bank tends to settle a day or two after the transaction."
+      },
+      "buttons": {
+        "cancel": "Cancel",
+        "submit": "Submit"
+      },
+      "messages": {
+        "createSuccess": "Bank account created successfully",
+        "updateSuccess": "Bank account updated successfully"
+      },
+      "errors": {
+        "validation": {
+          "ledgerRequired": "Ledger is required"
+        }
+      }
+    },
+    "quickAddBank": {
+      "title": "Quick Add Bank",
+      "labels": {
+        "name": "Bank Name",
+        "shortName": "Short Name (Optional)",
+        "swiftCode": "SWIFT Code (Optional)"
+      },
+      "buttons": {
+        "cancel": "Cancel",
+        "add": "Add"
+      },
+      "messages": {
+        "createSuccess": "Bank added successfully",
+        "createFailed": "Failed to add bank"
+      },
+      "errors": {
+        "validation": {
+          "nameRequired": "Bank Name is required"
+        }
+      }
+    },
+    "cancelTransaction": {
+      "title": "Cancel this transaction?",
+      "labels": {
+        "reason": "Reason for cancelling"
+      },
+      "buttons": {
+        "back": "Back",
+        "cancelTransaction": "Cancel Transaction"
+      }
+    },
+    "postTransaction": {
+      "title": "Post Transaction",
+      "types": {
+        "payment": "Payment",
+        "receipt": "Receipt",
+        "fund_transfer": "Fund Transfer",
+        "journal_voucher": "Journal Voucher"
+      },
+      "labels": {
+        "costCenters": "Cost Centers (optional)",
+        "paidToExpense": "Paid to / Expense Ledger",
+        "receivedFromIncome": "Received from / Income Ledger",
+        "otherLedger": "Other Ledger",
+        "narration": "Narration",
+        "reference": "Reference (optional)"
+      },
+      "alerts": {
+        "noPermission": "You don't have permission to post any transaction type against this statement line."
+      },
+      "buttons": {
+        "cancel": "Cancel",
+        "postAndMatch": "Post & Match"
+      },
+      "messages": {
+        "success": "Posted and matched successfully",
+        "failed": "Failed to post transaction"
+      }
+    },
+    "importStatement": {
+      "title": {
+        "import": "Import Bank Statement",
+        "complete": "Import Complete"
+      },
+      "steps": {
+        "details": "Statement Details",
+        "mapColumns": "Map Columns"
+      },
+      "labels": {
+        "selectFile": "Select CSV or Excel File",
+        "statementFrom": "Statement From",
+        "statementTo": "Statement To",
+        "openingBalance": "Opening Balance",
+        "closingBalance": "Closing Balance",
+        "notInFile": "— Not in file —",
+        "column": "Column {number}",
+        "row": "Row {row}: {error}"
+      },
+      "fieldLabels": {
+        "date": "Date",
+        "description": "Description",
+        "reference": "Reference (optional)",
+        "amount": "Amount (signed, optional if using Debit/Credit)",
+        "debit": "Debit (optional if using Amount)",
+        "credit": "Credit (optional if using Amount)",
+        "balance": "Running Balance (optional)"
+      },
+      "help": {
+        "mapColumns": "Tell us which column in your file holds each piece of information.",
+        "prefilled": " Pre-filled from your last import for this bank account — adjust if the format changed."
+      },
+      "buttons": {
+        "cancel": "Cancel",
+        "back": "Back",
+        "next": "Next",
+        "import": "Import",
+        "close": "Close"
+      },
+      "messages": {
+        "success": "Statement imported successfully"
+      }
+    }
+  },
+  "approvalChains": {
+    "chainForm": {
+      "title": {
+        "new": "New Approval Chain",
+        "edit": "Edit Approval Chain"
+      },
+      "labels": {
+        "processType": "Process Type",
+        "costCenter": "Cost Center",
+        "department": "Department",
+        "remarks": "Remarks"
+      },
+      "dialogs": {
+        "unsavedChanges": {
+          "title": "Unsaved Changes",
+          "message": "Last item was not added to the list",
+          "addAndSubmit": "Add and Submit",
+          "submitWithoutAdd": "Submit without add"
+        }
+      },
+      "buttons": {
+        "cancel": "Cancel",
+        "submit": "Submit"
+      },
+      "errors": {
+        "validation": {
+          "processTypeRequired": "Process Type is required",
+          "itemsRequired": "You must add at least one item"
+        }
+      }
+    },
+    "levelDialog": {
+      "title": {
+        "add": "Add New Chain Level",
+        "edit": "Edit Level"
+      },
+      "labels": {
+        "role": "Role",
+        "label": "Label",
+        "remarks": "Remarks",
+        "canFinalize": "Can Finalize",
+        "canOverride": "Can Override",
+        "atTheBeginning": "At the beginning",
+        "after": "After {role} {label}",
+        "position": "Position"
+      },
+      "buttons": {
+        "cancel": "Cancel",
+        "submit": "Submit"
+      },
+      "messages": {
+        "addFailed": "Failed to add level",
+        "updateFailed": "Failed to update level"
+      },
+      "errors": {
+        "validation": {
+          "labelRequired": "Label is required",
+          "roleRequired": "Role is required",
+          "chainRequired": "Approval chain is required"
+        }
+      }
+    },
+    "itemForm": {
+      "title": "Add Levels",
+      "labels": {
+        "role": "Role",
+        "label": "Label",
+        "remarks": "Remarks",
+        "canFinalize": "Can Finalize",
+        "canOverride": "Can Override"
+      },
+      "buttons": {
+        "done": "Done",
+        "add": "Add"
+      },
+      "errors": {
+        "validation": {
+          "labelRequired": "Label is required",
+          "roleRequired": "Role is required"
+        }
+      }
+    }
+  },
+  "stakeholderGroups": {
+    "form": {
+      "title": {
+        "new": "New Stakeholder Group",
+        "edit": "Edit Stakeholder Group"
+      },
+      "labels": {
+        "name": "Name",
+        "description": "Description (optional)"
+      },
+      "buttons": {
+        "cancel": "Cancel",
+        "save": "Save"
+      },
+      "messages": {
+        "createSuccess": "Stakeholder group created successfully",
+        "updateSuccess": "Stakeholder group updated successfully"
+      },
+      "errors": {
+        "validation": {
+          "nameRequired": "Name is required"
+        }
+      }
+    },
+    "members": {
+      "title": "{name} — Members ({total})",
+      "empty": "No members yet.",
+      "noPhone": "No phone number",
+      "buttons": {
+        "close": "Close"
+      },
+      "messages": {
+        "removed": "Stakeholder removed from group",
+        "added": "Stakeholder added to group"
+      },
+      "search": {
+        "label": "Search stakeholders to add",
+        "typeMore": "Type at least 2 characters to search",
+        "noResults": "No stakeholders found"
+      }
+    }
+  },
+  "costCenters": {
+    "form": {
+      "title": {
+        "create": "Create New Cost Center",
+        "edit": "Edit {name}"
+      },
+      "labels": {
+        "name": "Cost Center name",
+        "users": "Cost Center Users",
+        "description": "Description"
+      },
+      "buttons": {
+        "cancel": "Cancel",
+        "update": "Update",
+        "create": "Create"
+      },
+      "errors": {
+        "validation": {
+          "nameRequired": "Cost Center Name is required",
+          "usersRequired": "At least one user is required"
+        }
+      },
+      "selector": {
+        "label": "Cost Center",
+        "notSpecified": "Not Specified",
+        "unspecified": "Unspecified",
+        "types": {
+          "workCenter": "Work Center",
+          "salesOutlet": "Sales Outlet",
+          "fuelStation": "Fuel Station",
+          "project": "Project"
+        }
+      }
+    }
+  },
+  "ledgerGroups": {
+    "form": {
+      "title": {
+        "create": "Create Ledger Group",
+        "edit": "Edit Ledger Group"
+      },
+      "labels": {
+        "name": "Ledger Group Name",
+        "alias": "Alias (optional)",
+        "parentGroup": "Parent Group",
+        "code": "Code (optional)",
+        "description": "Description (optional)"
+      },
+      "buttons": {
+        "cancel": "Cancel",
+        "submit": "Submit"
+      },
+      "errors": {
+        "validation": {
+          "nameRequired": "Ledger Group Name is required",
+          "selectFromOptions": "Please select a value from the given options",
+          "parentRequired": "Parent Group is required"
+        }
+      }
+    }
+  }
+}

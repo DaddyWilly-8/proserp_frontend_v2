@@ -11,36 +11,38 @@ const RolesPermissionsPdfDocument = ({
   roles,
   authOrganization,
   user,
+  dictionary,
 }: {
   roles: Role[];
   authOrganization: any;
   user?: { name?: string };
+  dictionary: any;
 }) => {
   const mainColor = authOrganization?.organization?.settings?.main_color || '#1C2B3A';
   const contrastText = authOrganization?.organization?.settings?.contrast_text || '#FFFFFF';
   const printedOn = new Date().toLocaleString();
 
   return (
-    <Document creator={`${user?.name} | Powered By ProsERP`} producer='ProsERP' title='Roles & Permissions'>
+    <Document creator={`${user?.name} | Powered By ProsERP`} producer='ProsERP' title={dictionary.accessControlReports.tabs.rolesPermissions}>
       <Page size='A4' style={pdfStyles.page}>
         <View style={{ ...pdfStyles.tableRow, marginBottom: 16 }}>
           <View style={{ flex: 1, maxWidth: 120 }}>
             <PdfLogo organization={authOrganization?.organization} />
           </View>
           <View style={{ flex: 1, textAlign: 'right' }}>
-            <Text style={{ ...pdfStyles.majorInfo, color: mainColor }}>Roles & Permissions</Text>
-            <Text style={pdfStyles.minInfo}>Printed By: {user?.name}</Text>
-            <Text style={pdfStyles.minInfo}>Printed On: {printedOn}</Text>
+            <Text style={{ ...pdfStyles.majorInfo, color: mainColor }}>{dictionary.accessControlReports.tabs.rolesPermissions}</Text>
+            <Text style={pdfStyles.minInfo}>{dictionary.reports.accessControlReports.printedBy}: {user?.name}</Text>
+            <Text style={pdfStyles.minInfo}>{dictionary.reports.accessControlReports.printedOn}: {printedOn}</Text>
           </View>
         </View>
 
         <View style={pdfStyles.table}>
           <View style={pdfStyles.tableRow}>
             <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 1.3 }}>
-              Category
+              {dictionary.accessControlReports.rolesPermissions.category}
             </Text>
             <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 3 }}>
-              Permissions
+              {dictionary.accessControlReports.rolesPermissions.permissions}
             </Text>
           </View>
 
@@ -59,7 +61,7 @@ const RolesPermissionsPdfDocument = ({
                 {grouped.length === 0 ? (
                   <View style={pdfStyles.tableRow}>
                     <Text style={{ ...pdfStyles.tableCell, flex: 4.3, color: '#9AA5B1', fontStyle: 'italic' }}>
-                      No permissions assigned
+                      {dictionary.accessControlReports.rolesPermissions.noPermissions}
                     </Text>
                   </View>
                 ) : (

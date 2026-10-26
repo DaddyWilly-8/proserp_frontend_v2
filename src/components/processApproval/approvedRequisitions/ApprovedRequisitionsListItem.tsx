@@ -32,12 +32,14 @@ import {
 } from './ApprovalRequisitionType';
 import { processTypeConfig } from '../utils/requisition';
 import MaterialRequisitionTabs, { MATERIAL_TAB } from './material/MaterialRequisitionTabs';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface ApprovedRequisitionsListItemProps {
   approvedRequisition: ApprovalRequisition;
 }
 
 const ApprovedRequisitionsListItem: React.FC<ApprovedRequisitionsListItemProps> = ({ approvedRequisition }) => {
+  const dictionary = useDictionary();
   const [expanded, setExpanded] = useState<Record<number, boolean>>({});
   const [activeImprestTab, setActiveImprestTab] = useState(0);
   const [activeMaterialTab, setActiveMaterialTab] = useState<number>(MATERIAL_TAB.PURCHASE_ORDERS);
@@ -128,16 +130,16 @@ const ApprovedRequisitionsListItem: React.FC<ApprovedRequisitionsListItemProps> 
       >
         <Grid container spacing={1} alignItems="center" width="100%" sx={{ paddingLeft: 1, paddingRight: 1, minWidth: 0 }}>
           <Grid size={{ xs: 12, md: 2 }}>
-            <Tooltip title="Requisition No.">
+            <Tooltip title={dictionary.tooltips.requisitionNo}>
               <Typography>{approvedRequisition.requisition.requisitionNo}</Typography>
             </Tooltip>
-            <Tooltip title="Approval Date">
+            <Tooltip title={dictionary.tooltips.approvalDate}>
               <Typography variant="caption">{readableDate(approvedRequisition.approval_date)}</Typography>
             </Tooltip>
           </Grid>
 
           <Grid size={{ xs: 12, md: 2.5 }} sx={{ minWidth: 0 }}>
-            <Tooltip title="Process">
+            <Tooltip title={dictionary.tooltips.process}>
               <Typography variant="body2">{processConfig.label}</Typography>
             </Tooltip>
             {approvedRequisition.requisition.cost_center?.name && (
@@ -160,7 +162,7 @@ const ApprovedRequisitionsListItem: React.FC<ApprovedRequisitionsListItemProps> 
           </Grid>
 
           <Grid size={{ xs: 12, md: 4, lg: 4.8 }}>
-            <Tooltip title="Remarks">
+            <Tooltip title={dictionary.tooltips.remarks}>
               <Typography
                 component="span"
                 variant="body2"
@@ -174,7 +176,7 @@ const ApprovedRequisitionsListItem: React.FC<ApprovedRequisitionsListItemProps> 
           </Grid>
 
           <Grid size={{ xs: 8, md: 2.5, lg: 1.7 }}>
-            <Tooltip title="Amount">
+            <Tooltip title={dictionary.tooltips.amount}>
               <Typography>
                 {(approvedRequisition.amount + approvedRequisition.vat_amount)?.toLocaleString('en-US', {
                   style: 'currency',
@@ -182,7 +184,7 @@ const ApprovedRequisitionsListItem: React.FC<ApprovedRequisitionsListItemProps> 
                 })}
               </Typography>
             </Tooltip>
-            <Tooltip title="Status">
+            <Tooltip title={dictionary.tooltips.status}>
               <Chip size="small" label={approvedRequisition.status_label} color="success" />
             </Tooltip>
           </Grid>
@@ -198,7 +200,7 @@ const ApprovedRequisitionsListItem: React.FC<ApprovedRequisitionsListItemProps> 
               )}
 
               {isMaterial && issuesCount > 0 && (
-                <Tooltip title='Store Issues Count'>
+                <Tooltip title={dictionary.tooltips.storeIssuesCount}>
                   <Badge badgeContent={issuesCount} color='info'>
                     <Inventory2Outlined fontSize='small' />
                   </Badge>

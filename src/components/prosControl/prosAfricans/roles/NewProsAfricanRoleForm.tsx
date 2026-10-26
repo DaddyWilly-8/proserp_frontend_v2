@@ -7,6 +7,7 @@ import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup'
 import prosAfricansServices from '../prosAfricansServices';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface FormData {
   name: string;
@@ -14,13 +15,14 @@ interface FormData {
 }
 
 function NewProsAfricanRoleForm() {
+    const dictionary = useDictionary();
     const queryClient = useQueryClient();
     const { enqueueSnackbar } = useSnackbar();
 
     const validationSchema = yup.object({
         name: yup
             .string()
-            .required('Role name required'),
+            .required(dictionary.forms.prosAfricans.form.errors.roleNameRequired),
         description: yup
             .string()
             .optional()
@@ -73,7 +75,7 @@ function NewProsAfricanRoleForm() {
                 <Grid size={{ xs: 12, md: 4 }}>
                     <TextField
                         fullWidth
-                        label="Name"
+                        label={dictionary.forms.prosAfricans.form.labels.name}
                         size="small"
                         error={!!errors?.name}
                         helperText={errors?.name?.message}
@@ -83,7 +85,7 @@ function NewProsAfricanRoleForm() {
                 <Grid size={{ xs: 12, md: 6, lg: 7 }}>
                     <TextField
                         fullWidth
-                        label="Description"
+                        label={dictionary.forms.prosAfricans.form.labels.description}
                         size="small"
                         error={!!errors?.description}
                         helperText={errors?.description?.message}
@@ -99,7 +101,7 @@ function NewProsAfricanRoleForm() {
                         sx={{ mb: 2, display: 'flex' }}
                         loading={addRole.isPending}
                     >
-                        Add
+                        {dictionary.forms.prosAfricans.form.buttons.add}
                     </LoadingButton>
                 </Grid>
             </Grid>

@@ -12,8 +12,10 @@ import { AllowanceType } from './AllowanceType';
 import AllowanceTypeActionTail from './AllowanceTypeActionTail';
 import AllowanceTypesListItem from './AllowanceTypesListItem';
 import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const AllowanceTypes = () => {
+  const dictionary = useDictionary();
   const params = useParams<{ keyword?: string }>();
   const searchParams = useSearchParams();
   const listRef = useRef<any>(null);
@@ -60,7 +62,7 @@ const AllowanceTypes = () => {
     <>
       <LedgerSelectProvider>
         <Typography variant={'h4'} mb={2}>
-          Allowance Types
+          {dictionary.humanResources.allowanceTypes.list.title}
         </Typography>
         <JumboRqList
           ref={listRef}

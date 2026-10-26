@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, useTheme } from '@mui/material';
 import { KeyboardArrowDown, KeyboardArrowRight } from '@mui/icons-material';
 import { PeriodCells, PeriodTableHead, pruneZeroNetTree } from '../periodColumns';
 
 const TrialBalanceGroupedOnScreen = ({ reportData, authOrganization, netOnly, closingOnly }) => {
   const theme = useTheme();
+  const dictionary = useDictionary();
+  const t = dictionary.reports.accountsReports;
   const [openRows, setOpenRows] = useState([]);
 
   const mainColor = authOrganization?.organization.settings?.main_color || '#2113AD';
@@ -53,7 +56,8 @@ const TrialBalanceGroupedOnScreen = ({ reportData, authOrganization, netOnly, cl
       <Table size="small" aria-label="trial-balance-grouped">
         <TableHead>
           <PeriodTableHead netOnly={netOnly} closingOnly={closingOnly}
-            leadingLabels={['LEDGER GROUP']}
+            leadingLabels={[t.trialBalance.ledgerGroup.toUpperCase()]}
+            labels={t.common}
             backgroundColor={headerColor}
             color={contrastText}
             filters={reportData.filters}
@@ -68,7 +72,7 @@ const TrialBalanceGroupedOnScreen = ({ reportData, authOrganization, netOnly, cl
           )?.map((group) => renderGroup(group, 0))}
           <TableRow>
             <TableCell sx={{ backgroundColor: mainColor, color: contrastText, borderBottom: 'none' }}>
-              TOTAL
+              {t.common.total.toUpperCase()}
             </TableCell>
             <PeriodCells netOnly={netOnly} closingOnly={closingOnly}
               node={reportData.totals}

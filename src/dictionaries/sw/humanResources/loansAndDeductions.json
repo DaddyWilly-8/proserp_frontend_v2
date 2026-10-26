@@ -1,0 +1,432 @@
+{
+  "employeeDeductions": {
+    "title": "Makato ya Wafanyakazi",
+    "form": {
+      "title": {
+        "add": "Ongeza Makato ya Mfanyakazi",
+        "edit": "Hariri Makato ya Mfanyakazi"
+      },
+      "labels": {
+        "employee": "Mfanyakazi",
+        "deductionType": "Aina ya Makato",
+        "value": "Thamani",
+        "effectiveFrom": "Inaanza Kutumika",
+        "effectiveTo": "Inaishia Kutumika"
+      },
+      "buttons": {
+        "cancel": "Ghairi",
+        "submit": "Wasilisha"
+      },
+      "errors": {
+        "employeeRequired": "Mfanyakazi anahitajika",
+        "deductionTypeRequired": "Aina ya makato inahitajika",
+        "valueNumber": "Thamani lazima iwe namba",
+        "valueRequired": "Thamani inahitajika",
+        "valueMin": "Thamani lazima iwe 0 au zaidi",
+        "effectiveFromRequired": "Tarehe ya kuanza kutumika inahitajika"
+      }
+    },
+    "messages": {
+      "added": "Makato ya Mfanyakazi Yameongezwa Kikamilifu",
+      "addError": "Hitilafu Wakati wa Kuongeza Makato ya Mfanyakazi",
+      "updated": "Makato ya Mfanyakazi Yamesasishwa Kikamilifu",
+      "updateError": "Hitilafu Wakati wa Kusasisha Makato ya Mfanyakazi",
+      "deleted": "Makato ya Mfanyakazi Yamefutwa Kikamilifu",
+      "deleteError": "Hitilafu Wakati wa Kufuta Makato ya Mfanyakazi"
+    },
+    "menu": {
+      "edit": "Hariri",
+      "delete": "Futa"
+    },
+    "dialog": {
+      "confirmDeleteTitle": "Thibitisha Kufuta",
+      "confirmDeleteContent": "Una uhakika unataka kufuta Makato haya ya Mfanyakazi?"
+    },
+    "list": {
+      "employeeFallback": "Mfanyakazi #{id}",
+      "typeFallback": "Aina #{id}",
+      "openEnded": "Hakuna tarehe ya mwisho"
+    }
+  },
+  "loanRequests": {
+    "common": {
+      "cancel": "Ghairi",
+      "somethingWentWrong": "Kuna hitilafu imetokea",
+      "referenceOptional": "Rejea (si lazima)",
+      "amount": "Kiasi",
+      "employeeFallback": "Mfanyakazi #{id}"
+    },
+    "approvalForm": {
+      "title": "Idhini ya Mkopo",
+      "decidingAs": "Unaamua kama: {label}",
+      "labels": {
+        "amountApproved": "Kiasi Kilichoidhinishwa",
+        "recoveryMode": "Njia ya Urejeshaji",
+        "byInstallmentCount": "Kwa Idadi ya Awamu",
+        "byFixedAmount": "Kwa Kiasi Maalum",
+        "amountToDeductPerPeriod": "Kiasi cha Kukatwa kwa Kila Kipindi",
+        "installmentsApproved": "Awamu Zilizoidhinishwa",
+        "recoveryStartOptional": "Mwanzo wa Urejeshaji (si lazima)",
+        "approvalDateTime": "Tarehe na Muda wa Idhini",
+        "remarks": "Maelezo"
+      },
+      "helpers": {
+        "max": "Kiwango cha juu {amount}",
+        "installmentsDerived": "Awamu hukokotolewa kiotomatiki kutokana na kiasi hiki",
+        "recoveryStartBlank": "Acha wazi ili kuanza mara tu mishahara itakaporuhusu"
+      },
+      "buttons": {
+        "reject": "Kataa",
+        "hold": "Sitisha",
+        "approve": "Idhinisha"
+      },
+      "errors": {
+        "remarksRequired": "Maelezo yanahitajika",
+        "amountRequired": "Kiasi kilichoidhinishwa kinahitajika",
+        "cannotExceed": "Haiwezi kuzidi {amount}",
+        "deductPerPeriodRequired": "Kiasi cha kukatwa kwa kila kipindi kinahitajika",
+        "installmentsRequired": "Awamu zilizoidhinishwa zinahitajika"
+      },
+      "messages": {
+        "recorded": "Idhini ya mkopo imehifadhiwa",
+        "pendingLevelNotFound": "Ngazi ya idhini inayosubiri haijapatikana"
+      },
+      "dialog": {
+        "rejectTitle": "Kataa Ombi la Mkopo",
+        "rejectContent": "Hii itakataa ombi la mkopo. Endelea?"
+      }
+    },
+    "receiptForm": {
+      "title": "Pokea Malipo ya Mkopo",
+      "labels": {
+        "initiatedRepayment": "Malipo Yaliyoanzishwa",
+        "receivedInto": "Yamepokelewa Kwenye",
+        "receiptDateTime": "Tarehe na Muda wa Risiti"
+      },
+      "placeholders": {
+        "reference": "mf. Hati ya benki / namba ya muamala"
+      },
+      "buttons": {
+        "receipt": "Pokea"
+      },
+      "messages": {
+        "receipted": "Malipo yamepokelewa"
+      }
+    },
+    "disburseForm": {
+      "title": "Toa Mkopo",
+      "labels": {
+        "payFrom": "Lipa Kutoka",
+        "paymentDateTime": "Tarehe na Muda wa Malipo"
+      },
+      "placeholders": {
+        "reference": "mf. Namba ya hundi / uhamisho"
+      },
+      "buttons": {
+        "disburse": "Toa"
+      },
+      "messages": {
+        "disbursed": "Mkopo umetolewa"
+      }
+    },
+    "itemAction": {
+      "messages": {
+        "cancelled": "Ombi la mkopo limeghairiwa",
+        "approvalReversed": "Idhini ya mkopo imebatilishwa",
+        "rejectionReversed": "Kukataliwa kwa mkopo kumebatilishwa",
+        "cancellationReversed": "Kughairiwa kwa mkopo kumebatilishwa",
+        "disbursementReversed": "Utoaji wa mkopo umebatilishwa",
+        "deleted": "Ombi la mkopo limefutwa"
+      },
+      "dialog": {
+        "cancelTitle": "Ghairi Ombi la Mkopo",
+        "cancelContentApproved": "Hii inasimamisha urejeshaji wote wa baadaye kupitia mishahara. Awamu zilizokwisha katwa hazitarejeshwa. Endelea?",
+        "cancelContent": "Una uhakika unataka kughairi ombi hili la mkopo?",
+        "reverseApprovalTitle": "Batilisha Idhini",
+        "reverseApprovalContent": "Hii inasimamisha urejeshaji na kurudisha ombi katika hali ya Linakaguliwa ili liamuliwe upya. Endelea?",
+        "reverseRejectionTitle": "Batilisha Kukataliwa",
+        "reverseRejectionContent": "Hii inarudisha ombi katika hali ya Linakaguliwa ili liamuliwe upya. Endelea?",
+        "reverseCancellationTitle": "Batilisha Kughairi",
+        "reverseCancellationContent": "Hii inarudisha ombi katika hali lilivyokuwa kabla ya kughairiwa. Endelea?",
+        "reverseDisbursementTitle": "Batilisha Utoaji",
+        "reverseDisbursementContentPayment": "Hii inafuta malipo ya utoaji pamoja na majarida yake ya hesabu, na kuweka alama kuwa mkopo haujatolewa ili uweze kurekebishwa na kutolewa upya. Endelea?",
+        "reverseDisbursementContent": "Hii inafuta rekodi ya utoaji ili mkopo uweze kurekebishwa na kutolewa upya. Endelea?",
+        "deleteTitle": "Futa Ombi la Mkopo",
+        "deleteContent": "Kitendo hiki hakiwezi kutenduliwa"
+      }
+    },
+    "statement": {
+      "months": [
+        "Januari",
+        "Februari",
+        "Machi",
+        "Aprili",
+        "Mei",
+        "Juni",
+        "Julai",
+        "Agosti",
+        "Septemba",
+        "Oktoba",
+        "Novemba",
+        "Desemba"
+      ],
+      "messages": {
+        "excused": "Awamu ya kipindi hicho imesamehewa",
+        "skipReversed": "Kuruka urejeshaji kumebatilishwa",
+        "receiptReversed": "Risiti ya malipo imebatilishwa"
+      },
+      "dialog": {
+        "reverseSkipTitle": "Batilisha Kuruka Urejeshaji",
+        "reverseSkipContent": "Hii inarudisha awamu ya kipindi hicho kwenye ratiba. Endelea?",
+        "reverseReceiptTitle": "Batilisha Risiti ya Malipo",
+        "reverseReceiptContent": "Hii inafuta risiti na jarida lake la hesabu, na kurudisha malipo katika hali ya Yameanzishwa ili yaweze kurekebishwa. Endelea?"
+      },
+      "summary": {
+        "amountApproved": "Kiasi Kilichoidhinishwa",
+        "recoveredSoFar": "Kilichorejeshwa Hadi Sasa",
+        "outstandingBalance": "Salio Linalodaiwa",
+        "projectedPayoff": "Makadirio ya Kumaliza Deni",
+        "fullyRecovered": "Kimerejeshwa Kikamilifu"
+      },
+      "excused": {
+        "heading": "Vipindi Vilivyosamehewa",
+        "skipButton": "Ruka Kipindi",
+        "empty": "Hakuna vipindi vilivyosamehewa kwa mkopo huu.",
+        "columns": {
+          "period": "Kipindi",
+          "remarks": "Maelezo",
+          "actions": "Vitendo"
+        }
+      },
+      "awaiting": {
+        "heading": "Malipo Yanayosubiri Risiti",
+        "row": "{amount} yameanzishwa na {name}{narration} — yanasubiri Idara ya Hesabu kuyapokea."
+      },
+      "history": {
+        "heading": "Historia ya Malipo",
+        "empty": "Hakuna malipo yaliyorejeshwa bado — malipo ya mkono yataonekana hapa Idara ya Hesabu itakapoyapokea, yakiwa na alama ya \"Ya Mkono\" pamoja na awamu za mishahara.",
+        "columns": {
+          "periodSource": "Kipindi / Chanzo",
+          "amountRecovered": "Kiasi Kilichorejeshwa",
+          "balanceAfter": "Salio Baada ya"
+        },
+        "manual": "Ya Mkono"
+      },
+      "projection": {
+        "heading": "Makadirio ya Urejeshaji",
+        "fullyRecovered": "Mkopo huu umerejeshwa kikamilifu.",
+        "unavailable": "Hakuna kiasi cha urejeshaji kwa kila kipindi kilichowekwa kwa mkopo huu bado — makadirio hayapatikani hadi uidhinishwe ukiwa na kiasi cha awamu.",
+        "estimateOnly": "Makadirio tu — yanadhania makato ya sasa yataendelea bila mabadiliko kila kipindi kijacho.",
+        "columns": {
+          "periodProjected": "Kipindi (Kinachokadiriwa)",
+          "expectedDeduction": "Makato Yanayotarajiwa"
+        }
+      },
+      "skipDialog": {
+        "title": "Ruka Urejeshaji wa Kipindi",
+        "info": "Awamu ya kipindi hicho imesamehewa, haijapotea — itakusanywa kipindi kimoja baadaye, na mkopo bado utarejeshwa wote.",
+        "payrollPeriod": "Kipindi cha Mishahara",
+        "remarksOptional": "Maelezo (si lazima)",
+        "remarksPlaceholder": "mf. msamaha kwa sababu ya ugumu wa maisha",
+        "skip": "Ruka"
+      }
+    },
+    "list": {
+      "title": "Maombi ya Mkopo",
+      "approvedTitle": "Mikopo Iliyoidhinishwa",
+      "status": "Hali",
+      "statusOptions": {
+        "in_review": "Inakaguliwa",
+        "on_hold": "Imesitishwa",
+        "approved": "Imeidhinishwa",
+        "rejected": "Imekataliwa",
+        "cancelled": "Imeghairiwa"
+      }
+    },
+    "repaymentInitiate": {
+      "title": "Anzisha Malipo",
+      "outstandingBalance": "Salio linalodaiwa:",
+      "alreadyInitiated": "({initiated} tayari yameanzishwa — yamebaki {left})",
+      "cannotExceed": "Haiwezi kuzidi {amount}",
+      "labels": {
+        "narrationOptional": "Maelezo ya Muamala (si lazima)"
+      },
+      "placeholders": {
+        "narration": "mf. Malipo ya mkupuo wakati wa kujiuzulu"
+      },
+      "note": "Hii inarekodi kiasi tu — Idara ya Hesabu itachagua leja na kuchapisha mara fedha zitakapothibitishwa kupokelewa.",
+      "messages": {
+        "initiated": "Malipo yameanzishwa; yanasubiri Idara ya Hesabu kuyapokea"
+      }
+    },
+    "markDisbursed": {
+      "title": "Weka Alama Mkopo Umetolewa",
+      "placeholders": {
+        "reference": "mf. Fedha taslimu zimekabidhiwa, risiti #4521"
+      },
+      "labels": {
+        "paymentDateTime": "Tarehe na Muda wa Malipo"
+      },
+      "buttons": {
+        "markAsDisbursed": "Weka Alama Umetolewa"
+      },
+      "messages": {
+        "marked": "Mkopo umewekwa alama kuwa umetolewa"
+      }
+    },
+    "directDecision": {
+      "titleApprove": "Idhinisha Ombi la Mkopo",
+      "titleReject": "Kataa Ombi la Mkopo",
+      "approvedMessage": "Ombi la mkopo limeidhinishwa",
+      "rejectedMessage": "Ombi la mkopo limekataliwa",
+      "amountHelper": "Acha kama ilivyo ili kuidhinisha {amount} yote iliyoombwa",
+      "approvalDateTime": "Tarehe na Muda wa Idhini",
+      "rejectionDateTime": "Tarehe na Muda wa Kukataa"
+    },
+    "form": {
+      "title": {
+        "edit": "Hariri Mkopo",
+        "create": "Tengeneza Ombi la Mkopo"
+      },
+      "labels": {
+        "installments": "Awamu",
+        "requestDate": "Tarehe ya Ombi",
+        "reason": "Sababu"
+      },
+      "buttons": {
+        "update": "Sasisha",
+        "create": "Tengeneza"
+      },
+      "messages": {
+        "updated": "Ombi la mkopo limesasishwa kikamilifu",
+        "added": "Ombi la mkopo limeongezwa kikamilifu"
+      },
+      "errors": {
+        "selectEmployee": "Tafadhali chagua mfanyakazi",
+        "enterAmount": "Tafadhali weka kiasi",
+        "amountMin": "Kiasi lazima kiwe >= 0",
+        "amountNumber": "Kiasi lazima kiwe namba",
+        "enterInstallments": "Tafadhali weka idadi ya awamu",
+        "enterFlatAmount": "Tafadhali weka kiasi maalum cha kukatwa kwa kila kipindi",
+        "cannotExceedRequested": "Haiwezi kuzidi kiasi cha mkopo kilichoombwa"
+      }
+    },
+    "listItem": {
+      "months": "Miezi {count}",
+      "pending": "Inasubiri",
+      "disbursedOn": "Imetolewa {date}",
+      "close": "Funga",
+      "tabs": {
+        "summary": "Muhtasari",
+        "approvals": "Idhini"
+      },
+      "sections": {
+        "loanDetails": "Maelezo ya Mkopo",
+        "approvalDecision": "Uamuzi wa Idhini",
+        "disbursementPayment": "Utoaji na Malipo"
+      },
+      "fields": {
+        "employee": "Mfanyakazi",
+        "department": "Idara",
+        "amountRequested": "Kiasi Kilichoombwa",
+        "installmentsRequested": "Awamu Zilizoombwa",
+        "reason": "Sababu",
+        "status": "Hali",
+        "amountApproved": "Kiasi Kilichoidhinishwa",
+        "installmentsApproved": "Awamu Zilizoidhinishwa",
+        "installmentAmount": "Kiasi cha Awamu",
+        "reviewedBy": "Imekaguliwa Na",
+        "reviewedAt": "Imekaguliwa Tarehe",
+        "reviewRemarks": "Maelezo ya Ukaguzi",
+        "disbursedAt": "Imetolewa Tarehe",
+        "disbursedBy": "Imetolewa Na",
+        "disbursementReference": "Rejea ya Utoaji",
+        "paymentVoucher": "Hati ya Malipo",
+        "paymentNarration": "Maelezo ya Malipo"
+      },
+      "userFallback": "Mtumiaji #{id}",
+      "noApprovals": "Hakuna Idhini Zilizopatikana",
+      "decisions": {
+        "approved": "imeidhinishwa",
+        "rejected": "imekataliwa",
+        "onHold": "imesitishwa"
+      }
+    },
+    "preview": {
+      "requested": "Kilichoombwa",
+      "approved": "Kilichoidhinishwa",
+      "recoveryAmount": "Kiasi cha Urejeshaji",
+      "perPeriod": "{amount}/kipindi",
+      "deductedPerPeriod": "Kinachokatwa kwa kila kipindi:",
+      "flatRateNote": "(kiwango maalum, takriban vipindi {count} kukamilisha)",
+      "recoveryStarts": "Urejeshaji unaanza:",
+      "requestedNote": "(kilichoombwa)",
+      "approvalStages": "Hatua za Idhini",
+      "decidedDirectly": "Imeamuliwa moja kwa moja tarehe {date}",
+      "noChain": "Hakuna mnyororo wa idhini uliowekwa kwa ombi hili — linasubiri uamuzi wa moja kwa moja.",
+      "actions": {
+        "approved": "Imeidhinishwa",
+        "rejected": "Imekataliwa",
+        "onHold": "Imesitishwa",
+        "recorded": "Uamuzi umerekodiwa"
+      },
+      "actionBy": "{action} na {name}",
+      "unknownReviewer": "Mkaguzi asiyejulikana",
+      "approvedAmount": "Imeidhinishwa {amount}",
+      "atPerPeriod": " kwa {amount}/kipindi",
+      "overMonths": " kwa miezi {count}",
+      "waitingFor": "Inasubiri {role}",
+      "nextReviewer": "mkaguzi anayefuata",
+      "notReached": "Bado haijafikiwa",
+      "disbursedBy": " na {name}",
+      "reference": " · Rejea: {reference}",
+      "monthsShort": "Miezi {count}"
+    },
+    "pdf": {
+      "applicationForm": "Fomu ya Maombi ya Mkopo",
+      "applicationTitle": "Ombi la Mkopo - {name}",
+      "statementTitle": "Taarifa ya Mkopo - {name}",
+      "statement": "Taarifa ya Mkopo",
+      "employee": "Mfanyakazi",
+      "department": "Idara",
+      "status": "Hali",
+      "printedOn": "Imechapishwa Tarehe",
+      "amountRequested": "Kiasi Kilichoombwa",
+      "installmentsRequested": "Awamu Zilizoombwa",
+      "requestedOn": "Imeombwa Tarehe",
+      "amountApproved": "Kiasi Kilichoidhinishwa",
+      "installmentsApproved": "Awamu Zilizoidhinishwa",
+      "installmentAmount": "Kiasi cha Awamu",
+      "reason": "Sababu",
+      "approvalHistory": "Historia ya Idhini",
+      "noApprovalAction": "Hakuna hatua ya idhini iliyorekodiwa bado.",
+      "date": "Tarehe",
+      "by": "Na",
+      "remarks": "Maelezo",
+      "months": "Miezi {count}",
+      "perPeriod": "{amount}/kipindi",
+      "perPeriodInstallments": "{amount}/kipindi (awamu)",
+      "approver": "Mwidhinishaji",
+      "approverSignature": "Sahihi ya Mwidhinishaji",
+      "roleSignature": "Sahihi ya {role}",
+      "employeeSignature": "Sahihi ya Mfanyakazi",
+      "dateLine": "Tarehe: ______________",
+      "recoveredSoFar": "Kilichorejeshwa Hadi Sasa",
+      "outstandingBalance": "Salio Linalodaiwa",
+      "projectedPayoff": "Makadirio ya Kumaliza Deni",
+      "fullyRecovered": "Kimerejeshwa Kikamilifu",
+      "recovery": "Urejeshaji",
+      "repaymentHistory": "Historia ya Malipo",
+      "noPayrollRepayments": "Hakuna malipo yaliyorejeshwa kupitia mishahara bado.",
+      "period": "Kipindi",
+      "amountRecovered": "Kiasi Kilichorejeshwa",
+      "balanceAfter": "Salio Baada ya",
+      "recoveryProjection": "Makadirio ya Urejeshaji",
+      "loanFullyRecovered": "Mkopo huu umerejeshwa kikamilifu.",
+      "projectionUnavailable": "Hakuna kiasi cha urejeshaji kwa kila kipindi kilichowekwa kwa mkopo huu bado — makadirio hayapatikani hadi uidhinishwe ukiwa na kiasi cha awamu.",
+      "estimateOnly": "Makadirio tu — yanadhania makato ya sasa yataendelea bila mabadiliko kila kipindi kijacho.",
+      "periodProjected": "Kipindi (Kinachokadiriwa)",
+      "expectedDeduction": "Makato Yanayotarajiwa"
+    }
+  }
+}

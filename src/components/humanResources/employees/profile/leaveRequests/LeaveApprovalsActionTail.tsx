@@ -9,6 +9,7 @@ import LeaveApprovalDialog, {
   getNextPendingLeaveLevel,
 } from './LeaveApprovalDialog';
 import { LeaveRequestType } from './LeaveRequestType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface LeaveApprovalsActionTailProps {
   leaveRequest: LeaveRequestType;
@@ -17,6 +18,7 @@ interface LeaveApprovalsActionTailProps {
 const LeaveApprovalsActionTail = ({
   leaveRequest,
 }: LeaveApprovalsActionTailProps) => {
+  const dictionary = useDictionary();
   const [openDialog, setOpenDialog] = useState(false);
   const { hasOrganizationRole } = useJumboAuth();
   const { theme } = useJumboTheme();
@@ -52,7 +54,7 @@ const LeaveApprovalsActionTail = ({
           disableElevation
           sx={{ '& .MuiButton-root': { px: 1 } }}
         >
-          <Tooltip title='Approve Leave Request'>
+          <Tooltip title={dictionary.tooltips.approveLeaveRequest}>
             <IconButton onClick={() => setOpenDialog(true)}>
               <FactCheckOutlined />
             </IconButton>

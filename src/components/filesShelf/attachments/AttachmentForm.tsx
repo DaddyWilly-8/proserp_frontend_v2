@@ -1,3 +1,4 @@
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import { getErrorMessage } from '@/utilities/helpers/errorHandler';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { LoadingButton } from '@mui/lab';
@@ -61,9 +62,10 @@ const allowedFormats = [
 // register() via MUI Input's `inputProps` indirection is unreliable: the
 // ref/onChange don't always reach the native element, so the submitted
 // value can end up as `{}` instead of the actual File.
-const validationSchema = yup.object({
-  name: yup.string().required('File Name is required'),
-});
+const getValidationSchema = (dictionary: any) =>
+  yup.object({
+    name: yup.string().required(dictionary.forms.attachments.errors.nameRequired),
+  });
 
 function AttachmentForm({
   hideFeatures,
@@ -74,6 +76,8 @@ function AttachmentForm({
   attachment_name = '',
   attachment_sourceNo = '',
 }: AttachmentFormProps) {
+  const dictionary = useDictionary();
+  const t = dictionary.forms.attachments;
   const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
   const [isFetching, setIsFetching] = useState(false);
@@ -86,7 +90,7 @@ function AttachmentForm({
     reset,
     formState: { errors },
   } = useForm<{ name: string }>({
-    resolver: yupResolver(validationSchema) as any,
+    resolver: yupResolver(getValidationSchema(dictionary)) as any,
     defaultValues: {
       name: '',
     },
@@ -95,7 +99,7 @@ function AttachmentForm({
   const addAttachment = useMutation({
     mutationFn: attachmentsServices.addAttachment,
     onSuccess: (data) => {
-      enqueueSnackbar(data?.message || 'Attachment uploaded', {
+      enqueueSnackbar(data?.message || t.messages.uploaded, {
         variant: 'success',
       });
       queryClient.invalidateQueries({ queryKey: ['attachments'] });
@@ -127,7 +131,7 @@ function AttachmentForm({
     const selected = event.target.files?.[0] || null;
     if (selected && !allowedFormats.includes(selected.type)) {
       setFile(null);
-      setFileError('Unsupported File Format');
+      setFileError(t.errors.unsupportedFormat);
       return;
     }
     setFile(selected);
@@ -136,7 +140,7 @@ function AttachmentForm({
 
   const onSubmit = (data: { name: string }) => {
     if (!file) {
-      setFileError('File is required');
+      setFileError(t.errors.fileRequired);
       return;
     }
 
@@ -152,7 +156,7 @@ function AttachmentForm({
     <form autoComplete='off' onSubmit={handleSubmit(onSubmit)}>
       {!hideFeatures && (
         <DialogTitle sx={{ textAlign: 'center' }}>
-          {`Attachments For ${attachment_sourceNo}`}
+          {t.titles.attachmentsFor.replace('{sourceNo}', attachment_sourceNo)}
         </DialogTitle>
       )}
 
@@ -163,7 +167,7 @@ function AttachmentForm({
               <Grid size={{ xs: 12, md: 6 }}>
                 <TextField
                   fullWidth
-                  label='Name'
+                  label={t.labels.name}
                   size='small'
                   error={!!errors?.name}
                   helperText={errors?.name?.message}
@@ -179,7 +183,7 @@ function AttachmentForm({
                   inputProps={{ onChange: handleFileChange }}
                 />
                 {!fileError ? (
-                  <InputLabel htmlFor='file-input'>File Attachment</InputLabel>
+                  <InputLabel htmlFor='file-input'>{t.labels.fileAttachment}</InputLabel>
                 ) : (
                   <FormHelperText error>{fileError}</FormHelperText>
                 )}
@@ -193,7 +197,7 @@ function AttachmentForm({
                   type='submit'
                   loading={addAttachment.isPending}
                 >
-                  Upload
+                  {t.buttons.upload}
                 </LoadingButton>
               </Grid>
             </>
@@ -232,7 +236,7 @@ function AttachmentForm({
               ))
             ) : (
               <Alert variant='outlined' severity='info'>
-                {`No attachments for this ${attachment_name}`}
+                {t.messages.noAttachments.replace('{name}', attachment_name)}
               </Alert>
             )}
           </Grid>
@@ -247,7 +251,7 @@ function AttachmentForm({
               size='small'
               onClick={() => setAttachDialog?.(false)}
             >
-              Close
+              {t.buttons.close}
             </Button>
           </Grid>
         </DialogActions>

@@ -14,6 +14,7 @@ import { PERMISSIONS } from '@/utilities/constants/permissions';
 import { useLanguage } from '@/app/[lang]/contexts/LanguageContext';
 import bankReconciliationServices from '../bank-reconciliation-services';
 import BankAccountForm from '../forms/BankAccountForm';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface BankAccount {
   id: number;
@@ -30,6 +31,7 @@ interface Props {
 }
 
 function BankAccountListItemAction({ bankAccount }: Props) {
+  const dictionary = useDictionary();
   const { showDialog, hideDialog } = useJumboDialog();
   const { enqueueSnackbar } = useSnackbar();
   const { checkOrganizationPermission } = useJumboAuth();
@@ -92,7 +94,7 @@ function BankAccountListItemAction({ bankAccount }: Props) {
       </Dialog>
       <JumboDdMenu
         icon={
-          <Tooltip title='Actions'>
+          <Tooltip title={dictionary.tooltips.actions}>
             <MoreHorizOutlined fontSize='small' />
           </Tooltip>
         }

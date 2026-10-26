@@ -1,5 +1,6 @@
 'use client';
 
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import { readableDate } from '@/app/helpers/input-sanitization-helpers';
 import {
   AccountBalanceOutlined,
@@ -192,6 +193,8 @@ function contractStatusColor(
 // ---- main component ---------------------------------------------------
 
 const MyHrProfile = ({ isLoading = false, profile }: MyHrProfileProps) => {
+  const dictionary = useDictionary();
+  const t = dictionary.humanResources.myHr.profile;
   if (isLoading) {
     return (
       <Stack spacing={2} sx={{ mt: 1 }}>
@@ -228,19 +231,19 @@ const MyHrProfile = ({ isLoading = false, profile }: MyHrProfileProps) => {
   const identitySection: InfoItemDef[] = [
     {
       key: 'employeeNumber',
-      label: 'Employee Number',
+      label: t.fields.employeeNumber,
       value: profile.employee_number,
       icon: <BadgeOutlined fontSize='small' />,
     },
     {
       key: 'gender',
-      label: 'Gender',
+      label: t.fields.gender,
       value: capitalize(profile.gender),
       icon: <PersonOutlineOutlined fontSize='small' />,
     },
     {
       key: 'dateOfBirth',
-      label: 'Date of Birth',
+      label: t.fields.dateOfBirth,
       value: profile.date_of_birth
         ? readableDate(profile.date_of_birth, false)
         : undefined,
@@ -248,13 +251,13 @@ const MyHrProfile = ({ isLoading = false, profile }: MyHrProfileProps) => {
     },
     {
       key: 'nationalId',
-      label: 'National ID',
+      label: t.fields.nationalId,
       value: profile.national_id,
       icon: <FingerprintOutlined fontSize='small' />,
     },
     {
       key: 'passportNumber',
-      label: 'Passport Number',
+      label: t.fields.passportNumber,
       value: profile.passport_number,
       icon: <BadgeOutlined fontSize='small' />,
     },
@@ -263,19 +266,19 @@ const MyHrProfile = ({ isLoading = false, profile }: MyHrProfileProps) => {
   const contactSection: InfoItemDef[] = [
     {
       key: 'phoneNumber',
-      label: 'Phone Number',
+      label: t.fields.phoneNumber,
       value: profile.phone_number,
       icon: <ContactPhoneOutlined fontSize='small' />,
     },
     {
       key: 'email',
-      label: 'Email',
+      label: t.fields.email,
       value: profile.email,
       icon: <EmailOutlined fontSize='small' />,
     },
     {
       key: 'address',
-      label: 'Address',
+      label: t.fields.address,
       value: profile.address,
       icon: <HomeOutlined fontSize='small' />,
     },
@@ -284,25 +287,25 @@ const MyHrProfile = ({ isLoading = false, profile }: MyHrProfileProps) => {
   const employmentSection: InfoItemDef[] = [
     {
       key: 'department',
-      label: 'Department',
+      label: t.fields.department,
       value: profile.department?.name,
       icon: <ApartmentOutlined fontSize='small' />,
     },
     {
       key: 'costCenter',
-      label: 'Cost Center',
+      label: t.fields.costCenter,
       value: profile.cost_center?.name,
       icon: <ApartmentOutlined fontSize='small' />,
     },
     {
       key: 'employmentType',
-      label: 'Employment Type',
+      label: t.fields.employmentType,
       value: formatEmploymentType(profile.employment_type),
       icon: <WorkOutlineOutlined fontSize='small' />,
     },
     {
       key: 'joinDate',
-      label: 'Join Date',
+      label: t.fields.joinDate,
       value: profile.join_date
         ? readableDate(profile.join_date, false)
         : undefined,
@@ -314,19 +317,19 @@ const MyHrProfile = ({ isLoading = false, profile }: MyHrProfileProps) => {
     ? [
         {
           key: 'designation',
-          label: 'Designation',
+          label: t.fields.designation,
           value: contract.designation?.title,
           icon: <AssignmentIndOutlined fontSize='small' />,
         },
         {
           key: 'contractType',
-          label: 'Contract Type',
+          label: t.fields.contractType,
           value: formatEmploymentType(contract.contract_type),
           icon: <AssignmentIndOutlined fontSize='small' />,
         },
         {
           key: 'startDate',
-          label: 'Start Date',
+          label: t.fields.startDate,
           value: contract.start_date
             ? readableDate(contract.start_date, false)
             : undefined,
@@ -334,7 +337,7 @@ const MyHrProfile = ({ isLoading = false, profile }: MyHrProfileProps) => {
         },
         {
           key: 'basicSalary',
-          label: 'Basic Salary',
+          label: t.fields.basicSalary,
           value: formatMoney(contract.basic_salary),
           icon: <PaymentsOutlined fontSize='small' />,
         },
@@ -345,19 +348,19 @@ const MyHrProfile = ({ isLoading = false, profile }: MyHrProfileProps) => {
     ? [
         {
           key: 'bankName',
-          label: 'Bank',
+          label: t.fields.bank,
           value: bank.bank?.name || bank.bank_name,
           icon: <AccountBalanceOutlined fontSize='small' />,
         },
         {
           key: 'accountName',
-          label: 'Account Name',
+          label: t.fields.accountName,
           value: bank.account_name,
           icon: <PersonOutlineOutlined fontSize='small' />,
         },
         {
           key: 'accountNumber',
-          label: 'Account Number',
+          label: t.fields.accountNumber,
           value: bank.account_number,
           icon: <CreditCardOutlined fontSize='small' />,
         },
@@ -371,28 +374,28 @@ const MyHrProfile = ({ isLoading = false, profile }: MyHrProfileProps) => {
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <StatCard
             icon={<ApartmentOutlined />}
-            label='Department'
+            label={t.fields.department}
             value={profile.department?.name || '—'}
           />
         </Grid>
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <StatCard
             icon={<AssignmentIndOutlined />}
-            label='Designation'
+            label={t.fields.designation}
             value={contract?.designation?.title || '—'}
           />
         </Grid>
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <StatCard
             icon={<WorkOutlineOutlined />}
-            label='Employment Type'
+            label={t.fields.employmentType}
             value={formatEmploymentType(profile.employment_type) || '—'}
           />
         </Grid>
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <StatCard
             icon={<BadgeOutlined />}
-            label='Contract Status'
+            label={t.fields.contractStatus}
             value={
               contract ? (
                 <Chip
@@ -402,39 +405,39 @@ const MyHrProfile = ({ isLoading = false, profile }: MyHrProfileProps) => {
                   variant='outlined'
                 />
               ) : (
-                'No Contract'
+                t.noContract
               )
             }
           />
         </Grid>
       </Grid>
 
-      <InfoSection title='Identity' items={identitySection} />
-      <InfoSection title='Contact' items={contactSection} />
-      <InfoSection title='Employment' items={employmentSection} />
+      <InfoSection title={t.sections.identity} items={identitySection} />
+      <InfoSection title={t.sections.contact} items={contactSection} />
+      <InfoSection title={t.sections.employment} items={employmentSection} />
 
       {contractSection ? (
-        <InfoSection title='Current Contract' items={contractSection} />
+        <InfoSection title={t.sections.currentContract} items={contractSection} />
       ) : (
         <Card variant='outlined' sx={{ p: 2 }}>
           <Typography variant='subtitle1' fontWeight={600} mb={1}>
-            Current Contract
+            {t.sections.currentContract}
           </Typography>
           <Typography variant='body2' color='text.secondary'>
-            No active contract on file yet.
+            {t.noActiveContract}
           </Typography>
         </Card>
       )}
 
       {bankSection ? (
-        <InfoSection title='Primary Bank Account' items={bankSection} />
+        <InfoSection title={t.sections.primaryBankAccount} items={bankSection} />
       ) : (
         <Card variant='outlined' sx={{ p: 2 }}>
           <Typography variant='subtitle1' fontWeight={600} mb={1}>
-            Primary Bank Account
+            {t.sections.primaryBankAccount}
           </Typography>
           <Typography variant='body2' color='text.secondary'>
-            No primary bank account on file. Contact HR to have one added.
+            {t.noPrimaryBank}
           </Typography>
         </Card>
       )}

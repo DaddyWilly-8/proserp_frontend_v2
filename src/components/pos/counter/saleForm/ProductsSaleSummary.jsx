@@ -1,6 +1,7 @@
 import { Checkbox, Divider, Grid, Switch, Typography } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { useVFD } from "@/components/vfd/VFDProvider";
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function ProductsSaleSummary({
   items = [],
@@ -14,6 +15,7 @@ function ProductsSaleSummary({
   setValue,
   watch
 }) {
+  const dictionary = useDictionary();
   const [totalAmount, settotalAmount] = useState(0);
   const [vatableAmount, setvatableAmount] = useState(0);
   const majorInfoOnly = watch('major_info_only');
@@ -60,7 +62,7 @@ function ProductsSaleSummary({
     <Grid container columnSpacing={1}>
       <Grid size={12}>
         <Typography align="center" variant="h3">
-          Summary
+          {dictionary.forms.counter.saleSummary.summary}
         </Typography>
         <Divider />
       </Grid>
@@ -68,7 +70,7 @@ function ProductsSaleSummary({
       {/* Total */}
       <Grid size={6}>
         <Typography align="left" variant="body2">
-          Total:
+          {dictionary.forms.counter.saleSummary.total}:
         </Typography>
       </Grid>
       <Grid size={6}>
@@ -85,7 +87,7 @@ function ProductsSaleSummary({
         <React.Fragment>
           <Grid size={6}>
             <Typography align="left" variant="body2">
-              VAT:
+              {dictionary.forms.counter.saleSummary.vat}:
               <Checkbox
                 size="small"
                 disabled={majorInfoOnly}
@@ -114,7 +116,7 @@ function ProductsSaleSummary({
 
             <Grid size={6}>
                 <Typography align="left" variant="body2">
-                    Grand Total ({currencyCode}):
+                    {dictionary.forms.counter.saleSummary.grandTotal} ({currencyCode}):
                 </Typography>
             </Grid>
             <Grid size={6}>
@@ -137,7 +139,7 @@ function ProductsSaleSummary({
 
           <Grid size={7} marginTop={2} marginBottom={2}>
             <Typography align="left" variant="body2">
-              Instant Sale:
+              {dictionary.forms.counter.saleSummary.instantSale}:
             </Typography>
           </Grid>
 
@@ -164,7 +166,7 @@ function ProductsSaleSummary({
 
           <Grid size={7} marginTop={1} marginBottom={2}>
             <Typography align="left" variant="body2">
-              Suggest Recent Price:
+              {dictionary.forms.counter.saleSummary.suggestRecentPrice}:
             </Typography>
           </Grid>
 

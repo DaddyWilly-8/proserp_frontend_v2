@@ -1,5 +1,6 @@
 'use client';
 
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import { useLanguage } from '@/app/[lang]/contexts/LanguageContext';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { BackdropSpinner } from '@/shared/ProgressIndicators/BackdropSpinner';
@@ -72,6 +73,8 @@ export default function EmployeeOrgChartTree() {
   const [modulesLoaded, setModulesLoaded] = useState(false);
   const router = useRouter();
   const lang = useLanguage();
+  const dictionary = useDictionary();
+  const t = dictionary.humanResources.orgChart;
   const { authOrganization } = useJumboAuth() as any;
   const organizationName = authOrganization?.organization?.name;
 
@@ -116,7 +119,7 @@ export default function EmployeeOrgChartTree() {
     return (
       <JumboCardQuick sx={{ borderRadius: 2 }}>
         <Typography variant='body2' color='text.secondary'>
-          No employees yet.
+          {t.noEmployees}
         </Typography>
       </JumboCardQuick>
     );
@@ -169,8 +172,8 @@ export default function EmployeeOrgChartTree() {
     },
     title: {
       text: organizationName
-        ? `${organizationName} Organization Chart`
-        : 'Organization Chart',
+        ? t.titleWithOrganization.replace('{name}', organizationName)
+        : t.title,
       style: {
         fontSize: '18px',
         fontWeight: 'bold',
@@ -192,7 +195,7 @@ export default function EmployeeOrgChartTree() {
     series: [
       {
         type: 'treegraph',
-        name: 'Employees',
+        name: t.employees,
         data: orgChartNodes,
         // Fixed pixel size, not a '%'/nodeWidth+nodeHeight combo — those are
         // relative to plotSizeX/plotSizeY, which Highcharts swaps once

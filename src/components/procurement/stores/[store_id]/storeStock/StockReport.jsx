@@ -50,6 +50,7 @@ import storeServices from '../../store-services';
 import StoreSelector from '../../StoreSelector';
 import { useStoreProfile } from '../StoreProfileProvider';
 import StockReportOnScreen from './StockReportOnScreen';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const ReportDocument = ({
   productCategories,
@@ -326,6 +327,7 @@ const ReportDocument = ({
 };
 
 function StockReport({ setOpenDialog, isFromDashboard }) {
+  const dictionary = useDictionary();
   const classes = useProsERPStyles();
   const [today] = useState(dayjs());
   const authObject = useJumboAuth();
@@ -489,7 +491,7 @@ function StockReport({ setOpenDialog, isFromDashboard }) {
                 </Grid>
                 {belowLargeScreen && (
                   <Grid size={1} textAlign='right'>
-                    <Tooltip title='Close'>
+                    <Tooltip title={dictionary.tooltips.close}>
                       <IconButton
                         size='small'
                         sx={{ mb: 1 }}

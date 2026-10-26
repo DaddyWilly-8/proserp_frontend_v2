@@ -18,8 +18,10 @@ import TasksForm from './TasksForm';
 import TaskView from './TaskView';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const TasksItemAction = ({ task, activity }) => {
+  const dictionary = useDictionary();
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const [openViewDialog, setOpenViewDialog] = useState(false);
   const { showDialog, hideDialog } = useJumboDialog();
@@ -49,15 +51,15 @@ const TasksItemAction = ({ task, activity }) => {
   });
 
   const menuItems = [
-    { icon: <VisibilityOutlined />, title: 'View', action: 'view' },
+    { icon: <VisibilityOutlined />, title: dictionary.projectManagement.wbs.common.view, action: 'view' },
     checkOrganizationPermission(PERMISSIONS.PROJECTS_EDIT) && {
       icon: <EditOutlined />,
-      title: 'Edit',
+      title: dictionary.projectManagement.wbs.common.edit,
       action: 'edit',
     },
     checkOrganizationPermission(PERMISSIONS.PROJECTS_DELETE) && {
       icon: <DeleteOutlined color='error' />,
-      title: 'Delete',
+      title: dictionary.projectManagement.wbs.common.delete,
       action: 'delete',
     },
   ].filter(Boolean);
@@ -72,8 +74,8 @@ const TasksItemAction = ({ task, activity }) => {
         break;
       case 'delete':
         showDialog({
-          title: 'Confirm Delete',
-          content: 'Are you sure you want to delete this Task?',
+          title: dictionary.projectManagement.wbs.common.confirmDelete,
+          content: dictionary.projectManagement.wbs.task.confirmDeleteText,
           onYes: () => {
             hideDialog();
             deleteTask(task.id);
@@ -113,7 +115,7 @@ const TasksItemAction = ({ task, activity }) => {
       </Dialog>
       <JumboDdMenu
         icon={
-          <Tooltip title='Actions'>
+          <Tooltip title={dictionary.tooltips.actions}>
             <MoreHorizOutlined />
           </Tooltip>
         }

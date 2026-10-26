@@ -13,6 +13,7 @@ import {
   TableContainer
 } from '@mui/material';
 import { readableDate } from '@/app/helpers/input-sanitization-helpers';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import { MeasurementUnit } from '@/components/masters/measurementUnits/MeasurementUnitType';
 import { Organization } from '@/types/auth-types';
 
@@ -73,6 +74,8 @@ const DispatchReportOnScreen: React.FC<DispatchReportOnScreenProps> = ({
   dispatchReport 
 }) => {
   const theme = useTheme();
+  const dictionary = useDictionary();
+  const dict = dictionary.reports.saleDispatchReport;
   const mainColor = organization.settings?.main_color || "#2113AD";
   const headerColor = theme.type === 'dark' ? '#29f096' : (organization.settings?.main_color || "#2113AD");
   const contrastText = organization.settings?.contrast_text || "#FFFFFF";
@@ -119,7 +122,7 @@ const DispatchReportOnScreen: React.FC<DispatchReportOnScreenProps> = ({
               fontWeight="bold" 
               gutterBottom
             >
-              SALES DISPATCH REPORT
+              {dict.title}
             </Typography>
             <Typography 
               variant="h6" 
@@ -129,7 +132,7 @@ const DispatchReportOnScreen: React.FC<DispatchReportOnScreenProps> = ({
               {dispatchReport.saleNo}
             </Typography>
             <Typography variant="body1" color="text.secondary">
-              {`As at: ${readableDate(undefined, true)}`}
+              {`${dict.asAt}: ${readableDate(undefined, true)}`}
             </Typography>
           </Box>
         </Grid>
@@ -162,7 +165,7 @@ const DispatchReportOnScreen: React.FC<DispatchReportOnScreenProps> = ({
                 borderRight: `1px solid ${theme.palette.divider}`,
                 fontSize: '0.875rem',
                 width: '25%'
-              }}>Products</TableCell>
+              }}>{dict.products}</TableCell>
               
               <TableCell sx={{
                 backgroundColor: mainColor, 
@@ -170,7 +173,7 @@ const DispatchReportOnScreen: React.FC<DispatchReportOnScreenProps> = ({
                 borderRight: `1px solid ${theme.palette.divider}`,
                 fontSize: '0.875rem',
                 width: '8%'
-              }}>Unit</TableCell>
+              }}>{dict.unit}</TableCell>
               
               <TableCell sx={{
                 backgroundColor: mainColor, 
@@ -178,7 +181,7 @@ const DispatchReportOnScreen: React.FC<DispatchReportOnScreenProps> = ({
                 borderRight: `1px solid ${theme.palette.divider}`,
                 fontSize: '0.875rem',
                 width: '8%'
-              }}>Ordered</TableCell>
+              }}>{dict.ordered}</TableCell>
               
               {dispatchedItem.map(item => (
                 <TableCell 
@@ -211,7 +214,7 @@ const DispatchReportOnScreen: React.FC<DispatchReportOnScreenProps> = ({
               }} align="center">
                 <Box>
                   <Typography variant="subtitle2" sx={{ fontSize: '0.75rem', lineHeight: 1.2 }}>
-                    Balance
+                    {dict.balance}
                   </Typography>
                   <Typography variant="caption" sx={{ fontSize: '0.7rem', lineHeight: 1.2 }}>
                     ({readableDate()})
@@ -280,7 +283,7 @@ const DispatchReportOnScreen: React.FC<DispatchReportOnScreenProps> = ({
                   sx={{ textAlign: 'center', py: 4 }}
                 >
                   <Typography variant="body1" color="text.secondary">
-                    No dispatch items found
+                    {dict.noItems}
                   </Typography>
                 </TableCell>
               </TableRow>

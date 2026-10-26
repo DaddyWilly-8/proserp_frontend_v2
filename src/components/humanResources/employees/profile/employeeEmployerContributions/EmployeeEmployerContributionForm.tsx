@@ -23,6 +23,7 @@ import * as yup from 'yup';
 import { EmployerContributionType } from '../../../employerContributionTypes/EmployerContributionType';
 import humanResourcesServices from '../../../humanResourcesServices';
 import { EmployeeEmployerContributionType } from './EmployeeEmployerContributionType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface EmployeeEmployerContributionFormProps {
   setOpenDialog: (open: boolean) => void;
@@ -72,6 +73,7 @@ const EmployeeEmployerContributionForm = ({
   employeeEmployerContribution = null,
   employeeId,
 }: EmployeeEmployerContributionFormProps) => {
+  const dictionary = useDictionary();
   const queryClient = useQueryClient();
   const { enqueueSnackbar } = useSnackbar();
 
@@ -99,7 +101,7 @@ const EmployeeEmployerContributionForm = ({
     mutationFn: humanResourcesServices.addEmployeeEmployerContribution,
     onSuccess: () => {
       setOpenDialog(false);
-      enqueueSnackbar('Employee Employer Contribution Added Successfully', {
+      enqueueSnackbar(dictionary.humanResources.employeeEmployerContributions.messages.added, {
         variant: 'success',
       });
       queryClient.invalidateQueries({
@@ -107,7 +109,7 @@ const EmployeeEmployerContributionForm = ({
       });
     },
     onError: (mutationError) => {
-      let message = 'Something went wrong';
+      let message = dictionary.humanResources.profileSectionsCommon.somethingWentWrong;
 
       if (
         typeof error === 'object' &&
@@ -131,7 +133,7 @@ const EmployeeEmployerContributionForm = ({
     mutationFn: humanResourcesServices.updateEmployeeEmployerContribution,
     onSuccess: () => {
       setOpenDialog(false);
-      enqueueSnackbar('Employee Employer Contribution Updated Successfully', {
+      enqueueSnackbar(dictionary.humanResources.employeeEmployerContributions.messages.updated, {
         variant: 'success',
       });
       queryClient.invalidateQueries({
@@ -139,7 +141,7 @@ const EmployeeEmployerContributionForm = ({
       });
     },
     onError: (mutationError) => {
-      let message = 'Something went wrong';
+      let message = dictionary.humanResources.profileSectionsCommon.somethingWentWrong;
 
       if (
         typeof error === 'object' &&
@@ -157,17 +159,17 @@ const EmployeeEmployerContributionForm = ({
 
   const validationSchema = yup.object({
     id: yup.number().optional(),
-    employee_id: yup.number().required('Employee is required'),
+    employee_id: yup.number().required(dictionary.humanResources.employeeEmployerContributions.form.validation.employeeRequired),
     employer_contribution_type_id: yup
       .number()
-      .required('Contribution type is required'),
+      .required(dictionary.humanResources.employeeEmployerContributions.form.validation.contributionTypeRequired),
     member_no: yup.string().nullable().max(50),
     value: yup
       .number()
-      .typeError('Value must be a number')
-      .required('Value is required')
-      .min(0, 'Value must be 0 or greater'),
-    effective_from: yup.string().required('Effective from is required'),
+      .typeError(dictionary.humanResources.employeeEmployerContributions.form.validation.valueNumber)
+      .required(dictionary.humanResources.employeeEmployerContributions.form.validation.valueRequired)
+      .min(0, dictionary.humanResources.employeeEmployerContributions.form.validation.valueMin),
+    effective_from: yup.string().required(dictionary.humanResources.employeeEmployerContributions.form.validation.effectiveFromRequired),
     effective_to: yup.string().nullable().optional(),
   });
 
@@ -232,8 +234,8 @@ const EmployeeEmployerContributionForm = ({
       <DialogTitle>
         <Grid size={12} textAlign={'center'}>
           {!employeeEmployerContribution?.id
-            ? 'Add Employee Employer Contribution'
-            : 'Edit Employee Employer Contribution'}
+            ? dictionary.humanResources.employeeEmployerContributions.form.addTitle
+            : dictionary.humanResources.employeeEmployerContributions.form.editTitle}
         </Grid>
       </DialogTitle>
       <DialogContent>
@@ -247,7 +249,7 @@ const EmployeeEmployerContributionForm = ({
                   <Controller
                     name='employer_contribution_type_id'
                     control={control}
-                    rules={{ required: 'Contribution type is required' }}
+                    rules={{ required: dictionary.humanResources.employeeEmployerContributions.form.validation.contributionTypeRequired }}
                     render={({ field, fieldState }) => (
                       <Autocomplete
                         size='small'
@@ -278,7 +280,7 @@ const EmployeeEmployerContributionForm = ({
                         renderInput={(params) => (
                           <TextField
                             {...params}
-                            label='Contribution Type'
+                            label={dictionary.humanResources.employeeEmployerContributions.form.labels.contributionType}
                             error={
                               !!fieldState.error ||
                               !!getValidationMessage(
@@ -305,8 +307,8 @@ const EmployeeEmployerContributionForm = ({
             <Grid size={{ xs: 12, md: 6 }}>
               <Div sx={{ mt: 1, mb: 1 }}>
                 <TextField
-                  label='Member No.'
-                  placeholder='e.g. NSSF No, WCF No'
+                  label={dictionary.humanResources.employeeEmployerContributions.form.labels.memberNo}
+                  placeholder={dictionary.humanResources.employeeEmployerContributions.form.placeholders.memberNo}
                   size='small'
                   fullWidth
                   error={
@@ -329,7 +331,7 @@ const EmployeeEmployerContributionForm = ({
                   control={control}
                   render={({ field }) => (
                     <TextField
-                      label='Value'
+                      label={dictionary.humanResources.employeeEmployerContributions.form.labels.value}
                       size='small'
                       fullWidth
                       value={formatCommaSeparatedValue(field.value)}
@@ -364,7 +366,7 @@ const EmployeeEmployerContributionForm = ({
                   control={control}
                   render={({ field }) => (
                     <DateTimePicker
-                      label='Effective From'
+                      label={dictionary.humanResources.employeeEmployerContributions.form.labels.effectiveFrom}
                       value={field.value ? dayjs(field.value) : null}
                       onChange={(newValue) => {
                         field.onChange(newValue ? newValue.toISOString() : '');
@@ -400,7 +402,7 @@ const EmployeeEmployerContributionForm = ({
                   control={control}
                   render={({ field }) => (
                     <DateTimePicker
-                      label='Effective To'
+                      label={dictionary.humanResources.employeeEmployerContributions.form.labels.effectiveTo}
                       value={field.value ? dayjs(field.value) : null}
                       onChange={(newValue) => {
                         field.onChange(newValue ? newValue.toISOString() : '');
@@ -432,7 +434,7 @@ const EmployeeEmployerContributionForm = ({
 
           <DialogActions>
             <Button size='small' onClick={() => setOpenDialog(false)}>
-              Cancel
+              {dictionary.humanResources.profileSectionsCommon.cancel}
             </Button>
             <LoadingButton
               type='submit'
@@ -441,7 +443,7 @@ const EmployeeEmployerContributionForm = ({
               sx={{ display: 'flex' }}
               loading={isPending || updateIsPending}
             >
-              Submit
+              {dictionary.humanResources.profileSectionsCommon.submit}
             </LoadingButton>
           </DialogActions>
         </form>

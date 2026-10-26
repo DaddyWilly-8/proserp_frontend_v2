@@ -3,12 +3,14 @@
 import { Divider, Grid, Tooltip, Typography } from '@mui/material';
 import DesignationItemAction from './DesignationItemAction';
 import { Designation } from './DesignationsType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const DesignationsListItem = ({
   designation,
 }: {
   designation: Designation;
 }) => {
+  const dictionary = useDictionary();
   return (
     <>
       <Divider />
@@ -28,7 +30,7 @@ const DesignationsListItem = ({
         container
       >
         <Grid size={{ xs: 12, md: 5 }}>
-          <Tooltip title='Designation Title'>
+          <Tooltip title={dictionary.tooltips.designationTitle}>
             <Typography
               variant='h5'
               fontSize={14}
@@ -41,12 +43,12 @@ const DesignationsListItem = ({
           </Tooltip>
         </Grid>
         <Grid size={{ xs: 12, md: 3 }}>
-          <Tooltip title='Designation Code'>
+          <Tooltip title={dictionary.tooltips.designationCode}>
             <Typography>{designation.code}</Typography>
           </Tooltip>
         </Grid>
         <Grid size={{ xs: 12, md: 3 }}>
-          <Tooltip title='Designation Description'>
+          <Tooltip title={dictionary.tooltips.designationDescription}>
             <Typography>{designation.description}</Typography>
           </Tooltip>
         </Grid>

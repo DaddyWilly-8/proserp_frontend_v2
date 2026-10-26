@@ -32,6 +32,7 @@ interface SalesPerformancePDFProps {
   to: string;
   baseCurrencyCode: string;
   printedBy?: string;
+  dictionary: any;
 }
 
 const formatQuantity = (value: number, unitSymbol?: string | null) =>
@@ -53,10 +54,12 @@ function SalesPerformancePDF({
   to,
   baseCurrencyCode,
   printedBy,
+  dictionary,
 }: SalesPerformancePDFProps) {
+  const t = dictionary.reports.posReports.salesPerformance;
   const mainColor = organization.settings?.main_color || '#2113AD';
   const contrastText = organization.settings?.contrast_text || '#FFFFFF';
-  const labelColumn = groupBy === 'sales_person' ? 'Sales Person' : 'Customer';
+  const labelColumn = groupBy === 'sales_person' ? t.salesPerson : t.customer;
 
   const totalTransactions = rows.reduce(
     (sum, row) => sum + (row.transaction_count || 0),
@@ -73,7 +76,7 @@ function SalesPerformancePDF({
 
   return (
     <Document
-      title={`Sales Performance | ${organization.name}`}
+      title={`${t.title} | ${organization.name}`}
       creator={`${printedBy || ''} | Powered By ProsERP`}
       producer='ProsERP'
     >
@@ -83,15 +86,13 @@ function SalesPerformancePDF({
             <PdfLogo organization={organization} />
           </View>
           <View style={{ flex: 1, textAlign: 'right' }}>
-            <Text style={{ ...pdfStyles.majorInfo, color: mainColor }}>
-              SALES PERFORMANCE
-            </Text>
+            <Text style={{ ...pdfStyles.majorInfo, color: mainColor }}>{t.titleCaps}</Text>
             <Text style={{ ...pdfStyles.minInfo }}>
-              {dayjs(from).format('DD MMM YYYY HH:mm')} to {dayjs(to).format('DD MMM YYYY HH:mm')}
+              {dayjs(from).format('DD MMM YYYY HH:mm')} {t.to} {dayjs(to).format('DD MMM YYYY HH:mm')}
             </Text>
             {!!baseCurrencyCode && (
               <Text style={{ ...pdfStyles.minInfo }}>
-                Amounts in base currency ({baseCurrencyCode})
+                {t.amountsInBase.replace('{currency}', baseCurrencyCode)}
               </Text>
             )}
           </View>
@@ -99,21 +100,13 @@ function SalesPerformancePDF({
 
         <View style={{ ...pdfStyles.table, marginTop: 10 }}>
           <View style={pdfStyles.tableRow}>
-            <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 0.6 }}>
-              Rank
-            </Text>
+            <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 0.6 }}>{t.rank}</Text>
             <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 2.6 }}>
               {labelColumn}
             </Text>
-            <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 1.2, textAlign: 'right' }}>
-              Transactions
-            </Text>
-            <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 1.6, textAlign: 'right' }}>
-              Amount Ordered
-            </Text>
-            <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 1.6, textAlign: 'right' }}>
-              Amount Collected
-            </Text>
+            <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 1.2, textAlign: 'right' }}>{t.transactions}</Text>
+            <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 1.6, textAlign: 'right' }}>{t.amountOrdered}</Text>
+            <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 1.6, textAlign: 'right' }}>{t.amountCollected}</Text>
           </View>
 
           {rows.map((row, index) => (
@@ -148,14 +141,14 @@ function SalesPerformancePDF({
                 >
                   <Text style={{ ...pdfStyles.tableCell, flex: 0.6 }} />
                   <Text style={{ ...pdfStyles.tableCell, flex: 2.6, fontSize: 8, paddingLeft: 12, color: '#555555' }}>
-                    {product.product_name} (qty: {formatQuantity(product.quantity, product.unit_symbol)})
+                    {product.product_name} ({t.qty}: {formatQuantity(product.quantity, product.unit_symbol)})
                   </Text>
                   <Text style={{ ...pdfStyles.tableCell, flex: 1.2 }} />
                   <Text style={{ ...pdfStyles.tableCell, flex: 1.6, textAlign: 'right', fontSize: 8, color: '#555555' }}>
                     {formatAmount(product.amount_ordered)}
                   </Text>
                   <Text style={{ ...pdfStyles.tableCell, flex: 1.6, textAlign: 'right', fontSize: 8, color: '#555555' }}>
-                    Disp: {formatAmount(product.amount_dispatched)}
+                    {t.disp}: {formatAmount(product.amount_dispatched)}
                   </Text>
                 </View>
               ))}
@@ -164,7 +157,7 @@ function SalesPerformancePDF({
 
           <View style={{ ...pdfStyles.tableRow, backgroundColor: '#d5d5d5' }}>
             <Text style={{ ...pdfStyles.tableHeader, flex: 0.6 }} />
-            <Text style={{ ...pdfStyles.tableHeader, flex: 2.6 }}>Total</Text>
+            <Text style={{ ...pdfStyles.tableHeader, flex: 2.6 }}>{t.total}</Text>
             <Text style={{ ...pdfStyles.tableHeader, flex: 1.2, textAlign: 'right' }}>
               {totalTransactions.toLocaleString('en-US')}
             </Text>

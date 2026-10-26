@@ -44,6 +44,7 @@ import ShiftsSummaryReport from '../fuelStation/reports/shiftsSummaryReport/Shif
 import StockMovement from '../procurement/stores/[store_id]/reports/stockMovement/StockMovement';
 import ItemMovement from '../procurement/stores/[store_id]/storeStock/ItemMovement';
 import StockReport from '../procurement/stores/[store_id]/storeStock/StockReport';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const DebtorCreditorReport = lazy(
   () => import('../accounts/reports/debtorCreditor/DebtorCreditorReport')
@@ -86,6 +87,7 @@ const ProjectStatusReport = lazy(
 );
 
 function QuickReports() {
+  const dictionary = useDictionary();
   const { theme } = useJumboTheme();
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
 
@@ -286,7 +288,7 @@ function QuickReports() {
           </DialogActions>
         )}
       </Dialog>
-      <JumboCardQuick title={'Quick Reports'}>
+      <JumboCardQuick title={dictionary.dashboardCards.quickReports}>
         {isLoading ? (
           <LinearProgress />
         ) : (

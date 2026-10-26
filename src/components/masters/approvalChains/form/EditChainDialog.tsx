@@ -17,6 +17,7 @@ import { Department } from '../../../humanResources/departments/DepartmentsType'
 import { ApprovalChain } from '../ApprovalChainType';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { MODULES } from '@/utilities/constants/modules';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface FormValues {
   id: number;
@@ -32,13 +33,14 @@ interface EditChainDialogProps {
 }
 
 function EditChainDialog({ toggleOpen, approvalChain }: EditChainDialogProps) {
+  const dictionary = useDictionary();
   const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
   const { organizationHasSubscribed } = useJumboAuth();
   const [selectedProcessType, setSelectedProcessType] = React.useState<string>(approvalChain.process_type);
 
   const validationSchema = yup.object({
-    process_type: yup.string().required('Process Type is required').typeError('Process Type is required'),
+    process_type: yup.string().required(dictionary.forms.approvalChains.chainForm.errors.validation.processTypeRequired).typeError(dictionary.forms.approvalChains.chainForm.errors.validation.processTypeRequired),
     cost_center_id: yup.number().nullable(),
     department_id: yup.number().nullable(),
   });
@@ -90,7 +92,7 @@ function EditChainDialog({ toggleOpen, approvalChain }: EditChainDialogProps) {
       <DialogTitle>
         <Grid container columnSpacing={2}>
           <Grid size={12} textAlign={"center"} mb={2}>
-            {'Edit Approval Chain'}
+            {dictionary.forms.approvalChains.chainForm.title.edit}
           </Grid>
           <Grid size={12}>
             <form autoComplete='off' onSubmit={handleSubmit(onSubmit)}>
@@ -106,7 +108,7 @@ function EditChainDialog({ toggleOpen, approvalChain }: EditChainDialogProps) {
                       renderInput={(params) => (
                         <TextField
                           {...params}
-                          label="Process Type"
+                          label={dictionary.forms.approvalChains.chainForm.labels.processType}
                           size="small"
                           fullWidth
                           error={!!errors.process_type}
@@ -139,7 +141,7 @@ function EditChainDialog({ toggleOpen, approvalChain }: EditChainDialogProps) {
                     <Div sx={{ mt: 0.3 }}>
                       <CostCenterSelector
                         multiple={false}
-                        label="Cost Center"
+                        label={dictionary.forms.approvalChains.chainForm.labels.costCenter}
                         withNotSpecified={true}
                         defaultValue={approvalChain?.cost_center as CostCenter || null}
                         onChange={(newValue) => {
@@ -164,7 +166,7 @@ function EditChainDialog({ toggleOpen, approvalChain }: EditChainDialogProps) {
                     <Div sx={{ mt: 0.3 }}>
                       <DepartmentSelector
                         multiple={false}
-                        label="Department"
+                        label={dictionary.forms.approvalChains.chainForm.labels.department}
                         defaultValue={approvalChain?.department as Department || null}
                         onChange={(newValue) => {
                           if (newValue && !Array.isArray(newValue)) {
@@ -186,7 +188,7 @@ function EditChainDialog({ toggleOpen, approvalChain }: EditChainDialogProps) {
                 <Grid size={{xs: 12, md: 3}}>
                   <Div sx={{ mt: 0.3 }}>
                     <TextField
-                      label="Remarks"
+                      label={dictionary.forms.approvalChains.chainForm.labels.remarks}
                       size="small"
                       multiline={true}
                       minRows={2}
@@ -202,7 +204,7 @@ function EditChainDialog({ toggleOpen, approvalChain }: EditChainDialogProps) {
       </DialogTitle>
       <DialogActions>
         <Button size='small' onClick={() => toggleOpen(false)}>
-          Cancel
+          {dictionary.forms.approvalChains.chainForm.buttons.cancel}
         </Button>
         <LoadingButton
           loading={editApprovalChain.isPending}
@@ -210,7 +212,7 @@ function EditChainDialog({ toggleOpen, approvalChain }: EditChainDialogProps) {
           onClick={handleSubmit(onSubmit)}
           size='small'
         >
-          Submit
+          {dictionary.forms.approvalChains.chainForm.buttons.submit}
         </LoadingButton>
       </DialogActions>
     </DepartmentsProvider>

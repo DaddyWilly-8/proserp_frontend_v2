@@ -20,6 +20,7 @@ import { useSnackbar } from 'notistack';
 import { useEffect, useState } from 'react';
 import humanResourcesServices from '../humanResourcesServices';
 import { LoanRequestType } from './LoanRequestType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface LoanDisburseFormProps {
   open: boolean;
@@ -34,6 +35,7 @@ const LoanDisburseForm = ({
   loanRequest,
   onClose,
 }: LoanDisburseFormProps) => {
+  const dictionary = useDictionary();
   const [creditLedgerId, setCreditLedgerId] = useState(0);
   const [disbursedAt, setDisbursedAt] = useState(dayjs().toISOString());
   const [reference, setReference] = useState('');
@@ -54,12 +56,12 @@ const LoanDisburseForm = ({
         queryKey: ['showLoanRequest', loanRequest.id],
       });
       queryClient.invalidateQueries({ queryKey: ['loanRequests'] });
-      enqueueSnackbar('Loan disbursed', { variant: 'success' });
+      enqueueSnackbar(dictionary.humanResources.loanRequests.disburseForm.messages.disbursed, { variant: 'success' });
       onClose();
     },
     onError: (error: any) => {
       enqueueSnackbar(
-        error?.response?.data?.message || 'Something went wrong',
+        error?.response?.data?.message || dictionary.humanResources.loanRequests.common.somethingWentWrong,
         { variant: 'error' }
       );
     },
@@ -84,12 +86,12 @@ const LoanDisburseForm = ({
       fullScreen={belowLargeScreen}
       scroll={belowLargeScreen ? 'body' : 'paper'}
     >
-      <DialogTitle>Disburse Loan</DialogTitle>
+      <DialogTitle>{dictionary.humanResources.loanRequests.disburseForm.title}</DialogTitle>
       <DialogContent>
         <Stack spacing={2} sx={{ mt: 1 }}>
           <LedgerSelectProvider>
             <LedgerSelect
-              label='Pay From'
+              label={dictionary.humanResources.loanRequests.disburseForm.labels.payFrom}
               allowedGroups={[
                 'Current Assets',
                 'Current Liabilities',
@@ -102,7 +104,7 @@ const LoanDisburseForm = ({
             />
           </LedgerSelectProvider>
           <DateTimePicker
-            label='Payment Date & Time'
+            label={dictionary.humanResources.loanRequests.disburseForm.labels.paymentDateTime}
             value={disbursedAt ? dayjs(disbursedAt) : null}
             onChange={(val) => setDisbursedAt(val?.toISOString() || '')}
             slotProps={{
@@ -110,8 +112,8 @@ const LoanDisburseForm = ({
             }}
           />
           <TextField
-            label='Reference (optional)'
-            placeholder='e.g. Cheque / transfer number'
+            label={dictionary.humanResources.loanRequests.common.referenceOptional}
+            placeholder={dictionary.humanResources.loanRequests.disburseForm.placeholders.reference}
             size='small'
             fullWidth
             value={reference}
@@ -121,7 +123,7 @@ const LoanDisburseForm = ({
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose} disabled={isPending}>
-          Cancel
+          {dictionary.humanResources.loanRequests.common.cancel}
         </Button>
         <LoadingButton
           loading={isPending}
@@ -131,7 +133,7 @@ const LoanDisburseForm = ({
           disabled={!creditLedgerId}
           onClick={handleSubmit}
         >
-          Disburse
+          {dictionary.humanResources.loanRequests.disburseForm.buttons.disburse}
         </LoadingButton>
       </DialogActions>
     </Dialog>

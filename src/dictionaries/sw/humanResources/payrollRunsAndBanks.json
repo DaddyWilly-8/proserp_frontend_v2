@@ -1,0 +1,447 @@
+{
+  "banks": {
+    "labels": {
+      "pageTitle": "Benki"
+    },
+    "form": {
+      "labels": {
+        "addTitle": "Ongeza Benki",
+        "editTitle": "Hariri Benki {name}",
+        "name": "Jina",
+        "shortName": "Jina Fupi",
+        "swiftCode": "Msimbo wa SWIFT"
+      },
+      "buttons": {
+        "cancel": "Ghairi",
+        "submit": "Wasilisha"
+      },
+      "messages": {
+        "added": "Benki Imeongezwa Kikamilifu",
+        "addError": "Hitilafu Wakati wa Kuongeza Benki",
+        "updated": "Benki Imesasishwa Kikamilifu",
+        "updateError": "Hitilafu Wakati wa Kusasisha Benki"
+      },
+      "errors": {
+        "nameRequired": "Jina linahitajika",
+        "nameMax": "Jina haliwezi kuzidi herufi 150",
+        "shortNameMax": "Jina fupi haliwezi kuzidi herufi 20",
+        "swiftCodeMax": "Msimbo wa SWIFT hauwezi kuzidi herufi 20"
+      }
+    },
+    "menu": {
+      "edit": "Hariri",
+      "delete": "Futa"
+    },
+    "dialog": {
+      "confirmDeleteTitle": "Thibitisha Kufuta",
+      "confirmDeleteContent": "Una uhakika unataka kufuta Benki hii?"
+    },
+    "messages": {
+      "deleted": "Benki Imefutwa Kikamilifu",
+      "deleteError": "Hitilafu Wakati wa Kufuta Benki"
+    }
+  },
+  "bankFile": {
+    "menu": {
+      "searchPlaceholder": "Tafuta muundo wa faili la benki...",
+      "noMatch": "Hakuna miundo ya benki inayolingana",
+      "configure": "Sanidi {name}"
+    },
+    "settings": {
+      "title": "Mipangilio ya {name}",
+      "info1": "Thamani hizi zinatoka kwenye akaunti ya shirika lako katika",
+      "info2": "— zimewekwa mara moja, hutumika tena kila unapohamisha.",
+      "noConfig": "Muundo huu hauhitaji usanidi wa ziada.",
+      "saved": "Mipangilio ya faili la benki imehifadhiwa",
+      "cancel": "Ghairi",
+      "saveAndDownload": "Hifadhi na Pakua"
+    }
+  },
+  "payrollRuns": {
+    "months": [
+      "Januari",
+      "Februari",
+      "Machi",
+      "Aprili",
+      "Mei",
+      "Juni",
+      "Julai",
+      "Agosti",
+      "Septemba",
+      "Oktoba",
+      "Novemba",
+      "Desemba"
+    ],
+    "list": {
+      "title": "Mizunguko ya Mishahara",
+      "approvedTitle": "Mizunguko ya Mishahara Iliyoidhinishwa",
+      "payrollPeriod": "Kipindi cha Mishahara"
+    },
+    "form": {
+      "title": {
+        "create": "Unda Mzunguko wa Mishahara",
+        "edit": "Hariri Mzunguko wa Mishahara"
+      },
+      "errors": {
+        "periodRequired": "Kipindi cha mishahara kinahitajika",
+        "costCenterRequired": "Kituo cha gharama kinahitajika - kipindi hiki tayari kina mizunguko ya matawi"
+      },
+      "messages": {
+        "created": "Mzunguko wa mishahara umeundwa kikamilifu"
+      },
+      "info": {
+        "edit": "Hariri maelezo ya mzunguko wa mishahara hapa chini.",
+        "hasBranchRun": "Kipindi hiki tayari kina mizunguko ya matawi. Lazima uchague kituo cha gharama kwa mzunguko huu. Mizunguko ya kampuni nzima hairuhusiwi.",
+        "hasCompanyWideRun": "Kipindi hiki tayari kina mzunguko wa kampuni nzima. Mizunguko ya vituo vya gharama pekee inaruhusiwa. Chagua kituo cha gharama ili kuunda mzunguko wa tawi.",
+        "createNew": "Unda mzunguko mpya wa mishahara kwa {period}. Acha kituo cha gharama wazi kwa mzunguko wa kampuni nzima."
+      },
+      "labels": {
+        "costCenterRequired": "Kituo cha Gharama *",
+        "costCenterOptional": "Kituo cha Gharama (si lazima)",
+        "leaveEmpty": "Acha wazi ili kuunda mzunguko wa kampuni nzima",
+        "currentStatus": "Hali ya Sasa:",
+        "draft": "Rasimu"
+      },
+      "buttons": {
+        "cancel": "Ghairi",
+        "update": "Sasisha",
+        "create": "Unda"
+      }
+    },
+    "status": {
+      "draft": "Rasimu",
+      "submitted": "Imewasilishwa",
+      "approved": "Imeidhinishwa",
+      "posted": "Imechapishwa",
+      "partially_paid": "Imelipwa Kiasi",
+      "paid": "Imelipwa",
+      "completed": "Imekamilika",
+      "rejected": "Imekataliwa",
+      "cancelled": "Imeghairiwa",
+      "processing": "Inachakatwa",
+      "finalized": "Imekamilishwa",
+      "pending": "Inasubiri",
+      "unpaid": "Haijalipwa"
+    },
+    "actionTail": {
+      "selectPeriodFirst": "Chagua kipindi cha mishahara kwanza",
+      "companyWideExists": "Huwezi kuunda mzunguko mwingine - kipindi hiki tayari kina mzunguko wa kampuni nzima",
+      "create": "Unda Mzunguko wa Mishahara"
+    },
+    "listItem": {
+      "somethingWentWrong": "Kuna hitilafu imetokea",
+      "companyWideRun": "Mzunguko wa kampuni nzima",
+      "messages": {
+        "submitted": "Mishahara imewasilishwa kwa idhini",
+        "approved": "Mzunguko wa mishahara umeidhinishwa",
+        "completed": "Mzunguko wa mishahara umekamilika",
+        "revertedToApproved": "Mzunguko wa mishahara umerudishwa kuwa umeidhinishwa",
+        "withdrawn": "Mzunguko wa mishahara umerudishwa kuwa rasimu",
+        "transactionsReversed": "Miamala ya mishahara imebatilishwa; mzunguko umerudishwa kuwa umeidhinishwa",
+        "postedWithVoucher": "Mishahara imechapishwa: {voucher}",
+        "posted": "Miamala ya mishahara imechapishwa",
+        "deleted": "Mzunguko wa mishahara umefutwa",
+        "simulationGenerated": "Uigaji wa mfanyakazi umetengenezwa"
+      },
+      "tabs": {
+        "summary": "Muhtasari",
+        "approvals": "Idhini",
+        "payments": "Malipo",
+        "payableSettlements": "Ulipaji wa Madeni",
+        "payslips": "Hati za Mshahara"
+      },
+      "noEmployeePayments": "Bado hakuna malipo ya wafanyakazi yaliyofanywa kwa mzunguko huu.",
+      "noPayableSettlements": "Bado hakuna ulipaji wa madeni uliorekodiwa kwa mzunguko huu."
+    },
+    "approvalsTab": {
+      "by": "na",
+      "pending": "Inasubiri",
+      "noApprovals": "Hakuna Idhini Zilizopatikana"
+    },
+    "summary": {
+      "simulatePayslip": "Igiza Hati ya Mshahara",
+      "employees": "Wafanyakazi",
+      "basicSalary": "Mshahara wa Msingi",
+      "grossSalary": "Mshahara Ghafi",
+      "paye": "PAYE",
+      "netSalary": "Mshahara Halisi",
+      "totalEmployerCost": "Jumla ya Gharama ya Mwajiri",
+      "totalAllowances": "Jumla ya Posho",
+      "totalDeductions": "Jumla ya Makato",
+      "totalEmployerContributions": "Jumla ya Michango ya Mwajiri"
+    },
+    "payments": {
+      "paymentReversed": "Malipo yamebatilishwa",
+      "reverseTitle": "Batilisha Malipo",
+      "reverseContent": "Hii itafuta {voucher} ({amount}) pamoja na jarida zake, na kurekebisha hali ya malipo ya mzunguko ipasavyo. Endelea?",
+      "voucher": "Hati ya Malipo",
+      "date": "Tarehe",
+      "narration": "Maelezo ya Muamala",
+      "amount": "Kiasi",
+      "actions": "Vitendo"
+    },
+    "approvalItem": {
+      "confirmDeleteTitle": "Thibitisha Kufuta?",
+      "confirmDeleteContent": "Ukibofya ndiyo, Idhini hii itafutwa"
+    },
+    "payPayables": {
+      "title": "Lipa Madeni",
+      "info": "Hulipa kiasi ambacho mzunguko huu umekusanya kwa aina za makato/michango ya mwajiri (mfano kuwasilisha NSSF) — tofauti na kuwalipa wafanyakazi.",
+      "bankOrCash": "Akaunti ya Benki au Fedha Taslimu",
+      "settlementDate": "Tarehe na Saa ya Ulipaji",
+      "nothingOutstanding": "Hakuna kinachosubiri — kila deni lililokusanywa na mzunguko huu limelipwa.",
+      "type": "Aina",
+      "accrued": "Kilichokusanywa",
+      "remaining": "Kilichosalia",
+      "amountToPay": "Kiasi cha Kulipa",
+      "deduction": "Makato",
+      "employerContribution": "Mchango wa Mwajiri",
+      "totalThisPayment": "Jumla ya malipo haya: {amount}",
+      "cancel": "Ghairi",
+      "settle": "Lipa",
+      "recorded": "Ulipaji wa deni umerekodiwa"
+    },
+    "payEmployees": {
+      "title": "Lipa Wafanyakazi",
+      "payInFull": "Lipa Kila Mtu Kikamilifu",
+      "paySelected": "Lipa Kiasi Kilichochaguliwa",
+      "bankOrCash": "Akaunti ya Benki au Fedha Taslimu",
+      "paymentDate": "Tarehe na Saa ya Malipo",
+      "allPaid": "Kila mtu kwenye mzunguko huu ameshalipwa kikamilifu.",
+      "fullInfo": "Hulipa salio lote lililosalia la kila mfanyakazi — {count} {employees}, jumla {total}.",
+      "employeeSingular": "mfanyakazi",
+      "employeePlural": "wafanyakazi",
+      "selectAll": "Chagua Wote",
+      "selectNone": "Usichague Yeyote",
+      "employee": "Mfanyakazi",
+      "remaining": "Kilichosalia",
+      "amountToPay": "Kiasi cha Kulipa",
+      "alreadyPaid": "{amount} tayari imelipwa",
+      "totalThisPayment": "Jumla ya malipo haya: {amount}",
+      "cancel": "Ghairi",
+      "pay": "Lipa",
+      "recorded": "Malipo yamerekodiwa"
+    },
+    "approvalDialog": {
+      "title": "Idhini ya Mishahara",
+      "editTitle": "Hariri Idhini ya Mishahara",
+      "approvalDate": "Tarehe ya Idhini",
+      "remarks": "Maoni",
+      "remarksRequired": "Maoni yanahitajika",
+      "cancel": "Ghairi",
+      "reject": "Kataa",
+      "approve": "Idhinisha",
+      "recorded": "Idhini ya mishahara imerekodiwa",
+      "somethingWentWrong": "Kuna hitilafu imetokea",
+      "unableToResolveLevel": "Imeshindwa kutambua ngazi ya mnyororo wa idhini",
+      "companyWideRun": "Mzunguko wa Kampuni Nzima"
+    },
+    "actions": {
+      "thisRun": "mzunguko huu",
+      "companyWideRun": "Mzunguko wa Kampuni Nzima",
+      "approvedMsg": "Mzunguko wa Mishahara Umeidhinishwa",
+      "somethingWentWrong": "Kuna hitilafu imetokea",
+      "submitTitle": "Wasilisha Mzunguko wa Mishahara",
+      "submitMessage": "Una uhakika unataka kuwasilisha \"{name}\" kwa idhini? Hii itahifadhi hati zote za mshahara.",
+      "submitConfirm": "Wasilisha",
+      "deleteTitle": "Futa Mzunguko wa Mishahara",
+      "deleteMessage": "Una uhakika unataka kufuta \"{name}\"? Kitendo hiki hakiwezi kutenduliwa.",
+      "deleteConfirm": "Futa",
+      "revertTitle": "Rudisha kuwa Imeidhinishwa",
+      "revertContent": "Hii inarudisha mzunguko kuwa Umeidhinishwa ili uweze kurekebishwa. Hakuna malipo yaliyowahi kuundwa kwa njia hii, kwa hivyo hakuna kingine kitakachobadilika. Endelea?",
+      "withdrawTitle": "Ondoa Uwasilishaji",
+      "withdrawContent": "Hii inarudisha mzunguko kuwa Rasimu ili uweze kurekebishwa kabla ya kuwasilisha tena. Endelea?",
+      "reverseTitle": "Batilisha Miamala Iliyochapishwa",
+      "reverseContent": "Hii inafuta hati ya jarida iliyochapishwa kwenye leja kuu na kurudisha mzunguko kuwa Umeidhinishwa ili uweze kurekebishwa kabla ya kuchapisha tena. Endelea?",
+      "approveTitle": "Idhinisha Mzunguko wa Mishahara",
+      "approveContent": "Ukishaidhinisha, kitendo hiki hakiwezi kutenduliwa",
+      "cancel": "Ghairi",
+      "postTitle": "Chapisha Miamala ya Mishahara",
+      "postInfo": "Kuchapisha kunarekodi mishahara kwenye leja kuu. Hakuwalipi wafanyakazi bado.",
+      "salaryExpenseAccount": "Akaunti ya Gharama ya Mishahara (mbadala)",
+      "payeAccount": "Akaunti ya PAYE Inayolipwa",
+      "fallbackPayableAccount": "Akaunti Mbadala ya Madeni ya Wafanyakazi",
+      "transactionDate": "Tarehe na Saa ya Muamala",
+      "post": "Chapisha",
+      "completeQuestion": "Una uhakika unataka kukamilisha mishahara",
+      "completePayroll": "Kamilisha Mishahara"
+    },
+    "itemAction": {
+      "finalized": "Mzunguko wa Mishahara Umekamilishwa Kikamilifu",
+      "submitContent": "Wasilisha mzunguko huu wa mishahara na kuhifadhi hati za mshahara kwa idhini?",
+      "approveContent": "Idhinisha mzunguko huu wa mishahara moja kwa moja?",
+      "deleteContent": "Futa mzunguko huu wa mishahara wa rasimu?",
+      "finalizeTitle": "Kamilisha Mzunguko wa Mishahara",
+      "finalizeContent": "Una uhakika unataka kukamilisha mzunguko huu wa mishahara?",
+      "exportStarted": "Uhamishaji umeanza",
+      "approveLevel": "Idhinisha Ngazi",
+      "approve": "Idhinisha",
+      "dialogTitle": "Idhini ya Mishahara",
+      "pendingLevel": "Ngazi inayosubiri: {name}",
+      "nextLevel": "Ngazi inayofuata",
+      "decision": "Uamuzi",
+      "approved": "Imeidhinishwa",
+      "rejected": "Imekataliwa",
+      "onHold": "Imesimamishwa",
+      "remarks": "Maoni",
+      "optionalForApprovals": "Si lazima kwa idhini",
+      "requiredUnlessApproving": "Inahitajika isipokuwa unapoidhinisha",
+      "cancel": "Ghairi",
+      "saveDecision": "Hifadhi Uamuzi",
+      "postTitle": "Chapisha Miamala ya Mishahara",
+      "postInfo": "Kuchapisha kunarekodi mishahara kwenye leja kuu. Hakuwalipi wafanyakazi bado.",
+      "salaryExpenseAccount": "Akaunti ya Gharama ya Mishahara (mbadala)",
+      "payeAccount": "Akaunti ya PAYE Inayolipwa",
+      "fallbackPayableAccount": "Akaunti Mbadala ya Madeni ya Wafanyakazi",
+      "transactionDate": "Tarehe na Saa ya Muamala",
+      "post": "Chapisha"
+    },
+    "dialogs": {
+      "simulationTitle": "Uigaji wa Mfanyakazi",
+      "simulatedPayslip": "{name} - Hati ya Mshahara ya Kuigiza",
+      "employee": "Mfanyakazi",
+      "basicSalary": "Mshahara wa Msingi",
+      "grossSalary": "Mshahara Ghafi",
+      "paye": "PAYE",
+      "totalAllowances": "Jumla ya Posho",
+      "totalDeductions": "Jumla ya Makato",
+      "totalEmployerContributions": "Jumla ya Michango ya Mwajiri",
+      "netPay": "Mshahara Halisi",
+      "allowances": "Posho",
+      "deductions": "Makato",
+      "employerContributions": "Michango ya Mwajiri",
+      "label": "Maelezo",
+      "amount": "Kiasi",
+      "prorated": "Kimegawanywa kwa siku ({active}/{total} siku): {amount}",
+      "proratedShort": "Kimegawanywa kwa siku ({active}/{total} siku)",
+      "noSimulationData": "Hakuna data ya uigaji inayopatikana",
+      "close": "Funga",
+      "payslipDetails": "Maelezo ya Hati ya Mshahara",
+      "employeeNumber": "Namba ya Mfanyakazi",
+      "notAvailable": "Hamna",
+      "noPayslipData": "Hakuna data ya hati ya mshahara inayopatikana"
+    },
+    "payslipsList": {
+      "employee": "Mfanyakazi",
+      "basic": "Msingi",
+      "allowances": "Posho",
+      "gross": "Ghafi",
+      "deductions": "Makato",
+      "paye": "PAYE",
+      "netPay": "Mshahara Halisi",
+      "status": "Hali",
+      "actions": "Vitendo",
+      "employeeRemoved": "Mfanyakazi ameondolewa"
+    },
+    "payslipCalc": {
+      "basicSalary": "Mshahara wa Msingi",
+      "employerContribution": "Mchango wa Mwajiri {n}"
+    },
+    "payslipDialog": {
+      "finalized": "Hati ya mshahara imekamilishwa",
+      "errorFinalizing": "Hitilafu wakati wa kukamilisha hati ya mshahara",
+      "title": "Hati ya Mshahara",
+      "payrollPeriod": "Kipindi cha Mishahara",
+      "titleUpper": "HATI YA MSHAHARA",
+      "organization": "Shirika",
+      "employee": "Mfanyakazi",
+      "employeeNo": "Namba ya Mfanyakazi",
+      "designation": "Cheo",
+      "earnings": "Mapato",
+      "nonTaxable": "(Haitozwi Kodi)",
+      "grossSalary": "Mshahara Ghafi",
+      "deductions": "Makato",
+      "description": "Maelezo",
+      "category": "Aina",
+      "amount": "Kiasi",
+      "totalDeductions": "Jumla ya Makato",
+      "netPay": "Mshahara Halisi",
+      "taxableIncomeBreakdown": "Mchanganuo wa Mapato Yanayotozwa Kodi",
+      "basicSalary": "Mshahara wa Msingi",
+      "taxableAllowances": "Posho Zinazotozwa Kodi",
+      "preTaxDeductions": "Makato Kabla ya Kodi",
+      "taxableIncome": "Mapato Yanayotozwa Kodi",
+      "employerContributionsRef": "Michango ya Mwajiri (kwa marejeo tu)",
+      "noEmployerContributions": "Hakuna michango ya mwajiri",
+      "totalEmployerContributions": "Jumla ya Michango ya Mwajiri",
+      "totalEmployerCost": "Jumla ya Gharama ya Mwajiri",
+      "finalize": "Kamilisha",
+      "printPayslip": "Chapisha Hati ya Mshahara",
+      "close": "Funga"
+    },
+    "paymentView": {
+      "updated": "Malipo yamesasishwa",
+      "itemRemoved": "Kipengee kimeondolewa",
+      "removeTitle": "Ondoa Kipengee",
+      "removeLastContent": "Hii ndiyo mstari pekee uliobaki kwenye malipo haya — kuuondoa kutafuta malipo yote. Endelea?",
+      "removeContent": "Ondoa {name} ({amount}) kutoka kwenye malipo haya?",
+      "payment": "Malipo",
+      "transactionDateTime": "Tarehe na Saa ya Muamala",
+      "transactionDate": "Tarehe ya Muamala",
+      "bankOrCash": "Akaunti ya Benki au Fedha Taslimu",
+      "reference": "Marejeo",
+      "narration": "Maelezo ya Muamala",
+      "payableType": "Aina ya Deni",
+      "employee": "Mfanyakazi",
+      "amount": "Kiasi",
+      "total": "Jumla: {amount}",
+      "close": "Funga",
+      "edit": "Hariri",
+      "save": "Hifadhi"
+    },
+    "payslipPdf": {
+      "title": "HATI YA MSHAHARA",
+      "employeeColon": "Mfanyakazi:",
+      "empNoColon": "Namba:",
+      "periodColon": "Kipindi:",
+      "item": "Kipengee",
+      "amount": "Kiasi",
+      "basicSalary": "Mshahara wa Msingi",
+      "grossSalary": "Mshahara Ghafi",
+      "totalAllowances": "Jumla ya Posho",
+      "totalDeductions": "Jumla ya Makato",
+      "paye": "PAYE",
+      "netPay": "Mshahara Halisi",
+      "allowances": "Posho",
+      "deductions": "Makato",
+      "employerContributions": "Michango ya Mwajiri",
+      "proratedNote": "* Imegawanywa kwa siku {active}/{total} za kipindi hiki (Mshahara wa Msingi kamili: {full}) — posho yoyote iliyowekewa alama * hapa chini imepunguzwa vivyo hivyo.",
+      "employeeName": "Jina la Mfanyakazi",
+      "employeeNo": "Namba ya Mfanyakazi",
+      "company": "Kampuni",
+      "description": "Maelezo",
+      "allowancesBreakdown": "Mchanganuo wa Posho",
+      "deductionsBreakdown": "Mchanganuo wa Makato",
+      "label": "Maelezo",
+      "docTitle": "Hati ya Mshahara - {name}",
+      "docSubject": "Hati ya Mshahara ya Mfanyakazi",
+      "notAvailable": "Hamna"
+    },
+    "bankTransfer": {
+      "title": "Orodha ya Uhamisho wa Benki",
+      "costCenter": "Kituo cha Gharama",
+      "payrollPeriod": "Kipindi cha Mishahara",
+      "payrollStatus": "Hali ya Mishahara",
+      "employeesWithoutBank": "Wafanyakazi wasio na akaunti za benki",
+      "noBankAccount": "Hana Akaunti ya Benki",
+      "totalEmployees": "Jumla ya Wafanyakazi",
+      "netSalary": "Mshahara Halisi",
+      "sn": "Na.",
+      "employeeNo": "Namba ya Mfanyakazi",
+      "empNo": "Namba",
+      "employeeNumber": "Namba ya Mfanyakazi",
+      "employeeName": "Jina la Mfanyakazi",
+      "bankName": "Jina la Benki",
+      "branch": "Tawi",
+      "bankCode": "Msimbo wa Benki",
+      "accountNumber": "Namba ya Akaunti",
+      "accountName": "Jina la Akaunti",
+      "netPay": "Mshahara Halisi",
+      "totalNetPay": "Jumla ya Mshahara Halisi",
+      "zeroPayHeader": "Wafanyakazi Walioondolewa kwenye Uhamisho (Mshahara Sifuri)",
+      "docTitle": "Jedwali la Mishahara - {period}",
+      "docSubject": "Orodha ya Uhamisho wa Benki",
+      "fileName": "Jedwali-la-mishahara"
+    }
+  }
+}

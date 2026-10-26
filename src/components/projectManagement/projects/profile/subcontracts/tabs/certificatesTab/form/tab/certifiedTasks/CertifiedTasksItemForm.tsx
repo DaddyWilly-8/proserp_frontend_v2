@@ -25,6 +25,7 @@ import { sanitizedNumber } from '@/app/helpers/input-sanitization-helpers';
 import CommaSeparatedField from '@/shared/Inputs/CommaSeparatedField';
 import projectsServices from '@/components/projectManagement/projects/project-services';
 import { useQuery } from '@tanstack/react-query';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 /* ================= TYPES ================= */
 
@@ -88,38 +89,45 @@ interface FormValues {
 
 /* ================= VALIDATION ================= */
 
-const validationSchema = yup.object({
-  project_subcontract_task_id: yup
-    .number()
-    .required('Project Task is required')
-    .typeError('Project Task is required'),
+const getValidationSchema = (t: any) =>
+  yup.object({
+    project_subcontract_task_id: yup
+      .number()
+      .required(t.errors.taskRequired)
+      .typeError(t.errors.taskRequired),
 
-  certified_quantity: yup
-    .number()
-    .required('Quantity is required')
-    .positive('Quantity must be positive')
-    .typeError('Valid quantity is required')
-    .test('min-certified', function (value) {
-      const { response_uncertified_quantity } = this.parent;
-      if (response_uncertified_quantity == null || value == null) return true;
-      return (
-        value <= response_uncertified_quantity ||
-        this.createError({
-          message: `Certified Quantity cannot exceed un-certified (${response_uncertified_quantity})`,
-        })
-      );
-    })
-    .test('max-executed', function (value) {
-      const { response_executed_quantity } = this.parent;
-      if (response_executed_quantity == null || value == null) return true;
-      return (
-        value <= response_executed_quantity ||
-        this.createError({
-          message: `Certified Quantity cannot exceed executed quantity (${response_executed_quantity})`,
-        })
-      );
-    }),
-});
+    certified_quantity: yup
+      .number()
+      .required(t.errors.quantityRequired)
+      .positive(t.errors.quantityPositive)
+      .typeError(t.errors.quantityValid)
+      .test('min-certified', function (value) {
+        const { response_uncertified_quantity } = this.parent;
+        if (response_uncertified_quantity == null || value == null) return true;
+        return (
+          value <= response_uncertified_quantity ||
+          this.createError({
+            message: t.errors.exceedsUncertified.replace(
+              '{quantity}',
+              String(response_uncertified_quantity)
+            ),
+          })
+        );
+      })
+      .test('max-executed', function (value) {
+        const { response_executed_quantity } = this.parent;
+        if (response_executed_quantity == null || value == null) return true;
+        return (
+          value <= response_executed_quantity ||
+          this.createError({
+            message: t.errors.exceedsExecuted.replace(
+              '{quantity}',
+              String(response_executed_quantity)
+            ),
+          })
+        );
+      }),
+  });
 
 /* ================= COMPONENT ================= */
 
@@ -138,6 +146,9 @@ const CertifiedTasksItemForm: React.FC<CertifiedTasksItemFormProps> = ({
   subContract,
   certificate,
 }) => {
+  const dictionary = useDictionary();
+  const t = dictionary.forms.projects.certifiedTasks;
+  const sh = dictionary.forms.projects.shared;
   const [isAdding, setIsAdding] = useState(false);
   const [isRetrievingDetails, setIsRetrievingDetails] = useState(false);
   const [unitToDisplay, setUnitToDisplay] = useState<string | undefined>(
@@ -152,7 +163,7 @@ const CertifiedTasksItemForm: React.FC<CertifiedTasksItemFormProps> = ({
     reset,
     formState: { errors, isDirty: formIsDirty },
   } = useForm<FormValues>({
-    resolver: yupResolver(validationSchema) as any,
+    resolver: yupResolver(getValidationSchema(t)) as any,
     defaultValues: {
       id: taskItem?.id,
       project_subcontract_task_id: taskItem?.project_subcontract_task_id,
@@ -269,7 +280,7 @@ const CertifiedTasksItemForm: React.FC<CertifiedTasksItemFormProps> = ({
               renderInput={(params) => (
                 <TextField
                   {...params}
-                  label="Project Task"
+                  label={t.labels.projectTask}
                   size="small"
                   error={!!errors.project_subcontract_task_id}
                   helperText={errors.project_subcontract_task_id?.message}
@@ -287,7 +298,7 @@ const CertifiedTasksItemForm: React.FC<CertifiedTasksItemFormProps> = ({
             <LinearProgress />
           ) : (
             <TextField
-              label="Certified Quantity"
+              label={t.labels.certifiedQuantity}
               size="small"
               fullWidth
               value={watchedQuantity ?? ''}
@@ -320,7 +331,7 @@ const CertifiedTasksItemForm: React.FC<CertifiedTasksItemFormProps> = ({
       <Grid size={{ xs: 12, md: 3 }}>
         <Div sx={{ mt: 0.3 }}>
           <TextField
-            label="Rate"
+            label={t.labels.rate}
             size="small"
             fullWidth
             value={watchedRate?.toLocaleString(undefined, {
@@ -338,7 +349,7 @@ const CertifiedTasksItemForm: React.FC<CertifiedTasksItemFormProps> = ({
       <Grid size={12}>
         <Div sx={{ mt: 0.3 }}>
           <TextField
-            label="Remarks"
+            label={t.labels.remarks}
             size="small"
             fullWidth
             multiline
@@ -360,11 +371,11 @@ const CertifiedTasksItemForm: React.FC<CertifiedTasksItemFormProps> = ({
           startIcon={taskItem ? <CheckOutlined /> : <AddOutlined />}
           onClick={handleSubmit(updateItems)}
         >
-          {taskItem ? 'Done' : 'Add'}
+          {taskItem ? sh.done : sh.add}
         </LoadingButton>
 
         {taskItem && setShowForm && (
-          <Tooltip title="Cancel Edit">
+          <Tooltip title={dictionary.tooltips.cancelEdit}>
             <IconButton
               size="small"
               onClick={() => {

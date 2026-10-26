@@ -7,8 +7,10 @@ import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
 import BankAccountForm from '../forms/BankAccountForm';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const BankAccountActionTail = () => {
+  const dictionary = useDictionary();
   const [newBankAccountFormOpen, setNewBankAccountFormOpen] = useState(false);
   const { theme } = useJumboTheme();
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
@@ -20,7 +22,7 @@ const BankAccountActionTail = () => {
 
   return (
     <>
-      <Tooltip title='Add Bank Account'>
+      <Tooltip title={dictionary.tooltips.addBankAccount}>
         <IconButton size='small' onClick={() => setNewBankAccountFormOpen(true)}>
           <AddOutlined />
         </IconButton>

@@ -3,8 +3,10 @@
 import { Divider, Grid, Tooltip, Typography } from '@mui/material';
 import LeaveTypeItemAction from './LeaveTypeItemAction';
 import { LeaveType } from './LeaveTypesType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const LeaveTypesListItem = ({ leaveType }: { leaveType: LeaveType }) => {
+  const dictionary = useDictionary();
   return (
     <>
       <Divider />
@@ -24,7 +26,7 @@ const LeaveTypesListItem = ({ leaveType }: { leaveType: LeaveType }) => {
         container
       >
         <Grid size={{ xs: 6, md: 8 }}>
-          <Tooltip title='Leave Type Name'>
+          <Tooltip title={dictionary.tooltips.leaveTypeName}>
             <Typography
               variant='h5'
               fontSize={14}
@@ -37,7 +39,7 @@ const LeaveTypesListItem = ({ leaveType }: { leaveType: LeaveType }) => {
           </Tooltip>
         </Grid>
         <Grid size={{ xs: 5, md: 2 }}>
-          <Tooltip title='Days Per Year'>
+          <Tooltip title={dictionary.tooltips.daysPerYear}>
             <Typography>{leaveType.days_per_year}</Typography>
           </Tooltip>
         </Grid>

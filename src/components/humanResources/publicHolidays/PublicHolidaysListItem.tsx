@@ -4,6 +4,7 @@ import { readableDate } from '@/app/helpers/input-sanitization-helpers';
 import { Chip, Divider, Grid, Tooltip, Typography } from '@mui/material';
 import { PublicHolidaysType } from './PublicHOlidaysType';
 import PublicHolidaysItemAction from './PublicHolidaysItemAction';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface PublicHolidaysListItemProps {
   publicHoliday: PublicHolidaysType;
@@ -11,6 +12,7 @@ interface PublicHolidaysListItemProps {
 const PublicHolidaysListItem = ({
   publicHoliday,
 }: PublicHolidaysListItemProps) => {
+  const dictionary = useDictionary();
   return (
     <>
       <Divider />
@@ -31,7 +33,7 @@ const PublicHolidaysListItem = ({
         container
       >
         <Grid size={{ xs: 12, md: 5 }}>
-          <Tooltip title='Holiday Name'>
+          <Tooltip title={dictionary.tooltips.holidayName}>
             <Typography
               variant='h5'
               fontSize={14}
@@ -44,15 +46,19 @@ const PublicHolidaysListItem = ({
           </Tooltip>
         </Grid>
         <Grid size={{ xs: 12, md: 3 }}>
-          <Tooltip title='Date'>
+          <Tooltip title={dictionary.tooltips.date}>
             <Typography>{readableDate(publicHoliday.date, false)}</Typography>
           </Tooltip>
         </Grid>
         <Grid size={{ xs: 12, md: 3 }}>
-          <Tooltip title='Is Paid'>
+          <Tooltip title={dictionary.tooltips.isPaid}>
             <Chip
               size='small'
-              label={publicHoliday.is_paid ? 'Is Paid' : 'Not Paid'}
+              label={
+                publicHoliday.is_paid
+                  ? dictionary.humanResources.publicHolidays.list.isPaid
+                  : dictionary.humanResources.publicHolidays.list.notPaid
+              }
               color={publicHoliday.is_paid ? 'primary' : 'default'}
             />
           </Tooltip>

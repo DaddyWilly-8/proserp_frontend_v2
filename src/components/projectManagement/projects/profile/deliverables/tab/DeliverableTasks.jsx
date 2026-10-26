@@ -10,6 +10,7 @@ import {
   Stack,
   Box,
 } from '@mui/material';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 /* ================= PROGRESS WITH LABEL ================= */
 
@@ -41,13 +42,14 @@ function LinearProgressWithLabel({ value = 0, label, color = 'primary' }) {
 }
 
 function DeliverableTasks({ deliverableDetails }) {
+  const dictionary = useDictionary();
   const tasks = deliverableDetails?.tasks || [];
 
   if (!tasks.length) {
     return (
       <Grid size={{ xs: 12 }} padding={1}>
         <Alert variant="outlined" severity="info">
-          This Deliverable has no Task to contribute
+          {dictionary.projectManagement.deliverables.noTasks}
         </Alert>
       </Grid>
     );
@@ -56,7 +58,7 @@ function DeliverableTasks({ deliverableDetails }) {
   return (
     <Grid size={{ xs: 12 }} padding={1}>
       <Typography fontWeight={600} mb={1}>
-        Tasks
+        {dictionary.projectManagement.deliverables.tasks}
       </Typography>
 
       {tasks.map((task, index) => {
@@ -90,14 +92,14 @@ function DeliverableTasks({ deliverableDetails }) {
             <Grid size={{ xs: 12, md: 4 }}>
               <ListItemText
                 primary={
-                  <Tooltip title="Name">
+                  <Tooltip title={dictionary.tooltips.name}>
                     <Typography component="span" fontWeight={500}>
                       {task.name || '-'}
                     </Typography>
                   </Tooltip>
                 }
                 secondary={
-                  <Tooltip title="Code">
+                  <Tooltip title={dictionary.tooltips.code}>
                     <Typography component="span" variant="caption">
                       {task.code || '-'}
                     </Typography>
@@ -107,7 +109,7 @@ function DeliverableTasks({ deliverableDetails }) {
             </Grid>
 
             <Grid size={{ xs: 6, md: 2 }}>
-              <Tooltip title="Quantity">
+              <Tooltip title={dictionary.tooltips.quantity}>
                 <Typography variant="body2" noWrap>
                   {(task.quantity ?? 0).toLocaleString()}{' '}
                   {task.measurement_unit?.symbol}
@@ -119,19 +121,19 @@ function DeliverableTasks({ deliverableDetails }) {
               <Stack spacing={2.5} direction="column">
                 <LinearProgressWithLabel
                   value={execPercent}
-                  label="Execution"
+                  label={dictionary.projectManagement.deliverables.execution}
                   color={execColor}
                 />
                 <LinearProgressWithLabel
                   value={timePercent}
-                  label="Time"
+                  label={dictionary.projectManagement.deliverables.time}
                   color={timeColor}
                 />
               </Stack>
             </Grid>
 
             <Grid size={{ xs: 12, md: 2 }} textAlign={'end'} mt={1}>
-              <Tooltip title="Contribution Percentage">
+              <Tooltip title={dictionary.tooltips.contributionPercentage}>
                 <Chip
                   size="small"
                   label={`${task.contribution_percentage ?? 0}%`}

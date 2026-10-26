@@ -380,7 +380,7 @@ function SubscriptionItem({
                         }
                         title={
                           <Grid container justifyContent='space-between'>
-                            <Tooltip title='Monthly Rate'>
+                            <Tooltip title={dictionary.tooltips.monthlyRate}>
                               <Typography
                                 variant='caption'
                                 sx={{
@@ -398,7 +398,7 @@ function SubscriptionItem({
                                 )}
                               </Typography>
                             </Tooltip>
-                            <Tooltip title='Quantity'>
+                            <Tooltip title={dictionary.tooltips.quantity}>
                               <Typography
                                 variant='caption'
                                 sx={{
@@ -418,7 +418,7 @@ function SubscriptionItem({
                             direction='column'
                             alignItems='center'
                           >
-                            <Tooltip title='Amount'>
+                            <Tooltip title={dictionary.tooltips.amount}>
                               <Typography
                                 fontWeight={'bold'}
                                 sx={{ color: isDarkMode ? 'white' : 'black' }}

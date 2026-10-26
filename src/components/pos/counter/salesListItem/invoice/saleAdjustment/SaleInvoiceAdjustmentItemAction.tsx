@@ -38,6 +38,7 @@ const AdjustmentOnScreen = dynamic(() => import('./AdjustmentOnScreen'), { ssr: 
 import PDFContent from '@/components/pdf/PDFContent';
 import AdjustmentPDF from './AdjustmentPDF';
 import dynamic from 'next/dynamic';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface SaleInvoiceAdjustmentItemActionProps {
   transaction: Transaction;
@@ -51,6 +52,7 @@ interface EditAdjustmentProps {
 }
 
 const DocumentDialog = ({ transaction, type, authObject, setOpenDocumentDialog }: any) => {
+  const dictionary = useDictionary();
   const {
     data: adjustmentData,
     isFetching,
@@ -94,7 +96,7 @@ const DocumentDialog = ({ transaction, type, authObject, setOpenDocumentDialog }
           </Grid>
 
           <Grid size={1} textAlign="right">
-            <Tooltip title="Close">
+            <Tooltip title={dictionary.tooltips.close}>
               <IconButton 
                 size="small" 
                 onClick={() => setOpenDocumentDialog(false)}
@@ -146,6 +148,7 @@ const EditAdjustment: React.FC<EditAdjustmentProps> = ({ transaction, toggleOpen
 };
 
 const SaleInvoiceAdjustmentItemAction: React.FC<SaleInvoiceAdjustmentItemActionProps> = ({ transaction, type }) => {
+    const dictionary = useDictionary();
     const { enqueueSnackbar } = useSnackbar();
     const queryClient = useQueryClient();
     const { showDialog, hideDialog } = useJumboDialog();
@@ -234,7 +237,7 @@ const SaleInvoiceAdjustmentItemAction: React.FC<SaleInvoiceAdjustmentItemActionP
 
       <JumboDdMenu
         icon={
-          <Tooltip title="Actions">
+          <Tooltip title={dictionary.tooltips.actions}>
             <MoreHorizOutlined />
           </Tooltip>
         }

@@ -18,6 +18,7 @@ import { useForm } from 'react-hook-form';
 import * as yup from 'yup';
 import humanResourcesServices from '../humanResourcesServices';
 import { BankType } from './BankType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface BankFormProps {
   setOpenDialog: (open: boolean) => void;
@@ -43,6 +44,8 @@ const getValidationMessage = (
 };
 
 const BankForm = ({ setOpenDialog, bank = null }: BankFormProps) => {
+  const dictionary = useDictionary();
+  const t = dictionary.humanResources.banks.form;
   const queryClient = useQueryClient();
   const { enqueueSnackbar } = useSnackbar();
 
@@ -54,11 +57,11 @@ const BankForm = ({ setOpenDialog, bank = null }: BankFormProps) => {
     mutationFn: humanResourcesServices.addBank,
     onSuccess: () => {
       setOpenDialog(false);
-      enqueueSnackbar('Bank Added Successfully', { variant: 'success' });
+      enqueueSnackbar(t.messages.added, { variant: 'success' });
       queryClient.invalidateQueries({ queryKey: ['banks'] });
     },
     onError: (mutationError: any) => {
-      enqueueSnackbar('Error Adding Bank', { variant: 'error' });
+      enqueueSnackbar(t.messages.addError, { variant: 'error' });
       console.log('error adding bank: ', mutationError);
     },
   });
@@ -71,20 +74,20 @@ const BankForm = ({ setOpenDialog, bank = null }: BankFormProps) => {
     mutationFn: humanResourcesServices.updateBank,
     onSuccess: () => {
       setOpenDialog(false);
-      enqueueSnackbar('Bank Updated Successfully', { variant: 'success' });
+      enqueueSnackbar(t.messages.updated, { variant: 'success' });
       queryClient.invalidateQueries({ queryKey: ['banks'] });
     },
     onError: (mutationError: any) => {
-      enqueueSnackbar('Error Updating Bank', { variant: 'error' });
+      enqueueSnackbar(t.messages.updateError, { variant: 'error' });
       console.log('error updating bank: ', mutationError);
     },
   });
 
   const validationSchema = yup.object({
     id: yup.number().optional(),
-    name: yup.string().required('Name is required').max(150, 'Name cannot exceed 150 characters'),
-    short_name: yup.string().nullable().max(20, 'Short name cannot exceed 20 characters'),
-    swift_code: yup.string().nullable().max(20, 'Swift code cannot exceed 20 characters'),
+    name: yup.string().required(t.errors.nameRequired).max(150, t.errors.nameMax),
+    short_name: yup.string().nullable().max(20, t.errors.shortNameMax),
+    swift_code: yup.string().nullable().max(20, t.errors.swiftCodeMax),
   });
 
   const {
@@ -127,7 +130,7 @@ const BankForm = ({ setOpenDialog, bank = null }: BankFormProps) => {
     <>
       <DialogTitle>
         <Grid size={12} textAlign={'center'}>
-          {!bank?.id ? 'Add Bank' : `Edit Bank ${bank.name}`}
+          {!bank?.id ? t.labels.addTitle : t.labels.editTitle.replace('{name}', bank.name)}
         </Grid>
       </DialogTitle>
       <DialogContent>
@@ -136,7 +139,7 @@ const BankForm = ({ setOpenDialog, bank = null }: BankFormProps) => {
             <Grid size={{ xs: 12, md: 6 }}>
               <Div sx={{ mt: 1, mb: 1 }}>
                 <TextField
-                  label='Name'
+                  label={t.labels.name}
                   size='small'
                   fullWidth
                   error={!!errors?.name || !!getValidationMessage(validationErrors, 'name')}
@@ -152,7 +155,7 @@ const BankForm = ({ setOpenDialog, bank = null }: BankFormProps) => {
             <Grid size={{ xs: 12, md: 6 }}>
               <Div sx={{ mt: 1, mb: 1 }}>
                 <TextField
-                  label='Short Name'
+                  label={t.labels.shortName}
                   size='small'
                   fullWidth
                   error={
@@ -171,7 +174,7 @@ const BankForm = ({ setOpenDialog, bank = null }: BankFormProps) => {
             <Grid size={{ xs: 12 }}>
               <Div sx={{ mt: 1, mb: 1 }}>
                 <TextField
-                  label='SWIFT Code'
+                  label={t.labels.swiftCode}
                   size='small'
                   fullWidth
                   error={
@@ -190,7 +193,7 @@ const BankForm = ({ setOpenDialog, bank = null }: BankFormProps) => {
 
           <DialogActions>
             <Button size='small' onClick={() => setOpenDialog(false)}>
-              Cancel
+              {t.buttons.cancel}
             </Button>
             <LoadingButton
               type='submit'
@@ -199,7 +202,7 @@ const BankForm = ({ setOpenDialog, bank = null }: BankFormProps) => {
               sx={{ display: 'flex' }}
               loading={isPending || updateIsPending}
             >
-              Submit
+              {t.buttons.submit}
             </LoadingButton>
           </DialogActions>
         </form>

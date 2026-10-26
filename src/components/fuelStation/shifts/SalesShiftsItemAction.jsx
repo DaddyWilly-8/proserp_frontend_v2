@@ -38,6 +38,7 @@ import { useProductsSelect } from '../../productAndServices/products/ProductsSel
 import fuelStationServices from '../fuelStationServices';
 import SalesShiftPDF from './preview/SalesShiftPDF';
 import { StationFormContext } from './SalesShifts';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 // This component is instantiated once per row in the sales shifts list, so
 // the edit form, on-screen preview, and Excel export are all loaded on
@@ -82,6 +83,7 @@ const DocumentDialog = ({
   isOpen,
   setOpenDocumentDialog,
 }) => {
+  const dictionary = useDictionary();
   const { activeStation } = useContext(StationFormContext);
   const { shifts: shift_teams, fuel_pumps, tanks } = activeStation;
   const { productOptions } = useProductsSelect();
@@ -180,7 +182,7 @@ const DocumentDialog = ({
           />
 
           {belowLargeScreen && (
-            <Tooltip title='Close'>
+            <Tooltip title={dictionary.tooltips.close}>
               <IconButton
                 size='small'
                 onClick={() => setOpenDocumentDialog(false)}
@@ -260,6 +262,7 @@ const DocumentDialog = ({
 };
 
 const SalesShiftsItemAction = ({ ClosedShift }) => {
+  const dictionary = useDictionary();
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const [openDocumentDialog, setOpenDocumentDialog] = useState(false);
   const {
@@ -372,7 +375,7 @@ const SalesShiftsItemAction = ({ ClosedShift }) => {
       </Dialog>
       <JumboDdMenu
         icon={
-          <Tooltip title='Actions'>
+          <Tooltip title={dictionary.tooltips.actions}>
             <MoreHorizOutlined />
           </Tooltip>
         }

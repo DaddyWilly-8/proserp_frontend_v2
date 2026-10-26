@@ -32,6 +32,7 @@ import React, { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as yup from 'yup';
 import posServices from '@/components/pos/pos-services';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import { useProjectProfile } from '../../ProjectProfileProvider';
 import ProjectClaimsAdjustments from './tab/adjustments/ProjectClaimsAdjustments';
 import ProjectClaimsAdjustmentsRow from './tab/adjustments/ProjectClaimsAdjustmentsRow';
@@ -103,20 +104,23 @@ interface FormValues {
   terms_and_instructions?: string;
 }
 
-const validationSchema = yup.object({
-  remarks: yup.string().required('Remarks is required'),
-  claim_date: yup.string().required('Claim date is required'),
-  currency_id: yup
-    .number()
-    .required('Currency is required')
-    .positive('Invalid currency'),
-});
+const getValidationSchema = (t: any) =>
+  yup.object({
+    remarks: yup.string().required(t.errors.remarksRequired),
+    claim_date: yup.string().required(t.errors.claimDateRequired),
+    currency_id: yup
+      .number()
+      .required(t.errors.currencyRequired)
+      .positive(t.errors.invalidCurrency),
+  });
 
 const ProjectClaimsForm: React.FC<ProjectClaimsFormProps> = ({
   setOpenDialog,
   claim,
   subContract,
 }) => {
+  const dictionary = useDictionary();
+  const t = dictionary.forms.projects.claims;
   const { authOrganization } = useJumboAuth();
   const organization = authOrganization?.organization;
   // This submit posts straight to a real Customer Invoice (no draft/approval step in between) only
@@ -145,7 +149,7 @@ const ProjectClaimsForm: React.FC<ProjectClaimsFormProps> = ({
   const addClaim = useMutation({
     mutationFn: projectsServices.addClaim,
     onSuccess: () => {
-      enqueueSnackbar('Claim created successfully', { variant: 'success' });
+      enqueueSnackbar(t.messages.created, { variant: 'success' });
       queryClient.invalidateQueries({ queryKey: ['projectProjectClaims'] });
       setOpenDialog(false);
     },
@@ -157,7 +161,7 @@ const ProjectClaimsForm: React.FC<ProjectClaimsFormProps> = ({
   const updateClaim = useMutation({
     mutationFn: projectsServices.updateClaim,
     onSuccess: () => {
-      enqueueSnackbar('Claim updated successfully', { variant: 'success' });
+      enqueueSnackbar(t.messages.updated, { variant: 'success' });
       queryClient.invalidateQueries({ queryKey: ['projectProjectClaims'] });
       setOpenDialog(false);
     },
@@ -174,7 +178,7 @@ const ProjectClaimsForm: React.FC<ProjectClaimsFormProps> = ({
     watch,
     formState: { errors },
   } = useForm<FormValues>({
-    resolver: yupResolver(validationSchema) as any,
+    resolver: yupResolver(getValidationSchema(t)) as any,
     defaultValues: {
       id: claim?.id,
       project_id: claim?.project_id || project?.id,
@@ -246,7 +250,7 @@ const ProjectClaimsForm: React.FC<ProjectClaimsFormProps> = ({
     if (deliverableItems.length === 0) {
       setError('claimed_deliverables' as any, {
         type: 'manual',
-        message: 'You must add at least one certified deliverable',
+        message: t.errors.atLeastOneDeliverable,
       });
       return;
     }
@@ -293,7 +297,7 @@ const ProjectClaimsForm: React.FC<ProjectClaimsFormProps> = ({
   return (
     <>
       <DialogTitle textAlign='center'>
-        {claim ? `Edit ${claim?.claimNo}` : 'New Claim'}
+        {claim ? t.titles.edit.replace('{no}', claim?.claimNo) : t.titles.new}
       </DialogTitle>
 
       <DialogContent dividers>
@@ -303,7 +307,7 @@ const ProjectClaimsForm: React.FC<ProjectClaimsFormProps> = ({
               <Grid container spacing={2} mb={3}>
                 <Grid size={{ xs: 12, md: 6 }}>
                   <DateTimePicker
-                    label='Claim Date'
+                    label={t.labels.claimDate}
                     value={dayjs(watch('claim_date'))}
                     maxDate={dayjs()}
                     slotProps={{
@@ -339,7 +343,7 @@ const ProjectClaimsForm: React.FC<ProjectClaimsFormProps> = ({
                 <Grid size={12}>
                   <TextField
                     size='small'
-                    label='Remarks'
+                    label={t.labels.remarks}
                     fullWidth
                     multiline
                     rows={2}
@@ -353,14 +357,13 @@ const ProjectClaimsForm: React.FC<ProjectClaimsFormProps> = ({
                   <>
                     <Grid size={12}>
                       <Alert severity='info' sx={{ py: 0 }}>
-                        This will post straight to a Customer Invoice — fill in its due date and
-                        any reference/terms now.
+                        {t.messages.postsToInvoice}
                       </Alert>
                     </Grid>
 
                     <Grid size={{ xs: 12, md: 6 }}>
                       <DateTimePicker
-                        label='Invoice Due Date'
+                        label={t.labels.invoiceDueDate}
                         minDate={dayjs(watch('claim_date'))}
                         value={watch('due_date') ? dayjs(watch('due_date')) : null}
                         slotProps={{
@@ -382,7 +385,7 @@ const ProjectClaimsForm: React.FC<ProjectClaimsFormProps> = ({
                     <Grid size={{ xs: 12, md: 6 }}>
                       <TextField
                         size='small'
-                        label='Customer Reference'
+                        label={t.labels.customerReference}
                         fullWidth
                         {...register('customer_reference')}
                       />
@@ -397,7 +400,7 @@ const ProjectClaimsForm: React.FC<ProjectClaimsFormProps> = ({
                         renderInput={(params) => (
                           <TextField
                             {...params}
-                            label='Terms and Instructions'
+                            label={t.labels.termsAndInstructions}
                             size='small'
                             fullWidth
                             multiline
@@ -440,13 +443,13 @@ const ProjectClaimsForm: React.FC<ProjectClaimsFormProps> = ({
                 gutterBottom
                 sx={{ fontWeight: 'bold' }}
               >
-                Summary
+                {t.labels.summary}
               </Typography>
               <Divider sx={{ my: 2 }} />
 
               <Grid container spacing={1.5}>
                 <Grid size={7}>
-                  <Typography variant='body2'>Gross Amount:</Typography>
+                  <Typography variant='body2'>{t.labels.grossAmount}</Typography>
                 </Grid>
                 <Grid size={5}>
                   <Typography
@@ -463,7 +466,7 @@ const ProjectClaimsForm: React.FC<ProjectClaimsFormProps> = ({
                 {adjustments.length > 0 && (
                   <>
                     <Grid size={7}>
-                      <Typography variant='body2'>Net Adjustments:</Typography>
+                      <Typography variant='body2'>{t.labels.netAdjustments}</Typography>
                     </Grid>
                     <Grid size={5}>
                       <Typography
@@ -485,7 +488,7 @@ const ProjectClaimsForm: React.FC<ProjectClaimsFormProps> = ({
 
                 <Grid size={7}>
                   <Typography variant='body2' fontWeight='bold'>
-                    Subtotal:
+                    {t.labels.subtotal}
                   </Typography>
                 </Grid>
                 <Grid size={5}>
@@ -503,7 +506,7 @@ const ProjectClaimsForm: React.FC<ProjectClaimsFormProps> = ({
 
                 <Grid size={7}>
                   <Typography variant='body2'>
-                    VAT ({watchVatPercentage}%):
+                    {t.labels.vat.replace('{percentage}', String(watchVatPercentage))}
                     <Checkbox
                       size='small'
                       checked={watchVatPercentage > 0}
@@ -531,7 +534,7 @@ const ProjectClaimsForm: React.FC<ProjectClaimsFormProps> = ({
 
                 <Grid size={7}>
                   <Typography variant='h6' fontWeight='bold'>
-                    Grand Total:
+                    {t.labels.grandTotal}
                   </Typography>
                 </Grid>
                 <Grid size={5}>
@@ -563,8 +566,8 @@ const ProjectClaimsForm: React.FC<ProjectClaimsFormProps> = ({
             variant='fullWidth'
             sx={{ mb: 3 }}
           >
-            <Tab label='Claimed Deliverables' />
-            <Tab label='Adjustments' />
+            <Tab label={t.tabs.claimedDeliverables} />
+            <Tab label={t.tabs.adjustments} />
           </Tabs>
           {activeTab === 0 && (
             <>
@@ -646,35 +649,35 @@ const ProjectClaimsForm: React.FC<ProjectClaimsFormProps> = ({
         </Box>
 
         <Dialog open={showWarning} onClose={() => setShowWarning(false)}>
-          <DialogTitle>Unsaved Changes</DialogTitle>
+          <DialogTitle>{t.titles.unsavedChanges}</DialogTitle>
           <DialogContent>
             <Typography>
-              The last added item has not been saved to the list yet.
+              {t.messages.lastItemNotSaved}
             </Typography>
           </DialogContent>
           <DialogActions>
-            <Button onClick={() => setShowWarning(false)}>Cancel</Button>
+            <Button onClick={() => setShowWarning(false)}>{t.buttons.cancel}</Button>
             <Button
               onClick={() => {
                 setSubmitItemForm(true);
                 setShowWarning(false);
               }}
             >
-              Add Item & Submit
+              {t.buttons.addItemAndSubmit}
             </Button>
             <Button onClick={handleConfirmSubmitWithoutAdd} color='primary'>
-              Submit Without Adding
+              {t.buttons.submitWithoutAdding}
             </Button>
           </DialogActions>
         </Dialog>
       </DialogContent>
 
       <DialogActions>
-        <Button onClick={() => setOpenDialog(false)}>Cancel</Button>
+        <Button onClick={() => setOpenDialog(false)}>{t.buttons.cancel}</Button>
 
         {activeTab === 0 && (
           <Button variant='outlined' onClick={() => setActiveTab(1)}>
-            Next
+            {t.buttons.next}
           </Button>
         )}
 
@@ -684,7 +687,7 @@ const ProjectClaimsForm: React.FC<ProjectClaimsFormProps> = ({
             variant='contained'
             onClick={handleSubmit(onSubmit)}
           >
-            {claim ? 'Update Claim' : 'Create Claim'}
+            {claim ? t.buttons.updateClaim : t.buttons.createClaim}
           </LoadingButton>
         )}
       </DialogActions>

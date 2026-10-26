@@ -12,8 +12,10 @@ import { LoadingButton } from '@mui/lab';
 import OtherExpensesItemForm from './OtherExpensesItemForm';
 import { ProductionBatchesContext } from '../../ProductionBatchesList';
 import { readableDate } from '@/app/helpers/input-sanitization-helpers';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function OtherExpenses({productionDates, setClearFormKey, clearFormKey, submitMainForm, submitItemForm, setSubmitItemForm, setIsDirty, otherExpenses, setOtherExpenses}) {
+  const dictionary = useDictionary();
   const [switchToAddItems, setSwitchToAddItems] = useState(false);
   const [expensesManifest, setExpensesManifest] = useState(null);
   const [isFetching, setisFetching] = useState(false);
@@ -26,11 +28,11 @@ function OtherExpenses({productionDates, setClearFormKey, clearFormKey, submitMa
   const validationSchema = yup.object({
     from: yup
       .string()
-      .required('From date is required')
-      .typeError('From date is required')
+      .required(dictionary.forms.batches.validation.fromDateRequired)
+      .typeError(dictionary.forms.batches.validation.fromDateRequired)
       .test(
         'is-after-start',
-        'From date cannot be before production start date',
+        dictionary.forms.batches.validation.fromBeforeStart,
         function(value) {
           if (!productionDates?.start_date || !value) return true;
           return dayjs(value).isSameOrAfter(dayjs(productionDates.start_date));
@@ -40,7 +42,7 @@ function OtherExpenses({productionDates, setClearFormKey, clearFormKey, submitMa
       .string()
       .test(
         'is-before-end',
-        'To date cannot be after production end date',
+        dictionary.forms.batches.validation.toAfterEnd,
         function(value) {
           if (!productionDates?.end_date || !value) return true;
           return dayjs(value).isSameOrBefore(dayjs(productionDates.end_date));
@@ -48,7 +50,7 @@ function OtherExpenses({productionDates, setClearFormKey, clearFormKey, submitMa
       )
       .test(
         'is-after-from',
-        'To date cannot be before From date',
+        dictionary.forms.batches.validation.toBeforeFrom,
         function(value) {
           if (!this.parent.from || !value) return true;
           return dayjs(value).isSameOrAfter(dayjs(this.parent.from));
@@ -144,7 +146,7 @@ function OtherExpenses({productionDates, setClearFormKey, clearFormKey, submitMa
   return (
     <>
       <Stack spacing={1} direction={'row'} p={1}>
-        <Typography variant="h5">Manually Add Expenses</Typography>
+        <Typography variant="h5">{dictionary.forms.batches.titles.manuallyAddExpenses}</Typography>
         <Switch
           onClick={() => setSwitchToAddItems(!switchToAddItems)}
           size='small'
@@ -175,7 +177,7 @@ function OtherExpenses({productionDates, setClearFormKey, clearFormKey, submitMa
               >
                 <Grid size={{xs: 12, md: 5.5}}>
                   <DateTimePicker
-                    label="From (MM/DD/YYYY)"
+                    label={dictionary.forms.batches.labels.from}
                     key={productionDates?.start_date}
                     fullWidth
                     minDateTime={productionDates?.start_date && dayjs(productionDates.start_date).isValid() ? dayjs(productionDates.start_date) : null}
@@ -198,7 +200,7 @@ function OtherExpenses({productionDates, setClearFormKey, clearFormKey, submitMa
                 </Grid>
                 <Grid size={{xs: 12, md: 5.5}}>
                   <DateTimePicker
-                    label="To (MM/DD/YYYY)"
+                    label={dictionary.forms.batches.labels.to}
                     key={productionDates?.end_date}
                     fullWidth
                     defaultValue={productionDates?.end_date ? dayjs(productionDates.end_date) : null}
@@ -222,7 +224,7 @@ function OtherExpenses({productionDates, setClearFormKey, clearFormKey, submitMa
                 </Grid>
                 <Grid size={{xs: 12, md: 1}} textAlign="right">
                   <LoadingButton loading={isFetching} type="submit" size="small" variant="contained">
-                    Fetch
+                    {dictionary.forms.batches.buttons.fetch}
                   </LoadingButton>
                 </Grid>
               </Grid>
@@ -233,7 +235,7 @@ function OtherExpenses({productionDates, setClearFormKey, clearFormKey, submitMa
                 <>
                   <Grid container>
                     <Grid size={12}>
-                      <Typography variant="h5" sx={{marginTop: 1}} >Select Expense to Add</Typography>
+                      <Typography variant="h5" sx={{marginTop: 1}} >{dictionary.forms.batches.titles.selectExpenseToAdd}</Typography>
                     </Grid>
                     <Grid size={12}>
                       <FormControlLabel
@@ -256,7 +258,7 @@ function OtherExpenses({productionDates, setClearFormKey, clearFormKey, submitMa
                         label={
                           expensesManifest?.every((expense) => 
                             otherExpenses?.some((item) => item.original_journal_id === expense.id)
-                          ) ? 'Uncheck All' : 'Check All'
+                          ) ? dictionary.forms.batches.labels.uncheckAll : dictionary.forms.batches.labels.checkAll
                         }
                       />
                     </Grid>
@@ -291,7 +293,7 @@ function OtherExpenses({productionDates, setClearFormKey, clearFormKey, submitMa
                                 <ListItemText
                                   primary={
                                     <Stack direction={'row'}>
-                                      <Tooltip title={'Voucher Number'}>
+                                      <Tooltip title={dictionary.tooltips.voucherNumber}>
                                         <Typography variant="h5" fontSize={14} lineHeight={1.25} mb={0} noWrap>
                                           {expensemanifest.journalable.voucherNo}
                                         </Typography>
@@ -303,14 +305,14 @@ function OtherExpenses({productionDates, setClearFormKey, clearFormKey, submitMa
                               <Grid size={{xs: 12, md: 5}}>
                                   <ListItemText
                                       primary={
-                                          <Tooltip title={'Expense Name'}>
+                                          <Tooltip title={dictionary.tooltips.expenseName}>
                                               <Typography variant="span" lineHeight={1.25} mb={0}>
                                                   {expensemanifest.debit_ledger.name}
                                               </Typography>
                                           </Tooltip>
                                       }
                                       secondary={
-                                          <Tooltip title={'Description'}>
+                                          <Tooltip title={dictionary.tooltips.description}>
                                               <Typography variant="span" lineHeight={1.25} mb={0} noWrap>
                                                   {expensemanifest.description}
                                               </Typography>
@@ -321,7 +323,7 @@ function OtherExpenses({productionDates, setClearFormKey, clearFormKey, submitMa
                               <Grid size={{xs: 6, md: 3}}>
                                   <ListItemText
                                       primary={
-                                          <Tooltip title={'Transaction Date'}>
+                                          <Tooltip title={dictionary.tooltips.transactionDate}>
                                               <Typography variant="span" lineHeight={1.25} mb={0} noWrap>
                                                   {readableDate(expensemanifest.journal_date)}
                                               </Typography>
@@ -330,7 +332,7 @@ function OtherExpenses({productionDates, setClearFormKey, clearFormKey, submitMa
                                   />
                               </Grid>
                               <Grid size={{xs: 6, md: 2}} textAlign={{xs:'end', md:'start'}}>
-                                  <Tooltip title={'Amount'}>
+                                  <Tooltip title={dictionary.tooltips.amount}>
                                       <Typography variant="h5" fontSize={14} lineHeight={1.25} mb={0} noWrap>
                                           {expensemanifest.amount?.toLocaleString("en-US", { 
                                               style: "currency", 
@@ -344,7 +346,7 @@ function OtherExpenses({productionDates, setClearFormKey, clearFormKey, submitMa
                   })}
                 </>
               ) : (
-                isFetchedAtLeastOnce && <Alert sx={{marginTop: 1, marginBottom: 1}} variant='outlined' severity='info'>No Expense to Add</Alert>
+                isFetchedAtLeastOnce && <Alert sx={{marginTop: 1, marginBottom: 1}} variant='outlined' severity='info'>{dictionary.forms.batches.messages.noExpenseToAdd}</Alert>
               )
               :
               <LinearProgress sx={{marginTop: 2}}/>

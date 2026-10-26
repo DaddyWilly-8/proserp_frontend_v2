@@ -1,0 +1,432 @@
+{
+  "employeeDeductions": {
+    "title": "Employee Deductions",
+    "form": {
+      "title": {
+        "add": "Add Employee Deduction",
+        "edit": "Edit Employee Deduction"
+      },
+      "labels": {
+        "employee": "Employee",
+        "deductionType": "Deduction Type",
+        "value": "Value",
+        "effectiveFrom": "Effective From",
+        "effectiveTo": "Effective To"
+      },
+      "buttons": {
+        "cancel": "Cancel",
+        "submit": "Submit"
+      },
+      "errors": {
+        "employeeRequired": "Employee is required",
+        "deductionTypeRequired": "Deduction type is required",
+        "valueNumber": "Value must be a number",
+        "valueRequired": "Value is required",
+        "valueMin": "Value must be 0 or greater",
+        "effectiveFromRequired": "Effective from is required"
+      }
+    },
+    "messages": {
+      "added": "Employee Deduction Added Successfully",
+      "addError": "Error Adding Employee Deduction",
+      "updated": "Employee Deduction Updated Successfully",
+      "updateError": "Error Updating Employee Deduction",
+      "deleted": "Employee Deduction Deleted Successfully",
+      "deleteError": "Error Deleting Employee Deduction"
+    },
+    "menu": {
+      "edit": "Edit",
+      "delete": "Delete"
+    },
+    "dialog": {
+      "confirmDeleteTitle": "Confirm Delete",
+      "confirmDeleteContent": "Are you sure you want to delete this Employee Deduction?"
+    },
+    "list": {
+      "employeeFallback": "Employee #{id}",
+      "typeFallback": "Type #{id}",
+      "openEnded": "Open-ended"
+    }
+  },
+  "loanRequests": {
+    "common": {
+      "cancel": "Cancel",
+      "somethingWentWrong": "Something went wrong",
+      "referenceOptional": "Reference (optional)",
+      "amount": "Amount",
+      "employeeFallback": "Employee #{id}"
+    },
+    "approvalForm": {
+      "title": "Loan Approval",
+      "decidingAs": "Deciding as: {label}",
+      "labels": {
+        "amountApproved": "Amount Approved",
+        "recoveryMode": "Recovery Mode",
+        "byInstallmentCount": "By Installment Count",
+        "byFixedAmount": "By Fixed Amount",
+        "amountToDeductPerPeriod": "Amount To Deduct Per Period",
+        "installmentsApproved": "Installments Approved",
+        "recoveryStartOptional": "Recovery Start (optional)",
+        "approvalDateTime": "Approval Date & Time",
+        "remarks": "Remarks"
+      },
+      "helpers": {
+        "max": "Max {amount}",
+        "installmentsDerived": "Installments are derived automatically from this",
+        "recoveryStartBlank": "Leave blank to start as soon as payroll allows"
+      },
+      "buttons": {
+        "reject": "Reject",
+        "hold": "Hold",
+        "approve": "Approve"
+      },
+      "errors": {
+        "remarksRequired": "Remarks are required",
+        "amountRequired": "Amount approved is required",
+        "cannotExceed": "Cannot exceed {amount}",
+        "deductPerPeriodRequired": "Amount to deduct per period is required",
+        "installmentsRequired": "Installments approved is required"
+      },
+      "messages": {
+        "recorded": "Loan approval recorded",
+        "pendingLevelNotFound": "Pending approval level not found"
+      },
+      "dialog": {
+        "rejectTitle": "Reject Loan Request",
+        "rejectContent": "This rejects the loan request. Continue?"
+      }
+    },
+    "receiptForm": {
+      "title": "Receipt Loan Repayment",
+      "labels": {
+        "initiatedRepayment": "Initiated Repayment",
+        "receivedInto": "Received Into",
+        "receiptDateTime": "Receipt Date & Time"
+      },
+      "placeholders": {
+        "reference": "e.g. Bank slip / transaction number"
+      },
+      "buttons": {
+        "receipt": "Receipt"
+      },
+      "messages": {
+        "receipted": "Repayment receipted"
+      }
+    },
+    "disburseForm": {
+      "title": "Disburse Loan",
+      "labels": {
+        "payFrom": "Pay From",
+        "paymentDateTime": "Payment Date & Time"
+      },
+      "placeholders": {
+        "reference": "e.g. Cheque / transfer number"
+      },
+      "buttons": {
+        "disburse": "Disburse"
+      },
+      "messages": {
+        "disbursed": "Loan disbursed"
+      }
+    },
+    "itemAction": {
+      "messages": {
+        "cancelled": "Loan request cancelled",
+        "approvalReversed": "Loan approval reversed",
+        "rejectionReversed": "Loan rejection reversed",
+        "cancellationReversed": "Loan cancellation reversed",
+        "disbursementReversed": "Loan disbursement reversed",
+        "deleted": "Loan request deleted"
+      },
+      "dialog": {
+        "cancelTitle": "Cancel Loan Request",
+        "cancelContentApproved": "This stops all future recovery from payroll. Installments already deducted are not refunded. Continue?",
+        "cancelContent": "Are you sure you want to cancel this loan request?",
+        "reverseApprovalTitle": "Reverse Approval",
+        "reverseApprovalContent": "This stops recovery and puts the request back to In Review so it can be re-decided. Continue?",
+        "reverseRejectionTitle": "Reverse Rejection",
+        "reverseRejectionContent": "This puts the request back to In Review so it can be re-decided. Continue?",
+        "reverseCancellationTitle": "Reverse Cancellation",
+        "reverseCancellationContent": "This restores the request to what it was before it was cancelled. Continue?",
+        "reverseDisbursementTitle": "Reverse Disbursement",
+        "reverseDisbursementContentPayment": "This deletes the disbursement payment and its journals, and marks the loan as not yet disbursed so it can be corrected and re-disbursed. Continue?",
+        "reverseDisbursementContent": "This clears the disbursement record so the loan can be corrected and re-disbursed. Continue?",
+        "deleteTitle": "Delete Loan Request",
+        "deleteContent": "This action cannot be undone"
+      }
+    },
+    "statement": {
+      "months": [
+        "January",
+        "February",
+        "March",
+        "April",
+        "May",
+        "June",
+        "July",
+        "August",
+        "September",
+        "October",
+        "November",
+        "December"
+      ],
+      "messages": {
+        "excused": "That period's installment has been excused",
+        "skipReversed": "Recovery skip reversed",
+        "receiptReversed": "Repayment receipt reversed"
+      },
+      "dialog": {
+        "reverseSkipTitle": "Reverse Recovery Skip",
+        "reverseSkipContent": "This puts that period's installment back into the schedule. Continue?",
+        "reverseReceiptTitle": "Reverse Repayment Receipt",
+        "reverseReceiptContent": "This deletes the receipt and its journal, and puts the repayment back to initiated so it can be corrected. Continue?"
+      },
+      "summary": {
+        "amountApproved": "Amount Approved",
+        "recoveredSoFar": "Recovered So Far",
+        "outstandingBalance": "Outstanding Balance",
+        "projectedPayoff": "Projected Payoff",
+        "fullyRecovered": "Fully Recovered"
+      },
+      "excused": {
+        "heading": "Excused Periods",
+        "skipButton": "Skip a Period",
+        "empty": "No periods have been excused for this loan.",
+        "columns": {
+          "period": "Period",
+          "remarks": "Remarks",
+          "actions": "Actions"
+        }
+      },
+      "awaiting": {
+        "heading": "Repayments Awaiting Receipt",
+        "row": "{amount} initiated by {name}{narration} — awaiting Accounts to receipt it."
+      },
+      "history": {
+        "heading": "Repayment History",
+        "empty": "No repayments recovered yet — manual repayments will appear here once Accounts receipts them, labeled \"Manual\" alongside payroll installments.",
+        "columns": {
+          "periodSource": "Period / Source",
+          "amountRecovered": "Amount Recovered",
+          "balanceAfter": "Balance After"
+        },
+        "manual": "Manual"
+      },
+      "projection": {
+        "heading": "Recovery Projection",
+        "fullyRecovered": "This loan has been fully recovered.",
+        "unavailable": "No per-period recovery amount is set on this loan yet — a projection isn't available until it's approved with an installment amount.",
+        "estimateOnly": "Estimate only — assumes the current deduction keeps running unchanged every future period.",
+        "columns": {
+          "periodProjected": "Period (Projected)",
+          "expectedDeduction": "Expected Deduction"
+        }
+      },
+      "skipDialog": {
+        "title": "Skip a Period's Recovery",
+        "info": "That period's installment is excused, not lost — it's collected one period later instead, and the loan still recovers in full.",
+        "payrollPeriod": "Payroll Period",
+        "remarksOptional": "Remarks (optional)",
+        "remarksPlaceholder": "e.g. hardship exception",
+        "skip": "Skip"
+      }
+    },
+    "list": {
+      "title": "Loan Requests",
+      "approvedTitle": "Approved Loans",
+      "status": "Status",
+      "statusOptions": {
+        "in_review": "In Review",
+        "on_hold": "On Hold",
+        "approved": "Approved",
+        "rejected": "Rejected",
+        "cancelled": "Cancelled"
+      }
+    },
+    "repaymentInitiate": {
+      "title": "Initiate Repayment",
+      "outstandingBalance": "Outstanding balance:",
+      "alreadyInitiated": "({initiated} already initiated — {left} left)",
+      "cannotExceed": "Cannot exceed {amount}",
+      "labels": {
+        "narrationOptional": "Narration (optional)"
+      },
+      "placeholders": {
+        "narration": "e.g. Lump-sum payoff on resignation"
+      },
+      "note": "This just records the amount — Accounts will pick the ledger and post it once the money is confirmed received.",
+      "messages": {
+        "initiated": "Repayment initiated; awaiting Accounts to receipt it"
+      }
+    },
+    "markDisbursed": {
+      "title": "Mark Loan as Disbursed",
+      "placeholders": {
+        "reference": "e.g. Cash handed over, receipt #4521"
+      },
+      "labels": {
+        "paymentDateTime": "Payment Date & Time"
+      },
+      "buttons": {
+        "markAsDisbursed": "Mark as Disbursed"
+      },
+      "messages": {
+        "marked": "Loan marked as disbursed"
+      }
+    },
+    "directDecision": {
+      "titleApprove": "Approve Loan Request",
+      "titleReject": "Reject Loan Request",
+      "approvedMessage": "Loan request approved",
+      "rejectedMessage": "Loan request rejected",
+      "amountHelper": "Leave as-is to approve the full {amount} requested",
+      "approvalDateTime": "Approval Date & Time",
+      "rejectionDateTime": "Rejection Date & Time"
+    },
+    "form": {
+      "title": {
+        "edit": "Edit Loan",
+        "create": "Create Loan Request"
+      },
+      "labels": {
+        "installments": "Installments",
+        "requestDate": "Request Date",
+        "reason": "Reason"
+      },
+      "buttons": {
+        "update": "Update",
+        "create": "Create"
+      },
+      "messages": {
+        "updated": "Loan request updated successfully",
+        "added": "Loan request added successfully"
+      },
+      "errors": {
+        "selectEmployee": "Please select an employee",
+        "enterAmount": "Please enter an amount",
+        "amountMin": "Amount must be >= 0",
+        "amountNumber": "Amount must be a number",
+        "enterInstallments": "Please enter an installments count",
+        "enterFlatAmount": "Please enter the flat amount to deduct per period",
+        "cannotExceedRequested": "Cannot exceed the requested loan amount"
+      }
+    },
+    "listItem": {
+      "months": "{count} months",
+      "pending": "Pending",
+      "disbursedOn": "Disbursed {date}",
+      "close": "Close",
+      "tabs": {
+        "summary": "Summary",
+        "approvals": "Approvals"
+      },
+      "sections": {
+        "loanDetails": "Loan Details",
+        "approvalDecision": "Approval Decision",
+        "disbursementPayment": "Disbursement & Payment"
+      },
+      "fields": {
+        "employee": "Employee",
+        "department": "Department",
+        "amountRequested": "Amount Requested",
+        "installmentsRequested": "Installments Requested",
+        "reason": "Reason",
+        "status": "Status",
+        "amountApproved": "Amount Approved",
+        "installmentsApproved": "Installments Approved",
+        "installmentAmount": "Installment Amount",
+        "reviewedBy": "Reviewed By",
+        "reviewedAt": "Reviewed At",
+        "reviewRemarks": "Review Remarks",
+        "disbursedAt": "Disbursed At",
+        "disbursedBy": "Disbursed By",
+        "disbursementReference": "Disbursement Reference",
+        "paymentVoucher": "Payment Voucher",
+        "paymentNarration": "Payment Narration"
+      },
+      "userFallback": "User #{id}",
+      "noApprovals": "No Approvals Found",
+      "decisions": {
+        "approved": "approved",
+        "rejected": "rejected",
+        "onHold": "on hold"
+      }
+    },
+    "preview": {
+      "requested": "Requested",
+      "approved": "Approved",
+      "recoveryAmount": "Recovery Amount",
+      "perPeriod": "{amount}/period",
+      "deductedPerPeriod": "Deducted per period:",
+      "flatRateNote": "(flat rate, ~{count} periods to clear)",
+      "recoveryStarts": "Recovery starts:",
+      "requestedNote": "(requested)",
+      "approvalStages": "Approval Stages",
+      "decidedDirectly": "Decided directly on {date}",
+      "noChain": "No approval chain configured for this request — awaiting a direct decision.",
+      "actions": {
+        "approved": "Approved",
+        "rejected": "Rejected",
+        "onHold": "Put on hold",
+        "recorded": "Decision recorded"
+      },
+      "actionBy": "{action} by {name}",
+      "unknownReviewer": "Unknown reviewer",
+      "approvedAmount": "Approved {amount}",
+      "atPerPeriod": " at {amount}/period",
+      "overMonths": " over {count} months",
+      "waitingFor": "Waiting for {role}",
+      "nextReviewer": "next reviewer",
+      "notReached": "Not reached yet",
+      "disbursedBy": " by {name}",
+      "reference": " · Ref: {reference}",
+      "monthsShort": "{count} months"
+    },
+    "pdf": {
+      "applicationForm": "Loan Application Form",
+      "applicationTitle": "Loan Application - {name}",
+      "statementTitle": "Loan Statement - {name}",
+      "statement": "Loan Statement",
+      "employee": "Employee",
+      "department": "Department",
+      "status": "Status",
+      "printedOn": "Printed On",
+      "amountRequested": "Amount Requested",
+      "installmentsRequested": "Installments Requested",
+      "requestedOn": "Requested On",
+      "amountApproved": "Amount Approved",
+      "installmentsApproved": "Installments Approved",
+      "installmentAmount": "Installment Amount",
+      "reason": "Reason",
+      "approvalHistory": "Approval History",
+      "noApprovalAction": "No approval action recorded yet.",
+      "date": "Date",
+      "by": "By",
+      "remarks": "Remarks",
+      "months": "{count} months",
+      "perPeriod": "{amount}/period",
+      "perPeriodInstallments": "{amount}/period (installments)",
+      "approver": "Approver",
+      "approverSignature": "Approver Signature",
+      "roleSignature": "{role} Signature",
+      "employeeSignature": "Employee Signature",
+      "dateLine": "Date: ______________",
+      "recoveredSoFar": "Recovered So Far",
+      "outstandingBalance": "Outstanding Balance",
+      "projectedPayoff": "Projected Payoff",
+      "fullyRecovered": "Fully Recovered",
+      "recovery": "Recovery",
+      "repaymentHistory": "Repayment History",
+      "noPayrollRepayments": "No repayments recovered through payroll yet.",
+      "period": "Period",
+      "amountRecovered": "Amount Recovered",
+      "balanceAfter": "Balance After",
+      "recoveryProjection": "Recovery Projection",
+      "loanFullyRecovered": "This loan has been fully recovered.",
+      "projectionUnavailable": "No per-period recovery amount is set on this loan yet — a projection isn't available until it's approved with an installment amount.",
+      "estimateOnly": "Estimate only — assumes the current deduction keeps running unchanged every future period.",
+      "periodProjected": "Period (Projected)",
+      "expectedDeduction": "Expected Deduction"
+    }
+  }
+}

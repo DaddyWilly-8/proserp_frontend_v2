@@ -21,6 +21,7 @@ import customerInvoiceServices from '../invoices/customerInvoice-services';
 import CustomerInvoiceListItem from './CustomerInvoiceListItem';
 import { CustomerInvoice } from './CustomerInvoiceType';
 import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface FilterDate {
   from?: string | null;
@@ -40,6 +41,7 @@ interface QueryOptions {
 }
 
 const CustomerInvoices = () => {
+  const dictionary = useDictionary();
   const searchParams = useSearchParams();
   const listRef = useRef<any>(null);
   const [mounted, setMounted] = useState(false);
@@ -188,7 +190,7 @@ const CustomerInvoices = () => {
                         />
                       </Grid>
                       <Grid size={{ xs: 'auto', md: 0.5 }} alignContent='end'>
-                        <Tooltip title='Filter Dates'>
+                        <Tooltip title={dictionary.tooltips.filterDates}>
                           <IconButton onClick={applyDateFilters}>
                             <EventAvailableOutlined />
                           </IconButton>
@@ -236,7 +238,7 @@ const CustomerInvoices = () => {
 
                 {canCreateFuelInvoices && queryOptions.queryParams.source === 'fuel_voucher' && (
                   <Grid size='auto'>
-                    <Tooltip title='New Fuel Voucher Invoice'>
+                    <Tooltip title={dictionary.tooltips.newFuelVoucherInvoice}>
                       <IconButton size='small' color='primary' onClick={() => setOpenFuelInvoiceDialog(true)}>
                         <AddOutlined />
                       </IconButton>

@@ -92,6 +92,7 @@ const PERMISSION_MODULES: PermissionModuleConfig[] = [
       'JournalVouchers',
       'Payments',
       'Receipts',
+      'RecurringTransactions',
       'Budgets'
     ],
   },

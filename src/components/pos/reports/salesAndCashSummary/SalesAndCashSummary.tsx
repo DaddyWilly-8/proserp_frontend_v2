@@ -38,6 +38,7 @@ import CostCenterSelector from '@/components/masters/costCenters/CostCenterSelec
 import { CostCenter } from '@/components/masters/costCenters/CostCenterType';
 import { Organization, User } from '@/types/auth-types';
 import { FileExportGrid } from '@/components/sharedComponents/FileExportGrid';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface ReportData {
   revenue: number;
@@ -83,10 +84,12 @@ interface ReportDocumentProps {
   to: string;
   costCenters: CostCenter[];
   separateCreditSales?: boolean;
+  dictionary: any;
 }
 
-const ReportDocument: React.FC<ReportDocumentProps> = ({ reportData, authOrganization, user, from, to, costCenters, separateCreditSales = false }) => {
-  const reportPeriod = `${readableDate(from, true)} to ${readableDate(to, true)}`;
+const ReportDocument: React.FC<ReportDocumentProps> = ({ reportData, authOrganization, user, from, to, costCenters, separateCreditSales = false, dictionary }) => {
+  const t = dictionary.reports.posReports.salesAndCashSummary;
+  const reportPeriod = t.periodRange.replace('{from}', readableDate(from, true)).replace('{to}', readableDate(to, true));
   const mainColor = authOrganization.organization.settings?.main_color || "#2113AD";
   const lightColor = authOrganization.organization.settings?.light_color || "#bec5da";
   const contrastText = authOrganization.organization.settings?.contrast_text || "#FFFFFF";
@@ -114,7 +117,7 @@ const ReportDocument: React.FC<ReportDocumentProps> = ({ reportData, authOrganiz
     <Document
       creator={` ${user.name} | Powered By ProsERP`}
       producer="ProsERP"
-      title={`Sales And Cash Summary ${reportPeriod}`}
+      title={`${t.title} ${reportPeriod}`}
     >
       <Page size="A4" style={pdfStyles.page}>
         <View style={pdfStyles.table}>
@@ -123,7 +126,7 @@ const ReportDocument: React.FC<ReportDocumentProps> = ({ reportData, authOrganiz
               <PdfLogo organization={authOrganization.organization} />
             </View>
             <View style={{ flex: 1, textAlign: 'right' }}>
-              <Text style={{ ...pdfStyles.majorInfo, color: mainColor }}>{`Sales And Cash Summary`}</Text>
+              <Text style={{ ...pdfStyles.majorInfo, color: mainColor }}>{t.title}</Text>
               <Text style={{ ...pdfStyles.minInfo }}>{reportPeriod}</Text>
             </View>
           </View>
@@ -132,16 +135,16 @@ const ReportDocument: React.FC<ReportDocumentProps> = ({ reportData, authOrganiz
           {
             costCenters?.length > 0 &&
             <View style={{ flex: 1, padding: 2}}>
-              <Text style={{...pdfStyles.minInfo, color: mainColor }}>Cost Centers</Text>
+              <Text style={{...pdfStyles.minInfo, color: mainColor }}>{t.costCenters}</Text>
               <Text style={{...pdfStyles.minInfo }}>{costCenters.map((cc) => cc.name).join(', ')}</Text>
             </View>
           }
           <View style={{ flex: 1, padding: 2 }}>
-            <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>Printed By</Text>
+            <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>{t.printedBy}</Text>
             <Text style={{ ...pdfStyles.minInfo }}>{user.name}</Text>
           </View>
           <View style={{ flex: 1, padding: 2 }}>
-            <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>Printed On</Text>
+            <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>{t.printedOn}</Text>
             <Text style={{ ...pdfStyles.minInfo }}>{readableDate(undefined, true)}</Text>
           </View>
         </View>
@@ -149,7 +152,7 @@ const ReportDocument: React.FC<ReportDocumentProps> = ({ reportData, authOrganiz
         <View style={{ ...pdfStyles.tableRow, marginTop: 10, justifyContent: 'flex-end' }}>
           <View style={{ width: '50%' }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingTop: 2 }}>
-              <Text style={{ ...pdfStyles.midInfo, color: mainColor }}>Sales:</Text>
+              <Text style={{ ...pdfStyles.midInfo, color: mainColor }}>{t.sales}</Text>
               <Text style={{ ...pdfStyles.midInfo }}>{reportData.revenue.toLocaleString('en-US',{maximumFractionDigits:2,minimumFractionDigits:2})}</Text>
             </View>
 
@@ -157,7 +160,7 @@ const ReportDocument: React.FC<ReportDocumentProps> = ({ reportData, authOrganiz
             {reportData.collection_distribution.length > 0 &&
               <View style={{ ...pdfStyles.table, minHeight: 50 }}>
                 <View style={{ ...pdfStyles.tableRow }}>
-                  <Text style={{ ...pdfStyles.tableHeader, ...pdfStyles.midInfo, backgroundColor: mainColor, flex : 1, color: contrastText, textAlign: 'center' }}>Payments Collected</Text>
+                  <Text style={{ ...pdfStyles.tableHeader, ...pdfStyles.midInfo, backgroundColor: mainColor, flex : 1, color: contrastText, textAlign: 'center' }}>{t.paymentsCollected}</Text>
                 </View>
                 {
                   reportData.collection_distribution.map((cd, index) => (
@@ -169,7 +172,7 @@ const ReportDocument: React.FC<ReportDocumentProps> = ({ reportData, authOrganiz
                 }
                 {/* Totals Row for Payments Collected */}
                 <View style={{ ...pdfStyles.tableRow, flexDirection: 'row' }}>
-                  <Text style={{ ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex : 0.7 }}>Total</Text>
+                  <Text style={{ ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex : 0.7 }}>{t.total}</Text>
                   <Text style={{ ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex : 0.3, textAlign: 'right' }}>{totalCollectedAmount?.toLocaleString('en-US',{maximumFractionDigits:2,minimumFractionDigits:2})}</Text>
                 </View>
               </View>
@@ -183,7 +186,7 @@ const ReportDocument: React.FC<ReportDocumentProps> = ({ reportData, authOrganiz
             {reportData.credit_sales.length > 0 &&
               <View style={{...pdfStyles.table, minHeight: 50 }}>
                 <View style={{ ...pdfStyles.tableRow, marginTop: 10}}>
-                  <Text style={{ ...pdfStyles.tableHeader, ...pdfStyles.midInfo, backgroundColor: mainColor, color: contrastText, flex: 1, textAlign: 'center' }}>Credit Sales</Text>
+                  <Text style={{ ...pdfStyles.tableHeader, ...pdfStyles.midInfo, backgroundColor: mainColor, color: contrastText, flex: 1, textAlign: 'center' }}>{t.creditSales}</Text>
                 </View>
                 {
                   reportData.credit_sales.map((creditSale, index) => (
@@ -195,7 +198,7 @@ const ReportDocument: React.FC<ReportDocumentProps> = ({ reportData, authOrganiz
                 }
                 {/* Totals Row */}
                 <View style={{ ...pdfStyles.tableRow, flexDirection: 'row' }}>
-                  <Text style={{ ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 0.7 }}>Total</Text>
+                  <Text style={{ ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 0.7 }}>{t.total}</Text>
                   <Text style={{ ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 0.3, textAlign: 'right' }}>{totalCreditSalesAmount?.toLocaleString('en-US',{maximumFractionDigits:2,minimumFractionDigits:2})}</Text>
                 </View>
               </View>
@@ -205,7 +208,7 @@ const ReportDocument: React.FC<ReportDocumentProps> = ({ reportData, authOrganiz
             {(reportData.payments_received?.length ?? 0) > 0 &&
               <View style={{...pdfStyles.table, minHeight: 50 }}>
                 <View style={{ ...pdfStyles.tableRow, marginTop: 10}}>
-                  <Text style={{ ...pdfStyles.tableHeader, ...pdfStyles.midInfo, backgroundColor: mainColor, color: contrastText, flex: 1, textAlign: 'center' }}>Payments Received</Text>
+                  <Text style={{ ...pdfStyles.tableHeader, ...pdfStyles.midInfo, backgroundColor: mainColor, color: contrastText, flex: 1, textAlign: 'center' }}>{t.paymentsReceived}</Text>
                 </View>
                 {
                   reportData.payments_received.map((paymentReceived, index) => (
@@ -217,7 +220,7 @@ const ReportDocument: React.FC<ReportDocumentProps> = ({ reportData, authOrganiz
                 }
                 {/* Totals Row */}
                 <View style={{ ...pdfStyles.tableRow, flexDirection: 'row' }}>
-                  <Text style={{ ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 0.7 }}>Total</Text>
+                  <Text style={{ ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 0.7 }}>{t.total}</Text>
                   <Text style={{ ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 0.3, textAlign: 'right' }}>{totalPaymentsReceivedAmount?.toLocaleString('en-US',{maximumFractionDigits:2,minimumFractionDigits:2})}</Text>
                 </View>
               </View>
@@ -228,14 +231,14 @@ const ReportDocument: React.FC<ReportDocumentProps> = ({ reportData, authOrganiz
           creditSalesSummary.length > 0 &&
             <View style={{...pdfStyles.table, minHeight: 70 }}>
               <View style={{ ...pdfStyles.tableRow, marginTop: 10}}>
-                <Text style={{ ...pdfStyles.tableHeader, ...pdfStyles.midInfo, backgroundColor: mainColor, color: contrastText, flex: 1, textAlign: 'center' }}>Credits and Received Payments</Text>
+                <Text style={{ ...pdfStyles.tableHeader, ...pdfStyles.midInfo, backgroundColor: mainColor, color: contrastText, flex: 1, textAlign: 'center' }}>{t.creditsAndReceivedPayments}</Text>
               </View>
               <View style={pdfStyles.tableRow}>
-                <Text style={{...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex : 0.1 }}>S/N</Text>
-                <Text style={{...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex : 0.3 }}>Client</Text>
-                <Text style={{...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex : 0.2, textAlign: 'right' }}>Purchase</Text>
-                <Text style={{...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex : 0.2, textAlign: 'right' }}>Payment</Text>
-                <Text style={{...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex : 0.2, textAlign: 'right' }}>Balance</Text>
+                <Text style={{...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex : 0.1 }}>{t.sn}</Text>
+                <Text style={{...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex : 0.3 }}>{t.client}</Text>
+                <Text style={{...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex : 0.2, textAlign: 'right' }}>{t.purchase}</Text>
+                <Text style={{...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex : 0.2, textAlign: 'right' }}>{t.payment}</Text>
+                <Text style={{...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex : 0.2, textAlign: 'right' }}>{t.balance}</Text>
               </View>
               {
                 creditSalesSummary.map((item, index) => (
@@ -250,7 +253,7 @@ const ReportDocument: React.FC<ReportDocumentProps> = ({ reportData, authOrganiz
               }
               {/* Totals Row */}
               <View style={pdfStyles.tableRow}>
-                <Text style={{ ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 0.41, textAlign: 'center' }}>Total</Text>
+                <Text style={{ ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 0.41, textAlign: 'center' }}>{t.total}</Text>
                 <Text style={{ ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 0.2, textAlign: 'right' }}>{totalCreditSalesSummaryDebit?.toLocaleString('en-US',{maximumFractionDigits:2,minimumFractionDigits:2})}</Text>
                 <Text style={{ ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 0.2, textAlign: 'right' }}>{totalCreditSalesSummaryCredit?.toLocaleString('en-US',{maximumFractionDigits:2,minimumFractionDigits:2})}</Text>
                 <Text style={{ ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 0.2, textAlign: 'right' }}>{totalCreditSalesSummaryBalance.toLocaleString('en-US',{maximumFractionDigits:2,minimumFractionDigits:2})}</Text>
@@ -262,7 +265,7 @@ const ReportDocument: React.FC<ReportDocumentProps> = ({ reportData, authOrganiz
         {(reportData.non_collectible_fuel_vouchers?.length ?? 0) > 0 &&
           <View style={{ ...pdfStyles.table, minHeight: 50 }}>
             <View style={{ ...pdfStyles.tableRow, marginTop: 10 }}>
-              <Text style={{ ...pdfStyles.tableHeader, ...pdfStyles.midInfo, backgroundColor: mainColor, color: contrastText, flex: 1, textAlign: 'center' }}>Fuel Vouchers to Internal/Non-Collectible Ledgers</Text>
+              <Text style={{ ...pdfStyles.tableHeader, ...pdfStyles.midInfo, backgroundColor: mainColor, color: contrastText, flex: 1, textAlign: 'center' }}>{t.nonCollectibleFuelVouchers}</Text>
             </View>
             {
               reportData.non_collectible_fuel_vouchers.map((item, index) => (
@@ -274,7 +277,7 @@ const ReportDocument: React.FC<ReportDocumentProps> = ({ reportData, authOrganiz
             }
             {/* Totals Row for Fuel Vouchers to Internal/Non-Collectible Ledgers */}
             <View style={{ ...pdfStyles.tableRow, flexDirection: 'row' }}>
-              <Text style={{ ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 0.7 }}>Total</Text>
+              <Text style={{ ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 0.7 }}>{t.total}</Text>
               <Text style={{ ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 0.3, textAlign: 'right' }}>{totalNonCollectibleAmount?.toLocaleString('en-US',{maximumFractionDigits:2,minimumFractionDigits:2})}</Text>
             </View>
           </View>
@@ -284,13 +287,13 @@ const ReportDocument: React.FC<ReportDocumentProps> = ({ reportData, authOrganiz
         { reportData.payments.length > 0 &&
           <View style={{...pdfStyles.table, minHeight: 70 }}>
             <View style={{ ...pdfStyles.tableRow, marginTop: 30}}>
-              <Text style={{ ...pdfStyles.tableHeader, ...pdfStyles.midInfo, backgroundColor: mainColor, color: contrastText, flex: 1, textAlign: 'center' }}>Payments</Text>
+              <Text style={{ ...pdfStyles.tableHeader, ...pdfStyles.midInfo, backgroundColor: mainColor, color: contrastText, flex: 1, textAlign: 'center' }}>{t.payments}</Text>
             </View>
             <View style={pdfStyles.tableRow}>
-              <Text style={{...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText,  flex : 0.1 }}>S/N</Text>
-              <Text style={{...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex : 0.4 }}>Name</Text>
-              <Text style={{...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex : 0.25}}>Paid From</Text>
-              <Text style={{...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex : 0.25, textAlign: 'right' }}>Amount</Text>
+              <Text style={{...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText,  flex : 0.1 }}>{t.sn}</Text>
+              <Text style={{...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex : 0.4 }}>{t.name}</Text>
+              <Text style={{...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex : 0.25}}>{t.paidFrom}</Text>
+              <Text style={{...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex : 0.25, textAlign: 'right' }}>{t.amount}</Text>
             </View>
             {
               reportData.payments.map((payment, index) => (
@@ -304,7 +307,7 @@ const ReportDocument: React.FC<ReportDocumentProps> = ({ reportData, authOrganiz
             }
             {/* Totals Row for Payments */}
             <View style={pdfStyles.tableRow}>
-              <Text style={{ ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 0.77, textAlign: 'center' }}>Total</Text>
+              <Text style={{ ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 0.77, textAlign: 'center' }}>{t.total}</Text>
               <Text style={{ ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 0.25, textAlign: 'right' }}>{totalPaymentsAmount?.toLocaleString('en-US',{maximumFractionDigits:2,minimumFractionDigits:2})}</Text>
             </View>
           </View>
@@ -326,6 +329,7 @@ interface FormValues {
 }
 
 const SalesAndCashSummary: React.FC<SalesAndCashSummaryProps> = ({ setOpenSalesAndCashSummary }) => {
+  const dictionary = useDictionary();
   document.title = 'Sales And Cash Summary';
   const css = useProsERPStyles();
   const { authOrganization, authUser } = useJumboAuth()
@@ -343,8 +347,8 @@ const SalesAndCashSummary: React.FC<SalesAndCashSummaryProps> = ({ setOpenSalesA
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
 
   const validationSchema = yup.object({
-    from: yup.string().required('From date is required').typeError('From date is required'),
-    to: yup.string().required('To date is required').typeError('To date is required'),
+    from: yup.string().required(dictionary.forms.reports.salesAndCashSummary.validation.fromRequired).typeError(dictionary.forms.reports.salesAndCashSummary.validation.fromRequired),
+    to: yup.string().required(dictionary.forms.reports.salesAndCashSummary.validation.toRequired).typeError(dictionary.forms.reports.salesAndCashSummary.validation.toRequired),
   });
 
   const { setValue, handleSubmit, watch, formState: { errors } } = useForm<FormValues>({
@@ -400,11 +404,11 @@ const SalesAndCashSummary: React.FC<SalesAndCashSummaryProps> = ({ setOpenSalesA
       <DialogTitle textAlign={'center'}>
         <Grid container>
           <Grid size={belowLargeScreen ? 11 : 12}>
-            <Typography variant="h3">Sales And Cash Summary</Typography>
+            <Typography variant="h3">{dictionary.forms.reports.salesAndCashSummary.title}</Typography>
           </Grid>
           {belowLargeScreen && (
             <Grid size={1}>
-              <Tooltip title="Close">
+              <Tooltip title={dictionary.tooltips.close}>
                 <IconButton 
                   sx={{ mb: 1 }} 
                   size='small' 
@@ -421,7 +425,7 @@ const SalesAndCashSummary: React.FC<SalesAndCashSummaryProps> = ({ setOpenSalesA
             <Grid container columnSpacing={1} rowSpacing={1} alignItems="center" justifyContent="center">
               <Grid size={{xs: 12, md: 4, lg: 5}}>
                 <CostCenterSelector
-                  label="Cost Center(s) (leave empty for all)"
+                  label={dictionary.forms.reports.salesAndCashSummary.labels.costCenters}
                   multiple={true}
                   allowSameType={true}
                   onChange={(cost_centers: CostCenter | CostCenter[] | null) => {
@@ -452,7 +456,7 @@ const SalesAndCashSummary: React.FC<SalesAndCashSummaryProps> = ({ setOpenSalesA
               <Grid size={{xs: 12, md: 4, lg: 3.5}}>
                 <div style={{ marginTop: 8, marginBottom: 8 }}>
                   <DateTimePicker
-                    label="From (MM/DD/YYYY)"
+                    label={dictionary.forms.reports.salesAndCashSummary.labels.fromDate}
                     defaultValue={dayjs().startOf('day')}
                     minDate={dayjs(authOrganization?.organization?.recording_start_date)}
                     slotProps={{
@@ -482,7 +486,7 @@ const SalesAndCashSummary: React.FC<SalesAndCashSummaryProps> = ({ setOpenSalesA
               <Grid size={{xs: 12, md: 4, lg: 3.5}}>
                 <div style={{ marginTop: 8, marginBottom: 8 }}>
                   <DateTimePicker
-                    label="To (MM/DD/YYYY)"
+                    label={dictionary.forms.reports.salesAndCashSummary.labels.toDate}
                     defaultValue={dayjs().endOf('day')}
                     minDate={dayjs(watch('from'))}
                     slotProps={{
@@ -526,7 +530,7 @@ const SalesAndCashSummary: React.FC<SalesAndCashSummaryProps> = ({ setOpenSalesA
                           onChange={(e) => setSeparateCreditSales(e.target.checked)}
                         />
                       }
-                      label="Separate Credit Sales & Receipts"
+                      label={dictionary.forms.reports.salesAndCashSummary.labels.separateCreditSales}
                     />
                   )}
                   <Stack
@@ -546,7 +550,7 @@ const SalesAndCashSummary: React.FC<SalesAndCashSummaryProps> = ({ setOpenSalesA
                       />
                     )}
                     <LoadingButton loading={isFetching} type="submit" size="small" variant="contained">
-                      Filter
+                      {dictionary.forms.reports.salesAndCashSummary.labels.filter}
                     </LoadingButton>
                   </Stack>
                 </Stack>
@@ -581,6 +585,7 @@ const SalesAndCashSummary: React.FC<SalesAndCashSummaryProps> = ({ setOpenSalesA
                     user={user as User}
                     costCenters={watch('cost_centers')}
                     separateCreditSales={separateCreditSales}
+                    dictionary={dictionary}
                   />
                 }
                 fileName={`Sales And Cash Summary From ${readableDate(watch('from'), true)} To ${readableDate(watch('to'), true)}`}
@@ -591,7 +596,7 @@ const SalesAndCashSummary: React.FC<SalesAndCashSummaryProps> = ({ setOpenSalesA
       </DialogContent>
       <DialogActions className={css.hiddenOnPrint}>
         <Button sx={{ mt:1 }} size='small' variant='outlined' onClick={() => {setOpenSalesAndCashSummary(false)}}>
-          Close
+          {dictionary.forms.reports.salesAndCashSummary.labels.close}
         </Button>
       </DialogActions>
     </>

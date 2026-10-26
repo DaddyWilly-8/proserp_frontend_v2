@@ -11,8 +11,10 @@ import {
 } from '@mui/material';
 import { useState } from 'react';
 import MyHrLeaveRequestsForm from './MyHrLeaveRequestsForm';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const MyHrLeaveRequestsActionTail = () => {
+  const dictionary = useDictionary();
   const [openDialog, setOpenDialog] = useState(false);
 
   const { theme } = useJumboTheme();
@@ -34,7 +36,7 @@ const MyHrLeaveRequestsActionTail = () => {
         disableElevation
         sx={{ '& .MuiButton-root': { px: 1 } }}
       >
-        <Tooltip title='Add Leave Request'>
+        <Tooltip title={dictionary.tooltips.addLeaveRequest}>
           <IconButton onClick={() => setOpenDialog(true)}>
             <AddOutlined />
           </IconButton>

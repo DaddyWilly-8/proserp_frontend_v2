@@ -17,9 +17,11 @@ import ProjectListItem from './ProjectListItem';
 import { Project } from './ProjectTypes';
 import projectsServices from './project-services';
 import StakeholderSelectProvider from '@/components/masters/stakeholders/StakeholderSelectProvider';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
 
 const Projects = () => {
+    const dictionary = useDictionary();
     const params = useParams<{ project?: string; id?: string; keyword?: string }>();
     const searchParams = useSearchParams();
     const listRef = useRef<any>(null);
@@ -67,7 +69,7 @@ const Projects = () => {
     if (!mounted) return <PageLoadingSkeleton />;
 
     if (!organizationHasSubscribed(MODULES.PROJECT_MANAGEMENT)) {
-      return <UnsubscribedAccess modules="Project Management" />;
+      return <UnsubscribedAccess modules={dictionary.projectManagement.projects.moduleName} />;
     }
 
     if (
@@ -84,7 +86,7 @@ const Projects = () => {
     <React.Fragment>
       <StakeholderSelectProvider>
         <Typography variant="h4" mb={2}>
-          Projects
+          {dictionary.projectManagement.projects.title}
         </Typography>
         <JumboRqList
           ref={listRef}

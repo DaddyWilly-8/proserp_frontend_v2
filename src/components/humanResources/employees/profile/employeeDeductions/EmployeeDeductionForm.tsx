@@ -22,6 +22,7 @@ import * as yup from 'yup';
 import { DeductionType } from '../../../deductionTypes/DeductionType';
 import humanResourcesServices from '../../../humanResourcesServices';
 import { EmployeeDeductionType } from './EmployeeDeductionType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface EmployeeDeductionFormProps {
   setOpenDialog: (open: boolean) => void;
@@ -39,23 +40,27 @@ interface FormData {
   effective_to?: string | null;
 }
 
-const validationSchema = yup.object({
-  deduction_type_id: yup.number().required('Deduction type is required'),
-  member_no: yup.string().nullable().max(50),
-  value: yup
-    .number()
-    .typeError('Value must be a number')
-    .required('Value is required')
-    .min(0, 'Value must be 0 or greater'),
-  effective_from: yup.string().required('Effective from is required'),
-  effective_to: yup.string().nullable().optional(),
-});
-
 const EmployeeDeductionForm = ({
   setOpenDialog,
   employeeDeduction = null,
   employeeId,
 }: EmployeeDeductionFormProps) => {
+  const dictionary = useDictionary();
+  const validationSchema = yup.object({
+    deduction_type_id: yup
+      .number()
+      .required(dictionary.humanResources.employeeDeductions.form.validation.deductionTypeRequired),
+    member_no: yup.string().nullable().max(50),
+    value: yup
+      .number()
+      .typeError(dictionary.humanResources.employeeDeductions.form.validation.valueNumber)
+      .required(dictionary.humanResources.employeeDeductions.form.validation.valueRequired)
+      .min(0, dictionary.humanResources.employeeDeductions.form.validation.valueMin),
+    effective_from: yup
+      .string()
+      .required(dictionary.humanResources.employeeDeductions.form.validation.effectiveFromRequired),
+    effective_to: yup.string().nullable().optional(),
+  });
   const queryClient = useQueryClient();
   const { enqueueSnackbar } = useSnackbar();
 
@@ -113,7 +118,7 @@ const EmployeeDeductionForm = ({
   const addMutation = useMutation({
     mutationFn: humanResourcesServices.addEmployeeDeduction,
     onSuccess: () => {
-      enqueueSnackbar('Employee Deduction Added Successfully', {
+      enqueueSnackbar(dictionary.humanResources.employeeDeductions.messages.added, {
         variant: 'success',
       });
       queryClient.invalidateQueries({ queryKey: ['employeeDeductions'] });
@@ -121,7 +126,7 @@ const EmployeeDeductionForm = ({
     },
     onError: (err: any) => {
       enqueueSnackbar(
-        err?.response?.data?.message || 'Failed to add deduction',
+        err?.response?.data?.message || dictionary.humanResources.employeeDeductions.messages.addFailed,
         { variant: 'error' }
       );
     },
@@ -130,7 +135,7 @@ const EmployeeDeductionForm = ({
   const updateMutation = useMutation({
     mutationFn: humanResourcesServices.updateEmployeeDeduction,
     onSuccess: () => {
-      enqueueSnackbar('Employee Deduction Updated Successfully', {
+      enqueueSnackbar(dictionary.humanResources.employeeDeductions.messages.updated, {
         variant: 'success',
       });
       queryClient.invalidateQueries({ queryKey: ['employeeDeductions'] });
@@ -138,7 +143,7 @@ const EmployeeDeductionForm = ({
     },
     onError: (err: any) => {
       enqueueSnackbar(
-        err?.response?.data?.message || 'Failed to update deduction',
+        err?.response?.data?.message || dictionary.humanResources.employeeDeductions.messages.updateFailed,
         { variant: 'error' }
       );
     },
@@ -173,8 +178,8 @@ const EmployeeDeductionForm = ({
       <DialogTitle>
         <Grid size={12} textAlign='center' paddingBottom={2}>
           {!employeeDeduction?.id
-            ? 'Add Employee Deduction'
-            : 'Edit Employee Deduction'}
+            ? dictionary.humanResources.employeeDeductions.form.addTitle
+            : dictionary.humanResources.employeeDeductions.form.editTitle}
         </Grid>
       </DialogTitle>
 
@@ -224,7 +229,7 @@ const EmployeeDeductionForm = ({
                       renderInput={(params) => (
                         <TextField
                           {...params}
-                          label='Deduction Type'
+                          label={dictionary.humanResources.employeeDeductions.form.labels.deductionType}
                           error={!!errors.deduction_type_id}
                           helperText={errors.deduction_type_id?.message}
                         />
@@ -237,8 +242,8 @@ const EmployeeDeductionForm = ({
 
             <Grid size={{ xs: 12, md: 6 }}>
               <TextField
-                label='Member No.'
-                placeholder='e.g. NSSF No, WCF No'
+                label={dictionary.humanResources.employeeDeductions.form.labels.memberNo}
+                placeholder={dictionary.humanResources.employeeDeductions.form.placeholders.memberNo}
                 fullWidth
                 size='small'
                 error={!!errors.member_no}
@@ -249,7 +254,7 @@ const EmployeeDeductionForm = ({
 
             <Grid size={{ xs: 12, md: 6 }}>
               <TextField
-                label='Value'
+                label={dictionary.humanResources.employeeDeductions.form.labels.value}
                 fullWidth
                 size='small'
                 value={displayValue}
@@ -268,7 +273,7 @@ const EmployeeDeductionForm = ({
                 control={control}
                 render={({ field }) => (
                   <DateTimePicker
-                    label='Effective From'
+                    label={dictionary.humanResources.employeeDeductions.form.labels.effectiveFrom}
                     value={field.value ? dayjs(field.value) : null}
                     onChange={(newValue) =>
                       field.onChange(newValue?.toISOString() || '')
@@ -292,7 +297,7 @@ const EmployeeDeductionForm = ({
                 control={control}
                 render={({ field }) => (
                   <DateTimePicker
-                    label='Effective To'
+                    label={dictionary.humanResources.employeeDeductions.form.labels.effectiveTo}
                     value={field.value ? dayjs(field.value) : null}
                     onChange={(newValue) =>
                       field.onChange(newValue?.toISOString() || null)
@@ -312,13 +317,13 @@ const EmployeeDeductionForm = ({
           </Grid>
 
           <DialogActions sx={{ mt: 3 }}>
-            <Button onClick={() => setOpenDialog(false)}>Cancel</Button>
+            <Button onClick={() => setOpenDialog(false)}>{dictionary.humanResources.profileSectionsCommon.cancel}</Button>
             <LoadingButton
               type='submit'
               variant='contained'
               loading={addMutation.isPending || updateMutation.isPending}
             >
-              Submit
+              {dictionary.humanResources.profileSectionsCommon.submit}
             </LoadingButton>
           </DialogActions>
         </form>

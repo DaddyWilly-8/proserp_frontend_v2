@@ -6,8 +6,10 @@ import { Alert, Box, Grid, ListItemText, Tooltip, Typography } from '@mui/materi
 import { useRouter } from 'next/navigation';
 import { useMemo, useState } from 'react';
 import { useProjectProfile } from '../ProjectProfileProvider';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 export default function ProjectStoresList() {
+  const dictionary = useDictionary();
   const { project }: any = useProjectProfile();
   const router = useRouter();
   const lang = useLanguage();
@@ -38,8 +40,8 @@ export default function ProjectStoresList() {
       {filteredStores.length === 0 ? (
         <Alert variant="outlined" severity="info">
           {stores.length === 0
-            ? 'No stores linked to this project.'
-            : 'No stores match your search.'}
+            ? dictionary.projectManagement.profile.noStoresLinked
+            : dictionary.projectManagement.profile.noStoresMatch}
         </Alert>
       ) : (
         filteredStores.map((store) => (
@@ -59,7 +61,7 @@ export default function ProjectStoresList() {
             onClick={() => router.push(`/${lang}/procurement/stores/${store.id}`)}
           >
             <Grid size={12}>
-              <Tooltip title="Open Store">
+              <Tooltip title={dictionary.tooltips.openStore}>
                 <ListItemText
                   primary={
                     <Typography variant="h5" fontSize={14} lineHeight={1.25} mb={0}>

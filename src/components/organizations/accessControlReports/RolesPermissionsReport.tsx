@@ -74,7 +74,7 @@ const RolesPermissionsReport = () => {
         showPdf ? (
           <PDFContent
             document={
-              <RolesPermissionsPdfDocument roles={roles} authOrganization={authOrganization} user={user} />
+              <RolesPermissionsPdfDocument roles={roles} authOrganization={authOrganization} user={user} dictionary={dictionary} />
             }
             fileName='Roles and Permissions'
           />

@@ -1,5 +1,6 @@
 'use client';
 
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import useProsERPStyles from '@/app/helpers/style-helpers';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { MODULES } from '@/utilities/constants/modules';
@@ -34,6 +35,7 @@ interface ReportProps {
   closeDialog: () => void;
 }
 const FuelStationReports: React.FC = () => {
+  const dictionary = useDictionary();
   const searchParams = useSearchParams();
   const css = useProsERPStyles();
   const { checkOrganizationPermission, organizationHasSubscribed } = useJumboAuth();
@@ -83,7 +85,7 @@ const FuelStationReports: React.FC = () => {
     <StakeholderSelectProvider>
       <LedgerSelectProvider>
         <Typography variant='h4' mb={2}>
-          Fuel Station Reports
+          {dictionary.reports.fuelStationReports.title}
         </Typography>
 
         <Dialog
@@ -103,7 +105,7 @@ const FuelStationReports: React.FC = () => {
                 variant='outlined'
                 onClick={() => setOpenReportDialog(false)}
               >
-                Close
+                {dictionary.reports.fuelStationReports.close}
               </Button>
             )}
           </DialogActions>
@@ -126,7 +128,7 @@ const FuelStationReports: React.FC = () => {
                 icon={faTableCells}
                 style={{ fontSize: '48px' }}
               />
-              <Typography mt={1}>Dipping Report</Typography>
+              <Typography mt={1}>{dictionary.reports.fuelStationReports.dippingReport}</Typography>
             </Grid>
 
             {/* Tank Stock Report */}
@@ -145,7 +147,7 @@ const FuelStationReports: React.FC = () => {
                 icon={faChartColumn}
                 style={{ fontSize: '48px' }}
               />
-              <Typography mt={1}>Tank Stock Report</Typography>
+              <Typography mt={1}>{dictionary.reports.fuelStationReports.tankStockReport}</Typography>
             </Grid>
             )}
 
@@ -164,7 +166,7 @@ const FuelStationReports: React.FC = () => {
                 icon={faReceipt}
                 style={{ fontSize: '48px' }}
               />
-              <Typography mt={1}>FV Report</Typography>
+              <Typography mt={1}>{dictionary.reports.fuelStationReports.fvReport}</Typography>
             </Grid>
 
             {/* Shifts Summary Report */}
@@ -182,7 +184,7 @@ const FuelStationReports: React.FC = () => {
                 icon={faClockRotateLeft}
                 style={{ fontSize: '48px' }}
               />
-              <Typography mt={1}>Shifts Summary Report</Typography>
+              <Typography mt={1}>{dictionary.reports.fuelStationReports.shiftsSummaryReport}</Typography>
             </Grid>
           </Grid>
         </JumboCardQuick>

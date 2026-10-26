@@ -38,6 +38,7 @@ import PurchasesManifestOnScreen, {
   PurchaseManifestItem,
 } from './PurchasesManifestOnScreen';
 import PurchasesManifestPDF from './PurchasesManifestPDF';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface PurchasesManifestOnScreenProps {
   reportData: {
@@ -58,19 +59,19 @@ interface PurchasesManifestOnScreenProps {
   organization: Organization;
 }
 
-const STATUS_OPTIONS = [
-  { value: 'All', label: 'All' },
-  { value: 'closed', label: 'Closed' },
-  { value: 'Pending', label: 'Pending' },
-  { value: 'Partially Received', label: 'Partially Received' },
-  { value: 'Fully Received', label: 'Fully Received' },
-];
+const STATUS_VALUES = ['All', 'closed', 'Pending', 'Partially Received', 'Fully Received'];
 
 const PurchasesManifestReport = ({
   setOpenDialog,
 }: {
   setOpenDialog: (value: boolean) => {};
 }) => {
+  const dictionary = useDictionary();
+  const dict = dictionary.reports.procurementReports.purchasesManifest;
+  const STATUS_OPTIONS = STATUS_VALUES.map((value) => ({
+    value,
+    label: dict.statusOptions[value],
+  }));
   const { authOrganization, authUser } = useJumboAuth();
   const user = authUser?.user;
   const { enqueueSnackbar } = useSnackbar();
@@ -91,7 +92,7 @@ const PurchasesManifestReport = ({
       setReportsData(data);
       setisFetching(false);
     } catch (error) {
-      enqueueSnackbar('an error occurred', { variant: 'error' });
+      enqueueSnackbar(dict.errorOccurred, { variant: 'error' });
       setisFetching(false);
     }
   };
@@ -170,11 +171,11 @@ const PurchasesManifestReport = ({
           >
             <Grid container size={12}>
               <Grid size={belowLargeScreen ? 11 : 12}>
-                <Typography variant='h3'>Purchase Manifest</Typography>
+                <Typography variant='h3'>{dict.reportTitle}</Typography>
               </Grid>
               {belowLargeScreen && (
                 <Grid size={1}>
-                  <Tooltip title='Close'>
+                  <Tooltip title={dictionary.tooltips.close}>
                     <IconButton
                       size='small'
                       sx={{ mb: 1 }}
@@ -190,7 +191,7 @@ const PurchasesManifestReport = ({
             <Grid size={{ xs: 12, md: 6 }}>
               <Div sx={{ mt: 0.3 }}>
                 <DatePicker
-                  label='From (MM/DD/YYYY)'
+                  label={dict.fromDate}
                   minDate={dayjs(
                     authOrganization?.organization.recording_start_date
                   )}
@@ -218,7 +219,7 @@ const PurchasesManifestReport = ({
             <Grid size={{ xs: 12, md: 6 }}>
               <Div sx={{ mt: 0.3 }}>
                 <DatePicker
-                  label='To (MM/DD/YYYY)'
+                  label={dict.toDate}
                   minDate={dayjs(
                     authOrganization?.organization.recording_start_date
                   )}
@@ -246,7 +247,7 @@ const PurchasesManifestReport = ({
             <Grid size={{ xs: 12, md: 6 }}>
               <Div sx={{ mt: 0.3 }}>
                 <CostCenterSelector
-                  label='Cost Centers (leave empty for all)'
+                  label={dict.costCentersAll}
                   multiple={true}
                   allowSameType={true}
                   onChange={(cost_centers) => {
@@ -270,7 +271,7 @@ const PurchasesManifestReport = ({
             <Grid size={{ xs: 12, md: 6 }}>
               <Div sx={{ mt: 0.3 }}>
                 <StakeholderSelector
-                  label='Stake Holders'
+                  label={dict.stakeholders}
                   multiple={true}
                   onChange={(newValue) => {
                     if (newValue && Array.isArray(newValue)) {
@@ -288,11 +289,11 @@ const PurchasesManifestReport = ({
             <Grid container size={{ xs: 12, md: 12 }}>
               <Grid size={{ xs: 12, md: 6 }}>
                 <FormControl fullWidth size='small'>
-                  <InputLabel id='status-label'>Type</InputLabel>
+                  <InputLabel id='status-label'>{dict.type}</InputLabel>
                   <Select
                     labelId='status-label'
                     id='process-types-filter-select'
-                    label='Status'
+                    label={dict.type}
                     value={selectedStatus}
                     onChange={handleChange}
                     sx={{ textAlign: 'left' }}
@@ -340,7 +341,7 @@ const PurchasesManifestReport = ({
                       size='small'
                       variant='contained'
                     >
-                      Filter
+                      {dict.filter}
                     </LoadingButton>
                   </>
                 </Stack>
@@ -367,6 +368,7 @@ const PurchasesManifestReport = ({
                   organization={authOrganization?.organization}
                   user={user as User}
                   accessibleCostCenters={authOrganization?.costCenters}
+                  dictionary={dictionary}
                 />
               }
               fileName={`Purchase-Manifest-Report from ${readableDate(watch('from'), true)} to ${readableDate(watch('to'), true)}`}
@@ -376,7 +378,7 @@ const PurchasesManifestReport = ({
           !isFetching &&
           reportsData?.items.length < 1 && (
             <Alert variant='outlined' color='info' icon={<InfoOutline />}>
-              No records found for the selected filters
+              {dict.noRecords}
             </Alert>
           )
         )}

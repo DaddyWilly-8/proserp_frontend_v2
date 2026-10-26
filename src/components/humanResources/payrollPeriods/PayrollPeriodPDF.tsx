@@ -68,6 +68,7 @@ export interface PayrollPeriodPDFProp {
     unique_contributions_types: Array<any>;
   };
   isLoading?: boolean;
+  dictionary: any;
 }
 
 const styles = StyleSheet.create({
@@ -194,20 +195,23 @@ const styles = StyleSheet.create({
   },
 });
 
-const monthNames = [
-  'January',
-  'February',
-  'March',
-  'April',
-  'May',
-  'June',
-  'July',
-  'August',
-  'September',
-  'October',
-  'November',
-  'December',
+const MONTH_KEYS = [
+  'january',
+  'february',
+  'march',
+  'april',
+  'may',
+  'june',
+  'july',
+  'august',
+  'september',
+  'october',
+  'november',
+  'december',
 ];
+
+const DOTS_LONG = ' '+'.'.repeat(100);
+const DOTS_SHORT = '.'.repeat(30);
 
 const fmt = (value: number) =>
   value.toLocaleString(undefined, {
@@ -253,13 +257,16 @@ const PayrollPeriodPDF = ({
   hasTypes,
   employeeTypes,
   uniqueTypes,
+  dictionary,
 }: PayrollPeriodPDFProp) => {
+  const t = dictionary.humanResources.payrollPeriods;
+  const pv = t.periodView;
   const mainColor = (organization as any)?.settings?.main_color || '#2113AD';
   const lightColor = (organization as any)?.settings?.light_color || '#d9dfef';
   const contrastText =
     (organization as any)?.settings?.contrast_text || '#FFFFFF';
 
-  const periodLabel = `${monthNames[(period?.month ?? 1) - 1]} ${period?.year} - ${runs[0]?.cost_center?.name || 'Company-wide Run'}`;
+  const periodLabel = `${t.common.months[MONTH_KEYS[(period?.month ?? 1) - 1]] ?? ''} ${period?.year} - ${runs[0]?.cost_center?.name || pv.companyWideRun}`;
 
   const hasAllowances = hasTypes?.hasAllowances;
   const hasDeductions = hasTypes?.hasDeductions;
@@ -375,9 +382,9 @@ const PayrollPeriodPDF = ({
 
   return (
     <Document
-      title={`Salary Payroll ${periodLabel}`}
+      title={`${pv.salaryPayroll} ${periodLabel}`}
       author={(organization as any)?.name}
-      subject='Payroll Period'
+      subject={pv.pdfSubject}
     >
       <Page size='A3' orientation='landscape' style={styles.page}>
         <View style={styles.headerRow}>
@@ -386,7 +393,7 @@ const PayrollPeriodPDF = ({
           </View>
           <View style={{ alignItems: 'flex-end' }}>
             <Text style={{ ...styles.title, color: mainColor }}>
-              SALARY PAYROLL
+              {pv.salaryPayrollUpper}
             </Text>
             <Text style={styles.subtitle}>{periodLabel}</Text>
           </View>
@@ -404,7 +411,7 @@ const PayrollPeriodPDF = ({
                 borderColor: mainColor,
               }}
             >
-              COST CENTER
+              {pv.costCenterUpper}
             </Text>
             <Text
               style={{
@@ -415,7 +422,7 @@ const PayrollPeriodPDF = ({
                 borderColor: mainColor,
               }}
             >
-              RECRUITMENT
+              {pv.recruitmentUpper}
             </Text>
             <Text
               style={{
@@ -426,7 +433,7 @@ const PayrollPeriodPDF = ({
                 borderColor: mainColor,
               }}
             >
-              EMPLOYEE
+              {pv.employeeUpper}
             </Text>
             <Text
               style={{
@@ -437,7 +444,7 @@ const PayrollPeriodPDF = ({
                 borderColor: mainColor,
               }}
             >
-              EMPLOYER
+              {pv.employerUpper}
             </Text>
           </View>
 
@@ -451,7 +458,7 @@ const PayrollPeriodPDF = ({
                 flex: costCenterFlex,
               }}
             >
-              Cost Center
+              {pv.costCenter}
             </Text>
             <Text
               style={{
@@ -461,7 +468,7 @@ const PayrollPeriodPDF = ({
                 flex: serialFlex,
               }}
             >
-              S/N
+              {pv.sn}
             </Text>
             <Text
               style={{
@@ -471,7 +478,7 @@ const PayrollPeriodPDF = ({
                 flex: nameFlex,
               }}
             >
-              Employee
+              {pv.employeeCol}
             </Text>
             <Text
               style={{
@@ -481,7 +488,7 @@ const PayrollPeriodPDF = ({
                 flex: designationFlex,
               }}
             >
-              Designation
+              {pv.designation}
             </Text>
             <Text
               style={{
@@ -491,7 +498,7 @@ const PayrollPeriodPDF = ({
                 flex: colFlex,
               }}
             >
-              Basic Salary
+              {pv.basicSalary}
             </Text>
 
             {hasAllowances &&
@@ -505,7 +512,7 @@ const PayrollPeriodPDF = ({
                     flex: colFlex,
                   }}
                 >
-                  {type.label || 'Allowance'}
+                  {type.label || pv.allowance}
                 </Text>
               ))}
 
@@ -517,7 +524,7 @@ const PayrollPeriodPDF = ({
                 flex: colFlex,
               }}
             >
-              Gross
+              {pv.gross}
             </Text>
 
             {hasDeductions &&
@@ -531,7 +538,7 @@ const PayrollPeriodPDF = ({
                     flex: colFlex,
                   }}
                 >
-                  {type.label || 'Deduction'}
+                  {type.label || pv.deduction}
                 </Text>
               ))}
 
@@ -543,7 +550,7 @@ const PayrollPeriodPDF = ({
                 flex: colFlex,
               }}
             >
-              PAYE
+              {pv.paye}
             </Text>
             <Text
               style={{
@@ -553,7 +560,7 @@ const PayrollPeriodPDF = ({
                 flex: colFlex,
               }}
             >
-              Net Payable
+              {pv.netPayable}
             </Text>
 
             {hasContributions &&
@@ -567,7 +574,7 @@ const PayrollPeriodPDF = ({
                     flex: colFlex,
                   }}
                 >
-                  {type.label || 'Contribution'}
+                  {type.label || pv.contribution}
                 </Text>
               ))}
 
@@ -579,7 +586,7 @@ const PayrollPeriodPDF = ({
                 flex: colFlex,
               }}
             >
-              Total Empr. Cost
+              {pv.totalEmprCost}
             </Text>
           </View>
 
@@ -927,7 +934,7 @@ const PayrollPeriodPDF = ({
 
         <View style={styles.summaryWrap}>
           <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>Gross Pay by Employer</Text>
+            <Text style={styles.summaryLabel}>{pv.grossPayByEmployer}</Text>
             <Text style={styles.summaryBlank}></Text>
             <Text style={styles.summaryAmount}>{fmt(grossByEmployer)}</Text>
             <Text style={styles.summaryPercent}>
@@ -935,7 +942,7 @@ const PayrollPeriodPDF = ({
             </Text>
           </View>
           <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>Net Employee Payment</Text>
+            <Text style={styles.summaryLabel}>{pv.netEmployeePayment}</Text>
             <Text style={styles.summaryBlank}></Text>
             <Text style={styles.summaryAmount}>{fmt(netEmployeePayment)}</Text>
             <Text style={styles.summaryPercent}>
@@ -943,7 +950,7 @@ const PayrollPeriodPDF = ({
             </Text>
           </View>
           <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>Payroll Taxes & Benefits</Text>
+            <Text style={styles.summaryLabel}>{pv.payrollTaxesBenefits}</Text>
             <Text style={styles.summaryBlank}></Text>
             <Text style={styles.summaryAmount}>
               {fmt(payrollTaxesAndBenefits)}
@@ -953,7 +960,7 @@ const PayrollPeriodPDF = ({
             </Text>
           </View>
           <View style={styles.summaryRow}>
-            <Text style={styles.summarySubLabel}>P.A.Y.E</Text>
+            <Text style={styles.summarySubLabel}>{pv.payeDotted}</Text>
             <Text style={styles.summarySubAmount}>
               {fmt(payrollTotals.totalPaye)}
             </Text>
@@ -1006,29 +1013,26 @@ const PayrollPeriodPDF = ({
         <View style={styles.signaturesWrap}>
           <View style={styles.signatureRow}>
             <Text style={styles.signatureLabel}>
-              Prepared
-              by.............................................................................................................
+              {`${pv.preparedBy}${DOTS_LONG}`}
             </Text>
             <Text style={styles.signatureText}>
-              Signature..................................
+              {`${pv.signature}${DOTS_SHORT}`}
             </Text>
           </View>
           <View style={styles.signatureRow}>
             <Text style={styles.signatureLabel}>
-              Verified
-              by................................................................................................................
+              {`${pv.verifiedBy}${DOTS_LONG}`}
             </Text>
             <Text style={styles.signatureText}>
-              Signature..................................
+              {`${pv.signature}${DOTS_SHORT}`}
             </Text>
           </View>
           <View style={styles.signatureRow}>
             <Text style={styles.signatureLabel}>
-              Approved
-              by..............................................................................................................
+              {`${pv.approvedBy}${DOTS_LONG}`}
             </Text>
             <Text style={styles.signatureText}>
-              Signature..................................
+              {`${pv.signature}${DOTS_SHORT}`}
             </Text>
           </View>
         </View>

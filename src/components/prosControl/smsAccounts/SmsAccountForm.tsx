@@ -20,6 +20,7 @@ import { Div } from '@jumbo/shared';
 import smsAccountsServices from './smsAccounts-services';
 import organizationServices from '@/components/organizations/organizationServices';
 import { getErrorMessage } from '@/utilities/helpers/errorHandler';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface OrganizationOption {
   id: number;
@@ -34,6 +35,7 @@ interface FormData {
 }
 
 const SmsAccountForm = ({ setOpenDialog }: { setOpenDialog: (open: boolean) => void }) => {
+  const dictionary = useDictionary();
   const queryClient = useQueryClient();
   const { enqueueSnackbar } = useSnackbar();
 
@@ -43,10 +45,10 @@ const SmsAccountForm = ({ setOpenDialog }: { setOpenDialog: (open: boolean) => v
   });
 
   const validationSchema = yup.object({
-    organization_id: yup.number().required('Organization is required').nullable(),
-    unit_price: yup.number().min(0, 'Must be at least 0').required('Unit price is required'),
-    sender_id: yup.string().max(11, 'Sender ID must be at most 11 characters').default(''),
-    low_balance_threshold: yup.number().min(0, 'Must be at least 0').required(),
+    organization_id: yup.number().required(dictionary.forms.smsAccounts.form.errors.organizationRequired).nullable(),
+    unit_price: yup.number().min(0, dictionary.forms.smsAccounts.form.errors.min0).required(dictionary.forms.smsAccounts.form.errors.unitPriceRequired),
+    sender_id: yup.string().max(11, dictionary.forms.smsAccounts.form.errors.senderIdMax).default(''),
+    low_balance_threshold: yup.number().min(0, dictionary.forms.smsAccounts.form.errors.min0).required(),
   });
 
   const {
@@ -62,7 +64,7 @@ const SmsAccountForm = ({ setOpenDialog }: { setOpenDialog: (open: boolean) => v
     mutationFn: (data: FormData) => smsAccountsServices.add(data),
     onSuccess: () => {
       setOpenDialog(false);
-      enqueueSnackbar('SMS account created successfully', { variant: 'success' });
+      enqueueSnackbar(dictionary.forms.smsAccounts.form.messages.created, { variant: 'success' });
       queryClient.invalidateQueries({ queryKey: ['sms-accounts'] });
     },
     onError: (error) => {
@@ -74,7 +76,7 @@ const SmsAccountForm = ({ setOpenDialog }: { setOpenDialog: (open: boolean) => v
 
   return (
     <>
-      <DialogTitle>New SMS Account</DialogTitle>
+      <DialogTitle>{dictionary.forms.smsAccounts.form.newTitle}</DialogTitle>
       <DialogContent>
         <form autoComplete='off' onSubmit={onSubmit}>
           <Grid container spacing={2} sx={{ mt: 0.5 }}>
@@ -92,7 +94,7 @@ const SmsAccountForm = ({ setOpenDialog }: { setOpenDialog: (open: boolean) => v
                       renderInput={(params) => (
                         <TextField
                           {...params}
-                          label='Organization'
+                          label={dictionary.forms.smsAccounts.form.labels.organization}
                           size='small'
                           error={!!errors.organization_id}
                           helperText={errors.organization_id?.message}
@@ -111,7 +113,7 @@ const SmsAccountForm = ({ setOpenDialog }: { setOpenDialog: (open: boolean) => v
                   render={({ field }) => (
                     <TextField
                       {...field}
-                      label='Unit Price'
+                      label={dictionary.forms.smsAccounts.form.labels.unitPrice}
                       type='number'
                       fullWidth
                       size='small'
@@ -130,7 +132,7 @@ const SmsAccountForm = ({ setOpenDialog }: { setOpenDialog: (open: boolean) => v
                   render={({ field }) => (
                     <TextField
                       {...field}
-                      label='Low Balance Threshold'
+                      label={dictionary.forms.smsAccounts.form.labels.lowBalanceThreshold}
                       type='number'
                       fullWidth
                       size='small'
@@ -149,7 +151,7 @@ const SmsAccountForm = ({ setOpenDialog }: { setOpenDialog: (open: boolean) => v
                   render={({ field }) => (
                     <TextField
                       {...field}
-                      label='Sender ID (optional, max 11 characters)'
+                      label={dictionary.forms.smsAccounts.form.labels.senderId}
                       fullWidth
                       size='small'
                       error={!!errors.sender_id}
@@ -162,10 +164,10 @@ const SmsAccountForm = ({ setOpenDialog }: { setOpenDialog: (open: boolean) => v
           </Grid>
           <DialogActions>
             <Button size='small' onClick={() => setOpenDialog(false)}>
-              Cancel
+              {dictionary.forms.smsAccounts.form.buttons.cancel}
             </Button>
             <LoadingButton type='submit' variant='contained' size='small' loading={isPending}>
-              Save
+              {dictionary.forms.smsAccounts.form.buttons.save}
             </LoadingButton>
           </DialogActions>
         </form>

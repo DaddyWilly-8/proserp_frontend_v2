@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import RecurringTag, { RECURRING_SOURCE } from '@/components/accounts/recurringTransactions/RecurringTag';
 import {
   Alert,
   Dialog,
@@ -28,6 +29,7 @@ import { CostCenter } from '@/components/masters/costCenters/CostCenterType';
 import { Currency } from '@/components/masters/Currencies/CurrencyType';
 import purchaseServices from '@/components/procurement/purchases/purchase-services';
 import PurchaseOrderOnScreenPreview from '@/components/procurement/purchases/PurchaseOrderOnScreenPreview';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface TransactionItem {
   debitLedgerName: string;
@@ -40,6 +42,7 @@ interface TransactionItem {
 
 interface Transaction {
   voucherNo: string;
+  system_source?: string | null;
   reference?: string;
   transactionDate: string;
   creditLedgerName: string;
@@ -64,6 +67,7 @@ const LinkedPurchaseDialog: React.FC<{
   orderId: number;
   setOpen: (open: boolean) => void;
 }> = ({ orderId, setOpen }) => {
+  const dictionary = useDictionary();
   const { data: order, isFetching } = useQuery({
     queryKey: ['purchaseOrder', { id: orderId }],
     queryFn: () => purchaseServices.orderDetails(orderId),
@@ -76,7 +80,7 @@ const LinkedPurchaseDialog: React.FC<{
   return (
     <DialogContent>
       <Box textAlign='right' mb={1}>
-        <Tooltip title='Close'>
+        <Tooltip title={dictionary.tooltips.close}>
           <IconButton size='small' onClick={() => setOpen(false)}>
             <HighlightOff color='primary' />
           </IconButton>
@@ -112,6 +116,7 @@ const PaymentOnScreenPreview: React.FC<PaymentOnScreenPreviewProps> = ({
         </Typography>
         <Typography variant="h6" fontWeight="bold" gutterBottom>
           {transaction.voucherNo}
+          {transaction.system_source === RECURRING_SOURCE && <RecurringTag />}
         </Typography>
         {transaction.reference && (
           <Typography variant="body1" color="text.secondary">

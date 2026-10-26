@@ -13,6 +13,7 @@ import { Stakeholder } from '@/components/masters/stakeholders/StakeholderType';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { Vendor } from '@/components/processApproval/RequisitionType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface FormValues {
   stakeholder_id: number;
@@ -40,6 +41,7 @@ function ProductVendor({
   vendors = [],
   setVendors,
 }: ProductVendorProps) {
+  const dictionary = useDictionary();
   const [isAdding, setIsAdding] = useState(false);
   const { stakeholders } = useStakeholderSelect();
   const [stakeholderQuickAddDisplay, setStakeholderQuickAddDisplay] = useState(false);
@@ -49,11 +51,11 @@ function ProductVendor({
   const validationSchema = yup.object({
     stakeholder_id: yup
       .number()
-      .required("Stakeholder is required")
-      .typeError('Stakeholder is required')
+      .required(dictionary.forms.requisitions.productVendor.validation.stakeholder)
+      .typeError(dictionary.forms.requisitions.productVendor.validation.stakeholder)
       .test(
         'unique-stakeholder',
-        'Vendor already exists',
+        dictionary.forms.requisitions.productVendor.validation.vendorExists,
         (value) => {
           // Exclude the current vendor being edited
           const isEditing = index > -1 && vendors[index]?.stakeholder?.id === value;
@@ -126,13 +128,13 @@ function ProductVendor({
           <>
             {!isFromApproval && (
               <Grid size={12}>
-                <Typography variant='h5' textAlign={'center'}>Add Vendor</Typography>
+                <Typography variant='h5' textAlign={'center'}>{dictionary.forms.requisitions.productVendor.addVendor}</Typography>
               </Grid>
             )}
             <Grid size={{xs: 12, md: 5}}>
               <Div sx={{ mt: 0.3 }}>
                 <StakeholderSelector
-                  label='Vendor'
+                  label={dictionary.forms.requisitions.productVendor.vendor}
                   defaultValue={vendor?.stakeholder_id}
                   frontError={errors.stakeholder_id ? { message: errors.stakeholder_id.message || '' } : undefined}
                   addedStakeholder={addedStakeholder}
@@ -146,7 +148,7 @@ function ProductVendor({
                   }}
                   startAdornment= {
                     checkOrganizationPermission(PERMISSIONS.STAKEHOLDERS_CREATE) && (
-                      <Tooltip title="Add Client">
+                      <Tooltip title={dictionary.tooltips.addClient}>
                         <AddOutlined
                           onClick={() => setStakeholderQuickAddDisplay(true)}
                           sx={{ cursor: 'pointer' }}
@@ -163,7 +165,7 @@ function ProductVendor({
                   size="small"
                   fullWidth
                   defaultValue={vendor?.remarks}
-                  label="Remarks"
+                  label={dictionary.forms.requisitions.common.remarks}
                   multiline={true}
                   rows={2}
                   onChange={(e) => {
@@ -185,16 +187,16 @@ function ProductVendor({
               >
                 {vendor ? (
                   <>
-                    <CheckOutlined fontSize='small' /> Done
+                    <CheckOutlined fontSize='small' /> {dictionary.forms.requisitions.common.done}
                   </>
                 ) : (
                   <>
-                    <AddOutlined fontSize='small' /> Add
+                    <AddOutlined fontSize='small' /> {dictionary.forms.requisitions.common.add}
                   </>
                 )}
               </LoadingButton>
               {vendor && (
-                <Tooltip title='Close Edit'>
+                <Tooltip title={dictionary.tooltips.closeEdit}>
                   <IconButton
                     size='small'
                     onClick={() => {

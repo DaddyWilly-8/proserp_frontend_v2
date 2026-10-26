@@ -35,11 +35,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useSnackbar } from 'notistack';
 import { useState } from 'react';
 import humanResourcesServices from '../humanResourcesServices';
-
-const MONTH_NAMES = [
-  'January', 'February', 'March', 'April', 'May', 'June',
-  'July', 'August', 'September', 'October', 'November', 'December',
-];
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface LoanStatementProps {
   loanId: number;
@@ -109,6 +105,7 @@ interface SkipRow {
  * future PayrollPeriod rows to exist yet (see LoanReportService::statement()).
  */
 const LoanStatement = ({ loanId, service }: LoanStatementProps) => {
+  const dictionary = useDictionary();
   const fetchStatement = service ?? humanResourcesServices.getLoanStatement;
   const { checkOrganizationPermission } = useJumboAuth();
   const { showDialog, hideDialog } = useJumboDialog();
@@ -136,7 +133,10 @@ const LoanStatement = ({ loanId, service }: LoanStatementProps) => {
 
   const periodOptions = (periodsData?.data || []).map((period: any) => ({
     id: period.id,
-    label: `${MONTH_NAMES[period.month - 1] || period.month} ${period.year}`,
+    label: `${
+      dictionary.humanResources.loanRequests.statement.months[period.month - 1] ||
+      period.month
+    } ${period.year}`,
   }));
 
   const invalidateAfterRecoveryChange = () => {
@@ -153,7 +153,7 @@ const LoanStatement = ({ loanId, service }: LoanStatementProps) => {
       invalidateAfterRecoveryChange();
       enqueueSnackbar(
         response?.message ||
-          "That period's installment has been excused",
+          dictionary.humanResources.loanRequests.statement.messages.excused,
         { variant: 'success' }
       );
       setSkipDialogOpen(false);
@@ -162,7 +162,7 @@ const LoanStatement = ({ loanId, service }: LoanStatementProps) => {
     },
     onError: (error: any) => {
       enqueueSnackbar(
-        error?.response?.data?.message || 'Something went wrong',
+        error?.response?.data?.message || dictionary.humanResources.loanRequests.common.somethingWentWrong,
         { variant: 'error' }
       );
     },
@@ -172,11 +172,11 @@ const LoanStatement = ({ loanId, service }: LoanStatementProps) => {
     mutationFn: humanResourcesServices.unskipLoanRecovery,
     onSuccess: () => {
       invalidateAfterRecoveryChange();
-      enqueueSnackbar('Recovery skip reversed', { variant: 'success' });
+      enqueueSnackbar(dictionary.humanResources.loanRequests.statement.messages.skipReversed, { variant: 'success' });
     },
     onError: (error: any) => {
       enqueueSnackbar(
-        error?.response?.data?.message || 'Something went wrong',
+        error?.response?.data?.message || dictionary.humanResources.loanRequests.common.somethingWentWrong,
         { variant: 'error' }
       );
     },
@@ -184,9 +184,8 @@ const LoanStatement = ({ loanId, service }: LoanStatementProps) => {
 
   const handleUnskip = (skipId: number) => {
     showDialog({
-      title: 'Reverse Recovery Skip',
-      content:
-        "This puts that period's installment back into the schedule. Continue?",
+      title: dictionary.humanResources.loanRequests.statement.dialog.reverseSkipTitle,
+      content: dictionary.humanResources.loanRequests.statement.dialog.reverseSkipContent,
       onYes: () => {
         hideDialog();
         unskipRecovery({ id: loanId, skipId });
@@ -214,11 +213,11 @@ const LoanStatement = ({ loanId, service }: LoanStatementProps) => {
       queryClient.invalidateQueries({ queryKey: ['showLoanRequest', loanId] });
       queryClient.invalidateQueries({ queryKey: ['loanRequests'] });
       queryClient.invalidateQueries({ queryKey: ['transactions'] });
-      enqueueSnackbar('Repayment receipt reversed', { variant: 'success' });
+      enqueueSnackbar(dictionary.humanResources.loanRequests.statement.messages.receiptReversed, { variant: 'success' });
     },
     onError: (error: any) => {
       enqueueSnackbar(
-        error?.response?.data?.message || 'Something went wrong',
+        error?.response?.data?.message || dictionary.humanResources.loanRequests.common.somethingWentWrong,
         { variant: 'error' }
       );
     },
@@ -237,9 +236,8 @@ const LoanStatement = ({ loanId, service }: LoanStatementProps) => {
 
   const handleReverseReceipt = (loanRepaymentId: number) => {
     showDialog({
-      title: 'Reverse Repayment Receipt',
-      content:
-        'This deletes the receipt and its journal, and puts the repayment back to initiated so it can be corrected. Continue?',
+      title: dictionary.humanResources.loanRequests.statement.dialog.reverseReceiptTitle,
+      content: dictionary.humanResources.loanRequests.statement.dialog.reverseReceiptContent,
       onYes: () => {
         hideDialog();
         reverseReceipt(loanRepaymentId);
@@ -269,18 +267,19 @@ const LoanStatement = ({ loanId, service }: LoanStatementProps) => {
   return (
     <Box>
       <Typography variant='h6' mb={2}>
-        {loan.employee_name || `Employee #${loan.employee_id}`}
+        {loan.employee_name ||
+          dictionary.humanResources.loanRequests.common.employeeFallback.replace('{id}', String(loan.employee_id))}
       </Typography>
 
       <Grid container spacing={1.5} mb={3}>
-        <SummaryCard label='Amount Approved' value={money(summary.amount_approved)} />
-        <SummaryCard label='Recovered So Far' value={money(summary.amount_recovered)} />
-        <SummaryCard label='Outstanding Balance' value={money(summary.outstanding_balance)} />
+        <SummaryCard label={dictionary.humanResources.loanRequests.statement.summary.amountApproved} value={money(summary.amount_approved)} />
+        <SummaryCard label={dictionary.humanResources.loanRequests.statement.summary.recoveredSoFar} value={money(summary.amount_recovered)} />
+        <SummaryCard label={dictionary.humanResources.loanRequests.statement.summary.outstandingBalance} value={money(summary.outstanding_balance)} />
         <SummaryCard
-          label='Projected Payoff'
+          label={dictionary.humanResources.loanRequests.statement.summary.projectedPayoff}
           value={
             summary.fully_recovered
-              ? 'Fully Recovered'
+              ? dictionary.humanResources.loanRequests.statement.summary.fullyRecovered
               : summary.projected_payoff || '—'
           }
         />
@@ -295,7 +294,7 @@ const LoanStatement = ({ loanId, service }: LoanStatementProps) => {
             mb={1}
           >
             <Typography variant='subtitle1' fontWeight={600}>
-              Excused Periods
+              {dictionary.humanResources.loanRequests.statement.excused.heading}
             </Typography>
             <Button
               size='small'
@@ -303,21 +302,21 @@ const LoanStatement = ({ loanId, service }: LoanStatementProps) => {
               startIcon={<AddCircleOutline />}
               onClick={() => setSkipDialogOpen(true)}
             >
-              Skip a Period
+              {dictionary.humanResources.loanRequests.statement.excused.skipButton}
             </Button>
           </Stack>
           {skips.length === 0 ? (
             <Alert severity='info' variant='outlined' sx={{ mb: 3 }}>
-              No periods have been excused for this loan.
+              {dictionary.humanResources.loanRequests.statement.excused.empty}
             </Alert>
           ) : (
             <TableContainer sx={{ mb: 3, overflowX: 'auto' }}>
               <Table size='small'>
                 <TableHead>
                   <TableRow>
-                    <TableCell>Period</TableCell>
-                    <TableCell>Remarks</TableCell>
-                    <TableCell align='right'>Actions</TableCell>
+                    <TableCell>{dictionary.humanResources.loanRequests.statement.excused.columns.period}</TableCell>
+                    <TableCell>{dictionary.humanResources.loanRequests.statement.excused.columns.remarks}</TableCell>
+                    <TableCell align='right'>{dictionary.humanResources.loanRequests.statement.excused.columns.actions}</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -326,7 +325,7 @@ const LoanStatement = ({ loanId, service }: LoanStatementProps) => {
                       <TableCell>{skip.period_label || `#${skip.period_id}`}</TableCell>
                       <TableCell>{skip.remarks || '—'}</TableCell>
                       <TableCell align='right'>
-                        <Tooltip title='Reverse — put this period back in the schedule'>
+                        <Tooltip title={dictionary.tooltips.reversePutThisPeriodBackIn}>
                           <IconButton
                             size='small'
                             disabled={isUnskipping}
@@ -348,14 +347,18 @@ const LoanStatement = ({ loanId, service }: LoanStatementProps) => {
       {initiatedRepayments.length > 0 && (
         <>
           <Typography variant='subtitle1' fontWeight={600} mb={1}>
-            Repayments Awaiting Receipt
+            {dictionary.humanResources.loanRequests.statement.awaiting.heading}
           </Typography>
           <Alert severity='warning' variant='outlined' sx={{ mb: 3 }}>
             {initiatedRepayments.map((row: InitiatedRepaymentRow) => (
               <Box key={row.id} sx={{ mb: 0.5 }}>
-                {money(row.amount)} initiated by {row.requested_by || '—'}
-                {row.narration ? ` — ${row.narration}` : ''} — awaiting Accounts
-                to receipt it.
+                {dictionary.humanResources.loanRequests.statement.awaiting.row
+                  .replace('{amount}', money(row.amount))
+                  .replace('{name}', row.requested_by || '—')
+                  .replace(
+                    '{narration}',
+                    row.narration ? ` — ${row.narration}` : ''
+                  )}
               </Box>
             ))}
           </Alert>
@@ -363,23 +366,21 @@ const LoanStatement = ({ loanId, service }: LoanStatementProps) => {
       )}
 
       <Typography variant='subtitle1' fontWeight={600} mb={1}>
-        Repayment History
+        {dictionary.humanResources.loanRequests.statement.history.heading}
       </Typography>
       {history.length === 0 ? (
         <Alert severity='info' variant='outlined' sx={{ mb: 3 }}>
-          No repayments recovered yet — manual repayments will appear here
-          once Accounts receipts them, labeled "Manual" alongside payroll
-          installments.
+          {dictionary.humanResources.loanRequests.statement.history.empty}
         </Alert>
       ) : (
         <TableContainer sx={{ mb: 3, overflowX: 'auto' }}>
           <Table size='small'>
             <TableHead>
               <TableRow>
-                <TableCell>Period / Source</TableCell>
-                <TableCell align='right'>Amount Recovered</TableCell>
-                <TableCell align='right'>Balance After</TableCell>
-                {canReverseReceipt && <TableCell align='right'>Actions</TableCell>}
+                <TableCell>{dictionary.humanResources.loanRequests.statement.history.columns.periodSource}</TableCell>
+                <TableCell align='right'>{dictionary.humanResources.loanRequests.statement.history.columns.amountRecovered}</TableCell>
+                <TableCell align='right'>{dictionary.humanResources.loanRequests.statement.history.columns.balanceAfter}</TableCell>
+                {canReverseReceipt && <TableCell align='right'>{dictionary.humanResources.loanRequests.statement.excused.columns.actions}</TableCell>}
               </TableRow>
             </TableHead>
             <TableBody>
@@ -389,7 +390,7 @@ const LoanStatement = ({ loanId, service }: LoanStatementProps) => {
                     {row.period_label}
                     {row.type === 'manual_repayment' && (
                       <Chip
-                        label='Manual'
+                        label={dictionary.humanResources.loanRequests.statement.history.manual}
                         size='small'
                         color='info'
                         variant='outlined'
@@ -407,7 +408,7 @@ const LoanStatement = ({ loanId, service }: LoanStatementProps) => {
                   {canReverseReceipt && (
                     <TableCell align='right'>
                       {row.type === 'manual_repayment' && row.loan_repayment_id && (
-                        <Tooltip title='Reverse Receipt'>
+                        <Tooltip title={dictionary.tooltips.reverseReceipt}>
                           <IconButton
                             size='small'
                             disabled={isReversingReceipt}
@@ -427,30 +428,28 @@ const LoanStatement = ({ loanId, service }: LoanStatementProps) => {
       )}
 
       <Typography variant='subtitle1' fontWeight={600} mb={1}>
-        Recovery Projection
+        {dictionary.humanResources.loanRequests.statement.projection.heading}
       </Typography>
       {summary.fully_recovered ? (
         <Alert severity='success' variant='outlined'>
-          This loan has been fully recovered.
+          {dictionary.humanResources.loanRequests.statement.projection.fullyRecovered}
         </Alert>
       ) : projection.length === 0 ? (
         <Alert severity='warning' variant='outlined'>
-          No per-period recovery amount is set on this loan yet — a projection
-          isn&apos;t available until it&apos;s approved with an installment amount.
+          {dictionary.humanResources.loanRequests.statement.projection.unavailable}
         </Alert>
       ) : (
         <>
           <Alert severity='info' variant='outlined' sx={{ mb: 1.5 }}>
-            Estimate only — assumes the current deduction keeps running
-            unchanged every future period.
+            {dictionary.humanResources.loanRequests.statement.projection.estimateOnly}
           </Alert>
           <TableContainer sx={{ overflowX: 'auto' }}>
             <Table size='small'>
               <TableHead>
                 <TableRow>
-                  <TableCell>Period (Projected)</TableCell>
-                  <TableCell align='right'>Expected Deduction</TableCell>
-                  <TableCell align='right'>Balance After</TableCell>
+                  <TableCell>{dictionary.humanResources.loanRequests.statement.projection.columns.periodProjected}</TableCell>
+                  <TableCell align='right'>{dictionary.humanResources.loanRequests.statement.projection.columns.expectedDeduction}</TableCell>
+                  <TableCell align='right'>{dictionary.humanResources.loanRequests.statement.history.columns.balanceAfter}</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -476,12 +475,11 @@ const LoanStatement = ({ loanId, service }: LoanStatementProps) => {
         fullWidth
         maxWidth='xs'
       >
-        <DialogTitle>Skip a Period's Recovery</DialogTitle>
+        <DialogTitle>{dictionary.humanResources.loanRequests.statement.skipDialog.title}</DialogTitle>
         <DialogContent>
           <Stack spacing={2} sx={{ mt: 1 }}>
             <Alert severity='info' variant='outlined'>
-              That period's installment is excused, not lost — it's collected
-              one period later instead, and the loan still recovers in full.
+              {dictionary.humanResources.loanRequests.statement.skipDialog.info}
             </Alert>
             <Autocomplete
               size='small'
@@ -492,24 +490,24 @@ const LoanStatement = ({ loanId, service }: LoanStatementProps) => {
               value={skipPeriod}
               onChange={(_event, newValue) => setSkipPeriod(newValue)}
               renderInput={(params) => (
-                <TextField {...params} label='Payroll Period' />
+                <TextField {...params} label={dictionary.humanResources.loanRequests.statement.skipDialog.payrollPeriod} />
               )}
             />
             <TextField
-              label='Remarks (optional)'
+              label={dictionary.humanResources.loanRequests.statement.skipDialog.remarksOptional}
               size='small'
               fullWidth
               multiline
               minRows={2}
               value={skipRemarks}
               onChange={(e) => setSkipRemarks(e.target.value)}
-              placeholder='e.g. hardship exception'
+              placeholder={dictionary.humanResources.loanRequests.statement.skipDialog.remarksPlaceholder}
             />
           </Stack>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setSkipDialogOpen(false)} disabled={isSkipping}>
-            Cancel
+            {dictionary.humanResources.loanRequests.common.cancel}
           </Button>
           <LoadingButton
             variant='contained'
@@ -517,7 +515,7 @@ const LoanStatement = ({ loanId, service }: LoanStatementProps) => {
             disabled={!skipPeriod}
             onClick={handleSkipSubmit}
           >
-            Skip
+            {dictionary.humanResources.loanRequests.statement.skipDialog.skip}
           </LoadingButton>
         </DialogActions>
       </Dialog>

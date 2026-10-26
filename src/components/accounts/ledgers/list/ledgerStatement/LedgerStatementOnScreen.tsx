@@ -1,4 +1,5 @@
 import { readableDate } from '@/app/helpers/input-sanitization-helpers';
+import RecurringTag from '@/components/accounts/recurringTransactions/RecurringTag';
 import { Organization } from '@/types/auth-types';
 import {
   Box,
@@ -41,6 +42,7 @@ interface Transaction {
   correspondingLedger?: string | null;
   isCancelled?: boolean;
   isReversal?: boolean;
+  isScheduled?: boolean;
 }
 
 interface TransactionsData {
@@ -160,6 +162,7 @@ const LedgerStatementOnScreen: React.FC<LedgerStatementOnScreenProps> = ({
             balance_foreign: hasForeignCurrency ? foreignOpeningBalance : null,
             isCancelled: false,
             isReversal: false,
+            isScheduled: false,
           },
         ]
       : []),
@@ -196,6 +199,7 @@ const LedgerStatementOnScreen: React.FC<LedgerStatementOnScreenProps> = ({
         balance_foreign: hasForeignCurrency ? foreignRunningBalance : null,
         isCancelled: transaction.isCancelled,
         isReversal: transaction.isReversal,
+        isScheduled: transaction.isScheduled,
       };
     }),
   ];
@@ -327,6 +331,7 @@ const LedgerStatementOnScreen: React.FC<LedgerStatementOnScreenProps> = ({
                     sx={{ ml: 1, height: 18, fontSize: 11 }}
                   />
                 )}
+                {row.isScheduled && <RecurringTag />}
               </TableCell>
               <TableCell>{row.correspondingLedger}</TableCell>
               <TableCell align='right'>

@@ -22,8 +22,10 @@ import CostCenterSelector from '@/components/masters/costCenters/CostCenterSelec
 import LedgerSelect from '@/components/accounts/ledgers/forms/LedgerSelect';
 import { BackdropSpinner } from '@/shared/ProgressIndicators/BackdropSpinner';
 import { useLedgerSelect } from '@/components/accounts/ledgers/forms/LedgerSelectProvider';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function InventoryTransferForm({ toggleOpen, transfer = null, type }) {
+  const dictionary = useDictionary();
   const [items, setItems] = useState(transfer ? transfer.items: []);
   const { activeStore, mainStore } = useStoreProfile();
   const [change_cost_center, setCostCenterChange] = useState(transfer ? (transfer?.cost_center_change_transfer !== null ? true : false) : false);
@@ -39,19 +41,19 @@ function InventoryTransferForm({ toggleOpen, transfer = null, type }) {
   const [submitItemForm, setSubmitItemForm] = useState(false);
 
   const validationSchema = yup.object({
-    transfer_date: yup.string().required('Transfer Date is required'),
-    narration: yup.string().required('Narration is required'),
+    transfer_date: yup.string().required(dictionary.forms.stores.inventoryTransfer.errors.validation.transferDate.required),
+    narration: yup.string().required(dictionary.forms.stores.inventoryTransfer.errors.validation.narration.required),
     destination_store_id: yup.number().when('type', {
       is: (type) => type === 'external' || type === 'internal',
-      then: (schema) => schema.required('Destination Store is required').typeError('Destination Store is required'),
+      then: (schema) => schema.required(dictionary.forms.stores.inventoryTransfer.errors.validation.destinationStore.required).typeError(dictionary.forms.stores.inventoryTransfer.errors.validation.destinationStore.required),
       otherwise: (schema) => schema.nullable()
     }),
     receivable_ledger_id: yup.mixed().when(['type', 'change_cost_center'], {
       is: (type, change_cost_center) =>
         type?.toLowerCase() === 'cost center change' || change_cost_center === 1,
       then: (schema) => schema
-        .required('Ledger is required')
-        .typeError('Ledger is required'),
+        .required(dictionary.forms.stores.inventoryTransfer.errors.validation.ledger.required)
+        .typeError(dictionary.forms.stores.inventoryTransfer.errors.validation.ledger.required),
       otherwise: (schema) => schema.nullable()
     }),
   });
@@ -121,7 +123,7 @@ function InventoryTransferForm({ toggleOpen, transfer = null, type }) {
     if (items.length === 0) {
       setError(`items`, {
         type: "manual",
-        message: "You must add at least one item",
+        message: dictionary.forms.stores.inventoryTransfer.errors.validation.items.min,
       });
       return;
     }
@@ -182,18 +184,18 @@ function InventoryTransferForm({ toggleOpen, transfer = null, type }) {
           <form autoComplete='off'>
             <Grid size={12} textAlign={"center"} mb={2}>
               {!transfer
-                ? type === 'external' ? 'New External Inventory Transfer'
-                  : type === 'internal' ? 'New Internal Inventory Transfer'
-                    : type === 'cost center change' ? 'New Cost Centers Inventory Transfer'
+                ? type === 'external' ? dictionary.forms.stores.inventoryTransfer.titles.newExternal
+                  : type === 'internal' ? dictionary.forms.stores.inventoryTransfer.titles.newInternal
+                    : type === 'cost center change' ? dictionary.forms.stores.inventoryTransfer.titles.newCostCenters
                       : ''
-                : `Edit ${transfer.transferNo}`}
+                : dictionary.forms.stores.inventoryTransfer.titles.edit.replace('{transferNo}', transfer.transferNo)}
             </Grid>
             <Grid container spacing={1}>
               <Grid size={{xs: 12, md: 6, lg: 6}}>
                 <Div sx={{ mt: 1 }}>
                   <DateTimePicker
                     fullWidth
-                    label="Transfer Date"
+                    label={dictionary.forms.stores.inventoryTransfer.labels.transferDate}
                     defaultValue={transfer_date}
                     minDate={checkOrganizationPermission(PERMISSIONS.INVENTORY_TRANSFERS_BACKDATE) ? dayjs(authOrganization.organization.recording_start_date) : dayjs().startOf('day')}
                     maxDate={checkOrganizationPermission(PERMISSIONS.INVENTORY_TRANSFERS_POSTDATE) ? dayjs().add(10,'year').endOf('year') : dayjs().endOf('day')}
@@ -221,7 +223,7 @@ function InventoryTransferForm({ toggleOpen, transfer = null, type }) {
                         proposedOptions={mainStore ? [mainStore] : null}
                         excludeStores={[activeStore]}
                         defaultValue={!!transfer ? transfer.destination_store : null}
-                        label="Destination Store"
+                        label={dictionary.forms.stores.inventoryTransfer.labels.destinationStore}
                         frontError={errors.destination_store_id}
                         onChange={(newValue) => {
                           setValue('destination_store_id', newValue ? newValue.id : null, {
@@ -246,7 +248,7 @@ function InventoryTransferForm({ toggleOpen, transfer = null, type }) {
                         renderInput={(params) => (
                           <TextField
                             {...params}
-                            label="Destination"
+                            label={dictionary.forms.stores.inventoryTransfer.labels.destination}
                             size="small"
                             fullWidth
                             error={!!errors.destination_store_id}
@@ -268,7 +270,7 @@ function InventoryTransferForm({ toggleOpen, transfer = null, type }) {
                       <CostCenterSelector
                         multiple={false}
                         withNotSpecified={true}
-                        label={type === 'cost center change' ? "Source Cost Center" : "Cost Center"}
+                        label={type === 'cost center change' ? dictionary.forms.stores.inventoryTransfer.labels.sourceCostCenter : dictionary.forms.stores.inventoryTransfer.labels.costCenter}
                         defaultValue={transfer?.source_cost_center}
                         onChange={(newValue) => {
                           setValue(`source_cost_center_id`, newValue ? newValue.id : null, {
@@ -292,7 +294,7 @@ function InventoryTransferForm({ toggleOpen, transfer = null, type }) {
                     <Div sx={{ mt: 1 }}>
                       <CostCenterSelector
                         multiple={false}
-                        label="Destination Cost Center"
+                        label={dictionary.forms.stores.inventoryTransfer.labels.destinationCostCenter}
                         removedCostCentersIds={true}
                         removedCostCenters={[watch(`source_cost_center_id`)]}
                         withNotSpecified={true}
@@ -310,7 +312,7 @@ function InventoryTransferForm({ toggleOpen, transfer = null, type }) {
                     <Div sx={{ mt: 1 }}>
                       <LedgerSelect
                         multiple={false}
-                        label="Receivable Account"
+                        label={dictionary.forms.stores.inventoryTransfer.labels.receivableAccount}
                         allowedGroups={['Accounts Receivable','Accounts Payable']}
                         defaultValue={ungroupedLedgerOptions.find(
                           (ledger) => ledger.id === watch('receivable_ledger_id')
@@ -343,7 +345,7 @@ function InventoryTransferForm({ toggleOpen, transfer = null, type }) {
                           });
                         }}
                       />
-                      Change Cost Center
+                      {dictionary.forms.stores.inventoryTransfer.labels.changeCostCenter}
                     </Div>
                   </Grid>
                   {watch(`change_cost_center`) === 1 &&
@@ -352,7 +354,7 @@ function InventoryTransferForm({ toggleOpen, transfer = null, type }) {
                         <Div sx={{ mt: 1 }}>
                           <CostCenterSelector
                             multiple={false}
-                            label="Destination Cost Center"
+                            label={dictionary.forms.stores.inventoryTransfer.labels.destinationCostCenter}
                             removedCostCentersIds={true}
                             removedCostCenters={[watch(`source_cost_center_id`)]}
                             withNotSpecified={true}
@@ -370,7 +372,7 @@ function InventoryTransferForm({ toggleOpen, transfer = null, type }) {
                         <Div sx={{ mt: 1 }}>
                           <LedgerSelect
                             multiple={false}
-                            label="Receivable Account"
+                            label={dictionary.forms.stores.inventoryTransfer.labels.receivableAccount}
                             allowedGroups={['Accounts Receivable','Accounts Payable']}
                             defaultValue={ungroupedLedgerOptions.find(
                               (ledger) => ledger.id === watch('receivable_ledger_id')
@@ -405,7 +407,7 @@ function InventoryTransferForm({ toggleOpen, transfer = null, type }) {
                                   (params) => 
                                   <TextField 
                                     {...params} 
-                                    label="Vehicle Information" 
+                                    label={dictionary.forms.stores.inventoryTransfer.labels.vehicleInformation} 
                                     size="small" 
                                     fullWidth 
                                   />
@@ -438,7 +440,7 @@ function InventoryTransferForm({ toggleOpen, transfer = null, type }) {
                                 (params) => 
                                 <TextField 
                                   {...params} 
-                                  label="Driver Information" 
+                                  label={dictionary.forms.stores.inventoryTransfer.labels.driverInformation} 
                                   size="small" 
                                   fullWidth
                                 />
@@ -463,7 +465,7 @@ function InventoryTransferForm({ toggleOpen, transfer = null, type }) {
               <Grid size={{xs: 12, md: (type === 'internal' || transfer?.type === 'Internal') ? 6 : 12}}>
                 <Div sx={{ mt: 1 }}>
                   <TextField
-                    label='Narration'
+                    label={dictionary.forms.stores.inventoryTransfer.labels.narration}
                     fullWidth
                     defaultValue={transfer?.narration}
                     multiline={true}
@@ -503,10 +505,10 @@ function InventoryTransferForm({ toggleOpen, transfer = null, type }) {
           <DialogTitle>            
             <Grid container alignItems="center" justifyContent="space-between">
               <Grid size={11}>
-                Unsaved Changes
+                {dictionary.forms.stores.inventoryTransfer.titles.unsavedChanges}
               </Grid>
               <Grid size={1} textAlign="right">
-                <Tooltip title="Close">
+                <Tooltip title={dictionary.tooltips.close}>
                   <IconButton
                     size="small" 
                     onClick={() => setShowWarning(false)}
@@ -518,21 +520,21 @@ function InventoryTransferForm({ toggleOpen, transfer = null, type }) {
             </Grid>
           </DialogTitle>
           <DialogContent>
-            Last item was not added to the list
+            {dictionary.forms.stores.inventoryTransfer.messages.lastItemNotAdded}
           </DialogContent>
           <DialogActions>
             <Button size="small" onClick={() => {setSubmitItemForm(true); setShowWarning(false);}}>
-              Add and Submit
+              {dictionary.forms.stores.inventoryTransfer.buttons.addAndSubmit}
             </Button>
             <Button size="small" onClick={handleConfirmSubmitWithoutAdd} color="secondary">
-              Submit without add
+              {dictionary.forms.stores.inventoryTransfer.buttons.submitWithoutAdd}
             </Button>
           </DialogActions>
         </Dialog>
       </DialogContent>
       <DialogActions>
         <Button size='small' onClick={() => toggleOpen(false)}>
-          Cancel
+          {dictionary.forms.stores.inventoryTransfer.buttons.cancel}
         </Button>
         <LoadingButton
           loading={addInventoryTransfer.isPending || updateInventoryTransfer.isPending}
@@ -540,7 +542,7 @@ function InventoryTransferForm({ toggleOpen, transfer = null, type }) {
           size='small'
           onClick={handleSubmit(handleFormSubmit)}
         >
-          Submit
+          {dictionary.forms.stores.inventoryTransfer.buttons.submit}
         </LoadingButton>
       </DialogActions>
     </React.Fragment>

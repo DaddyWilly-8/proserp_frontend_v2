@@ -1,5 +1,6 @@
 'use client';
 
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import {
   Alert,
   Box,
@@ -69,6 +70,8 @@ export default function PayrollSalarySummaryReportOnScreen({
   mainColor,
   contrastText,
 }: PayrollSalarySummaryReportOnScreenProps) {
+  const dictionary = useDictionary();
+  const t = dictionary.humanResources.payrollPeriods;
   const summary = data?.summary;
   const basicSalary = data?.salary_components?.basic_salary;
   const allowances = data?.salary_components?.allowances ?? [];
@@ -90,7 +93,7 @@ export default function PayrollSalarySummaryReportOnScreen({
             }}
           >
             <Typography variant='body2' color='text.secondary'>
-              Period
+              {t.salaryComponents.period}
             </Typography>
             <Typography variant='h6'>{summary?.period || '-'}</Typography>
           </Box>
@@ -106,7 +109,7 @@ export default function PayrollSalarySummaryReportOnScreen({
             }}
           >
             <Typography variant='body2' color='text.secondary'>
-              Employees
+              {t.salaryComponents.employees}
             </Typography>
             <Typography variant='h6'>
               {formatNumber(summary?.total_employees)}
@@ -124,7 +127,7 @@ export default function PayrollSalarySummaryReportOnScreen({
             }}
           >
             <Typography variant='body2' color='text.secondary'>
-              Payroll Runs
+              {t.salaryComponents.payrollRuns}
             </Typography>
             <Typography variant='h6'>
               {formatNumber(summary?.total_payroll_runs)}
@@ -142,7 +145,7 @@ export default function PayrollSalarySummaryReportOnScreen({
             }}
           >
             <Typography variant='body2' color='text.secondary'>
-              Total Employer Cost
+              {t.salaryComponents.totalEmployerCost}
             </Typography>
             <Typography variant='h6'>
               {formatCurrency(summary?.total_employer_cost)}
@@ -163,7 +166,7 @@ export default function PayrollSalarySummaryReportOnScreen({
             }}
           >
             <Typography variant='body2' color='text.secondary'>
-              Basic Salary
+              {t.salaryComponents.basicSalary}
             </Typography>
             <Typography variant='h5'>
               {formatCurrency(basicSalary?.total)}
@@ -181,7 +184,7 @@ export default function PayrollSalarySummaryReportOnScreen({
             }}
           >
             <Typography variant='body2' color='text.secondary'>
-              Gross Salary
+              {t.salaryComponents.grossSalary}
             </Typography>
             <Typography variant='h5'>
               {formatCurrency(data?.salary_components?.gross_salary)}
@@ -199,7 +202,7 @@ export default function PayrollSalarySummaryReportOnScreen({
             }}
           >
             <Typography variant='body2' color='text.secondary'>
-              Net Salary
+              {t.salaryComponents.netSalary}
             </Typography>
             <Typography variant='h5'>
               {formatCurrency(netSalary?.total)}
@@ -226,7 +229,7 @@ export default function PayrollSalarySummaryReportOnScreen({
                 textAlign='center'
                 mb={1}
               >
-                Allowances
+                {t.salaryComponents.allowances}
               </Typography>
               <TableContainer>
                 <Table size='small'>
@@ -235,13 +238,13 @@ export default function PayrollSalarySummaryReportOnScreen({
                       <TableCell
                         sx={{ backgroundColor: mainColor, color: contrastText }}
                       >
-                        Name
+                        {t.salaryComponents.name}
                       </TableCell>
                       <TableCell
                         align='right'
                         sx={{ backgroundColor: mainColor, color: contrastText }}
                       >
-                        Value
+                        {t.salaryComponents.value}
                       </TableCell>
                     </TableRow>
                   </TableHead>
@@ -266,7 +269,7 @@ export default function PayrollSalarySummaryReportOnScreen({
                       </TableRow>
                     ))}
                     <TableRow>
-                      <TableCell sx={{ fontWeight: 700 }}>Total</TableCell>
+                      <TableCell sx={{ fontWeight: 700 }}>{t.salaryComponents.total}</TableCell>
                       <TableCell align='right' sx={{ fontWeight: 700 }}>
                         {formatCurrency(
                           allowances.reduce(
@@ -300,7 +303,7 @@ export default function PayrollSalarySummaryReportOnScreen({
                 textAlign='center'
                 mb={1}
               >
-                Deductions
+                {t.salaryComponents.deductions}
               </Typography>
               <TableContainer>
                 <Table size='small'>
@@ -309,13 +312,13 @@ export default function PayrollSalarySummaryReportOnScreen({
                       <TableCell
                         sx={{ backgroundColor: mainColor, color: contrastText }}
                       >
-                        Name
+                        {t.salaryComponents.name}
                       </TableCell>
                       <TableCell
                         align='right'
                         sx={{ backgroundColor: mainColor, color: contrastText }}
                       >
-                        Value
+                        {t.salaryComponents.value}
                       </TableCell>
                     </TableRow>
                   </TableHead>
@@ -340,7 +343,7 @@ export default function PayrollSalarySummaryReportOnScreen({
                       </TableRow>
                     ))}
                     <TableRow>
-                      <TableCell sx={{ fontWeight: 700 }}>Total</TableCell>
+                      <TableCell sx={{ fontWeight: 700 }}>{t.salaryComponents.total}</TableCell>
                       <TableCell align='right' sx={{ fontWeight: 700 }}>
                         {formatCurrency(
                           deductions.reduce(
@@ -374,7 +377,7 @@ export default function PayrollSalarySummaryReportOnScreen({
                 textAlign='center'
                 mb={1}
               >
-                Employer Contributions
+                {t.salaryComponents.employerContributions}
               </Typography>
               <TableContainer>
                 <Table size='small'>
@@ -383,13 +386,13 @@ export default function PayrollSalarySummaryReportOnScreen({
                       <TableCell
                         sx={{ backgroundColor: mainColor, color: contrastText }}
                       >
-                        Name
+                        {t.salaryComponents.name}
                       </TableCell>
                       <TableCell
                         align='right'
                         sx={{ backgroundColor: mainColor, color: contrastText }}
                       >
-                        Value
+                        {t.salaryComponents.value}
                       </TableCell>
                     </TableRow>
                   </TableHead>
@@ -414,7 +417,7 @@ export default function PayrollSalarySummaryReportOnScreen({
                       </TableRow>
                     ))}
                     <TableRow>
-                      <TableCell sx={{ fontWeight: 700 }}>Total</TableCell>
+                      <TableCell sx={{ fontWeight: 700 }}>{t.salaryComponents.total}</TableCell>
                       <TableCell align='right' sx={{ fontWeight: 700 }}>
                         {formatCurrency(
                           employerContributions.reduce(
@@ -436,8 +439,7 @@ export default function PayrollSalarySummaryReportOnScreen({
         deductions.length === 0 &&
         employerContributions.length === 0 && (
           <Alert severity='info' sx={{ mt: 2 }}>
-            No allowance, deduction, or employer contribution data for the
-            selected filters.
+            {t.salaryComponents.noData}
           </Alert>
         )}
     </>

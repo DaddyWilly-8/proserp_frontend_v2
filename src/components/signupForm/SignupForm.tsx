@@ -40,7 +40,8 @@ import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 import { ASSET_IMAGES } from '@/utilities/constants/paths';
 import { ThemeModeOption } from '@/components/header/themeModeOptions/ThemeModeOption';
 import { BackdropSpinner } from '@/shared/ProgressIndicators/BackdropSpinner';
-import { validationSchema } from './validation';
+import { buildValidationSchema } from './validation';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 type SignupFormValues = {
   name: string;
@@ -49,24 +50,6 @@ type SignupFormValues = {
   password: string;
   password_confirmation: string;
 };
-
-const FEATURES = [
-  {
-    icon: ShieldOutlined,
-    title: 'All your business, one place',
-    description: 'Accounts, procurement, HR, POS and more, unified.',
-  },
-  {
-    icon: GroupAddOutlined,
-    title: 'Invite your team',
-    description: 'Add teammates and manage access by role.',
-  },
-  {
-    icon: InsightsOutlined,
-    title: 'Real-time insights',
-    description: 'Dashboards and reports that stay current.',
-  },
-];
 
 const ConfirmPasswordError = () => {
   const {
@@ -88,6 +71,24 @@ const ConfirmPasswordError = () => {
 };
 
 const SignupForm = () => {
+  const dictionary = useDictionary();
+  const FEATURES = [
+    {
+      icon: ShieldOutlined,
+      title: dictionary.forms.signup.features.allInOne.title,
+      description: dictionary.forms.signup.features.allInOne.description,
+    },
+    {
+      icon: GroupAddOutlined,
+      title: dictionary.forms.signup.features.invite.title,
+      description: dictionary.forms.signup.features.invite.description,
+    },
+    {
+      icon: InsightsOutlined,
+      title: dictionary.forms.signup.features.insights.title,
+      description: dictionary.forms.signup.features.insights.description,
+    },
+  ];
   const { enqueueSnackbar } = useSnackbar();
   const { signUp, stopAuthLoading } = useJumboAuth();
   const router = useRouter();
@@ -103,7 +104,7 @@ const SignupForm = () => {
   const [showPasswordConfirm, setShowPasswordConfirm] = useState(false);
 
   const methods = useForm<SignupFormValues>({
-    resolver: yupResolver(validationSchema),
+    resolver: yupResolver(buildValidationSchema(dictionary)),
     mode: 'onChange',
   });
 
@@ -134,7 +135,7 @@ const SignupForm = () => {
           stopAuthLoading();
           enqueueSnackbar(
             error?.response?.data?.message ||
-              'Signup failed. Please try again.',
+              dictionary.forms.signup.messages.signupFailed,
             { variant: 'error' }
           );
         }
@@ -142,7 +143,7 @@ const SignupForm = () => {
     } catch (e: any) {
       stopAuthLoading();
       enqueueSnackbar(
-        e?.message || 'Signup failed. Please try again.',
+        e?.message || dictionary.forms.signup.messages.signupFailed,
         { variant: 'error' }
       );
     }
@@ -230,10 +231,10 @@ const SignupForm = () => {
 
             <Box>
               <Typography variant="h3" fontWeight={700} sx={{ fontSize: { xs: '1.4rem', md: '2.2rem' } }}>
-                Get started
+                {dictionary.forms.signup.getStarted}
               </Typography>
               <Typography variant="body2" sx={{ opacity: 0.85, letterSpacing: 0.5, mt: 0.5 }}>
-                Simplified Management and Control
+                {dictionary.forms.signup.tagline}
               </Typography>
             </Box>
 
@@ -276,19 +277,19 @@ const SignupForm = () => {
             </Stack>
 
             <Typography variant="h5" fontWeight={700} sx={{ color: palette.text.primary, mb: 0.5 }}>
-              Create your account
+              {dictionary.forms.signup.createAccount}
             </Typography>
             <Typography variant="body2" sx={{ color: palette.text.secondary, mb: 3 }}>
-              Fill in the details below to get started.
+              {dictionary.forms.signup.fillDetails}
             </Typography>
 
             <Box component="form" onSubmit={handleSubmit(onSubmit)} noValidate>
               <Stack spacing={2.2}>
                 <Box>
-                  <Typography sx={fieldLabelSx}>Full Name</Typography>
+                  <Typography sx={fieldLabelSx}>{dictionary.forms.signup.labels.fullName}</Typography>
                   <TextField
                     fullWidth
-                    placeholder="Jane Doe"
+                    placeholder={dictionary.forms.signup.placeholders.fullName}
                     {...register('name')}
                     error={!!errors.name}
                     helperText={errors.name?.message}
@@ -311,10 +312,10 @@ const SignupForm = () => {
                   }}
                 >
                   <Box>
-                    <Typography sx={fieldLabelSx}>Email Address</Typography>
+                    <Typography sx={fieldLabelSx}>{dictionary.forms.signup.labels.emailAddress}</Typography>
                     <TextField
                       fullWidth
-                      placeholder="you@example.com"
+                      placeholder={dictionary.forms.signup.placeholders.email}
                       {...register('email')}
                       error={!!errors.email}
                       helperText={errors.email?.message}
@@ -330,10 +331,10 @@ const SignupForm = () => {
                   </Box>
 
                   <Box>
-                    <Typography sx={fieldLabelSx}>Phone Number</Typography>
+                    <Typography sx={fieldLabelSx}>{dictionary.forms.signup.labels.phoneNumber}</Typography>
                     <TextField
                       fullWidth
-                      placeholder="+255 ..."
+                      placeholder={dictionary.forms.signup.placeholders.phone}
                       {...register('phone')}
                       error={!!errors.phone}
                       helperText={errors.phone?.message}
@@ -357,7 +358,7 @@ const SignupForm = () => {
                   }}
                 >
                   <Box>
-                    <Typography sx={fieldLabelSx}>Password</Typography>
+                    <Typography sx={fieldLabelSx}>{dictionary.forms.signup.labels.password}</Typography>
                     <TextField
                       type={showPassword ? 'text' : 'password'}
                       fullWidth
@@ -387,7 +388,7 @@ const SignupForm = () => {
                   </Box>
 
                   <Box>
-                    <Typography sx={fieldLabelSx}>Confirm Password</Typography>
+                    <Typography sx={fieldLabelSx}>{dictionary.forms.signup.labels.confirmPassword}</Typography>
                     <TextField
                       type={showPasswordConfirm ? 'text' : 'password'}
                       fullWidth
@@ -441,15 +442,15 @@ const SignupForm = () => {
                     },
                   }}
                 >
-                  Create account
+                  {dictionary.forms.signup.buttons.submit}
                 </LoadingButton>
               </Stack>
             </Box>
 
             <Typography textAlign="center" mt={3} variant="body2" sx={{ color: palette.text.secondary }}>
-              Already have an account?{' '}
+              {dictionary.forms.signup.alreadyHaveAccount}{' '}
               <Link href={`/${lang}/auth/signin`} underline="hover" sx={{ color: palette.primary.main }}>
-                Sign in
+                {dictionary.forms.signup.signIn}
               </Link>
             </Typography>
           </CardContent>

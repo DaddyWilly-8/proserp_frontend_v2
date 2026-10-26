@@ -11,8 +11,10 @@ import EmployeeDeductionActionTail from './EmployeeDeductionActionTail';
 import { EmployeeDeductionType } from './EmployeeDeductionType';
 import EmployeeDeductionsListItem from './EmployeeDeductionsListItem';
 import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const EmployeeDeductions = ({ employeeId }: { employeeId?: number }) => {
+  const dictionary = useDictionary();
   const params = useParams<{ employee_id?: string }>();
   const searchParams = useSearchParams();
   const listRef = useRef<any>(null);
@@ -70,7 +72,7 @@ const EmployeeDeductions = ({ employeeId }: { employeeId?: number }) => {
   return (
     <>
       <Typography variant={'h4'} mb={2}>
-        Employee Deductions
+        {dictionary.humanResources.employeeDeductions.title}
       </Typography>
       <JumboRqList
         ref={listRef}

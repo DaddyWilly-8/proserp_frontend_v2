@@ -9,14 +9,20 @@ import AuditTrailListItem from './AuditTrailListItem';
 import MovementTypeSelector from './MovementTypeSelector';
 import { Movement } from './AuditTrailType';
 import humanResourcesServices from '@/components/humanResources/humanResourcesServices';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface AuditTrailTabProps {
   employeeId: number;
 }
 
-const TABLE_HEADERS = ['Date', 'From', 'To', 'Reason'];
-
 const AuditTrailTab = ({ employeeId }: AuditTrailTabProps) => {
+  const dictionary = useDictionary();
+  const TABLE_HEADERS = [
+    dictionary.humanResources.auditTrail.headers.date,
+    dictionary.humanResources.auditTrail.headers.from,
+    dictionary.humanResources.auditTrail.headers.to,
+    dictionary.humanResources.auditTrail.headers.reason,
+  ];
   const listRef = useRef<any>(null);
   const [movementType, setMovementType] = useState('all');
 

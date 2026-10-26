@@ -1,4 +1,7 @@
 import { sanitizedNumber } from '@/app/helpers/input-sanitization-helpers';
+import ScheduleModeSection from '@/components/accounts/recurringTransactions/ScheduleModeSection';
+import recurringTransactionServices from '@/components/accounts/recurringTransactions/recurringTransactions-services';
+import { buildScheduleBody, emptyScheduleForm, isScheduleFormComplete, ScheduleForm } from '@/components/accounts/recurringTransactions/recurring-utils';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import CostCenterSelector from '@/components/masters/costCenters/CostCenterSelector';
 import { CostCenter } from '@/components/masters/costCenters/CostCenterType';
@@ -37,6 +40,7 @@ import journalServices from './journal-services';
 import JournalItemForm from './JournalItemForm';
 import JournalItemRow from './JournalItemRow';
 import ReconciledCostCentersForm from '../ReconciledCostCentersForm';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 type JournalItem = {
   debit_ledger_id?: number;
@@ -89,6 +93,7 @@ function JournalFormDialogContent({
   setOpen,
   journal = null,
 }: JournalFormDialogContentProps) {
+  const dictionary = useDictionary();
   const { authOrganization, checkOrganizationPermission } = useJumboAuth();
   const costCenters = authOrganization?.costCenters;
   const { ungroupedLedgerOptions } = useLedgerSelect();
@@ -113,6 +118,8 @@ function JournalFormDialogContent({
   const [clearFormKey, setClearFormKey] = useState(0);
   const [prevKey, setPrevKey] = useState(0);
   const [submitItemForm, setSubmitItemForm] = useState(false);
+  const [scheduleMode, setScheduleMode] = useState(false);
+  const [scheduleForm, setScheduleForm] = useState<ScheduleForm>(() => emptyScheduleForm(''));
   const [lockedJournalCurrencyId, setLockedJournalCurrencyId] = useState<
     number | null
   >(null);
@@ -168,7 +175,11 @@ function JournalFormDialogContent({
   const [items, setItems] = useState<JournalItem[]>(getInitialItems());
 
   const addJournal = useMutation<JournalResponse, Error, JournalFormValues>({
-    mutationFn: journalServices.add,
+    // In schedule mode the same form saves a schedule instead of posting now.
+    mutationFn: (values: any) =>
+      scheduleMode
+        ? recurringTransactionServices.create(buildScheduleBody('journal_voucher', values, scheduleForm))
+        : journalServices.add(values),
     onSuccess: (data) => {
       data?.message && enqueueSnackbar(data.message, { variant: 'success' });
       queryClient.invalidateQueries({ queryKey: ['transactions'] });
@@ -204,28 +215,28 @@ function JournalFormDialogContent({
   const validationSchema = yup.object({
     narration: yup
       .string()
-      .required('Narration is required')
-      .typeError('Narration is required'),
+      .required(dictionary.forms.journals.form.errors.validation.narrationRequired)
+      .typeError(dictionary.forms.journals.form.errors.validation.narrationRequired),
     currency_id: yup
       .number()
-      .positive('Currency is required')
-      .required('Currency is required')
-      .typeError('Currency is required'),
+      .positive(dictionary.forms.journals.form.errors.validation.currencyRequired)
+      .required(dictionary.forms.journals.form.errors.validation.currencyRequired)
+      .typeError(dictionary.forms.journals.form.errors.validation.currencyRequired),
     exchange_rate: yup
       .number()
-      .positive('Exchange rate is required')
-      .required('Exchange rate is required')
-      .typeError('Exchange rate is required'),
-    transactionDate: yup.string().required('Journal Date is required'),
+      .positive(dictionary.forms.journals.form.errors.validation.exchangeRateRequired)
+      .required(dictionary.forms.journals.form.errors.validation.exchangeRateRequired)
+      .typeError(dictionary.forms.journals.form.errors.validation.exchangeRateRequired),
+    transactionDate: yup.string().required(dictionary.forms.journals.form.errors.validation.dateRequired),
     items: yup
       .array()
-      .min(1, 'You must add at least one item')
-      .required('You must add at least one item'),
+      .min(1, dictionary.forms.journals.form.errors.validation.itemsRequired)
+      .required(dictionary.forms.journals.form.errors.validation.itemsRequired),
     cost_centers: yup
       .array()
       .test(
         'cost-center-required',
-        'At least one cost center is required',
+        dictionary.forms.journals.form.errors.validation.costCenterRequired,
         (value) => haveAllCostCenters || (value && value.length > 0)
       ),
   });
@@ -293,7 +304,7 @@ function JournalFormDialogContent({
       clearErrors('items');
       setError('items', {
         type: 'manual',
-        message: 'You must add at least one item',
+        message: dictionary.forms.journals.form.errors.validation.itemsRequired,
       });
       return;
     }
@@ -324,7 +335,7 @@ function JournalFormDialogContent({
       setError('currency_id', {
         type: 'manual',
         message:
-          'Entries between two different foreign currencies are not supported directly. Post through a base-currency clearing entry instead.',
+          dictionary.forms.journals.form.errors.validation.foreignCurrencies,
       });
       return;
     }
@@ -363,17 +374,18 @@ function JournalFormDialogContent({
     <>
       <DialogTitle textAlign={'center'}>
         {isDuplicate
-          ? `Duplicate: ${journal?.voucherNo}`
+          ? dictionary.forms.journals.form.title.duplicate.replace('{voucherNo}', journal?.voucherNo ?? '')
           : isEdit
-            ? `Edit: ${journal?.voucherNo}`
-            : `New Journal Form`}
+            ? dictionary.forms.journals.form.title.edit.replace('{voucherNo}', journal?.voucherNo ?? '')
+            : dictionary.forms.journals.form.title.new}
       </DialogTitle>
       <DialogContent>
         <Grid container columnSpacing={1} marginBottom={2}>
           <Grid size={{ xs: 12, md: 4 }}>
             <Div sx={{ mt: 1, mb: 1 }}>
               <DateTimePicker
-                label='Journal Date (MM/DD/YYYY)'
+                label={dictionary.forms.journals.form.labels.date}
+                disabled={scheduleMode}
                 minDate={
                   checkOrganizationPermission([
                     PERMISSIONS.ACCOUNTS_TRANSACTIONS_BACKDATE,
@@ -443,7 +455,7 @@ function JournalFormDialogContent({
             <Grid size={{ xs: 12, md: 4 }}>
               <Div sx={{ mt: 1, mb: 1 }}>
                 <TextField
-                  label='Exchange Rate'
+                  label={dictionary.forms.journals.form.labels.exchangeRate}
                   fullWidth
                   size='small'
                   error={!!errors?.exchange_rate}
@@ -471,7 +483,7 @@ function JournalFormDialogContent({
             <Div sx={{ mt: 1, mb: 1 }}>
               <TextField
                 size='small'
-                label='Reference'
+                label={dictionary.forms.journals.form.labels.reference}
                 fullWidth
                 defaultValue={journal?.reference}
                 {...register('reference')}
@@ -485,7 +497,7 @@ function JournalFormDialogContent({
           <Grid size={{ xs: 12, md: watch('currency_id') !== 1 ? 4 : 8 }}>
             <Div sx={{ mt: 1, mb: 1 }}>
               <CostCenterSelector
-                label='Cost Centers'
+                label={dictionary.forms.journals.form.labels.costCenters}
                 frontError={errors.cost_centers}
                 defaultValue={
                   journal?.cost_centers ||
@@ -553,7 +565,7 @@ function JournalFormDialogContent({
               justifyContent: 'flex-end',
             }}
           >
-            <Tooltip title={'Total Amount'}>
+            <Tooltip title={dictionary.tooltips.totalAmount}>
               <Typography variant={'h5'}>
                 {totalAmount?.toLocaleString()}
               </Typography>
@@ -562,7 +574,7 @@ function JournalFormDialogContent({
           <Grid size={12}>
             <Div sx={{ mt: 1, mb: 1 }}>
               <TextField
-                label='Narration'
+                label={dictionary.forms.journals.form.labels.narration}
                 multiline={true}
                 rows={2}
                 fullWidth
@@ -576,12 +588,21 @@ function JournalFormDialogContent({
           </Grid>
         </Grid>
 
+        <ScheduleModeSection
+          hidden={isEdit}
+          enabled={scheduleMode}
+          onEnabledChange={setScheduleMode}
+          form={scheduleForm}
+          setForm={setScheduleForm}
+          narration={watch('narration')}
+        />
+
         <Dialog open={showWarning} onClose={() => setShowWarning(false)}>
           <DialogTitle>
             <Grid container alignItems='center' justifyContent='space-between'>
-              <Grid size={11}>Unsaved Changes</Grid>
+              <Grid size={11}>{dictionary.forms.journals.form.dialogs.unsavedChanges.title}</Grid>
               <Grid size={1} textAlign='right'>
-                <Tooltip title='Close'>
+                <Tooltip title={dictionary.tooltips.close}>
                   <IconButton
                     size='small'
                     onClick={() => setShowWarning(false)}
@@ -592,7 +613,7 @@ function JournalFormDialogContent({
               </Grid>
             </Grid>
           </DialogTitle>
-          <DialogContent>Last item was not added to the list</DialogContent>
+          <DialogContent>{dictionary.forms.journals.form.dialogs.unsavedChanges.message}</DialogContent>
           <DialogActions>
             <Button
               size='small'
@@ -601,14 +622,14 @@ function JournalFormDialogContent({
                 setShowWarning(false);
               }}
             >
-              Add and Submit
+              {dictionary.forms.journals.form.dialogs.unsavedChanges.addAndSubmit}
             </Button>
             <Button
               size='small'
               onClick={() => handleConfirmSubmitWithoutAdd(watch())}
               color='secondary'
             >
-              Submit without add
+              {dictionary.forms.journals.form.dialogs.unsavedChanges.submitWithoutAdd}
             </Button>
           </DialogActions>
         </Dialog>
@@ -619,16 +640,17 @@ function JournalFormDialogContent({
           onClick={() => setOpen(false)}
           variant={'outlined'}
         >
-          Cancel
+          {dictionary.forms.journals.form.buttons.cancel}
         </Button>
         <LoadingButton
           type='submit'
           size='small'
           variant={'contained'}
           loading={updateJournal.isPending || addJournal.isPending}
+          disabled={scheduleMode && !isScheduleFormComplete(scheduleForm)}
           onClick={handleSubmit(onSubmit)}
         >
-          Submit
+          {scheduleMode ? dictionary.forms.journals.form.buttons.createSchedule : dictionary.forms.journals.form.buttons.submit}
         </LoadingButton>
       </DialogActions>
     </>

@@ -53,6 +53,7 @@ import storeServices from '../../../store-services';
 import StoreSelector from '../../../StoreSelector';
 import { useStoreProfile } from '../../StoreProfileProvider';
 import StockMovementOnScreen from './StockMovementOnScreen';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const ReportDocument = ({
   productCategories,
@@ -63,7 +64,9 @@ const ReportDocument = ({
   checkOrganizationPermission,
   store,
   reportTitle,
+  dictionary,
 }) => {
+  const dict = dictionary.reports.storeReports.stockMovementReport;
   const mainColor =
     authOrganization.organization.settings?.main_color || '#2113AD';
   const lightColor =
@@ -79,7 +82,7 @@ const ReportDocument = ({
     <Document
       creator={`${user.name} | Powered by ProsERP`}
       producer='ProsERP'
-      title={`${store.name} ${reportTitle} ${readableDate(movementsData.filters.from, true)} to ${readableDate(movementsData.filters.to, true)}`}
+      title={dict.pdfDocumentTitle.replace('{store}', store.name).replace('{title}', reportTitle).replace('{from}', readableDate(movementsData.filters.from, true)).replace('{to}', readableDate(movementsData.filters.to, true))}
     >
       <Page size='A3' orientation={'landscape'} style={pdfStyles.page}>
         <View style={pdfStyles.table}>
@@ -104,7 +107,7 @@ const ReportDocument = ({
           {costCenters.length > 0 && (
             <View style={{ flex: 2, padding: 2 }}>
               <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>
-                Cost Centers
+                {dict.costCenters}
               </Text>
               <Text style={{ ...pdfStyles.minInfo }}>
                 {costCenters
@@ -116,7 +119,7 @@ const ReportDocument = ({
           {productCategories?.length > 0 && (
             <View style={{ flex: 1, padding: 2 }}>
               <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>
-                Categories
+                {dict.categories}
               </Text>
               <Text style={{ ...pdfStyles.minInfo }}>
                 {productCategories.map((category) => category.name).join(', ')}
@@ -126,7 +129,7 @@ const ReportDocument = ({
           {checkOrganizationPermission([PERMISSIONS.ACCOUNTS_REPORTS, PERMISSIONS.STORE_VALUES]) && (
             <View style={{ flex: 2, padding: 2 }}>
               <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>
-                Estimated Closing Value
+                {dict.estimatedClosingValue}
               </Text>
               <Text style={{ ...pdfStyles.minInfo }}>
                 {movementsData.movements
@@ -150,13 +153,13 @@ const ReportDocument = ({
           )}
           <View style={{ flex: 1, padding: 2 }}>
             <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>
-              Printed By
+              {dict.printedBy}
             </Text>
             <Text style={{ ...pdfStyles.minInfo }}>{user.name}</Text>
           </View>
           <View style={{ flex: 1, padding: 2 }}>
             <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>
-              Printed On
+              {dict.printedOn}
             </Text>
             <Text style={{ ...pdfStyles.minInfo }}>
               {readableDate(undefined, true)}
@@ -173,7 +176,7 @@ const ReportDocument = ({
                 flex: 0.5,
               }}
             >
-              S/N
+              {dict.sn}
             </Text>
             <Text
               style={{
@@ -183,7 +186,7 @@ const ReportDocument = ({
                 flex: 4,
               }}
             >
-              Product
+              {dict.product}
             </Text>
             <Text
               style={{
@@ -193,7 +196,7 @@ const ReportDocument = ({
                 flex: 0.5,
               }}
             >
-              Unit
+              {dict.unit}
             </Text>
             <Text
               style={{
@@ -203,7 +206,7 @@ const ReportDocument = ({
                 flex: 1.25,
               }}
             >
-              Opening Balance
+              {dict.openingBalance}
             </Text>
             <Text
               style={{
@@ -213,7 +216,7 @@ const ReportDocument = ({
                 flex: 1.5,
               }}
             >
-              Purchase Received
+              {dict.purchaseReceived}
             </Text>
             {organizationHasSubscribed(
               MODULES.MANUFACTURING_AND_PROCESSING
@@ -226,7 +229,7 @@ const ReportDocument = ({
                   flex: 1.5,
                 }}
               >
-                Produced Quantity
+                {dict.producedQuantity}
               </Text>
             )}
             <Text
@@ -237,7 +240,7 @@ const ReportDocument = ({
                 flex: 1.25,
               }}
             >
-              Transfer In
+              {dict.transferIn}
             </Text>
             <Text
               style={{
@@ -247,7 +250,7 @@ const ReportDocument = ({
                 flex: 1.25,
               }}
             >
-              Transfer Out
+              {dict.transferOut}
             </Text>
             <Text
               style={{
@@ -257,7 +260,7 @@ const ReportDocument = ({
                 flex: 1,
               }}
             >
-              Stock Gain
+              {dict.stockGain}
             </Text>
             <Text
               style={{
@@ -267,7 +270,7 @@ const ReportDocument = ({
                 flex: 1,
               }}
             >
-              Stock Loss
+              {dict.stockLoss}
             </Text>
             <Text
               style={{
@@ -277,7 +280,7 @@ const ReportDocument = ({
                 flex: 1.25,
               }}
             >
-              Consumed
+              {dict.consumed}
             </Text>
             <Text
               style={{
@@ -287,7 +290,7 @@ const ReportDocument = ({
                 flex: 1,
               }}
             >
-              Sold
+              {dict.sold}
             </Text>
             <Text
               style={{
@@ -297,7 +300,7 @@ const ReportDocument = ({
                 flex: 1.25,
               }}
             >
-              Closing Balance
+              {dict.closingBalance}
             </Text>
             {checkOrganizationPermission([PERMISSIONS.ACCOUNTS_REPORTS, PERMISSIONS.STORE_VALUES]) && (
               <React.Fragment>
@@ -309,7 +312,7 @@ const ReportDocument = ({
                     flex: 1.5,
                   }}
                 >
-                  Latest Rate
+                  {dict.latestRate}
                 </Text>
                 <Text
                   style={{
@@ -319,7 +322,7 @@ const ReportDocument = ({
                     flex: 1.5,
                   }}
                 >
-                  Est. Closing Value
+                  {dict.estClosingValue}
                 </Text>
               </React.Fragment>
             )}
@@ -515,6 +518,8 @@ const ReportDocument = ({
 };
 
 function StockMovement({ toggleOpen, dormantStock = false, isFromDashboard }) {
+  const dictionary = useDictionary();
+  const dict = dictionary.reports.storeReports.stockMovementReport;
   const classes = useProsERPStyles();
   const {
     authOrganization,
@@ -542,7 +547,7 @@ function StockMovement({ toggleOpen, dormantStock = false, isFromDashboard }) {
       .nullable()
       .when('isFromDashboard', (isFromDashboard, schema) => {
         return isFromDashboard
-          ? schema.required('Store is required').typeError('Store is required')
+          ? schema.required(dict.storeRequired).typeError(dict.storeRequired)
           : schema;
       }),
     include_children: yup.boolean(),
@@ -578,7 +583,7 @@ function StockMovement({ toggleOpen, dormantStock = false, isFromDashboard }) {
 
   const getMovements = async (filters) => {
     if (!filters?.store_id) {
-      enqueueSnackbar('Please select a store first', { variant: 'warning' });
+      enqueueSnackbar(dict.selectStoreFirst, { variant: 'warning' });
       return;
     }
 
@@ -619,7 +624,7 @@ function StockMovement({ toggleOpen, dormantStock = false, isFromDashboard }) {
       link.click();
       setIsDownloadingTemplate(false);
     } catch (error) {
-      enqueueSnackbar('Error downloading Excel template', { variant: 'error' });
+      enqueueSnackbar(dict.excelTemplateError, { variant: 'error' });
       setIsDownloadingTemplate(false);
     }
   };
@@ -629,7 +634,10 @@ function StockMovement({ toggleOpen, dormantStock = false, isFromDashboard }) {
   };
 
   const reportTitle = dormantStock ? 'Dormant Stock' : 'Stock Movement';
-  document.title = `${isFromDashboard ? 'Store' : activeStore?.name} - ${reportTitle} Report`;
+  const displayReportTitle = dormantStock ? dict.dormantStock : dict.stockMovement;
+  document.title = dict.documentTitle
+    .replace('{store}', isFromDashboard ? dict.store : activeStore?.name)
+    .replace('{title}', displayReportTitle);
 
   const exportedData = {
     organizationHasSubscribed: organizationHasSubscribed(
@@ -661,10 +669,10 @@ function StockMovement({ toggleOpen, dormantStock = false, isFromDashboard }) {
       a.download = `${!dormantStock ? 'Stock-Movement' : 'Dormant-Stock'} ${readableDate(filters.as_at, true)}.xlsx`;
       a.click();
       window.URL.revokeObjectURL(url);
-      enqueueSnackbar('Excel exported successfully!', { variant: 'success' });
+      enqueueSnackbar(dict.excelExported, { variant: 'success' });
     } catch (e) {
       console.log('error exporting: ', e);
-      enqueueSnackbar('Error exporting Excel', { variant: 'error' });
+      enqueueSnackbar(dict.excelExportError, { variant: 'error' });
     } finally {
       setIsDownloadingTemplate(false);
     }
@@ -696,12 +704,12 @@ function StockMovement({ toggleOpen, dormantStock = false, isFromDashboard }) {
               <Grid container size={12}>
                 <Grid size={belowLargeScreen ? 11 : 12}>
                   <Typography variant='h3'>
-                    {dormantStock ? 'Dormant Stock' : 'Stock Movement'}
+                    {displayReportTitle}
                   </Typography>
                 </Grid>
                 {belowLargeScreen && (
                   <Grid size={1}>
-                    <Tooltip title='Close'>
+                    <Tooltip title={dictionary.tooltips.close}>
                       <IconButton
                         size='small'
                         sx={{ mb: 1 }}
@@ -718,7 +726,7 @@ function StockMovement({ toggleOpen, dormantStock = false, isFromDashboard }) {
                   <Div sx={{ mt: 0.3 }}>
                     <StoreSelector
                       allowSubStores={true}
-                      label='Store'
+                      label={dict.store}
                       proposedOptions={authOrganization?.stores}
                       frontError={errors.store_id}
                       onChange={(newValue) => {
@@ -735,7 +743,7 @@ function StockMovement({ toggleOpen, dormantStock = false, isFromDashboard }) {
               <Grid size={{ xs: 12, md: 6 }}>
                 <Div sx={{ mt: 0.3 }}>
                   <CostCenterSelector
-                    label='Cost and Profit Centers (leave empty for all)'
+                    label={dict.costAndProfitCenters}
                     multiple={true}
                     allowSameType={true}
                     onChange={(cost_centers) => {
@@ -793,7 +801,7 @@ function StockMovement({ toggleOpen, dormantStock = false, isFromDashboard }) {
                     renderInput={(params) => (
                       <TextField
                         {...params}
-                        label='Product Categories'
+                        label={dict.productCategories}
                         size='small'
                         fullWidth
                       />
@@ -812,7 +820,7 @@ function StockMovement({ toggleOpen, dormantStock = false, isFromDashboard }) {
               <Grid size={{ xs: 12, md: isFromDashboard ? 3 : 6 }}>
                 <Div sx={{ mt: 0.3 }}>
                   <DateTimePicker
-                    label='From (MM/DD/YYYY)'
+                    label={dict.fromDate}
                     fullWidth
                     minDate={dayjs(
                       authOrganization.organization.recording_start_date
@@ -841,7 +849,7 @@ function StockMovement({ toggleOpen, dormantStock = false, isFromDashboard }) {
               <Grid size={{ xs: 12, md: isFromDashboard ? 3 : 6 }}>
                 <Div sx={{ mt: 0.3 }}>
                   <DateTimePicker
-                    label='To (MM/DD/YYYY)'
+                    label={dict.toDate}
                     fullWidth
                     minDate={dayjs(
                       authOrganization.organization.recording_start_date
@@ -882,7 +890,7 @@ function StockMovement({ toggleOpen, dormantStock = false, isFromDashboard }) {
                           }}
                         />
                       }
-                      label='Include Substores'
+                      label={dict.includeSubstores}
                     />
                   </Div>
                 </Grid>
@@ -910,7 +918,7 @@ function StockMovement({ toggleOpen, dormantStock = false, isFromDashboard }) {
                             }}
                           />
                         }
-                        label='With more details'
+                        label={dict.withMoreDetails}
                       />
                     </Div>
                   </Grid>
@@ -938,7 +946,7 @@ function StockMovement({ toggleOpen, dormantStock = false, isFromDashboard }) {
                         size='small'
                         variant='contained'
                       >
-                        Filter
+                        {dict.filter}
                       </LoadingButton>
                     </>
                   </Stack>
@@ -957,7 +965,7 @@ function StockMovement({ toggleOpen, dormantStock = false, isFromDashboard }) {
                 indicatorColor='primary'
                 textColor='primary'
               >
-                <Tab label='On-Screen' />
+                <Tab label={dict.onScreen} />
                 <Tab label='PDF' />
               </Tabs>
             )}
@@ -1005,11 +1013,10 @@ function StockMovement({ toggleOpen, dormantStock = false, isFromDashboard }) {
                   📊
                 </Typography>
                 <Typography variant='h6' color='text.secondary' gutterBottom>
-                  Download Excel to view more details
+                  {dict.downloadExcelForDetails}
                 </Typography>
                 <Typography variant='body2' color='text.secondary'>
-                  The detailed view is only available in Excel format. Please
-                  click the Excel button above to download the complete report.
+                  {dict.detailedViewOnlyExcel}
                 </Typography>
               </Box>
             ) : (
@@ -1039,7 +1046,8 @@ function StockMovement({ toggleOpen, dormantStock = false, isFromDashboard }) {
                           checkOrganizationPermission
                         }
                         store={isFromDashboard ? watch('store') : activeStore}
-                        reportTitle={reportTitle}
+                        reportTitle={displayReportTitle}
+                        dictionary={dictionary}
                       />
                     }
                     fileName={
@@ -1061,7 +1069,7 @@ function StockMovement({ toggleOpen, dormantStock = false, isFromDashboard }) {
           variant='outlined'
           onClick={() => toggleOpen(false)}
         >
-          Close
+          {dict.close}
         </Button>
       </DialogActions>
     </React.Fragment>

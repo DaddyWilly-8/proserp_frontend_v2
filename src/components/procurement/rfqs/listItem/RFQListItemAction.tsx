@@ -6,6 +6,7 @@ import { DeleteOutlined, EditOutlined, OpenInNewOutlined } from '@mui/icons-mate
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
 import { useRouter, useParams } from 'next/navigation';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface RFQListItemActionProps {
   rfqId: number;
@@ -20,6 +21,7 @@ const RFQListItemAction: React.FC<RFQListItemActionProps> = ({
   onDelete,
   onOpen,
 }) => {
+  const dictionary = useDictionary();
   const { checkOrganizationPermission } = useJumboAuth();
   const router = useRouter();
   const params = useParams();
@@ -33,20 +35,20 @@ const RFQListItemAction: React.FC<RFQListItemActionProps> = ({
   return (
     <Grid size={{ xs: 12 }} textAlign="end">
       <Stack direction="row" spacing={0.5} justifyContent="flex-end">
-        <Tooltip title="Open RFQ">
+        <Tooltip title={dictionary.tooltips.openRfq}>
           <IconButton size="small" onClick={onOpen || handleOpenClick}>
             <OpenInNewOutlined fontSize="small" />
           </IconButton>
         </Tooltip>
         {checkOrganizationPermission(PERMISSIONS.RFQS_EDIT) && (
-          <Tooltip title="Edit RFQ">
+          <Tooltip title={dictionary.tooltips.editRfq}>
             <IconButton size="small" onClick={onEdit}>
               <EditOutlined fontSize="small" />
             </IconButton>
           </Tooltip>
         )}
         {checkOrganizationPermission(PERMISSIONS.RFQS_DELETE) && (
-          <Tooltip title="Delete RFQ">
+          <Tooltip title={dictionary.tooltips.deleteRfq}>
             <IconButton size="small" onClick={onDelete}>
               <DeleteOutlined fontSize="small" color="error" />
             </IconButton>

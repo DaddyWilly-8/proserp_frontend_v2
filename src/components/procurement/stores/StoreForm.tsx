@@ -72,8 +72,8 @@ const StoreForm: React.FC<StoreFormProps> = ({ store = null, parentOptions = nul
   if (Array.isArray(parentOptions)) {
     validationObject.parent_id = yup
       .number()
-      .required('Parent Store is required')
-      .positive('Parent Store is required');
+      .required(dictionary.forms.stores.form.errors.validation.parentStore.required)
+      .positive(dictionary.forms.stores.form.errors.validation.parentStore.required);
   }
 
   const validationSchema = yup.object(validationObject);
@@ -114,7 +114,7 @@ const StoreForm: React.FC<StoreFormProps> = ({ store = null, parentOptions = nul
     <>
       <DialogTitle>
         <Grid size={12} textAlign="center">
-          {!store ? (parentOptions ? 'Add Sub-store' : dictionary.stores.form.title ) : dictionary.stores.form.pageTitle.replace('{storeName}' ,store.name)}
+          {!store ? (parentOptions ? dictionary.forms.stores.form.titleSubStore : dictionary.stores.form.title ) : dictionary.stores.form.pageTitle.replace('{storeName}' ,store.name)}
         </Grid>
       </DialogTitle>
       <DialogContent>
@@ -155,7 +155,7 @@ const StoreForm: React.FC<StoreFormProps> = ({ store = null, parentOptions = nul
                     onChange={(newValue: StoreOption | null) => {
                       if (store && store?.id === newValue?.id) {
                         setValue('parent_id', 0);
-                        setError('parent_id', { message: 'Cannot be a parent of its own' });
+                        setError('parent_id', { message: dictionary.forms.stores.form.errors.cannotBeOwnParent });
                       } else {
                         setValue('parent_id', newValue ? newValue.id : 0, {
                           shouldValidate: true,

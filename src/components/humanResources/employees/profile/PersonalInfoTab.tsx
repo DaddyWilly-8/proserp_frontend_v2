@@ -15,6 +15,7 @@ import { Box, Card, Stack, Typography } from '@mui/material';
 import type { ReactElement } from 'react';
 import { readableDate } from '@/app/helpers/input-sanitization-helpers';
 import { useEmployeeProfile } from './EmployeeProfileProvider';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const formatEnumLabel = (employmentType?: string | null) => {
   if (!employmentType) return '';
@@ -26,62 +27,69 @@ const formatEnumLabel = (employmentType?: string | null) => {
 };
 
 export default function PersonalInfoTab() {
+  const dictionary = useDictionary();
+  const t = dictionary.humanResources.employees;
   const { employee } = useEmployeeProfile();
   if (!employee) return null;
 
   const displayGender = employee.gender
-    ? employee.gender.charAt(0).toUpperCase() + employee.gender.slice(1).toLowerCase()
+    ? t.options.gender[employee.gender.toLowerCase()] ||
+      employee.gender.charAt(0).toUpperCase() + employee.gender.slice(1).toLowerCase()
     : undefined;
+  const translateEnum = (
+    group: Record<string, string> | undefined,
+    value?: string | null
+  ) => (value && group?.[value]) || formatEnumLabel(value);
 
   const sections: {
     title: string;
     items: { key: string; label: string; value?: string | null; icon: ReactElement }[];
   }[] = [
     {
-      title: 'Identity',
+      title: t.profile.personal.sections.identity,
       items: [
-        { key: 'firstName', label: 'First Name', value: employee.first_name, icon: <PersonOutlineOutlined fontSize='small' /> },
-        { key: 'middleName', label: 'Middle Name', value: employee.middle_name, icon: <PersonOutlineOutlined fontSize='small' /> },
-        { key: 'lastName', label: 'Last Name', value: employee.last_name, icon: <PersonOutlineOutlined fontSize='small' /> },
-        { key: 'gender', label: 'Gender', value: displayGender, icon: <BadgeOutlined fontSize='small' /> },
+        { key: 'firstName', label: t.profile.personal.labels.firstName, value: employee.first_name, icon: <PersonOutlineOutlined fontSize='small' /> },
+        { key: 'middleName', label: t.profile.personal.labels.middleName, value: employee.middle_name, icon: <PersonOutlineOutlined fontSize='small' /> },
+        { key: 'lastName', label: t.profile.personal.labels.lastName, value: employee.last_name, icon: <PersonOutlineOutlined fontSize='small' /> },
+        { key: 'gender', label: t.profile.personal.labels.gender, value: displayGender, icon: <BadgeOutlined fontSize='small' /> },
         {
           key: 'dateOfBirth',
-          label: 'Date of Birth',
+          label: t.profile.personal.labels.dateOfBirth,
           value: employee.date_of_birth ? readableDate(employee.date_of_birth, false) : undefined,
           icon: <CalendarMonthOutlined fontSize='small' />,
         },
-        { key: 'nationalId', label: 'National ID', value: employee.national_id, icon: <FingerprintOutlined fontSize='small' /> },
-        { key: 'passportNumber', label: 'Passport Number', value: employee.passport_number, icon: <BadgeOutlined fontSize='small' /> },
-        { key: 'tin', label: 'TIN', value: employee.tin, icon: <FingerprintOutlined fontSize='small' /> },
+        { key: 'nationalId', label: t.profile.personal.labels.nationalId, value: employee.national_id, icon: <FingerprintOutlined fontSize='small' /> },
+        { key: 'passportNumber', label: t.profile.personal.labels.passportNumber, value: employee.passport_number, icon: <BadgeOutlined fontSize='small' /> },
+        { key: 'tin', label: t.profile.personal.labels.tin, value: employee.tin, icon: <FingerprintOutlined fontSize='small' /> },
         {
           key: 'residenceStatus',
-          label: 'Residence Status',
-          value: formatEnumLabel(employee.residence_status),
+          label: t.profile.personal.labels.residenceStatus,
+          value: translateEnum(t.residenceStatuses, employee.residence_status),
           icon: <BadgeOutlined fontSize='small' />,
         },
       ],
     },
     {
-      title: 'Contact',
+      title: t.profile.personal.sections.contact,
       items: [
-        { key: 'phoneNumber', label: 'Phone Number', value: employee.phone_number, icon: <ContactPhoneOutlined fontSize='small' /> },
-        { key: 'email', label: 'Email', value: employee.email, icon: <EmailOutlined fontSize='small' /> },
-        { key: 'address', label: 'Address', value: employee.address, icon: <HomeOutlined fontSize='small' /> },
+        { key: 'phoneNumber', label: t.profile.personal.labels.phoneNumber, value: employee.phone_number, icon: <ContactPhoneOutlined fontSize='small' /> },
+        { key: 'email', label: t.profile.personal.labels.email, value: employee.email, icon: <EmailOutlined fontSize='small' /> },
+        { key: 'address', label: t.profile.personal.labels.address, value: employee.address, icon: <HomeOutlined fontSize='small' /> },
       ],
     },
     {
-      title: 'Work',
+      title: t.profile.personal.sections.work,
       items: [
-        { key: 'department', label: 'Department', value: employee.department?.name, icon: <ApartmentOutlined fontSize='small' /> },
+        { key: 'department', label: t.profile.personal.labels.department, value: employee.department?.name, icon: <ApartmentOutlined fontSize='small' /> },
         {
           key: 'employmentType',
-          label: 'Employment Type',
-          value: formatEnumLabel(employee.employment_type),
+          label: t.profile.personal.labels.employmentType,
+          value: translateEnum(t.employmentTypes, employee.employment_type),
           icon: <WorkOutlineOutlined fontSize='small' />,
         },
         {
           key: 'joinDate',
-          label: 'Join Date',
+          label: t.profile.personal.labels.joinDate,
           value: employee.join_date ? readableDate(employee.join_date, false) : undefined,
           icon: <CalendarMonthOutlined fontSize='small' />,
         },

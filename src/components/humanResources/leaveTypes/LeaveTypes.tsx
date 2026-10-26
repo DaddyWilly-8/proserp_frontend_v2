@@ -11,8 +11,10 @@ import LeaveTypeActionTail from './LeaveTypeActionTail';
 import LeaveTypesListItem from './LeaveTypesListItem';
 import { LeaveType } from './LeaveTypesType';
 import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const LeaveTypes = () => {
+  const dictionary = useDictionary();
   const params = useParams<{ id?: string; keyword?: string }>();
   const listRef = useRef<any>(null);
   const [mounted, setMounted] = useState(false);
@@ -47,7 +49,7 @@ const LeaveTypes = () => {
   return (
     <>
       <Typography variant={'h4'} mb={2}>
-        Leave Types
+        {dictionary.humanResources.leaveTypes.list.title}
       </Typography>
       <JumboRqList
         ref={listRef}

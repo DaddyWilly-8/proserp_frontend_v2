@@ -4,8 +4,10 @@ import { UndoOutlined, VisibilityOutlined } from '@mui/icons-material';
 import { listItemContext } from './InventoryTransferListItem';
 import { useStoreProfile } from '../../StoreProfileProvider';
 import { readableDate } from '@/app/helpers/input-sanitization-helpers';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function InventoryTransferTrns() {
+    const dictionary = useDictionary();
     const {setSelectedInventoryTrn, transfer, setOpenDialog, setOpenDocumentDialog, inventoryTrns} = useContext(listItemContext);
     const {activeStore} = useStoreProfile();
 
@@ -31,19 +33,19 @@ function InventoryTransferTrns() {
             width="100%"
             >
             <Grid size={{xs: 4, md: 3}}>
-                <Tooltip title={'Date Received'}>
+                <Tooltip title={dictionary.tooltips.dateReceived}>
                     <Typography>
                         {readableDate(inventoryTrn?.date_received)}
                     </Typography>
                 </Tooltip>
             </Grid>
             <Grid size={{xs: 4, md: 3}} align="center">
-                <Tooltip title={'Grn No.'}>
+                <Tooltip title={dictionary.tooltips.grnNo2}>
                    <Typography>{inventoryTrn?.trnNo}</Typography>
                 </Tooltip>
             </Grid>
             <Grid size={4} align="center">
-                <Tooltip title={'Remark'}>
+                <Tooltip title={dictionary.tooltips.remark}>
                   <Typography>{inventoryTrn?.remarks}</Typography>
                 </Tooltip>
             </Grid>

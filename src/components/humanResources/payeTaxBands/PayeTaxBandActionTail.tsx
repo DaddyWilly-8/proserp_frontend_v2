@@ -11,8 +11,10 @@ import {
 } from '@mui/material';
 import { useState } from 'react';
 import PayeTaxBandForm from './PayeTaxBandForm';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const PayeTaxBandActionTail = () => {
+  const dictionary = useDictionary();
   const [openDialog, setOpenDialog] = useState(false);
 
   const { theme } = useJumboTheme();
@@ -29,7 +31,7 @@ const PayeTaxBandActionTail = () => {
         disableElevation
         sx={{ '& .MuiButton-root': { px: 1 } }}
       >
-        <Tooltip title='Add PAYE Tax Band'>
+        <Tooltip title={dictionary.tooltips.addPayeTaxBand}>
           <IconButton onClick={() => setOpenDialog(true)}>
             <AddOutlined />
           </IconButton>

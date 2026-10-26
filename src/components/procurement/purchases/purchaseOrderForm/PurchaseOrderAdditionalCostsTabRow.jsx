@@ -2,6 +2,7 @@ import { DisabledByDefault, EditOutlined } from '@mui/icons-material';
 import { Chip, Divider, Grid, IconButton, Tooltip, Typography } from '@mui/material';
 import React, { useState } from 'react';
 import PurchaseOrderAdditionalCostsTab from './PurchaseOrderAdditionalCostsTab';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function PurchaseOrderAdditionalCostsTabRow({
   additionalCost,
@@ -10,6 +11,7 @@ function PurchaseOrderAdditionalCostsTabRow({
   additionalCosts = [],
   setAdditionalCosts,
 }) {
+  const dictionary = useDictionary();
   const [showForm, setShowForm] = useState(false);
 
   return (
@@ -27,7 +29,7 @@ function PurchaseOrderAdditionalCostsTabRow({
         >
           <Grid size={{ xs: 1, md: 1 }}>{index + 1}.</Grid>
           <Grid size={{ xs: 7, md: 4 }}>
-            <Tooltip title='Cost name'>
+            <Tooltip title={dictionary.tooltips.costName}>
               <Typography>
                 {additionalCost.ledger?.name || additionalCost.ledger_name}
               </Typography>
@@ -35,11 +37,11 @@ function PurchaseOrderAdditionalCostsTabRow({
           </Grid>
           <Grid size={{ xs: 4, md: 3 }} textAlign={{ md: 'start' }}>
             {!!additionalCost.vat_exempted && (
-              <Chip label='VAT Exempted' size='small' color='default' />
+              <Chip label={dictionary.forms.purchases.orderForm.labels.vatExempted} size='small' color='default' />
             )}
           </Grid>
           <Grid size={{ xs: 6, md: 2 }} textAlign={{ md: 'right' }}>
-            <Tooltip title='Amount'>
+            <Tooltip title={dictionary.tooltips.amount}>
               <Typography>
                 {parseFloat(additionalCost.amount)?.toLocaleString('en-US', {
                   maximumFractionDigits: 2,
@@ -49,7 +51,7 @@ function PurchaseOrderAdditionalCostsTabRow({
             </Tooltip>
           </Grid>
           <Grid textAlign={'end'} size={{ xs: 6, md: 2 }}>
-            <Tooltip title='Edit Additional Cost'>
+            <Tooltip title={dictionary.tooltips.editAdditionalCost}>
               <IconButton
                 size='small'
                 onClick={() => {
@@ -59,7 +61,7 @@ function PurchaseOrderAdditionalCostsTabRow({
                 <EditOutlined fontSize='small' />
               </IconButton>
             </Tooltip>
-            <Tooltip title='Remove Additional Cost'>
+            <Tooltip title={dictionary.tooltips.removeAdditionalCost}>
               <IconButton
                 size='small'
                 onClick={() =>

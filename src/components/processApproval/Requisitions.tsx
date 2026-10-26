@@ -38,6 +38,7 @@ import RequisitionsWaitingForSelector from './RequisitionsWaitingForSelector';
 import MyRequisitionsToggle from './MyRequisitionsToggle';
 import { Requisition } from './RequisitionType';
 import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface RequisitionContextType {
   isEditAction: boolean;
@@ -73,6 +74,7 @@ export const requisitionContext = createContext<RequisitionContextType>({
 });
 
 const Requisitions = () => {
+  const dictionary = useDictionary();
   const params = useParams();
   const searchParams = useSearchParams();
   const listRef = useRef<any>(null);
@@ -279,7 +281,7 @@ const Requisitions = () => {
                                     size={{ xs: 1, md: 0.5 }}
                                     alignContent={'end'}
                                   >
-                                    <Tooltip title='Filter Dates'>
+                                    <Tooltip title={dictionary.tooltips.filterDates}>
                                       <IconButton
                                         onClick={() => {
                                           setQueryOptions((state) => ({

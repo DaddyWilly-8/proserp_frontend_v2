@@ -145,7 +145,7 @@ const EmployerContributionTypeForm = ({
     mutationFn: humanResourcesServices.addEmployerContributionType,
     onSuccess: () => {
       setOpenDialog(false);
-      enqueueSnackbar('Employer Contribution Type Added Successfully', {
+      enqueueSnackbar(dictionary.humanResources.employerContributionTypes.form.messages.addSuccess, {
         variant: 'success',
       });
       queryClient.invalidateQueries({
@@ -165,7 +165,7 @@ const EmployerContributionTypeForm = ({
     mutationFn: humanResourcesServices.updateEmployerContributionType,
     onSuccess: () => {
       setOpenDialog(false);
-      enqueueSnackbar('Employer Contribution Type Updated Successfully', {
+      enqueueSnackbar(dictionary.humanResources.employerContributionTypes.form.messages.updateSuccess, {
         variant: 'success',
       });
       queryClient.invalidateQueries({
@@ -239,32 +239,32 @@ const EmployerContributionTypeForm = ({
     id: yup.number().optional(),
     name: yup
       .string()
-      .required('Name is required')
-      .max(255, 'Name cannot exceed 255 characters'),
-    code: yup.string().max(50, 'Code cannot exceed 50 characters'),
+      .required(dictionary.humanResources.employerContributionTypes.form.validation.nameRequired)
+      .max(255, dictionary.humanResources.employerContributionTypes.form.validation.nameMax),
+    code: yup.string().max(50, dictionary.humanResources.employerContributionTypes.form.validation.codeMax),
     category: yup
       .string()
       .oneOf(['statutory', 'voluntary'])
-      .required('Category is required'),
+      .required(dictionary.humanResources.employerContributionTypes.form.validation.categoryRequired),
     computation_method: yup
       .string()
       .oneOf(['fixed', 'percentage_of_basic', 'percentage_of_gross'])
-      .required('Computation method is required'),
+      .required(dictionary.humanResources.employerContributionTypes.form.validation.methodRequired),
     payable_ledger_id: orgHasSubscribedAccountsAndFinance
       ? yup
           .number()
-          .required('This field is required')
-          .positive('This field is required')
+          .required(dictionary.humanResources.employerContributionTypes.form.validation.fieldRequired)
+          .positive(dictionary.humanResources.employerContributionTypes.form.validation.fieldRequired)
       : yup.number().nullable(),
     expense_ledger_id: orgHasSubscribedAccountsAndFinance
       ? yup
           .number()
-          .required('This field is required')
-          .positive('This field is required')
+          .required(dictionary.humanResources.employerContributionTypes.form.validation.fieldRequired)
+          .positive(dictionary.humanResources.employerContributionTypes.form.validation.fieldRequired)
       : yup.number().nullable(),
     description: yup
       .string()
-      .max(500, 'Description cannot exceed 500 characters'),
+      .max(500, dictionary.humanResources.employerContributionTypes.form.validation.descriptionMax),
     apply_to_employees: yup
       .string()
       .oneOf(['none', 'all', 'active_contracts'])
@@ -335,8 +335,8 @@ const EmployerContributionTypeForm = ({
       <DialogTitle>
         <Grid size={12} textAlign={'center'}>
           {!contributionType?.id
-            ? 'Add Employer Contribution Type'
-            : 'Edit Employer Contribution Type'}
+            ? dictionary.humanResources.employerContributionTypes.form.titles.add
+            : dictionary.humanResources.employerContributionTypes.form.titles.edit}
         </Grid>
       </DialogTitle>
       <DialogContent>
@@ -345,7 +345,7 @@ const EmployerContributionTypeForm = ({
             <Grid size={{ xs: 12, md: 6 }}>
               <Div sx={{ mt: 1, mb: 1 }}>
                 <TextField
-                  label='Name'
+                  label={dictionary.humanResources.employerContributionTypes.form.labels.name}
                   size='small'
                   fullWidth
                   error={
@@ -363,7 +363,7 @@ const EmployerContributionTypeForm = ({
             <Grid size={{ xs: 12, md: 3 }}>
               <Div sx={{ mt: 1, mb: 1 }}>
                 <TextField
-                  label='Code'
+                  label={dictionary.humanResources.employerContributionTypes.form.labels.code}
                   size='small'
                   fullWidth
                   error={
@@ -387,7 +387,7 @@ const EmployerContributionTypeForm = ({
                   render={({ field }) => (
                     <TextField
                       select
-                      label='Category'
+                      label={dictionary.humanResources.employerContributionTypes.form.labels.category}
                       size='small'
                       fullWidth
                       value={field.value}
@@ -401,8 +401,12 @@ const EmployerContributionTypeForm = ({
                         getValidationMessage(validationErrors, 'category')
                       }
                     >
-                      <MenuItem value='statutory'>Statutory</MenuItem>
-                      <MenuItem value='voluntary'>Voluntary</MenuItem>
+                      <MenuItem value='statutory'>
+                        {dictionary.humanResources.employerContributionTypes.form.options.statutory}
+                      </MenuItem>
+                      <MenuItem value='voluntary'>
+                        {dictionary.humanResources.employerContributionTypes.form.options.voluntary}
+                      </MenuItem>
                     </TextField>
                   )}
                 />
@@ -416,7 +420,7 @@ const EmployerContributionTypeForm = ({
                   render={({ field }) => (
                     <TextField
                       select
-                      label='Computation Method'
+                      label={dictionary.humanResources.employerContributionTypes.form.labels.computationMethod}
                       size='small'
                       fullWidth
                       value={field.value}
@@ -436,12 +440,12 @@ const EmployerContributionTypeForm = ({
                         )
                       }
                     >
-                      <MenuItem value='fixed'>Fixed</MenuItem>
+                      <MenuItem value='fixed'>{dictionary.humanResources.employerContributionTypes.form.options.fixed}</MenuItem>
                       <MenuItem value='percentage_of_basic'>
-                        Percentage Of Basic
+                        {dictionary.humanResources.employerContributionTypes.form.options.percentageOfBasic}
                       </MenuItem>
                       <MenuItem value='percentage_of_gross'>
-                        Percentage Of Gross
+                        {dictionary.humanResources.employerContributionTypes.form.options.percentageOfGross}
                       </MenuItem>
                     </TextField>
                   )}
@@ -456,7 +460,7 @@ const EmployerContributionTypeForm = ({
                   control={control}
                   render={({ field }) => (
                     <TextField
-                      label='Default Value'
+                      label={dictionary.humanResources.employerContributionTypes.form.labels.defaultValue}
                       size='small'
                       fullWidth
                       value={formatCommaSeparatedValue(field.value)}
@@ -524,7 +528,7 @@ const EmployerContributionTypeForm = ({
                           PERMISSIONS.ACCOUNTS_MASTERS_CREATE
                         ) && (
                           <Tooltip
-                            title={'Quick Add Ledger'}
+                            title={dictionary.tooltips.quickAddLedger}
                             onClick={() => {
                               setLedgertType('debit');
                               setOpenQuickAddLedger(true);
@@ -541,7 +545,7 @@ const EmployerContributionTypeForm = ({
                 <Grid size={{ xs: 12, md: 6 }}>
                   <Div sx={{ my: 1 }}>
                     <LedgerSelect
-                      label='Payable Ledger'
+                      label={dictionary.humanResources.employerContributionTypes.form.labels.payableLedger}
                       allowedGroups={['Liabilities']}
                       frontError={errors.payable_ledger_id}
                       key={'account-payable-ledger'}
@@ -571,7 +575,7 @@ const EmployerContributionTypeForm = ({
                           PERMISSIONS.ACCOUNTS_MASTERS_CREATE
                         ) && (
                           <Tooltip
-                            title={'Quick Add Ledger'}
+                            title={dictionary.tooltips.quickAddLedger}
                             onClick={() => {
                               setLedgertType('credit');
                               setOpenQuickAddLedger(true);
@@ -595,21 +599,23 @@ const EmployerContributionTypeForm = ({
                   render={({ field }) => (
                     <TextField
                       select
-                      label='Apply To Employees'
+                      label={dictionary.humanResources.employerContributionTypes.form.labels.applyToEmployees}
                       size='small'
                       fullWidth
                       value={field.value || 'none'}
                       onChange={field.onChange}
                       helperText={
                         applyScope !== 'none'
-                          ? 'This will apply to all existing employees'
-                          : 'Select an option to bulk apply this contribution'
+                          ? dictionary.humanResources.employerContributionTypes.form.helpers.applyAll
+                          : dictionary.humanResources.employerContributionTypes.form.helpers.applyNone
                       }
                     >
-                      <MenuItem value='none'>None</MenuItem>
-                      <MenuItem value='all'>All Employees</MenuItem>
+                      <MenuItem value='none'>{dictionary.humanResources.employerContributionTypes.form.options.none}</MenuItem>
+                      <MenuItem value='all'>
+                        {dictionary.humanResources.employerContributionTypes.form.options.allEmployees}
+                      </MenuItem>
                       <MenuItem value='active_contracts'>
-                        Employees With Active Contracts
+                        {dictionary.humanResources.employerContributionTypes.form.options.activeContracts}
                       </MenuItem>
                     </TextField>
                   )}
@@ -620,7 +626,7 @@ const EmployerContributionTypeForm = ({
             <Grid size={{ xs: 12 }}>
               <Div sx={{ mt: 1, mb: 1 }}>
                 <TextField
-                  label='Description'
+                  label={dictionary.humanResources.employerContributionTypes.form.labels.description}
                   size='small'
                   fullWidth
                   multiline
@@ -641,7 +647,7 @@ const EmployerContributionTypeForm = ({
 
           <DialogActions>
             <Button size='small' onClick={() => setOpenDialog(false)}>
-              Cancel
+              {dictionary.humanResources.employerContributionTypes.form.buttons.cancel}
             </Button>
             <LoadingButton
               type='submit'
@@ -650,7 +656,7 @@ const EmployerContributionTypeForm = ({
               sx={{ display: 'flex' }}
               loading={isPending || updateIsPending}
             >
-              Submit
+              {dictionary.humanResources.employerContributionTypes.form.buttons.submit}
             </LoadingButton>
           </DialogActions>
         </form>
@@ -665,62 +671,65 @@ const EmployerContributionTypeForm = ({
       >
         <DialogTitle>
           <Typography variant='h6' fontWeight={600}>
-            Confirm Bulk Application
+            {dictionary.humanResources.employerContributionTypes.form.titles.confirmBulk}
           </Typography>
         </DialogTitle>
         <DialogContent>
           <Typography variant='body2' color='text.secondary' sx={{ mb: 2 }}>
-            This action will apply this employer contribution to multiple
-            employees:
+            {dictionary.humanResources.employerContributionTypes.form.bulk.intro}
           </Typography>
           <Grid container spacing={1}>
             <Grid size={12}>
               <Typography variant='body2'>
-                <strong>Will Update:</strong> {confirmDialog.wouldUpdate}{' '}
-                employees
+                <strong>{dictionary.humanResources.employerContributionTypes.form.bulk.willUpdate}</strong>{' '}
+                {dictionary.humanResources.employerContributionTypes.form.bulk.employeesCount.replace(
+                  '{count}',
+                  String(confirmDialog.wouldUpdate)
+                )}
                 {confirmDialog.wouldUpdate > 0 && (
                   <Typography
                     variant='caption'
                     display='block'
                     color='text.secondary'
                   >
-                    (Employees who already have this contribution will be
-                    updated with the new rate)
+                    {dictionary.humanResources.employerContributionTypes.form.bulk.updateNote}
                   </Typography>
                 )}
               </Typography>
             </Grid>
             <Grid size={12}>
               <Typography variant='body2'>
-                <strong>Will Create:</strong> {confirmDialog.wouldCreate} new
-                employees
+                <strong>{dictionary.humanResources.employerContributionTypes.form.bulk.willCreate}</strong>{' '}
+                {dictionary.humanResources.employerContributionTypes.form.bulk.newEmployeesCount.replace(
+                  '{count}',
+                  String(confirmDialog.wouldCreate)
+                )}
                 {confirmDialog.wouldCreate > 0 && (
                   <Typography
                     variant='caption'
                     display='block'
                     color='text.secondary'
                   >
-                    (Employees who don't have this contribution will get it
-                    added)
+                    {dictionary.humanResources.employerContributionTypes.form.bulk.createNote}
                   </Typography>
                 )}
               </Typography>
             </Grid>
           </Grid>
           <Typography variant='body2' color='warning.main' sx={{ mt: 2 }}>
-            This action cannot be undone. Continue?
+            {dictionary.humanResources.employerContributionTypes.form.bulk.warning}
           </Typography>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCancelBulkUpdate} variant='outlined'>
-            Cancel
+            {dictionary.humanResources.employerContributionTypes.form.buttons.cancel}
           </Button>
           <Button
             onClick={handleConfirmBulkUpdate}
             variant='contained'
             color='warning'
           >
-            Continue
+            {dictionary.humanResources.employerContributionTypes.form.buttons.continue}
           </Button>
         </DialogActions>
       </Dialog>
@@ -731,7 +740,7 @@ const EmployerContributionTypeForm = ({
           <QuickAddLedger
             ledgerType={ledgertType}
             toggleOpen={setOpenQuickAddLedger}
-            heading='Quick Add Ledger'
+            heading={dictionary.humanResources.employerContributionTypes.form.titles.quickAddLedger}
             setAddedLedger={(v) => {
               if (ledgertType === 'credit') {
                 setRecentlyAddedPayableLedger(v);

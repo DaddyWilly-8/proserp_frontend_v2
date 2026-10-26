@@ -1,37 +1,37 @@
 import * as yup from 'yup';
 
-export const validationSchema = yup.object({
+export const buildValidationSchema = (dictionary: any) => yup.object({
   name: yup
     .string()
     .trim()
-    .required('Full name is required')
-    .max(191, 'Full name is too long'),
+    .required(dictionary.forms.signup.errors.nameRequired)
+    .max(191, dictionary.forms.signup.errors.nameTooLong),
 
   email: yup
     .string()
     .trim()
-    .email('Enter a valid email address')
-    .required('Email is required'),
+    .email(dictionary.forms.signup.errors.emailInvalid)
+    .required(dictionary.forms.signup.errors.emailRequired),
 
   phone: yup
     .string()
     .trim()
-    .required('Phone number is required')
+    .required(dictionary.forms.signup.errors.phoneRequired)
     .matches(
       /^\+?[0-9]{10,15}$/,
-      'Phone number must be between 10 and 15 digits'
+      dictionary.forms.signup.errors.phoneFormat
     ),
 
   password: yup
     .string()
-    .required('Password is required')
+    .required(dictionary.forms.signup.errors.passwordRequired)
     .matches(
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])(?=.{8,})/,
-      'Password must be at least 8 characters and include uppercase, lowercase, number, and special character'
+      dictionary.forms.signup.errors.passwordComplexity
     ),
 
   password_confirmation: yup
     .string()
-    .required('Please confirm your password')
-    .oneOf([yup.ref('password')], 'Passwords do not match'),
+    .required(dictionary.forms.signup.errors.confirmRequired)
+    .oneOf([yup.ref('password')], dictionary.forms.signup.errors.mismatch),
 });

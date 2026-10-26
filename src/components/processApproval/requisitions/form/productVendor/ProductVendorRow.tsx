@@ -3,6 +3,7 @@ import { Divider, Grid, IconButton, Tooltip, Typography } from '@mui/material';
 import React, { useState, Dispatch, SetStateAction } from 'react';
 import { Vendor } from '@/components/processApproval/RequisitionType';
 import ProductVendor from './ProductVendor';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface ProductVendorRowProps {
   index: number;
@@ -21,6 +22,7 @@ function ProductVendorRow({
   vendorIndex,
   setRequisition_product_items
 }: ProductVendorRowProps) {
+  const dictionary = useDictionary();
   const client = vendor.stakeholder;
   const [showForm, setShowForm] = useState(false);
 
@@ -51,22 +53,22 @@ function ProductVendorRow({
             {index + 1}.
           </Grid>
           <Grid size={5}>
-            <Tooltip title="Vendor">
+            <Tooltip title={dictionary.tooltips.vendor}>
               <Typography>{client?.name || vendor?.name}</Typography>
             </Tooltip>
           </Grid>
           <Grid size={{xs: 6, md: 5.5}}>
-            <Tooltip title="Remarks">
+            <Tooltip title={dictionary.tooltips.remarks}>
               <Typography>{vendor.remarks}</Typography>
             </Tooltip>
           </Grid>
           <Grid size={{xs: 12, md: 1}} textAlign={'end'}>
-            <Tooltip title="Edit Vendor">
+            <Tooltip title={dictionary.tooltips.editVendor}>
               <IconButton size="small" onClick={() => setShowForm(true)}>
                 <EditOutlined fontSize="small" />
               </IconButton>
             </Tooltip>
-            <Tooltip title="Remove Vendor">
+            <Tooltip title={dictionary.tooltips.removeVendor}>
               <IconButton size="small" onClick={handleRemoveVendor}>
                 <DisabledByDefault fontSize="small" color="error" />
               </IconButton>

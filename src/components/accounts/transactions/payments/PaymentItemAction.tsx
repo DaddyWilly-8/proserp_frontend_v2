@@ -47,6 +47,10 @@ const PaymentFormDialogContent = dynamic(() => import('./PaymentFormDialogConten
 const PaymentOnScreenPreview = dynamic(() => import('./PaymentOnScreenPreview'), { ssr: false });
 import PaymentPDF from './PaymentPDF';
 import dynamic from 'next/dynamic';
+import { EventRepeatOutlined } from '@mui/icons-material';
+import RepeatTransactionDialogContent from '@/components/accounts/recurringTransactions/RepeatTransactionDialogContent';
+import { canRepeatTransaction } from '@/components/accounts/recurringTransactions/recurring-utils';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface DocumentDialogProps {
   transaction: Transaction;
@@ -59,6 +63,7 @@ const DocumentDialog: React.FC<DocumentDialogProps> = ({
   authObject,
   setOpenDocumentDialog,
 }) => {
+  const dictionary = useDictionary();
   const { data, isFetching } = useQuery({
     queryKey: ['payment', transaction.id],
     queryFn: () => paymentServices.show(transaction.id),
@@ -163,7 +168,7 @@ const DocumentDialog: React.FC<DocumentDialogProps> = ({
           </Grid>
 
           <Grid size={1} textAlign='right'>
-            <Tooltip title='Close'>
+            <Tooltip title={dictionary.tooltips.close}>
               <IconButton
                 size='small'
                 onClick={() => setOpenDocumentDialog(false)}
@@ -242,6 +247,7 @@ const AttachDialog = ({
 };
 
 function PaymentItemAction({ transaction }: { transaction: Transaction }) {
+  const dictionary = useDictionary();
   const [openDocumentDialog, setOpenDocumentDialog] = useState(false);
   const { showDialog, hideDialog } = useJumboDialog();
   const { enqueueSnackbar } = useSnackbar();
@@ -249,6 +255,7 @@ function PaymentItemAction({ transaction }: { transaction: Transaction }) {
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const [attachDialog, setAttachDialog] = useState(false);
   const [openCancelDialog, setOpenCancelDialog] = useState(false);
+  const [openRepeatDialog, setOpenRepeatDialog] = useState(false);
   const authObject = useJumboAuth();
   const queryClient = useQueryClient();
 
@@ -519,6 +526,14 @@ function PaymentItemAction({ transaction }: { transaction: Transaction }) {
     );
   };
 
+  // Scheduling posts automatically, so it has its own permission on top of
+  // the transaction's; the server checks both again.
+  const repeatMenuItems: MenuItemProps[] =
+    checkOrganizationPermission([PERMISSIONS.RECURRING_TRANSACTIONS_CREATE]) &&
+    canRepeatTransaction(transaction)
+      ? [{ icon: <EventRepeatOutlined />, title: 'Repeat', action: 'repeat' }]
+      : [];
+
   const handleItemAction = (menuItem: MenuItemProps) => {
     switch (menuItem.action) {
       case 'delete':
@@ -544,6 +559,9 @@ function PaymentItemAction({ transaction }: { transaction: Transaction }) {
         break;
       case 'open':
         setOpenDocumentDialog(true);
+        break;
+      case 'repeat':
+        setOpenRepeatDialog(true);
         break;
       case 'cancel':
         setOpenCancelDialog(true);
@@ -638,13 +656,30 @@ function PaymentItemAction({ transaction }: { transaction: Transaction }) {
         )}
       </Dialog>
 
+      <Dialog
+        open={openRepeatDialog}
+        scroll='paper'
+        fullScreen={belowLargeScreen}
+        fullWidth
+        maxWidth='sm'
+        onClose={() => setOpenRepeatDialog(false)}
+      >
+        {openRepeatDialog && (
+          <RepeatTransactionDialogContent
+            type='payment'
+            transaction={transaction}
+            onClose={() => setOpenRepeatDialog(false)}
+          />
+        )}
+      </Dialog>
+
       <JumboDdMenu
         icon={
-          <Tooltip title='Actions'>
+          <Tooltip title={dictionary.tooltips.actions}>
             <MoreHorizOutlined />
           </Tooltip>
         }
-        menuItems={menuItems}
+        menuItems={[...menuItems, ...repeatMenuItems]}
         onClickCallback={handleItemAction}
       />
     </React.Fragment>

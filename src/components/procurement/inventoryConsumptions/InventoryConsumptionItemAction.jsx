@@ -35,6 +35,7 @@ import InventoryConsumptionPDF from './InventoryConsumptionPDF';
 const InventoryConsumptionsOnScreen = dynamic(() => import('./InventoryConsumptionsOnScreen'), { ssr: false });
 import inventoryConsumptionsServices from './inventoryConsumptionsServices';
 import dynamic from 'next/dynamic';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const ActionDialogContent = ({
   inventoryConsumption,
@@ -175,6 +176,7 @@ function InventoryConsumptionItemAction({
   inventoryConsumption,
   consumptionTab = false,
 }) {
+  const dictionary = useDictionary();
   const { showDialog, hideDialog } = useJumboDialog();
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const [openDocumentDialog, setOpenDocumentDialog] = useState(false);
@@ -292,7 +294,7 @@ function InventoryConsumptionItemAction({
       </Dialog>
       <JumboDdMenu
         icon={
-          <Tooltip title='Actions'>
+          <Tooltip title={dictionary.tooltips.actions}>
             <MoreHorizOutlined />
           </Tooltip>
         }

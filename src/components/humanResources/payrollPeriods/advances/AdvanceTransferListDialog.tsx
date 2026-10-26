@@ -1,5 +1,6 @@
 'use client';
 
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import PDFContent from '@/components/pdf/PDFContent';
 import { FileExportGrid } from '@/components/sharedComponents/FileExportGrid';
@@ -39,19 +40,19 @@ interface AdvanceTransferListDialogProps {
   setOpen: (val: boolean) => void;
 }
 
-const MONTH_NAMES = [
-  'January',
-  'February',
-  'March',
-  'April',
-  'May',
-  'June',
-  'July',
-  'August',
-  'September',
-  'October',
-  'November',
-  'December',
+const MONTH_KEYS = [
+  'january',
+  'february',
+  'march',
+  'april',
+  'may',
+  'june',
+  'july',
+  'august',
+  'september',
+  'october',
+  'november',
+  'december',
 ];
 
 const AdvanceTransferListDialog = ({
@@ -60,6 +61,8 @@ const AdvanceTransferListDialog = ({
   open = false,
   setOpen,
 }: AdvanceTransferListDialogProps) => {
+  const dictionary = useDictionary();
+  const t = dictionary.humanResources.payrollPeriods;
   const { enqueueSnackbar } = useSnackbar();
   const theme = useTheme();
   const { theme: jumboTheme } = useJumboTheme();
@@ -80,7 +83,7 @@ const AdvanceTransferListDialog = ({
 
   const monthNo = advanceSheet.period.month;
   const year = advanceSheet.period.year;
-  const monthName = MONTH_NAMES[monthNo - 1];
+  const monthName = t.common.months[MONTH_KEYS[monthNo - 1]];
   const payrollPeriod = `${year} - ${monthName}`;
   const rows = advanceSheet.rows;
 
@@ -154,7 +157,7 @@ const AdvanceTransferListDialog = ({
                 }}
               >
                 <Typography variant='h4' sx={{ color: headerColor }}>
-                  Advance Payment Transfer Sheet
+                  {t.advances.transfer.title}
                 </Typography>
               </Box>
             </Grid>
@@ -163,7 +166,7 @@ const AdvanceTransferListDialog = ({
             <Grid size={{ xs: 12, md: 4 }}>
               <Box>
                 <Typography variant='subtitle2' sx={{ color: headerColor }}>
-                  Payroll Period
+                  {t.advances.transfer.payrollPeriod}
                 </Typography>
                 <Typography variant='body1'>{payrollPeriod}</Typography>
               </Box>
@@ -172,7 +175,7 @@ const AdvanceTransferListDialog = ({
             <Grid size={{ xs: 12, md: 4 }}>
               <Box>
                 <Typography variant='subtitle2' sx={{ color: headerColor }}>
-                  Employees without bank accounts
+                  {t.advances.transfer.withoutBank}
                 </Typography>
                 <Typography variant='body1'>
                   {advanceSheet.employees_without_bank_account}
@@ -183,7 +186,7 @@ const AdvanceTransferListDialog = ({
             <Grid size={{ xs: 12, md: 4 }}>
               <Box>
                 <Typography variant='subtitle2' sx={{ color: headerColor }}>
-                  Total Employees
+                  {t.advances.transfer.totalEmployees}
                 </Typography>
                 <Typography variant='body1'>
                   {advanceSheet.total_employees}
@@ -194,7 +197,7 @@ const AdvanceTransferListDialog = ({
             <Grid size={{ xs: 12, md: 4 }}>
               <Box>
                 <Typography variant='subtitle2' sx={{ color: headerColor }}>
-                  Total Advance Amount
+                  {t.advances.transfer.totalAmount}
                 </Typography>
                 <Typography variant='body1'>
                   {advanceSheet.total_amount.toLocaleString('en-US', {
@@ -229,7 +232,7 @@ const AdvanceTransferListDialog = ({
                               textWrap: 'nowrap',
                             }}
                           >
-                            S/N
+                            {t.advances.transfer.columns.sn}
                           </TableCell>
                           <TableCell
                             sx={{
@@ -238,7 +241,7 @@ const AdvanceTransferListDialog = ({
                               textWrap: 'nowrap',
                             }}
                           >
-                            Employee No.
+                            {t.advances.transfer.columns.employeeNo}
                           </TableCell>
                           <TableCell
                             sx={{
@@ -247,17 +250,7 @@ const AdvanceTransferListDialog = ({
                               textWrap: 'nowrap',
                             }}
                           >
-                            Employee Name
-                          </TableCell>
-                          <TableCell
-                            sx={{
-                              backgroundColor: mainColor,
-                              color: contrastText,
-                              textWrap: 'nowrap',
-                            }}
-                            align='left'
-                          >
-                            Bank Name
+                            {t.advances.transfer.columns.employeeName}
                           </TableCell>
                           <TableCell
                             sx={{
@@ -267,7 +260,7 @@ const AdvanceTransferListDialog = ({
                             }}
                             align='left'
                           >
-                            Branch
+                            {t.advances.transfer.columns.bankName}
                           </TableCell>
                           <TableCell
                             sx={{
@@ -277,7 +270,7 @@ const AdvanceTransferListDialog = ({
                             }}
                             align='left'
                           >
-                            Bank Code
+                            {t.advances.transfer.columns.branch}
                           </TableCell>
                           <TableCell
                             sx={{
@@ -287,7 +280,7 @@ const AdvanceTransferListDialog = ({
                             }}
                             align='left'
                           >
-                            Account Number
+                            {t.advances.transfer.columns.bankCode}
                           </TableCell>
                           <TableCell
                             sx={{
@@ -297,7 +290,17 @@ const AdvanceTransferListDialog = ({
                             }}
                             align='left'
                           >
-                            Account Name
+                            {t.advances.transfer.columns.accountNumber}
+                          </TableCell>
+                          <TableCell
+                            sx={{
+                              backgroundColor: mainColor,
+                              color: contrastText,
+                              textWrap: 'nowrap',
+                            }}
+                            align='left'
+                          >
+                            {t.advances.transfer.columns.accountName}
                           </TableCell>
                           <TableCell
                             sx={{
@@ -307,7 +310,7 @@ const AdvanceTransferListDialog = ({
                             }}
                             align='right'
                           >
-                            Advance Amount
+                            {t.advances.transfer.columns.advanceAmount}
                           </TableCell>
                           <TableCell
                             sx={{
@@ -317,7 +320,7 @@ const AdvanceTransferListDialog = ({
                             }}
                             align='center'
                           >
-                            Status
+                            {t.advances.transfer.columns.status}
                           </TableCell>
                         </TableRow>
                       </TableHead>
@@ -358,7 +361,7 @@ const AdvanceTransferListDialog = ({
                             </TableCell>
                             <TableCell align='center'>
                               <Chip
-                                label={row.paid ? 'Paid' : 'Unpaid'}
+                                label={row.paid ? t.common.paid : t.common.unpaid}
                                 size='small'
                                 color={row.paid ? 'success' : 'default'}
                                 variant='outlined'
@@ -383,6 +386,7 @@ const AdvanceTransferListDialog = ({
               <AdvanceTransferListDialogPDF
                 organization={organization}
                 advanceSheet={advanceSheet}
+                dictionary={dictionary}
               />
             }
           />

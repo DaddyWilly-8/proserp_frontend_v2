@@ -19,6 +19,7 @@ import { sanitizedNumber } from '@/app/helpers/input-sanitization-helpers';
 import CommaSeparatedField from '@/shared/Inputs/CommaSeparatedField';
 import humanResourcesServices from '../humanResourcesServices';
 import { LoanRequestType } from './LoanRequestType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface LoanRepaymentInitiateFormProps {
   open: boolean;
@@ -40,6 +41,7 @@ const LoanRepaymentInitiateForm = ({
   loanRequest,
   onClose,
 }: LoanRepaymentInitiateFormProps) => {
+  const dictionary = useDictionary();
   const [amount, setAmount] = useState('');
   const [narration, setNarration] = useState('');
   const { enqueueSnackbar } = useSnackbar();
@@ -59,14 +61,14 @@ const LoanRepaymentInitiateForm = ({
       });
       queryClient.invalidateQueries({ queryKey: ['loanRequests'] });
       queryClient.invalidateQueries({ queryKey: ['loanStatement', loanRequest.id] });
-      enqueueSnackbar('Repayment initiated; awaiting Accounts to receipt it', {
+      enqueueSnackbar(dictionary.humanResources.loanRequests.repaymentInitiate.messages.initiated, {
         variant: 'success',
       });
       onClose();
     },
     onError: (error: any) => {
       enqueueSnackbar(
-        error?.response?.data?.message || 'Something went wrong',
+        error?.response?.data?.message || dictionary.humanResources.loanRequests.common.somethingWentWrong,
         { variant: 'error' }
       );
     },
@@ -106,31 +108,35 @@ const LoanRepaymentInitiateForm = ({
       fullScreen={belowLargeScreen}
       scroll={belowLargeScreen ? 'body' : 'paper'}
     >
-      <DialogTitle>Initiate Repayment</DialogTitle>
+      <DialogTitle>{dictionary.humanResources.loanRequests.repaymentInitiate.title}</DialogTitle>
       <DialogContent>
         <Stack spacing={2} sx={{ mt: 1 }}>
           {typeof loanRequest.outstanding_balance === 'number' && (
             <Alert severity='info'>
-              Outstanding balance:{' '}
+              {dictionary.humanResources.loanRequests.repaymentInitiate.outstandingBalance}{' '}
               {loanRequest.outstanding_balance.toLocaleString()}
               {alreadyInitiated > 0 && (
                 <>
                   {' '}
-                  ({alreadyInitiated.toLocaleString()} already initiated —{' '}
-                  {requestable.toLocaleString()} left)
+                  {dictionary.humanResources.loanRequests.repaymentInitiate.alreadyInitiated
+                    .replace('{initiated}', alreadyInitiated.toLocaleString())
+                    .replace('{left}', requestable.toLocaleString())}
                 </>
               )}
             </Alert>
           )}
           <TextField
-            label='Amount'
+            label={dictionary.humanResources.loanRequests.common.amount}
             size='small'
             fullWidth
             value={amount}
             error={exceedsRequestable}
             helperText={
               exceedsRequestable
-                ? `Cannot exceed ${requestable.toLocaleString()}`
+                ? dictionary.humanResources.loanRequests.repaymentInitiate.cannotExceed.replace(
+                    '{amount}',
+                    requestable.toLocaleString()
+                  )
                 : ' '
             }
             InputProps={{ inputComponent: CommaSeparatedField as any }}
@@ -139,8 +145,10 @@ const LoanRepaymentInitiateForm = ({
             }
           />
           <TextField
-            label='Narration (optional)'
-            placeholder='e.g. Lump-sum payoff on resignation'
+            label={dictionary.humanResources.loanRequests.repaymentInitiate.labels.narrationOptional}
+            placeholder={
+              dictionary.humanResources.loanRequests.repaymentInitiate.placeholders.narration
+            }
             size='small'
             fullWidth
             multiline
@@ -149,14 +157,13 @@ const LoanRepaymentInitiateForm = ({
             onChange={(e) => setNarration(e.target.value)}
           />
           <Typography variant='caption' color='text.secondary'>
-            This just records the amount — Accounts will pick the ledger and
-            post it once the money is confirmed received.
+            {dictionary.humanResources.loanRequests.repaymentInitiate.note}
           </Typography>
         </Stack>
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose} disabled={isPending}>
-          Cancel
+          {dictionary.humanResources.loanRequests.common.cancel}
         </Button>
         <LoadingButton
           loading={isPending}
@@ -166,7 +173,7 @@ const LoanRepaymentInitiateForm = ({
           disabled={!canSubmit}
           onClick={handleSubmit}
         >
-          Initiate Repayment
+          {dictionary.humanResources.loanRequests.repaymentInitiate.title}
         </LoadingButton>
       </DialogActions>
     </Dialog>

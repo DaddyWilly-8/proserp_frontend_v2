@@ -22,6 +22,7 @@ import { Controller, useForm } from 'react-hook-form';
 import * as yup from 'yup';
 import { DeductionType } from '../deductionTypes/DeductionType';
 import humanResourcesServices from '../humanResourcesServices';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface FormData {
   id: number | null;
@@ -35,6 +36,7 @@ interface DeductionsTabProps {
 }
 
 const DeductionsTab = ({ setDeductionSettings }: DeductionsTabProps) => {
+  const dictionary = useDictionary();
   const { theme } = useJumboTheme();
   const [scopeValue, setScopeValue] = useState<string | null>(null);
 
@@ -58,10 +60,10 @@ const DeductionsTab = ({ setDeductionSettings }: DeductionsTabProps) => {
   const validationSchema = yup.object({
     id: yup
       .number()
-      .required('Deduction Type is required')
-      .typeError('Deduction Type is required'),
+      .required(dictionary.humanResources.employees.deductions.errors.typeRequired)
+      .typeError(dictionary.humanResources.employees.deductions.errors.typeRequired),
     deduction_name: yup.string(),
-    scope: yup.string().required('Scope is required'),
+    scope: yup.string().required(dictionary.humanResources.employees.deductions.errors.scopeRequired),
     scope_lable: yup.string(),
   });
 
@@ -104,7 +106,9 @@ const DeductionsTab = ({ setDeductionSettings }: DeductionsTabProps) => {
               <Controller
                 name='id'
                 control={control}
-                rules={{ required: 'Deduction type is required' }}
+                rules={{
+                  required: dictionary.humanResources.employees.deductions.errors.typeRequired,
+                }}
                 render={({ field, fieldState }) => (
                   <Autocomplete
                     size='small'
@@ -135,7 +139,7 @@ const DeductionsTab = ({ setDeductionSettings }: DeductionsTabProps) => {
                     renderInput={(params) => (
                       <TextField
                         {...params}
-                        label='Deduction Type'
+                        label={dictionary.humanResources.employees.deductions.labels.deductionType}
                         error={!!fieldState.error}
                         helperText={fieldState.error?.message}
                       />
@@ -155,7 +159,7 @@ const DeductionsTab = ({ setDeductionSettings }: DeductionsTabProps) => {
           <Div sx={{ mt: 1, mb: 1 }}>
             <FormControl>
               <FormLabel id={`deduction-scope`} sx={{ fontSize: 12 }}>
-                Scope
+                {dictionary.humanResources.employees.common.scope}
               </FormLabel>
               <RadioGroup
                 row
@@ -169,17 +173,21 @@ const DeductionsTab = ({ setDeductionSettings }: DeductionsTabProps) => {
                     shouldDirty: true,
                   });
                   if (v === 'all') {
-                    setValue('scope_lable', 'All');
+                    setValue('scope_lable', dictionary.humanResources.employees.common.scopeAll);
                   } else {
-                    setValue('scope_lable', 'Active Contracts');
+                    setValue(
+                      'scope_lable',
+                      dictionary.humanResources.employees.common.scopeActiveContracts
+                    );
                   }
                 }}
               >
-                <FormControlLabel value='all' control={<Radio />} label='All' />
+                <FormControlLabel value='all' control={<Radio />} label={dictionary.humanResources.employees.common.scopeAll}
+                />
                 <FormControlLabel
                   value='active_contracts'
                   control={<Radio />}
-                  label='Active Contracts'
+                  label={dictionary.humanResources.employees.common.scopeActiveContracts}
                 />
               </RadioGroup>
               {errors.scope && (
@@ -198,7 +206,7 @@ const DeductionsTab = ({ setDeductionSettings }: DeductionsTabProps) => {
         >
           <Button variant='contained' size='small' type='submit'>
             <Add />
-            add
+            {dictionary.humanResources.employees.common.add}
           </Button>
         </Grid>
       </Grid>

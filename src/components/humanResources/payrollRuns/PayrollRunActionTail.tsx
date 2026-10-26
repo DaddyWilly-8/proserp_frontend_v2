@@ -14,6 +14,7 @@ import { useQuery } from '@tanstack/react-query';
 import React, { lazy, useState } from 'react';
 import { PayrollRunType } from './PayrollRunType';
 import humanResourcesServices from '../humanResourcesServices';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const PayrollRunForm = lazy(() => import('./PayrollRunForm'));
 
@@ -28,6 +29,7 @@ const PayrollRunActionTail = ({
   payrollRun = null,
   onSuccess,
 }: PayrollRunActionTailProps) => {
+  const dictionary = useDictionary();
   const [openDialog, setOpenDialog] = useState(false);
   const { theme } = useJumboTheme();
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
@@ -54,8 +56,8 @@ const PayrollRunActionTail = ({
 
   // Get tooltip message for disabled button
   const getDisabledTooltip = () => {
-    if (!payrollPeriod?.id) return 'Select a payroll period first';
-    if (hasCompanyWideRun) return 'Cannot create another run - this period already has a company-wide run';
+    if (!payrollPeriod?.id) return dictionary.humanResources.payrollRuns.actionTail.selectPeriodFirst;
+    if (hasCompanyWideRun) return dictionary.humanResources.payrollRuns.actionTail.companyWideExists;
     return '';
   };
 
@@ -89,7 +91,7 @@ const PayrollRunActionTail = ({
         disableElevation
         sx={{ '& .MuiButton-root': { px: 1 } }}
       >
-        <Tooltip title={isDisabled ? getDisabledTooltip() : 'Create Payroll Run'}>
+        <Tooltip title={isDisabled ? getDisabledTooltip() : dictionary.humanResources.payrollRuns.actionTail.create}>
           <span>
             <IconButton
               onClick={() => setOpenDialog(true)}

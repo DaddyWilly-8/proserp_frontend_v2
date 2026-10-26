@@ -16,6 +16,7 @@ import { useSnackbar } from 'notistack';
 import { useState } from 'react';
 import humanResourcesServices from '../humanResourcesServices';
 import { AllowanceType } from './AllowanceType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const EditAllowanceType = ({
   allowanceType,
@@ -52,6 +53,7 @@ const AllowanceTypeItemAction = ({
 }: {
   allowanceType: AllowanceType;
 }) => {
+  const dictionary = useDictionary();
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const { showDialog, hideDialog } = useJumboDialog();
   const { enqueueSnackbar } = useSnackbar();
@@ -63,7 +65,7 @@ const AllowanceTypeItemAction = ({
     mutationFn: humanResourcesServices.deleteAllowanceType,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['allowanceTypes'] });
-      enqueueSnackbar('Allowance Type Deleted Successfully', {
+      enqueueSnackbar(dictionary.humanResources.allowanceTypes.actions.deleteSuccess, {
         variant: 'success',
       });
     },
@@ -74,11 +76,14 @@ const AllowanceTypeItemAction = ({
       // and delete the type, instead of just failing here.
       if (data?.confirm_required) {
         showDialog({
-          title: 'Allowance type still in use',
-          content: `${data.message.replace(
-            ' Remove it from their allowances, or confirm to remove it from all of them and delete the type.',
-            ''
-          )} Remove it from all of them and delete the type?`,
+          title: dictionary.humanResources.allowanceTypes.actions.inUseTitle,
+          content: dictionary.humanResources.allowanceTypes.actions.inUseContent.replace(
+            '{message}',
+            data.message.replace(
+              ' Remove it from their allowances, or confirm to remove it from all of them and delete the type.',
+              ''
+            )
+          ),
           onYes: () => {
             hideDialog();
             deleteAllowanceType({ id: allowanceType.id, force: true });
@@ -89,7 +94,7 @@ const AllowanceTypeItemAction = ({
         return;
       }
 
-      let message = 'Something went wrong';
+      let message = dictionary.humanResources.allowanceTypes.actions.somethingWrong;
 
       if (typeof data?.message === 'string') {
         message = data.message;
@@ -103,12 +108,12 @@ const AllowanceTypeItemAction = ({
   const menuItems = [
     {
       icon: <EditOutlined />,
-      title: 'Edit',
+      title: dictionary.humanResources.allowanceTypes.actions.edit,
       action: 'edit',
     },
     {
       icon: <DeleteOutlined color='error' />,
-      title: 'Delete',
+      title: dictionary.humanResources.allowanceTypes.actions.delete,
       action: 'delete',
     },
   ];
@@ -120,8 +125,8 @@ const AllowanceTypeItemAction = ({
         break;
       case 'delete':
         showDialog({
-          title: 'Confirm Delete',
-          content: 'Are you sure you want to delete this Allowance Type?',
+          title: dictionary.humanResources.allowanceTypes.actions.confirmDeleteTitle,
+          content: dictionary.humanResources.allowanceTypes.actions.confirmDeleteContent,
           onYes: () => {
             hideDialog();
             deleteAllowanceType({ id: allowanceType.id });
@@ -152,7 +157,7 @@ const AllowanceTypeItemAction = ({
       </Dialog>
       <JumboDdMenu
         icon={
-          <Tooltip title='Actions'>
+          <Tooltip title={dictionary.tooltips.actions}>
             <MoreHorizOutlined fontSize='small' />
           </Tooltip>
         }

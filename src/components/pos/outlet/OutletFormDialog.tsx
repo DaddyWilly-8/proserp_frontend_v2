@@ -1,3 +1,4 @@
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import LedgerSelect from '@/components/accounts/ledgers/forms/LedgerSelect';
 import { Ledger } from '@/components/accounts/ledgers/LedgerType';
@@ -59,17 +60,17 @@ interface FormData {
   product_categories?: { name: string; id: number }[];
 }
 
-const OUTLET_TYPES = [
-  { value: 'work center', name: 'Work Center' },
-  { value: 'shop', name: 'Shop' },
-  { value: 'fuel Station', name: 'Fuel Station' },
-  { value: 'manufacturing', name: 'Manufacturing' },
+const getOutletTypes = (dictionary: any) => [
+  { value: 'work center', name: dictionary.forms.outlet.types.workCenter },
+  { value: 'shop', name: dictionary.forms.outlet.types.shop },
+  { value: 'fuel Station', name: dictionary.forms.outlet.types.fuelStation },
+  { value: 'manufacturing', name: dictionary.forms.outlet.types.manufacturing },
 ];
 
-const validationSchema = yup.object({
-  name: yup.string().required('Outlet name is required'),
+const getValidationSchema = (dictionary: any) => yup.object({
+  name: yup.string().required(dictionary.forms.outlet.validation.nameRequired),
   address: yup.string().optional(),
-  type: yup.string().required('Outlet type is required'),
+  type: yup.string().required(dictionary.forms.outlet.validation.typeRequired),
   project_id: yup.number().nullable().optional(),
   users: yup
     .array()
@@ -83,8 +84,8 @@ const validationSchema = yup.object({
       is: (value: number | null | undefined) => !value,
       then: (schema) =>
         schema
-          .min(1, 'At least one user is required')
-          .required('At least one user is required'),
+          .min(1, dictionary.forms.outlet.validation.userRequired)
+          .required(dictionary.forms.outlet.validation.userRequired),
       otherwise: (schema) => schema.notRequired(),
     }),
   stores: yup
@@ -95,8 +96,8 @@ const validationSchema = yup.object({
         id: yup.number().required(),
       })
     )
-    .min(1, 'At least one store is required')
-    .required('At least one store is required'),
+    .min(1, dictionary.forms.outlet.validation.storeRequired)
+    .required(dictionary.forms.outlet.validation.storeRequired),
   product_categories: yup
     .array()
     .of(
@@ -110,15 +111,15 @@ const validationSchema = yup.object({
     .array()
     .of(
       yup.object({
-        name: yup.string().required('Counter name is required'),
+        name: yup.string().required(dictionary.forms.outlet.validation.counterNameRequired),
         ledger_ids: yup
           .array()
           .of(yup.number().required())
-          .min(1, 'At least one ledger account is required')
+          .min(1, dictionary.forms.outlet.validation.ledgerRequired)
           .required(),
       })
     )
-    .min(1, 'At least one counter is required')
+    .min(1, dictionary.forms.outlet.validation.counterRequired)
     .required(),
 });
 
@@ -126,6 +127,12 @@ const OutletFormDialog: React.FC<OutletFormProps> = ({
   outlet,
   setOpenDialog,
 }) => {
+  const dictionary = useDictionary();
+  const OUTLET_TYPES = useMemo(() => getOutletTypes(dictionary), [dictionary]);
+  const validationSchema = useMemo(
+    () => getValidationSchema(dictionary),
+    [dictionary]
+  );
   const queryClient = useQueryClient();
   const { enqueueSnackbar } = useSnackbar();
   const { organizationHasSubscribed } = useJumboAuth();
@@ -223,7 +230,9 @@ const OutletFormDialog: React.FC<OutletFormProps> = ({
   return (
     <form onSubmit={handleSubmit(onSubmit)} noValidate>
       <DialogTitle sx={{ textAlign: 'center' }}>
-        {!outlet ? 'New Outlet Form' : `Edit ${outlet.name}`}
+        {!outlet
+          ? dictionary.forms.outlet.title.new
+          : dictionary.forms.outlet.title.edit.replace('{name}', outlet.name)}
       </DialogTitle>
       <DialogContent>
         <Grid container columnSpacing={1}>
@@ -231,7 +240,7 @@ const OutletFormDialog: React.FC<OutletFormProps> = ({
             <Div sx={{ mt: 1, mb: 1 }}>
               <TextField
                 fullWidth
-                label='Name'
+                label={dictionary.forms.outlet.labels.name}
                 size='small'
                 {...register('name')}
                 error={!!errors.name}
@@ -262,7 +271,7 @@ const OutletFormDialog: React.FC<OutletFormProps> = ({
                     renderInput={(params) => (
                       <TextField
                         {...params}
-                        label='Type'
+                        label={dictionary.forms.outlet.labels.type}
                         size='small'
                         error={!!errors.type}
                         helperText={errors.type?.message}
@@ -277,7 +286,7 @@ const OutletFormDialog: React.FC<OutletFormProps> = ({
             <Div sx={{ mt: 1, mb: 1 }}>
               <TextField
                 fullWidth
-                label='Address'
+                label={dictionary.forms.outlet.labels.address}
                 size='small'
                 {...register('address')}
                 error={!!errors.address}
@@ -293,7 +302,7 @@ const OutletFormDialog: React.FC<OutletFormProps> = ({
                   control={control}
                   render={({ field }) => (
                     <ProjectSelector
-                      label='Project (optional — sells on the project cost center)'
+                      label={dictionary.forms.outlet.labels.project}
                       defaultValue={outlet?.project ?? null}
                       onChange={(project) => field.onChange(project?.id ?? null)}
                     />
@@ -305,7 +314,9 @@ const OutletFormDialog: React.FC<OutletFormProps> = ({
           <Grid size={12}>
             <Grid container spacing={1}>
               <Grid size={12}>
-                <Typography mb={0.5}>Counters</Typography>
+                <Typography mb={0.5}>
+                  {dictionary.forms.outlet.labels.counters}
+                </Typography>
                 {fields.map((item, index) => (
                   <Grid
                     container
@@ -318,7 +329,7 @@ const OutletFormDialog: React.FC<OutletFormProps> = ({
                         <TextField
                           fullWidth
                           size='small'
-                          label='Counter Name'
+                          label={dictionary.forms.outlet.labels.counterName}
                           {...register(`counters.${index}.name`)}
                           error={!!errors?.counters?.[index]?.name}
                           helperText={errors?.counters?.[index]?.name?.message}
@@ -333,7 +344,7 @@ const OutletFormDialog: React.FC<OutletFormProps> = ({
                           render={({ field }) => (
                             <LedgerSelect
                               multiple
-                              label='Ledger Accounts'
+                              label={dictionary.forms.outlet.labels.ledgerAccounts}
                               defaultValue={outlet ? item.ledgers : null}
                               onChange={(val) => {
                                 if (Array.isArray(val)) {
@@ -365,7 +376,7 @@ const OutletFormDialog: React.FC<OutletFormProps> = ({
                   startIcon={<AddIcon />}
                   onClick={() => append({ name: '', ledger_ids: [] })}
                 >
-                  Add
+                  {dictionary.forms.outlet.buttons.add}
                 </Button>
               </Grid>
             </Grid>
@@ -387,8 +398,7 @@ const OutletFormDialog: React.FC<OutletFormProps> = ({
           </Grid>
           <Grid size={12} sx={{ mt: 1, mb: 1 }}>
             <Typography variant='body2' color='text.secondary' mb={0.5}>
-              Restrict this outlet to selling only products from selected
-              categories. Leave empty to allow all products.
+              {dictionary.forms.outlet.messages.restrictCategories}
             </Typography>
             <Controller
               name='product_categories'
@@ -407,8 +417,7 @@ const OutletFormDialog: React.FC<OutletFormProps> = ({
             {projectId ? (
               <Div>
                 <Typography variant='body2' color='text.secondary' mb={0.5}>
-                  Users are managed via the linked project&apos;s cost center,
-                  not per outlet.
+                  {dictionary.forms.outlet.messages.usersManagedByProject}
                 </Typography>
                 <Stack direction='row' flexWrap='wrap' gap={0.5}>
                   {(outlet?.users ?? []).map((user) => (
@@ -435,7 +444,7 @@ const OutletFormDialog: React.FC<OutletFormProps> = ({
       </DialogContent>
       <DialogActions>
         <Button onClick={() => setOpenDialog(false)} size='small'>
-          Cancel
+          {dictionary.forms.outlet.buttons.cancel}
         </Button>
         <LoadingButton
           type='submit'
@@ -443,7 +452,7 @@ const OutletFormDialog: React.FC<OutletFormProps> = ({
           size='small'
           loading={addLoading || updateLoading}
         >
-          Submit
+          {dictionary.forms.outlet.buttons.submit}
         </LoadingButton>
       </DialogActions>
     </form>

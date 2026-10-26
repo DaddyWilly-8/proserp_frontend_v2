@@ -6,6 +6,7 @@ import { styled } from '@mui/material/styles';
 import React from 'react';
 import StationItemAction from './StationItemAction';
 import { Station } from './StationType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface StationListItemProps {
   station: Station;
@@ -39,6 +40,7 @@ const StyledBadgeChip = styled(Chip)(({ theme }) => ({
 
 const StationListItem = React.memo(
   ({ station, onClick }: StationListItemProps) => {
+    const dictionary = useDictionary();
     // Count unique tanks from fuel pumps
     const uniqueTankCount = React.useMemo(() => {
       if (!station.fuel_pumps?.length) return 0;
@@ -74,7 +76,7 @@ const StationListItem = React.memo(
         >
           {/* Station Name */}
           <Grid size={{ xs: 12, md: 2.5 }}>
-            <Tooltip title='Station Name'>
+            <Tooltip title={dictionary.tooltips.stationName}>
               <Typography variant='subtitle1' noWrap>
                 {station.name}
               </Typography>
@@ -95,7 +97,7 @@ const StationListItem = React.memo(
                 container
                 justifyContent='center'
               >
-                <Tooltip title='Fuel Pumps'>
+                <Tooltip title={dictionary.tooltips.fuelPumps}>
                   <StyledCountBadge
                     badgeContent={fuelPumpCount}
                     color='primary'
@@ -111,7 +113,7 @@ const StationListItem = React.memo(
                 container
                 justifyContent='center'
               >
-                <Tooltip title='Tanks'>
+                <Tooltip title={dictionary.tooltips.tanks}>
                   <StyledCountBadge
                     badgeContent={uniqueTankCount}
                     color='primary'
@@ -127,7 +129,7 @@ const StationListItem = React.memo(
                 container
                 justifyContent='center'
               >
-                <Tooltip title='Users'>
+                <Tooltip title={dictionary.tooltips.users}>
                   <StyledCountBadge badgeContent={userCount} color='primary'>
                     <PeopleIcon fontSize='small' />
                   </StyledCountBadge>
@@ -136,7 +138,7 @@ const StationListItem = React.memo(
 
               {/* Address */}
               <Grid size={{ xs: 3, md: 3 }} textAlign='end'>
-                <Tooltip title='Address'>
+                <Tooltip title={dictionary.tooltips.address}>
                   <Typography variant='body2' noWrap>
                     {station.address || ''}
                   </Typography>

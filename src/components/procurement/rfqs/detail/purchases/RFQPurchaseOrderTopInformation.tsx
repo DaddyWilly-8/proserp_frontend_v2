@@ -8,6 +8,7 @@ import { Grid, TextField, Typography, Chip, Box } from '@mui/material';
 import { DateTimePicker } from '@mui/x-date-pickers';
 import dayjs, { Dayjs } from 'dayjs';
 import React from 'react';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface Order {
   id?: number;
@@ -45,6 +46,7 @@ function RFQPurchaseOrderTopInformation({
   register,
   errors,
 }: RFQPurchaseOrderTopInformationProps) {
+  const dictionary = useDictionary();
   const { authOrganization } = useJumboAuth();
 
   // Get stakeholder from order or rfq
@@ -70,7 +72,7 @@ function RFQPurchaseOrderTopInformation({
       <Grid size={{ xs: 12, md: 4 }}>
         <Div sx={{ mt: 0.3 }}>
           <DateTimePicker
-            label="Order Date"
+            label={dictionary.forms.rfqs.purchaseOrder.top.orderDate}
             minDate={
               dayjs(authOrganization?.organization.recording_start_date)
             }
@@ -104,10 +106,10 @@ function RFQPurchaseOrderTopInformation({
         <Div sx={{ mt: 0.3 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <Typography variant="body2" color="text.secondary" sx={{ minWidth: '60px' }}>
-              Supplier:
+              {dictionary.forms.rfqs.purchaseOrder.top.supplier}
             </Typography>
             <Chip 
-              label={defaultStakeholder?.name || order?.stakeholder?.name || 'N/A'} 
+              label={defaultStakeholder?.name || order?.stakeholder?.name || dictionary.forms.rfqs.purchaseOrder.top.notAvailable} 
               color="default"
               size="medium"
             />
@@ -121,7 +123,7 @@ function RFQPurchaseOrderTopInformation({
             <Div sx={{ mt: 0.3 }}>
               <TextField
                 size="small"
-                label="Reference"
+                label={dictionary.forms.rfqs.common.reference}
                 fullWidth
                 error={!!errors?.reference}
                 helperText={errors?.reference?.message}
@@ -133,7 +135,7 @@ function RFQPurchaseOrderTopInformation({
           <Grid size={{ xs: 12, md: 4 }}>
             <Div sx={{ mt: 0.3 }}>
               <DateTimePicker
-                label="Date Required"
+                label={dictionary.forms.rfqs.purchaseOrder.top.dateRequired}
                 defaultValue={order?.date_required ? dayjs(order.date_required) : null}
                 minDate={dayjs(order_date)}
                 slotProps={{
@@ -170,7 +172,7 @@ function RFQPurchaseOrderTopInformation({
             <Grid size={{ xs: 12, md: 4 }}>
               <Div sx={{ mt: 0.3 }}>
                 <TextField
-                  label="Exchange Rate"
+                  label={dictionary.forms.rfqs.response.exchangeRate}
                   fullWidth
                   size="small"
                   value={watch('exchange_rate') || responseCurrency.exchangeRate || 1}

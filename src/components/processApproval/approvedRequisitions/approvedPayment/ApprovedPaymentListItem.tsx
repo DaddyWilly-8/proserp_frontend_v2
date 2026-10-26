@@ -30,6 +30,7 @@ import { readableDate } from '@/app/helpers/input-sanitization-helpers';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
 import UnauthorizedAccess from '@/shared/Information/UnauthorizedAccess';
 import { ApprovalRequisition } from '../ApprovalRequisitionType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface Payment {
   id: number;
@@ -54,6 +55,7 @@ const DocumentDialog: React.FC<DocumentDialogProps> = ({
   authObject, 
   setOpenDocumentDialog 
 }) => {
+  const dictionary = useDictionary();
   const { data, isFetching } = useQuery({ 
     queryKey: ['payment', { id: payment.id }], 
     queryFn: () => paymentServices.show(payment.id)
@@ -87,7 +89,7 @@ const DocumentDialog: React.FC<DocumentDialogProps> = ({
           </Grid>
 
           <Grid size={{xs: 1}} textAlign="right">
-            <Tooltip title="Close">
+            <Tooltip title={dictionary.tooltips.close}>
               <IconButton 
                 size="small" 
                 onClick={() => setOpenDocumentDialog(false)}
@@ -126,6 +128,7 @@ const ApprovedPaymentListItem: React.FC<ApprovedPaymentListItemProps> = ({
   isExpanded,
   showHeader = true,
 }) => {
+  const dictionary = useDictionary();
   const [openDocumentDialog, setOpenDocumentDialog] = useState(false);
   const { checkOrganizationPermission } = useJumboAuth();
   const { theme } = useJumboTheme();
@@ -174,7 +177,7 @@ const ApprovedPaymentListItem: React.FC<ApprovedPaymentListItemProps> = ({
           <Grid size={{xs: 6, md: 3, lg: 2}}>
             <ListItemText
               primary={
-                <Tooltip title={'Date'}>
+                <Tooltip title={dictionary.tooltips.date}>
                   <Typography component="span" lineHeight={1.25} mb={0} noWrap>
                     {readableDate(pay.transaction_date)}
                   </Typography>
@@ -185,14 +188,14 @@ const ApprovedPaymentListItem: React.FC<ApprovedPaymentListItemProps> = ({
           <Grid size={{xs: 6, md: 3, lg: 3}}>
             <ListItemText
               primary={
-                <Tooltip title={'Voucher Number'}>
+                <Tooltip title={dictionary.tooltips.voucherNumber}>
                   <Typography variant="body1" fontSize={14} lineHeight={1.25} mb={0} noWrap>
                     {pay.voucherNo}
                   </Typography>
                 </Tooltip>
               }
               secondary={
-                <Tooltip title={'Reference'}>
+                <Tooltip title={dictionary.tooltips.reference}>
                   <Typography component="span" fontSize={14} lineHeight={1.25} mb={0}>
                     {pay.reference}
                   </Typography>
@@ -203,7 +206,7 @@ const ApprovedPaymentListItem: React.FC<ApprovedPaymentListItemProps> = ({
           <Grid size={{xs: 12, md: 3, lg: 3}}>
             <ListItemText
               secondary={
-                <Tooltip title={'Narration'}>
+                <Tooltip title={dictionary.tooltips.narration}>
                   <Typography component="span" lineHeight={1.25} mb={0}>
                     {pay.narration}
                   </Typography>
@@ -220,7 +223,7 @@ const ApprovedPaymentListItem: React.FC<ApprovedPaymentListItemProps> = ({
               justifyContent: 'flex-end'
             }}
           >
-            <Tooltip title={'Amount'}>
+            <Tooltip title={dictionary.tooltips.amount}>
               <Box sx={{ marginRight: 1 }}>
                 <Typography variant="body1" fontSize={14} lineHeight={1.25} mb={0} noWrap>
                   {pay.journals_sum_amount?.toLocaleString("en-US", {

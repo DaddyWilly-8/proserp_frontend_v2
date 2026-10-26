@@ -16,6 +16,7 @@ import MeasurementSelector from '@/components/masters/measurementUnits/Measureme
 import { useLedgerSelect } from '@/components/accounts/ledgers/forms/LedgerSelectProvider';
 import CommaSeparatedField from '@/shared/Inputs/CommaSeparatedField';
 import { MeasurementUnit } from '@/components/masters/measurementUnits/MeasurementUnitType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface Product {
   id: number;
@@ -71,6 +72,7 @@ const SaleAdjustmentItemRow: React.FC<SaleAdjustmentItemRowProps> = ({
   setFormValue,
   errors = {},
 }) => {
+  const dictionary = useDictionary();
   const [isChecked, setIsChecked] = useState(false);
   const { ungroupedLedgerOptions } = useLedgerSelect() as {
     ungroupedLedgerOptions: LedgerOption[];
@@ -194,7 +196,7 @@ const SaleAdjustmentItemRow: React.FC<SaleAdjustmentItemRowProps> = ({
                   renderInput={(params) => (
                     <TextField
                       {...params}
-                      label="Product"
+                      label={dictionary.forms.counter.adjustment.labels.product}
                       size="small"
                       fullWidth
                       error={!!errors.product_id}
@@ -210,7 +212,7 @@ const SaleAdjustmentItemRow: React.FC<SaleAdjustmentItemRowProps> = ({
               <Div sx={{ mt: 0.3 }}>
                 <TextField
                   size="small"
-                  label="Description"
+                  label={dictionary.forms.counter.adjustment.labels.description}
                   fullWidth
                   error={!!errors.description}
                   helperText={errors.description?.message}
@@ -225,7 +227,7 @@ const SaleAdjustmentItemRow: React.FC<SaleAdjustmentItemRowProps> = ({
                 <LedgerSelect
                   defaultValue={ungroupedLedgerOptions.find((ledger) => ledger.id === formValues.complement_ledger_id) as any}
                   onChange={handleComplementLedgerChange as any}
-                  label="Complement Ledger"
+                  label={dictionary.forms.counter.adjustment.labels.complementLedger}
                   frontError={errors.complement_ledger_id}
                 />
               </Div>
@@ -234,7 +236,7 @@ const SaleAdjustmentItemRow: React.FC<SaleAdjustmentItemRowProps> = ({
             <Grid size={{xs: 12, md: 2}}>
               <Div sx={{ mt: 0.3 }}>
                 <MeasurementSelector
-                  label="Unit"
+                  label={dictionary.forms.counter.adjustment.labels.unit}
                   defaultValue={formValues.measurement_unit_id}
                   onChange={handleMeasurementUnitChange as any}
                   frontError={errors.measurement_unit_id}
@@ -246,7 +248,7 @@ const SaleAdjustmentItemRow: React.FC<SaleAdjustmentItemRowProps> = ({
               <Div sx={{ mt: 0.3 }}>
                 <TextField
                   size="small"
-                  label="Quantity"
+                  label={dictionary.forms.counter.adjustment.labels.quantity}
                   fullWidth
                   error={!!errors.quantity}
                   helperText={errors.quantity?.message}
@@ -261,7 +263,7 @@ const SaleAdjustmentItemRow: React.FC<SaleAdjustmentItemRowProps> = ({
               <Div sx={{ mt: 0.3 }}>
                 <TextField
                   size="small"
-                  label="Rate"
+                  label={dictionary.forms.counter.adjustment.labels.rate}
                   fullWidth
                   error={!!errors.rate}
                   helperText={errors.rate?.message}
@@ -285,14 +287,14 @@ const SaleAdjustmentItemRow: React.FC<SaleAdjustmentItemRowProps> = ({
             <Grid size={{xs: 6, md: 7}}>
               <ListItemText
                 primary={
-                  <Tooltip title={'Product'}>
+                  <Tooltip title={dictionary.tooltips.product}>
                     <Typography variant={'h5'} fontSize={14} lineHeight={1.25} mb={0} noWrap>
                       {item.product?.name}
                     </Typography>
                   </Tooltip>
                 }
                 secondary={
-                  <Tooltip title={'Description'}>
+                  <Tooltip title={dictionary.tooltips.description}>
                     <Typography component="span" variant="body2" fontSize={14} lineHeight={1.25} mb={0}>
                       {item.description}
                     </Typography>
@@ -302,7 +304,7 @@ const SaleAdjustmentItemRow: React.FC<SaleAdjustmentItemRowProps> = ({
             </Grid>
 
             <Grid size={{xs: 6, md: 4.5}}>
-              <Tooltip title="Complement Ledger">
+              <Tooltip title={dictionary.tooltips.complementLedger}>
                 <Typography>
                   {ungroupedLedgerOptions?.find((ledger) => ledger.id === (item?.product?.category?.income_ledger_id || item?.complement_ledger_id))?.name}
                 </Typography>
@@ -310,7 +312,7 @@ const SaleAdjustmentItemRow: React.FC<SaleAdjustmentItemRowProps> = ({
             </Grid>
 
             <Grid size={{xs: 6, md: 4}}>
-              <Tooltip title="Quantity">
+              <Tooltip title={dictionary.tooltips.quantity}>
                 <Typography textAlign={'right'}>
                   {(item.quantity || 0).toLocaleString()} {item.measurement_unit?.symbol || ''}
                 </Typography>
@@ -318,13 +320,13 @@ const SaleAdjustmentItemRow: React.FC<SaleAdjustmentItemRowProps> = ({
             </Grid>
 
             <Grid size={{xs: 6, md: 4}}>
-              <Tooltip title="Rate">
+              <Tooltip title={dictionary.tooltips.rate}>
                 <Typography textAlign={'right'}>{(item.rate || 0).toLocaleString()}</Typography>
               </Tooltip>
             </Grid>
 
             <Grid size={{xs: 6, md: 4}}>
-              <Tooltip title="Amount">
+              <Tooltip title={dictionary.tooltips.amount}>
                 <Typography textAlign={'right'}>{(Number(item?.quantity) * Number(item?.rate) || 0).toLocaleString()}</Typography>
               </Tooltip>
             </Grid>

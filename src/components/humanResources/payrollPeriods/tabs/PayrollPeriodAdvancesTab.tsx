@@ -1,5 +1,6 @@
 'use client';
 
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { useJumboDialog } from '@jumbo/components/JumboDialog/hooks/useJumboDialog';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
@@ -91,20 +92,20 @@ interface ImportResult {
   errors: Array<{ row: number; error: string }>;
 }
 
-const MONTH_NAMES = [
+const MONTH_KEYS = [
   '',
-  'January',
-  'February',
-  'March',
-  'April',
-  'May',
-  'June',
-  'July',
-  'August',
-  'September',
-  'October',
-  'November',
-  'December',
+  'january',
+  'february',
+  'march',
+  'april',
+  'may',
+  'june',
+  'july',
+  'august',
+  'september',
+  'october',
+  'november',
+  'december',
 ];
 
 const getErrMsg = (error: any) => {
@@ -121,6 +122,8 @@ const PayrollPeriodAdvancesTab = ({
   year,
   month,
 }: PayrollPeriodAdvancesTabProps) => {
+  const dictionary = useDictionary();
+  const t = dictionary.humanResources.payrollPeriods;
   const theme = useTheme();
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
   const { enqueueSnackbar } = useSnackbar();
@@ -132,7 +135,7 @@ const PayrollPeriodAdvancesTab = ({
   );
   const orgHasAccountsAndFinance = organizationHasSubscribed(MODULES.ACCOUNTS_AND_FINANCE);
   const isDark = theme.type === 'dark';
-  const monthName = MONTH_NAMES[month] || month;
+  const monthName = t.common.months[MONTH_KEYS[month]] || month;
 
   const [search, setSearch] = useState('');
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
@@ -188,7 +191,7 @@ const PayrollPeriodAdvancesTab = ({
       anchor.download = 'advance-payments-template.xlsx';
       anchor.click();
       window.URL.revokeObjectURL(url);
-      enqueueSnackbar('Template downloaded successfully', { variant: 'success' });
+      enqueueSnackbar(t.advancesTab.messages.templateDownloaded, { variant: 'success' });
     },
     onError: (error: any) => enqueueSnackbar(getErrMsg(error), { variant: 'error' }),
   });
@@ -205,16 +208,18 @@ const PayrollPeriodAdvancesTab = ({
 
       if (result.errors && result.errors.length > 0) {
         enqueueSnackbar(
-          `${result.message}. ${result.errors.length} error(s) found. Check the details below.`,
+          t.advancesTab.messages.importWithErrors
+            .replace('{message}', result.message)
+            .replace('{count}', String(result.errors.length)),
           { variant: 'warning' }
         );
       } else if (result.imported > 0) {
-        enqueueSnackbar(result.message || 'Advances imported successfully', {
+        enqueueSnackbar(result.message || t.advancesTab.messages.imported, {
           variant: 'success',
         });
       } else {
         enqueueSnackbar(
-          result.message || 'No advances were imported. Please check the errors below.',
+          result.message || t.advancesTab.messages.noneImported,
           { variant: 'error' }
         );
       }
@@ -232,7 +237,7 @@ const PayrollPeriodAdvancesTab = ({
     onSuccess: () => {
       setEditingAdvance(null);
       refetchAdvances();
-      enqueueSnackbar('Advance updated successfully', { variant: 'success' });
+      enqueueSnackbar(t.advancesTab.messages.updated, { variant: 'success' });
     },
     onError: (error: any) => enqueueSnackbar(getErrMsg(error), { variant: 'error' }),
   });
@@ -243,7 +248,7 @@ const PayrollPeriodAdvancesTab = ({
       setDeleteDialogOpen(false);
       setDeletingId(null);
       refetchAdvances();
-      enqueueSnackbar('Advance removed successfully', { variant: 'success' });
+      enqueueSnackbar(t.advancesTab.messages.removed, { variant: 'success' });
     },
     onError: (error: any) => {
       setDeleteDialogOpen(false);
@@ -269,7 +274,7 @@ const PayrollPeriodAdvancesTab = ({
         }),
       onSuccess: () => {
         refetchAdvances();
-        enqueueSnackbar('Advance payment reversed', { variant: 'success' });
+        enqueueSnackbar(t.advancesTab.messages.paymentReversed, { variant: 'success' });
       },
       onError: (error: any) =>
         enqueueSnackbar(getErrMsg(error), { variant: 'error' }),
@@ -281,7 +286,7 @@ const PayrollPeriodAdvancesTab = ({
         humanResourcesServices.reverseAdvancesMarkPaid(payrollPeriodId),
       onSuccess: () => {
         refetchAdvances();
-        enqueueSnackbar('Advances reverted to unpaid', { variant: 'success' });
+        enqueueSnackbar(t.advancesTab.messages.revertedToUnpaid, { variant: 'success' });
       },
       onError: (error: any) =>
         enqueueSnackbar(getErrMsg(error), { variant: 'error' }),
@@ -292,9 +297,9 @@ const PayrollPeriodAdvancesTab = ({
     if (!paidRow?.payment_id) return;
 
     showDialog({
-      title: 'Reverse Advance Payment',
+      title: t.advancesTab.reversePayment.title,
       content:
-        'This deletes the payment and its journals, and puts every advance it covered back to unpaid so the batch can be corrected and re-paid. Continue?',
+        t.advancesTab.reversePayment.content,
       onYes: () => {
         hideDialog();
         reverseAdvancesPayment(paidRow.payment_id!);
@@ -306,9 +311,9 @@ const PayrollPeriodAdvancesTab = ({
 
   const handleReverseAdvancesMarkPaid = () => {
     showDialog({
-      title: 'Undo Mark as Paid',
+      title: t.advancesTab.undoMarkPaid.title,
       content:
-        'This puts this period\'s manually marked-paid advances back to unpaid so they can be corrected. Continue?',
+        t.advancesTab.undoMarkPaid.content,
       onYes: () => {
         hideDialog();
         reverseAdvancesMarkPaid();
@@ -397,14 +402,14 @@ const PayrollPeriodAdvancesTab = ({
         {isPeriodLocked && (
           <Alert severity='warning' sx={{ borderRadius: 2 }}>
             <Typography variant='body2' fontWeight={600} gutterBottom>
-              This period's payroll run is already {lockedRun?.status}
+              {t.advancesTab.locked.title.replace(
+                '{status}',
+                t.common.status[lockedRun?.status?.toLowerCase() ?? ''] ||
+                  String(lockedRun?.status)
+              )}
             </Typography>
             <Typography variant='body2' color='text.secondary'>
-              Uploading, editing, or deleting advances is read-only below —
-              changes here wouldn't be reflected in that run. Generate a new
-              run for this period to apply changes, or make them while a run
-              for it is still in Draft. Paying or marking already-uploaded
-              advances as paid is unaffected.
+              {t.advancesTab.locked.body}
             </Typography>
           </Alert>
         )}
@@ -426,7 +431,7 @@ const PayrollPeriodAdvancesTab = ({
               width: { xs: '100%', sm: 'auto' },
             }}
           >
-            Generate Transfer Sheet
+            {t.advancesTab.generateTransferSheet}
           </Button>
           <BankFileDownloadMenu
             onDownload={handleDownloadBankFile}
@@ -446,7 +451,7 @@ const PayrollPeriodAdvancesTab = ({
                 width: { xs: '100%', sm: 'auto' },
               }}
             >
-              Pay Advances
+              {t.advancesTab.payAdvances}
             </Button>
           ) : (
             <Button
@@ -462,7 +467,7 @@ const PayrollPeriodAdvancesTab = ({
                 width: { xs: '100%', sm: 'auto' },
               }}
             >
-              Mark Advances as Paid
+              {t.advancesTab.markAdvancesPaid}
             </Button>
           ))}
           {canPayApprovedPayroll && orgHasAccountsAndFinance && hasPaidViaPayment && (
@@ -479,7 +484,7 @@ const PayrollPeriodAdvancesTab = ({
                 width: { xs: '100%', sm: 'auto' },
               }}
             >
-              Reverse Payment
+              {t.advancesTab.reversePaymentButton}
             </Button>
           )}
           {canPayApprovedPayroll && !orgHasAccountsAndFinance && hasPaidManually && (
@@ -496,13 +501,17 @@ const PayrollPeriodAdvancesTab = ({
                 width: { xs: '100%', sm: 'auto' },
               }}
             >
-              Undo Mark as Paid
+              {t.advancesTab.undoMarkPaid.title}
             </Button>
           )}
           <Tooltip
             title={
               isPeriodLocked
-                ? `This period's run is already ${lockedRun?.status} — new advances won't be reflected in it`
+                ? t.advancesTab.locked.tooltip.replace(
+                    '{status}',
+                    t.common.status[lockedRun?.status?.toLowerCase() ?? ''] ||
+                      String(lockedRun?.status)
+                  )
                 : ''
             }
           >
@@ -519,14 +528,18 @@ const PayrollPeriodAdvancesTab = ({
                   width: { xs: '100%', sm: 'auto' },
                 }}
               >
-                Add Advance
+                {t.advancesTab.addAdvance}
               </Button>
             </span>
           </Tooltip>
           <Tooltip
             title={
               isPeriodLocked
-                ? `This period's run is already ${lockedRun?.status} — new advances won't be reflected in it`
+                ? t.advancesTab.locked.tooltip.replace(
+                    '{status}',
+                    t.common.status[lockedRun?.status?.toLowerCase() ?? ''] ||
+                      String(lockedRun?.status)
+                  )
                 : ''
             }
           >
@@ -543,7 +556,7 @@ const PayrollPeriodAdvancesTab = ({
                   width: { xs: '100%', sm: 'auto' },
                 }}
               >
-                Upload Advances
+                {t.advancesTab.uploadAdvances}
               </Button>
             </span>
           </Tooltip>
@@ -559,18 +572,18 @@ const PayrollPeriodAdvancesTab = ({
           }}
         >
           <Typography variant='body2' fontWeight={600} gutterBottom>
-            Salary Advances — {monthName} {year}
+            {t.advancesTab.heading
+              .replace('{month}', String(monthName))
+              .replace('{year}', String(year))}
           </Typography>
           <Typography variant='body2' color='text.secondary'>
-            Uploading an advance automatically logs a matching deduction in
-            this same period to recover it — no separate step needed. Once
-            paid, an advance can no longer be edited or deleted.
+            {t.advancesTab.info}
           </Typography>
         </Alert>
 
         <TextField
           size='small'
-          placeholder='Search by employee number, name, or remarks'
+          placeholder={t.advancesTab.searchPlaceholder}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           InputProps={{
@@ -595,23 +608,22 @@ const PayrollPeriodAdvancesTab = ({
           </Box>
         ) : advances.length === 0 ? (
           <Alert severity='info' sx={{ borderRadius: 2 }}>
-            No advances uploaded for this period. Use the "Upload Advances"
-            button to add some.
+            {t.advancesTab.empty}
           </Alert>
         ) : filteredAdvances.length === 0 ? (
           <Alert severity='info' sx={{ borderRadius: 2 }}>
-            No advances match "{search}".
+            {t.advancesTab.noMatch.replace('{search}', search)}
           </Alert>
         ) : (
           <TableContainer component={Paper} variant='outlined' sx={{ borderRadius: 2 }}>
             <Table size='small'>
               <TableHead>
                 <TableRow sx={{ bgcolor: isDark ? 'action.hover' : 'grey.50' }}>
-                  <TableCell>Employee</TableCell>
-                  <TableCell align='right'>Amount</TableCell>
-                  <TableCell>Remarks</TableCell>
-                  <TableCell align='center'>Status</TableCell>
-                  <TableCell align='center'>Actions</TableCell>
+                  <TableCell>{t.advancesTab.columns.employee}</TableCell>
+                  <TableCell align='right'>{t.common.amount}</TableCell>
+                  <TableCell>{t.common.remarks}</TableCell>
+                  <TableCell align='center'>{t.advancesTab.columns.status}</TableCell>
+                  <TableCell align='center'>{t.advancesTab.columns.actions}</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -621,7 +633,7 @@ const PayrollPeriodAdvancesTab = ({
                     <TableRow key={advance.id} hover>
                       <TableCell>
                         <Typography variant='body2'>
-                          {employee?.employee_number || 'N/A'} —{' '}
+                          {employee?.employee_number || t.common.notAvailable} —{' '}
                           {employee?.first_name || ''} {employee?.last_name || ''}
                         </Typography>
                       </TableCell>
@@ -637,7 +649,7 @@ const PayrollPeriodAdvancesTab = ({
                       </TableCell>
                       <TableCell align='center'>
                         <Chip
-                          label={advance.paid_at ? 'Paid' : 'Unpaid'}
+                          label={advance.paid_at ? t.common.paid : t.common.unpaid}
                           size='small'
                           color={advance.paid_at ? 'success' : 'default'}
                           variant='outlined'
@@ -648,10 +660,10 @@ const PayrollPeriodAdvancesTab = ({
                           <Tooltip
                             title={
                               advance.paid_at
-                                ? 'Already paid — cannot edit'
+                                ? t.advancesTab.tooltips.paidCannotEdit
                                 : isPeriodLocked
-                                  ? 'Period is locked'
-                                  : 'Edit'
+                                  ? t.advancesTab.tooltips.periodLocked
+                                  : t.common.edit
                             }
                           >
                             <span>
@@ -668,10 +680,10 @@ const PayrollPeriodAdvancesTab = ({
                           <Tooltip
                             title={
                               advance.paid_at
-                                ? 'Already paid — cannot delete'
+                                ? t.advancesTab.tooltips.paidCannotDelete
                                 : isPeriodLocked
-                                  ? 'Period is locked'
-                                  : 'Delete'
+                                  ? t.advancesTab.tooltips.periodLocked
+                                  : t.common.delete
                             }
                           >
                             <span>
@@ -695,8 +707,10 @@ const PayrollPeriodAdvancesTab = ({
                 <TableRow sx={{ bgcolor: isDark ? 'action.hover' : 'grey.50' }}>
                   <TableCell>
                     <Typography variant='body2' fontWeight={700}>
-                      Total ({filteredAdvances.length}
-                      {filteredAdvances.length !== advances.length ? ` of ${advances.length}` : ''})
+                      {t.advancesTab.total} ({filteredAdvances.length}
+                      {filteredAdvances.length !== advances.length
+                        ? ` ${t.common.of} ${advances.length}`
+                        : ''})
                     </Typography>
                   </TableCell>
                   <TableCell align='right'>
@@ -729,7 +743,7 @@ const PayrollPeriodAdvancesTab = ({
         fullScreen={belowLargeScreen}
         scroll={belowLargeScreen ? 'body' : 'paper'}
       >
-        <MuiDialogTitle>Upload Advances</MuiDialogTitle>
+        <MuiDialogTitle>{t.advancesTab.uploadAdvances}</MuiDialogTitle>
         <MuiDialogContent>
           {(isDownloading || isImporting) && <LinearProgress sx={{ mb: 2, borderRadius: 1 }} />}
           <Stack spacing={3} sx={{ pt: 1 }}>
@@ -742,12 +756,10 @@ const PayrollPeriodAdvancesTab = ({
               }}
             >
               <Typography variant='body2' fontWeight={600} gutterBottom>
-                Upload Instructions
+                {t.advancesTab.upload.instructionsTitle}
               </Typography>
               <Typography variant='body2' color='text.secondary'>
-                Download the template, fill in the employees and amounts, and
-                upload the file. Re-uploading will overwrite an employee's
-                unpaid advance for this period rather than duplicating it.
+                {t.advancesTab.upload.instructions}
               </Typography>
             </Alert>
 
@@ -796,7 +808,7 @@ const PayrollPeriodAdvancesTab = ({
                     {file.name}
                   </Typography>
                   <Typography variant='body2' color='text.secondary'>
-                    {(file.size / 1024).toFixed(1)} KB • Ready to upload
+                    {(file.size / 1024).toFixed(1)} KB • {t.advancesTab.upload.readyToUpload}
                   </Typography>
                   <Button
                     variant='outlined'
@@ -805,13 +817,13 @@ const PayrollPeriodAdvancesTab = ({
                     onClick={() => setFile(null)}
                     sx={{ borderRadius: 2, textTransform: 'none' }}
                   >
-                    Remove File
+                    {t.advancesTab.upload.removeFile}
                   </Button>
                 </>
               ) : (
                 <>
                   <Typography variant='body2' color='text.secondary'>
-                    No file selected
+                    {t.advancesTab.upload.noFile}
                   </Typography>
                   <Button
                     variant='outlined'
@@ -819,7 +831,7 @@ const PayrollPeriodAdvancesTab = ({
                     startIcon={<UploadOutlined />}
                     sx={{ minWidth: 200, borderRadius: 2, textTransform: 'none', fontWeight: 500 }}
                   >
-                    Select Excel File
+                    {t.advancesTab.upload.selectFile}
                     <input hidden type='file' accept='.xlsx,.xls' onChange={handleFileChange} />
                   </Button>
                 </>
@@ -836,7 +848,9 @@ const PayrollPeriodAdvancesTab = ({
                   size='large'
                   sx={{ minWidth: 200, borderRadius: 2, textTransform: 'none', fontWeight: 600 }}
                 >
-                  {isDownloading ? 'Downloading...' : 'Download Template'}
+                  {isDownloading
+                    ? t.advancesTab.upload.downloading
+                    : t.advancesTab.upload.downloadTemplate}
                 </Button>
               )}
               {file && (
@@ -849,7 +863,9 @@ const PayrollPeriodAdvancesTab = ({
                   size='large'
                   sx={{ minWidth: 200, borderRadius: 2, textTransform: 'none', fontWeight: 600 }}
                 >
-                  {isImporting ? 'Uploading...' : 'Upload & Import'}
+                  {isImporting
+                    ? t.advancesTab.upload.uploading
+                    : t.advancesTab.upload.uploadAndImport}
                 </Button>
               )}
             </Stack>
@@ -867,7 +883,9 @@ const PayrollPeriodAdvancesTab = ({
                     }}
                   >
                     <Typography variant='body2' gutterBottom>
-                      Imported {importResult.imported ?? 0}, skipped {importResult.skipped ?? 0}
+                      {t.advancesTab.upload.importResult
+                        .replace('{imported}', String(importResult.imported ?? 0))
+                        .replace('{skipped}', String(importResult.skipped ?? 0))}
                     </Typography>
                   </Alert>
 
@@ -881,7 +899,10 @@ const PayrollPeriodAdvancesTab = ({
                         sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
                       >
                         <ErrorOutline fontSize='small' color='warning' />
-                        Skipped Rows ({importResult.errors.length})
+                        {t.advancesTab.upload.skippedRows.replace(
+                          '{count}',
+                          String(importResult.errors.length)
+                        )}
                       </Typography>
                       <Box
                         sx={{
@@ -917,7 +938,7 @@ const PayrollPeriodAdvancesTab = ({
           </Stack>
         </MuiDialogContent>
         <MuiDialogActions>
-          <Button onClick={handleCloseUploadDialog}>Close</Button>
+          <Button onClick={handleCloseUploadDialog}>{t.common.close}</Button>
         </MuiDialogActions>
       </Dialog>
 
@@ -930,11 +951,11 @@ const PayrollPeriodAdvancesTab = ({
         fullScreen={belowLargeScreen}
         scroll={belowLargeScreen ? 'body' : 'paper'}
       >
-        <MuiDialogTitle>Edit Advance</MuiDialogTitle>
+        <MuiDialogTitle>{t.advancesTab.editTitle}</MuiDialogTitle>
         <MuiDialogContent>
           <Box sx={{ pt: 2 }}>
             <TextField
-              label='Amount'
+              label={t.common.amount}
               type='number'
               fullWidth
               value={editAmount}
@@ -944,46 +965,45 @@ const PayrollPeriodAdvancesTab = ({
               inputProps={{ min: 0, step: 0.01 }}
             />
             <TextField
-              label='Remarks'
+              label={t.common.remarks}
               fullWidth
               multiline
               rows={3}
               value={editRemarks}
               onChange={(e) => setEditRemarks(e.target.value)}
-              placeholder='Optional remarks for this advance'
+              placeholder={t.advancesTab.remarksPlaceholder}
             />
           </Box>
         </MuiDialogContent>
         <MuiDialogActions>
-          <Button onClick={() => setEditingAdvance(null)}>Cancel</Button>
+          <Button onClick={() => setEditingAdvance(null)}>{t.common.cancel}</Button>
           <Button
             onClick={handleEditSave}
             variant='contained'
             disabled={editAmount <= 0 || editAdvanceMutation.isPending}
           >
-            Save
+            {t.common.save}
           </Button>
         </MuiDialogActions>
       </Dialog>
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)}>
-        <MuiDialogTitle>Confirm Delete</MuiDialogTitle>
+        <MuiDialogTitle>{t.advancesTab.confirmDelete}</MuiDialogTitle>
         <MuiDialogContent>
           <Typography>
-            Are you sure you want to delete this advance? This action cannot
-            be undone.
+            {t.advancesTab.deleteConfirm}
           </Typography>
         </MuiDialogContent>
         <MuiDialogActions>
-          <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
+          <Button onClick={() => setDeleteDialogOpen(false)}>{t.common.cancel}</Button>
           <Button
             onClick={() => deletingId && deleteAdvanceMutation.mutate(deletingId)}
             color='error'
             variant='contained'
             disabled={deleteAdvanceMutation.isPending}
           >
-            Delete
+            {t.common.delete}
           </Button>
         </MuiDialogActions>
       </Dialog>

@@ -11,6 +11,7 @@ import {
 import { DeleteOutlined, EditOutlined } from '@mui/icons-material';
 import RFQItemForm from './RFQItemForm';
 import { RFQItem } from '../rfq-types';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface RFQItemRowProps {
   setClearFormKey: React.Dispatch<React.SetStateAction<number>>;
@@ -33,6 +34,7 @@ const RFQItemRow: React.FC<RFQItemRowProps> = ({
   item,
   index,
 }) => {
+  const dictionary = useDictionary();
   const product = item.product;
   const [showForm, setShowForm] = useState(false);
 
@@ -52,24 +54,24 @@ const RFQItemRow: React.FC<RFQItemRowProps> = ({
         >
           <Grid size={{ xs: 1, md: 0.5 }}>{index + 1}.</Grid>
           <Grid size={{ xs: 5, md: 3.5 }}>
-            <Tooltip title={'Product Name'}>
+            <Tooltip title={dictionary.tooltips.productName}>
               <Typography>{product?.name || 'N/A'}</Typography>
             </Tooltip>
           </Grid>
           <Grid size={{ xs: 3, md: 2 }}>
-            <Tooltip title={'Quantity'}>
+            <Tooltip title={dictionary.tooltips.quantity}>
               <Typography>{item.quantity?.toLocaleString() || 0}</Typography>
             </Tooltip>
           </Grid>
           <Grid size={{ xs: 2, md: 2 }}>
-            <Tooltip title={'Unit'}>
+            <Tooltip title={dictionary.tooltips.unit}>
               <Typography>
                 {item?.unit_symbol || item?.measurement_unit?.symbol || ''}
               </Typography>
             </Tooltip>
           </Grid>
           <Grid size={{ xs: 6, md: 2.5 }}>
-            <Tooltip title={'Remarks'}>
+            <Tooltip title={dictionary.tooltips.remarks}>
               <Typography variant='body2' noWrap>
                 {item?.remarks || '-'}
               </Typography>
@@ -79,16 +81,16 @@ const RFQItemRow: React.FC<RFQItemRowProps> = ({
             textAlign={'end'}
             size={{ xs: 6, md: 1.5 }}
           >
-            <Tooltip title='Edit Item'>
+            <Tooltip title={dictionary.tooltips.editItem}>
               <IconButton
                 size='small'
                 onClick={() => setShowForm(true)}
-                aria-label='edit item'
+                aria-label={dictionary.tooltips.editItem}
               >
                 <EditOutlined fontSize='small' />
               </IconButton>
             </Tooltip>
-            <Tooltip title='Remove Item'>
+            <Tooltip title={dictionary.tooltips.removeItem}>
               <IconButton
                 size='small'
                 onClick={() =>
@@ -98,7 +100,7 @@ const RFQItemRow: React.FC<RFQItemRowProps> = ({
                     return newItems;
                   })
                 }
-                aria-label='remove item'
+                aria-label={dictionary.tooltips.removeItem}
               >
                 <DeleteOutlined fontSize='small' color='error' />
               </IconButton>

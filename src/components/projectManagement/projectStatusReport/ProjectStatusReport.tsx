@@ -29,6 +29,7 @@ import PDFContent from '@/components/pdf/PDFContent';
 import { readableDate } from '@/app/helpers/input-sanitization-helpers';
 import projectsServices from '@/components/projectManagement/projects/project-services';
 import ProjectStatusReportPDF from './ProjectStatusReportPDF';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface ProjectStatusReportRow {
   id: number;
@@ -75,6 +76,7 @@ const AmountWithPercentage = ({ amount, percentage }: { amount?: number; percent
 // (DialogTitle + FileExportGrid, DialogContent holding the table) so every report in the app
 // looks and exports the same way.
 const ProjectStatusReport: React.FC<ProjectStatusReportProps> = ({ setOpenDialog }) => {
+  const dictionary = useDictionary();
   const { authOrganization, authUser } = useJumboAuth();
   const { theme } = useJumboTheme();
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
@@ -102,7 +104,7 @@ const ProjectStatusReport: React.FC<ProjectStatusReportProps> = ({ setOpenDialog
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `Project Status Report ${readableDate(asAt, true)}.xlsx`;
+      a.download = `${dictionary.projectManagement.projectStatusReport.title} ${readableDate(asAt, true)}.xlsx`;
       a.click();
       window.URL.revokeObjectURL(url);
     } finally {
@@ -110,16 +112,16 @@ const ProjectStatusReport: React.FC<ProjectStatusReportProps> = ({ setOpenDialog
     }
   };
 
-  document.title = 'Project Status Report';
+  document.title = dictionary.projectManagement.projectStatusReport.title;
 
   return (
     <>
       <DialogTitle textAlign="center">
         <Grid container>
           <Grid size={12} textAlign="center">
-            <Typography variant="h3">Project Status Report</Typography>
+            <Typography variant="h3">{dictionary.projectManagement.projectStatusReport.title}</Typography>
             {belowLargeScreen && (
-              <Tooltip title="Close">
+              <Tooltip title={dictionary.tooltips.close}>
                 <IconButton
                   size="small"
                   sx={{ position: 'absolute', top: 10, right: 10 }}
@@ -134,7 +136,7 @@ const ProjectStatusReport: React.FC<ProjectStatusReportProps> = ({ setOpenDialog
         <Grid container columnSpacing={1} rowSpacing={1} alignItems="center" justifyContent="flex-end">
           <Grid size={{ xs: 12, md: 4, lg: 3 }}>
             <DateTimePicker
-              label="As at"
+              label={dictionary.projectManagement.projectStatusReport.asAt}
               value={dayjs(asAt)}
               slotProps={{ textField: { size: 'small', fullWidth: true } }}
               onChange={(newValue) => setAsAt((newValue || dayjs()).toISOString())}
@@ -158,11 +160,11 @@ const ProjectStatusReport: React.FC<ProjectStatusReportProps> = ({ setOpenDialog
           <LinearProgress />
         ) : isError ? (
           <Typography color="error" textAlign="center" py={3}>
-            {(error as any)?.response?.data?.message || 'Failed to load the Project Status Report.'}
+            {(error as any)?.response?.data?.message || dictionary.projectManagement.projectStatusReport.loadFailed}
           </Typography>
         ) : !showOnScreen ? (
           <PDFContent
-            fileName={`Project Status Report ${readableDate(asAt, true)}`}
+            fileName={`${dictionary.projectManagement.projectStatusReport.title} ${readableDate(asAt, true)}`}
             document={
               <ProjectStatusReportPDF
                 authOrganization={authOrganization}
@@ -170,6 +172,7 @@ const ProjectStatusReport: React.FC<ProjectStatusReportProps> = ({ setOpenDialog
                 rows={rows}
                 totals={totals}
                 asAt={asAt}
+                dictionary={dictionary}
               />
             }
           />
@@ -178,19 +181,19 @@ const ProjectStatusReport: React.FC<ProjectStatusReportProps> = ({ setOpenDialog
             <Table size="small" stickyHeader>
               <TableHead>
                 <TableRow>
-                  <TableCell>S/N</TableCell>
-                  <TableCell>Project</TableCell>
-                  <TableCell>Client</TableCell>
-                  <TableCell>Category</TableCell>
-                  <TableCell align="right">Contract Value</TableCell>
-                  <TableCell align="right">Site Impl. %</TableCell>
-                  <TableCell align="right">Time Elapsed %</TableCell>
-                  <TableCell align="right">Progressive Revenue</TableCell>
-                  <TableCell align="right">Billed Revenue</TableCell>
-                  <TableCell align="right">Unbilled Revenue (WIP)</TableCell>
-                  <TableCell align="right">Received Payments</TableCell>
-                  <TableCell align="right">Certified Pending Payment</TableCell>
-                  <TableCell align="right">Outstanding Liabilities</TableCell>
+                  <TableCell>{dictionary.projectManagement.projectStatusReport.columns.sn}</TableCell>
+                  <TableCell>{dictionary.projectManagement.projectStatusReport.columns.project}</TableCell>
+                  <TableCell>{dictionary.projectManagement.projectStatusReport.columns.client}</TableCell>
+                  <TableCell>{dictionary.projectManagement.projectStatusReport.columns.category}</TableCell>
+                  <TableCell align="right">{dictionary.projectManagement.projectStatusReport.columns.contract_value}</TableCell>
+                  <TableCell align="right">{dictionary.projectManagement.projectStatusReport.columns.site_implementation_percentage}</TableCell>
+                  <TableCell align="right">{dictionary.projectManagement.projectStatusReport.columns.time_elapsed_percentage}</TableCell>
+                  <TableCell align="right">{dictionary.projectManagement.projectStatusReport.columns.progressive_revenue}</TableCell>
+                  <TableCell align="right">{dictionary.projectManagement.projectStatusReport.columns.billed_revenue}</TableCell>
+                  <TableCell align="right">{dictionary.projectManagement.projectStatusReport.columns.unbilled_revenue}</TableCell>
+                  <TableCell align="right">{dictionary.projectManagement.projectStatusReport.columns.received_payments}</TableCell>
+                  <TableCell align="right">{dictionary.projectManagement.projectStatusReport.columns.certified_pending_payment}</TableCell>
+                  <TableCell align="right">{dictionary.projectManagement.projectStatusReport.columns.outstanding_liabilities}</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -228,7 +231,7 @@ const ProjectStatusReport: React.FC<ProjectStatusReportProps> = ({ setOpenDialog
                 {!isFetching && rows.length === 0 && (
                   <TableRow>
                     <TableCell colSpan={13} align="center">
-                      <Typography color="text.secondary" py={3}>No projects found.</Typography>
+                      <Typography color="text.secondary" py={3}>{dictionary.projectManagement.projectStatusReport.noProjects}</Typography>
                     </TableCell>
                   </TableRow>
                 )}
@@ -236,7 +239,7 @@ const ProjectStatusReport: React.FC<ProjectStatusReportProps> = ({ setOpenDialog
               {rows.length > 0 && (
                 <TableBody>
                   <TableRow sx={{ '& td': { fontWeight: 700, borderTop: 2, borderColor: 'divider' } }}>
-                    <TableCell colSpan={4}>TOTAL</TableCell>
+                    <TableCell colSpan={4}>{dictionary.projectManagement.projectStatusReport.total}</TableCell>
                     <TableCell align="right">{formatAmount(totals.contract_value)}</TableCell>
                     <TableCell />
                     <TableCell />

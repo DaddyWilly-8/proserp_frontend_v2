@@ -3,6 +3,7 @@ import { ListItemText, Tooltip, Typography, Grid, Box } from '@mui/material';
 import PriceListsItemAction from './PriceListsItemAction';
 import { readableDate } from '@/app/helpers/input-sanitization-helpers';
 import { PriceList } from './PriceListType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface PriceListsItemProps {
   priceList: PriceList;
@@ -10,6 +11,7 @@ interface PriceListsItemProps {
 }
 
 const PriceListsItem: React.FC<PriceListsItemProps> = ({ fuelPriceLists, priceList }) => {
+  const dictionary = useDictionary();
   return (
     <Grid 
       container
@@ -29,7 +31,7 @@ const PriceListsItem: React.FC<PriceListsItemProps> = ({ fuelPriceLists, priceLi
       <Grid size={5}>
         <ListItemText
           primary={
-            <Tooltip title="Effective Date">
+            <Tooltip title={dictionary.tooltips.effectiveDate}>
               <Typography variant="h5" fontSize={14} lineHeight={1.25} mb={0}>
                 {readableDate(priceList.effective_date)}
               </Typography>
@@ -40,7 +42,7 @@ const PriceListsItem: React.FC<PriceListsItemProps> = ({ fuelPriceLists, priceLi
       <Grid size={6}>
         <ListItemText
           primary={
-            <Tooltip title="Narration">
+            <Tooltip title={dictionary.tooltips.narration}>
               <Typography variant="h5" fontSize={14} lineHeight={1.25} mb={0}>
                 {priceList.narration || '-'}
               </Typography>

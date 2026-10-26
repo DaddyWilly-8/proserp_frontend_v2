@@ -23,8 +23,10 @@ import { useQuery } from '@tanstack/react-query';
 import projectsServices from '../../project-services';
 import DeliverableSummary from './tab/DeliverableSummary';
 import { Stack } from '@mui/system';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function DeliverablesListItem({ filteredDeliverables }) {
+  const dictionary = useDictionary();
   const { activeTab } = useProjectProfile();
   const [expandedIndex, setExpandedIndex] = React.useState(-1);
   const [tabIndex, setTabIndex] = React.useState(0);
@@ -108,10 +110,10 @@ function DeliverablesListItem({ filteredDeliverables }) {
 
   return (
     <Grid size={{xs: 12}}>
-      {filteredDeliverables.length > 0 && <Typography>Deliverables</Typography>}
+      {filteredDeliverables.length > 0 && <Typography>{dictionary.projectManagement.deliverables.title}</Typography>}
       {isLargeList && (
         <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1 }}>
-          Showing {visibleDeliverables.length} of {filteredDeliverables.length}
+          {dictionary.projectManagement.deliverables.showingOf.replace('{shown}', visibleDeliverables.length).replace('{total}', filteredDeliverables.length)}
         </Typography>
       )}
       <Box
@@ -181,19 +183,19 @@ function DeliverablesListItem({ filteredDeliverables }) {
                 <Grid size={{xs: 12, md: deliverable?.contract_rate ? 4 : 7.5}}>
                   <ListItemText
                     primary={
-                      <Tooltip title="Description">
+                      <Tooltip title={dictionary.tooltips.description}>
                         <Typography component="span">{deliverable.description}</Typography>
                       </Tooltip>
                     }
                     secondary={
-                      <Tooltip title="Code">
+                      <Tooltip title={dictionary.tooltips.code}>
                         <Typography component="span">{deliverable.code}</Typography>
                       </Tooltip>
                     }
                   />
                 </Grid>
                 <Grid size={{xs: 6, md: deliverable?.contract_rate ? 2 : 3.5}}>
-                  <Tooltip title="Quantity">
+                  <Tooltip title={dictionary.tooltips.quantity}>
                     <Typography textAlign={{ md: 'right' }}>
                       {`${deliverable.quantity?.toLocaleString()} ${deliverable.measurement_unit?.symbol}`}
                     </Typography>
@@ -201,7 +203,7 @@ function DeliverablesListItem({ filteredDeliverables }) {
                 </Grid>
                 {deliverable?.contract_rate && (
                   <Grid size={{xs: 6, md: 2.5}}>
-                    <Tooltip title="Contract Rate">
+                    <Tooltip title={dictionary.tooltips.contractRate}>
                       <Typography textAlign="right">
                         {deliverable.contract_rate?.toLocaleString()}
                       </Typography>
@@ -210,7 +212,7 @@ function DeliverablesListItem({ filteredDeliverables }) {
                 )}
                 {deliverable?.contract_rate && (
                   <Grid size={{xs: 6, md: 2.5}}>
-                    <Tooltip title="Amount">
+                    <Tooltip title={dictionary.tooltips.amount}>
                       <Typography textAlign="right">
                         {(
                           (deliverable.quantity || 0) * (deliverable?.contract_rate || 0)
@@ -230,8 +232,8 @@ function DeliverablesListItem({ filteredDeliverables }) {
 
             <AccordionDetails sx={{ backgroundColor: 'background.paper', marginBottom: 3 }}>
               <Tabs value={tabIndex} onChange={(event, newValue) => setTabIndex(newValue)}>
-                <Tab label="Summary" />
-                <Tab label="Tasks" />
+                <Tab label={dictionary.projectManagement.deliverables.summary} />
+                <Tab label={dictionary.projectManagement.deliverables.tasks} />
               </Tabs>
               
               {isDetailsLoading ? (
@@ -257,7 +259,7 @@ function DeliverablesListItem({ filteredDeliverables }) {
       {hasMore && (
         <Box display="flex" justifyContent="center" py={1}>
           <Button size="small" variant="outlined" onClick={loadMore}>
-            Load more deliverables
+            {dictionary.projectManagement.deliverables.loadMore}
           </Button>
         </Box>
       )}

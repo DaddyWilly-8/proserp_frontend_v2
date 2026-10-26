@@ -21,6 +21,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 import { readableDate } from '@/app/helpers/input-sanitization-helpers';
 import { SalesOrder } from '../../SalesOrderType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface Receipt {
   id: string;
@@ -43,6 +44,7 @@ interface SaleReceiptsProps {
 }
 
 const SaleReceipts: React.FC<SaleReceiptsProps> = ({ expanded, sale, activeTab }) => {
+  const dictionary = useDictionary();
   const [selectedReceipt, setSelectedReceipt] = useState<Receipt | null>(null);
   const [openReceiptDeleteDialog, setOpenReceiptDeleteDialog] = useState(false);
   const [openReceiptEditDialog, setOpenReceiptEditDialog] = useState(false);
@@ -81,27 +83,27 @@ const SaleReceipts: React.FC<SaleReceiptsProps> = ({ expanded, sale, activeTab }
             mb={1}
           >
             <Grid size={{xs: 6, md: 3, lg: 2}}>
-              <Tooltip title={'Receipt No.'}>
+              <Tooltip title={dictionary.tooltips.receiptNo}>
                 <Typography fontWeight={'bold'}>{receipt.voucherNo}</Typography>
               </Tooltip>
-              <Tooltip title={'Receipt Date'}>
+              <Tooltip title={dictionary.tooltips.receiptDate}>
                 <Typography>
                   {readableDate(receipt.transaction_date)}
                 </Typography>
               </Tooltip>
             </Grid>
             <Grid size={{xs: 6, md: 4, lg: 4}} mt={0.5}>
-              <Tooltip title={'Narration'}>
+              <Tooltip title={dictionary.tooltips.narration}>
                 <Typography>{receipt.narration || 'N/A'}</Typography>
               </Tooltip>
             </Grid>
             <Grid size={{xs: 6, md: 3, lg: 2}} mt={0.5}>
-              <Tooltip title={'Account'}>
+              <Tooltip title={dictionary.tooltips.account}>
                 <Typography>{receipt.debit_ledger?.name || 'N/A'}</Typography>
               </Tooltip>
             </Grid>
             <Grid size={{xs: 6, md: 2, lg: 2}} textAlign={'end'}>
-              <Tooltip title={'Amount'}>
+              <Tooltip title={dictionary.tooltips.amount}>
                 <Typography fontWeight={'bold'}>
                   {receipt.amount?.toLocaleString("en-US", {
                     style: "currency", 

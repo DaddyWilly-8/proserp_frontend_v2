@@ -4,7 +4,13 @@ import pdfStyles from '@/components/pdf/pdf-styles';
 import PdfLogo from '@/components/pdf/PdfLogo';
 import { Document, Page, Text, View } from '@react-pdf/renderer';
 
-const IncomeStatementPDF = ({ reportData, authOrganization, user }) => {
+const IncomeStatementPDF = ({
+  reportData,
+  authOrganization,
+  user,
+  dictionary,
+}) => {
+  const t = dictionary.reports.accountsReports;
   const mainColor =
     authOrganization.organization.settings?.main_color || '#2113AD';
   const contrastText =
@@ -135,7 +141,7 @@ const IncomeStatementPDF = ({ reportData, authOrganization, user }) => {
     <Document
       creator={` ${user.name} | Powered By ProsERP`}
       producer='ProsERP'
-      title={`Income Statement ${reportPeriod}`}
+      title={`${t.incomeStatement.title} ${reportPeriod}`}
     >
       <Page
         size='A4'
@@ -152,7 +158,9 @@ const IncomeStatementPDF = ({ reportData, authOrganization, user }) => {
             <View style={{ flex: 1, textAlign: 'right' }}>
               <Text
                 style={{ ...pdfStyles.majorInfo, color: mainColor }}
-              >{`Income Statement`}</Text>
+              >
+                {t.incomeStatement.title}
+              </Text>
               <Text style={{ ...pdfStyles.minInfo }}>{reportPeriod}</Text>
             </View>
           </View>
@@ -163,7 +171,7 @@ const IncomeStatementPDF = ({ reportData, authOrganization, user }) => {
           {costCenters.length !== 0 && (
             <View style={{ flex: 2, padding: 2 }}>
               <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>
-                Cost Centers
+                {t.common.costCenters}
               </Text>
               <Text style={{ ...pdfStyles.minInfo }}>
                 {costCenters
@@ -174,13 +182,13 @@ const IncomeStatementPDF = ({ reportData, authOrganization, user }) => {
           )}
           <View style={{ flex: 1, padding: 2 }}>
             <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>
-              Printed By
+              {t.common.printedBy}
             </Text>
             <Text style={{ ...pdfStyles.minInfo }}>{user.name}</Text>
           </View>
           <View style={{ flex: 1, padding: 2 }}>
             <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>
-              Printed On
+              {t.common.printedOn}
             </Text>
             <Text style={{ ...pdfStyles.minInfo }}>
               {readableDate(undefined, true)}
@@ -205,7 +213,7 @@ const IncomeStatementPDF = ({ reportData, authOrganization, user }) => {
                   fontSize: 12,
                 }}
               >
-                Category
+                {t.incomeStatement.category}
               </Text>
             </View>
             {mergedPeriods.map((group, index) => {
@@ -252,7 +260,7 @@ const IncomeStatementPDF = ({ reportData, authOrganization, user }) => {
                     fontSize: 12,
                   }}
                 >
-                  Total
+                  {t.common.total}
                 </Text>
               </View>
             )}
@@ -269,7 +277,9 @@ const IncomeStatementPDF = ({ reportData, authOrganization, user }) => {
                 width: '100%',
               }}
             >
-              <Text style={{ ...pdfStyles.tableCell }}>Revenues</Text>
+              <Text style={{ ...pdfStyles.tableCell }}>
+                {t.incomeStatement.revenue}
+              </Text>
             </View>
           </View>
           {incomes.map((income, index) => (
@@ -343,7 +353,7 @@ const IncomeStatementPDF = ({ reportData, authOrganization, user }) => {
                 paddingLeft: 12,
               }}
             >
-              <Text style={{ ...pdfStyles.tableCell }}>Total</Text>
+              <Text style={{ ...pdfStyles.tableCell }}>{t.common.total}</Text>
             </View>
             {mergedPeriods.map((group, index) => (
               <View
@@ -402,7 +412,9 @@ const IncomeStatementPDF = ({ reportData, authOrganization, user }) => {
                 width: '100%',
               }}
             >
-              <Text style={{ ...pdfStyles.tableCell }}>Cost Of Revenue</Text>
+              <Text style={{ ...pdfStyles.tableCell }}>
+                {t.incomeStatement.costOfRevenue}
+              </Text>
             </View>
           </View>
           {directExpenses.map((exp, index) => (
@@ -476,7 +488,7 @@ const IncomeStatementPDF = ({ reportData, authOrganization, user }) => {
                 paddingLeft: 12,
               }}
             >
-              <Text style={{ ...pdfStyles.tableCell }}>Total</Text>
+              <Text style={{ ...pdfStyles.tableCell }}>{t.common.total}</Text>
             </View>
             {mergedPeriods.map((group, index) => (
               <View
@@ -534,7 +546,9 @@ const IncomeStatementPDF = ({ reportData, authOrganization, user }) => {
                 width: colWidth,
               }}
             >
-              <Text style={{ ...pdfStyles.tableCell }}>Gross Profit</Text>
+              <Text style={{ ...pdfStyles.tableCell }}>
+                {t.incomeStatement.grossProfit}
+              </Text>
             </View>
             {mergedPeriods.map((group, index) => (
               <View
@@ -596,7 +610,9 @@ const IncomeStatementPDF = ({ reportData, authOrganization, user }) => {
                 width: '100%',
               }}
             >
-              <Text style={{ ...pdfStyles.tableCell }}>Operating Expenses</Text>
+              <Text style={{ ...pdfStyles.tableCell }}>
+                {t.incomeStatement.operatingExpenses}
+              </Text>
             </View>
           </View>
           {indirectExpenses.map((exp, index) => (
@@ -670,7 +686,7 @@ const IncomeStatementPDF = ({ reportData, authOrganization, user }) => {
                 paddingLeft: 12,
               }}
             >
-              <Text style={{ ...pdfStyles.tableCell }}>Total</Text>
+              <Text style={{ ...pdfStyles.tableCell }}>{t.common.total}</Text>
             </View>
             {mergedPeriods.map((group, index) => (
               <View
@@ -728,7 +744,9 @@ const IncomeStatementPDF = ({ reportData, authOrganization, user }) => {
                 width: colWidth,
               }}
             >
-              <Text style={{ ...pdfStyles.tableCell }}>Net Income</Text>
+              <Text style={{ ...pdfStyles.tableCell }}>
+                {t.incomeStatement.netIncome}
+              </Text>
             </View>
             {mergedPeriods.map((group, index) => (
               <View

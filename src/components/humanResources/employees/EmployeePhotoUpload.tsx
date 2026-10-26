@@ -15,6 +15,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSnackbar } from 'notistack';
 import { useRef, useState } from 'react';
 import humanResourcesServices from '../humanResourcesServices';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface EmployeePhotoUploadProps {
   employeeId: number;
@@ -25,14 +26,14 @@ interface EmployeePhotoUploadProps {
   onChanged?: () => void;
 }
 
-const getErrorMessage = (error: any) => {
+const getErrorMessage = (error: any, fallback: string) => {
   const validationErrors = error?.response?.data?.validation_errors;
   if (validationErrors && typeof validationErrors === 'object') {
     const first = Object.values(validationErrors)[0] as any;
     return Array.isArray(first) ? first[0] : String(first);
   }
   return (
-    error?.response?.data?.message || error?.message || 'Something went wrong'
+    error?.response?.data?.message || error?.message || fallback
   );
 };
 
@@ -51,6 +52,7 @@ const EmployeePhotoUpload = ({
   editable = true,
   onChanged,
 }: EmployeePhotoUploadProps) => {
+  const dictionary = useDictionary();
   const queryClient = useQueryClient();
   const { enqueueSnackbar } = useSnackbar();
   const { showDialog, hideDialog } = useJumboDialog();
@@ -67,10 +69,10 @@ const EmployeePhotoUpload = ({
       humanResourcesServices.uploadEmployeePhoto(employeeId, file),
     onSuccess: () => {
       invalidate();
-      enqueueSnackbar('Photo updated successfully', { variant: 'success' });
+      enqueueSnackbar(dictionary.humanResources.employees.photo.updated, { variant: 'success' });
     },
     onError: (error: any) => {
-      enqueueSnackbar(getErrorMessage(error), { variant: 'error' });
+      enqueueSnackbar(getErrorMessage(error, dictionary.humanResources.employees.common.somethingWentWrong), { variant: 'error' });
     },
   });
 
@@ -78,10 +80,10 @@ const EmployeePhotoUpload = ({
     mutationFn: () => humanResourcesServices.deleteEmployeePhoto(employeeId),
     onSuccess: () => {
       invalidate();
-      enqueueSnackbar('Photo removed successfully', { variant: 'success' });
+      enqueueSnackbar(dictionary.humanResources.employees.photo.removed, { variant: 'success' });
     },
     onError: (error: any) => {
-      enqueueSnackbar(getErrorMessage(error), { variant: 'error' });
+      enqueueSnackbar(getErrorMessage(error, dictionary.humanResources.employees.common.somethingWentWrong), { variant: 'error' });
     },
   });
 
@@ -97,8 +99,8 @@ const EmployeePhotoUpload = ({
   const handleRemove = () => {
     setMenuAnchor(null);
     showDialog({
-      title: 'Remove Photo',
-      content: "Are you sure you want to remove this employee's photo?",
+      title: dictionary.humanResources.employees.photo.removeTitle,
+      content: dictionary.humanResources.employees.photo.removeContent,
       onYes: () => {
         hideDialog();
         deleteMutation.mutate();
@@ -144,7 +146,7 @@ const EmployeePhotoUpload = ({
           <CircularProgress size={size / 3} sx={{ color: 'white' }} />
         </Box>
       )}
-      <Tooltip title='Change photo'>
+      <Tooltip title={dictionary.tooltips.changePhoto}>
         <IconButton
           size='small'
           onClick={(e) => setMenuAnchor(e.currentTarget)}
@@ -180,12 +182,12 @@ const EmployeePhotoUpload = ({
           }}
         >
           <PhotoCameraOutlined fontSize='small' sx={{ mr: 1 }} />
-          {photoPath ? 'Replace photo' : 'Upload photo'}
+          {photoPath ? dictionary.humanResources.employees.photo.replace : dictionary.humanResources.employees.photo.upload}
         </MenuItem>
         {photoPath && (
           <MenuItem onClick={handleRemove}>
             <DeleteOutline fontSize='small' sx={{ mr: 1 }} />
-            Remove photo
+            {dictionary.humanResources.employees.photo.remove}
           </MenuItem>
         )}
       </Menu>

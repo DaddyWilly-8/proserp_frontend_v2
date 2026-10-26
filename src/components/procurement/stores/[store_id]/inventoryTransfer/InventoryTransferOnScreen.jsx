@@ -14,8 +14,10 @@ import {
   Box
 } from '@mui/material';
 import { readableDate } from '@/app/helpers/input-sanitization-helpers';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function InventoryTransferOnScreen({ transfer, organization }) {
+  const dictionary = useDictionary();
   const theme = useTheme();
   const mainColor = organization.settings?.main_color || "#2113AD";
   const headerColor = theme.type === 'dark' ? '#29f096' : (organization.settings?.main_color || "#2113AD");
@@ -181,7 +183,7 @@ function InventoryTransferOnScreen({ transfer, organization }) {
           >
             {transfer.vehicle_information && (
               <Box sx={{ mb: 2 }}>
-                <Tooltip title="Information about the vehicle used for the transfer">
+                <Tooltip title={dictionary.tooltips.informationAboutTheVehicleUsedFor}>
                   <Typography variant="subtitle2" sx={{ color: headerColor }} gutterBottom>
                     Vehicle Information
                   </Typography>
@@ -192,7 +194,7 @@ function InventoryTransferOnScreen({ transfer, organization }) {
 
             {transfer.driver_information && (
               <Box sx={{ mb: 2 }}>
-                <Tooltip title="Information about the driver handling the transfer">
+                <Tooltip title={dictionary.tooltips.informationAboutTheDriverHandlingThe}>
                   <Typography variant="subtitle2" sx={{ color: headerColor }} gutterBottom>
                     Driver Information
                   </Typography>

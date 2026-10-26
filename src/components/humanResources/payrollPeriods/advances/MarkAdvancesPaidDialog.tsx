@@ -1,5 +1,6 @@
 'use client';
 
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import { getErrorMessage } from '@/utilities/helpers/errorHandler';
 import { LoadingButton } from '@mui/lab';
 import {
@@ -37,6 +38,8 @@ const MarkAdvancesPaidDialog = ({
   payrollPeriodId: number;
   onSuccess?: () => void;
 }) => {
+  const dictionary = useDictionary();
+  const t = dictionary.humanResources.payrollPeriods;
   const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
   const theme = useTheme();
@@ -59,7 +62,7 @@ const MarkAdvancesPaidDialog = ({
         date: date || undefined,
       }),
     onSuccess: (response: any) => {
-      enqueueSnackbar(response?.message || 'Advances marked as paid', {
+      enqueueSnackbar(response?.message || t.advances.markPaid.marked, {
         variant: 'success',
       });
       queryClient.invalidateQueries({
@@ -81,17 +84,16 @@ const MarkAdvancesPaidDialog = ({
       fullScreen={belowLargeScreen}
       scroll={belowLargeScreen ? 'body' : 'paper'}
     >
-      <DialogTitle>Mark Advances as Paid</DialogTitle>
+      <DialogTitle>{t.advances.markPaid.title}</DialogTitle>
       <DialogContent>
         <Stack spacing={2} sx={{ mt: 1 }}>
           <Typography variant='body2' color='text.secondary'>
-            This marks every not-yet-paid advance uploaded for this period as
-            paid, without posting a payment to the books.
+            {t.advances.markPaid.intro}
           </Typography>
 
           <TextField
-            label='Reference (optional)'
-            placeholder='e.g. Cash handed over, mobile money batch #4521'
+            label={t.advances.markPaid.reference}
+            placeholder={t.advances.markPaid.referencePlaceholder}
             size='small'
             fullWidth
             multiline
@@ -100,7 +102,7 @@ const MarkAdvancesPaidDialog = ({
             onChange={(e) => setReference(e.target.value)}
           />
           <DateTimePicker
-            label='Payment Date & Time'
+            label={t.advances.paymentDateTime}
             value={date ? dayjs(date) : null}
             onChange={(val) => setDate(val?.toISOString() || '')}
             slotProps={{
@@ -111,7 +113,7 @@ const MarkAdvancesPaidDialog = ({
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose} disabled={isPending}>
-          Cancel
+          {t.common.cancel}
         </Button>
         <LoadingButton
           loading={isPending}
@@ -120,7 +122,7 @@ const MarkAdvancesPaidDialog = ({
           size='small'
           onClick={() => markPaid()}
         >
-          Mark as Paid
+          {t.advances.markPaid.button}
         </LoadingButton>
       </DialogActions>
     </Dialog>

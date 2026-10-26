@@ -25,6 +25,7 @@ import humanResourcesServices from '../../../humanResourcesServices';
 import LeaveDirectDecisionForm from './LeaveDirectDecisionForm';
 import LeaveRequestForm from './LeaveRequestForm';
 import { LeaveRequestType } from './LeaveRequestType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 type LeaveDirectDecisionMode = 'approve' | 'reject';
 
@@ -65,6 +66,7 @@ const LeaveRequestItemAction = ({
   leaveRequest: LeaveRequestType;
   approvalsCount?: number;
 }) => {
+  const dictionary = useDictionary();
   const { checkOrganizationPermission, authUser } = useJumboAuth();
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const { showDialog, hideDialog } = useJumboDialog();
@@ -84,12 +86,12 @@ const LeaveRequestItemAction = ({
     mutationFn: humanResourcesServices.deleteLeaveRequest,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['leaveRequests'] });
-      enqueueSnackbar('Leave Request Deleted Successfully', {
+      enqueueSnackbar(dictionary.humanResources.leaveRequests.messages.deleted, {
         variant: 'success',
       });
     },
     onError: (error: any) => {
-      let message = 'Something went wrong';
+      let message = dictionary.humanResources.profileSectionsCommon.somethingWentWrong;
 
       if (
         typeof error === 'object' &&
@@ -109,12 +111,12 @@ const LeaveRequestItemAction = ({
     mutationFn: (id: number) => humanResourcesServices.cancelLeaveRequest(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['leaveRequests'] });
-      enqueueSnackbar('Leave Request Cancelled Successfully', {
+      enqueueSnackbar(dictionary.humanResources.leaveRequests.messages.cancelled, {
         variant: 'success',
       });
     },
     onError: (error: any) => {
-      let message = 'Something went wrong';
+      let message = dictionary.humanResources.profileSectionsCommon.somethingWentWrong;
 
       if (
         typeof error === 'object' &&
@@ -133,8 +135,8 @@ const LeaveRequestItemAction = ({
 
   const handleDelete = () => {
     showDialog({
-      title: 'Confirm Delete',
-      content: 'Are you sure you want to delete this Leave Request?',
+      title: dictionary.humanResources.profileSectionsCommon.confirmDelete,
+      content: dictionary.humanResources.leaveRequests.messages.deleteConfirm,
       onYes: () => {
         hideDialog();
         deleteLeaveRequest(leaveRequest.id);
@@ -146,8 +148,8 @@ const LeaveRequestItemAction = ({
 
   const handleCancel = () => {
     showDialog({
-      title: 'Confirm Cancel',
-      content: 'Are you sure you want to cancel this Leave Request?',
+      title: dictionary.humanResources.leaveRequests.messages.confirmCancelTitle,
+      content: dictionary.humanResources.leaveRequests.messages.cancelConfirm,
       onYes: () => {
         hideDialog();
         cancelLeaveRequest(leaveRequest.id);
@@ -201,7 +203,7 @@ const LeaveRequestItemAction = ({
         <>
           {canEditRequest && (
             <>
-              <Tooltip title='Edit'>
+              <Tooltip title={dictionary.tooltips.edit}>
                 <IconButton
                   size='small'
                   onClick={() => {
@@ -213,7 +215,7 @@ const LeaveRequestItemAction = ({
               </Tooltip>
               {canDirectDecide && (
                 <>
-                  <Tooltip title='Approve'>
+                  <Tooltip title={dictionary.tooltips.approve}>
                     <IconButton
                       size='small'
                       onClick={() => setDecisionMode('approve')}
@@ -221,7 +223,7 @@ const LeaveRequestItemAction = ({
                       <CheckCircleOutlined color='success' />
                     </IconButton>
                   </Tooltip>
-                  <Tooltip title='Reject'>
+                  <Tooltip title={dictionary.tooltips.reject}>
                     <IconButton
                       size='small'
                       onClick={() => setDecisionMode('reject')}
@@ -233,7 +235,7 @@ const LeaveRequestItemAction = ({
               )}
 
               {leaveRequest.status !== 'cancelled' && canEditRequest && (
-                <Tooltip title='Cancel'>
+                <Tooltip title={dictionary.tooltips.cancel}>
                   <IconButton size='small' onClick={handleCancel}>
                     <RemoveCircleOutline color='warning' />
                   </IconButton>
@@ -243,7 +245,7 @@ const LeaveRequestItemAction = ({
           )}
 
           {canDeleteRequest && (
-            <Tooltip title='Delete'>
+            <Tooltip title={dictionary.tooltips.delete}>
               <IconButton size='small' onClick={handleDelete}>
                 <DeleteOutlined color='error' />
               </IconButton>

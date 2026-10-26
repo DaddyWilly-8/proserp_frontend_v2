@@ -30,6 +30,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import { useSnackbar } from 'notistack';
 import React, { useEffect, useMemo, useState } from 'react';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import { FormProvider, useForm } from 'react-hook-form';
 import * as yup from 'yup';
 import RFQPurchaseOrderTopInformation from './RFQPurchaseOrderTopInformation';
@@ -108,6 +109,7 @@ const RFQPurchaseOrderForm: React.FC<RFQPurchaseOrderFormProps> = ({
   rfqId,
   totalOrders = 1
 }) => {
+  const dictionary = useDictionary();
   const { authOrganization, checkOrganizationPermission }= useJumboAuth();
   const [totalAmount, setTotalAmount]= useState(0);
   const [vatableAmount, setVatableAmount]= useState(0);
@@ -143,22 +145,22 @@ const RFQPurchaseOrderForm: React.FC<RFQPurchaseOrderFormProps> = ({
   const currency = getResponseCurrency();
 
   const validationSchema = yup.object({
-    order_date: yup.string().required('Order date is required'),
+    order_date: yup.string().required(dictionary.forms.rfqs.purchaseOrder.validation.orderDate),
     currency_id: yup
       .number()
-      .positive('Currency is required')
-      .required('Currency is required')
-      .typeError('Currency is required'),
+      .positive(dictionary.forms.rfqs.purchaseOrder.validation.currency)
+      .required(dictionary.forms.rfqs.purchaseOrder.validation.currency)
+      .typeError(dictionary.forms.rfqs.purchaseOrder.validation.currency),
     cost_centers: yup
       .array()
-      .min(1, 'At least one cost center must be selected')
-      .required('Cost Center is required')
-      .typeError('At least one cost center must be selected'),
+      .min(1, dictionary.forms.rfqs.purchaseOrder.validation.costCenterMin)
+      .required(dictionary.forms.rfqs.purchaseOrder.validation.costCenter)
+      .typeError(dictionary.forms.rfqs.purchaseOrder.validation.costCenterMin),
     exchange_rate: yup
       .number()
-      .positive('Exchange rate is required')
-      .required('Exchange rate is required')
-      .typeError('Exchange rate is required'),
+      .positive(dictionary.forms.rfqs.purchaseOrder.validation.exchangeRate)
+      .required(dictionary.forms.rfqs.purchaseOrder.validation.exchangeRate)
+      .typeError(dictionary.forms.rfqs.purchaseOrder.validation.exchangeRate),
     stakeholder_id: yup.number().positive().nullable(),
     instant_pay: yup.boolean(),
     instant_receive: yup.boolean(),
@@ -170,7 +172,7 @@ const RFQPurchaseOrderForm: React.FC<RFQPurchaseOrderFormProps> = ({
         then: (schema) =>
           schema
             .positive('Credit Account(From) is required')
-            .required('Credit Account(From) is required'),
+            .required(dictionary.forms.rfqs.purchaseOrder.validation.creditAccount),
         otherwise: (schema) => schema.nullable(),
       }),
     store_id: yup.number().when(['instant_receive', 'displayStoreSelector'], {
@@ -178,8 +180,8 @@ const RFQPurchaseOrderForm: React.FC<RFQPurchaseOrderFormProps> = ({
         instant_receive && displayStoreSelector,
       then: (schema) =>
         schema
-          .positive('Receiving store is required')
-          .required('Receiving store is required'),
+          .positive(dictionary.forms.rfqs.purchaseOrder.validation.receivingStore)
+          .required(dictionary.forms.rfqs.purchaseOrder.validation.receivingStore),
       otherwise: (schema) => schema.nullable(),
     }),
     stakeholder_ledger_id: yup
@@ -193,8 +195,8 @@ const RFQPurchaseOrderForm: React.FC<RFQPurchaseOrderFormProps> = ({
         ) => instant_pay && !!stakeholder_id && !instant_receive,
         then: (schema) =>
           schema
-            .positive(`Selected supplier doesn't have any account`)
-            .required(`Selected supplier doesn't have any account`),
+            .positive(dictionary.forms.rfqs.purchaseOrder.validation.supplierNoAccount)
+            .required(dictionary.forms.rfqs.purchaseOrder.validation.supplierNoAccount),
         otherwise: (schema) => schema.nullable(),
       }),
   });
@@ -325,7 +327,7 @@ const RFQPurchaseOrderForm: React.FC<RFQPurchaseOrderFormProps> = ({
       queryClient.invalidateQueries({ queryKey: ['purchaseOrders'] });
     },
     onError: (error: any) => {
-      const message = error?.response?.data?.message || 'Failed to create purchase order';
+      const message = error?.response?.data?.message || dictionary.forms.rfqs.purchaseOrder.messages.createFailed;
       enqueueSnackbar(message, { variant: 'error' });
     },
   });
@@ -340,7 +342,7 @@ const RFQPurchaseOrderForm: React.FC<RFQPurchaseOrderFormProps> = ({
       queryClient.invalidateQueries({ queryKey: ['purchaseOrders'] });
     },
     onError: (error: any) => {
-      const message = error?.response?.data?.message || 'Failed to update purchase order';
+      const message = error?.response?.data?.message || dictionary.forms.rfqs.purchaseOrder.messages.updateFailed;
       enqueueSnackbar(message, { variant: 'error' });
     },
   });
@@ -362,7 +364,7 @@ const RFQPurchaseOrderForm: React.FC<RFQPurchaseOrderFormProps> = ({
   const onSubmit = (data: FormValues) => {
     // Validate items
     if (items.length === 0) {
-      enqueueSnackbar('At least one item is required', { variant: 'error' });
+      enqueueSnackbar(dictionary.forms.rfqs.purchaseOrder.messages.atLeastOneItem, { variant: 'error' });
       return;
     }
 
@@ -388,11 +390,11 @@ const RFQPurchaseOrderForm: React.FC<RFQPurchaseOrderFormProps> = ({
         <Grid container columnSpacing={2}>
           <Grid textAlign={'center'} size={12} mb={1}>
             <Typography variant="h5">
-              {`New Purchase Order from RFQ`}
+              {dictionary.forms.rfqs.purchaseOrder.title}
             </Typography>
             {totalOrders > 1 && (
               <Typography variant="caption" color="text.secondary">
-                Creating multiple orders for different suppliers
+                {dictionary.forms.rfqs.purchaseOrder.multipleOrders}
               </Typography>
             )}
           </Grid>
@@ -446,7 +448,7 @@ const RFQPurchaseOrderForm: React.FC<RFQPurchaseOrderFormProps> = ({
           allowScrollButtonsMobile
           sx={{ mb: 1 }}
         >
-          <Tab label='Products' />
+          <Tab label={dictionary.forms.rfqs.purchaseOrder.tabProducts} />
         </Tabs>
 
         {activeTab === 0 && (
@@ -456,7 +458,7 @@ const RFQPurchaseOrderForm: React.FC<RFQPurchaseOrderFormProps> = ({
             )}
             {items.length === 0 && (
               <Alert severity="info" sx={{ mb: 2 }}>
-                No items available. Please go back and select items from the comparison.
+                {dictionary.forms.rfqs.purchaseOrder.noItems}
               </Alert>
             )}
             {items.map((item, index) => (
@@ -474,7 +476,7 @@ const RFQPurchaseOrderForm: React.FC<RFQPurchaseOrderFormProps> = ({
       </DialogContent>
       <DialogActions>
         <Button size='small' onClick={() => toggleOpen(false)}>
-          Cancel
+          {dictionary.forms.rfqs.common.cancel}
         </Button>
         {items?.length > 0 && (
           <LoadingButton
@@ -483,7 +485,7 @@ const RFQPurchaseOrderForm: React.FC<RFQPurchaseOrderFormProps> = ({
             onClick={handleSubmit(onSubmit)}
             loading={addPurchaseOrder.isPending || updatePurchaseOrder.isPending}
           >
-            {totalOrders > 1 ? 'Create & Next' : 'Submit'}
+            {totalOrders > 1 ? dictionary.forms.rfqs.purchaseOrder.createAndNext : dictionary.forms.rfqs.common.submit}
           </LoadingButton>
         )}
       </DialogActions>

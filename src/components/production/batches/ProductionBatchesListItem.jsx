@@ -2,8 +2,10 @@ import React from 'react';
 import { Box, Chip, Grid, Tooltip, Typography } from '@mui/material';
 import ProductionBatchesItemAction from './ProductionBatchesItemAction';
 import { readableDate } from '@/app/helpers/input-sanitization-helpers';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const ProductionBatchesListItem = ({ batch }) => {
+  const dictionary = useDictionary();
 
   return (
     <Grid 
@@ -23,14 +25,14 @@ const ProductionBatchesListItem = ({ batch }) => {
     }}
     >
         <Grid size={{xs: 6, md: 3}}>
-            <Tooltip title='Batch No'>
+            <Tooltip title={dictionary.tooltips.batchNo}>
                 <Typography fontWeight={'bold'}>
                     {batch.batchNo}
                 </Typography>
             </Tooltip>
         </Grid>
         <Grid size={{xs: 6, md: 3}}>
-            <Tooltip title='Start Date'>
+            <Tooltip title={dictionary.tooltips.startDate}>
                 <Typography>
                     {readableDate(batch.start_date, true)}
                 </Typography>
@@ -38,7 +40,7 @@ const ProductionBatchesListItem = ({ batch }) => {
         </Grid>
         <Grid size={{xs: 6, md: 3}}>
             {batch.end_date &&
-                <Tooltip title='End Date'>
+                <Tooltip title={dictionary.tooltips.endDate}>
                     <Typography>
                         {readableDate(batch.end_date, true)}
                     </Typography>
@@ -46,7 +48,7 @@ const ProductionBatchesListItem = ({ batch }) => {
             }
         </Grid>
         <Grid size={{xs: 6, md: 2}}>
-            <Tooltip title='Status'>
+            <Tooltip title={dictionary.tooltips.status}>
                 <Chip
                     size='small'
                     label={batch.status}

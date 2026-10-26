@@ -18,6 +18,7 @@ import { DepartmentsProvider } from '../departments/DepartmentsProvider';
 import humanResourcesServices from '../humanResourcesServices';
 import EmployeeForm from './EmployeeForm';
 import { Employee } from './EmployeesType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const EditEmployee = ({
   employee,
@@ -52,6 +53,7 @@ const EditEmployee = ({
 };
 
 const EmployeeItemAction = ({ employee }: { employee: Employee }) => {
+  const dictionary = useDictionary();
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const { showDialog, hideDialog } = useJumboDialog();
   const { enqueueSnackbar } = useSnackbar();
@@ -63,7 +65,7 @@ const EmployeeItemAction = ({ employee }: { employee: Employee }) => {
     mutationFn: humanResourcesServices.deleteEmployee,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['employees'] });
-      enqueueSnackbar('Employee Deleted Successfully', {
+      enqueueSnackbar(dictionary.humanResources.employees.list.messages.deleted, {
         variant: 'success',
       });
     },
@@ -71,7 +73,7 @@ const EmployeeItemAction = ({ employee }: { employee: Employee }) => {
     // leave on record, and says why — show that instead of a generic error.
     onError: (error: any) => {
       enqueueSnackbar(
-        error?.response?.data?.message || 'Error Deleting Employee',
+        error?.response?.data?.message || dictionary.humanResources.employees.list.messages.deleteError,
         { variant: 'error' }
       );
     },
@@ -86,7 +88,7 @@ const EmployeeItemAction = ({ employee }: { employee: Employee }) => {
     },
     onError: (error: any) => {
       enqueueSnackbar(
-        error?.response?.data?.message || 'Error deactivating employee',
+        error?.response?.data?.message || dictionary.humanResources.employees.list.messages.deactivateError,
         { variant: 'error' }
       );
     },
@@ -101,7 +103,7 @@ const EmployeeItemAction = ({ employee }: { employee: Employee }) => {
     },
     onError: (error: any) => {
       enqueueSnackbar(
-        error?.response?.data?.message || 'Error reactivating employee',
+        error?.response?.data?.message || dictionary.humanResources.employees.list.messages.reactivateError,
         { variant: 'error' }
       );
     },
@@ -112,23 +114,23 @@ const EmployeeItemAction = ({ employee }: { employee: Employee }) => {
   const menuItems = [
     {
       icon: <EditOutlined />,
-      title: 'Edit',
+      title: dictionary.humanResources.employees.list.actions.edit,
       action: 'edit',
     },
     isActive
       ? {
           icon: <PersonOffOutlined color='warning' />,
-          title: 'Deactivate',
+          title: dictionary.humanResources.employees.list.actions.deactivate,
           action: 'deactivate',
         }
       : {
           icon: <PersonOutlined color='success' />,
-          title: 'Reactivate',
+          title: dictionary.humanResources.employees.list.actions.reactivate,
           action: 'reactivate',
         },
     {
       icon: <DeleteOutlined color='error' />,
-      title: 'Delete',
+      title: dictionary.humanResources.employees.list.actions.delete,
       action: 'delete',
     },
   ];
@@ -140,9 +142,8 @@ const EmployeeItemAction = ({ employee }: { employee: Employee }) => {
         break;
       case 'deactivate':
         showDialog({
-          title: 'Deactivate Employee',
-          content:
-            'They will stop appearing in employee selectors and payroll, and lose My HR access. Their history stays intact and you can reactivate them at any time. Continue?',
+          title: dictionary.humanResources.employees.list.dialogs.deactivateTitle,
+          content: dictionary.humanResources.employees.list.dialogs.deactivateContent,
           onYes: () => {
             hideDialog();
             deactivateEmployee({ id: employee.id });
@@ -153,9 +154,8 @@ const EmployeeItemAction = ({ employee }: { employee: Employee }) => {
         break;
       case 'reactivate':
         showDialog({
-          title: 'Reactivate Employee',
-          content:
-            'They will appear in employee selectors and payroll again, and regain My HR access. Continue?',
+          title: dictionary.humanResources.employees.list.dialogs.reactivateTitle,
+          content: dictionary.humanResources.employees.list.dialogs.reactivateContent,
           onYes: () => {
             hideDialog();
             reactivateEmployee(employee.id);
@@ -166,8 +166,8 @@ const EmployeeItemAction = ({ employee }: { employee: Employee }) => {
         break;
       case 'delete':
         showDialog({
-          title: 'Confirm Delete',
-          content: 'Are you sure you want to delete this Employee?',
+          title: dictionary.humanResources.employees.list.dialogs.deleteTitle,
+          content: dictionary.humanResources.employees.list.dialogs.deleteContent,
           onYes: () => {
             hideDialog();
             deleteEmployee(employee.id);
@@ -197,7 +197,7 @@ const EmployeeItemAction = ({ employee }: { employee: Employee }) => {
       </Dialog>
       <JumboDdMenu
         icon={
-          <Tooltip title='Actions'>
+          <Tooltip title={dictionary.tooltips.actions}>
             <MoreHorizOutlined fontSize='small' />
           </Tooltip>
         }

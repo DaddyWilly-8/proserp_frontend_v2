@@ -16,6 +16,7 @@ import { useCurrencySelect } from '@/components/masters/Currencies/CurrencySelec
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function getNestedKey(parentKey, index) {
   return parentKey ? `${parentKey}.${index}` : `${index}`;
@@ -53,6 +54,7 @@ const DeliverableGroupsAccordion = memo(function DeliverableGroupsAccordion({
   handleChange,
   parentKey = '',
 }) {
+  const dictionary = useDictionary();
   const [childExpanded, setChildExpanded] = useState({});
   const [openDialog, setOpenDialog] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -139,12 +141,12 @@ const DeliverableGroupsAccordion = memo(function DeliverableGroupsAccordion({
           <Grid size={{xs: 8, md: group.description ? 2 : 5.5}}>
             <ListItemText
               primary={
-                <Tooltip title={'Group Name'}>
+                <Tooltip title={dictionary.tooltips.groupName}>
                   <Typography component="span">{group.name}</Typography>
                 </Tooltip>
               }
               secondary={
-                <Tooltip title={'Code'}>
+                <Tooltip title={dictionary.tooltips.code}>
                   <Typography component="span">{group.code}</Typography>
                 </Tooltip>
               }
@@ -154,7 +156,7 @@ const DeliverableGroupsAccordion = memo(function DeliverableGroupsAccordion({
             <Grid size={{xs: 8, md: 3.5}}>
               <ListItemText
                 secondary={
-                  <Tooltip title={'Description'}>
+                  <Tooltip title={dictionary.tooltips.description}>
                     <Typography component="span">{group.description}</Typography>
                   </Tooltip>
                 }
@@ -162,7 +164,7 @@ const DeliverableGroupsAccordion = memo(function DeliverableGroupsAccordion({
             </Grid>
           }
           <Grid size={{ xs: 12, md: 5.5 }} textAlign={'end'}>
-            <Tooltip title={'Amount'}>
+            <Tooltip title={dictionary.tooltips.amount}>
               <Typography component="span">
                 {group?.contract_sum?.toLocaleString('en-US', {
                   style: 'currency',
@@ -229,6 +231,7 @@ const DeliverableGroupsAccordion = memo(function DeliverableGroupsAccordion({
 
 
 function DeliverableGroupsListItem() {
+  const dictionary = useDictionary();
   const { project, deliverable_groups } = useProjectProfile();
   const { checkOrganizationPermission } = useJumboAuth();
   const { theme } = useJumboTheme();
@@ -308,7 +311,7 @@ function DeliverableGroupsListItem() {
         }
         {checkOrganizationPermission(PERMISSIONS.PROJECTS_EDIT) && (
           <Grid>
-            <Tooltip title={'Bulk Import Deliverables'}>
+            <Tooltip title={dictionary.tooltips.bulkImportDeliverables}>
               <IconButton onClick={() => setOpenBulkImportDialog(true)}>
                 <UploadFileIcon />
               </IconButton>
@@ -333,7 +336,7 @@ function DeliverableGroupsListItem() {
           ))
         ) : (
           <Alert variant="outlined" severity="info">
-            No Deliverable Group Found
+            {dictionary.projectManagement.deliverables.groupNotFound}
           </Alert>
         )}
       </Stack>

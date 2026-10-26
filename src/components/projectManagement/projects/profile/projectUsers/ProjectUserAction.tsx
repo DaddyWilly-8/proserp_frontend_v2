@@ -6,6 +6,7 @@ import { LinkOffOutlined } from '@mui/icons-material';
 import projectsServices from '../../project-services';
 import { useProjectProfile } from '../ProjectProfileProvider';
 import { LoadingButton } from '@mui/lab';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface ProjectUserActionProps {
     user: {
@@ -15,6 +16,7 @@ interface ProjectUserActionProps {
 }
 
 function ProjectUserAction({ user }: ProjectUserActionProps) {
+    const dictionary = useDictionary();
     const [openDialog, setOpenDialog] = useState(false);
     const { project }: any = useProjectProfile();
     const costCenterId = project?.cost_center?.id;
@@ -27,12 +29,12 @@ function ProjectUserAction({ user }: ProjectUserActionProps) {
             projectsServices.detachUsers(costCenterId, payload),
 
         onSuccess: (data) => {
-            enqueueSnackbar(data?.message || "User detached successfully", { variant: "success" });
+            enqueueSnackbar(data?.message || dictionary.projectManagement.projectUsers.detachSuccess, { variant: "success" });
             queryClient.invalidateQueries({ queryKey: ["projectUsers"] });
             setOpenDialog(false);
         },
         onError: (error: any) => {
-            const msg = error?.response?.data?.message || "Error occurred";
+            const msg = error?.response?.data?.message || dictionary.projectManagement.projectUsers.errorOccurred;
             enqueueSnackbar(msg, { variant: "error" });
         }
     });
@@ -43,24 +45,24 @@ function ProjectUserAction({ user }: ProjectUserActionProps) {
 
     return (
         <>
-            <Tooltip title="Detach User">
+            <Tooltip title={dictionary.tooltips.detachUser}>
                 <IconButton color="error" onClick={() => setOpenDialog(true)}>
                     <LinkOffOutlined />
                 </IconButton>
             </Tooltip>
 
             <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
-                <DialogTitle>Detach User</DialogTitle>
+                <DialogTitle>{dictionary.projectManagement.projectUsers.detachUser}</DialogTitle>
 
                 <DialogContent>
                     <Typography>
-                        Are you sure you want to detach <strong>{user.name}</strong> from this project?
+                        {dictionary.projectManagement.projectUsers.detachConfirmPrefix}<strong>{user.name}</strong>{dictionary.projectManagement.projectUsers.detachConfirmSuffix}
                     </Typography>
                 </DialogContent>
 
                 <DialogActions>
                     <Button onClick={() => setOpenDialog(false)} size="small">
-                        Cancel
+                        {dictionary.projectManagement.common.cancel}
                     </Button>
                     <LoadingButton
                         variant="contained"
@@ -69,7 +71,7 @@ function ProjectUserAction({ user }: ProjectUserActionProps) {
                         size="small"
                         loading={detachUserMutation.isPending}
                     >
-                        {detachUserMutation.isPending ? "Detaching..." : "Detach"}
+                        {detachUserMutation.isPending ? dictionary.projectManagement.projectUsers.detaching : dictionary.projectManagement.projectUsers.detach}
                     </LoadingButton>
                 </DialogActions>
             </Dialog>

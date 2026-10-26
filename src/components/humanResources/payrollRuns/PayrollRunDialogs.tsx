@@ -33,6 +33,7 @@ import {
 import { Suspense, useState } from 'react';
 import { formatMoney, formatPayslipPeriod, getEmployeeName } from './payrollUtils';
 import PayslipPDF from './PayslipPDF';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface SimulationDialogProps {
   open: boolean;
@@ -45,6 +46,8 @@ export const SimulationDialog = ({
   onClose,
   data,
 }: SimulationDialogProps) => {
+  const dictionary = useDictionary();
+  const t = dictionary.humanResources.payrollRuns.dialogs;
   const { theme } = useJumboTheme();
   const belowMediumScreen = useMediaQuery(theme.breakpoints.down('md'));
   const simulationRow = data?.row || data?.data?.row || data;
@@ -59,10 +62,13 @@ export const SimulationDialog = ({
     >
       <DialogTitle sx={{ textAlign: 'center' }}>
         <Typography variant='h5' component='div'>
-          Employee Simulation
+          {t.simulationTitle}
         </Typography>
         <Typography variant='body2' color='text.secondary' component='div'>
-          {simulationRow?.employee?.name || 'Employee'} - Simulated Payslip
+          {t.simulatedPayslip.replace(
+            '{name}',
+            simulationRow?.employee?.name || t.employee
+          )}
         </Typography>
       </DialogTitle>
       <DialogContent>
@@ -72,7 +78,7 @@ export const SimulationDialog = ({
               <Grid container spacing={2}>
                 <Grid size={{ xs: 6, md: 4 }}>
                   <Typography variant='caption' color='text.secondary'>
-                    Basic Salary
+                    {t.basicSalary}
                   </Typography>
                   <Typography variant='h6'>
                     {formatMoney(
@@ -86,15 +92,16 @@ export const SimulationDialog = ({
                       color='warning.main'
                       display='block'
                     >
-                      Prorated ({simulationRow.proration.active_days}/
-                      {simulationRow.proration.total_days} days):{' '}
-                      {formatMoney(simulationRow.basic_salary)}
+                      {t.prorated
+                        .replace('{active}', String(simulationRow.proration.active_days))
+                        .replace('{total}', String(simulationRow.proration.total_days))
+                        .replace('{amount}', formatMoney(simulationRow.basic_salary))}
                     </Typography>
                   )}
                 </Grid>
                 <Grid size={{ xs: 6, md: 4 }}>
                   <Typography variant='caption' color='text.secondary'>
-                    Gross Salary
+                    {t.grossSalary}
                   </Typography>
                   <Typography variant='h6'>
                     {formatMoney(simulationRow.gross_salary)}
@@ -102,7 +109,7 @@ export const SimulationDialog = ({
                 </Grid>
                 <Grid size={{ xs: 6, md: 4 }}>
                   <Typography variant='caption' color='text.secondary'>
-                    PAYE
+                    {t.paye}
                   </Typography>
                   <Typography variant='h6' color='error.main'>
                     {formatMoney(simulationRow.paye || 0)}
@@ -110,7 +117,7 @@ export const SimulationDialog = ({
                 </Grid>
                 <Grid size={{ xs: 6, md: 4 }}>
                   <Typography variant='caption' color='text.secondary'>
-                    Total Allowances
+                    {t.totalAllowances}
                   </Typography>
                   <Typography variant='h6'>
                     {formatMoney(simulationRow.total_allowances || 0)}
@@ -118,7 +125,7 @@ export const SimulationDialog = ({
                 </Grid>
                 <Grid size={{ xs: 6, md: 4 }}>
                   <Typography variant='caption' color='text.secondary'>
-                    Total Deductions
+                    {t.totalDeductions}
                   </Typography>
                   <Typography variant='h6'>
                     {formatMoney(simulationRow.total_deductions || 0)}
@@ -126,7 +133,7 @@ export const SimulationDialog = ({
                 </Grid>
                 <Grid size={{ xs: 6, md: 4 }}>
                   <Typography variant='caption' color='text.secondary'>
-                    Total Employer Contributions
+                    {t.totalEmployerContributions}
                   </Typography>
                   <Typography variant='h6'>
                     {formatMoney(
@@ -139,7 +146,7 @@ export const SimulationDialog = ({
                 </Grid>
                 <Grid size={{ xs: 6, md: 4 }}>
                   <Typography variant='caption' color='text.secondary'>
-                    Net Pay
+                    {t.netPay}
                   </Typography>
                   <Typography variant='h6' color='success.main'>
                     {formatMoney(simulationRow.net_salary)}
@@ -154,14 +161,14 @@ export const SimulationDialog = ({
                   gutterBottom
                   textAlign={'center'}
                 >
-                  Allowances
+                  {t.allowances}
                 </Typography>
                 <TableContainer component={Paper} variant='outlined'>
                   <Table size='small'>
                     <TableHead>
                       <TableRow>
-                        <TableCell>Label</TableCell>
-                        <TableCell align='right'>Amount</TableCell>
+                        <TableCell>{t.label}</TableCell>
+                        <TableCell align='right'>{t.amount}</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
@@ -176,9 +183,9 @@ export const SimulationDialog = ({
                                   color='warning.main'
                                   display='block'
                                 >
-                                  Prorated (
-                                  {simulationRow.proration?.active_days}/
-                                  {simulationRow.proration?.total_days} days)
+                                  {t.proratedShort
+                                    .replace('{active}', String(simulationRow.proration?.active_days))
+                                    .replace('{total}', String(simulationRow.proration?.total_days))}
                                 </Typography>
                               )}
                             </TableCell>
@@ -214,14 +221,14 @@ export const SimulationDialog = ({
                   gutterBottom
                   textAlign={'center'}
                 >
-                  Deductions
+                  {t.deductions}
                 </Typography>
                 <TableContainer component={Paper} variant='outlined'>
                   <Table size='small'>
                     <TableHead>
                       <TableRow>
-                        <TableCell>Label</TableCell>
-                        <TableCell align='right'>Amount</TableCell>
+                        <TableCell>{t.label}</TableCell>
+                        <TableCell align='right'>{t.amount}</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
@@ -247,14 +254,14 @@ export const SimulationDialog = ({
                   gutterBottom
                   textAlign={'center'}
                 >
-                  Employer Contributions
+                  {t.employerContributions}
                 </Typography>
                 <TableContainer component={Paper} variant='outlined'>
                   <Table size='small'>
                     <TableHead>
                       <TableRow>
-                        <TableCell>Label</TableCell>
-                        <TableCell align='right'>Amount</TableCell>
+                        <TableCell>{t.label}</TableCell>
+                        <TableCell align='right'>{t.amount}</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
@@ -275,11 +282,11 @@ export const SimulationDialog = ({
             )}
           </Grid>
         ) : (
-          <Alert severity='warning'>No simulation data available</Alert>
+          <Alert severity='warning'>{t.noSimulationData}</Alert>
         )}
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose}>Close</Button>
+        <Button onClick={onClose}>{t.close}</Button>
       </DialogActions>
     </Dialog>
   );
@@ -296,6 +303,9 @@ export const PayslipViewDialog = ({
   onClose,
   payslip,
 }: PayslipViewDialogProps) => {
+  const dictionary = useDictionary();
+  const t = dictionary.humanResources.payrollRuns.dialogs;
+  const monthNames: string[] = dictionary.humanResources.payrollRuns.months;
   const { authOrganization } = useJumboAuth();
   const organization = authOrganization?.organization;
   const { theme } = useJumboTheme();
@@ -338,16 +348,16 @@ export const PayslipViewDialog = ({
         <>
           <DialogTitle sx={{ textAlign: 'center' }}>
             <Typography variant='h5' component='div'>
-              Payslip Details
+              {t.payslipDetails}
             </Typography>
             <Typography variant='body2' color='text.secondary' component='div'>
               {payslip
                 ? getEmployeeName(payslip.employee || payslip)
-                : 'Employee'}
+                : t.employee}
             </Typography>
             {payslip && (
               <Typography variant='caption' color='text.secondary' component='div'>
-                {formatPayslipPeriod(payslip)}
+                {formatPayslipPeriod(payslip, monthNames)}
               </Typography>
             )}
           </DialogTitle>
@@ -358,7 +368,7 @@ export const PayslipViewDialog = ({
                   <Grid container spacing={2}>
                     <Grid size={6}>
                       <Typography variant='caption' color='text.secondary'>
-                        Employee
+                        {t.employee}
                       </Typography>
                       <Typography variant='body2'>
                         {getEmployeeName(payslip.employee || payslip)}
@@ -366,17 +376,17 @@ export const PayslipViewDialog = ({
                     </Grid>
                     <Grid size={6}>
                       <Typography variant='caption' color='text.secondary'>
-                        Employee Number
+                        {t.employeeNumber}
                       </Typography>
                       <Typography variant='body2'>
                         {payslip.employee?.employee_number ||
                           payslip.employee_number ||
-                          'N/A'}
+                          t.notAvailable}
                       </Typography>
                     </Grid>
                     <Grid size={6}>
                       <Typography variant='caption' color='text.secondary'>
-                        Basic Salary
+                        {t.basicSalary}
                       </Typography>
                       <Typography variant='h6'>
                         {formatMoney(
@@ -389,15 +399,16 @@ export const PayslipViewDialog = ({
                           color='warning.main'
                           display='block'
                         >
-                          Prorated ({payslip.proration.active_days}/
-                          {payslip.proration.total_days} days):{' '}
-                          {formatMoney(payslip.basic_salary || 0)}
+                          {t.prorated
+                            .replace('{active}', String(payslip.proration.active_days))
+                            .replace('{total}', String(payslip.proration.total_days))
+                            .replace('{amount}', formatMoney(payslip.basic_salary || 0))}
                         </Typography>
                       )}
                     </Grid>
                     <Grid size={6}>
                       <Typography variant='caption' color='text.secondary'>
-                        Gross Salary
+                        {t.grossSalary}
                       </Typography>
                       <Typography variant='h6'>
                         {formatMoney(payslip.gross_salary || 0)}
@@ -405,7 +416,7 @@ export const PayslipViewDialog = ({
                     </Grid>
                     <Grid size={6}>
                       <Typography variant='caption' color='text.secondary'>
-                        Total Allowances
+                        {t.totalAllowances}
                       </Typography>
                       <Typography variant='h6'>
                         {formatMoney(payslip.total_allowances || 0)}
@@ -413,7 +424,7 @@ export const PayslipViewDialog = ({
                     </Grid>
                     <Grid size={6}>
                       <Typography variant='caption' color='text.secondary'>
-                        Total Deductions
+                        {t.totalDeductions}
                       </Typography>
                       <Typography variant='h6'>
                         {formatMoney(payslip.total_deductions || 0)}
@@ -421,7 +432,7 @@ export const PayslipViewDialog = ({
                     </Grid>
                     <Grid size={6}>
                       <Typography variant='caption' color='text.secondary'>
-                        PAYE
+                        {t.paye}
                       </Typography>
                       <Typography variant='h6' color='error.main'>
                         {formatMoney(payslip.paye || 0)}
@@ -429,7 +440,7 @@ export const PayslipViewDialog = ({
                     </Grid>
                     <Grid size={6}>
                       <Typography variant='caption' color='text.secondary'>
-                        Net Pay
+                        {t.netPay}
                       </Typography>
                       <Typography variant='h6' color='success.main'>
                         {formatMoney(payslip.net_salary || 0)}
@@ -444,14 +455,14 @@ export const PayslipViewDialog = ({
                       gutterBottom
                       textAlign={'center'}
                     >
-                      Allowances
+                      {t.allowances}
                     </Typography>
                     <TableContainer component={Paper} variant='outlined'>
                       <Table size='small'>
                         <TableHead>
                           <TableRow>
-                            <TableCell>Label</TableCell>
-                            <TableCell align='right'>Amount</TableCell>
+                            <TableCell>{t.label}</TableCell>
+                            <TableCell align='right'>{t.amount}</TableCell>
                           </TableRow>
                         </TableHead>
                         <TableBody>
@@ -465,8 +476,9 @@ export const PayslipViewDialog = ({
                                     color='warning.main'
                                     display='block'
                                   >
-                                    Prorated ({payslip.proration?.active_days}/
-                                    {payslip.proration?.total_days} days)
+                                    {t.proratedShort
+                                      .replace('{active}', String(payslip.proration?.active_days))
+                                      .replace('{total}', String(payslip.proration?.total_days))}
                                   </Typography>
                                 )}
                               </TableCell>
@@ -501,14 +513,14 @@ export const PayslipViewDialog = ({
                       gutterBottom
                       textAlign={'center'}
                     >
-                      Deductions
+                      {t.deductions}
                     </Typography>
                     <TableContainer component={Paper} variant='outlined'>
                       <Table size='small'>
                         <TableHead>
                           <TableRow>
-                            <TableCell>Label</TableCell>
-                            <TableCell align='right'>Amount</TableCell>
+                            <TableCell>{t.label}</TableCell>
+                            <TableCell align='right'>{t.amount}</TableCell>
                           </TableRow>
                         </TableHead>
                         <TableBody>
@@ -532,14 +544,14 @@ export const PayslipViewDialog = ({
                       gutterBottom
                       textAlign={'center'}
                     >
-                      Employer Contributions
+                      {t.employerContributions}
                     </Typography>
                     <TableContainer component={Paper} variant='outlined'>
                       <Table size='small'>
                         <TableHead>
                           <TableRow>
-                            <TableCell>Label</TableCell>
-                            <TableCell align='right'>Amount</TableCell>
+                            <TableCell>{t.label}</TableCell>
+                            <TableCell align='right'>{t.amount}</TableCell>
                           </TableRow>
                         </TableHead>
                         <TableBody>
@@ -560,7 +572,7 @@ export const PayslipViewDialog = ({
                 )}
               </Grid>
             ) : (
-              <Alert severity='warning'>No payslip data available</Alert>
+              <Alert severity='warning'>{t.noPayslipData}</Alert>
             )}
           </DialogContent>
         </>
@@ -594,6 +606,7 @@ export const PayslipViewDialog = ({
                       organization ? (organization as Organization) : null
                     }
                     payslip={payslip}
+                    dictionary={dictionary}
                   />
                 }
               />
@@ -602,7 +615,7 @@ export const PayslipViewDialog = ({
         </DialogContent>
       )}
       <DialogActions>
-        <Button onClick={onClose}>Close</Button>
+        <Button onClick={onClose}>{t.close}</Button>
       </DialogActions>
     </Dialog>
   );

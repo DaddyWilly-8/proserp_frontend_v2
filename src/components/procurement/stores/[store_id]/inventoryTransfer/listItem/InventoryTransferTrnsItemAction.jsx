@@ -16,9 +16,11 @@ const InventoryTransferTrnOnScreen = dynamic(() => import('../InventoryTransferT
 import InventoryTransferTrnPDF from '../InventoryTransferTrnPDF';
 import PDFContent from '@/components/pdf/PDFContent';
 import dynamic from 'next/dynamic';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 // --- Extracted Component ---
 const DocumentDialog = ({ transferTrn, onClose }) => {
+  const dictionary = useDictionary();
   const [activeTab, setActiveTab] = useState(0);
   const { authOrganization } = useJumboAuth();
   const belowLargeScreen = useMediaQuery((theme) => theme.breakpoints.down('lg'));
@@ -42,7 +44,7 @@ const DocumentDialog = ({ transferTrn, onClose }) => {
               </Tabs>
             </Grid>
             <Grid item xs={1} textAlign="right">
-              <Tooltip title="Close">
+              <Tooltip title={dictionary.tooltips.close}>
                 <IconButton size="small" onClick={onClose}>
                   <HighlightOff color="primary" />
                 </IconButton>

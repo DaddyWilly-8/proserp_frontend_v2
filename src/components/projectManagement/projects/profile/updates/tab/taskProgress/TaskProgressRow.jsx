@@ -20,8 +20,10 @@ import { readableDate } from '@/app/helpers/input-sanitization-helpers';
 import TaskProgress from './TaskProgress';
 import MaterialIssuedForm from './taskProgressTab/materialUsed/MaterialIssuedForm';
 import MaterialIssuedRow from './taskProgressTab/materialUsed/MaterialIssuedRow';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function TaskProgressRow({ taskProgressItem, index }) {
+  const dictionary = useDictionary();
   const { taskProgressItems, setTaskProgressItems, removedTaskProgressItems, setRemovedTaskProgressItems } = useUpdateFormContext();
   const [expanded, setExpanded] = useState(null);
   const [showForm, setShowForm] = useState(false);
@@ -128,20 +130,20 @@ function TaskProgressRow({ taskProgressItem, index }) {
             sx={{ cursor: 'pointer', '&:hover': { bgcolor: 'action.hover' } }}
           >
             <Grid size={{ xs: 6, md: 2 }}>
-              <Tooltip title="Execution Date">
+              <Tooltip title={dictionary.tooltips.executionDate}>
                 <Typography>
                   {readableDate(taskProgressItem.execution_date, false)}
                 </Typography>
               </Tooltip>
             </Grid>
             <Grid size={{ xs: 6, md: 3 }}>
-              <Tooltip title="Task Name">
+              <Tooltip title={dictionary.tooltips.taskName}>
                 <Typography>
                   {formatTaskLabel(taskProgressItem.task)}
                 </Typography>
               </Tooltip>
               {taskProgressItem.project_subcontract?.subcontractor?.name && taskProgressItem.project_subcontract?.subcontractNo && (
-                <Tooltip title="Subcontract">
+                <Tooltip title={dictionary.tooltips.subcontract}>
                   <Typography variant="body2" color="text.secondary">
                     {`${taskProgressItem.project_subcontract.subcontractor.name} (${taskProgressItem.project_subcontract.subcontractNo})`}
                   </Typography>
@@ -149,7 +151,7 @@ function TaskProgressRow({ taskProgressItem, index }) {
               )}
             </Grid>
             <Grid textAlign={{ md: 'end' }} size={{ xs: 5, md: 3 }}>
-              <Tooltip title="Executed Quantity">
+              <Tooltip title={dictionary.tooltips.executedQuantity}>
                 <Typography>
                   {taskProgressItem.quantity_executed}{' '}
                   {taskProgressItem.unit_symbol ||
@@ -159,12 +161,12 @@ function TaskProgressRow({ taskProgressItem, index }) {
               </Tooltip>
             </Grid>
             <Grid size={{ xs: 7, md: 3 }} paddingLeft={3}>
-              <Tooltip title="Remarks">
+              <Tooltip title={dictionary.tooltips.remarks}>
                 <Typography>{taskProgressItem.remarks}</Typography>
               </Tooltip>
             </Grid>
             <Grid textAlign={'end'} size={{ xs: 12, md: 1 }}>
-              <Tooltip title="Edit Item">
+              <Tooltip title={dictionary.tooltips.editItem}>
                 <IconButton
                   component="span"
                   size="small"
@@ -173,7 +175,7 @@ function TaskProgressRow({ taskProgressItem, index }) {
                   <EditOutlined fontSize="small" />
                 </IconButton>
               </Tooltip>
-              <Tooltip title="Remove Item">
+              <Tooltip title={dictionary.tooltips.removeItem}>
                 <IconButton
                   component="span"
                   size="small"
@@ -200,9 +202,9 @@ function TaskProgressRow({ taskProgressItem, index }) {
         <Tabs
           value={tabValue}
           onChange={handleTabChange}
-          aria-label="task progress tabs"
+          aria-label={dictionary.projectManagement.taskProgress.taskProgressTabs}
         >
-          <Tab label="material Used" />
+          <Tab label={dictionary.projectManagement.taskProgress.materialUsed} />
         </Tabs>
 
         {tabValue === 0 && (

@@ -32,6 +32,7 @@ import PDFContent from '../../pdf/PDFContent';
 import PriceListPDF from './PriceListPDF';
 import priceListServices from './priceLists-services';
 import { PriceList } from './PriceListType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const PriceListForm = lazy(() => import('./form/PriceListForm'));
 
@@ -148,6 +149,7 @@ const PriceListsItemAction: React.FC<PriceListsItemActionProps> = ({
   fuelPriceLists,
   priceList,
 }) => {
+  const dictionary = useDictionary();
   const [openEditDialog, setOpenEditDialog] = useState<boolean>(false);
   const [openDocumentDialog, setOpenDocumentDialog] = useState<boolean>(false);
   const { showDialog, hideDialog } = useJumboDialog();
@@ -241,7 +243,7 @@ const PriceListsItemAction: React.FC<PriceListsItemActionProps> = ({
             sx={{ backgroundColor: 'red' }}
           >
             {belowLargeScreen && (
-              <Tooltip title='Close'>
+              <Tooltip title={dictionary.tooltips.close}>
                 <IconButton
                   size='small'
                   sx={{ position: 'absolute', right: 20, top: 10 }}
@@ -271,7 +273,7 @@ const PriceListsItemAction: React.FC<PriceListsItemActionProps> = ({
 
       <JumboDdMenu
         icon={
-          <Tooltip title='Actions'>
+          <Tooltip title={dictionary.tooltips.actions}>
             <MoreHorizOutlined fontSize='small' />
           </Tooltip>
         }

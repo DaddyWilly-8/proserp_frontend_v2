@@ -18,6 +18,7 @@ import { useSnackbar } from 'notistack';
 import { useEffect, useState } from 'react';
 import humanResourcesServices from '../../../humanResourcesServices';
 import { LeaveRequestType } from './LeaveRequestType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const DEFAULT_APPROVAL_DATE = () => new Date().toISOString();
 
@@ -52,6 +53,7 @@ const LeaveDirectDecisionForm = ({
   leaveRequest,
   onClose,
 }: LeaveDirectDecisionFormProps) => {
+  const dictionary = useDictionary();
   const isApprove = mode === 'approve';
   const [daysApproved, setDaysApproved] = useState<number | ''>(
     leaveRequest.days_requested || 1
@@ -79,14 +81,17 @@ const LeaveDirectDecisionForm = ({
       });
       queryClient.invalidateQueries({ queryKey: ['leaveRequests'] });
       enqueueSnackbar(
-        isApprove ? 'Leave request approved' : 'Leave request rejected',
+        isApprove
+          ? dictionary.humanResources.leaveRequests.messages.approved
+          : dictionary.humanResources.leaveRequests.messages.rejected,
         { variant: 'success' }
       );
       onClose();
     },
     onError: (error: any) => {
       enqueueSnackbar(
-        error?.response?.data?.message || 'Something went wrong',
+        error?.response?.data?.message ||
+          dictionary.humanResources.profileSectionsCommon.somethingWentWrong,
         { variant: 'error' }
       );
     },
@@ -94,7 +99,7 @@ const LeaveDirectDecisionForm = ({
 
   const handleSubmit = (status: LeaveDirectDecisionMode) => {
     if (status === 'reject' && !remarks.trim()) {
-      setRemarksError('Remarks are required');
+      setRemarksError(dictionary.humanResources.leaveRequests.decision.remarksRequired);
       return;
     }
 
@@ -102,7 +107,7 @@ const LeaveDirectDecisionForm = ({
       status === 'approve' &&
       (daysApproved === '' || Number(daysApproved) <= 0)
     ) {
-      setDaysError('Days approved is required');
+      setDaysError(dictionary.humanResources.leaveRequests.decision.daysRequired);
       return;
     }
 
@@ -125,12 +130,12 @@ const LeaveDirectDecisionForm = ({
       fullScreen={belowLargeScreen}
       scroll={belowLargeScreen ? 'body' : 'paper'}
     >
-      <DialogTitle>Leave Approval</DialogTitle>
+      <DialogTitle>{dictionary.humanResources.leaveRequests.decision.title}</DialogTitle>
       <DialogContent>
         <Stack spacing={2} sx={{ mt: 1 }}>
           {mode === 'approve' && (
             <TextField
-              label='Days Approved'
+              label={dictionary.humanResources.leaveRequests.decision.daysApproved}
               size='small'
               fullWidth
               value={daysApproved}
@@ -145,7 +150,11 @@ const LeaveDirectDecisionForm = ({
             />
           )}
           <DateTimePicker
-            label={isApprove ? 'Approval Date & Time' : 'Rejection Date & Time'}
+            label={
+              isApprove
+                ? dictionary.humanResources.leaveRequests.decision.approvalDateTime
+                : dictionary.humanResources.leaveRequests.decision.rejectionDateTime
+            }
             value={approvalDate ? dayjs(approvalDate) : null}
             onChange={(val) => setApprovalDate(val?.toISOString() || '')}
             slotProps={{
@@ -153,7 +162,7 @@ const LeaveDirectDecisionForm = ({
             }}
           />
           <TextField
-            label='Remarks'
+            label={dictionary.humanResources.leaveRequests.decision.remarks}
             size='small'
             fullWidth
             multiline
@@ -170,7 +179,7 @@ const LeaveDirectDecisionForm = ({
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose} disabled={isPending}>
-          Cancel
+          {dictionary.humanResources.leaveRequests.decision.cancel}
         </Button>
         <LoadingButton
           loading={isPending}
@@ -179,7 +188,7 @@ const LeaveDirectDecisionForm = ({
           size='small'
           onClick={() => handleSubmit(mode)}
         >
-          {isApprove ? 'Approve' : 'Reject'}
+          {isApprove ? dictionary.humanResources.leaveRequests.decision.approve : dictionary.humanResources.leaveRequests.decision.reject}
         </LoadingButton>
       </DialogActions>
     </Dialog>

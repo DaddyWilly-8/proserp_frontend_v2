@@ -25,6 +25,7 @@ import { LoadingButton } from '@mui/lab';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { Div } from '@jumbo/shared';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface InvoiceItem {
   id: number;
@@ -62,6 +63,7 @@ interface SalesInvoiceEditFormProps {
 }
 
 const SalesInvoiceEditForm: React.FC<SalesInvoiceEditFormProps> = ({ invoiceData, toggleOpen }) => {
+    const dictionary = useDictionary();
     const [transaction_date] = useState<Dayjs>(invoiceData ? dayjs(invoiceData.transaction_date) : dayjs());
     const [due_date] = useState<Dayjs>(invoiceData.due_date !== null ? dayjs(invoiceData.due_date) : dayjs());
     const { enqueueSnackbar } = useSnackbar();
@@ -91,7 +93,7 @@ const SalesInvoiceEditForm: React.FC<SalesInvoiceEditFormProps> = ({ invoiceData
     }, [updateInvoice]);
 
     const validationSchema = yup.object({
-        transaction_date: yup.string().required('Invoice Date is required').typeError('Invoice Date is required'),
+        transaction_date: yup.string().required(dictionary.forms.counter.invoice.validation.invoiceDateRequired).typeError(dictionary.forms.counter.invoice.validation.invoiceDateRequired),
     });
 
     const { 
@@ -148,14 +150,14 @@ const SalesInvoiceEditForm: React.FC<SalesInvoiceEditFormProps> = ({ invoiceData
         <>
             <DialogTitle>
                 <Grid container columnSpacing={2}>
-                    <Grid textAlign={'center'} size={12} mb={3}>{`Edit Invoice ${invoiceData.invoiceNo}`}</Grid>
+                    <Grid textAlign={'center'} size={12} mb={3}>{dictionary.forms.counter.invoice.editTitle.replace('{invoiceNo}', invoiceData.invoiceNo)}</Grid>
                     <Grid size={{xs: 12, md: 9}} mb={2}>
                         <form autoComplete='off'>
                             <Grid container columnSpacing={1} rowSpacing={2}>
                                 <Grid size={{xs: 12, md: 4}}>
                                     <Div sx={{mt: 0.3}}>
                                         <DateTimePicker
-                                            label='Invoice Date'
+                                            label={dictionary.forms.counter.invoice.labels.invoiceDate}
                                             minDate={dayjs(organization?.recording_start_date)}
                                             value={transaction_date}
                                             slotProps={{
@@ -182,7 +184,7 @@ const SalesInvoiceEditForm: React.FC<SalesInvoiceEditFormProps> = ({ invoiceData
                                     <Div sx={{mt: 0.3}}>
                                         <TextField
                                             size='small'
-                                            label='Internal Reference'
+                                            label={dictionary.forms.counter.invoice.labels.internalReference}
                                             fullWidth
                                             {...register('internal_reference')}
                                         />
@@ -192,7 +194,7 @@ const SalesInvoiceEditForm: React.FC<SalesInvoiceEditFormProps> = ({ invoiceData
                                     <Div sx={{mt: 0.3}}>
                                         <TextField
                                             size='small'
-                                            label='Customer Reference'
+                                            label={dictionary.forms.counter.invoice.labels.customerReference}
                                             fullWidth
                                             {...register('customer_reference')}
                                         />
@@ -201,7 +203,7 @@ const SalesInvoiceEditForm: React.FC<SalesInvoiceEditFormProps> = ({ invoiceData
                                 <Grid size={{xs: 12, md: 4}}>
                                     <Div sx={{mt: 0.3}}>
                                         <DateTimePicker
-                                            label='Due Date'
+                                            label={dictionary.forms.counter.invoice.labels.dueDate}
                                             minDate={dayjs(watch('transaction_date'))}
                                             value={due_date}
                                             slotProps={{
@@ -235,7 +237,7 @@ const SalesInvoiceEditForm: React.FC<SalesInvoiceEditFormProps> = ({ invoiceData
                                             renderInput={(params) => (
                                                 <TextField 
                                                     {...params} 
-                                                    label="Terms and Instructions" 
+                                                    label={dictionary.forms.counter.invoice.labels.termsAndInstructions} 
                                                     size="small" 
                                                     fullWidth 
                                                     multiline
@@ -257,7 +259,7 @@ const SalesInvoiceEditForm: React.FC<SalesInvoiceEditFormProps> = ({ invoiceData
                                     <Div sx={{mt: 0.3}}>
                                         <TextField
                                             size='small'
-                                            label='Narration'
+                                            label={dictionary.forms.counter.invoice.labels.narration}
                                             fullWidth
                                             multiline
                                             minRows={2}
@@ -271,11 +273,11 @@ const SalesInvoiceEditForm: React.FC<SalesInvoiceEditFormProps> = ({ invoiceData
                     <Grid size={{xs: 12, md: 3}}>
                         <Grid container columnSpacing={1}>
                             <Grid size={12}>
-                                <Typography align='center' variant='h3'>Summary</Typography>
+                                <Typography align='center' variant='h3'>{dictionary.forms.counter.invoice.labels.summary}</Typography>
                                 <Divider/>
                             </Grid>
                             <Grid size={6}>
-                                <Typography align='left' variant='body2'>Total:</Typography>
+                                <Typography align='left' variant='body2'>{dictionary.forms.counter.invoice.labels.total}:</Typography>
                             </Grid>
                             <Grid size={6}>
                                 <Typography align='right' variant='h5'>
@@ -285,7 +287,7 @@ const SalesInvoiceEditForm: React.FC<SalesInvoiceEditFormProps> = ({ invoiceData
                             {vat_registered && (
                                 <>
                                     <Grid size={6}>
-                                        <Typography align='left' variant='body2'>VAT Amount:</Typography>
+                                        <Typography align='left' variant='body2'>{dictionary.forms.counter.invoice.labels.vatAmount}:</Typography>
                                     </Grid>
                                     <Grid size={6}>
                                         <Typography align='right' variant='h5'>
@@ -293,7 +295,7 @@ const SalesInvoiceEditForm: React.FC<SalesInvoiceEditFormProps> = ({ invoiceData
                                         </Typography>
                                     </Grid>
                                     <Grid size={6}>
-                                        <Typography align='left' variant='body2'>Grand Total:</Typography>
+                                        <Typography align='left' variant='body2'>{dictionary.forms.counter.invoice.labels.grandTotal}:</Typography>
                                     </Grid>
                                     <Grid size={6}>
                                         <Typography align='right' variant='h5'>
@@ -330,14 +332,14 @@ const SalesInvoiceEditForm: React.FC<SalesInvoiceEditFormProps> = ({ invoiceData
                             <Div sx={{ mt: 1.7, mb: 1.7 }}>
                                 <ListItemText
                                     primary={
-                                        <Tooltip title={'Product'}>
+                                        <Tooltip title={dictionary.tooltips.product}>
                                             <Typography variant={"h5"} fontSize={14} lineHeight={1.25} mb={0} noWrap>
                                                 {item.product.name}
                                             </Typography>
                                         </Tooltip>
                                     }
                                     secondary={
-                                        <Tooltip title={'Description'}>
+                                        <Tooltip title={dictionary.tooltips.description}>
                                             <Typography component="span" variant="body2" fontSize={14} lineHeight={1.25} mb={0}>
                                                 {item.description}
                                             </Typography>
@@ -348,21 +350,21 @@ const SalesInvoiceEditForm: React.FC<SalesInvoiceEditFormProps> = ({ invoiceData
                         </Grid>
                         <Grid size={{xs: 2, md: 3.5, lg: 1.5}} sx={{ textAlign: 'center' }}>
                             <Div sx={{ mt: 1.7, mb: 1.7 }}>
-                                <Tooltip title='Quantity'>
+                                <Tooltip title={dictionary.tooltips.quantity}>
                                     <Typography>{`${item.measurement_unit?.symbol || ''} ${item.quantity}`}</Typography>
                                 </Tooltip>
                             </Div>
                         </Grid>
                         <Grid size={{xs: 4, md: 4, lg: 2.5}} sx={{ textAlign: 'center' }}>
                             <Div sx={{ mt: 1.7, mb: 1.7 }}>
-                                <Tooltip title='Rate'>
+                                <Tooltip title={dictionary.tooltips.rate}>
                                     <Typography>{item.rate?.toLocaleString("en-US", {style:"currency", currency:currencyCode})}</Typography>
                                 </Tooltip>
                             </Div>
                         </Grid>
                         <Grid size={{xs: 4, md: 4, lg: 2.5}} sx={{ textAlign: 'center' }}>
                             <Div sx={{ mt: 1.7, mb: 1.7 }}>
-                                <Tooltip title='Amount'>
+                                <Tooltip title={dictionary.tooltips.amount}>
                                     <Typography>{(item.rate * item.quantity).toLocaleString("en-US", {style:"currency", currency:currencyCode})}</Typography>
                                 </Tooltip>
                             </Div>
@@ -373,7 +375,7 @@ const SalesInvoiceEditForm: React.FC<SalesInvoiceEditFormProps> = ({ invoiceData
 
             <DialogActions>
                 <Button size='small' onClick={() => toggleOpen(false)}>
-                    Cancel
+                    {dictionary.forms.counter.invoice.buttons.cancel}
                 </Button>
                 <LoadingButton
                     loading={updateInvoice.isPending}
@@ -382,7 +384,7 @@ const SalesInvoiceEditForm: React.FC<SalesInvoiceEditFormProps> = ({ invoiceData
                     variant='contained'
                     onClick={handleSubmit((data) => saveMutation(data))}
                 >
-                    Save
+                    {dictionary.forms.counter.invoice.buttons.save}
                 </LoadingButton>
             </DialogActions>
         </>

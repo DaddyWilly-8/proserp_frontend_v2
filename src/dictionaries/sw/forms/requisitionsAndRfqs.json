@@ -1,0 +1,500 @@
+{
+  "requisitions": {
+    "common": {
+      "done": "Imekamilika",
+      "add": "Ongeza",
+      "remarks": "Maoni",
+      "amount": "Kiasi",
+      "reference": "Rejea",
+      "quantity": "Idadi",
+      "product": "Bidhaa",
+      "unit": "Kipimo",
+      "price": "Bei",
+      "rate": "Kiwango",
+      "close": "Funga",
+      "reset": "Weka Upya",
+      "qty": "Idadi"
+    },
+    "additionalCosts": {
+      "costName": "Jina la gharama",
+      "validation": {
+        "costName": "Jina la gharama linahitajika",
+        "amount": "Kiasi kinahitajika"
+      }
+    },
+    "productItem": {
+      "quickProductRegistration": "Usajili wa Haraka wa Bidhaa",
+      "priceVatInclusive": "Bei (Pamoja na VAT)",
+      "validation": {
+        "product": "Bidhaa inahitajika",
+        "quantity": "Idadi inahitajika",
+        "quantityPositive": "Idadi lazima iwe nambari chanya"
+      }
+    },
+    "form": {
+      "titleEdit": "Hariri Ombi la Manunuzi",
+      "titleDuplicate": "Nakili Ombi la Manunuzi",
+      "titleNew": "Ombi Jipya la Manunuzi",
+      "requisitionDate": "Tarehe ya Ombi",
+      "process": "Mchakato",
+      "imprestLedger": "Leja ya Imprest",
+      "costCenter": "Kituo cha Gharama",
+      "exchangeRate": "Kiwango cha Ubadilishaji",
+      "dateRequired": "Tarehe Inayohitajika",
+      "tabProducts": "Bidhaa",
+      "tabAdditionalCosts": "Gharama za Ziada",
+      "unknownImprestLedger": "Leja ya Imprest Isiyojulikana",
+      "balance": "Salio:",
+      "currentBalance": "Salio la Sasa: {balance}",
+      "unsavedChanges": "Mabadiliko Hayajahifadhiwa",
+      "lastItemNotAdded": "Kipengee cha mwisho hakijaongezwa kwenye orodha",
+      "addAndSubmit": "Ongeza na Wasilisha",
+      "submitWithoutAdd": "Wasilisha bila kuongeza",
+      "cancel": "Ghairi",
+      "next": "Mbele >",
+      "prev": "< Nyuma",
+      "suspend": "Simamisha",
+      "submit": "Wasilisha",
+      "rowLinkedRefreshFailed": "Safu {row}: Imeshindwa kusasisha muamala uliounganishwa.",
+      "rowLinkedUnavailable": "Safu {row}: Muamala uliounganishwa haupatikani tena.",
+      "rowAmountExceeds": "Safu {row}: Kiasi kinazidi kiasi cha mwisho kisichoidhinishwa ({amount}).",
+      "validation": {
+        "requisitionDate": "Tarehe ya Ombi inahitajika",
+        "process": "Mchakato unahitajika",
+        "costCenter": "Kituo cha Gharama kinahitajika",
+        "imprestLedger": "Leja ya Imprest inahitajika"
+      }
+    },
+    "summary": {
+      "title": "Muhtasari",
+      "total": "Jumla:",
+      "vat": "VAT:",
+      "grandTotal": "Jumla Kuu:"
+    },
+    "ledgerItem": {
+      "relatableTypes": {
+        "purchase": "Ununuzi",
+        "subcontractCertificate": "Cheti cha Mkataba Mdogo",
+        "bill": "Ankara"
+      },
+      "ledgerName": "Jina la Leja",
+      "linkedTo": "Imeunganishwa Na",
+      "relatableTo": "Inaweza Kuhusishwa Na",
+      "budgetCheck": "Ukaguzi wa Bajeti ya {name}",
+      "selectCostCenterFirst": "Chagua kituo cha gharama kwanza",
+      "resolveValidationErrors": "Tatua makosa ya uthibitishaji kabla ya kufunga uhariri",
+      "closeEdit": "Funga Uhariri",
+      "linkedTransactionUnavailable": "Muamala uliounganishwa haupatikani tena. Tafadhali chagua mwingine.",
+      "amountExceedsUnapproved": "Kiasi kisizidi kiasi kisichoidhinishwa ({amount}) cha kilichochaguliwa",
+      "amountExceedsUnapprovedCapped": "Kiasi kisizidi kiasi kisichoidhinishwa ({amount}) — kimewekewa kikomo dhidi ya {orderNo}, si Ankara hii yenyewe",
+      "amountExceedsUnapprovedShort": "Kiasi kisizidi kiasi kisichoidhinishwa cha kilichochaguliwa",
+      "orderDateAmount": "Tarehe ya Agizo - (Kiasi)",
+      "orderDateAmountCapped": "Tarehe ya Agizo - (Kiasi) — kimewekewa kikomo dhidi ya {orderNo}, si Ankara hii yenyewe",
+      "viewDetails": "Tazama Maelezo ya {type}",
+      "typeOrder": "Agizo",
+      "typeBill": "Ankara",
+      "typeCertificate": "Cheti",
+      "validation": {
+        "expenseName": "Jina la gharama linahitajika",
+        "quantity": "Idadi inahitajika",
+        "quantityPositive": "Idadi lazima iwe chanya",
+        "wholeUnit": "Kipimo hiki ni cha vipimo kamili tu — idadi haiwezi kuwa sehemu",
+        "rate": "Kiwango kinahitajika",
+        "ratePositive": "Kiwango lazima kiwe chanya",
+        "amount": "Kiasi kinahitajika",
+        "measurementUnit": "Kipimo kinahitajika"
+      }
+    },
+    "productVendor": {
+      "addVendor": "Ongeza Muuzaji",
+      "vendor": "Muuzaji",
+      "validation": {
+        "stakeholder": "Mdau anahitajika",
+        "vendorExists": "Muuzaji tayari yupo"
+      }
+    },
+    "budgetCheck": {
+      "title": "Ukaguzi wa Bajeti",
+      "selectCostCenter": "Tafadhali chagua kituo cha gharama ili kupata maelezo ya ukaguzi wa bajeti.",
+      "budgetAllocation": "Mgao wa Bajeti",
+      "requestAndApproval": "Ombi na Idhini",
+      "procurementAndReceiving": "Manunuzi na Upokeaji",
+      "consumption": "Matumizi",
+      "budgetedQuantity": "Idadi Iliyopangwa Kibajeti",
+      "budgetedAmount": "Kiasi Kilichopangwa Kibajeti",
+      "requestedQuantity": "Idadi Iliyoombwa",
+      "requestedAmount": "Kiasi Kilichoombwa",
+      "approvedQuantity": "Idadi Iliyoidhinishwa",
+      "approvedAmount": "Kiasi Kilichoidhinishwa",
+      "orderedQuantity": "Idadi Iliyoagizwa",
+      "receivedQuantity": "Idadi Iliyopokelewa",
+      "consumedQuantity": "Idadi Iliyotumika",
+      "consumedAmount": "Kiasi Kilichotumika",
+      "spentAmount": "Kiasi Kilichotumika",
+      "storeAvailability": "Upatikanaji wa Stoo",
+      "store": "Stoo",
+      "availableQuantity": "Idadi Iliyopo",
+      "noStoreAvailability": "Hakuna data ya upatikanaji wa stoo.",
+      "noBudgetData": "Hakuna data ya bajeti.",
+      "remainingBalance": "Salio Lililosalia"
+    },
+    "approvalItem": {
+      "viewOrder": "Tazama Agizo",
+      "viewBill": "Tazama Ankara",
+      "viewCertificate": "Tazama Cheti",
+      "splitAllocations": "Mgawanyo wa Mgao",
+      "creditLedger": "Leja ya Credit",
+      "quantityExceedsBalance": "Idadi {quantity} inazidi salio la stoo lililopo {balance}",
+      "fulfillment": "Utekelezaji",
+      "fulfillmentStock": "Hisa",
+      "fulfillmentPurchase": "Ununuzi",
+      "fulfillmentImprest": "Imprest",
+      "store": "Stoo",
+      "vat": "VAT",
+      "rateVatInclusive": "Kiwango (Pamoja na VAT)",
+      "tabVendors": "WAUZAJI",
+      "storeBalances": "Salio la Stoo - {product}",
+      "storeName": "Jina la Stoo",
+      "balance": "Salio",
+      "noStoreBalances": "Hakuna salio la stoo"
+    },
+    "approval": {
+      "previousRemarks": "Maoni ya awali",
+      "requesterRemarksWithName": "Maoni ya mwombaji ({name})",
+      "requesterRemarks": "Maoni ya mwombaji",
+      "requester": "Mwombaji",
+      "titleEdit": "Hariri Idhini",
+      "titleApproveImprest": "Idhinisha Ombi la Imprest",
+      "titleApprove": "Idhinisha Ombi la Manunuzi",
+      "requisitionDate": "Tarehe ya Ombi",
+      "currency": "Sarafu",
+      "costCenter": "Kituo cha Gharama",
+      "grandTotal": "Jumla Kuu",
+      "imprestLedgerWithName": "Leja ya Imprest ({name})",
+      "balance": "Salio: {balance}",
+      "approvalDate": "Tarehe ya Idhini",
+      "dateRequired": "Tarehe Inayohitajika",
+      "tabProducts": "Bidhaa",
+      "tabAdditionalCosts": "Gharama za Ziada",
+      "noAdditionalCosts": "Hakuna gharama za ziada kwenye ombi hili.",
+      "imprestLedger": "Leja ya Imprest",
+      "unknownImprestLedger": "Leja ya Imprest Isiyojulikana",
+      "sendBackTo": "Rudisha kwa",
+      "remarksRequiredOnReturn": "Maoni yanahitajika wakati wa kurudisha ombi",
+      "cancel": "Ghairi",
+      "confirmReturn": "Thibitisha Kurudisha",
+      "next": "Mbele >",
+      "prev": "< Nyuma",
+      "approve": "Idhinisha",
+      "hold": "Shikilia",
+      "reject": "Kataa",
+      "returnToEarlierLevel": "Rudisha kwa ngazi ya awali…",
+      "validation": {
+        "approvalDate": "Tarehe ya Idhini inahitajika",
+        "fulfillmentType": "Aina ya utekelezaji inahitajika",
+        "storeForStock": "Stoo inahitajika kwa utekelezaji wa hisa",
+        "rate": "Kiwango kinahitajika",
+        "rateFinal": "Kiwango kinahitajika kwa idhini ya mwisho",
+        "quantity": "Idadi inahitajika",
+        "imprestLedgerForMaterial": "Leja ya Imprest inahitajika wakati mstari wowote ni Imprest",
+        "amount": "Kiasi kinahitajika",
+        "ledger": "Leja inahitajika",
+        "quantityPositive": "Idadi lazima iwe chanya",
+        "quantityNumber": "Idadi lazima iwe nambari",
+        "ratePositive": "Kiwango lazima kiwe chanya",
+        "rateNumber": "Kiwango lazima kiwe nambari"
+      }
+    }
+  },
+  "approvedRequisitions": {
+    "common": {
+      "amount": "Kiasi",
+      "description": "Maelezo",
+      "reference": "Rejea",
+      "narration": "Maelezo ya Muamala",
+      "cancel": "Ghairi",
+      "submit": "Wasilisha",
+      "exchangeRate": "Kiwango cha Ubadilishaji",
+      "imprestLedgerWithName": "Leja ya Imprest ({name})",
+      "balance": "Salio: {balance}",
+      "close": "Funga"
+    },
+    "approvedPayment": {
+      "debitExceedsUnpaid": "Kiasi cha Debit hakiwezi kuzidi Kiasi Kisicholipwa",
+      "titleEditImprest": "Hariri Fomu ya Malipo ya Imprest Yaliyoidhinishwa",
+      "titleEdit": "Hariri Malipo",
+      "titleNewImprest": "Fomu Mpya ya Malipo ya Imprest Yaliyoidhinishwa",
+      "titleNew": "Fomu Mpya ya Malipo Yaliyoidhinishwa",
+      "paymentDate": "Tarehe ya Malipo (MM/DD/YYYY)",
+      "payFromCredit": "Lipa Kutoka (Credit)",
+      "validation": {
+        "narration": "Maelezo ya Muamala yanahitajika",
+        "creditLedger": "Akaunti ya kulipia (credit) inahitajika",
+        "currency": "Sarafu inahitajika",
+        "exchangeRate": "Kiwango cha ubadilishaji kinahitajika",
+        "paymentDate": "Tarehe ya Malipo inahitajika",
+        "atLeastOneItem": "Lazima uongeze angalau kipengee kimoja"
+      }
+    },
+    "approvedIssue": {
+      "title": "Toa Bidhaa za Stoo",
+      "noLines": "Hakuna mistari ya hisa yenye idadi iliyobaki isiyotolewa.",
+      "issueDate": "Tarehe ya Utoaji",
+      "unissued": "Isiyotolewa:",
+      "issueQuantity": "Idadi ya Kutoa",
+      "issueAs": "Toa Kama",
+      "consume": "Matumizi (gharama kwa mwombaji)",
+      "transfer": "Hamisha kwenda stoo nyingine",
+      "destinationStore": "Stoo ya Kwenda",
+      "issue": "Toa",
+      "messages": {
+        "issuedSuccess": "Bidhaa zimetolewa kwa mafanikio",
+        "issueFailed": "Imeshindwa kutoa bidhaa zilizoidhinishwa",
+        "enterQuantity": "Weka angalau idadi moja ya kutoa iliyo kubwa kuliko 0",
+        "selectedItem": "kipengee kilichochaguliwa",
+        "theSelectedItem": "kipengee kilichochaguliwa",
+        "thisProduct": "Bidhaa hii",
+        "exceedsUnissued": "Idadi ya kutoa ya {product} inazidi idadi isiyotolewa",
+        "selectDestination": "Chagua stoo ya kwenda kwa {product}",
+        "wholeUnits": "{product} huuzwa kwa vipimo kamili — idadi haiwezi kuwa sehemu"
+      }
+    },
+    "approvedPurchase": {
+      "titleEdit": "Hariri Agizo",
+      "titleNew": "Agizo Jipya la Ununuzi Lililoidhinishwa",
+      "tabProducts": "Bidhaa",
+      "tabAdditionalCosts": "Gharama za Ziada",
+      "approvedPrice": "Bei Iliyoidhinishwa",
+      "valueExceedsCost": "Thamani isizidi kiasi cha gharama ({amount}).",
+      "vatExempt": "Haina VAT",
+      "noAdditionalCosts": "Hakuna gharama za ziada kwenye ombi hili lililoidhinishwa.",
+      "otherAdditionalCosts": "Gharama Nyingine za Ziada",
+      "removedAdditionalCosts": "Gharama za Ziada Zilizoondolewa",
+      "next": "Mbele >",
+      "prev": "< Nyuma",
+      "ensureWithinCost": "Tafadhali hakikisha kila thamani haizidi kiasi chake cha gharama.",
+      "validation": {
+        "orderDate": "Tarehe ya agizo inahitajika",
+        "currency": "Sarafu inahitajika",
+        "costCenterMin": "Angalau kituo kimoja cha gharama lazima kichaguliwe",
+        "costCenter": "Kituo cha Gharama kinahitajika",
+        "exchangeRate": "Kiwango cha ubadilishaji kinahitajika",
+        "creditAccount": "Akaunti ya Credit (Kutoka) inahitajika",
+        "receivingStore": "Stoo ya kupokelea inahitajika",
+        "supplierNoAccount": "Msambazaji aliyechaguliwa hana akaunti yoyote"
+      },
+      "item": {
+        "quantity": "Idadi",
+        "quantityExceeds": "Idadi haiwezi kuzidi idadi ambayo haijaagizwa",
+        "vat": "VAT",
+        "price": "Bei",
+        "priceExceeds": "Bei haiwezi kuzidi bei iliyoidhinishwa ({price})"
+      },
+      "top": {
+        "orderDate": "Tarehe ya Agizo",
+        "supplier": "Msambazaji",
+        "cashPurchase": "Ununuzi wa Fedha Taslimu",
+        "dateRequired": "Tarehe inayohitajika"
+      }
+    },
+    "imprestRetirement": {
+      "item": {
+        "product": "Bidhaa",
+        "itemLedger": "Leja ya Kipengee",
+        "store": "Stoo",
+        "unit": "Kipimo",
+        "quantity": "Idadi",
+        "qty": "Idadi",
+        "rate": "Kiwango",
+        "amount": "Kiasi",
+        "description": "Maelezo",
+        "lineType": "Aina ya Mstari",
+        "expense": "Gharama",
+        "productType": "Bidhaa",
+        "itemLedgerPaidVia": "Leja ya Kipengee (Imelipwa kupitia {ledger})"
+      },
+      "approval": {
+        "decisionRecorded": "Uamuzi umerekodiwa",
+        "submitFailed": "Imeshindwa kuwasilisha uamuzi",
+        "productRequired": "Bidhaa inahitajika.",
+        "productAndStoreRequired": "Bidhaa na Stoo vinahitajika.",
+        "storeRequired": "Stoo inahitajika.",
+        "ledgerRequired": "Leja inahitajika.",
+        "unitRequired": "Kipimo kinahitajika.",
+        "quantityGreaterThanZero": "Idadi lazima iwe kubwa kuliko 0.",
+        "rateRequiredFinal": "Kiwango kinahitajika kwa idhini ya mwisho.",
+        "chainLevelUnknown": "Ngazi ya mnyororo wa idhini haikuweza kubainishwa. Tafadhali wasiliana na msaada.",
+        "remarksRequired": "Maoni yanahitajika kwa uamuzi huu.",
+        "finalItemsInvalid": "Idhini ya mwisho inahitaji chanzo, kipimo, idadi na kiwango halali kwa kila kipengee.",
+        "itemsInvalid": "Kila kipengee kinahitaji chanzo, kipimo na idadi halali.",
+        "approvalRecordUnknown": "Rekodi ya idhini haikuweza kubainishwa kwa ajili ya kusasisha.",
+        "titleEdit": "Hariri Idhini — {no}",
+        "titleApprove": "Idhinisha Urejeshaji {no}",
+        "status": "Hali: {status}",
+        "retirementDate": "Tarehe ya Urejeshaji: {date}",
+        "totalRetiredToDate": "Jumla Iliyorejeshwa Hadi Sasa",
+        "currentItemsTotal": "Jumla ya Vipengee vya Sasa",
+        "remarks": "Maoni (yanahitajika kwa Shikilia / Kataa)",
+        "supportingDocuments": "Risiti / Nyaraka za Kuthibitisha",
+        "documentsUnavailable": "Nyaraka za kuthibitisha hazipatikani kwa sababu kumbukumbu ya urejeshaji haipo.",
+        "reject": "Kataa",
+        "onHold": "Shikilia",
+        "approve": "Idhinisha"
+      },
+      "form": {
+        "ledgerNo": "Leja #{id}",
+        "productNo": "Bidhaa #{id}",
+        "storeNo": "Stoo #{id}",
+        "draftCreated": "Rasimu ya urejeshaji wa imprest imeundwa",
+        "draftUpdated": "Rasimu ya urejeshaji wa imprest imesasishwa",
+        "submittedForApproval": "Urejeshaji wa imprest umewasilishwa kwa idhini",
+        "approvalRefMissing": "Kumbukumbu ya idhini ya ombi haipo. Tafadhali fungua fomu upya na ujaribu tena.",
+        "ledgerRequired": "Leja ya imprest inahitajika.",
+        "dateRequired": "Tarehe ya urejeshaji inahitajika.",
+        "itemRequired": "Angalau kipengee kimoja cha urejeshaji kinahitajika.",
+        "itemInvalid": "Kila kipengee kinahitaji akaunti chanzo/bidhaa, kipimo, idadi kubwa kuliko 0 na kiwango kikubwa kuliko 0.",
+        "wholeUnits": "Bidhaa hii huuzwa kwa vipimo kamili — idadi haiwezi kuwa sehemu.",
+        "resolveIdFailed": "Urejeshaji umeundwa lakini kitambulisho cha rekodi hakikuweza kupatikana kwa kuwasilisha.",
+        "loadingDraft": "Inapakia rasimu ya urejeshaji...",
+        "titleUpdate": "Sasisha {no}",
+        "title": "Fomu ya Urejeshaji wa Imprest",
+        "status": "Hali: {status}",
+        "approvedAmount": "Kiasi Kilichoidhinishwa",
+        "totalItemsAmount": "Jumla ya Kiasi cha Vipengee",
+        "currentBalance": "Salio la Sasa",
+        "balanceAfterRetirement": "Salio Baada ya Urejeshaji",
+        "imprestLedger": "Leja ya Imprest",
+        "currentBalanceValue": "Salio la Sasa: {balance}",
+        "retirementDate": "Tarehe ya Urejeshaji",
+        "referenceRequisition": "Ombi Husika",
+        "remarks": "Maoni",
+        "productStore": "Bidhaa / Stoo",
+        "paidThrough": "Imelipwa Kupitia (Leja ya Kipengee)",
+        "addItem": "Ongeza Kipengee",
+        "update": "Sasisha",
+        "saveDraft": "Hifadhi Rasimu"
+      }
+    }
+  },
+  "rfqs": {
+    "common": {
+      "cancel": "Ghairi",
+      "submit": "Wasilisha",
+      "update": "Sasisha",
+      "add": "Ongeza",
+      "product": "Bidhaa",
+      "unit": "Kipimo",
+      "quantity": "Idadi",
+      "remarks": "Maoni",
+      "reference": "Rejea",
+      "amount": "Kiasi",
+      "status": "Hali",
+      "rate": "Kiwango"
+    },
+    "form": {
+      "titleEdit": "Hariri RFQ",
+      "titleNew": "RFQ Mpya",
+      "rfqDate": "Tarehe ya RFQ",
+      "responseDeadline": "Mwisho wa Kujibu",
+      "invitedSuppliers": "Wasambazaji Waliolikwa",
+      "statusOptions": {
+        "draft": "Rasimu",
+        "sent": "Imetumwa",
+        "closed": "Imefungwa",
+        "canceled": "Imeghairiwa"
+      },
+      "messages": {
+        "saved": "RFQ imehifadhiwa kwa mafanikio",
+        "updated": "RFQ imesasishwa kwa mafanikio",
+        "addAtLeastOneItem": "Ongeza angalau kipengee kimoja cha RFQ",
+        "itemNeedsProductAndQuantity": "Kila kipengee cha RFQ kinahitaji bidhaa na idadi"
+      },
+      "validation": {
+        "rfqDate": "Tarehe ya RFQ inahitajika",
+        "responseDeadline": "Mwisho wa kujibu unahitajika",
+        "status": "Hali inahitajika"
+      }
+    },
+    "item": {
+      "addTitle": "Ongeza Kipengee cha RFQ",
+      "validation": {
+        "product": "Bidhaa inahitajika",
+        "quantity": "Idadi inahitajika"
+      }
+    },
+    "response": {
+      "titleEdit": "Hariri Jibu la RFQ - {name}",
+      "titleNewFor": "Jibu Jipya la RFQ - {name}",
+      "titleNew": "Jibu Jipya la RFQ",
+      "responseDate": "Tarehe ya Jibu",
+      "validityDate": "Tarehe ya Ukomo wa Uhalali",
+      "supplier": "Msambazaji",
+      "noSuppliers": "Hakuna wasambazaji",
+      "exchangeRate": "Kiwango cha Ubadilishaji",
+      "itemsHeading": "Vipengee vya Jibu la RFQ",
+      "itemFallback": "Kipengee",
+      "required": "Inahitajika: {quantity} {unit}",
+      "removed": "Imeondolewa",
+      "removedItems": "Vipengee Vilivyoondolewa ({count})",
+      "restoreAll": "Rejesha Vyote",
+      "allItemsRemoved": "Vipengee vyote vimeondolewa. Tafadhali rejesha angalau kipengee kimoja ili kuwasilisha jibu.",
+      "updateResponse": "Sasisha Jibu",
+      "submitResponse": "Wasilisha Jibu",
+      "messages": {
+        "saved": "Jibu la RFQ limehifadhiwa kwa mafanikio",
+        "updated": "Jibu la RFQ limesasishwa kwa mafanikio",
+        "checkInformation": "Tafadhali kagua taarifa ulizowasilisha",
+        "atLeastOneItemRemain": "Angalau kipengee kimoja lazima kibaki kwenye jibu",
+        "itemRestored": "Kipengee kimerejeshwa kwa mafanikio",
+        "itemsRestored": "Vipengee {count} vimerejeshwa",
+        "addItemWithQuantityAndRate": "Tafadhali ongeza angalau kipengee kimoja chenye idadi na kiwango"
+      },
+      "validation": {
+        "responseDate": "Tarehe ya jibu inahitajika",
+        "supplier": "Msambazaji anahitajika",
+        "currency": "Sarafu inahitajika",
+        "exchangeRate": "Kiwango cha ubadilishaji kinahitajika",
+        "exchangeRatePositive": "Kiwango cha ubadilishaji lazima kiwe chanya"
+      },
+      "item": {
+        "vat": "VAT",
+        "priceVatInclusive": "Bei (Pamoja na VAT)",
+        "deliveryDate": "Tarehe ya Uwasilishaji",
+        "cannotRemoveLast": "Huwezi kuondoa kipengee cha mwisho",
+        "removeThis": "Ondoa kipengee hiki"
+      }
+    },
+    "purchaseOrder": {
+      "title": "Agizo Jipya la Ununuzi kutoka RFQ",
+      "multipleOrders": "Inaunda maagizo mengi kwa wasambazaji tofauti",
+      "noItems": "Hakuna vipengee. Tafadhali rudi nyuma na uchague vipengee kutoka kwenye ulinganisho.",
+      "createAndNext": "Unda na Endelea",
+      "messages": {
+        "atLeastOneItem": "Angalau kipengee kimoja kinahitajika",
+        "createFailed": "Imeshindwa kuunda agizo la ununuzi",
+        "updateFailed": "Imeshindwa kusasisha agizo la ununuzi"
+      },
+      "validation": {
+        "orderDate": "Tarehe ya agizo inahitajika",
+        "currency": "Sarafu inahitajika",
+        "costCenterMin": "Angalau kituo kimoja cha gharama lazima kichaguliwe",
+        "costCenter": "Kituo cha Gharama kinahitajika",
+        "exchangeRate": "Kiwango cha ubadilishaji kinahitajika",
+        "creditAccount": "Akaunti ya Credit (Kutoka) inahitajika",
+        "receivingStore": "Stoo ya kupokelea inahitajika",
+        "supplierNoAccount": "Msambazaji aliyechaguliwa hana akaunti yoyote"
+      },
+      "tabProducts": "Bidhaa",
+      "item": {
+        "rfqQty": "Idadi ya RFQ: {quantity}",
+        "vat": "VAT"
+      },
+      "top": {
+        "orderDate": "Tarehe ya Agizo",
+        "supplier": "Msambazaji:",
+        "notAvailable": "Haipo",
+        "dateRequired": "Tarehe Inayohitajika"
+      }
+    }
+  }
+}

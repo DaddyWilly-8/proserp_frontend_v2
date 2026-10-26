@@ -47,6 +47,7 @@ import {
 } from '../periodColumns';
 import TrialBalanceGroupedOnScreen from './TrialBalanceGroupedOnScreen';
 import TrialBalanceOnScreen from './TrialBalanceOnScreen';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 // Grouped tree -> indented rows, as on screen and in the Balance Sheet PDF:
 // a group row, then its sub-groups, then its own ledgers.
@@ -69,21 +70,27 @@ const ReportDocumet = ({
   grouped,
   netOnly,
   closingOnly,
+  dictionary,
 }) => {
+  const t = dictionary.reports.accountsReports;
   const mainColor =
     authOrganization.organization.settings?.main_color || '#2113AD';
   const lightColor =
     authOrganization.organization.settings?.light_color || '#bec5da';
   const contrastText =
     authOrganization.organization.settings?.contrast_text || '#FFFFFF';
-  const reportPeriod = periodSubtitle(reportData.filters, readableDate);
+  const reportPeriod = periodSubtitle(
+    reportData.filters,
+    readableDate,
+    t.common
+  );
   const costCenters = reportData.filters.cost_centers;
 
   return reportData ? (
     <Document
       creator={` ${user.name} | Powered By ProsERP`}
       producer='ProsERP'
-      title={`Trial Balance ${reportPeriod}`}
+      title={`${t.trialBalance.title} ${reportPeriod}`}
     >
       <Page size='A4' orientation={closingOnly ? 'portrait' : 'landscape'} style={PDF_PAGE_STYLE}>
         <View style={pdfStyles.table}>
@@ -94,7 +101,9 @@ const ReportDocumet = ({
             <View style={{ flex: 1, textAlign: 'right' }}>
               <Text
                 style={{ ...pdfStyles.majorInfo, color: mainColor }}
-              >{`Trial Balance`}</Text>
+              >
+                {t.trialBalance.title}
+              </Text>
               <Text style={{ ...pdfStyles.minInfo }}>{reportPeriod}</Text>
             </View>
           </View>
@@ -105,7 +114,7 @@ const ReportDocumet = ({
           {Array.isArray(costCenters) && costCenters.length > 0 && (
             <View style={{ flex: 2, padding: 2 }}>
               <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>
-                Cost Centers
+                {t.common.costCenters}
               </Text>
               <Text style={{ ...pdfStyles.minInfo }}>
                 {costCenters
@@ -116,13 +125,13 @@ const ReportDocumet = ({
           )}
           <View style={{ flex: 1, padding: 2 }}>
             <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>
-              Printed By
+              {t.common.printedBy}
             </Text>
             <Text style={{ ...pdfStyles.minInfo }}>{user.name}</Text>
           </View>
           <View style={{ flex: 1, padding: 2 }}>
             <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>
-              Printed On
+              {t.common.printedOn}
             </Text>
             <Text style={{ ...pdfStyles.minInfo }}>
               {readableDate(undefined, true)}
@@ -133,7 +142,8 @@ const ReportDocumet = ({
           {grouped ? (
             <>
               <PeriodPdfHeader netOnly={netOnly} closingOnly={closingOnly}
-                leading={[{ label: 'Ledger Group', flex: 3.4 }]}
+                leading={[{ label: t.trialBalance.ledgerGroup, flex: 3.4 }]}
+                labels={t.common}
                 mainColor={mainColor}
                 contrastText={contrastText}
               filters={reportData.filters}
@@ -158,7 +168,7 @@ const ReportDocumet = ({
                 />
               ))}
               <PeriodPdfRow netOnly={netOnly} closingOnly={closingOnly}
-                leading={[{ text: 'TOTAL', flex: 3.4 }]}
+                leading={[{ text: t.common.total.toUpperCase(), flex: 3.4 }]}
                 node={reportData.totals}
                 backgroundColor={lightColor}
                 bold
@@ -168,9 +178,10 @@ const ReportDocumet = ({
             <>
               <PeriodPdfHeader netOnly={netOnly} closingOnly={closingOnly}
                 leading={[
-                  { label: 'S/N', flex: 0.4 },
-                  { label: 'Ledger Name', flex: 3 },
+                  { label: t.common.serialNumber, flex: 0.4 },
+                  { label: t.trialBalance.ledgerName, flex: 3 },
                 ]}
+                labels={t.common}
                 mainColor={mainColor}
                 contrastText={contrastText}
               filters={reportData.filters}
@@ -195,7 +206,7 @@ const ReportDocumet = ({
               <PeriodPdfRow netOnly={netOnly} closingOnly={closingOnly}
                 leading={[
                   { text: '', flex: 0.4 },
-                  { text: 'TOTAL', flex: 3 },
+                  { text: t.common.total.toUpperCase(), flex: 3 },
                 ]}
                 node={reportData.totals}
                 backgroundColor={lightColor}
@@ -212,7 +223,8 @@ const ReportDocumet = ({
 };
 
 function TrialBalance({ setOpenTrialBalanceDialog }) {
-  document.title = 'Trial Balance';
+  const dictionary = useDictionary();
+  document.title = dictionary.reports.accountsReports.trialBalance.title;
   const css = useProsERPStyles();
   const { enqueueSnackbar } = useSnackbar();
   const {
@@ -223,12 +235,12 @@ function TrialBalance({ setOpenTrialBalanceDialog }) {
   const validationSchema = yup.object({
     from: yup
       .string()
-      .required('From date is required')
-      .typeError('From date is required'),
+      .required(dictionary.reports.accountsReports.common.fromDateRequired)
+      .typeError(dictionary.reports.accountsReports.common.fromDateRequired),
     to: yup
       .string()
-      .required('To date is required')
-      .typeError('To date is required'),
+      .required(dictionary.reports.accountsReports.common.toDateRequired)
+      .typeError(dictionary.reports.accountsReports.common.toDateRequired),
   });
 
   const { setValue, watch, handleSubmit } = useForm({
@@ -287,7 +299,10 @@ function TrialBalance({ setOpenTrialBalanceDialog }) {
       link.click();
       setIsDownloadingTemplate(false);
     } catch (error) {
-      enqueueSnackbar('Error downloading Excel template', { variant: 'error' });
+      enqueueSnackbar(
+        dictionary.reports.accountsReports.common.excelDownloadError,
+        { variant: 'error' }
+      );
       setIsDownloadingTemplate(false);
     }
   };
@@ -311,10 +326,12 @@ function TrialBalance({ setOpenTrialBalanceDialog }) {
       <DialogTitle textAlign={'center'}>
         <Grid container>
           <Grid size={{ xs: 12 }} textAlign={'center'}>
-            <Typography variant='h3'>Trial Balance</Typography>
+            <Typography variant='h3'>
+              {dictionary.reports.accountsReports.trialBalance.title}
+            </Typography>
           </Grid>
           {belowLargeScreen && (
-            <Tooltip title='Close'>
+            <Tooltip title={dictionary.tooltips.close}>
               <IconButton
                 size='small'
                 sx={{ position: 'absolute', top: 10, right: 10 }}
@@ -340,7 +357,10 @@ function TrialBalance({ setOpenTrialBalanceDialog }) {
             >
               <Grid size={{ xs: 12, lg: 6 }}>
                 <CostCenterSelector
-                  label='Cost Centers (leave empty for all)'
+                  label={
+                    dictionary.reports.accountsReports.trialBalance
+                      .costCenterLabel
+                  }
                   multiple={true}
                   // A user with CostCenters:All starts with nothing pre-selected —
                   // their report already defaults to unfiltered ('all', see
@@ -374,7 +394,7 @@ function TrialBalance({ setOpenTrialBalanceDialog }) {
               <Grid size={{ xs: 12, sm: 6, lg: 3 }}>
                 <Div sx={{ mt: 1, mb: 1 }}>
                   <DateTimePicker
-                    label='From (MM/DD/YYYY)'
+                    label={dictionary.reports.accountsReports.common.from}
                     defaultValue={dayjs().startOf('year')}
                     minDate={dayjs(
                       authOrganization?.organization.recording_start_date
@@ -401,7 +421,7 @@ function TrialBalance({ setOpenTrialBalanceDialog }) {
               <Grid size={{ xs: 12, sm: 6, lg: 3 }}>
                 <Div sx={{ mt: 1, mb: 1 }}>
                   <DateTimePicker
-                    label='To (MM/DD/YYYY)'
+                    label={dictionary.reports.accountsReports.common.to}
                     defaultValue={dayjs()}
                     minDate={dayjs(
                       authOrganization?.organization.recording_start_date
@@ -453,7 +473,7 @@ function TrialBalance({ setOpenTrialBalanceDialog }) {
                             onChange={(e) => setNetOnly(e.target.checked)}
                           />
                         }
-                        label='Net only'
+                        label={dictionary.reports.accountsReports.common.netOnly}
                         sx={{ mr: 0.5 }}
                       />
                       <FormControlLabel
@@ -464,7 +484,7 @@ function TrialBalance({ setOpenTrialBalanceDialog }) {
                             onChange={(e) => setClosingOnly(e.target.checked)}
                           />
                         }
-                        label='Closing only'
+                        label={dictionary.reports.accountsReports.common.closingOnly}
                         sx={{ mr: 0.5 }}
                       />
                       {reportData && (
@@ -477,8 +497,12 @@ function TrialBalance({ setOpenTrialBalanceDialog }) {
                             if (newViewMode) setViewMode(newViewMode);
                           }}
                         >
-                          <ToggleButton value='flat'>Flat</ToggleButton>
-                          <ToggleButton value='grouped'>Grouped</ToggleButton>
+                          <ToggleButton value='flat'>
+                            {dictionary.reports.accountsReports.common.flat}
+                          </ToggleButton>
+                          <ToggleButton value='grouped'>
+                            {dictionary.reports.accountsReports.common.grouped}
+                          </ToggleButton>
                         </ToggleButtonGroup>
                       )}
                     </Stack>
@@ -501,7 +525,7 @@ function TrialBalance({ setOpenTrialBalanceDialog }) {
                       size='small'
                       variant='contained'
                     >
-                      Filter
+                      {dictionary.reports.accountsReports.common.filter}
                     </LoadingButton>
                   </Stack>
                 </Stack>
@@ -544,6 +568,7 @@ function TrialBalance({ setOpenTrialBalanceDialog }) {
                       closingOnly={closingOnly}
                       authOrganization={authOrganization}
                       user={user}
+                      dictionary={dictionary}
                     />
                   }
                   fileName={downloadFileName}

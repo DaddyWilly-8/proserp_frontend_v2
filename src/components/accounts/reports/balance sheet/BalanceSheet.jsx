@@ -41,19 +41,20 @@ import {
   periodSubtitle,
 } from '../periodColumns';
 import BalanceSheetOnScreen from './BalanceSheetOnScreen';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 // Walks the balance sheet tree into indented rows; a node with visible
 // children is followed by its own "Total" row, as on screen.
-const flattenForPdf = (nodes, level, closingOnly) =>
+const flattenForPdf = (nodes, level, closingOnly, totalLabel) =>
   nodes.filter((n) => hasPeriodActivity(n, closingOnly)).flatMap((node) => {
     const visibleChildren = (node.children ?? []).filter((n) =>
       hasPeriodActivity(n, closingOnly)
     );
     return [
       { label: node.name, level, node, bold: level === 0, shaded: level === 0 },
-      ...flattenForPdf(visibleChildren, level + 1, closingOnly),
+      ...flattenForPdf(visibleChildren, level + 1, closingOnly, totalLabel),
       ...(visibleChildren.length > 0
-        ? [{ label: `Total ${node.name}`, level, node, bold: true, shaded: false }]
+        ? [{ label: `${totalLabel} ${node.name}`, level, node, bold: true, shaded: false }]
         : []),
     ];
   });
@@ -64,20 +65,26 @@ const ReportDocument = ({
   user,
   netOnly,
   closingOnly,
+  dictionary,
 }) => {
+  const t = dictionary.reports.accountsReports;
   const mainColor =
     authOrganization.organization.settings?.main_color || '#2113AD';
   const contrastText =
     authOrganization.organization.settings?.contrast_text || 'black';
   const lightColor =
     authOrganization.organization.settings?.light_color || '#bec5da';
-  const reportPeriod = periodSubtitle(reportData.filters, readableDate);
+  const reportPeriod = periodSubtitle(
+    reportData.filters,
+    readableDate,
+    t.common
+  );
 
   return reportData ? (
     <Document
       creator={` ${user.name} | Powered By ProsERP`}
       producer='ProsERP'
-      title={`Balance Sheet ${reportPeriod}`}
+      title={`${t.balanceSheet.title} ${reportPeriod}`}
     >
       <Page size='A4' orientation={closingOnly ? 'portrait' : 'landscape'} style={PDF_PAGE_STYLE}>
         <View style={pdfStyles.table}>
@@ -88,7 +95,9 @@ const ReportDocument = ({
             <View style={{ flex: 1, textAlign: 'right' }}>
               <Text
                 style={{ ...pdfStyles.majorInfo, color: mainColor }}
-              >{`Balance Sheet`}</Text>
+              >
+                {t.balanceSheet.title}
+              </Text>
               <Text style={{ ...pdfStyles.minInfo }}>{reportPeriod}</Text>
             </View>
           </View>
@@ -96,13 +105,13 @@ const ReportDocument = ({
         <View style={{ ...pdfStyles.tableRow, marginTop: 10 }}>
           <View style={{ flex: 1, padding: 2 }}>
             <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>
-              Printed By
+              {t.common.printedBy}
             </Text>
             <Text style={{ ...pdfStyles.minInfo }}>{user.name}</Text>
           </View>
           <View style={{ flex: 1, padding: 2 }}>
             <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>
-              Printed On
+              {t.common.printedOn}
             </Text>
             <Text style={{ ...pdfStyles.minInfo }}>
               {readableDate(undefined, true)}
@@ -111,7 +120,8 @@ const ReportDocument = ({
         </View>
         <View style={{ ...pdfStyles.table, marginTop: 15 }}>
           <PeriodPdfHeader netOnly={netOnly} closingOnly={closingOnly}
-            leading={[{ label: 'Category', flex: 3 }]}
+            leading={[{ label: t.balanceSheet.category, flex: 3 }]}
+            labels={t.common}
             mainColor={mainColor}
             contrastText={contrastText}
           filters={reportData.filters}
@@ -123,7 +133,8 @@ const ReportDocument = ({
                 )
               : reportData?.balanceSheetData) ?? [],
             0,
-            closingOnly
+            closingOnly,
+            t.common.total
           ).map((row, index) => (
             <PeriodPdfRow netOnly={netOnly} closingOnly={closingOnly}
               key={index}
@@ -142,7 +153,8 @@ const ReportDocument = ({
 };
 
 function BalanceSheet({ as_at, setOpenBalanceSheettDialog }) {
-  document.title = 'Balance Sheet';
+  const dictionary = useDictionary();
+  document.title = dictionary.reports.accountsReports.balanceSheet.title;
   const css = useProsERPStyles();
   const [displayAs, setDisplayAs] = useState('on screen');
   const [triggerFetch, setTriggerFetch] = useState(as_at ? true : false);
@@ -166,12 +178,12 @@ function BalanceSheet({ as_at, setOpenBalanceSheettDialog }) {
   const validationSchema = yup.object({
     from: yup
       .string()
-      .required('From date is required')
-      .typeError('From date is required'),
+      .required(dictionary.reports.accountsReports.common.fromDateRequired)
+      .typeError(dictionary.reports.accountsReports.common.fromDateRequired),
     to: yup
       .string()
-      .required('To date is required')
-      .typeError('To date is required'),
+      .required(dictionary.reports.accountsReports.common.toDateRequired)
+      .typeError(dictionary.reports.accountsReports.common.toDateRequired),
   });
 
   const { setValue, handleSubmit, watch } = useForm({
@@ -219,7 +231,10 @@ function BalanceSheet({ as_at, setOpenBalanceSheettDialog }) {
 
       setIsDownloadingTemplate(false);
     } catch (error) {
-      enqueueSnackbar('Error downloading Excel template', { variant: 'error' });
+      enqueueSnackbar(
+        dictionary.reports.accountsReports.common.excelDownloadError,
+        { variant: 'error' }
+      );
       setIsDownloadingTemplate(false);
     }
   };
@@ -251,10 +266,12 @@ function BalanceSheet({ as_at, setOpenBalanceSheettDialog }) {
       <DialogTitle textAlign={'center'}>
         <Grid container>
           <Grid size={{ xs: 12 }}>
-            <Typography variant='h3'>Balance Sheet</Typography>
+            <Typography variant='h3'>
+              {dictionary.reports.accountsReports.balanceSheet.title}
+            </Typography>
           </Grid>
           {belowLargeScreen && (
-            <Tooltip title='Close'>
+            <Tooltip title={dictionary.tooltips.close}>
               <IconButton
                 size='small'
                 sx={{ position: 'absolute', top: 10, right: 10 }}
@@ -281,7 +298,7 @@ function BalanceSheet({ as_at, setOpenBalanceSheettDialog }) {
               <Grid size={{ xs: 12, sm: 6, lg: 3 }}>
                 <Div sx={{ mt: 1, mb: 1 }}>
                   <DateTimePicker
-                    label='From (MM/DD/YYYY)'
+                    label={dictionary.reports.accountsReports.common.from}
                     defaultValue={as_at ? dayjs(as_at).startOf('year') : dayjs().startOf('year')}
                     minDate={dayjs(
                       authOrganization?.organization.recording_start_date
@@ -308,7 +325,7 @@ function BalanceSheet({ as_at, setOpenBalanceSheettDialog }) {
               <Grid size={{ xs: 12, sm: 6, lg: 3 }}>
                 <Div sx={{ mt: 1, mb: 1 }}>
                   <DateTimePicker
-                    label='To (MM/DD/YYYY)'
+                    label={dictionary.reports.accountsReports.common.to}
                     defaultValue={as_at ? dayjs(as_at) : dayjs()}
                     minDate={dayjs(
                       authOrganization?.organization.recording_start_date
@@ -360,7 +377,7 @@ function BalanceSheet({ as_at, setOpenBalanceSheettDialog }) {
                             onChange={(e) => setNetOnly(e.target.checked)}
                           />
                         }
-                        label='Net only'
+                        label={dictionary.reports.accountsReports.common.netOnly}
                         sx={{ mr: 0.5 }}
                       />
                       <FormControlLabel
@@ -371,7 +388,7 @@ function BalanceSheet({ as_at, setOpenBalanceSheettDialog }) {
                             onChange={(e) => setClosingOnly(e.target.checked)}
                           />
                         }
-                        label='Closing only'
+                        label={dictionary.reports.accountsReports.common.closingOnly}
                         sx={{ mr: 0.5 }}
                       />
                     </Stack>
@@ -394,7 +411,7 @@ function BalanceSheet({ as_at, setOpenBalanceSheettDialog }) {
                       size='small'
                       variant='contained'
                     >
-                      Filter
+                      {dictionary.reports.accountsReports.common.filter}
                     </LoadingButton>
                   </Stack>
                 </Stack>
@@ -417,6 +434,7 @@ function BalanceSheet({ as_at, setOpenBalanceSheettDialog }) {
                   user={user}
                   netOnly={netOnly}
                   closingOnly={closingOnly}
+                  dictionary={dictionary}
                 />
               }
               fileName={`Balance Sheet ${readableDate(reportData?.filters?.from, true)} to ${readableDate(reportData?.filters?.to, true)}`}

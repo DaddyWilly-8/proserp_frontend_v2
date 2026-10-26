@@ -1,0 +1,490 @@
+{
+  "nextSms": {
+    "tabs": {
+      "singleUser": "Single User Text",
+      "singleTextMulti": "Single Text → Multiple Users",
+      "multiTextMulti": "Multiple Texts → Multiple Users",
+      "deliveryReports": "Delivery Reports",
+      "sentLogs": "Sent Logs",
+      "checkBalance": "Check Balance"
+    },
+    "common": {
+      "to": "To",
+      "toValue": "To: {to}",
+      "status": "Status",
+      "statusColon": "Status:",
+      "description": "Description",
+      "descriptionValue": "Description: {description}",
+      "smsCount": "SMS Count",
+      "smsCountValue": "SMS Count: {count}",
+      "sentAt": "Sent At",
+      "completedAt": "Completed At",
+      "error": "Error",
+      "summary": "Summary",
+      "message": "Message",
+      "unknown": "UNKNOWN",
+      "notAvailable": "N/A",
+      "totalSms": "Total SMS: {count}",
+      "totalMessages": "Total Messages: {count}",
+      "delivered": "Delivered: {count}",
+      "pending": "Pending: {count}",
+      "rejected": "Rejected: {count}",
+      "groupValue": "Group: {group}",
+      "currentStatus": "Current Status: {status}",
+      "allDelivered": "All delivered",
+      "inProgress": "In progress",
+      "mixedStatus": "Mixed status",
+      "deliveryStatusTitle": "SMS Delivery Status",
+      "failedToSend": "Failed to send SMS",
+      "messageRequired": "Message text is required"
+    },
+    "single": {
+      "title": "Send SMS to Single User",
+      "recipientLabel": "Recipient Number (e.g. 2557...)",
+      "recipientRequired": "Recipient number is required",
+      "send": "Send SMS",
+      "success": "SMS sent successfully!"
+    },
+    "singleMulti": {
+      "title": "Send One Text to Multiple Users",
+      "recipientsLabel": "Recipients (comma separated)",
+      "recipientsRequired": "Enter at least one recipient number",
+      "recipientsHelper": "Enter numbers separated by commas. {count} recipient(s) detected.",
+      "messageHelper": "{chars} characters, ~{sms} SMS per recipient",
+      "totalEstimated": "Total estimated SMS: {count}",
+      "sendTo": "Send to {count} Recipient(s)",
+      "success": "SMS sent successfully to multiple users!",
+      "deliveryStatusTitle": "SMS Delivery Status ({count} recipients)",
+      "totalRecipients": "Total Recipients: {count}",
+      "totalSmsSent": "Total SMS Sent: {count}"
+    },
+    "multiMulti": {
+      "title": "Send Multiple Texts to Multiple Users",
+      "recipientLabel": "Recipient Number (255...)",
+      "recipientRequired": "Recipient number is required",
+      "recipientPattern": "Number must start with 255 and have 9 more digits",
+      "atLeastOne": "At least one message is required",
+      "messageHelper": "{chars} characters, ~{sms} SMS",
+      "summaryLine": "{recipients} recipient(s), ~{sms} total SMS",
+      "addAnother": "Add Another Message",
+      "sendMessages": "Send {count} Message(s)",
+      "success": "Successfully sent {count} messages",
+      "failedToSend": "Failed to send messages",
+      "deliveryStatusTitle": "Delivery Status ({count} messages sent)",
+      "totalMessagesSent": "Total Messages Sent: {count}"
+    },
+    "deliveryReports": {
+      "title": "Get Delivery Reports",
+      "button": "Get Delivery Reports",
+      "success": "Delivery reports fetched successfully!",
+      "failed": "Failed to fetch delivery reports",
+      "recordsTitle": "Delivery Reports ({count} records)",
+      "noStatus": "No status available",
+      "empty": "No delivery reports found."
+    },
+    "logs": {
+      "title": "Get Sent SMS Logs",
+      "toLabel": "To (Recipient Number)",
+      "sentSince": "Sent Since",
+      "sentUntil": "Sent Until",
+      "button": "Get Logs",
+      "success": "SMS logs fetched successfully!",
+      "failed": "Failed to fetch SMS logs",
+      "recordsTitle": "SMS Logs ({count} records)",
+      "empty": "No SMS logs found for the selected criteria."
+    },
+    "balance": {
+      "current": "Current SMS Balance: {balance} sms",
+      "check": "Check SMS Balance",
+      "button": "Check Balance",
+      "error": "Error checking balance"
+    }
+  },
+  "smsAccounts": {
+    "form": {
+      "newTitle": "New SMS Account",
+      "editTitle": "Edit SMS Account",
+      "topUpTitle": "Top Up SMS Balance",
+      "transactionsTitle": "{name} — SMS Transactions",
+      "labels": {
+        "organization": "Organization",
+        "unitPrice": "Unit Price",
+        "lowBalanceThreshold": "Low Balance Threshold",
+        "senderId": "Sender ID (optional, max 11 characters)",
+        "active": "Active",
+        "amount": "Amount",
+        "notes": "Notes (optional)"
+      },
+      "buttons": {
+        "cancel": "Cancel",
+        "save": "Save",
+        "topUp": "Top Up"
+      },
+      "summary": "{name} — current balance: {balance}",
+      "noTransactions": "No transactions yet.",
+      "messages": {
+        "created": "SMS account created successfully",
+        "updated": "SMS account updated successfully",
+        "toppedUp": "SMS balance topped up successfully"
+      },
+      "errors": {
+        "organizationRequired": "Organization is required",
+        "unitPriceRequired": "Unit price is required",
+        "min0": "Must be at least 0",
+        "min1": "Must be at least 1",
+        "senderIdMax": "Sender ID must be at most 11 characters",
+        "amountRequired": "Amount is required"
+      }
+    }
+  },
+  "prosAfricans": {
+    "form": {
+      "buttons": {
+        "addMember": "Add Member",
+        "add": "Add",
+        "save": "Save",
+        "cancel": "Cancel",
+        "delete": "Delete"
+      },
+      "messages": {
+        "invitationsSent": "Invitations sent successfully",
+        "invitationsErrors": "Invitations sent with errors",
+        "alreadyQueued": "User is already in the queued list",
+        "notFound": "No user with that email was found.",
+        "somethingWrong": "Something went wrong"
+      },
+      "labels": {
+        "email": "Email",
+        "name": "Name",
+        "description": "Description"
+      },
+      "errors": {
+        "emailRequired": "Email is required",
+        "emailInvalid": "Invalid email format",
+        "roleNameRequired": "Role name required"
+      },
+      "dialogs": {
+        "deleteTitle": "Delete {name} role?",
+        "deleteContent": "All users with this role won't have it anymore"
+      }
+    }
+  },
+  "support": {
+    "permissions": {
+      "titles": {
+        "newOrganization": "New Organization Permission",
+        "newPros": "New Pros Permission",
+        "edit": "Edit {name}"
+      },
+      "labels": {
+        "name": "Name",
+        "core": "Core",
+        "modules": "Modules",
+        "description": "Description"
+      },
+      "buttons": {
+        "add": "Add",
+        "cancel": "Cancel",
+        "submit": "Submit"
+      },
+      "errors": {
+        "nameRequired": "Name is required",
+        "modulesRequired": "Please Select Module(s) for this Permission"
+      }
+    },
+    "tabs": {
+      "databaseActions": "Database actions",
+      "permissions": "Permissions",
+      "prosPermissions": "Pros Permissions",
+      "stakeholders": "Stakeholders",
+      "transactions": "Transactions"
+    },
+    "bulkImports": {
+      "needPrefix": "You need the ",
+      "permissionStakeholders": " permission to import stakeholders.",
+      "permissionTransactions": " permission to import transactions."
+    },
+    "database": {
+      "labels": {
+        "selectDatabase": "Select Database",
+        "enterPassword": "Enter Password",
+        "typeToConfirm": "Type \"{action}\" to confirm"
+      },
+      "buttons": {
+        "execute": "Execute",
+        "cancel": "Cancel",
+        "confirm": "Confirm"
+      },
+      "viewDetails": "View details",
+      "confirmPrompt": "Please confirm the action below and enter your password",
+      "messages": {
+        "somethingWrong": "Something went wrong"
+      },
+      "errors": {
+        "selectDatabase": "Please select at least one database",
+        "actionRequired": "Database action is required",
+        "passwordRequired": "Please enter your password to confirm action",
+        "typeExactly": "Please type \"{action}\" exactly to confirm"
+      }
+    }
+  },
+  "sms": {
+    "send": {
+      "labels": {
+        "recipients": "Recipients",
+        "message": "Message"
+      },
+      "placeholders": {
+        "recipients": "One phone number per line or comma-separated, e.g. 255700000000"
+      },
+      "helper": {
+        "recipientCount": "{count} recipient(s)",
+        "characters": "{length}/{max} characters, ~{segments} SMS segment(s) each"
+      },
+      "buttons": {
+        "send": "Send SMS"
+      },
+      "errors": {
+        "recipientsRequired": "At least one recipient is required",
+        "messageRequired": "Message is required",
+        "messageMax": "Message must be at most {max} characters"
+      }
+    },
+    "bulk": {
+      "labels": {
+        "stakeholderGroups": "Stakeholder Groups",
+        "individualStakeholders": "Individual Stakeholders",
+        "sendToAllStakeholders": "Send to all stakeholders",
+        "employeesHeading": "Employees (filter by gender, department, or cost center, then pick who to message)",
+        "rawRecipients": "Raw Recipients (optional)",
+        "placeholdersLabel": "Placeholders:",
+        "messageTemplate": "Message Template"
+      },
+      "placeholders": {
+        "rawRecipients": "One per line: phone or phone,name\ne.g. 255700000000,John",
+        "messageTemplate": "Hello {name}, ..."
+      },
+      "helper": {
+        "characters": "{length}/918 characters"
+      },
+      "alerts": {
+        "checkingStakeholders": "Checking total stakeholder count...",
+        "allStakeholders": "This will message every stakeholder with a valid phone number out of {total} total stakeholders.",
+        "result": "{message} — {sent} sent, {skipped} skipped"
+      },
+      "buttons": {
+        "send": "Send Bulk SMS"
+      },
+      "messages": {
+        "selectAtLeastOne": "Select at least one group, stakeholder, employee, or recipient"
+      },
+      "errors": {
+        "templateRequired": "Message template is required",
+        "templateMax": "Message must be at most 918 characters"
+      }
+    },
+    "employeePicker": {
+      "sendToAll": "Send to all employees (ignore filters below)",
+      "checkingCount": "Checking total employee count...",
+      "allEmployeesWarning": "This will message every employee with a valid phone number out of {total} total employees. Those without a valid phone number are skipped automatically.",
+      "gender": "Gender",
+      "any": "Any",
+      "male": "Male",
+      "female": "Female",
+      "department": "Department",
+      "costCenter": "Cost Center",
+      "searching": "Searching employees...",
+      "noMatch": "No employees match this filter.",
+      "selectAllWithPhone": "Select all with a phone number ({count})",
+      "withoutPhone": "{count} without phone number",
+      "noPhone": "No phone number"
+    }
+  },
+  "changePassword": {
+    "title": "Change Password",
+    "labels": {
+      "currentPassword": "Current Password",
+      "newPassword": "New Password",
+      "confirmNewPassword": "Confirm New Password"
+    },
+    "buttons": {
+      "cancel": "Cancel",
+      "submit": "Change Password"
+    },
+    "errors": {
+      "currentRequired": "Current password is required",
+      "newRequired": "New password is required",
+      "complexity": "Must contain at least 8 characters, 1 uppercase, 1 lowercase and 1 number",
+      "confirmationRequired": "Password confirmation is required",
+      "mismatch": "Password does not match"
+    }
+  },
+  "resetPassword": {
+    "title": "Create your new Password",
+    "labels": {
+      "email": "Email",
+      "newPassword": "New Password",
+      "confirmPassword": "Confirm Password"
+    },
+    "buttons": {
+      "submit": "Reset Password"
+    },
+    "links": {
+      "havePassword": "Have the password?",
+      "proceedToSignIn": "Proceed to Sign In",
+      "forgotEmail": "Don't remember your email?",
+      "contactSupport": "Contact Support"
+    },
+    "messages": {
+      "genericError": "An error occurred",
+      "tokenMissing": "Password reset token is missing or invalid."
+    },
+    "errors": {
+      "emailInvalid": "Enter a valid email",
+      "emailRequired": "Email is required",
+      "passwordRequired": "Password is required",
+      "complexity": "Must contain atleast 8 Characters, 1 Uppercase, 1 Lowercase, 1 Number and 1 Special character",
+      "confirmationRequired": "Password confirmation is required",
+      "mismatch": "Password does not match"
+    },
+    "recover": {
+      "title": "Provide your email",
+      "emailLabel": "Email",
+      "submit": "Send Password Recovery Token",
+      "success": "Recovery link sent successfully!",
+      "failed": "Failed to send recovery link.",
+      "emailRequired": "Please enter your email address."
+    }
+  },
+  "forgotPassword": {
+    "title": "Forgot password",
+    "email": "Email",
+    "submit": "Submit",
+    "forgotEmail": "Don't remember your email?",
+    "contactSupport": "Contact Support",
+    "orSignUpWith": "Or sign up with"
+  },
+  "verifyPassword": {
+    "verifying": "Verifying Email",
+    "verify": "Verify Email",
+    "havePassword": "Have the password?",
+    "proceedToSignIn": "Proceed to Sign In",
+    "forgotEmail": "Don’t remember your email?",
+    "contactSupport": "Contact Support"
+  },
+  "emailVerification": {
+    "notice": "Please verify your email through the link sent to the email address below. If the link has expired or you misplaced it, click the Resend verification link button to get a new one.",
+    "emailLabel": "Email",
+    "resend": "Resend verification link",
+    "logout": "Logout",
+    "alreadyVerified": "Already Verified?",
+    "proceedToHomepage": "Proceed to Homepage",
+    "forgotEmail": "Don't remember your email?",
+    "contactSupport": "Contact Support",
+    "linkSent": "Verification link sent",
+    "resendFailed": "Failed to resend verification email",
+    "recheckFailed": "Could not recheck verification. Please try again."
+  },
+  "signin": {
+    "welcome": "Welcome",
+    "tagline": "Simplified Management and Control",
+    "useAccount": "Use your ProsERP account to continue.",
+    "hidePassword": "Hide password",
+    "showPassword": "Show password",
+    "loginFailed": "Login failed. Please try again.",
+    "features": {
+      "allInOne": {
+        "title": "All your business, one place",
+        "description": "Accounts, procurement, HR, POS and more - unified in a single, secure workspace."
+      },
+      "multiOrg": {
+        "title": "Multi-organization support",
+        "description": "Switch between organizations instantly without signing out."
+      },
+      "insights": {
+        "title": "Real-time insights",
+        "description": "Dashboards and reports that stay current as your business moves."
+      }
+    }
+  },
+  "signup": {
+    "getStarted": "Get started",
+    "tagline": "Simplified Management and Control",
+    "createAccount": "Create your account",
+    "fillDetails": "Fill in the details below to get started.",
+    "labels": {
+      "fullName": "Full Name",
+      "emailAddress": "Email Address",
+      "phoneNumber": "Phone Number",
+      "password": "Password",
+      "confirmPassword": "Confirm Password"
+    },
+    "placeholders": {
+      "fullName": "Jane Doe",
+      "email": "you@example.com",
+      "phone": "+255 ..."
+    },
+    "buttons": {
+      "submit": "Create account"
+    },
+    "alreadyHaveAccount": "Already have an account?",
+    "signIn": "Sign in",
+    "messages": {
+      "signupFailed": "Signup failed. Please try again."
+    },
+    "features": {
+      "allInOne": {
+        "title": "All your business, one place",
+        "description": "Accounts, procurement, HR, POS and more, unified."
+      },
+      "invite": {
+        "title": "Invite your team",
+        "description": "Add teammates and manage access by role."
+      },
+      "insights": {
+        "title": "Real-time insights",
+        "description": "Dashboards and reports that stay current."
+      }
+    },
+    "errors": {
+      "nameRequired": "Full name is required",
+      "nameTooLong": "Full name is too long",
+      "emailInvalid": "Enter a valid email address",
+      "emailRequired": "Email is required",
+      "phoneRequired": "Phone number is required",
+      "phoneFormat": "Phone number must be between 10 and 15 digits",
+      "passwordRequired": "Password is required",
+      "passwordComplexity": "Password must be at least 8 characters and include uppercase, lowercase, number, and special character",
+      "confirmRequired": "Please confirm your password",
+      "mismatch": "Passwords do not match"
+    }
+  },
+  "audits": {
+    "platform": {
+      "title": "Platform Audit Trail",
+      "tabs": {
+        "platform": "Platform Trail",
+        "organization": "Organization Trail"
+      },
+      "labels": {
+        "organization": "Organization",
+        "keyword": "Keyword",
+        "from": "From",
+        "to": "To"
+      },
+      "placeholders": {
+        "organization": "Select organization..."
+      },
+      "buttons": {
+        "clear": "Clear"
+      },
+      "empty": {
+        "platform": "No platform audit records found.",
+        "organization": "No audit records found for this organization.",
+        "selectOrganization": "Select an organization above to view its audit trail."
+      },
+      "entryTitle": "Audit Entry",
+      "orgEntryTitle": "Audit Entry — {name}"
+    }
+  }
+}

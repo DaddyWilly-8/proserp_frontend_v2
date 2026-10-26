@@ -3,6 +3,7 @@ import React from 'react'
 import StockAdjustmentListItemAction from './StockAdjustmentListItemAction'
 import StockAdjustmentApprovalsActionTail from './StockAdjustmentApprovalsActionTail'
 import { readableDate } from '@/app/helpers/input-sanitization-helpers'
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const STATUS_CHIP_COLOR = {
   in_review: 'info',
@@ -11,6 +12,7 @@ const STATUS_CHIP_COLOR = {
 };
 
 function StockAdjustmentListItem({stockAdjustment}) {
+  const dictionary = useDictionary();
   return (
     <>
         <Grid
@@ -26,12 +28,12 @@ function StockAdjustmentListItem({stockAdjustment}) {
         >
             
             <Grid size={{xs: 6, md: 2}}>
-                <Tooltip title='Adjustment Date'>
+                <Tooltip title={dictionary.tooltips.adjustmentDate}>
                     <Typography>{`${readableDate(stockAdjustment.adjustment_date)}`}</Typography>
                 </Tooltip>
             </Grid>
             <Grid size={{xs: 6, md: 2}}>
-                <Tooltip title='Adjustment No.'>
+                <Tooltip title={dictionary.tooltips.adjustmentNo}>
                     <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                         <Typography>{stockAdjustment.adjustmentNo}</Typography>
                         {stockAdjustment.approval_chain && stockAdjustment.status_label && (
@@ -46,17 +48,17 @@ function StockAdjustmentListItem({stockAdjustment}) {
                 </Tooltip>
             </Grid>
             <Grid size={{xs: 6, md: 1}}>
-                <Tooltip title='Reference'>
+                <Tooltip title={dictionary.tooltips.reference}>
                     <Typography>{stockAdjustment.reference}</Typography>
                 </Tooltip>
             </Grid>
             <Grid size={{xs: 6, md: 2}}>
-                <Tooltip title='Reason'>
+                <Tooltip title={dictionary.tooltips.reason}>
                     <Typography>{stockAdjustment.reason}</Typography>
                 </Tooltip>
             </Grid>
             <Grid size={{xs: 10, md: 4}}>
-                <Tooltip title='Description'>
+                <Tooltip title={dictionary.tooltips.description}>
                     <Typography>{stockAdjustment.narration}</Typography>
                 </Tooltip>
             </Grid>

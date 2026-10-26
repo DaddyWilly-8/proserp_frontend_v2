@@ -4,8 +4,10 @@ import { ButtonGroup, Dialog, IconButton, Tooltip, useMediaQuery } from "@mui/ma
 import React, { useState } from "react";
 import UpdatesForm from "./UpdatesForm";
 import { useJumboTheme } from "@jumbo/components/JumboTheme/hooks";
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const UpdatesActionTail = () => {
+  const dictionary = useDictionary();
   const { theme } = useJumboTheme();
   const [openDialog, setOpenDialog] = useState(false);
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
@@ -17,7 +19,7 @@ const UpdatesActionTail = () => {
       </Dialog>
 
       <ButtonGroup variant="outlined" size="small" disableElevation sx={{ '& .MuiButton-root': { px: 1 } }}>
-        <Tooltip title={"Add Updates"}>
+        <Tooltip title={dictionary.tooltips.addUpdates}>
           <IconButton onClick={() => setOpenDialog(true)}>
             <AddOutlined />
           </IconButton>

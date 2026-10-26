@@ -10,6 +10,7 @@ import ProductSelect from '@/components/productAndServices/products/ProductSelec
 import CommaSeparatedField from '@/shared/Inputs/CommaSeparatedField';
 import { sanitizedNumber } from '@/app/helpers/input-sanitization-helpers';
 import { Product } from '@/components/productAndServices/products/ProductType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface PriceListItemFormProps {
   setClearFormKey: React.Dispatch<React.SetStateAction<number>>;
@@ -57,6 +58,7 @@ const PriceListItemForm: React.FC<PriceListItemFormProps> = ({
   items = [], 
   setShowForm = null 
 }) => {
+  const dictionary = useDictionary();
   const [productUnits, setProductUnits] = useState<Unit[]>([]);
   const [selectedUnit, setSelectedUnit] = useState<number | undefined>(item?.measurement_unit_id);
   const { productOptions } = useProductsSelect();
@@ -65,13 +67,13 @@ const PriceListItemForm: React.FC<PriceListItemFormProps> = ({
   const [isAdding, setIsAdding] = useState(false);
 
   const validationSchema = yup.object({
-    product: yup.object().required("Product is required").typeError('Product is required'),
-    price: yup.number().required("Price is required").positive("Price is required").typeError('Price is required'),
+    product: yup.object().required(dictionary.forms.priceLists.validation.productRequired).typeError(dictionary.forms.priceLists.validation.productRequired),
+    price: yup.number().required(dictionary.forms.priceLists.validation.priceRequired).positive(dictionary.forms.priceLists.validation.priceRequired).typeError(dictionary.forms.priceLists.validation.priceRequired),
     bottom_cap: yup
       .number()
-      .positive("Invalid bottom cap")
-      .typeError('Invalid bottom cap')
-      .test('bottom-cap-max', 'Bottom cap cannot exceed price', function(value) {
+      .positive(dictionary.forms.priceLists.validation.invalidBottomCap)
+      .typeError(dictionary.forms.priceLists.validation.invalidBottomCap)
+      .test('bottom-cap-max', dictionary.forms.priceLists.validation.bottomCapExceeds, function(value) {
         const { price } = this.parent;
         if (value === undefined || value === null) return true;
         return value <= price;
@@ -200,7 +202,7 @@ const PriceListItemForm: React.FC<PriceListItemFormProps> = ({
       <Grid container columnSpacing={1} rowSpacing={1} mb={1} mt={1}>
         {!item && (
           <Grid size={12} textAlign={'center'}>
-            <Typography variant='h5'>Add Item</Typography>
+            <Typography variant='h5'>{dictionary.forms.priceLists.itemForm.addItem}</Typography>
           </Grid>
         )}
 
@@ -210,7 +212,7 @@ const PriceListItemForm: React.FC<PriceListItemFormProps> = ({
               <LinearProgress />
             ) : (
               <Typography variant='subtitle1' color={'error'}>
-                Average Cost: {costAverage.toLocaleString()}
+                {dictionary.forms.priceLists.itemForm.averageCost}: {costAverage.toLocaleString()}
               </Typography>
             )}
           </Grid>
@@ -218,7 +220,7 @@ const PriceListItemForm: React.FC<PriceListItemFormProps> = ({
 
         <Grid size={{xs: 12, md: productUnits?.length > 0 ? (fuelPriceLists ? 5.5 : 3.5) : (fuelPriceLists ? 7 : 5) }}>
           <ProductSelect
-            label='Product/Service'
+            label={dictionary.forms.priceLists.labels.productService}
             frontError={errors.product}
             defaultValue={item?.product}
             includeOnlyFuelProducts={fuelPriceLists ? true : false}
@@ -233,7 +235,7 @@ const PriceListItemForm: React.FC<PriceListItemFormProps> = ({
                 if (availableUnits?.length < 1) {
                   return setError('product', {
                     type: 'manual',
-                    message: 'No available unit for this product to add price. Please select a different product.',
+                    message: dictionary.forms.priceLists.validation.noAvailableUnit,
                   });
                 } else {
                   clearErrors('product');
@@ -269,7 +271,7 @@ const PriceListItemForm: React.FC<PriceListItemFormProps> = ({
         {productUnits?.length > 0 && selectedUnit && (
           <Grid size={{xs: 12, md: 1.5}}>
             <FormControl fullWidth>
-              <InputLabel>Unit</InputLabel>
+              <InputLabel>{dictionary.forms.priceLists.labels.unit}</InputLabel>
               <Controller
                 name="measurement_unit_id"
                 control={control}
@@ -287,7 +289,7 @@ const PriceListItemForm: React.FC<PriceListItemFormProps> = ({
                       }
                     }}
                     size="small"
-                    label="Unit"
+                    label={dictionary.forms.priceLists.labels.unit}
                   >
                     {productUnits.map((unit) => (
                       <MenuItem key={unit.id} value={unit.id}>
@@ -303,7 +305,7 @@ const PriceListItemForm: React.FC<PriceListItemFormProps> = ({
 
         <Grid size={{xs: 12, md: fuelPriceLists ? 4 : 3}}>
           <TextField
-            label="Price"
+            label={dictionary.forms.priceLists.labels.price}
             fullWidth
             size='small'
             InputProps={{
@@ -330,7 +332,7 @@ const PriceListItemForm: React.FC<PriceListItemFormProps> = ({
           !fuelPriceLists && (
             <Grid size={{xs: 12, md: 3}}>
               <TextField
-                label="Bottom Cap"
+                label={dictionary.forms.priceLists.labels.bottomCap}
                 fullWidth
                 size='small'
                 InputProps={{
@@ -361,17 +363,17 @@ const PriceListItemForm: React.FC<PriceListItemFormProps> = ({
           >
             {item ? (
               <>
-                <CheckOutlined fontSize='small'/> Done
+                <CheckOutlined fontSize='small'/> {dictionary.forms.priceLists.buttons.done}
               </>
             ) : (
               <>
-                <AddOutlined fontSize='small'/> Add
+                <AddOutlined fontSize='small'/> {dictionary.forms.priceLists.buttons.add}
               </>
             )}
           </Button>
           
           {item && (
-            <Tooltip title='Close Edit'>
+            <Tooltip title={dictionary.tooltips.closeEdit}>
               <IconButton 
                 size='small'
                 onClick={() => {

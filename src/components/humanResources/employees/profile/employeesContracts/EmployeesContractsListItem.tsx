@@ -4,19 +4,14 @@ import { Chip, Divider, Tooltip, Typography } from '@mui/material';
 import { Grid } from '@mui/system';
 import { ContractType } from './ContractType';
 import EmployeesContractsItemAction from './EmployeesContractsItemAction';
-
-const CONTRACT_TYPE_LABELS: Record<string, string> = {
-  permanent: 'Permanent',
-  fixed_term: 'Fixed',
-  specific_task: 'Specific',
-  probation: 'Probation',
-};
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const EmployeesContractsListItem = ({
   contract,
 }: {
   contract: ContractType;
 }) => {
+  const dictionary = useDictionary();
   return (
     <>
       <Divider />
@@ -36,22 +31,22 @@ const EmployeesContractsListItem = ({
         container
       >
         <Grid size={{ xs: 6, md: 2.5 }}>
-          <Tooltip title='Contract Type'>
+          <Tooltip title={dictionary.tooltips.contractType}>
             <Typography>
-              {CONTRACT_TYPE_LABELS[contract?.contract_type ?? ''] ??
+              {dictionary.humanResources.employeesContracts.contractTypes[contract?.contract_type ?? ''] ??
                 contract?.contract_type}
             </Typography>
           </Tooltip>
         </Grid>
         <Grid size={{ xs: 6, md: 3 }}>
-          <Tooltip title='Start Date'>
+          <Tooltip title={dictionary.tooltips.startDate}>
             <Typography>
               {contract?.start_date ? readableDate(contract.start_date) : '-'}
             </Typography>
           </Tooltip>
         </Grid>
         <Grid size={{ xs: 6, md: 2.5 }}>
-          <Tooltip title='Basic Salary'>
+          <Tooltip title={dictionary.tooltips.basicSalary}>
             <Typography>
               {contract.basic_salary
                 ? contract.basic_salary.toLocaleString('en-US', {
@@ -68,17 +63,17 @@ const EmployeesContractsListItem = ({
           flexDirection={`row`}
           justifyContent={'start'}
         >
-          <Tooltip title='Contract Status'>
+          <Tooltip title={dictionary.tooltips.contractStatus}>
             {contract.status === 'active' ? (
               <Chip
-                label={contract.status}
+                label={dictionary.humanResources.employeesContracts.status[contract.status] ?? contract.status}
                 color='success'
                 size='small'
                 variant='outlined'
               />
             ) : (
               <Chip
-                label={contract.status}
+                label={dictionary.humanResources.employeesContracts.status[contract.status] ?? contract.status}
                 color='primary'
                 size='small'
                 variant='outlined'

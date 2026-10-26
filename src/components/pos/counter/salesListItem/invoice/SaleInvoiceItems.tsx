@@ -1,6 +1,7 @@
 import { Div } from '@jumbo/shared';
 import { Alert, Divider, Grid, LinearProgress, ListItemText, Tooltip, Typography } from '@mui/material';
 import React from 'react';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface SaleItem {
   product?: {
@@ -22,6 +23,7 @@ interface Props {
 }
 
 function SaleInvoiceItems({isRetrieving, sale_items = []}: Props) {
+    const dictionary = useDictionary();
 
     if (isRetrieving) {
         return <LinearProgress />;
@@ -57,17 +59,17 @@ function SaleInvoiceItems({isRetrieving, sale_items = []}: Props) {
                     </Grid>
                     <Grid size={{xs: 11.5, md: 8, lg: 5}}>
                         <Div sx={{ mt: 1.7, mb: 1.7 }}>
-                            <Tooltip title='Product'>
+                            <Tooltip title={dictionary.tooltips.product}>
                                 <ListItemText
                                     primary={
-                                        <Tooltip title={'Product'}>
+                                        <Tooltip title={dictionary.tooltips.product}>
                                             <Typography variant={"h5"} fontSize={14} lineHeight={1.25} mb={0} noWrap>
                                                 {item.product?.name || item.product_name}
                                             </Typography>
                                         </Tooltip>
                                     }
                                     secondary={
-                                        <Tooltip title={'Description'}>
+                                        <Tooltip title={dictionary.tooltips.description}>
                                             <Typography component="span" variant="body2" fontSize={14} lineHeight={1.25} mb={0}>
                                                 {item.description}
                                             </Typography>
@@ -79,7 +81,7 @@ function SaleInvoiceItems({isRetrieving, sale_items = []}: Props) {
                     </Grid>
                     <Grid size={{xs: 2, md: 3.5, lg: 1.5}} sx={{ textAlign: 'center' }}>
                         <Div sx={{ mt: 1.7, mb: 1.7 }}>
-                            <Tooltip title='Quantity'>
+                            <Tooltip title={dictionary.tooltips.quantity}>
                                 <Typography variant="body1">
                                     {`${item?.measurement_unit?.symbol || item.unit || ''} ${item.quantity}`}
                                 </Typography>
@@ -88,7 +90,7 @@ function SaleInvoiceItems({isRetrieving, sale_items = []}: Props) {
                     </Grid>
                     <Grid size={{xs: 4, md: 4, lg: 2.5}} sx={{ textAlign: 'center' }}>
                         <Div sx={{ mt: 1.7, mb: 1.7 }}>
-                            <Tooltip title='Rate'>
+                            <Tooltip title={dictionary.tooltips.rate}>
                                 <Typography variant="body1">
                                     {item.rate?.toLocaleString() || '0'}
                                 </Typography>
@@ -97,7 +99,7 @@ function SaleInvoiceItems({isRetrieving, sale_items = []}: Props) {
                     </Grid>
                     <Grid size={{xs: 4, md: 4, lg: 2.5}} sx={{ textAlign: 'center' }}>
                         <Div sx={{ mt: 1.7, mb: 1.7 }}>
-                            <Tooltip title='Amount'>
+                            <Tooltip title={dictionary.tooltips.amount}>
                                 <Typography variant="body1">
                                     {((item.rate || 0) * (item.quantity || 0)).toLocaleString()}
                                 </Typography>

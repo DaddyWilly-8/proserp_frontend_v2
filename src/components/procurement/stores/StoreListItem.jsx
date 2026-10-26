@@ -41,7 +41,7 @@ const StoreListItem = ({store}) => {
     <Grid size={4}>
       <ListItemText
         primary={
-          <Tooltip title="symbol">
+          <Tooltip title={dictionary.tooltips.symbol}>
             <Typography variant="h5" fontSize={14} lineHeight={1.25} mb={0} noWrap>
               {store.alias}
             </Typography>

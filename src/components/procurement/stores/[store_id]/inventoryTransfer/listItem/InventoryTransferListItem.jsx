@@ -8,10 +8,12 @@ import InventoryTransferListItemAction from './InventoryTransferListItemAction';
 import InventoryTransferTrnsItemAction from './InventoryTransferTrnsItemAction';
 import { useQuery } from '@tanstack/react-query';
 import { readableDate } from '@/app/helpers/input-sanitization-helpers';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 export const listItemContext = createContext({});
 
 const TransferListItem = ({ transfer, type }) => {
+  const dictionary = useDictionary();
   const [expanded, setExpanded] = useState(false);
   const [selectedInventoryTrn, setSelectedInventoryTrn] = useState(null);
   const [openDialog, setOpenDialog] = useState(false);
@@ -78,25 +80,25 @@ const TransferListItem = ({ transfer, type }) => {
                 width="100%"
               >
                 <Grid size={{xs: 12, md: 3}}>
-                  <Tooltip title={'Transfer Date'}>
+                  <Tooltip title={dictionary.tooltips.transferDate}>
                     <Typography>{readableDate(transfer.transfer_date)}</Typography>
                   </Tooltip>
-                  <Tooltip title={'Transfer No.'}>
+                  <Tooltip title={dictionary.tooltips.transferNo}>
                     <Typography>{transfer.transferNo}</Typography>
                   </Tooltip>
                 </Grid>
               { (type === 'external' || type === 'internal') &&
                 <>
                   <Grid size={{xs: 12, md: 6}} sx={{ textAlign: { 'xs': 'start' , 'md': 'center'}}}>
-                    <Tooltip title={'Source and Destination Store'}>
+                    <Tooltip title={dictionary.tooltips.sourceAndDestinationStore}>
                       <Typography>{`${transfer.source_store?.name} ➡ ${transfer.destination_store?.name}`}</Typography>
                     </Tooltip>
                     { transfer.cost_center_change_transfer === null ?
-                      <Tooltip title={'Cost Center'}>
+                      <Tooltip title={dictionary.tooltips.costCenter}>
                         <Chip size='small' label={transfer.source_cost_center?.name} color="default" />
                       </Tooltip> 
                       : 
-                      <Tooltip title={'Source and Destination Cost Centers'}>
+                      <Tooltip title={dictionary.tooltips.sourceAndDestinationCostCenters}>
                         <Chip size='small' label={`${transfer.source_cost_center?.name} ➡ ${transfer.destination_cost_center?.name}`} color="default" />
                       </Tooltip>
                     }
@@ -105,13 +107,13 @@ const TransferListItem = ({ transfer, type }) => {
               }
               { type === 'cost center change' &&
                 <Grid size={{xs: 12, md: 6}} sx={{ textAlign: { 'xs': 'start' , 'md': 'center'}}}>
-                  <Tooltip title={'Source and Destination Cost Center'}>
+                  <Tooltip title={dictionary.tooltips.sourceAndDestinationCostCenter}>
                     <Chip label={`${transfer.source_cost_center?.name} ➡ ${transfer.destination_cost_center?.name}`} color="default" />
                   </Tooltip>
                 </Grid>
               }
                 <Grid size={{xs: 12, md: 3}} textAlign='right'>
-                  <Tooltip title={'Status'}>
+                  <Tooltip title={dictionary.tooltips.status}>
                       <Chip
                         size='small' 
                         label={transfer.status}

@@ -3,12 +3,14 @@
 import { readableDate } from '@/app/helpers/input-sanitization-helpers';
 import { Divider, Grid, Tooltip, Typography } from '@mui/material';
 import { EmployeeAttendanceType } from './EmployeeAttendanceType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const EmployeesAteendanceListItem = ({
   employeeAttendance,
 }: {
   employeeAttendance: EmployeeAttendanceType;
 }) => {
+  const dictionary = useDictionary();
   const employeeName = `${employeeAttendance.employee?.first_name ?? ''} ${employeeAttendance.employee?.last_name ?? ''} ${employeeAttendance.employee?.last_name ?? ''}`;
   const employeeNumber = employeeAttendance.employee.employee_number;
   return (
@@ -30,7 +32,7 @@ const EmployeesAteendanceListItem = ({
         container
       >
         <Grid size={{ xs: 12, md: 3 }}>
-          <Tooltip title='Employee'>
+          <Tooltip title={dictionary.tooltips.employee}>
             <Typography
               variant='h3'
               fontSize={14}
@@ -42,7 +44,7 @@ const EmployeesAteendanceListItem = ({
             </Typography>
           </Tooltip>
           {employeeNumber && (
-            <Tooltip title='Employee NUmber'>
+            <Tooltip title={dictionary.tooltips.employeeNumber}>
               <Typography
                 variant='h6'
                 fontSize={12}
@@ -57,17 +59,20 @@ const EmployeesAteendanceListItem = ({
           )}
         </Grid>
         <Grid size={{ xs: 12, md: 3 }}>
-          <Tooltip title='Attendance Status'>
-            <Typography>{employeeAttendance.type}</Typography>
+          <Tooltip title={dictionary.tooltips.attendanceStatus}>
+            <Typography>
+              {dictionary.humanResources.employeesAttendance.list.types[employeeAttendance.type] ??
+                employeeAttendance.type}
+            </Typography>
           </Tooltip>
         </Grid>
         <Grid size={{ xs: 12, md: 3 }}>
-          <Tooltip title='Hours Worked'>
+          <Tooltip title={dictionary.tooltips.hoursWorked}>
             <Typography>{employeeAttendance.hours_worked ?? '-'}</Typography>
           </Tooltip>
         </Grid>
         <Grid size={{ xs: 12, md: 3 }}>
-          <Tooltip title='Date'>
+          <Tooltip title={dictionary.tooltips.date}>
             <Typography>
               {readableDate(employeeAttendance.date, false) ?? '-'}
             </Typography>

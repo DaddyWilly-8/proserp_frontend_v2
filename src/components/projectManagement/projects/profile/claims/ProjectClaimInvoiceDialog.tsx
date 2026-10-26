@@ -1,5 +1,6 @@
 'use client';
 
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import { LoadingButton } from '@mui/lab';
 import {
   Alert,
@@ -39,6 +40,7 @@ const ProjectClaimInvoiceDialog = ({
   claim,
   onClose,
 }: ProjectClaimInvoiceDialogProps) => {
+  const dictionary = useDictionary();
   const [dueDate, setDueDate] = useState<string>('');
   const [customerReference, setCustomerReference] = useState('');
   const [termsAndInstructions, setTermsAndInstructions] = useState('');
@@ -68,7 +70,7 @@ const ProjectClaimInvoiceDialog = ({
       onClose();
     },
     onError: (error: any) => {
-      enqueueSnackbar(error?.response?.data?.message || 'Failed to create invoice', {
+      enqueueSnackbar(error?.response?.data?.message || dictionary.projectManagement.claims.actions.invoiceFailed, {
         variant: 'error',
       });
     },
@@ -92,15 +94,14 @@ const ProjectClaimInvoiceDialog = ({
       fullScreen={belowLargeScreen}
       scroll={belowLargeScreen ? 'body' : 'paper'}
     >
-      <DialogTitle>Create Customer Invoice</DialogTitle>
+      <DialogTitle>{dictionary.projectManagement.claims.invoice.title}</DialogTitle>
       <DialogContent>
         <Stack spacing={2} sx={{ mt: 1 }}>
           <Alert severity='info'>
-            This will post {claim.claimNo} to the customer as a real invoice and it can no longer
-            be edited directly.
+            {dictionary.projectManagement.claims.invoice.notice.replace('{claimNo}', claim.claimNo ?? '')}
           </Alert>
           <DateTimePicker
-            label='Invoice Due Date'
+            label={dictionary.projectManagement.claims.invoice.dueDate}
             minDate={claim.claim_date ? dayjs(claim.claim_date) : undefined}
             value={dueDate ? dayjs(dueDate) : null}
             onChange={(val) => setDueDate(val?.toISOString() || '')}
@@ -109,7 +110,7 @@ const ProjectClaimInvoiceDialog = ({
             }}
           />
           <TextField
-            label='Customer Reference'
+            label={dictionary.projectManagement.claims.invoice.customerReference}
             size='small'
             fullWidth
             value={customerReference}
@@ -121,7 +122,7 @@ const ProjectClaimInvoiceDialog = ({
             value={termsAndInstructions}
             getOptionLabel={(option) => option}
             renderInput={(params) => (
-              <TextField {...params} label='Terms and Instructions' size='small' fullWidth multiline rows={2} />
+              <TextField {...params} label={dictionary.projectManagement.claims.invoice.termsAndInstructions} size='small' fullWidth multiline rows={2} />
             )}
             onChange={(_, newValue) => setTermsAndInstructions(newValue || '')}
             onInputChange={(_, newInputValue) => setTermsAndInstructions(newInputValue)}
@@ -130,7 +131,7 @@ const ProjectClaimInvoiceDialog = ({
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose} disabled={isSubmitting}>
-          Cancel
+          {dictionary.projectManagement.claims.common.cancel}
         </Button>
         <LoadingButton
           loading={isSubmitting}
@@ -138,7 +139,7 @@ const ProjectClaimInvoiceDialog = ({
           color='primary'
           onClick={handleSubmit}
         >
-          Create Invoice
+          {dictionary.projectManagement.claims.invoice.createInvoice}
         </LoadingButton>
       </DialogActions>
     </Dialog>

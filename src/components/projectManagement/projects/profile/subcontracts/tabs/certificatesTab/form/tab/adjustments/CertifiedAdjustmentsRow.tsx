@@ -12,6 +12,7 @@ import React, { useState } from 'react';
 
 import CertifiedAdjustments from './CertifiedAdjustments';
 import { useLedgerSelect } from '@/components/accounts/ledgers/forms/LedgerSelectProvider';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 // ==================== Types ====================
 interface Adjustment {
@@ -48,6 +49,8 @@ const CertifiedAdjustmentsRow: React.FC<CertifiedAdjustmentsRowProps> = ({
   setSubmitItemForm,
   setIsDirty,
 }) => {
+  const dictionary = useDictionary();
+  const sh = dictionary.forms.projects.shared;
   const [showForm, setShowForm] = useState(false);
   const { ungroupedLedgerOptions } = useLedgerSelect();
 
@@ -88,9 +91,9 @@ const CertifiedAdjustmentsRow: React.FC<CertifiedAdjustmentsRowProps> = ({
 
           {/* Type */}
           <Grid size={{ xs: 11, md: 3.5 }}>
-            <Tooltip title="Type">
+            <Tooltip title={dictionary.tooltips.type}>
               <Typography variant="body2">
-                {(adjustment?.type === '-' || adjustment?.type === 'deduction') ? 'Deduction (-)' : 'Addition (+)'}
+                {(adjustment?.type === '-' || adjustment?.type === 'deduction') ? sh.deductionSign : sh.additionSign}
               </Typography>
             </Tooltip>
           </Grid>
@@ -105,7 +108,7 @@ const CertifiedAdjustmentsRow: React.FC<CertifiedAdjustmentsRowProps> = ({
                 {adjustment.description || '-'}
               </Typography>
             </Tooltip>
-            <Tooltip title="Complement Ledger">
+            <Tooltip title={dictionary.tooltips.complementLedger}>
               <Typography variant="caption" color="text.secondary">
                 {complementLedger?.name || '-'}
               </Typography>
@@ -114,7 +117,7 @@ const CertifiedAdjustmentsRow: React.FC<CertifiedAdjustmentsRowProps> = ({
 
           {/* Amount */}
           <Grid size={{ xs: 12, md: 2 }} textAlign="end">
-            <Tooltip title="Amount">
+            <Tooltip title={dictionary.tooltips.amount}>
               <Typography variant="body2">
                 {adjustment.amount
                   ? Number(adjustment.amount).toLocaleString(undefined, {
@@ -128,13 +131,13 @@ const CertifiedAdjustmentsRow: React.FC<CertifiedAdjustmentsRowProps> = ({
 
           {/* Actions */}
           <Grid size={{ xs: 12, md: 1.5 }} textAlign="end">
-            <Tooltip title="Edit Adjustment">
+            <Tooltip title={dictionary.tooltips.editAdjustment}>
               <IconButton size="small" onClick={(e) => { e.stopPropagation(); setShowForm(true); }}>
                 <EditOutlined fontSize="small" />
               </IconButton>
             </Tooltip>
 
-            <Tooltip title="Remove Adjustment">
+            <Tooltip title={dictionary.tooltips.removeAdjustment}>
               <IconButton size="small" onClick={(e) => { e.stopPropagation(); handleDelete(); }}>
                 <DisabledByDefault fontSize="small" color="error" />
               </IconButton>

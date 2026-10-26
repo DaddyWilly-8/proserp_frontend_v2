@@ -33,6 +33,7 @@ import React, { useEffect, useState } from 'react';
 import PDFContent from '../../pdf/PDFContent';
 import { useDashboardSettings } from '../Dashboard';
 import LowStockAlertsPDF from './LowStockAlertsPDF';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface AlertItem {
   product_name: string;
@@ -55,6 +56,7 @@ interface DocumentDialogProps {
 }
 
 function LowStockAlerts() {
+  const dictionary = useDictionary();
   const [openDocumentDialog, setOpenDocumentDialog] = useState(false);
   const { theme } = useJumboTheme();
   const smallScreen = useMediaQuery(theme.breakpoints.down('md'));
@@ -114,7 +116,7 @@ function LowStockAlerts() {
   return (
     <div>
       <JumboCardQuick
-        title={'Low Stock Alerts'}
+        title={dictionary.dashboardCards.lowStockAlerts}
         sx={{
           height:
             !isLoading && smallScreen && stores.length < 1
@@ -125,7 +127,7 @@ function LowStockAlerts() {
         }}
         action={
           stores.length > 0 && (
-            <Tooltip title={'Print'}>
+            <Tooltip title={dictionary.tooltips.print}>
               <IconButton onClick={() => setOpenDocumentDialog(true)}>
                 <Print />
               </IconButton>
@@ -156,12 +158,12 @@ function LowStockAlerts() {
                   <AccordionSummary expandIcon={<ExpandMoreOutlined />}>
                     <Grid container width={'100%'}>
                       <Grid size={{ xs: 9 }}>
-                        <Tooltip title={'Store Name'}>
+                        <Tooltip title={dictionary.tooltips.storeName}>
                           <Typography variant='h4'>{store.name}</Typography>
                         </Tooltip>
                       </Grid>
                       <Grid size={{ xs: 2 }} textAlign={'end'}>
-                        <Tooltip title='Alerts found'>
+                        <Tooltip title={dictionary.tooltips.alertsFound}>
                           <Badge
                             badgeContent={store.alerts.length}
                             color='secondary'
@@ -199,12 +201,12 @@ function LowStockAlerts() {
                           }}
                         >
                           <Grid size={{ xs: 12, lg: 4 }}>
-                            <Tooltip title={'Product Name'}>
+                            <Tooltip title={dictionary.tooltips.productName}>
                               <Typography>{alert.product_name}</Typography>
                             </Tooltip>
                           </Grid>
                           <Grid size={{ xs: 6, lg: 4 }} textAlign={'end'}>
-                            <Tooltip title={'Threshold'}>
+                            <Tooltip title={dictionary.tooltips.threshold}>
                               <Chip
                                 label={alert.threshold}
                                 color={'primary'}
@@ -213,7 +215,7 @@ function LowStockAlerts() {
                             </Tooltip>
                           </Grid>
                           <Grid size={{ xs: 6, lg: 4 }} textAlign={'end'}>
-                            <Tooltip title={'Available Stock'}>
+                            <Tooltip title={dictionary.tooltips.availableStock}>
                               <Chip
                                 label={alert.available_stock}
                                 color={
@@ -226,7 +228,7 @@ function LowStockAlerts() {
                             </Tooltip>
                           </Grid>
                           <Grid size={{ xs: 12 }}>
-                            <Tooltip title={'Cost Centers'}>
+                            <Tooltip title={dictionary.tooltips.costCenters}>
                               <Div>
                                 <JumboChipsGroup
                                   chips={alert.cost_centers}

@@ -6,8 +6,10 @@ import { AddOutlined, MergeOutlined } from '@mui/icons-material';
 import LedgerForm from '../forms/LedgerForm';
 import LedgersMergeForm from './LedgersMergeForm';
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const LedgerActionTail = () => {
+  const dictionary = useDictionary();
   const [newLedgerFormOpen, setNewLedgerFormOpen] = useState(false);
   const [ledgerMergeFormOpen, setLedgerMergeFormOpen] = useState(false);
   const [speedDialOpen, setSpeedDialOpen] = useState(false);
@@ -48,12 +50,12 @@ const LedgerActionTail = () => {
         </SpeedDial>
       ) : (
         <>
-          <Tooltip title={'Create Ledger'}>
+          <Tooltip title={dictionary.tooltips.createLedger}>
             <IconButton size='small' onClick={() => setNewLedgerFormOpen(true) }>
               <AddOutlined />
             </IconButton>
           </Tooltip>
-          <Tooltip title={'Ledgers Merge'}>
+          <Tooltip title={dictionary.tooltips.ledgersMerge}>
             <IconButton size='small' onClick={() => setLedgerMergeFormOpen(true)}>
               <MergeOutlined />
             </IconButton>

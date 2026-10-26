@@ -37,6 +37,7 @@ import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 import PDFContent from '@/components/pdf/PDFContent';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
 import dynamic from 'next/dynamic';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const InventoryTransferListItemAction = ({ transfer }) => {
   const [openEditDialog, setOpenEditDialog] = useState(false);
@@ -65,6 +66,7 @@ const InventoryTransferListItemAction = ({ transfer }) => {
   });
 
   const ActionDialog = ({ actionType }) => {
+    const dictionary = useDictionary();
     const [activeTab, setActiveTab] = useState(0);
 
     const {
@@ -104,7 +106,7 @@ const InventoryTransferListItemAction = ({ transfer }) => {
                   </Tabs>
                 </Grid>
                 <Grid item xs={1} textAlign="right">
-                  <Tooltip title="Close">
+                  <Tooltip title={dictionary.tooltips.close}>
                     <IconButton size="small" onClick={() => setOpenDocumentDialog(false)}>
                       <HighlightOff color="primary" />
                     </IconButton>

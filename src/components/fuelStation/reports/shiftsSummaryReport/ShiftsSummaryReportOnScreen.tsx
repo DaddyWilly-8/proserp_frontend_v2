@@ -1,5 +1,6 @@
 'use client';
 
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import { readableDate } from '@/app/helpers/input-sanitization-helpers';
 import {
   Box,
@@ -80,6 +81,8 @@ const ShiftsSummaryReportOnScreen = ({
   organization,
   filters,
 }: ShiftsSummaryReportOnScreenProps) => {
+  const dictionary = useDictionary();
+  const t = dictionary.reports.fuelStationReports.shiftsSummary;
   const theme = useTheme();
   const isDark = theme.type === 'dark';
 
@@ -188,11 +191,11 @@ const ShiftsSummaryReportOnScreen = ({
   const statusChipProps = (status: string) => {
     switch (status) {
       case 'over':
-        return { label: 'OVER', color: 'info' as const };
+        return { label: t.statusOver, color: 'info' as const };
       case 'short':
-        return { label: 'SHORT', color: 'error' as const };
+        return { label: t.statusShort, color: 'error' as const };
       default:
-        return { label: 'BALANCED', color: 'success' as const };
+        return { label: t.statusBalanced, color: 'success' as const };
     }
   };
 
@@ -203,18 +206,14 @@ const ShiftsSummaryReportOnScreen = ({
           <Typography
             variant='h4'
             sx={{ color: headerColor, fontWeight: 'bold', textAlign: 'center' }}
-          >
-            Shifts Summary Report
-          </Typography>
+          >{t.title}</Typography>
         </Grid>
       </Grid>
 
       <Grid container spacing={2} sx={{ mb: 3 }}>
         {filters.from && filters.to && (
           <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-            <Typography variant='subtitle2' sx={{ color: headerColor }}>
-              Date Range
-            </Typography>
+            <Typography variant='subtitle2' sx={{ color: headerColor }}>{t.dateRange}</Typography>
             <Typography variant='body1'>
               {`${readableDate(filters.from)} - ${readableDate(filters.to)}`}
             </Typography>
@@ -222,9 +221,7 @@ const ShiftsSummaryReportOnScreen = ({
         )}
       </Grid>
 
-      <Typography variant='h6' sx={{ color: headerColor, fontWeight: 'bold', mb: 1 }}>
-        Fuel Sold by Product
-      </Typography>
+      <Typography variant='h6' sx={{ color: headerColor, fontWeight: 'bold', mb: 1 }}>{t.fuelSoldByProduct}</Typography>
       <TableContainer component={Paper} sx={{ mb: 3, overflowX: 'auto' }}>
         <Table
           size='small'
@@ -238,9 +235,7 @@ const ShiftsSummaryReportOnScreen = ({
               <TableCell
                 rowSpan={2}
                 sx={{ color: contrastText, fontWeight: 'bold', verticalAlign: 'bottom' }}
-              >
-                Station
-              </TableCell>
+              >{t.station}</TableCell>
               {products.map((product) => (
                 <TableCell
                   key={product.product_id}
@@ -255,22 +250,14 @@ const ShiftsSummaryReportOnScreen = ({
                 rowSpan={2}
                 align='right'
                 sx={{ color: contrastText, fontWeight: 'bold', verticalAlign: 'bottom' }}
-              >
-                Total Amount
-              </TableCell>
+              >{t.totalAmount}</TableCell>
             </TableRow>
             <TableRow style={{ backgroundColor: mainColor }}>
               {products.map((product) => (
                 <React.Fragment key={product.product_id}>
-                  <TableCell align='right' sx={{ color: contrastText, fontWeight: 'bold' }}>
-                    Qty
-                  </TableCell>
-                  <TableCell align='right' sx={{ color: contrastText, fontWeight: 'bold' }}>
-                    Avg Price
-                  </TableCell>
-                  <TableCell align='right' sx={{ color: contrastText, fontWeight: 'bold' }}>
-                    Amount
-                  </TableCell>
+                  <TableCell align='right' sx={{ color: contrastText, fontWeight: 'bold' }}>{t.qty}</TableCell>
+                  <TableCell align='right' sx={{ color: contrastText, fontWeight: 'bold' }}>{t.avgPrice}</TableCell>
+                  <TableCell align='right' sx={{ color: contrastText, fontWeight: 'bold' }}>{t.amount}</TableCell>
                 </React.Fragment>
               ))}
             </TableRow>
@@ -316,17 +303,13 @@ const ShiftsSummaryReportOnScreen = ({
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={2 + products.length * 3} align='center'>
-                  No data available
-                </TableCell>
+                <TableCell colSpan={2 + products.length * 3} align='center'>{t.noDataAvailable}</TableCell>
               </TableRow>
             )}
 
             {stations.length > 0 && (
               <TableRow sx={{ bgcolor: mainColor }}>
-                <TableCell sx={{ color: contrastText, fontWeight: 'bold' }}>
-                  TOTAL
-                </TableCell>
+                <TableCell sx={{ color: contrastText, fontWeight: 'bold' }}>{t.totalCaps}</TableCell>
                 {products.map((product) => (
                   <React.Fragment key={product.product_id}>
                     <TableCell align='right' sx={{ color: contrastText, fontWeight: 'bold' }}>
@@ -349,9 +332,7 @@ const ShiftsSummaryReportOnScreen = ({
         </Table>
       </TableContainer>
 
-      <Typography variant='h6' sx={{ color: headerColor, fontWeight: 'bold', mb: 1 }}>
-        Cash &amp; Credit Summary
-      </Typography>
+      <Typography variant='h6' sx={{ color: headerColor, fontWeight: 'bold', mb: 1 }}>{t.cashCreditSummary}</Typography>
       <TableContainer component={Paper} sx={{ mb: 3, overflowX: 'auto' }}>
         <Table
           size='small'
@@ -359,33 +340,15 @@ const ShiftsSummaryReportOnScreen = ({
         >
           <TableHead>
             <TableRow style={{ backgroundColor: mainColor }}>
-              <TableCell sx={{ color: contrastText, fontWeight: 'bold' }}>
-                Station
-              </TableCell>
-              <TableCell align='right' sx={{ color: contrastText, fontWeight: 'bold' }}>
-                Shifts
-              </TableCell>
-              <TableCell align='right' sx={{ color: contrastText, fontWeight: 'bold' }}>
-                Total Fuel Value
-              </TableCell>
-              <TableCell align='right' sx={{ color: contrastText, fontWeight: 'bold' }}>
-                Fuel Vouchers
-              </TableCell>
-              <TableCell align='right' sx={{ color: contrastText, fontWeight: 'bold' }}>
-                Cashless Collections
-              </TableCell>
-              <TableCell align='right' sx={{ color: contrastText, fontWeight: 'bold' }}>
-                Cash Expected
-              </TableCell>
-              <TableCell align='right' sx={{ color: contrastText, fontWeight: 'bold' }}>
-                Cash Collected
-              </TableCell>
-              <TableCell align='right' sx={{ color: contrastText, fontWeight: 'bold' }}>
-                Short/Over
-              </TableCell>
-              <TableCell align='right' sx={{ color: contrastText, fontWeight: 'bold' }}>
-                Payments Received
-              </TableCell>
+              <TableCell sx={{ color: contrastText, fontWeight: 'bold' }}>{t.station}</TableCell>
+              <TableCell align='right' sx={{ color: contrastText, fontWeight: 'bold' }}>{t.shifts}</TableCell>
+              <TableCell align='right' sx={{ color: contrastText, fontWeight: 'bold' }}>{t.totalFuelValue}</TableCell>
+              <TableCell align='right' sx={{ color: contrastText, fontWeight: 'bold' }}>{t.fuelVouchers}</TableCell>
+              <TableCell align='right' sx={{ color: contrastText, fontWeight: 'bold' }}>{t.cashlessCollections}</TableCell>
+              <TableCell align='right' sx={{ color: contrastText, fontWeight: 'bold' }}>{t.cashExpected}</TableCell>
+              <TableCell align='right' sx={{ color: contrastText, fontWeight: 'bold' }}>{t.cashCollected}</TableCell>
+              <TableCell align='right' sx={{ color: contrastText, fontWeight: 'bold' }}>{t.shortOver}</TableCell>
+              <TableCell align='right' sx={{ color: contrastText, fontWeight: 'bold' }}>{t.paymentsReceived}</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -421,17 +384,13 @@ const ShiftsSummaryReportOnScreen = ({
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={9} align='center'>
-                  No data available
-                </TableCell>
+                <TableCell colSpan={9} align='center'>{t.noDataAvailable}</TableCell>
               </TableRow>
             )}
 
             {cashCreditSummary.length > 0 && (
               <TableRow sx={{ bgcolor: mainColor }}>
-                <TableCell sx={{ color: contrastText, fontWeight: 'bold' }}>
-                  TOTAL
-                </TableCell>
+                <TableCell sx={{ color: contrastText, fontWeight: 'bold' }}>{t.totalCaps}</TableCell>
                 <TableCell align='right' sx={{ color: contrastText, fontWeight: 'bold' }}>
                   {cashCreditTotals.shifts}
                 </TableCell>
@@ -462,9 +421,7 @@ const ShiftsSummaryReportOnScreen = ({
         </Table>
       </TableContainer>
 
-      <Typography variant='h6' sx={{ color: headerColor, fontWeight: 'bold', mb: 1 }}>
-        Shift Detail
-      </Typography>
+      <Typography variant='h6' sx={{ color: headerColor, fontWeight: 'bold', mb: 1 }}>{t.shiftDetail}</Typography>
       <TableContainer
         component={Paper}
         sx={{ mb: 3, overflowX: 'auto', maxHeight: 520 }}
@@ -476,36 +433,16 @@ const ShiftsSummaryReportOnScreen = ({
         >
           <TableHead>
             <TableRow style={{ backgroundColor: mainColor }}>
-              <TableCell sx={{ color: contrastText, fontWeight: 'bold', backgroundColor: mainColor }}>
-                Shift No
-              </TableCell>
-              <TableCell sx={{ color: contrastText, fontWeight: 'bold', backgroundColor: mainColor }}>
-                Station
-              </TableCell>
-              <TableCell sx={{ color: contrastText, fontWeight: 'bold', backgroundColor: mainColor }}>
-                Shift
-              </TableCell>
-              <TableCell align='right' sx={{ color: contrastText, fontWeight: 'bold', backgroundColor: mainColor }}>
-                Cashiers
-              </TableCell>
-              <TableCell align='right' sx={{ color: contrastText, fontWeight: 'bold', backgroundColor: mainColor }}>
-                Total Fuel Value
-              </TableCell>
-              <TableCell align='right' sx={{ color: contrastText, fontWeight: 'bold', backgroundColor: mainColor }}>
-                Fuel Vouchers
-              </TableCell>
-              <TableCell align='right' sx={{ color: contrastText, fontWeight: 'bold', backgroundColor: mainColor }}>
-                Cash Expected
-              </TableCell>
-              <TableCell align='right' sx={{ color: contrastText, fontWeight: 'bold', backgroundColor: mainColor }}>
-                Cash Collected
-              </TableCell>
-              <TableCell align='right' sx={{ color: contrastText, fontWeight: 'bold', backgroundColor: mainColor }}>
-                Short/Over
-              </TableCell>
-              <TableCell align='center' sx={{ color: contrastText, fontWeight: 'bold', backgroundColor: mainColor }}>
-                Status
-              </TableCell>
+              <TableCell sx={{ color: contrastText, fontWeight: 'bold', backgroundColor: mainColor }}>{t.shiftNo}</TableCell>
+              <TableCell sx={{ color: contrastText, fontWeight: 'bold', backgroundColor: mainColor }}>{t.station}</TableCell>
+              <TableCell sx={{ color: contrastText, fontWeight: 'bold', backgroundColor: mainColor }}>{t.shift}</TableCell>
+              <TableCell align='right' sx={{ color: contrastText, fontWeight: 'bold', backgroundColor: mainColor }}>{t.cashiers}</TableCell>
+              <TableCell align='right' sx={{ color: contrastText, fontWeight: 'bold', backgroundColor: mainColor }}>{t.totalFuelValue}</TableCell>
+              <TableCell align='right' sx={{ color: contrastText, fontWeight: 'bold', backgroundColor: mainColor }}>{t.fuelVouchers}</TableCell>
+              <TableCell align='right' sx={{ color: contrastText, fontWeight: 'bold', backgroundColor: mainColor }}>{t.cashExpected}</TableCell>
+              <TableCell align='right' sx={{ color: contrastText, fontWeight: 'bold', backgroundColor: mainColor }}>{t.cashCollected}</TableCell>
+              <TableCell align='right' sx={{ color: contrastText, fontWeight: 'bold', backgroundColor: mainColor }}>{t.shortOver}</TableCell>
+              <TableCell align='center' sx={{ color: contrastText, fontWeight: 'bold', backgroundColor: mainColor }}>{t.status}</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -559,17 +496,13 @@ const ShiftsSummaryReportOnScreen = ({
               })
             ) : (
               <TableRow>
-                <TableCell colSpan={10} align='center'>
-                  No data available
-                </TableCell>
+                <TableCell colSpan={10} align='center'>{t.noDataAvailable}</TableCell>
               </TableRow>
             )}
 
             {shiftDetail.length > 0 && (
               <TableRow sx={{ bgcolor: mainColor }}>
-                <TableCell sx={{ color: contrastText, fontWeight: 'bold' }} colSpan={4}>
-                  TOTAL
-                </TableCell>
+                <TableCell sx={{ color: contrastText, fontWeight: 'bold' }} colSpan={4}>{t.totalCaps}</TableCell>
                 <TableCell align='right' sx={{ color: contrastText, fontWeight: 'bold' }}>
                   {formatNumber(shiftDetailTotals.total_fuel_value)}
                 </TableCell>

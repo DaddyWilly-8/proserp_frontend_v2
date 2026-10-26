@@ -46,6 +46,7 @@ import {
   periodSubtitle,
 } from '../periodColumns';
 import DebtorCreditorOnScreen from './DebtorCreditorOnScreen';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 // Flattens the grouped debtors/creditors tree into indented rows, same
 // shape the backend's TrialBalanceGroupedExport::flatten() produces for
@@ -66,14 +67,20 @@ const ReportDocumet = ({
   user,
   netOnly,
   closingOnly,
+  dictionary,
 }) => {
+  const t = dictionary.reports.accountsReports;
   const mainColor =
     authOrganization.organization.settings?.main_color || '#2113AD';
   const lightColor =
     authOrganization.organization.settings?.light_color || '#bec5da';
   const contrastText =
     authOrganization.organization.settings?.contrast_text || '#FFFFFF';
-  const reportPeriod = periodSubtitle(reportData.filters, readableDate);
+  const reportPeriod = periodSubtitle(
+    reportData.filters,
+    readableDate,
+    t.common
+  );
   const rawRootGroup = reportData.debtors || reportData.creditors;
   const rootGroup =
     rawRootGroup && netOnly
@@ -85,7 +92,11 @@ const ReportDocumet = ({
     <Document
       creator={` ${user.name} | Powered By ProsERP`}
       producer='ProsERP'
-      title={reportData.debtors ? `Debtors Report` : `Creditors Report`}
+      title={
+        reportData.debtors
+          ? t.debtorCreditor.debtorsReport
+          : t.debtorCreditor.creditorsReport
+      }
     >
       <Page size='A4' orientation={closingOnly ? 'portrait' : 'landscape'} style={PDF_PAGE_STYLE}>
         <View style={pdfStyles.table}>
@@ -95,7 +106,9 @@ const ReportDocumet = ({
             </View>
             <View style={{ flex: 1, textAlign: 'right' }}>
               <Text style={{ ...pdfStyles.majorInfo, color: mainColor }}>
-                {reportData.debtors ? `Debtors Report` : `Creditors Report`}
+                {reportData.debtors
+                  ? t.debtorCreditor.debtorsReport
+                  : t.debtorCreditor.creditorsReport}
               </Text>
               <Text style={{ ...pdfStyles.minInfo }}>{reportPeriod}</Text>
             </View>
@@ -107,7 +120,7 @@ const ReportDocumet = ({
           {reportData.filters.cost_centers.length > 0 && (
             <View style={{ flex: 2, padding: 2 }}>
               <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>
-                Cost Centers
+                {t.common.costCenters}
               </Text>
               <Text style={{ ...pdfStyles.minInfo }}>
                 {reportData.filters.cost_centers
@@ -118,13 +131,13 @@ const ReportDocumet = ({
           )}
           <View style={{ flex: 1, padding: 2 }}>
             <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>
-              Printed By
+              {t.common.printedBy}
             </Text>
             <Text style={{ ...pdfStyles.minInfo }}>{user.name}</Text>
           </View>
           <View style={{ flex: 1, padding: 2 }}>
             <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>
-              Printed On
+              {t.common.printedOn}
             </Text>
             <Text style={{ ...pdfStyles.minInfo }}>
               {readableDate(undefined, true)}
@@ -133,7 +146,8 @@ const ReportDocumet = ({
         </View>
         <View style={{ ...pdfStyles.table, minHeight: 230 }}>
           <PeriodPdfHeader netOnly={netOnly} closingOnly={closingOnly}
-            leading={[{ label: 'Name', flex: 3 }]}
+            leading={[{ label: t.debtorCreditor.name, flex: 3 }]}
+            labels={t.common}
             mainColor={mainColor}
             contrastText={contrastText}
           filters={reportData.filters}
@@ -152,7 +166,7 @@ const ReportDocumet = ({
             />
           ))}
           <PeriodPdfRow netOnly={netOnly} closingOnly={closingOnly}
-            leading={[{ text: 'Total', flex: 3 }]}
+            leading={[{ text: t.common.total, flex: 3 }]}
             node={reportData.total}
             backgroundColor={lightColor}
             bold
@@ -166,6 +180,7 @@ const ReportDocumet = ({
 };
 
 function DebtorCreditorReport({ setOpenDebtorsCreditorsDialog }) {
+  const dictionary = useDictionary();
   const css = useProsERPStyles();
   const {
     authOrganization,
@@ -200,12 +215,12 @@ function DebtorCreditorReport({ setOpenDebtorsCreditorsDialog }) {
   const validationSchema = yup.object({
     from: yup
       .string()
-      .required('From date is required')
-      .typeError('From date is required'),
+      .required(dictionary.reports.accountsReports.common.fromDateRequired)
+      .typeError(dictionary.reports.accountsReports.common.fromDateRequired),
     to: yup
       .string()
-      .required('To date is required')
-      .typeError('To date is required'),
+      .required(dictionary.reports.accountsReports.common.toDateRequired)
+      .typeError(dictionary.reports.accountsReports.common.toDateRequired),
   });
 
   const { setValue, handleSubmit, reset } = useForm({
@@ -272,7 +287,10 @@ function DebtorCreditorReport({ setOpenDebtorsCreditorsDialog }) {
     setActiveTab(newValue);
   };
 
-  document.title = `${selectedType.charAt(0).toUpperCase() + selectedType.slice(1)} Report`;
+  document.title =
+    selectedType === 'debtors'
+      ? dictionary.reports.accountsReports.debtorCreditor.debtorsReport
+      : dictionary.reports.accountsReports.debtorCreditor.creditorsReport;
 
   const downloadFileName = `${reportData?.debtors ? 'Debtors Report' : 'Creditors Report'} ${readableDate(reportData?.filters?.from)} to ${readableDate(reportData?.filters?.to)}`;
 
@@ -283,11 +301,11 @@ function DebtorCreditorReport({ setOpenDebtorsCreditorsDialog }) {
           <Grid size={12} textAlign={'center'}>
             <Typography variant='h3'>
               {selectedType === 'debtors'
-                ? 'Debtors Report'
-                : 'Creditors Report'}
+                ? dictionary.reports.accountsReports.debtorCreditor.debtorsReport
+                : dictionary.reports.accountsReports.debtorCreditor.creditorsReport}
             </Typography>
             {belowLargeScreen && (
-              <Tooltip title='Close'>
+              <Tooltip title={dictionary.tooltips.close}>
                 <IconButton
                   size='small'
                   sx={{ position: 'absolute', top: 10, right: 10 }}
@@ -315,19 +333,27 @@ function DebtorCreditorReport({ setOpenDebtorsCreditorsDialog }) {
                   <FormControl
                     fullWidth
                     size='small'
-                    label='Type'
+                    label={dictionary.reports.accountsReports.debtorCreditor.type}
                     align={'left'}
                   >
-                    <InputLabel id='type_select'>Type</InputLabel>
+                    <InputLabel id='type_select'>
+                      {dictionary.reports.accountsReports.debtorCreditor.type}
+                    </InputLabel>
                     <Select
                       value={selectedType}
                       onChange={(e) => {
                         setSelectedType(e.target.value);
                       }}
-                      label='Type'
+                      label={
+                        dictionary.reports.accountsReports.debtorCreditor.type
+                      }
                     >
-                      <MenuItem value='creditors'>Creditors</MenuItem>
-                      <MenuItem value='debtors'>Debtors</MenuItem>
+                      <MenuItem value='creditors'>
+                        {dictionary.reports.accountsReports.debtorCreditor.creditors}
+                      </MenuItem>
+                      <MenuItem value='debtors'>
+                        {dictionary.reports.accountsReports.debtorCreditor.debtors}
+                      </MenuItem>
                     </Select>
                   </FormControl>
                 </Div>
@@ -335,7 +361,7 @@ function DebtorCreditorReport({ setOpenDebtorsCreditorsDialog }) {
               <Grid size={{ xs: 12, sm: 6, lg: 3 }}>
                 <Div>
                   <DateTimePicker
-                    label='From'
+                    label={dictionary.reports.accountsReports.debtorCreditor.from}
                     minDate={dayjs(
                       authOrganization?.organization.recording_start_date
                     )}
@@ -362,7 +388,7 @@ function DebtorCreditorReport({ setOpenDebtorsCreditorsDialog }) {
               <Grid size={{ xs: 12, sm: 6, lg: 3 }}>
                 <Div>
                   <DateTimePicker
-                    label='To'
+                    label={dictionary.reports.accountsReports.debtorCreditor.to}
                     minDate={dayjs(
                       authOrganization?.organization.recording_start_date
                     )}
@@ -388,7 +414,10 @@ function DebtorCreditorReport({ setOpenDebtorsCreditorsDialog }) {
               </Grid>
               <Grid size={{ xs: 12, sm: 6, lg: 4 }}>
                 <CostCenterSelector
-                  label='Cost Centers (leave empty for all)'
+                  label={
+                    dictionary.reports.accountsReports.trialBalance
+                      .costCenterLabel
+                  }
                   multiple={true}
                   allowSameType={true}
                   // Declutters the field for a CostCenters:All user — projects
@@ -457,7 +486,10 @@ function DebtorCreditorReport({ setOpenDebtorsCreditorsDialog }) {
                             onChange={(e) => setOnlyStakeholderLinked(e.target.checked)}
                           />
                         }
-                        label='Stakeholders Only'
+                        label={
+                          dictionary.reports.accountsReports.debtorCreditor
+                            .stakeholdersOnly
+                        }
                       />
                       <FormControlLabel
                         control={
@@ -467,7 +499,10 @@ function DebtorCreditorReport({ setOpenDebtorsCreditorsDialog }) {
                             onChange={(e) => setIncludeZeroBalances(e.target.checked)}
                           />
                         }
-                        label='Show Zero Balances'
+                        label={
+                          dictionary.reports.accountsReports.debtorCreditor
+                            .showZeroBalances
+                        }
                       />
                       <FormControlLabel
                         control={
@@ -477,7 +512,7 @@ function DebtorCreditorReport({ setOpenDebtorsCreditorsDialog }) {
                             onChange={(e) => setNetOnly(e.target.checked)}
                           />
                         }
-                        label='Net Only'
+                        label={dictionary.reports.accountsReports.common.netOnly}
                       />
                       <FormControlLabel
                         control={
@@ -487,7 +522,7 @@ function DebtorCreditorReport({ setOpenDebtorsCreditorsDialog }) {
                             onChange={(e) => setClosingOnly(e.target.checked)}
                           />
                         }
-                        label='Closing Only'
+                        label={dictionary.reports.accountsReports.common.closingOnly}
                       />
                     </Box>
                     {reportData && (
@@ -509,7 +544,7 @@ function DebtorCreditorReport({ setOpenDebtorsCreditorsDialog }) {
                       size='small'
                       variant='contained'
                     >
-                      Filter
+                      {dictionary.reports.accountsReports.common.filter}
                     </LoadingButton>
                   </Stack>
                 </Stack>
@@ -542,6 +577,7 @@ function DebtorCreditorReport({ setOpenDebtorsCreditorsDialog }) {
                       user={user}
                       netOnly={netOnly}
                       closingOnly={closingOnly}
+                      dictionary={dictionary}
                     />
                   }
                   fileName={downloadFileName}

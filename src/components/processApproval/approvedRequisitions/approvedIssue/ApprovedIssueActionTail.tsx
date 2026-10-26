@@ -15,6 +15,7 @@ import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 import requisitionsServices from '../../requisitionsServices';
 import { MaterialApprovalRequisition } from '../ApprovalRequisitionType';
 import ApprovedIssueForm from './form/ApprovedIssueForm';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface ApprovedIssueActionTailProps {
   approvedRequisition: MaterialApprovalRequisition;
@@ -25,6 +26,7 @@ function ApprovedIssueActionTail({
   approvedRequisition,
   isExpanded,
 }: ApprovedIssueActionTailProps) {
+  const dictionary = useDictionary();
   const { theme } = useJumboTheme();
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
   const [openDialog, setOpenDialog] = useState(false);
@@ -65,7 +67,7 @@ function ApprovedIssueActionTail({
         disableElevation
         sx={{ '& .MuiButton-root': { px: 1 } }}
       >
-        <Tooltip title='Issue from Store'>
+        <Tooltip title={dictionary.tooltips.issueFromStore}>
           <IconButton onClick={() => setOpenDialog(true)}>
             <Inventory2Outlined />
           </IconButton>

@@ -34,6 +34,7 @@ const DippingsOnScreen = dynamic(() => import('./DippingsOnScreen'), { ssr: fals
 import DippingsPDF from './DippingsPDF';
 import { Dipping, Station } from './DippingsTypes';
 import dynamic from 'next/dynamic';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface EditDippingProps {
   dipping: Dipping;
@@ -164,6 +165,7 @@ const DippingsItemAction: React.FC<{
   dipping: Dipping;
   activeStation?: Station | null;
 }> = ({ dipping }) => {
+  const dictionary = useDictionary();
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const [openDocumentDialog, setOpenDocumentDialog] = useState(false);
   const { authOrganization } = useJumboAuth();
@@ -255,7 +257,7 @@ const DippingsItemAction: React.FC<{
       </Dialog>
       <JumboDdMenu
         icon={
-          <Tooltip title='Actions'>
+          <Tooltip title={dictionary.tooltips.actions}>
             <MoreHorizOutlined />
           </Tooltip>
         }

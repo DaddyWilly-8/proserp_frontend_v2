@@ -12,11 +12,13 @@ const UsersRolesPdfDocument = ({
   authOrganization,
   user,
   showContacts = true,
+  dictionary,
 }: {
   users: OrgUser[];
   authOrganization: any;
   user?: { name?: string };
   showContacts?: boolean;
+  dictionary: any;
 }) => {
   const mainColor = authOrganization?.organization?.settings?.main_color || '#1C2B3A';
   const contrastText = authOrganization?.organization?.settings?.contrast_text || '#FFFFFF';
@@ -26,29 +28,29 @@ const UsersRolesPdfDocument = ({
   const rolesFlex = showContacts ? 2 : 3;
 
   return (
-    <Document creator={`${user?.name} | Powered By ProsERP`} producer='ProsERP' title='Users & Roles'>
+    <Document creator={`${user?.name} | Powered By ProsERP`} producer='ProsERP' title={dictionary.accessControlReports.tabs.usersRoles}>
       <Page size='A4' style={pdfStyles.page}>
         <View style={{ ...pdfStyles.tableRow, marginBottom: 16 }}>
           <View style={{ flex: 1, maxWidth: 120 }}>
             <PdfLogo organization={authOrganization?.organization} />
           </View>
           <View style={{ flex: 1, textAlign: 'right' }}>
-            <Text style={{ ...pdfStyles.majorInfo, color: mainColor }}>Users & Roles</Text>
-            <Text style={pdfStyles.minInfo}>Printed By: {user?.name}</Text>
-            <Text style={pdfStyles.minInfo}>Printed On: {printedOn}</Text>
+            <Text style={{ ...pdfStyles.majorInfo, color: mainColor }}>{dictionary.accessControlReports.tabs.usersRoles}</Text>
+            <Text style={pdfStyles.minInfo}>{dictionary.reports.accessControlReports.printedBy}: {user?.name}</Text>
+            <Text style={pdfStyles.minInfo}>{dictionary.reports.accessControlReports.printedOn}: {printedOn}</Text>
           </View>
         </View>
 
         <View style={pdfStyles.table}>
           <View style={pdfStyles.tableRow}>
-            <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: nameFlex }}>Name</Text>
+            <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: nameFlex }}>{dictionary.accessControlReports.usersRoles.name}</Text>
             {showContacts && (
               <>
-                <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 2 }}>Email</Text>
-                <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 1.2 }}>Phone</Text>
+                <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 2 }}>{dictionary.accessControlReports.usersRoles.email}</Text>
+                <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 1.2 }}>{dictionary.accessControlReports.usersRoles.phone}</Text>
               </>
             )}
-            <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: rolesFlex }}>Roles</Text>
+            <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: rolesFlex }}>{dictionary.accessControlReports.usersRoles.roles}</Text>
           </View>
 
           {users.map((u, i) => (
@@ -61,7 +63,7 @@ const UsersRolesPdfDocument = ({
                 </>
               )}
               <Text style={{ ...pdfStyles.tableCell, flex: rolesFlex, color: '#6B7280' }}>
-                {u.organization_roles?.length ? u.organization_roles.map((r) => r.name).join(', ') : 'No roles assigned'}
+                {u.organization_roles?.length ? u.organization_roles.map((r) => r.name).join(', ') : dictionary.accessControlReports.usersRoles.noRoles}
               </Text>
             </View>
           ))}

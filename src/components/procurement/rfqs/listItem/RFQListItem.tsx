@@ -32,6 +32,7 @@ import RFQListResponseTab from './RFQListResponseTab';
 import { RFQListRow } from '../rfq-types';
 import { useJumboDialog } from '@jumbo/components/JumboDialog/hooks/useJumboDialog';
 import { DescriptionOutlined, ReplyOutlined, InventoryOutlined } from '@mui/icons-material';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -54,6 +55,7 @@ function TabPanel({ children, value, index, ...other }: TabPanelProps) {
 }
 
 function RFQListItem({ rfq }: { rfq: RFQListRow }) {
+  const dictionary = useDictionary();
   const [expanded, setExpanded] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
   const [tabValue, setTabValue] = useState(0);
@@ -198,18 +200,18 @@ function RFQListItem({ rfq }: { rfq: RFQListRow }) {
           <Grid container spacing={1} alignItems="center" sx={{ width: '100%', m: 0 }}>
             {/* RFQ Number and Date */}
             <Grid size={{ xs: 6, md: 3 }}>
-              <Tooltip title="RFQ Number">
+              <Tooltip title={dictionary.tooltips.rfqNumber}>
                 <Typography variant="body2" fontWeight="medium">
                   {rfqNo}
                 </Typography>
               </Tooltip>
-              <Tooltip title="RFQ Date">
+              <Tooltip title={dictionary.tooltips.rfqDate}>
                 <Typography variant="caption" color="text.secondary" display="block">
                   {readableDate(rfqDate, false)}
                 </Typography>
               </Tooltip>
               {reference && (
-                <Tooltip title="Reference">
+                <Tooltip title={dictionary.tooltips.reference}>
                   <Typography variant="caption" color="text.secondary" display="block">
                     Ref: {reference}
                   </Typography>
@@ -219,7 +221,7 @@ function RFQListItem({ rfq }: { rfq: RFQListRow }) {
 
             {/* Response Deadline */}
             <Grid size={{ xs: 6, md: 2 }}>
-              <Tooltip title="Response Deadline">
+              <Tooltip title={dictionary.tooltips.responseDeadline}>
                 <Typography variant="caption" color="text.secondary" display="block">
                   Deadline
                 </Typography>
@@ -231,17 +233,17 @@ function RFQListItem({ rfq }: { rfq: RFQListRow }) {
 
             {/* Status and Counts */}
             <Grid size={{ xs: 12, md: 5 }} display="flex" alignItems="center" justifyContent="flex-end" gap={1}>
-              <Tooltip title="RFQ Status">
+              <Tooltip title={dictionary.tooltips.rfqStatus}>
                 <Chip size="small" label={formattedStatus} color={statusColor as any} />
               </Tooltip>
 
-              <Tooltip title="Items Count">
+              <Tooltip title={dictionary.tooltips.itemsCount}>
                 <Badge badgeContent={itemsCount} color="primary" showZero>
                   <InventoryOutlined fontSize="small" />
                 </Badge>
               </Tooltip>
 
-              <Tooltip title="Responses Count">
+              <Tooltip title={dictionary.tooltips.responsesCount}>
                 <Badge badgeContent={responsesCount} color={responsesCount > 0 ? 'success' : 'default'} showZero>
                   <ReplyOutlined fontSize="small" />
                 </Badge>

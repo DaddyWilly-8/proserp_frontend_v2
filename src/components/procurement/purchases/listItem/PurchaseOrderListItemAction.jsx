@@ -47,6 +47,7 @@ import { listItemContext } from './PurchaseOrderListItem';
 import PurchaseGrnsReportOnScreen from './purchaseGrnsReport/PurchaseGrnsReportOnScreen';
 import PurchaseGrnsReportPDF from './purchaseGrnsReport/PurchaseGrnsReportPDF';
 import LedgerSelectProvider from '@/components/accounts/ledgers/forms/LedgerSelectProvider';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 const PurchaseOrderReceiveForm = lazy(
   () => import('./receive/PurchaseOrderReceiveForm')
 );
@@ -60,6 +61,7 @@ const PurchaseGrnsReport = ({
   order,
   setOpenPurchasesGrnsReport,
 }) => {
+  const dictionary = useDictionary();
   const { data: purchaseGrnsReport, isFetching } = useQuery({
     queryKey: ['PurchaseGrnsReport', { orderId: order.id }],
     queryFn: () => purchaseServices.PurchaseGrnsReport(order.id),
@@ -164,6 +166,7 @@ const PurchaseGrnsReport = ({
               <PurchaseGrnsReportPDF
                 organization={organization}
                 purchaseGrnsReport={purchaseGrnsReport}
+                dictionary={dictionary}
               />
             }
           />

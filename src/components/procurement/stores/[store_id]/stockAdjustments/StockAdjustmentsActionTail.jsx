@@ -6,8 +6,10 @@ import StockAdjustmentDialogForm from './StockAdjustmentDialogForm';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function StockAdjustmentsActionTail() {
+    const dictionary = useDictionary();
     const {checkOrganizationPermission} = useJumboAuth();
     const [openDialog, setOpenDialog] = React.useState(false);
     
@@ -18,7 +20,7 @@ function StockAdjustmentsActionTail() {
   return (
     <React.Fragment>
         {checkOrganizationPermission(PERMISSIONS.STOCK_ADJUSTMENTS_CREATE) &&
-            <Tooltip title='New Stock Adjustment'>
+            <Tooltip title={dictionary.tooltips.newStockAdjustment}>
                 <IconButton onClick={() => setOpenDialog(true)}>
                     <AddOutlined/>
                 </IconButton>

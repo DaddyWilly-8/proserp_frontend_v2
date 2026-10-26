@@ -24,6 +24,7 @@ import { useForm } from 'react-hook-form';
 import * as yup from 'yup';
 import { useLedgerSelect } from '../../ledgers/forms/LedgerSelectProvider';
 import QuickAddLedger from '../../ledgers/forms/QuickAddLedger';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface LedgerOption {
   id: number;
@@ -102,6 +103,7 @@ function JournalItemForm({
   selectedCurrencyId,
   onLedgerCurrencyDetected,
 }: JournalItemFormProps) {
+  const dictionary = useDictionary();
   const [isAdding, setIsAdding] = useState(false);
   const { ungroupedLedgerOptions } = useLedgerSelect();
   const [ledgerType, setLedgerType] = useState<'debit' | 'credit'>('credit');
@@ -110,45 +112,45 @@ function JournalItemForm({
 
   // Combine dob with ungroupedLedgerOptions
   const options: LedgerOption[] = useMemo(
-    () => [{ id: 1, name: 'Diff. in Opening Balances' }, ...ungroupedLedgerOptions],
-    [ungroupedLedgerOptions]
+    () => [{ id: 1, name: dictionary.forms.journals.itemForm.labels.diffOpeningBalances }, ...ungroupedLedgerOptions],
+    [ungroupedLedgerOptions, dictionary]
   );
 
   // Define validation schema
   const validationSchema = yup.object().shape({
     debit_ledger_id: yup
       .number()
-      .required('Debit account is required')
-      .positive('Debit account must be a positive number')
-      .typeError('Debit account is required')
+      .required(dictionary.forms.journals.itemForm.errors.validation.debitRequired)
+      .positive(dictionary.forms.journals.itemForm.errors.validation.debitPositive)
+      .typeError(dictionary.forms.journals.itemForm.errors.validation.debitRequired)
       .test(
         'unique-ledgers',
-        'Debit and credit accounts cannot be the same',
+        dictionary.forms.journals.itemForm.errors.validation.sameAccounts,
         function (value) {
           return value !== this.parent.credit_ledger_id;
         }
       ),
     credit_ledger_id: yup
       .number()
-      .required('Credit account is required')
-      .positive('Credit account must be a positive number')
-      .typeError('Credit account is required')
+      .required(dictionary.forms.journals.itemForm.errors.validation.creditRequired)
+      .positive(dictionary.forms.journals.itemForm.errors.validation.creditPositive)
+      .typeError(dictionary.forms.journals.itemForm.errors.validation.creditRequired)
       .test(
         'unique-ledgers',
-        'Debit and credit accounts cannot be the same',
+        dictionary.forms.journals.itemForm.errors.validation.sameAccounts,
         function (value) {
           return value !== this.parent.debit_ledger_id;
         }
       ),
     description: yup
       .string()
-      .required('Description is required')
-      .typeError('Description is required'),
+      .required(dictionary.forms.journals.itemForm.errors.validation.descriptionRequired)
+      .typeError(dictionary.forms.journals.itemForm.errors.validation.descriptionRequired),
     amount: yup
       .number()
-      .required('Amount is required')
-      .positive('Amount must be greater than 0')
-      .typeError('Amount must be a number'),
+      .required(dictionary.forms.journals.itemForm.errors.validation.amountRequired)
+      .positive(dictionary.forms.journals.itemForm.errors.validation.amountPositive)
+      .typeError(dictionary.forms.journals.itemForm.errors.validation.amountNumber),
   });
 
   const {
@@ -330,14 +332,14 @@ function JournalItemForm({
       if (watchedDebitCurrencyId !== undefined && watchedDebitCurrencyId !== null && selectedCurrencyId !== watchedDebitCurrencyId) {
         setError('debit_ledger_id', {
           type: 'manual',
-          message: 'Debit ledger currency must match the selected currency.',
+          message: dictionary.forms.journals.itemForm.errors.validation.debitCurrencyMustMatch,
         });
         return;
       }
       if (watchedCreditCurrencyId !== undefined && watchedCreditCurrencyId !== null && selectedCurrencyId !== watchedCreditCurrencyId) {
         setError('credit_ledger_id', {
           type: 'manual',
-          message: 'Credit ledger currency must match the selected currency.',
+          message: dictionary.forms.journals.itemForm.errors.validation.creditCurrencyMustMatch,
         });
         return;
       }
@@ -429,7 +431,7 @@ function JournalItemForm({
                   {...params}
                   size='small'
                   fullWidth
-                  label='Debit'
+                  label={dictionary.forms.journals.itemForm.labels.debit}
                   error={!!errors.debit_ledger_id}
                   helperText={errors.debit_ledger_id?.message}
                   InputProps={{
@@ -437,7 +439,7 @@ function JournalItemForm({
                     startAdornment: (
                       <>
                         <Box sx={{ mr: 0.5 }}>
-                          <Tooltip title={'Add New Debit'}>
+                          <Tooltip title={dictionary.tooltips.addNewDebit}>
                             <AddOutlined
                               onClick={() => {
                                 setOpenLedgerQuickAdd(true);
@@ -489,7 +491,7 @@ function JournalItemForm({
                   {...params}
                   size='small'
                   fullWidth
-                  label='Credit'
+                  label={dictionary.forms.journals.itemForm.labels.credit}
                   error={!!errors.credit_ledger_id}
                   helperText={errors.credit_ledger_id?.message}
                   InputProps={{
@@ -497,7 +499,7 @@ function JournalItemForm({
                     startAdornment: (
                       <>
                         <Box sx={{ mr: 0.5 }}>
-                          <Tooltip title={'Add New Credit'}>
+                          <Tooltip title={dictionary.tooltips.addNewCredit}>
                             <AddOutlined
                               onClick={() => {
                                 setOpenLedgerQuickAdd(true);
@@ -523,7 +525,7 @@ function JournalItemForm({
               size='small'
               fullWidth
               defaultValue={watch('description')}
-              label='Description'
+              label={dictionary.forms.journals.itemForm.labels.description}
               error={!!errors.description}
               helperText={errors.description?.message}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
@@ -539,7 +541,7 @@ function JournalItemForm({
         <Grid size={{ xs: 12, md: 3 }}>
           <Div sx={{ mt: 1 }}>
             <TextField
-              label='Amount'
+              label={dictionary.forms.journals.itemForm.labels.amount}
               fullWidth
               size='small'
               value={watch('amount') || ''}
@@ -569,16 +571,16 @@ function JournalItemForm({
           >
             {item ? (
               <>
-                <CheckOutlined fontSize='small' /> Done
+                <CheckOutlined fontSize='small' /> {dictionary.forms.journals.itemForm.buttons.done}
               </>
             ) : (
               <>
-                <AddOutlined fontSize='small' /> Add
+                <AddOutlined fontSize='small' /> {dictionary.forms.journals.itemForm.buttons.add}
               </>
             )}
           </LoadingButton>
           {item && setShowForm && (
-            <Tooltip title='Close Edit'>
+            <Tooltip title={dictionary.tooltips.closeEdit}>
               <IconButton size='small' onClick={() => setShowForm(false)}>
                 <DisabledByDefault fontSize='small' color='success' />
               </IconButton>

@@ -4,8 +4,10 @@ import { Grid, TextField, Typography, Card, CardContent } from '@mui/material';
 import CommaSeparatedField from '@/shared/Inputs/CommaSeparatedField';
 import { StationFormContext } from '../SalesShifts';
 import { useContext } from 'react';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function FuelPrices({watch}) {
+  const dictionary = useDictionary();
   const {activeStation} = useContext(StationFormContext);
   const { products } = activeStation;
 
@@ -13,7 +15,7 @@ function FuelPrices({watch}) {
   return (
     <>
       <Typography variant="h6" gutterBottom padding={1}>
-        Fuel Prices
+        {dictionary.forms.shifts.titles.fuelPrices}
       </Typography>
       <Grid container spacing={2}>
         {products?.map((product) => (

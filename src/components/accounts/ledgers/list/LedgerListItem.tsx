@@ -3,6 +3,7 @@
 import React from 'react';
 import { Divider, Grid, Tooltip, Typography } from '@mui/material';
 import LedgerListItemAction from './LedgerListItemAction';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface Currency {
   id: number;
@@ -41,6 +42,7 @@ interface LedgerListItemProps {
 }
 
 const LedgerListItem: React.FC<LedgerListItemProps> = ({ ledger, type }) => {
+  const dictionary = useDictionary();
   return (
     <React.Fragment>
       <Divider />
@@ -57,14 +59,14 @@ const LedgerListItem: React.FC<LedgerListItemProps> = ({ ledger, type }) => {
         container
       >
         <Grid size={{xs: 6, md: 4}}>
-          <Tooltip title={'Name (Alias)'}>
+          <Tooltip title={dictionary.tooltips.nameAlias}>
             <Typography variant={"body1"}>
               {` ${ledger.name} ` + (ledger.alias !== null ? `(${ledger.alias})` : '')}
             </Typography>
           </Tooltip>
         </Grid>
         <Grid size={{xs: 6, md: 4}}>
-          <Tooltip title={'Nature:Group'}>
+          <Tooltip title={dictionary.tooltips.natureGroup}>
             <Typography variant={"body1"}>
               {`${ledger.ledger_group.nature.name} : ${ledger.ledger_group.name}`}
             </Typography>

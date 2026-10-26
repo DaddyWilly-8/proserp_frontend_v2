@@ -16,6 +16,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import { useSnackbar } from 'notistack';
 import { useEffect, useState } from 'react';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { getLatestCurrentApproval } from '@/components/projectManagement/approvals/currentApprovalCycle';
 import projectsServices from '@/components/projectManagement/projects/project-services';
@@ -86,6 +87,7 @@ const CertificateApprovalDialog = ({
   approval,
   onClose,
 }: CertificateApprovalDialogProps) => {
+  const dictionary = useDictionary();
   const [remarks, setRemarks] = useState('');
   const [remarksError, setRemarksError] = useState('');
   const [approvalDate, setApprovalDate] = useState(DEFAULT_APPROVAL_DATE());
@@ -126,12 +128,12 @@ const CertificateApprovalDialog = ({
         queryKey: ['CertificateDetails', { id: certificate.id }],
       });
       queryClient.invalidateQueries({ queryKey: ['Certificates'] });
-      enqueueSnackbar(data?.message || 'Certificate approval recorded', { variant: 'success' });
+      enqueueSnackbar(data?.message || dictionary.projectManagement.certificates.approvalRecorded, { variant: 'success' });
       onClose();
     },
     onError: (error: any) => {
       enqueueSnackbar(
-        error?.response?.data?.message || 'Something went wrong',
+        error?.response?.data?.message || dictionary.projectManagement.certificates.somethingWentWrong,
         { variant: 'error' }
       );
     },
@@ -143,7 +145,7 @@ const CertificateApprovalDialog = ({
     if (approval && status === 'returned') return;
 
     if (status !== 'approved' && !remarks.trim()) {
-      setRemarksError('Remarks are required');
+      setRemarksError(dictionary.projectManagement.certificates.remarksRequired);
       return;
     }
 
@@ -151,7 +153,7 @@ const CertificateApprovalDialog = ({
 
     if (approval) {
       if (status !== 'approved' && !remarks.trim()) {
-        setRemarksError('Remarks are required');
+        setRemarksError(dictionary.projectManagement.certificates.remarksRequired);
         return;
       }
 
@@ -177,7 +179,7 @@ const CertificateApprovalDialog = ({
         : Number(pendingLevel?.id);
 
     if (!chainLevelId) {
-      enqueueSnackbar('Pending approval level not found', { variant: 'error' });
+      enqueueSnackbar(dictionary.projectManagement.certificates.pendingLevelNotFound, { variant: 'error' });
       return;
     }
 
@@ -199,23 +201,21 @@ const CertificateApprovalDialog = ({
       fullScreen={belowLargeScreen}
       scroll={belowLargeScreen ? 'body' : 'paper'}
     >
-      <DialogTitle>{approval ? 'Change My Decision' : 'Certificate Approval'}</DialogTitle>
+      <DialogTitle>{approval ? dictionary.projectManagement.certificates.changeMyDecision : dictionary.projectManagement.certificates.certificateApproval}</DialogTitle>
       <DialogContent>
         <Stack spacing={2} sx={{ mt: 1 }}>
           {!!decisionLevel && !canDecide && (
             <Alert severity='warning'>
-              Only a {pendingRoleName} can approve or hold this certificate at this stage. You can still
-              send it back to the requester for correction.
+              {dictionary.projectManagement.certificates.onlyRoleCanApprove.replace('{role}', pendingRoleName)}
             </Alert>
           )}
           {!approval && !pendingLevel && (
             <Alert severity='info'>
-              This certificate isn't open for a new Approve/Hold/Reject decision right now - the
-              only action available is sending it back to the requester for correction.
+              {dictionary.projectManagement.certificates.notOpenForDecision}
             </Alert>
           )}
           <DateTimePicker
-            label='Approval Date & Time'
+            label={dictionary.projectManagement.certificates.approvalDateTime}
             value={approvalDate ? dayjs(approvalDate) : null}
             onChange={(val) => setApprovalDate(val?.toISOString() || '')}
             slotProps={{
@@ -223,7 +223,7 @@ const CertificateApprovalDialog = ({
             }}
           />
           <TextField
-            label='Remarks'
+            label={dictionary.projectManagement.certificates.remarks}
             size='small'
             fullWidth
             multiline
@@ -240,7 +240,7 @@ const CertificateApprovalDialog = ({
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose} disabled={isSubmitting}>
-          Cancel
+          {dictionary.projectManagement.common.cancel}
         </Button>
         {!approval && (
           <LoadingButton
@@ -250,7 +250,7 @@ const CertificateApprovalDialog = ({
             size='small'
             onClick={() => handleDecision('returned')}
           >
-            Return
+            {dictionary.projectManagement.certificates.return}
           </LoadingButton>
         )}
         {canDecide && (
@@ -261,7 +261,7 @@ const CertificateApprovalDialog = ({
             size='small'
             onClick={() => handleDecision('on hold')}
           >
-            Hold
+            {dictionary.projectManagement.certificates.hold}
           </LoadingButton>
         )}
         {canDecide && (
@@ -272,7 +272,7 @@ const CertificateApprovalDialog = ({
             size='small'
             onClick={() => handleDecision('approved')}
           >
-            Approve
+            {dictionary.projectManagement.certificates.approve}
           </LoadingButton>
         )}
       </DialogActions>

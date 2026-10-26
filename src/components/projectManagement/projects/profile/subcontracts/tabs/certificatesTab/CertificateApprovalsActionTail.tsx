@@ -20,6 +20,7 @@ import CertificateApprovalDialog, {
   getNextPendingCertificateApprovalLevel,
 } from './CertificateApprovalDialog';
 import { Certificate } from './CertificateType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface CertificateApprovalsActionTailProps {
   certificate: Certificate;
@@ -28,6 +29,7 @@ interface CertificateApprovalsActionTailProps {
 const CertificateApprovalsActionTail = ({
   certificate,
 }: CertificateApprovalsActionTailProps) => {
+  const dictionary = useDictionary();
   const [openDialog, setOpenDialog] = useState(false);
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const { authUser, hasOrganizationRole, checkOrganizationPermission } = useJumboAuth();
@@ -101,10 +103,10 @@ const CertificateApprovalsActionTail = ({
     onSuccess: (data: any) => {
       queryClient.invalidateQueries({ queryKey: ['certificateDetails', { id: certificate.id }] });
       queryClient.invalidateQueries({ queryKey: ['Certificates'] });
-      enqueueSnackbar(data?.message || 'Your decision was removed', { variant: 'success' });
+      enqueueSnackbar(data?.message || dictionary.projectManagement.certificates.decisionRemoved, { variant: 'success' });
     },
     onError: (error: any) => {
-      enqueueSnackbar(error?.response?.data?.message || 'Something went wrong', {
+      enqueueSnackbar(error?.response?.data?.message || dictionary.projectManagement.certificates.somethingWentWrong, {
         variant: 'error',
       });
     },
@@ -112,9 +114,8 @@ const CertificateApprovalsActionTail = ({
 
   const handleUndo = () => {
     showDialog({
-      title: 'Undo My Decision',
-      content:
-        'This removes your latest decision so the certificate goes back to where it stood before it. Continue?',
+      title: dictionary.projectManagement.certificates.undoMyDecision,
+      content: dictionary.projectManagement.certificates.undoConfirm,
       variant: 'confirm',
       onYes: () => {
         hideDialog();
@@ -144,28 +145,28 @@ const CertificateApprovalsActionTail = ({
       )}
 
       {canApprove && (
-        <Tooltip title='Approve Certificate'>
+        <Tooltip title={dictionary.tooltips.approveCertificate}>
           <IconButton onClick={() => setOpenDialog(true)}>
             <FactCheckOutlined />
           </IconButton>
         </Tooltip>
       )}
       {canReturn && !canApprove && (
-        <Tooltip title='Return To Requester'>
+        <Tooltip title={dictionary.tooltips.returnToRequester}>
           <IconButton onClick={() => setOpenDialog(true)}>
             <KeyboardReturnOutlined />
           </IconButton>
         </Tooltip>
       )}
       {canChangeOwnDecision && (
-        <Tooltip title='Change My Decision'>
+        <Tooltip title={dictionary.tooltips.changeMyDecision}>
           <IconButton onClick={() => setOpenEditDialog(true)}>
             <EditOutlined />
           </IconButton>
         </Tooltip>
       )}
       {canChangeOwnDecision && (
-        <Tooltip title='Undo My Decision'>
+        <Tooltip title={dictionary.tooltips.undoMyDecision}>
           <IconButton onClick={handleUndo}>
             <ReplayOutlined />
           </IconButton>

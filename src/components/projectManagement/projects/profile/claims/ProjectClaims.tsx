@@ -18,6 +18,7 @@ import projectsServices from '../../project-services';
 import ProjectClaimsListItem from './ProjectClaimsListItem';
 import ProjectClaimsActionTail from './ProjectClaimsActionTail';
 import LedgerSelectProvider from '@/components/accounts/ledgers/forms/LedgerSelectProvider';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 type FilterDateState = {
   from: string | null;
@@ -25,6 +26,7 @@ type FilterDateState = {
 };
 
 const ProjectClaims: React.FC = () => {
+  const dictionary = useDictionary();
   const params = useParams<{ id: string }>();
   const { project }: any = useProjectProfile();
   const listRef = React.useRef<any>(null);
@@ -149,7 +151,7 @@ const ProjectClaims: React.FC = () => {
                     >
                       <Grid size={{ xs: 11, md: 5 }}>
                         <DateTimePicker
-                          label="From Date"
+                          label={dictionary.projectManagement.claims.list.fromDate}
                           value={
                             filterDate.from
                               ? dayjs(filterDate.from)
@@ -169,7 +171,7 @@ const ProjectClaims: React.FC = () => {
 
                       <Grid size={{ xs: 11, md: 5 }}>
                         <DateTimePicker
-                          label="To Date"
+                          label={dictionary.projectManagement.claims.list.toDate}
                           value={
                             filterDate.to ? dayjs(filterDate.to) : null
                           }
@@ -191,7 +193,7 @@ const ProjectClaims: React.FC = () => {
                       </Grid>
 
                       <Grid size={{ xs: 1, md: 2 }} textAlign="center">
-                        <Tooltip title="Apply Date Filters">
+                        <Tooltip title={dictionary.tooltips.applyDateFilters}>
                           <IconButton
                             onClick={applyDateFilters}
                             size="small"
@@ -208,8 +210,8 @@ const ProjectClaims: React.FC = () => {
                   <Tooltip
                     title={
                       !openFilters
-                        ? 'Show Filters'
-                        : 'Clear and Hide Filters'
+                        ? dictionary.projectManagement.claims.list.showFilters
+                        : dictionary.projectManagement.claims.list.clearAndHideFilters
                     }
                   >
                     <IconButton

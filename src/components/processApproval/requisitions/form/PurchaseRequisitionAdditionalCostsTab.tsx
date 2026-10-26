@@ -22,6 +22,7 @@ import {
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as yup from 'yup';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface AdditionalCostsTabProps {
   index?: number;
@@ -40,6 +41,7 @@ const PurchaseRequisitionAdditionalCostsTab = ({
   additionalCosts = [],
   setAdditionalCosts,
 }: AdditionalCostsTabProps) => {
+  const dictionary = useDictionary();
   const { ungroupedLedgerOptions } = useLedgerSelect();
   const [isAdding, setIsAdding] = useState(false);
   const { currencies } = useCurrencySelect();
@@ -49,8 +51,8 @@ const PurchaseRequisitionAdditionalCostsTab = ({
     credit_ledger_name: yup.string(),
     ledger_id: yup
       .number()
-      .required('Cost name is required')
-      .typeError('Cost name is required'),
+      .required(dictionary.forms.requisitions.additionalCosts.validation.costName)
+      .typeError(dictionary.forms.requisitions.additionalCosts.validation.costName),
     // currency_id: yup
     //   .number()
     //   .positive('Currency is required')
@@ -65,9 +67,9 @@ const PurchaseRequisitionAdditionalCostsTab = ({
     reference: yup.string(),
     amount: yup
       .number()
-      .required('Amount is required')
-      .positive('Amount is required')
-      .typeError('Amount is required'),
+      .required(dictionary.forms.requisitions.additionalCosts.validation.amount)
+      .positive(dictionary.forms.requisitions.additionalCosts.validation.amount)
+      .typeError(dictionary.forms.requisitions.additionalCosts.validation.amount),
   });
 
   const {
@@ -135,7 +137,7 @@ const PurchaseRequisitionAdditionalCostsTab = ({
             <LedgerSelect
               multiple={false}
               allowedGroups={['Expenses']}
-              label='Cost name'
+              label={dictionary.forms.requisitions.additionalCosts.costName}
               defaultValue={ungroupedLedgerOptions.find(
                 (ledger) => ledger.id === additionalCost?.ledger_id
               )}
@@ -155,7 +157,7 @@ const PurchaseRequisitionAdditionalCostsTab = ({
         <Grid size={{ xs: 12, md: 4, lg: 4 }}>
           <Div sx={{ mt: 1 }}>
             <TextField
-              label='Reference'
+              label={dictionary.forms.requisitions.common.reference}
               fullWidth
               size='small'
               defaultValue={additionalCost && additionalCost.reference}
@@ -177,7 +179,7 @@ const PurchaseRequisitionAdditionalCostsTab = ({
         >
           <Div sx={{ mt: 1 }}>
             <TextField
-              label='Amount'
+              label={dictionary.forms.requisitions.common.amount}
               fullWidth
               size='small'
               InputProps={{
@@ -209,16 +211,16 @@ const PurchaseRequisitionAdditionalCostsTab = ({
           >
             {additionalCost ? (
               <>
-                <CheckOutlined fontSize='small' /> Done
+                <CheckOutlined fontSize='small' /> {dictionary.forms.requisitions.common.done}
               </>
             ) : (
               <>
-                <AddOutlined fontSize='small' /> Add
+                <AddOutlined fontSize='small' /> {dictionary.forms.requisitions.common.add}
               </>
             )}
           </LoadingButton>
           {additionalCost && (
-            <Tooltip title='Close Edit'>
+            <Tooltip title={dictionary.tooltips.closeEdit}>
               <IconButton
                 size='small'
                 onClick={() => {

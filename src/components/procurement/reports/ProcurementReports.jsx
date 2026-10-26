@@ -10,6 +10,7 @@ import JumboCardQuick from '@jumbo/components/JumboCardQuick';
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 import {
   InsightsOutlined,
+  Inventory2Outlined,
   ReceiptLongOutlined,
   ShoppingCartOutlined,
 } from '@mui/icons-material';
@@ -28,9 +29,13 @@ import StakeholderSelectProvider from '../../masters/stakeholders/StakeholderSel
 import ProductInsights from './productInsights/ProductInsights';
 import PurchasesManifestReport from './purchasesManifest/PurchasesManifestReport';
 import PurchasesReport from './PurchasesReport';
+import StockByCostCenterReport from './StockByCostCenterReport';
 import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function ProcurementReports() {
+  const dictionary = useDictionary();
+  const dict = dictionary.reports.procurementReports;
   const css = useProsERPStyles();
   const [openDialog, setOpenDialog] = useState(false);
   const [report, setReport] = useState(null);
@@ -60,6 +65,9 @@ function ProcurementReports() {
     } else if (reportParam === 'purchases-report') {
       setReport(<PurchasesReport />);
       setOpenDialog(true);
+    } else if (reportParam === 'stock-by-cost-center') {
+      setReport(<StockByCostCenterReport />);
+      setOpenDialog(true);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mounted, searchParams]);
@@ -80,7 +88,13 @@ function ProcurementReports() {
             scroll={belowLargeScreen ? 'body' : 'paper'}
             fullWidth
             fullScreen={belowLargeScreen}
-            maxWidth={reportName !== 'PurchasesManifestReport' ? 'md' : 'lg'}
+            maxWidth={
+              ['PurchasesManifestReport', 'StockByCostCenterReport'].includes(
+                reportName
+              )
+                ? 'lg'
+                : 'md'
+            }
             open={openDialog}
           >
             {report}
@@ -93,12 +107,12 @@ function ProcurementReports() {
                   setOpenDialog(false);
                 }}
               >
-                Close
+                {dict.close}
               </Button>
             </DialogActions>
           </Dialog>
           <Typography variant={'h4'} mb={2}>
-            Procurement & Supply Reports
+            {dict.title}
           </Typography>
           <JumboCardQuick sx={{ height: '100%' }}>
             <Grid
@@ -124,7 +138,7 @@ function ProcurementReports() {
                 }}
               >
                 <InsightsOutlined sx={{ fontSize: '40px' }} />
-                <Typography>Product Insights</Typography>
+                <Typography>{dict.productInsights.title}</Typography>
               </Grid>
               {checkOrganizationPermission(PERMISSIONS.PURCHASES_REPORTS) && (
                 <Grid
@@ -144,7 +158,7 @@ function ProcurementReports() {
                   }}
                 >
                   <ShoppingCartOutlined sx={{ fontSize: '40px' }} />
-                  <Typography>Purchases Report</Typography>
+                  <Typography>{dict.purchasesReport.title}</Typography>
                 </Grid>
               )}
               <Grid
@@ -166,8 +180,29 @@ function ProcurementReports() {
                 }}
               >
                 <ReceiptLongOutlined sx={{ fontSize: '40px' }} />
-                <Typography>Purchases Manifest</Typography>
+                <Typography>{dict.purchasesManifest.title}</Typography>
               </Grid>
+              {checkOrganizationPermission(PERMISSIONS.STORES_REPORTS) && (
+                <Grid
+                  sx={{
+                    cursor: 'pointer',
+                    '&:hover': {
+                      bgcolor: 'action.hover',
+                    },
+                  }}
+                  size={{ xs: 6, md: 3, lg: 2 }}
+                  p={1}
+                  textAlign={'center'}
+                  onClick={() => {
+                    setReportName('StockByCostCenterReport');
+                    setReport(<StockByCostCenterReport />);
+                    setOpenDialog(true);
+                  }}
+                >
+                  <Inventory2Outlined sx={{ fontSize: '40px' }} />
+                  <Typography>{dict.stockByCostCenter.title}</Typography>
+                </Grid>
+              )}
             </Grid>
           </JumboCardQuick>
         </React.Fragment>

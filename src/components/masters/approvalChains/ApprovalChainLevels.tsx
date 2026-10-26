@@ -25,8 +25,10 @@ import ApprovalStatusSelector from './ApprovalStatusSelector';
 import ApprovalChainLevelDialog from './form/ApprovalChainLevelDialog';
 import approvalChainsServices from './approvalChainsServices';
 import { ApprovalChainLevel } from './ApprovalChainType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function ApprovalChainLevels() {
+  const dictionary = useDictionary();
   const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
   const [openEditDialog, setOpenEditDialog] = useState(false);
@@ -127,7 +129,7 @@ function ApprovalChainLevels() {
 
           {approvalChain?.status === 'active' && (
             <Grid size={1} paddingRight={3}>
-              <Tooltip title="Add Level">
+              <Tooltip title={dictionary.tooltips.addLevel}>
                 <IconButton onClick={() => setOpenAddLevelDialog(true)}>
                   <PlaylistAddOutlined />
                 </IconButton>
@@ -153,17 +155,17 @@ function ApprovalChainLevels() {
           container
         >
           <Grid size={{xs: 6, md: 4}}>
-            <Tooltip title="Role Name">
+            <Tooltip title={dictionary.tooltips.roleName}>
               <Typography>{level?.role?.name}</Typography>
             </Tooltip>
           </Grid>
           <Grid size={{xs: 6, md: 3}}>
-            <Tooltip title="Label">
+            <Tooltip title={dictionary.tooltips.label}>
               <Typography>{level.label}</Typography>
             </Tooltip>
           </Grid>
           <Grid size={{xs: 6, md: 4}} display="flex" alignItems={{ md: 'end' }} justifyContent={{ md: 'end' }}>
-            <Tooltip title="Status">
+            <Tooltip title={dictionary.tooltips.status}>
               <Chip
                 size="small"
                 label={level.status}
@@ -174,21 +176,21 @@ function ApprovalChainLevels() {
           <Grid size={{xs: 6, md: 1}}>
             <Box display="flex" flexDirection="row" justifyContent="flex-end">
               {approvalChain.status === 'active' && level.status === 'active' && (
-                <Tooltip title="Deactivate Level">
+                <Tooltip title={dictionary.tooltips.deactivateLevel}>
                   <IconButton onClick={() => handleDeactivationLevel(level)}>
                     <RemoveDoneOutlined color="error" />
                   </IconButton>
                 </Tooltip>
               )}
               {approvalChain.status === 'active' && level.status !== 'active' && (
-                <Tooltip title="Activate Level">
+                <Tooltip title={dictionary.tooltips.activateLevel}>
                   <IconButton onClick={() => handleActivationLevel(level)}>
                     <RestoreOutlined />
                   </IconButton>
                 </Tooltip>
               )}
               {approvalChain.status === 'active' && level.status === 'active' && (
-                <Tooltip title="Edit Level">
+                <Tooltip title={dictionary.tooltips.editLevel}>
                   <IconButton onClick={() => handleEditClick(level)}>
                     <EditOutlined />
                   </IconButton>

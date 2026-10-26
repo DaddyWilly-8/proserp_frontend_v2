@@ -36,6 +36,7 @@ import { Employee } from '../../employees/EmployeesType';
 import { Department } from '../../departments/DepartmentsType';
 import humanResourcesServices from '../../humanResourcesServices';
 import LeaveBalancesReportDocument from './LeaveBalancesReportDocument';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 type LeaveBalanceRow = {
   employee_id: number;
@@ -72,6 +73,7 @@ const fmt = (value: number) =>
   Number(value || 0).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
 
 function LeaveBalancesReportContent({ onClose }: { onClose?: () => void }) {
+  const dictionary = useDictionary();
   const { enqueueSnackbar } = useSnackbar();
   const { authOrganization, authUser } = useJumboAuth() as any;
   const now = new Date();
@@ -154,7 +156,7 @@ function LeaveBalancesReportContent({ onClose }: { onClose?: () => void }) {
       link.remove();
       window.URL.revokeObjectURL(url);
     } catch (err: any) {
-      enqueueSnackbar(err?.response?.data?.message || 'Unable to export leave balances', { variant: 'error' });
+      enqueueSnackbar(err?.response?.data?.message || dictionary.humanResources.reports.leaveBalances.messages.exportError, { variant: 'error' });
     } finally {
       setIsExporting(false);
     }
@@ -165,18 +167,18 @@ function LeaveBalancesReportContent({ onClose }: { onClose?: () => void }) {
   const totals = data?.totals;
 
   const filtersLabel = [
-    selectedEmployee ? `Employee: ${selectedEmployee.first_name} ${selectedEmployee.last_name}` : null,
-    selectedDepartment ? `Department: ${selectedDepartment.name}` : null,
-    selectedLeaveTypeId !== '' ? `Leave Type: ${leaveTypes?.find((lt) => lt.id === selectedLeaveTypeId)?.name ?? ''}` : null,
+    selectedEmployee ? `${dictionary.humanResources.reports.common.employee}: ${selectedEmployee.first_name} ${selectedEmployee.last_name}` : null,
+    selectedDepartment ? `${dictionary.humanResources.reports.common.department}: ${selectedDepartment.name}` : null,
+    selectedLeaveTypeId !== '' ? `${dictionary.humanResources.reports.common.leaveType}: ${leaveTypes?.find((lt) => lt.id === selectedLeaveTypeId)?.name ?? ''}` : null,
   ]
     .filter(Boolean)
-    .join(', ') || 'All employees';
+    .join(', ') || dictionary.humanResources.reports.leaveBalances.allEmployees;
 
   return (
     <>
       <DialogTitle sx={{ pb: 1 }}>
         {onClose && (
-          <Tooltip title='Close'>
+          <Tooltip title={dictionary.tooltips.close}>
             <IconButton
               onClick={() => onClose()}
               sx={{ position: 'absolute', right: 12, top: 12 }}
@@ -187,16 +189,16 @@ function LeaveBalancesReportContent({ onClose }: { onClose?: () => void }) {
         )}
         <Grid container spacing={1.5} alignItems='center'>
           <Grid size={{ xs: 12 }} textAlign='center' marginBottom={2} sx={onClose ? { px: 4 } : undefined}>
-            <Typography variant='h3'>Leave Balances</Typography>
+            <Typography variant='h3'>{dictionary.humanResources.reports.leaveBalances.title}</Typography>
             <Typography variant='body2' color='text.secondary'>
-              Allocated, used, and remaining leave days per employee for {appliedFilters.year}
+              {dictionary.humanResources.reports.leaveBalances.subtitle.replace('{year}', String(appliedFilters.year))}
             </Typography>
           </Grid>
 
           <Grid size={{ xs: 12, md: 3 }}>
             <TextField
               select
-              label='Year'
+              label={dictionary.humanResources.reports.common.year}
               size='small'
               value={selectedYear}
               onChange={(event) => setSelectedYear(Number(event.target.value))}
@@ -212,7 +214,7 @@ function LeaveBalancesReportContent({ onClose }: { onClose?: () => void }) {
 
           <Grid size={{ xs: 12, md: 3 }}>
             <EmployeeSelector
-              label='Employee'
+              label={dictionary.humanResources.reports.common.employee}
               value={selectedEmployee}
               onChange={(value) => setSelectedEmployee(Array.isArray(value) ? null : value)}
             />
@@ -220,7 +222,7 @@ function LeaveBalancesReportContent({ onClose }: { onClose?: () => void }) {
 
           <Grid size={{ xs: 12, md: 3 }}>
             <DepartmentSelector
-              label='Department'
+              label={dictionary.humanResources.reports.common.department}
               value={selectedDepartment}
               onChange={(value) => setSelectedDepartment(Array.isArray(value) ? null : value)}
             />
@@ -229,7 +231,7 @@ function LeaveBalancesReportContent({ onClose }: { onClose?: () => void }) {
           <Grid size={{ xs: 12, md: 3 }}>
             <TextField
               select
-              label='Leave Type'
+              label={dictionary.humanResources.reports.common.leaveType}
               size='small'
               value={selectedLeaveTypeId}
               onChange={(event) =>
@@ -237,7 +239,7 @@ function LeaveBalancesReportContent({ onClose }: { onClose?: () => void }) {
               }
               fullWidth
             >
-              <MenuItem value=''>All Leave Types</MenuItem>
+              <MenuItem value=''>{dictionary.humanResources.reports.leaveBalances.allLeaveTypes}</MenuItem>
               {(leaveTypes || []).map((leaveType) => (
                 <MenuItem key={leaveType.id} value={leaveType.id}>
                   {leaveType.name}
@@ -251,7 +253,7 @@ function LeaveBalancesReportContent({ onClose }: { onClose?: () => void }) {
             sx={{ display: 'flex', justifyContent: { xs: 'flex-start', md: 'flex-end' }, alignItems: 'center', gap: 1 }}
           >
             <Button variant='contained' size='small' onClick={handleFilter}>
-              Filter
+              {dictionary.humanResources.reports.common.filter}
             </Button>
             <FileExportGrid
               exportExcel
@@ -269,12 +271,12 @@ function LeaveBalancesReportContent({ onClose }: { onClose?: () => void }) {
 
         {isError && (
           <Alert severity='error' sx={{ mb: 2 }}>
-            {(error as Error)?.message || 'Unable to load leave balances.'}
+            {(error as Error)?.message || dictionary.humanResources.reports.leaveBalances.messages.loadError}
           </Alert>
         )}
 
         {!isFetching && rows.length === 0 && !isError && (
-          <Alert severity='info'>No leave allocations found for the selected filters.</Alert>
+          <Alert severity='info'>{dictionary.humanResources.reports.leaveBalances.messages.noRecords}</Alert>
         )}
 
         {rows.length > 0 && (
@@ -287,6 +289,7 @@ function LeaveBalancesReportContent({ onClose }: { onClose?: () => void }) {
                     organization={authOrganization?.organization}
                     userName={authUser?.user?.name || 'ProsERP'}
                     filtersLabel={filtersLabel}
+                    dictionary={dictionary}
                   />
                 }
                 fileName={`Leave Balances - ${appliedFilters.year}`}
@@ -296,13 +299,13 @@ function LeaveBalancesReportContent({ onClose }: { onClose?: () => void }) {
                 <Table size='small'>
                   <TableHead>
                     <TableRow>
-                      <TableCell>Employee No.</TableCell>
-                      <TableCell>Name</TableCell>
-                      <TableCell>Department</TableCell>
-                      <TableCell>Leave Type</TableCell>
-                      <TableCell align='right'>Allocated</TableCell>
-                      <TableCell align='right'>Used</TableCell>
-                      <TableCell align='right'>Remaining</TableCell>
+                      <TableCell>{dictionary.humanResources.reports.common.employeeNo}</TableCell>
+                      <TableCell>{dictionary.humanResources.reports.common.name}</TableCell>
+                      <TableCell>{dictionary.humanResources.reports.common.department}</TableCell>
+                      <TableCell>{dictionary.humanResources.reports.common.leaveType}</TableCell>
+                      <TableCell align='right'>{dictionary.humanResources.reports.leaveBalances.columns.allocated}</TableCell>
+                      <TableCell align='right'>{dictionary.humanResources.reports.leaveBalances.columns.used}</TableCell>
+                      <TableCell align='right'>{dictionary.humanResources.reports.leaveBalances.columns.remaining}</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -320,7 +323,7 @@ function LeaveBalancesReportContent({ onClose }: { onClose?: () => void }) {
                     {totals && (
                       <TableRow>
                         <TableCell colSpan={4} sx={{ fontWeight: 700 }}>
-                          Total
+                          {dictionary.humanResources.reports.common.total}
                         </TableCell>
                         <TableCell align='right' sx={{ fontWeight: 700 }}>
                           {fmt(totals.allocated_days)}
@@ -343,7 +346,7 @@ function LeaveBalancesReportContent({ onClose }: { onClose?: () => void }) {
       {onClose && (
         <DialogActions>
           <Button sx={{ m: 1 }} size='small' variant='outlined' onClick={() => onClose()}>
-            Close
+            {dictionary.humanResources.reports.common.close}
           </Button>
         </DialogActions>
       )}

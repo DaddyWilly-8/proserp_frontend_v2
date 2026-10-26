@@ -22,6 +22,7 @@ import React, { useEffect, useState } from 'react';
 import { useDashboardSettings } from '../Dashboard';
 import DippingTrend from './DippingTrend';
 import LatestDippings from './LatestDippings';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface DippingReportParams {
   from: string;
@@ -31,6 +32,7 @@ interface DippingReportParams {
 }
 
 function DippingsCard() {
+  const dictionary = useDictionary();
   const {
     chartFilters: { from, to, costCenters },
   } = useDashboardSettings();
@@ -132,11 +134,11 @@ function DippingsCard() {
               pb={1}
             >
               <Grid size={{ xs: 12, md: 2 }}>
-                <Typography variant='h4'>Dippings</Typography>
+                <Typography variant='h4'>{dictionary.dashboardCards.dippings}</Typography>
               </Grid>
               <Grid size={{ xs: 6, md: 10, lg: 10 }} textAlign={'end'}>
                 <ButtonGroup variant='outlined' size='small' disableElevation>
-                  <Tooltip title={'Closing'}>
+                  <Tooltip title={dictionary.tooltips.closing}>
                     <Button
                       variant={
                         selectedType === 'closing' ? 'contained' : 'outlined'
@@ -146,7 +148,7 @@ function DippingsCard() {
                       Closing
                     </Button>
                   </Tooltip>
-                  <Tooltip title={'Deviation'}>
+                  <Tooltip title={dictionary.tooltips.deviation}>
                     <Button
                       variant={
                         selectedType === 'deviation' ? 'contained' : 'outlined'
@@ -156,7 +158,7 @@ function DippingsCard() {
                       Deviation
                     </Button>
                   </Tooltip>
-                  <Tooltip title={'Calculated Stock'}>
+                  <Tooltip title={dictionary.tooltips.calculatedStock}>
                     <Button
                       variant={
                         selectedType === 'calculated stock'
@@ -197,7 +199,7 @@ function DippingsCard() {
                 pb={1}
               >
                 <Grid size={{ xs: 6, md: 6, lg: 2.5 }}>
-                  <Typography variant='h4'>Dippings</Typography>
+                  <Typography variant='h4'>{dictionary.dashboardCards.dippings}</Typography>
                 </Grid>
                 <Grid
                   size={{ xs: 6, md: 6, lg: 9.5 }}

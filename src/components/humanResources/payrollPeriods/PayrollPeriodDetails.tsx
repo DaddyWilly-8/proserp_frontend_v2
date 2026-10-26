@@ -1,5 +1,6 @@
 'use client';
 
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import { useState } from 'react';
 import { Box, Tab, Tabs } from '@mui/material';
 import PayrollPeriodRunsTab from './tabs/PayrollPeriodRunsTab';
@@ -20,6 +21,8 @@ const PayrollPeriodDetails = ({
   year, 
   month 
 }: PayrollPeriodDetailsProps) => {
+  const dictionary = useDictionary();
+  const t = dictionary.humanResources.payrollPeriods;
   const [activeTab, setActiveTab] = useState(0);
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
@@ -46,10 +49,10 @@ const PayrollPeriodDetails = ({
             },
           }}
         >
-          <Tab label="Runs" />
-          <Tab label="Ad-hoc Adjustments" />
-          <Tab label="Advances" />
-          <Tab label="Statutory Schedule" />
+          <Tab label={t.details.tabs.runs} />
+          <Tab label={t.details.tabs.adjustments} />
+          <Tab label={t.details.tabs.advances} />
+          <Tab label={t.details.tabs.statutory} />
         </Tabs>
       </Box>
 

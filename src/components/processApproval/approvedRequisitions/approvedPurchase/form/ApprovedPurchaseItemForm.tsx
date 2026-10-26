@@ -7,6 +7,7 @@ import CommaSeparatedField from '@/shared/Inputs/CommaSeparatedField';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { MeasurementUnit } from '@/components/masters/measurementUnits/MeasurementUnitType';
 import { Product } from '@/components/productAndServices/products/ProductType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface OrderItem {
     vat_percentage?: number;
@@ -29,6 +30,7 @@ interface ApprovedPurchaseItemFormProps {
 }
 
 function ApprovedPurchaseItemForm({ handleItemChange, items, approvedDetails, prevApprovedDetails }: ApprovedPurchaseItemFormProps) {
+    const dictionary = useDictionary();
     const { authOrganization } = useJumboAuth();
 
     // Filter items: only include those with unordered_quantity > 0 AND fulfillment_type === 'PURCHASE'
@@ -89,14 +91,14 @@ function ApprovedPurchaseItemForm({ handleItemChange, items, approvedDetails, pr
                         </Grid>
                         <Grid size={{xs: 11.5, md: 4, lg: 3}}>
                             <Div sx={{ mt: 2, mb: 1.7 }}>
-                                <Tooltip title="Product">
+                                <Tooltip title={dictionary.tooltips.product}>
                                     <Typography>{item.product.name}</Typography>
                                 </Tooltip>
                             </Div>
                         </Grid>
                         <Grid size={{xs: 6, md: 5, lg: 1.5}}>
                             <Div sx={{ mt: 2, mb: 1.7 }}>
-                                <Tooltip title="Unordered Quantity">
+                                <Tooltip title={dictionary.tooltips.unorderedQuantity}>
                                     <span>
                                         {item.unordered_quantity.toLocaleString()} {unitSymbol}
                                     </span>
@@ -106,7 +108,7 @@ function ApprovedPurchaseItemForm({ handleItemChange, items, approvedDetails, pr
                         <Grid size={{xs: 6, md: 2.5, lg: 1.5}}>
                             <Div sx={{ mt: 1, mb: 0.5 }}>
                                 <TextField
-                                    label="Quantity"
+                                    label={dictionary.forms.approvedRequisitions.approvedPurchase.item.quantity}
                                     fullWidth
                                     size="small"
                                     defaultValue={
@@ -122,7 +124,7 @@ function ApprovedPurchaseItemForm({ handleItemChange, items, approvedDetails, pr
                                     error={item.quantity > item.unordered_quantity}
                                     helperText={
                                         item.quantity > item.unordered_quantity
-                                            ? 'Quantity cannot exceed unordered quantity'
+                                            ? dictionary.forms.approvedRequisitions.approvedPurchase.item.quantityExceeds
                                             : ''
                                     }
                                 />
@@ -130,7 +132,7 @@ function ApprovedPurchaseItemForm({ handleItemChange, items, approvedDetails, pr
                         </Grid>
                         <Grid size={{xs: 12, md: 1, lg: 1}}>
                             <Typography align='left' variant='body2'>
-                                VAT
+                                {dictionary.forms.approvedRequisitions.approvedPurchase.item.vat}
                                 <Checkbox
                                     size='small'
                                     checked={!!item.vat_percentage}
@@ -155,9 +157,9 @@ function ApprovedPurchaseItemForm({ handleItemChange, items, approvedDetails, pr
                             textAlign={{ md: 'end' }}
                         >
                             <Div sx={{ mt: 2, mb: 1.7 }}>
-                                <Tooltip title={`Approved Price: ${approvedRate.toLocaleString()}`}>
+                                <Tooltip title={`${dictionary.forms.approvedRequisitions.approvedPurchase.approvedPrice}: ${approvedRate.toLocaleString()}`}>
                                     <TextField
-                                        label="Price"
+                                        label={dictionary.forms.approvedRequisitions.approvedPurchase.item.price}
                                         fullWidth
                                         size="small"
                                         value={displayRate}
@@ -171,7 +173,10 @@ function ApprovedPurchaseItemForm({ handleItemChange, items, approvedDetails, pr
                                         error={isRateExceeded}
                                         helperText={
                                             isRateExceeded
-                                                ? `Price cannot exceed approved price (${approvedRate.toLocaleString()})`
+                                                ? dictionary.forms.approvedRequisitions.approvedPurchase.item.priceExceeds.replace(
+                                                      '{price}',
+                                                      approvedRate.toLocaleString()
+                                                  )
                                                 : ''
                                         }
                                     />
@@ -184,7 +189,7 @@ function ApprovedPurchaseItemForm({ handleItemChange, items, approvedDetails, pr
                                 textAlign={'end'}
                             >
                                 <Div sx={{ mt: 2, mb: 1.7 }}>
-                                    <Tooltip title="VAT">
+                                    <Tooltip title={dictionary.tooltips.vat}>
                                         <Typography>
                                             {(displayRate * vat_factor).toLocaleString()}
                                         </Typography>
@@ -201,7 +206,7 @@ function ApprovedPurchaseItemForm({ handleItemChange, items, approvedDetails, pr
                             textAlign={'end'}
                         >
                             <Div sx={{ mt: 2, mb: 1.7 }}>
-                                <Tooltip title="Amount">
+                                <Tooltip title={dictionary.tooltips.amount}>
                                     <Typography>
                                         {(item.quantity * displayRate * (1 + vat_factor)).toLocaleString()}
                                     </Typography>
@@ -217,7 +222,7 @@ function ApprovedPurchaseItemForm({ handleItemChange, items, approvedDetails, pr
                                 textAlign={'end'}
                             >
                                 <Div sx={{ mt: 1, mb: 1.7 }}>
-                                    <Tooltip title="Remove Item">
+                                    <Tooltip title={dictionary.tooltips.removeItem}>
                                         <IconButton
                                             size="small"
                                             onClick={() => handleItemChange(itemIndex, 'delete', true)}

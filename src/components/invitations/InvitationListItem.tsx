@@ -36,6 +36,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useSnackbar } from "notistack";
 import { MenuItemProps } from "@jumbo/types";
 import { Organization } from "@/types/auth-types";
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 type InvitationListItemProps = {
   organization: Organization;
@@ -52,6 +53,7 @@ const InvitationListItem: React.FC<InvitationListItemProps> = ({
   organization,
   view,
 }) => {
+  const dictionary = useDictionary();
   const { showDialog, hideDialog } = useJumboDialog();
   const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
@@ -162,7 +164,7 @@ const InvitationListItem: React.FC<InvitationListItemProps> = ({
                 </ListItemIcon>
                 <ListItemText primary={organization.phone} />
               </ListItem>
-              <Tooltip title="Status">
+              <Tooltip title={dictionary.tooltips.status}>
                 <ListItem sx={{ px: 1.5 }}>
                   <ListItemIcon sx={{ minWidth: 50 }}>
                     <VerifiedUser color={statusColor} />
@@ -206,7 +208,7 @@ const InvitationListItem: React.FC<InvitationListItemProps> = ({
                     primary={
                     <Typography variant="body1" component="div">
                         <Stack direction="row" alignItems="center" sx={{ minWidth: 0 }}>
-                        <Tooltip title="Organization Name">
+                        <Tooltip title={dictionary.tooltips.organizationName}>
                             <Item
                             sx={{
                                 flexBasis: { xs: "100%", sm: "50%", md: "25%" },
@@ -231,7 +233,7 @@ const InvitationListItem: React.FC<InvitationListItemProps> = ({
                             </Typography>
                             </Item>
                         </Tooltip>
-                        <Tooltip title="Email">
+                        <Tooltip title={dictionary.tooltips.email}>
                             <Item
                             sx={{
                                 flexBasis: { sm: "50%", md: "28%" },
@@ -243,7 +245,7 @@ const InvitationListItem: React.FC<InvitationListItemProps> = ({
                             </Typography>
                             </Item>
                         </Tooltip>
-                        <Tooltip title="Phone">
+                        <Tooltip title={dictionary.tooltips.phone}>
                             <Item
                             sx={{
                                 flexBasis: { md: "25%" },
@@ -255,7 +257,7 @@ const InvitationListItem: React.FC<InvitationListItemProps> = ({
                             </Typography>
                             </Item>
                         </Tooltip>
-                        <Tooltip title="Status">
+                        <Tooltip title={dictionary.tooltips.status}>
                             <Item
                             sx={{
                                 flexBasis: { md: "22%" },

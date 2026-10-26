@@ -2,9 +2,12 @@ import { Autocomplete, Checkbox, Chip, TextField } from "@mui/material";
 import { CheckBox, CheckBoxOutlineBlank } from "@mui/icons-material";
 import { useState, useEffect } from "react";
 import { useProjectProfile } from "./ProjectProfileProvider";
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const ProjectDeliverablesSelector = (props) => {
-  const { onChange, multiple = false, label = 'Deliverable', defaultValue = null, frontError = null } = props;
+  const { onChange, multiple = false, label: labelProp, defaultValue = null, frontError = null } = props;
+  const dictionary = useDictionary();
+  const label = labelProp ?? dictionary.projectManagement.profile.deliverable;
   const { project, deliverablesLoading } = useProjectProfile();
   
   // Handle loading state or missing data gracefully
@@ -50,7 +53,7 @@ const ProjectDeliverablesSelector = (props) => {
         fullWidth
         label={label}
         size="small"
-        placeholder="Loading deliverables..."
+        placeholder={dictionary.projectManagement.profile.loadingDeliverables}
         disabled
       />
     );

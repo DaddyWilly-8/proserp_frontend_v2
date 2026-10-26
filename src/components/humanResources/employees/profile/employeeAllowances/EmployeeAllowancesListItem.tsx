@@ -4,12 +4,14 @@ import EmployeeAllowanceItemAction from '@/components/humanResources/employees/p
 import { Divider, Grid, Tooltip, Typography } from '@mui/material';
 import dayjs from 'dayjs';
 import { EmployeeAllowanceType } from './EmployeeAllowanceType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const EmployeeAllowancesListItem = ({
   employeeAllowance,
 }: {
   employeeAllowance: EmployeeAllowanceType;
 }) => {
+  const dictionary = useDictionary();
   return (
     <>
       <Divider />
@@ -29,22 +31,25 @@ const EmployeeAllowancesListItem = ({
         container
       >
         <Grid size={{ xs: 6, md: 3.0 }}>
-          <Tooltip title='Allowance Type'>
+          <Tooltip title={dictionary.tooltips.allowanceType}>
             <Typography>
               {employeeAllowance.allowance_type?.name ||
-                `Type #${employeeAllowance.allowance_type_id}`}
+                dictionary.humanResources.employeeAllowances.list.typeFallback.replace(
+                  '{id}',
+                  String(employeeAllowance.allowance_type_id)
+                )}
             </Typography>
           </Tooltip>
         </Grid>
 
         <Grid size={{ xs: 6, md: 2.0 }}>
-          <Tooltip title='Amount'>
+          <Tooltip title={dictionary.tooltips.amount}>
             <Typography>{employeeAllowance.amount.toLocaleString()}</Typography>
           </Tooltip>
         </Grid>
 
         <Grid size={{ xs: 6, md: 2.5 }}>
-          <Tooltip title='Effective From'>
+          <Tooltip title={dictionary.tooltips.effectiveFrom}>
             <Typography>
               {employeeAllowance.effective_from
                 ? dayjs(employeeAllowance.effective_from).format('YYYY-MM-DD')
@@ -54,11 +59,11 @@ const EmployeeAllowancesListItem = ({
         </Grid>
 
         <Grid size={{ xs: 6, md: 3.5 }}>
-          <Tooltip title='Effective To'>
+          <Tooltip title={dictionary.tooltips.effectiveTo}>
             <Typography>
               {employeeAllowance.effective_to
                 ? dayjs(employeeAllowance.effective_to).format('YYYY-MM-DD')
-                : 'Open-ended'}
+                : dictionary.humanResources.employeeAllowances.list.openEnded}
             </Typography>
           </Tooltip>
         </Grid>

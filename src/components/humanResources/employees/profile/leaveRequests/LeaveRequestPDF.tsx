@@ -3,6 +3,7 @@ import PdfLogo from '@/components/pdf/PdfLogo';
 import pdfStyles from '@/components/pdf/pdf-styles';
 import { Document, Page, Text, View } from '@react-pdf/renderer';
 import { LeaveRequestType } from './LeaveRequestType';
+import enSections from '@/dictionaries/en/humanResources/employeeProfileSections.json';
 
 interface LeaveRequestPDFProps {
   data: LeaveRequestType;
@@ -12,6 +13,9 @@ interface LeaveRequestPDFProps {
   // caller's own record) — the caller supplies the name directly in that
   // case; HR's `details.employee` is used otherwise.
   employeeName?: string;
+  // React context does not reach react-pdf's renderer, so the caller passes
+  // the dictionary in; falls back to English when it isn't supplied.
+  dictionary?: any;
 }
 
 function days(value?: number | null) {
@@ -23,7 +27,9 @@ export default function LeaveRequestPDF({
   organization,
   userName,
   employeeName,
+  dictionary,
 }: LeaveRequestPDFProps) {
+  const t = (dictionary?.humanResources ?? enSections).leaveRequests.pdf;
   const mainColor = organization?.settings?.main_color || '#2113AD';
   const lightColor = organization?.settings?.light_color || '#bec5da';
   const contrastText = organization?.settings?.contrast_text || '#FFFFFF';
@@ -31,7 +37,10 @@ export default function LeaveRequestPDF({
   const resolvedEmployeeName =
     employeeName ||
     `${data.employee?.first_name ?? ''} ${data.employee?.middle_name ?? ''} ${data.employee?.last_name ?? ''}`.trim() ||
-    `Employee #${data.employee_id}`;
+    (dictionary?.humanResources ?? enSections).leaveRequests.preview.employeeFallback.replace(
+      '{id}',
+      String(data.employee_id)
+    );
 
   const balance = data.leave_balance;
   const approvals = data.approvals || [];
@@ -44,8 +53,13 @@ export default function LeaveRequestPDF({
     (a: any, b: any) => Number(a.position_index ?? 0) - Number(b.position_index ?? 0)
   );
   const signatories = levels.length > 0
-    ? levels.map((level: any) => `${level.role?.name || level.label || level.level_name || 'Approver'} Signature`)
-    : ['Approver Signature'];
+    ? levels.map((level: any) =>
+        t.signature.replace(
+          '{role}',
+          level.role?.name || level.label || level.level_name || t.approver
+        )
+      )
+    : [t.approverSignature];
 
   const headerCellStyle = {
     ...pdfStyles.tableHeader,
@@ -56,16 +70,16 @@ export default function LeaveRequestPDF({
 
   const summaryTiles: { label: string; value: string }[] = balance?.has_allocation
     ? [
-        { label: 'Allocated', value: days(balance.allocated_days) },
-        { label: 'Used', value: days(balance.used_days) },
-        { label: 'Carried Forward', value: days(balance.carried_forward_days) },
-        { label: 'Remaining', value: days(balance.remaining_days) },
+        { label: t.allocated, value: days(balance.allocated_days) },
+        { label: t.used, value: days(balance.used_days) },
+        { label: t.carriedForward, value: days(balance.carried_forward_days) },
+        { label: t.remaining, value: days(balance.remaining_days) },
       ]
     : [];
 
   return (
     <Document
-      title={`Leave Application - ${resolvedEmployeeName}`}
+      title={`${t.applicationTitle} - ${resolvedEmployeeName}`}
       creator={`${userName} | Powered By ProsERP`}
       producer='ProsERP'
     >
@@ -76,55 +90,55 @@ export default function LeaveRequestPDF({
           </View>
           <View style={{ flex: 1, textAlign: 'right' }}>
             <Text style={{ ...pdfStyles.majorInfo, color: mainColor }}>
-              Leave Application Form
+              {t.title}
             </Text>
           </View>
         </View>
 
         <View style={{ ...pdfStyles.tableRow, marginBottom: 14 }}>
           <View style={{ flex: 1.5 }}>
-            <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>Employee</Text>
+            <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>{t.employee}</Text>
             <Text style={pdfStyles.minInfo}>
               {data.employee?.employee_number ? `${data.employee.employee_number} — ` : ''}
               {resolvedEmployeeName}
             </Text>
           </View>
           <View style={{ flex: 1 }}>
-            <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>Leave Type</Text>
+            <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>{t.leaveType}</Text>
             <Text style={pdfStyles.minInfo}>{data.leave_type?.name || '—'}</Text>
           </View>
           <View style={{ flex: 1 }}>
-            <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>Status</Text>
+            <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>{t.status}</Text>
             <Text style={pdfStyles.minInfo}>{data.status_label || data.status}</Text>
           </View>
           <View style={{ flex: 1 }}>
-            <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>Printed On</Text>
+            <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>{t.printedOn}</Text>
             <Text style={pdfStyles.minInfo}>{readableDate(undefined, true)}</Text>
           </View>
         </View>
 
         <View style={{ ...pdfStyles.tableRow, marginBottom: 14 }}>
           <View style={{ flex: 1 }}>
-            <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>Start Date</Text>
+            <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>{t.startDate}</Text>
             <Text style={pdfStyles.minInfo}>{readableDate(data.start_date)}</Text>
           </View>
           <View style={{ flex: 1 }}>
-            <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>End Date</Text>
+            <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>{t.endDate}</Text>
             <Text style={pdfStyles.minInfo}>{readableDate(data.end_date)}</Text>
           </View>
           <View style={{ flex: 1 }}>
-            <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>Days Requested</Text>
+            <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>{t.daysRequested}</Text>
             <Text style={pdfStyles.minInfo}>{days(data.days_requested)}</Text>
           </View>
           <View style={{ flex: 1 }}>
-            <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>Days Granted</Text>
+            <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>{t.daysGranted}</Text>
             <Text style={pdfStyles.minInfo}>{days(data.days_granted)}</Text>
           </View>
         </View>
 
         {data.reason && (
           <View style={{ marginBottom: 14 }}>
-            <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>Reason</Text>
+            <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>{t.reason}</Text>
             <Text style={pdfStyles.minInfo}>{data.reason}</Text>
           </View>
         )}
@@ -152,19 +166,19 @@ export default function LeaveRequestPDF({
         )}
 
         <View style={{ ...pdfStyles.tableRow, marginBottom: 6 }}>
-          <Text style={{ fontSize: 12, fontWeight: 'bold' }}>Approval History</Text>
+          <Text style={{ fontSize: 12, fontWeight: 'bold' }}>{t.approvalHistory}</Text>
         </View>
         {approvals.length === 0 ? (
           <Text style={{ fontSize: 9, color: '#666666', marginBottom: 20 }}>
-            No approval action recorded yet.
+            {t.noApprovalAction}
           </Text>
         ) : (
           <View style={{ ...pdfStyles.table, marginBottom: 20 }}>
             <View style={pdfStyles.tableRow}>
-              <Text style={headerCellStyle}>Date</Text>
-              <Text style={headerCellStyle}>By</Text>
-              <Text style={headerCellStyle}>Status</Text>
-              <Text style={{ ...headerCellStyle, flex: 2 }}>Remarks</Text>
+              <Text style={headerCellStyle}>{t.date}</Text>
+              <Text style={headerCellStyle}>{t.by}</Text>
+              <Text style={headerCellStyle}>{t.status}</Text>
+              <Text style={{ ...headerCellStyle, flex: 2 }}>{t.remarks}</Text>
             </View>
             {approvals.map((approval, index) => (
               <View key={approval.id || index} style={pdfStyles.tableRow}>
@@ -219,15 +233,15 @@ export default function LeaveRequestPDF({
           <View style={{ width: '48%', marginRight: '4%', marginBottom: 24 }}>
             <View style={{ height: 28 }} />
             <View style={{ ...pdfStyles.blackLine, marginBottom: 4 }} />
-            <Text style={pdfStyles.minInfo}>Employee Signature</Text>
-            <Text style={{ ...pdfStyles.minInfo, marginTop: 16 }}>Date: ______________</Text>
+            <Text style={pdfStyles.minInfo}>{t.employeeSignature}</Text>
+            <Text style={{ ...pdfStyles.minInfo, marginTop: 16 }}>{t.dateLine}</Text>
           </View>
           {signatories.map((label, index) => (
             <View key={index} style={{ width: '48%', marginRight: '4%', marginBottom: 24 }}>
               <View style={{ height: 28 }} />
               <View style={{ ...pdfStyles.blackLine, marginBottom: 4 }} />
               <Text style={pdfStyles.minInfo}>{label}</Text>
-              <Text style={{ ...pdfStyles.minInfo, marginTop: 16 }}>Date: ______________</Text>
+              <Text style={{ ...pdfStyles.minInfo, marginTop: 16 }}>{t.dateLine}</Text>
             </View>
           ))}
         </View>

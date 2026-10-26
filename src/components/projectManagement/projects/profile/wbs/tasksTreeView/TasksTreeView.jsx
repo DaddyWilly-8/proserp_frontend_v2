@@ -13,9 +13,10 @@ import {
 import { getTreeGraphOptions } from '@/utilities/constants/chartOptions';
 import { useProjectProfile } from '../../ProjectProfileProvider';
 import { HighchartsWrapper } from '@/components/HighchartsWrapper';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 // ✅ Data transformation function
-const transformTasksToTreeData = (groups) => {
+const transformTasksToTreeData = (groups, dictionary) => {
   if (!Array.isArray(groups) || groups.length === 0) {
     return [];
   }
@@ -26,7 +27,7 @@ const transformTasksToTreeData = (groups) => {
     return sortedGroups.flatMap((group) => {
       const groupNode = {
         id: 'activity_' + group.id,
-        name: group.name || 'Unnamed Activity',
+        name: group.name || dictionary.projectManagement.wbs.treeView.unnamedActivity,
         parent: parentName,
         nodeType: 'group',
       };
@@ -37,7 +38,7 @@ const transformTasksToTreeData = (groups) => {
 
       const taskNodes = sortedTasks.map((task) => ({
         id: 'task_' + task.id,
-        name: task.name || 'Unnamed Task',
+        name: task.name || dictionary.projectManagement.wbs.treeView.unnamedTask,
         parent: 'activity_' + group.id,
         className: task.is_milestone ? 'milestone-task' : '',
         nodeType: 'task',
@@ -56,18 +57,19 @@ const transformTasksToTreeData = (groups) => {
 };
 
 function TasksTreeView({ setOpenTasksTreeView }) {
+  const dictionary = useDictionary();
   const { project, projectTimelineActivities } = useProjectProfile();
 
   // ✅ Transform data
-  const treeData = transformTasksToTreeData(projectTimelineActivities);
+  const treeData = transformTasksToTreeData(projectTimelineActivities, dictionary);
 
   // ✅ Empty state
   if (!treeData || treeData.length === 0) {
     return (
       <>
         <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Typography variant="h6">Tasks Tree View</Typography>
-          <Tooltip title='Close'>
+          <Typography variant="h6">{dictionary.projectManagement.wbs.treeView.title}</Typography>
+          <Tooltip title={dictionary.tooltips.close}>
             <IconButton size='small' onClick={() => setOpenTasksTreeView(false)}>
               <HighlightOff color='primary' />
             </IconButton>
@@ -76,13 +78,13 @@ function TasksTreeView({ setOpenTasksTreeView }) {
         <DialogContent>
           <div style={{ padding: '40px', textAlign: 'center' }}>
             <Typography variant="body1" color="textSecondary">
-              No tasks available for this project.
+              {dictionary.projectManagement.wbs.treeView.noTasks}
             </Typography>
           </div>
         </DialogContent>
         <DialogActions>
           <Button variant="contained" onClick={() => setOpenTasksTreeView(false)}>
-            Close
+            {dictionary.projectManagement.wbs.common.close}
           </Button>
         </DialogActions>
       </>
@@ -98,16 +100,16 @@ function TasksTreeView({ setOpenTasksTreeView }) {
       className: node.className,
       nodeType: node.nodeType,
     })),
-    project?.name ? `${project.name} - Tasks Tree View` : 'Tasks Tree View'
+    project?.name ? `${project.name} - ${dictionary.projectManagement.wbs.treeView.title}` : dictionary.projectManagement.wbs.treeView.title
   );
 
   return (
     <>
       <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Typography variant="h6" component="span" sx={{ fontWeight: 600 }}>
-          Tasks Tree View
+          {dictionary.projectManagement.wbs.treeView.title}
         </Typography>
-        <Tooltip title='Close'>
+        <Tooltip title={dictionary.tooltips.close}>
           <IconButton size='small' onClick={() => setOpenTasksTreeView(false)}>
             <HighlightOff color='primary' />
           </IconButton>
@@ -120,7 +122,7 @@ function TasksTreeView({ setOpenTasksTreeView }) {
 
       <DialogActions>
         <Button variant="contained" color="primary" onClick={() => setOpenTasksTreeView(false)}>
-          Close
+          {dictionary.projectManagement.wbs.common.close}
         </Button>
       </DialogActions>
     </>

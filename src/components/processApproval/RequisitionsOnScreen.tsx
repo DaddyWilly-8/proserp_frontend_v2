@@ -36,6 +36,7 @@ import {
   RequisitionItem,
   Vendor,
 } from './RequisitionType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface Props {
   requisition: Requisition;
@@ -130,6 +131,7 @@ const RequisitionsOnScreen: React.FC<Props> = ({
   organization,
   belowLargeScreen,
 }) => {
+  const dictionary = useDictionary();
   const theme = useTheme();
   const [selectedRelated, setSelectedRelated] = useState<{ id: number } | null>(
     null
@@ -369,7 +371,7 @@ const RequisitionsOnScreen: React.FC<Props> = ({
                                       mt: 0.5,
                                     }}
                                   >
-                                    <Tooltip title='Related to'>
+                                    <Tooltip title={dictionary.tooltips.relatedTo}>
                                       <Typography
                                         variant='body2'
                                         component='span'

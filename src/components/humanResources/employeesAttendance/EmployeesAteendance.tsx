@@ -20,13 +20,15 @@ import { EmployeeAttendanceType } from './EmployeeAttendanceType';
 import EmployeesAteendanceActionTail from './EmployeesAteendanceActionTail';
 import EmployeesAteendanceListItem from './EmployeesAteendanceListItem';
 import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
-const TYPE_OPTIONS = [
-  { label: 'Present', value: 'present' },
-  { label: 'Absent', value: 'absent' },
-  { label: 'On Leave', value: 'on leave' },
-];
 const EmployeesAttendance = () => {
+  const dictionary = useDictionary();
+  const TYPE_OPTIONS = [
+    { label: dictionary.humanResources.employeesAttendance.list.types.present, value: 'present' },
+    { label: dictionary.humanResources.employeesAttendance.list.types.absent, value: 'absent' },
+    { label: dictionary.humanResources.employeesAttendance.list.types["on leave"], value: 'on leave' },
+  ];
   const listRef = useRef<any>(null);
   const [mounted, setMounted] = useState(false);
 
@@ -70,7 +72,7 @@ const EmployeesAttendance = () => {
   return (
     <>
       <Typography variant={'h4'} mb={2}>
-        Employees Attendance
+        {dictionary.humanResources.employeesAttendance.title}
       </Typography>
       <EmployeesProvider>
         <JumboRqList
@@ -127,14 +129,14 @@ const EmployeesAttendance = () => {
                         }));
                       }}
                       renderInput={(inputParams) => (
-                        <TextField {...inputParams} label='Status' fullWidth />
+                        <TextField {...inputParams} label={dictionary.humanResources.employeesAttendance.list.labels.status} fullWidth />
                       )}
                     />
                   </Grid>
                   <Grid size={{ xs: 12, md: 3 }}>
                     <div>
                       <DatePicker
-                        label='From'
+                        label={dictionary.humanResources.employeesAttendance.list.labels.from}
                         value={dayjs(queryOptions.queryParams.from) ?? null}
                         onChange={(value: Dayjs | null) => {
                           if (value) {
@@ -160,7 +162,7 @@ const EmployeesAttendance = () => {
                   <Grid size={{ xs: 12, md: 3 }}>
                     <div>
                       <DatePicker
-                        label='To'
+                        label={dictionary.humanResources.employeesAttendance.list.labels.to}
                         value={dayjs(queryOptions.queryParams.to) ?? null}
                         onChange={(value: Dayjs | null) => {
                           if (value) {

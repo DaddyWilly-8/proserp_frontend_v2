@@ -41,6 +41,7 @@ import { Stakeholder } from '../../masters/stakeholders/StakeholderType';
 import ProductSelect from '../../productAndServices/products/ProductSelect';
 import posServices from '../pos-services';
 import ProductSalesReportPDF from './ProductSalesReportPDF';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface ProductSalesReportRow {
   product_id: number;
@@ -93,6 +94,7 @@ const formatAmount = (value: number) =>
   });
 
 const ProductSalesReportDialog: React.FC = () => {
+  const dictionary = useDictionary();
   const [open, setOpen] = useState(false);
   const [from, setFrom] = useState<Dayjs | null>(dayjs().startOf('day'));
   const [to, setTo] = useState<Dayjs | null>(dayjs().endOf('day'));
@@ -201,7 +203,7 @@ const ProductSalesReportDialog: React.FC = () => {
       a.click();
       window.URL.revokeObjectURL(url);
     } catch (error: any) {
-      enqueueSnackbar('Could not export the Excel file', {
+      enqueueSnackbar(dictionary.forms.counter.productSalesReport.messages.exportFailed, {
         variant: 'error',
       });
     } finally {
@@ -211,7 +213,7 @@ const ProductSalesReportDialog: React.FC = () => {
 
   return (
     <>
-      <Tooltip title='Product Sales Report'>
+      <Tooltip title={dictionary.tooltips.productSalesReport}>
         <IconButton size='small' onClick={handleOpen}>
           <AssessmentOutlined />
         </IconButton>
@@ -225,10 +227,10 @@ const ProductSalesReportDialog: React.FC = () => {
         scroll='paper'
       >
         <DialogTitle>
-          Product Sales Report
+          {dictionary.forms.counter.productSalesReport.labels.title}
           {baseCurrencyCode && (
             <Typography variant='caption' display='block' color='text.secondary'>
-              Amounts in base currency ({baseCurrencyCode})
+              {dictionary.forms.counter.productSalesReport.labels.amountsInBaseCurrency.replace('{code}', baseCurrencyCode)}
             </Typography>
           )}
         </DialogTitle>
@@ -236,7 +238,7 @@ const ProductSalesReportDialog: React.FC = () => {
           <Grid container spacing={1} sx={{ mb: 2 }}>
             <Grid size={{ xs: 12, md: 4 }}>
               <DateTimePicker
-                label='From'
+                label={dictionary.forms.counter.productSalesReport.labels.from}
                 value={from}
                 slotProps={{ textField: { size: 'small', fullWidth: true } }}
                 onChange={(value) => setFrom(value)}
@@ -244,7 +246,7 @@ const ProductSalesReportDialog: React.FC = () => {
             </Grid>
             <Grid size={{ xs: 12, md: 4 }}>
               <DateTimePicker
-                label='To'
+                label={dictionary.forms.counter.productSalesReport.labels.to}
                 value={to}
                 slotProps={{ textField: { size: 'small', fullWidth: true } }}
                 onChange={(value) => setTo(value)}
@@ -264,7 +266,7 @@ const ProductSalesReportDialog: React.FC = () => {
                   `${option.outletName} / ${option.name}`
                 }
                 renderInput={(params) => (
-                  <TextField {...params} label='Counters (all if empty)' />
+                  <TextField {...params} label={dictionary.forms.counter.productSalesReport.labels.countersAll} />
                 )}
                 renderTags={(tagValue, getTagProps) =>
                   tagValue.map((option, index) => (
@@ -294,7 +296,7 @@ const ProductSalesReportDialog: React.FC = () => {
             </Grid>
             <Grid size={{ xs: 12, md: 6 }}>
               <StakeholderSelector
-                label='Clients (all if empty)'
+                label={dictionary.forms.counter.productSalesReport.labels.clientsAll}
                 multiple
                 onChange={(newValue) =>
                   setSelectedStakeholders(
@@ -305,7 +307,7 @@ const ProductSalesReportDialog: React.FC = () => {
             </Grid>
             <Grid size={{ xs: 12, md: 6 }}>
               <ProductSelect
-                label='Products (all if empty)'
+                label={dictionary.forms.counter.productSalesReport.labels.productsAll}
                 multiple
                 onChange={(newValue: any[]) =>
                   setSelectedProducts(newValue || [])
@@ -320,7 +322,7 @@ const ProductSalesReportDialog: React.FC = () => {
                 disabled={!from || !to || generateReport.isPending}
                 onClick={handleGenerate}
               >
-                Generate
+                {dictionary.forms.counter.productSalesReport.labels.generate}
               </Button>
             </Grid>
           </Grid>
@@ -335,7 +337,7 @@ const ProductSalesReportDialog: React.FC = () => {
                 textAlign='center'
                 sx={{ py: 3 }}
               >
-                No sales found for this period.
+                {dictionary.forms.counter.productSalesReport.messages.noSales}
               </Typography>
             ) : showPdfPreview ? (
               <PDFContent
@@ -369,7 +371,7 @@ const ProductSalesReportDialog: React.FC = () => {
                       <Grid container rowSpacing={0.5}>
                         <Grid size={6}>
                           <Typography variant='caption' color='text.secondary'>
-                            Qty Ordered
+                            {dictionary.forms.counter.productSalesReport.labels.qtyOrdered}
                           </Typography>
                         </Grid>
                         <Grid size={6} textAlign='right'>
@@ -382,7 +384,7 @@ const ProductSalesReportDialog: React.FC = () => {
                         </Grid>
                         <Grid size={6}>
                           <Typography variant='caption' color='text.secondary'>
-                            Qty Dispatched
+                            {dictionary.forms.counter.productSalesReport.labels.qtyDispatched}
                           </Typography>
                         </Grid>
                         <Grid size={6} textAlign='right'>
@@ -395,7 +397,7 @@ const ProductSalesReportDialog: React.FC = () => {
                         </Grid>
                         <Grid size={6}>
                           <Typography variant='caption' color='text.secondary'>
-                            Qty Undispatched
+                            {dictionary.forms.counter.productSalesReport.labels.qtyUndispatched}
                           </Typography>
                         </Grid>
                         <Grid size={6} textAlign='right'>
@@ -408,7 +410,7 @@ const ProductSalesReportDialog: React.FC = () => {
                         </Grid>
                         <Grid size={6}>
                           <Typography variant='caption' color='text.secondary'>
-                            Amount Ordered
+                            {dictionary.forms.counter.productSalesReport.labels.amountOrdered}
                           </Typography>
                         </Grid>
                         <Grid size={6} textAlign='right'>
@@ -418,7 +420,7 @@ const ProductSalesReportDialog: React.FC = () => {
                         </Grid>
                         <Grid size={6}>
                           <Typography variant='caption' color='text.secondary'>
-                            Amount Dispatched
+                            {dictionary.forms.counter.productSalesReport.labels.amountDispatched}
                           </Typography>
                         </Grid>
                         <Grid size={6} textAlign='right'>
@@ -428,7 +430,7 @@ const ProductSalesReportDialog: React.FC = () => {
                         </Grid>
                         <Grid size={6}>
                           <Typography variant='caption' color='text.secondary'>
-                            Amount Undispatched
+                            {dictionary.forms.counter.productSalesReport.labels.amountUndispatched}
                           </Typography>
                         </Grid>
                         <Grid size={6} textAlign='right'>
@@ -440,7 +442,7 @@ const ProductSalesReportDialog: React.FC = () => {
                         </Grid>
                         <Grid size={6}>
                           <Typography variant='caption' color='text.secondary'>
-                            Payment Received
+                            {dictionary.forms.counter.productSalesReport.labels.paymentReceived}
                           </Typography>
                         </Grid>
                         <Grid size={6} textAlign='right'>
@@ -456,12 +458,12 @@ const ProductSalesReportDialog: React.FC = () => {
                     sx={{ p: 1.5, bgcolor: 'action.hover' }}
                   >
                     <Typography variant='subtitle2' gutterBottom>
-                      Total
+                      {dictionary.forms.counter.productSalesReport.labels.total}
                     </Typography>
                     <Grid container rowSpacing={0.5}>
                       <Grid size={6}>
                         <Typography variant='caption' color='text.secondary'>
-                          Qty Ordered
+                          {dictionary.forms.counter.productSalesReport.labels.qtyOrdered}
                         </Typography>
                       </Grid>
                       <Grid size={6} textAlign='right'>
@@ -475,7 +477,7 @@ const ProductSalesReportDialog: React.FC = () => {
                       </Grid>
                       <Grid size={6}>
                         <Typography variant='caption' color='text.secondary'>
-                          Qty Dispatched
+                          {dictionary.forms.counter.productSalesReport.labels.qtyDispatched}
                         </Typography>
                       </Grid>
                       <Grid size={6} textAlign='right'>
@@ -490,7 +492,7 @@ const ProductSalesReportDialog: React.FC = () => {
                       </Grid>
                       <Grid size={6}>
                         <Typography variant='caption' color='text.secondary'>
-                          Qty Undispatched
+                          {dictionary.forms.counter.productSalesReport.labels.qtyUndispatched}
                         </Typography>
                       </Grid>
                       <Grid size={6} textAlign='right'>
@@ -507,7 +509,7 @@ const ProductSalesReportDialog: React.FC = () => {
                       </Grid>
                       <Grid size={6}>
                         <Typography variant='caption' color='text.secondary'>
-                          Amount Ordered
+                          {dictionary.forms.counter.productSalesReport.labels.amountOrdered}
                         </Typography>
                       </Grid>
                       <Grid size={6} textAlign='right'>
@@ -517,7 +519,7 @@ const ProductSalesReportDialog: React.FC = () => {
                       </Grid>
                       <Grid size={6}>
                         <Typography variant='caption' color='text.secondary'>
-                          Amount Dispatched
+                          {dictionary.forms.counter.productSalesReport.labels.amountDispatched}
                         </Typography>
                       </Grid>
                       <Grid size={6} textAlign='right'>
@@ -529,7 +531,7 @@ const ProductSalesReportDialog: React.FC = () => {
                       </Grid>
                       <Grid size={6}>
                         <Typography variant='caption' color='text.secondary'>
-                          Amount Undispatched
+                          {dictionary.forms.counter.productSalesReport.labels.amountUndispatched}
                         </Typography>
                       </Grid>
                       <Grid size={6} textAlign='right'>
@@ -544,7 +546,7 @@ const ProductSalesReportDialog: React.FC = () => {
                       </Grid>
                       <Grid size={6}>
                         <Typography variant='caption' color='text.secondary'>
-                          Payment Received
+                          {dictionary.forms.counter.productSalesReport.labels.paymentReceived}
                         </Typography>
                       </Grid>
                       <Grid size={6} textAlign='right'>
@@ -564,14 +566,14 @@ const ProductSalesReportDialog: React.FC = () => {
                     <Table size='small'>
                       <TableHead>
                         <TableRow>
-                          <TableCell>Product</TableCell>
-                          <TableCell align='right'>Qty Ordered</TableCell>
-                          <TableCell align='right'>Qty Dispatched</TableCell>
-                          <TableCell align='right'>Qty Undispatched</TableCell>
-                          <TableCell align='right'>Amount Ordered</TableCell>
-                          <TableCell align='right'>Amount Dispatched</TableCell>
-                          <TableCell align='right'>Amount Undispatched</TableCell>
-                          <TableCell align='right'>Payment Received</TableCell>
+                          <TableCell>{dictionary.forms.counter.productSalesReport.labels.product}</TableCell>
+                          <TableCell align='right'>{dictionary.forms.counter.productSalesReport.labels.qtyOrdered}</TableCell>
+                          <TableCell align='right'>{dictionary.forms.counter.productSalesReport.labels.qtyDispatched}</TableCell>
+                          <TableCell align='right'>{dictionary.forms.counter.productSalesReport.labels.qtyUndispatched}</TableCell>
+                          <TableCell align='right'>{dictionary.forms.counter.productSalesReport.labels.amountOrdered}</TableCell>
+                          <TableCell align='right'>{dictionary.forms.counter.productSalesReport.labels.amountDispatched}</TableCell>
+                          <TableCell align='right'>{dictionary.forms.counter.productSalesReport.labels.amountUndispatched}</TableCell>
+                          <TableCell align='right'>{dictionary.forms.counter.productSalesReport.labels.paymentReceived}</TableCell>
                         </TableRow>
                       </TableHead>
                       <TableBody>
@@ -616,7 +618,7 @@ const ProductSalesReportDialog: React.FC = () => {
                       <TableBody>
                         <TableRow>
                           <TableCell>
-                            <strong>Total</strong>
+                            <strong>{dictionary.forms.counter.productSalesReport.labels.total}</strong>
                           </TableCell>
                           <TableCell align='right'>
                             <strong>
@@ -684,7 +686,7 @@ const ProductSalesReportDialog: React.FC = () => {
                         <TableRow>
                           <TableCell colSpan={2}>
                             <Typography variant='subtitle2'>
-                              Collection Distribution
+                              {dictionary.forms.counter.productSalesReport.labels.collectionDistribution}
                             </Typography>
                           </TableCell>
                         </TableRow>
@@ -700,7 +702,7 @@ const ProductSalesReportDialog: React.FC = () => {
                         ))}
                         <TableRow>
                           <TableCell>
-                            <strong>Total</strong>
+                            <strong>{dictionary.forms.counter.productSalesReport.labels.total}</strong>
                           </TableCell>
                           <TableCell align='right'>
                             <strong>
@@ -731,7 +733,7 @@ const ProductSalesReportDialog: React.FC = () => {
             />
           )}
           <Button size='small' onClick={() => setOpen(false)}>
-            Close
+            {dictionary.forms.counter.productSalesReport.labels.close}
           </Button>
         </DialogActions>
       </Dialog>

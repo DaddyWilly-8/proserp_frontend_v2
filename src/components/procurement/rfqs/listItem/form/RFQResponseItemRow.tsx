@@ -19,6 +19,7 @@ import { sanitizedNumber } from '@/app/helpers/input-sanitization-helpers';
 import { DeleteOutline } from '@mui/icons-material';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { Organization } from '@/types/auth-types';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface RFQResponseItemRowProps {
   index: number;
@@ -37,6 +38,7 @@ const RFQResponseItemRow: React.FC<RFQResponseItemRowProps> = ({
   isLastItem = false,
   vatPercentage = 0,
 }) => {
+  const dictionary = useDictionary();
   const { authOrganization } = useJumboAuth();
   const rfqItem = item.rfq_item;
   const [vatChecked, setVatChecked] = useState(item.vat_percentage > 0 || false);
@@ -122,7 +124,7 @@ const RFQResponseItemRow: React.FC<RFQResponseItemRowProps> = ({
         </Grid>
 
         <Grid size={{ xs: 10, md: 3 }}>
-          <Tooltip title="Product Name">
+          <Tooltip title={dictionary.tooltips.productName}>
             <Typography variant="body2">
               {rfqItem?.product?.name || rfqItem?.product?.item_name || 'Item'}
             </Typography>
@@ -134,7 +136,7 @@ const RFQResponseItemRow: React.FC<RFQResponseItemRowProps> = ({
 
         <Grid size={{ xs: 5, md: 1.5 }}>
           <TextField
-            label="Quantity"
+            label={dictionary.forms.rfqs.common.quantity}
             fullWidth
             size="small"
             value={item.quantity || ''}
@@ -151,7 +153,7 @@ const RFQResponseItemRow: React.FC<RFQResponseItemRowProps> = ({
         <Grid size={{ xs: 12, md: 1 }}>
           <Box display="flex" alignItems="center" sx={{ mt: { xs: 0, md: 0.5 } }}>
             <Typography variant="body2" sx={{ mr: 0.5 }}>
-              VAT
+              {dictionary.forms.rfqs.response.item.vat}
             </Typography>
             <Checkbox
               size="small"
@@ -163,7 +165,7 @@ const RFQResponseItemRow: React.FC<RFQResponseItemRowProps> = ({
 
         <Grid size={{ xs: 5, md: vat_factor > 0 ? 1.5 : 2 }}>
           <TextField
-            label="Rate"
+            label={dictionary.forms.rfqs.common.rate}
             fullWidth
             size="small"
             key={priceFieldKey}
@@ -181,7 +183,7 @@ const RFQResponseItemRow: React.FC<RFQResponseItemRowProps> = ({
         {vat_factor > 0 && (
           <Grid size={{ xs: 5, md: 1.5 }}>
             <TextField
-              label="Price (VAT Inclusive)"
+              label={dictionary.forms.rfqs.response.item.priceVatInclusive}
               fullWidth
               size="small"
               key={vatPriceFieldKey}
@@ -199,7 +201,7 @@ const RFQResponseItemRow: React.FC<RFQResponseItemRowProps> = ({
 
         <Grid size={{ xs: 5, md: vat_factor > 0 ? 1.5 : 2 }}>
           <TextField
-            label="Amount"
+            label={dictionary.forms.rfqs.common.amount}
             fullWidth
             size="small"
             value={item.amount || 0}
@@ -213,7 +215,7 @@ const RFQResponseItemRow: React.FC<RFQResponseItemRowProps> = ({
         <Grid size={{ xs: 5, md: vat_factor > 0 ? 1.5 : 2}}>
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <DatePicker
-              label="Delivery Date"
+              label={dictionary.forms.rfqs.response.item.deliveryDate}
               value={item.delivery_date || null}
               onChange={(newValue) => onUpdate(index, 'delivery_date', newValue)}
               slotProps={{
@@ -228,7 +230,7 @@ const RFQResponseItemRow: React.FC<RFQResponseItemRowProps> = ({
 
         <Grid size={{ xs: 12, md: 12 }}>
           <TextField
-            label="Remarks"
+            label={dictionary.forms.rfqs.common.remarks}
             fullWidth
             multiline
             rows={2}
@@ -240,7 +242,7 @@ const RFQResponseItemRow: React.FC<RFQResponseItemRowProps> = ({
 
         {!isLastItem &&
           <Grid size={{ xs: 1, md: 12 }} textAlign="end" display="flex" alignItems="center" justifyContent="flex-end">
-            <Tooltip title={isLastItem ? 'Cannot remove last item' : 'Remove this item'}>
+            <Tooltip title={isLastItem ? dictionary.forms.rfqs.response.item.cannotRemoveLast : dictionary.forms.rfqs.response.item.removeThis}>
               <span>
                 <IconButton
                   size="small"

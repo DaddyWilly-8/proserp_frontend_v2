@@ -18,6 +18,7 @@ import CertificateApprovalsActionTail from '@/components/projectManagement/proje
 import { Certificate } from '@/components/projectManagement/projects/profile/subcontracts/tabs/certificatesTab/CertificateType';
 import InvoiceLinkChip from '@/components/projectManagement/InvoiceLinkChip';
 import ApprovalHistoryTable from '@/components/projectManagement/approvals/ApprovalHistoryTable';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface ApprovedSubcontractCertificatesListItemProps {
   certificate: Certificate;
@@ -41,6 +42,7 @@ const STATUS_CHIP_COLOR: Record<
 const ApprovedSubcontractCertificatesListItem: React.FC<
   ApprovedSubcontractCertificatesListItemProps
 > = ({ certificate }) => {
+  const dictionary = useDictionary();
   const [expanded, setExpanded] = React.useState(false);
 
   const formattedAmount = React.useMemo(() => {
@@ -94,10 +96,10 @@ const ApprovedSubcontractCertificatesListItem: React.FC<
       >
         <Grid container spacing={1} alignItems="center" width="100%" sx={{ minWidth: 0 }}>
           <Grid size={{ xs: 12, md: 2 }} sx={{ minWidth: 0 }}>
-            <Tooltip title="Certificate Number">
-              <Typography noWrap>{certificate.certificateNo || 'Draft / Pending'}</Typography>
+            <Tooltip title={dictionary.tooltips.certificateNumber}>
+              <Typography noWrap>{certificate.certificateNo || dictionary.projectManagement.approvedCertificates.draftPending}</Typography>
             </Tooltip>
-            <Tooltip title="Certificate Date">
+            <Tooltip title={dictionary.tooltips.certificateDate}>
               <Typography variant="caption" color="text.secondary" display="block">
                 {certificate.certificate_date
                   ? readableDate(certificate.certificate_date)
@@ -107,7 +109,7 @@ const ApprovedSubcontractCertificatesListItem: React.FC<
           </Grid>
 
           <Grid size={{ xs: 12, md: 3 }} sx={{ minWidth: 0 }}>
-            <Tooltip title="Project">
+            <Tooltip title={dictionary.tooltips.project}>
               <Typography variant="body2" noWrap>
                 {certificate.project?.name || '—'}
               </Typography>
@@ -129,7 +131,7 @@ const ApprovedSubcontractCertificatesListItem: React.FC<
           </Grid>
 
           <Grid size={{ xs: 12, md: 4, lg: 4 }} sx={{ minWidth: 0 }}>
-            <Tooltip title="Remarks">
+            <Tooltip title={dictionary.tooltips.remarks}>
               <Typography variant="body2" fontSize={14} noWrap>
                 {certificate.remarks || '—'}
               </Typography>
@@ -137,10 +139,10 @@ const ApprovedSubcontractCertificatesListItem: React.FC<
           </Grid>
 
           <Grid size={{ xs: 12, md: 3, lg: 3 }}>
-            <Tooltip title="Certified Total Amount">
+            <Tooltip title={dictionary.tooltips.certifiedTotalAmount}>
               <Typography noWrap>{formattedAmount}</Typography>
             </Tooltip>
-            <Tooltip title="Status">
+            <Tooltip title={dictionary.tooltips.status}>
               {certificate.status === 'invoiced' ? (
                 <span>
                   <InvoiceLinkChip

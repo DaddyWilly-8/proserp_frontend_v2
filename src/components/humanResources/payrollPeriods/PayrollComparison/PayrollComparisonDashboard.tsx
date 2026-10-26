@@ -33,20 +33,21 @@ import { useSnackbar } from 'notistack';
 import { useMemo, useState } from 'react';
 import humanResourcesServices from '../../humanResourcesServices';
 import PayrollComparisonReportDocument from './PayrollComparisonReportDocument';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
-const monthNames = [
-  'January',
-  'February',
-  'March',
-  'April',
-  'May',
-  'June',
-  'July',
-  'August',
-  'September',
-  'October',
-  'November',
-  'December',
+const MONTH_KEYS = [
+  'january',
+  'february',
+  'march',
+  'april',
+  'may',
+  'june',
+  'july',
+  'august',
+  'september',
+  'october',
+  'november',
+  'december',
 ];
 
 type Metric = {
@@ -143,6 +144,8 @@ const GroupTable = ({
   periodALabel: string;
   periodBLabel: string;
 }) => {
+  const dictionary = useDictionary();
+  const t = dictionary.humanResources.payrollPeriods;
   if (!rows || rows.length === 0) return null;
 
   return (
@@ -154,10 +157,10 @@ const GroupTable = ({
         <Table size='small'>
           <TableHead>
             <TableRow>
-              <TableCell>Type</TableCell>
+              <TableCell>{t.comparison.type}</TableCell>
               <TableCell align='right'>{periodALabel}</TableCell>
               <TableCell align='right'>{periodBLabel}</TableCell>
-              <TableCell align='right'>Difference</TableCell>
+              <TableCell align='right'>{t.comparison.difference}</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -179,6 +182,9 @@ const GroupTable = ({
 };
 
 export default function PayrollComparisonDashboard({ onClose }: { onClose?: () => void } = {}) {
+  const dictionary = useDictionary();
+  const t = dictionary.humanResources.payrollPeriods;
+  const monthNames = MONTH_KEYS.map((key) => t.common.months[key]);
   const { authOrganization, authUser } = useJumboAuth() as any;
   const { enqueueSnackbar } = useSnackbar();
   const now = new Date();
@@ -260,7 +266,7 @@ export default function PayrollComparisonDashboard({ onClose }: { onClose?: () =
       link.remove();
       window.URL.revokeObjectURL(url);
     } catch (err: any) {
-      enqueueSnackbar(err?.response?.data?.message || 'Unable to export payroll comparison', {
+      enqueueSnackbar(err?.response?.data?.message || t.comparison.errors.exportFailed, {
         variant: 'error',
       });
     } finally {
@@ -284,7 +290,7 @@ export default function PayrollComparisonDashboard({ onClose }: { onClose?: () =
     <>
       <DialogTitle sx={{ pb: 1 }}>
         {onClose && (
-          <Tooltip title='Close'>
+          <Tooltip title={dictionary.tooltips.close}>
             <IconButton onClick={() => onClose()} sx={{ position: 'absolute', right: 12, top: 12 }}>
               <CloseOutlined />
             </IconButton>
@@ -292,16 +298,18 @@ export default function PayrollComparisonDashboard({ onClose }: { onClose?: () =
         )}
         <Grid container spacing={1.5} alignItems='center'>
           <Grid size={{ xs: 12, md: 12 }} textAlign='center' marginBottom={2} sx={onClose ? { px: 4 } : undefined}>
-            <Typography variant='h3'>Payroll Comparison</Typography>
+            <Typography variant='h3'>{t.comparison.title}</Typography>
             <Typography variant='body2' color='text.secondary'>
-              {periodALabel} vs {periodBLabel}
+              {t.comparison.vs
+                .replace('{a}', periodALabel)
+                .replace('{b}', periodBLabel)}
             </Typography>
           </Grid>
 
           <Grid size={{ xs: 6, md: 3 }}>
             <TextField
               select
-              label='Period A — Year'
+              label={t.comparison.periodAYear}
               size='small'
               value={periodAYear}
               onChange={(event) => setPeriodAYear(Number(event.target.value))}
@@ -318,7 +326,7 @@ export default function PayrollComparisonDashboard({ onClose }: { onClose?: () =
           <Grid size={{ xs: 6, md: 3 }}>
             <TextField
               select
-              label='Period A — Month'
+              label={t.comparison.periodAMonth}
               size='small'
               value={periodAMonth}
               onChange={(event) => setPeriodAMonth(Number(event.target.value))}
@@ -335,7 +343,7 @@ export default function PayrollComparisonDashboard({ onClose }: { onClose?: () =
           <Grid size={{ xs: 6, md: 3 }}>
             <TextField
               select
-              label='Period B — Year'
+              label={t.comparison.periodBYear}
               size='small'
               value={periodBYear}
               onChange={(event) => setPeriodBYear(Number(event.target.value))}
@@ -352,7 +360,7 @@ export default function PayrollComparisonDashboard({ onClose }: { onClose?: () =
           <Grid size={{ xs: 6, md: 3 }}>
             <TextField
               select
-              label='Period B — Month'
+              label={t.comparison.periodBMonth}
               size='small'
               value={periodBMonth}
               onChange={(event) => setPeriodBMonth(Number(event.target.value))}
@@ -370,7 +378,7 @@ export default function PayrollComparisonDashboard({ onClose }: { onClose?: () =
             <CostCenterSelector
               multiple
               allowSameType={true}
-              label='Cost Centers'
+              label={t.comparison.costCenters}
               defaultValue={selectedCostCenters}
               onChange={(value) => {
                 setSelectedCostCenters(Array.isArray(value) ? value : []);
@@ -388,7 +396,7 @@ export default function PayrollComparisonDashboard({ onClose }: { onClose?: () =
             }}
           >
             <Button variant='contained' size='small' onClick={handleFilter}>
-              Compare
+              {t.comparison.compare}
             </Button>
             <FileExportGrid
               exportExcel
@@ -409,12 +417,12 @@ export default function PayrollComparisonDashboard({ onClose }: { onClose?: () =
 
           {isError && (
             <Alert severity='error' sx={{ mb: 2 }}>
-              {(error as Error)?.message || 'Unable to load payroll comparison.'}
+              {(error as Error)?.message || t.comparison.errors.loadFailed}
             </Alert>
           )}
 
           {!isFetching && !data && !isError && (
-            <Alert severity='info'>No payroll data is available for the selected periods.</Alert>
+            <Alert severity='info'>{t.comparison.noData}</Alert>
           )}
 
           {comparison && !showOnScreen && (
@@ -429,6 +437,7 @@ export default function PayrollComparisonDashboard({ onClose }: { onClose?: () =
                   )}
                   organization={authOrganization?.organization}
                   userName={authUser?.user?.name || 'ProsERP'}
+                  dictionary={dictionary}
                 />
               }
               fileName={`Payroll Comparison ${periodALabel} vs ${periodBLabel}`}
@@ -441,40 +450,40 @@ export default function PayrollComparisonDashboard({ onClose }: { onClose?: () =
                 <Table size='small'>
                   <TableHead>
                     <TableRow>
-                      <TableCell>Metric</TableCell>
+                      <TableCell>{t.comparison.metric}</TableCell>
                       <TableCell align='right'>{periodALabel}</TableCell>
                       <TableCell align='right'>{periodBLabel}</TableCell>
-                      <TableCell align='right'>Difference</TableCell>
+                      <TableCell align='right'>{t.comparison.difference}</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    <MetricRow label='Total Employer Cost' metric={comparison.total_employer_cost} />
-                    <MetricRow label='Basic Salary' metric={comparison.basic_salary} />
-                    <MetricRow label='Gross Salary' metric={comparison.gross_salary} />
-                    <MetricRow label='Net Salary' metric={comparison.net_salary} />
+                    <MetricRow label={t.comparison.totalEmployerCost} metric={comparison.total_employer_cost} />
+                    <MetricRow label={t.comparison.basicSalary} metric={comparison.basic_salary} />
+                    <MetricRow label={t.comparison.grossSalary} metric={comparison.gross_salary} />
+                    <MetricRow label={t.comparison.netSalary} metric={comparison.net_salary} />
                     <MetricRow
-                      label='Employer Contributions Total'
+                      label={t.comparison.employerContributionsTotal}
                       metric={comparison.employer_contributions_total}
                     />
-                    <MetricRow label='Total Employees' metric={comparison.total_employees} />
+                    <MetricRow label={t.comparison.totalEmployees} metric={comparison.total_employees} />
                   </TableBody>
                 </Table>
               </TableContainer>
 
               <GroupTable
-                title='Allowances'
+                title={t.comparison.allowances}
                 rows={comparison.allowances}
                 periodALabel={periodALabel}
                 periodBLabel={periodBLabel}
               />
               <GroupTable
-                title='Deductions'
+                title={t.comparison.deductions}
                 rows={comparison.deductions}
                 periodALabel={periodALabel}
                 periodBLabel={periodBLabel}
               />
               <GroupTable
-                title='Employer Contributions'
+                title={t.comparison.employerContributions}
                 rows={comparison.employer_contributions}
                 periodALabel={periodALabel}
                 periodBLabel={periodBLabel}
@@ -486,7 +495,7 @@ export default function PayrollComparisonDashboard({ onClose }: { onClose?: () =
       {onClose && (
         <DialogActions>
           <Button sx={{ m: 1 }} size='small' variant='outlined' onClick={() => onClose()}>
-            Close
+            {t.common.close}
           </Button>
         </DialogActions>
       )}

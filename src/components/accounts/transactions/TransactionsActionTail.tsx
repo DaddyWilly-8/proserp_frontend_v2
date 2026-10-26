@@ -12,8 +12,10 @@ import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
 import UnauthorizedAccess from '@/shared/Information/UnauthorizedAccess';
 import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function TransactionsActionTail({type}:{type: TransactionTypes}) {
+  const dictionary = useDictionary();
   const [openDialog, setOpenDialog] = useState(false);
   const {checkOrganizationPermission} = useJumboAuth();
   const [mounted, setMounted] = useState(false);
@@ -66,7 +68,7 @@ function TransactionsActionTail({type}:{type: TransactionTypes}) {
 
   return (
     <React.Fragment>
-      <Tooltip title={'New'}>
+      <Tooltip title={dictionary.tooltips.new}>
         <IconButton size='small' onClick={() => setOpenDialog(true)}>
           <AddOutlined />
         </IconButton>

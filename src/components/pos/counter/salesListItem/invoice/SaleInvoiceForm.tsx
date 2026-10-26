@@ -19,6 +19,7 @@ import SaleInvoiceTopInformation from './SaleInvoiceTopInformation';
 import SaleInvoiceItems from './SaleInvoiceItems';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { SalesOrder } from '../../SalesOrderType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface SaleInvoiceFormProps {
   toggleOpen: (open: boolean) => void;
@@ -40,6 +41,7 @@ interface FormValues {
 }
 
 const SaleInvoiceForm: React.FC<SaleInvoiceFormProps> = ({ toggleOpen, sale = null }) => {
+  const dictionary = useDictionary();
   const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
   const [isRetrieving, setIsRetrieving] = useState(false);
@@ -62,7 +64,7 @@ const SaleInvoiceForm: React.FC<SaleInvoiceFormProps> = ({ toggleOpen, sale = nu
   });
 
   const validationSchema = yup.object({
-    transaction_date: yup.string().required('Invoice Date is required').typeError('Invoice Date is required'),
+    transaction_date: yup.string().required(dictionary.forms.counter.invoice.validation.invoiceDateRequired).typeError(dictionary.forms.counter.invoice.validation.invoiceDateRequired),
   });
 
   const {
@@ -96,7 +98,7 @@ const SaleInvoiceForm: React.FC<SaleInvoiceFormProps> = ({ toggleOpen, sale = nu
     <>
       <DialogTitle>
         <Grid container columnSpacing={2}>
-          <Grid size={12} mb={3} textAlign={'center'}>New Invoice</Grid>
+          <Grid size={12} mb={3} textAlign={'center'}>{dictionary.forms.counter.invoice.title}</Grid>
           <SaleInvoiceTopInformation
             sale={sale}
             setValue={setValue}
@@ -123,7 +125,7 @@ const SaleInvoiceForm: React.FC<SaleInvoiceFormProps> = ({ toggleOpen, sale = nu
 
       <DialogActions>
         <Button size='small' onClick={() => toggleOpen(false)}>
-          Cancel
+          {dictionary.forms.counter.invoice.buttons.cancel}
         </Button>
         <LoadingButton
           loading={addInvoiceSale.isPending}
@@ -133,7 +135,7 @@ const SaleInvoiceForm: React.FC<SaleInvoiceFormProps> = ({ toggleOpen, sale = nu
           variant='contained'
           onClick={handleSubmit(onSubmit)}
         >
-          Invoice
+          {dictionary.forms.counter.invoice.buttons.invoice}
         </LoadingButton>
       </DialogActions>
     </>

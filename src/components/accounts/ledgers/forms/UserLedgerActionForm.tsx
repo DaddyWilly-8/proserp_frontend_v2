@@ -10,6 +10,7 @@ import { useForm } from 'react-hook-form';
 import * as yup from 'yup';
 import UsersSelector from '@/components/sharedComponents/UsersSelector';
 import userLedgerServices from '../user-ledger-services';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 type Mode = 'link' | 'unlink';
 
@@ -42,11 +43,15 @@ type Props = {
   toggleOpen: (open: boolean) => void;
 };
 
-const validationSchema = yup.object({
-  user_id: yup.number().nullable().required('User is required').typeError('User is required'),
-});
-
 export default function UserLedgerActionForm({ mode, ledger, toggleOpen }: Props) {
+  const dictionary = useDictionary();
+  const validationSchema = yup.object({
+    user_id: yup
+      .number()
+      .nullable()
+      .required(dictionary.forms.ledgers.userLedgerAction.errors.validation.userRequired)
+      .typeError(dictionary.forms.ledgers.userLedgerAction.errors.validation.userRequired),
+  });
   const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
   const [selectedUserName, setSelectedUserName] = React.useState('');
@@ -81,7 +86,7 @@ export default function UserLedgerActionForm({ mode, ledger, toggleOpen }: Props
       });
 
       if (!link?.id) {
-        throw new Error('Selected user is not linked to this imprest ledger');
+        throw new Error(dictionary.forms.ledgers.userLedgerAction.messages.userNotLinked);
       }
 
       return userLedgerServices.unlinkUser(link.id);
@@ -92,7 +97,7 @@ export default function UserLedgerActionForm({ mode, ledger, toggleOpen }: Props
       queryClient.invalidateQueries({ queryKey: ['user-ledgers-list'] });
       queryClient.invalidateQueries({ queryKey: ['user-ledger-payments-list'] });
       enqueueSnackbar(
-        data?.message || (mode === 'link' ? 'Ledger linked successfully' : 'Ledger unlinked successfully'),
+        data?.message || (mode === 'link' ? dictionary.forms.ledgers.userLedgerAction.messages.linkSuccess : dictionary.forms.ledgers.userLedgerAction.messages.unlinkSuccess),
         { variant: 'success' }
       );
       toggleOpen(false);
@@ -101,7 +106,7 @@ export default function UserLedgerActionForm({ mode, ledger, toggleOpen }: Props
       enqueueSnackbar(
         error?.response?.data?.message ||
           error?.message ||
-          (mode === 'link' ? 'Failed to link user to ledger' : 'Failed to unlink user from ledger'),
+          (mode === 'link' ? dictionary.forms.ledgers.userLedgerAction.messages.linkFailed : dictionary.forms.ledgers.userLedgerAction.messages.unlinkFailed),
         { variant: 'error' }
       );
     },
@@ -114,9 +119,10 @@ export default function UserLedgerActionForm({ mode, ledger, toggleOpen }: Props
     actionMutation.mutate({ user_id: payload.user_id });
   };
 
-  const title = mode === 'link' ? 'Link User to Imprest Ledger' : 'Unlink User from Imprest Ledger';
-  const buttonLabel = mode === 'link' ? 'Link User' : 'Unlink User';
-  const confirmationAction = mode === 'link' ? 'link' : 'unlink';
+  const title = mode === 'link' ? dictionary.forms.ledgers.userLedgerAction.title.link : dictionary.forms.ledgers.userLedgerAction.title.unlink;
+  const buttonLabel = mode === 'link' ? dictionary.forms.ledgers.userLedgerAction.buttons.link : dictionary.forms.ledgers.userLedgerAction.buttons.unlink;
+  const confirmationTemplate: string =
+    mode === 'link' ? dictionary.forms.ledgers.userLedgerAction.confirm.link : dictionary.forms.ledgers.userLedgerAction.confirm.unlink;
 
   return (
     <>
@@ -126,7 +132,7 @@ export default function UserLedgerActionForm({ mode, ledger, toggleOpen }: Props
           <Grid container spacing={2} sx={{ mt: 1 }}>
             <Grid size={{ xs: 12 }}>
               <UsersSelector
-                label='Select User'
+                label={dictionary.forms.ledgers.userLedgerAction.labels.selectUser}
                 defaultValue={null}
                 frontError={errors.user_id as any}
                 onChange={(value: User | User[] | null) => {
@@ -142,8 +148,15 @@ export default function UserLedgerActionForm({ mode, ledger, toggleOpen }: Props
             <Grid size={{ xs: 12 }}>
               {selectedUserName && (
                 <Alert severity='warning' sx={{ mt: 1 }}>
-                  Are you sure you want to {confirmationAction} <strong>{selectedUserName}</strong> {mode === 'link' ? 'to' : 'from'}{' '}
-                  <strong>{ledger.name}</strong>?
+                  {confirmationTemplate.split(/(\{user\}|\{ledger\})/).map((part, i) =>
+                    part === '{user}' ? (
+                      <strong key={i}>{selectedUserName}</strong>
+                    ) : part === '{ledger}' ? (
+                      <strong key={i}>{ledger.name}</strong>
+                    ) : (
+                      <React.Fragment key={i}>{part}</React.Fragment>
+                    )
+                  )}
                 </Alert>
               )}
             </Grid>
@@ -151,7 +164,7 @@ export default function UserLedgerActionForm({ mode, ledger, toggleOpen }: Props
 
           <DialogActions>
             <Button size='small' onClick={() => toggleOpen(false)}>
-              Cancel
+              {dictionary.forms.ledgers.userLedgerAction.buttons.cancel}
             </Button>
             <LoadingButton
               type='submit'

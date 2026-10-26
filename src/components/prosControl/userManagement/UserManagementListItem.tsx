@@ -54,7 +54,7 @@ import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
           <Tooltip title={dictionary.userManagement.list.labels.email}>
             <Typography variant="body1">{user.email}</Typography>
           </Tooltip>
-          <Tooltip title={'Phone'}>
+          <Tooltip title={dictionary.tooltips.phone}>
             <Typography variant="body2" color="text.secondary">{user.phone}</Typography>
           </Tooltip>
         </Div>

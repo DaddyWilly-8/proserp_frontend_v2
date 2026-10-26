@@ -22,8 +22,10 @@ import customerInvoiceServices from '../invoices/customerInvoice-services';
 import CustomerInvoiceDetailsDialog from './CustomerInvoiceDetailsDialog';
 import FuelVoucherInvoiceDetailsDialog from './FuelVoucherInvoiceDetailsDialog';
 import { CustomerInvoice } from './CustomerInvoiceType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const CustomerInvoiceItemAction = ({ invoice }: { invoice: CustomerInvoice }) => {
+  const dictionary = useDictionary();
   const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
   const { checkOrganizationPermission, organizationHasSubscribed } = useJumboAuth();
@@ -143,7 +145,7 @@ const CustomerInvoiceItemAction = ({ invoice }: { invoice: CustomerInvoice }) =>
 
       <JumboDdMenu
         icon={
-          <Tooltip title='Actions'>
+          <Tooltip title={dictionary.tooltips.actions}>
             <MoreHorizOutlined />
           </Tooltip>
         }

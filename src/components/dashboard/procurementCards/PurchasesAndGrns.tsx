@@ -30,6 +30,7 @@ import {
 import grnServices from '../../procurement/grns/grn-services';
 import purchaseServices from '../../procurement/purchases/purchase-services';
 import { useDashboardSettings } from '../Dashboard';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface ChartDataItem {
   period: string;
@@ -43,6 +44,7 @@ interface MergedDataItem {
 }
 
 function PurchasesAndGrns() {
+  const dictionary = useDictionary();
   const { theme } = useJumboTheme();
   const smallScreen = useMediaQuery(theme.breakpoints.down('md'));
   const midScreen = useMediaQuery(theme.breakpoints.down('lg'));
@@ -110,7 +112,7 @@ function PurchasesAndGrns() {
 
   return (
     <JumboCardQuick
-      title={'Purchases & GRNs'}
+      title={dictionary.dashboardCards.purchasesAndGrns}
       sx={{ height: midScreen ? 360 : null }}
       action={
         !smallScreen && !midScreen ? (

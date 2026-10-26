@@ -11,6 +11,7 @@ import CommaSeparatedField from '@/shared/Inputs/CommaSeparatedField';
 import { useLedgerSelect } from '@/components/accounts/ledgers/forms/LedgerSelectProvider';
 import { MeasurementUnit } from '@/components/masters/measurementUnits/MeasurementUnitType';
 import { Autocomplete } from '@mui/material';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface Product {
   id: number;
@@ -61,6 +62,7 @@ function SaleAdjustmentItemForm({
   items,
   setItems,
 }: SaleAdjustmentItemFormProps) {
+  const dictionary = useDictionary();
   const [isAdding, setIsAdding] = useState(false);
   const { ungroupedLedgerOptions } = useLedgerSelect();
 
@@ -69,23 +71,23 @@ function SaleAdjustmentItemForm({
     description: yup.string().nullable().notRequired(),
     complement_ledger_id: yup
       .number()
-      .required('Complement Ledger is required')
-      .min(1, 'Select a valid Complement Ledger')
-      .typeError('Complement Ledger is required'),
+      .required(dictionary.forms.counter.adjustment.validation.complementLedgerRequired)
+      .min(1, dictionary.forms.counter.adjustment.validation.complementLedgerInvalid)
+      .typeError(dictionary.forms.counter.adjustment.validation.complementLedgerRequired),
     measurement_unit_id: yup
       .number()
-      .required('Measurement Unit is required')
-      .typeError('Measurement Unit is required'),
+      .required(dictionary.forms.counter.adjustment.validation.measurementUnitRequired)
+      .typeError(dictionary.forms.counter.adjustment.validation.measurementUnitRequired),
     quantity: yup
       .number()
-      .required('Quantity is required')
-      .typeError('Quantity must be a number')
-      .positive('Quantity must be positive'),
+      .required(dictionary.forms.counter.adjustment.validation.quantityRequired)
+      .typeError(dictionary.forms.counter.adjustment.validation.quantityNumber)
+      .positive(dictionary.forms.counter.adjustment.validation.quantityPositive),
     rate: yup
       .number()
-      .required('Rate is required')
-      .typeError('Rate must be a number')
-      .positive('Rate must be positive'),
+      .required(dictionary.forms.counter.adjustment.validation.rateRequired)
+      .typeError(dictionary.forms.counter.adjustment.validation.rateNumber)
+      .positive(dictionary.forms.counter.adjustment.validation.ratePositive),
   });
 
   const { 
@@ -163,7 +165,7 @@ function SaleAdjustmentItemForm({
             renderInput={(params) => (
               <TextField
                 {...params}
-                label="Product"
+                label={dictionary.forms.counter.adjustment.labels.product}
                 size="small"
                 fullWidth
                 error={!!errors.product_id}
@@ -194,7 +196,7 @@ function SaleAdjustmentItemForm({
         <Div sx={{ mt: 0.3 }}>
           <TextField
             size="small"
-            label="Description"
+            label={dictionary.forms.counter.adjustment.labels.description}
             fullWidth
             error={!!errors.description}
             helperText={errors.description?.message}
@@ -210,7 +212,7 @@ function SaleAdjustmentItemForm({
             frontError={errors.complement_ledger_id}
             defaultValue={ungroupedLedgerOptions.find((ledger) => ledger.id === formValues.complement_ledger_id)}
             onChange={(newValue: any) => setValue('complement_ledger_id', newValue ? newValue.id : 0, { shouldValidate: true, shouldDirty: true })}
-            label="Complement Ledger"
+            label={dictionary.forms.counter.adjustment.labels.complementLedger}
           />
         </Div>
       </Grid>
@@ -218,7 +220,7 @@ function SaleAdjustmentItemForm({
       <Grid size={{ xs: 12, md: 2 }}>
         <Div sx={{ mt: 0.3 }}>
           <MeasurementSelector
-            label="Unit"
+            label={dictionary.forms.counter.adjustment.labels.unit}
             frontError={errors.measurement_unit_id as any}
             defaultValue={formValues.measurement_unit_id}
             onChange={(newValue: any) => {
@@ -233,7 +235,7 @@ function SaleAdjustmentItemForm({
         <Div sx={{ mt: 0.3 }}>
           <TextField
             size="small"
-            label="Quantity"
+            label={dictionary.forms.counter.adjustment.labels.quantity}
             fullWidth
             error={!!errors.quantity}
             helperText={errors.quantity?.message}
@@ -250,7 +252,7 @@ function SaleAdjustmentItemForm({
         <Div sx={{ mt: 0.3 }}>
           <TextField
             size="small"
-            label="Rate"
+            label={dictionary.forms.counter.adjustment.labels.rate}
             fullWidth
             error={!!errors.rate}
             helperText={errors.rate?.message}
@@ -279,7 +281,7 @@ function SaleAdjustmentItemForm({
               }
             }}
           >
-            Add
+            {dictionary.forms.counter.adjustment.buttons.add}
           </LoadingButton>
         </Grid>
       )}

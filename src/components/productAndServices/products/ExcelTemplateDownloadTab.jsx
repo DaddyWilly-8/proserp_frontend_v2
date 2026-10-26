@@ -36,9 +36,9 @@ function ExcelTemplateDownloadTab({ setOpenDialog }) {
   const validationSchema = yup.object({
     stores: yup.array().of(
       yup.object().shape({
-        name: yup.string().required('Store is required')
-          .typeError('Store is required').nullable(),
-        cost_centers: yup.array().min(1,'Cost Center is required').typeError('Cost Center is required')
+        name: yup.string().required(dictionary.forms.products.excelImport.errors.validation.store.required)
+          .typeError(dictionary.forms.products.excelImport.errors.validation.store.required).nullable(),
+        cost_centers: yup.array().min(1,dictionary.forms.products.excelImport.errors.validation.costCenter.required).typeError(dictionary.forms.products.excelImport.errors.validation.costCenter.required)
       })
     ).nullable()
   });
@@ -79,7 +79,7 @@ function ExcelTemplateDownloadTab({ setOpenDialog }) {
       link.click();
       setIsDownloadingTemplate(false);
     } catch (error) {
-      enqueueSnackbar('Error downloading Excel template', { variant: 'error' });
+      enqueueSnackbar(dictionary.forms.products.excelImport.messages.templateDownloadFailed, { variant: 'error' });
       setIsDownloadingTemplate(false);
     }
   }; 
@@ -92,7 +92,7 @@ function ExcelTemplateDownloadTab({ setOpenDialog }) {
           <Grid size={{xs: 12, md: 6, lg: 5.4}}>
             <Div sx={{ mt: 1, mb: 1 }}>
               <DateTimePicker
-                label="As At (MM/DD/YYYY)"
+                label={dictionary.forms.products.excelImport.labels.asAt}
                 fullWidth
                 defaultValue={dayjs()}
                 minDate={dayjs(authOrganization.organization.recording_start_date)}
@@ -124,7 +124,7 @@ function ExcelTemplateDownloadTab({ setOpenDialog }) {
                 renderInput={(params) => (
                   <TextField
                     {...params}
-                    label="Store"
+                    label={dictionary.forms.products.excelImport.labels.store}
                     error={!!errors?.stores?.[index]?.name}
                     helperText={errors?.stores?.[index]?.name?.message}
                   />
@@ -153,7 +153,7 @@ function ExcelTemplateDownloadTab({ setOpenDialog }) {
             </Grid>
             <Grid size={1} textAlign="right">
               <Div sx={{ mt: 1, mb: 1 }}>
-                <Tooltip title="Remove">
+                <Tooltip title={dictionary.tooltips.remove}>
                   <IconButton size="small" onClick={() => remove(index)}>
                     <DisabledByDefault fontSize="small" color="error" />
                   </IconButton>
@@ -171,7 +171,7 @@ function ExcelTemplateDownloadTab({ setOpenDialog }) {
           }}
         >
           <Div sx={{ mt: 1, mb: 1 }}>
-            <Tooltip title="Add Store">
+            <Tooltip title={dictionary.tooltips.addStore}>
               <Button
                 size="small"
                 variant="outlined"

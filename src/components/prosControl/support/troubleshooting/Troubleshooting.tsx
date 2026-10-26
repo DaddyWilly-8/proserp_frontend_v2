@@ -9,6 +9,7 @@ import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { PROS_CONTROL_PERMISSIONS } from '@/utilities/constants/prosControlPermissions';
 import UnauthorizedAccess from '@/shared/Information/UnauthorizedAccess';
 import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface SelectedTabContextType {
   activeTab: number;
@@ -18,6 +19,7 @@ interface SelectedTabContextType {
 export const SelectedTab = createContext<SelectedTabContextType>({ activeTab: 0 });
 
 function Troubleshooting() {
+  const dictionary = useDictionary();
   const { checkPermission } = useJumboAuth();
   const [activeTab, setActiveTab] = useState(0);
   const [mounted, setMounted] = useState(false);
@@ -27,11 +29,11 @@ function Troubleshooting() {
   }, []);
 
   const tabs = [
-    { label: 'Database actions', component: <DatabaseActions /> },
+    { label: dictionary.forms.support.tabs.databaseActions, component: <DatabaseActions /> },
     ...(checkPermission([PROS_CONTROL_PERMISSIONS.PERMISSIONS_MANAGE])
       ? [
-          { label: 'Permissions', component: <PermissionsList /> },
-          { label: 'Pros Permissions', component: <PermissionsList /> },
+          { label: dictionary.forms.support.tabs.permissions, component: <PermissionsList /> },
+          { label: dictionary.forms.support.tabs.prosPermissions, component: <PermissionsList /> },
         ]
       : []),
   ];

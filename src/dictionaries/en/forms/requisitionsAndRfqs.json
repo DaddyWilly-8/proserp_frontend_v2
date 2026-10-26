@@ -1,0 +1,500 @@
+{
+  "requisitions": {
+    "common": {
+      "done": "Done",
+      "add": "Add",
+      "remarks": "Remarks",
+      "amount": "Amount",
+      "reference": "Reference",
+      "quantity": "Quantity",
+      "product": "Product",
+      "unit": "Unit",
+      "price": "Price",
+      "rate": "Rate",
+      "close": "Close",
+      "reset": "Reset",
+      "qty": "Qty"
+    },
+    "additionalCosts": {
+      "costName": "Cost name",
+      "validation": {
+        "costName": "Cost name is required",
+        "amount": "Amount is required"
+      }
+    },
+    "productItem": {
+      "quickProductRegistration": "Quick Product Registration",
+      "priceVatInclusive": "Price (VAT Inclusive)",
+      "validation": {
+        "product": "Product is required",
+        "quantity": "Quantity is required",
+        "quantityPositive": "Quantity must be a positive number"
+      }
+    },
+    "form": {
+      "titleEdit": "Edit Requisition",
+      "titleDuplicate": "Duplicate Requisition",
+      "titleNew": "New Requisition",
+      "requisitionDate": "Requisition Date",
+      "process": "Process",
+      "imprestLedger": "Imprest Ledger",
+      "costCenter": "Cost Center",
+      "exchangeRate": "Exchange Rate",
+      "dateRequired": "Date Required",
+      "tabProducts": "Products",
+      "tabAdditionalCosts": "Additional Costs",
+      "unknownImprestLedger": "Unknown Imprest Ledger",
+      "balance": "Balance:",
+      "currentBalance": "Current Balance: {balance}",
+      "unsavedChanges": "Unsaved Changes",
+      "lastItemNotAdded": "Last item was not added to the list",
+      "addAndSubmit": "Add and Submit",
+      "submitWithoutAdd": "Submit without add",
+      "cancel": "Cancel",
+      "next": "Next >",
+      "prev": "< Prev",
+      "suspend": "Suspend",
+      "submit": "Submit",
+      "rowLinkedRefreshFailed": "Row {row}: Failed to refresh linked transaction.",
+      "rowLinkedUnavailable": "Row {row}: Linked transaction is no longer available.",
+      "rowAmountExceeds": "Row {row}: Amount exceeds latest unapproved amount ({amount}).",
+      "validation": {
+        "requisitionDate": "Requisition Date is required",
+        "process": "Process is required",
+        "costCenter": "Cost center is required",
+        "imprestLedger": "Imprest Ledger is required"
+      }
+    },
+    "summary": {
+      "title": "Summary",
+      "total": "Total:",
+      "vat": "VAT:",
+      "grandTotal": "Grand Total:"
+    },
+    "ledgerItem": {
+      "relatableTypes": {
+        "purchase": "Purchase",
+        "subcontractCertificate": "Subcontract Certificate",
+        "bill": "Bill"
+      },
+      "ledgerName": "Ledger Name",
+      "linkedTo": "Linked To",
+      "relatableTo": "Relatable To",
+      "budgetCheck": "{name} Budget check",
+      "selectCostCenterFirst": "Select cost center first",
+      "resolveValidationErrors": "Resolve validation errors before closing edit",
+      "closeEdit": "Close Edit",
+      "linkedTransactionUnavailable": "Linked transaction is no longer available. Please select another relatable.",
+      "amountExceedsUnapproved": "Amount should not exceed unapproved amount ({amount}) of selected relatable",
+      "amountExceedsUnapprovedCapped": "Amount should not exceed unapproved amount ({amount}) — capped against {orderNo}, not this Bill itself",
+      "amountExceedsUnapprovedShort": "Amount should not exceed unapproved amount of selected relatable",
+      "orderDateAmount": "Order Date - (Amount)",
+      "orderDateAmountCapped": "Order Date - (Amount) — capped against {orderNo}, not this Bill itself",
+      "viewDetails": "View {type} Details",
+      "typeOrder": "Order",
+      "typeBill": "Bill",
+      "typeCertificate": "Certificate",
+      "validation": {
+        "expenseName": "Expense name is required",
+        "quantity": "Quantity is required",
+        "quantityPositive": "Quantity must be positive",
+        "wholeUnit": "This unit is whole-units-only — quantity cannot be a fraction",
+        "rate": "Rate is required",
+        "ratePositive": "Rate must be positive",
+        "amount": "Amount is required",
+        "measurementUnit": "Measurement Unit is required"
+      }
+    },
+    "productVendor": {
+      "addVendor": "Add Vendor",
+      "vendor": "Vendor",
+      "validation": {
+        "stakeholder": "Stakeholder is required",
+        "vendorExists": "Vendor already exists"
+      }
+    },
+    "budgetCheck": {
+      "title": "Budget Check",
+      "selectCostCenter": "Please select a cost center to fetch budget check details.",
+      "budgetAllocation": "Budget Allocation",
+      "requestAndApproval": "Request & Approval",
+      "procurementAndReceiving": "Procurement & Receiving",
+      "consumption": "Consumption",
+      "budgetedQuantity": "Budgeted Quantity",
+      "budgetedAmount": "Budgeted Amount",
+      "requestedQuantity": "Requested Quantity",
+      "requestedAmount": "Requested Amount",
+      "approvedQuantity": "Approved Quantity",
+      "approvedAmount": "Approved Amount",
+      "orderedQuantity": "Ordered Quantity",
+      "receivedQuantity": "Received Quantity",
+      "consumedQuantity": "Consumed Quantity",
+      "consumedAmount": "Consumed Amount",
+      "spentAmount": "Spent Amount",
+      "storeAvailability": "Store Availability",
+      "store": "Store",
+      "availableQuantity": "Available Quantity",
+      "noStoreAvailability": "No store availability data.",
+      "noBudgetData": "No budget data available.",
+      "remainingBalance": "Remaining Balance"
+    },
+    "approvalItem": {
+      "viewOrder": "View Order",
+      "viewBill": "View Bill",
+      "viewCertificate": "View Certificate",
+      "splitAllocations": "Split allocations",
+      "creditLedger": "Credit Ledger",
+      "quantityExceedsBalance": "Quantity {quantity} exceeds available store balance {balance}",
+      "fulfillment": "Fulfillment",
+      "fulfillmentStock": "Stock",
+      "fulfillmentPurchase": "Purchase",
+      "fulfillmentImprest": "Imprest",
+      "store": "Store",
+      "vat": "VAT",
+      "rateVatInclusive": "Rate (VAT Inclusive)",
+      "tabVendors": "VENDORS",
+      "storeBalances": "Store Balances - {product}",
+      "storeName": "Store Name",
+      "balance": "Balance",
+      "noStoreBalances": "No store balances available"
+    },
+    "approval": {
+      "previousRemarks": "Previous remarks",
+      "requesterRemarksWithName": "Requester's remarks ({name})",
+      "requesterRemarks": "Requester's remarks",
+      "requester": "Requester",
+      "titleEdit": "Edit Approval",
+      "titleApproveImprest": "Approve Imprest Requisition",
+      "titleApprove": "Approve Requisition",
+      "requisitionDate": "Requisition Date",
+      "currency": "Currency",
+      "costCenter": "Cost Center",
+      "grandTotal": "Grand Total",
+      "imprestLedgerWithName": "Imprest Ledger ({name})",
+      "balance": "Balance: {balance}",
+      "approvalDate": "Approval Date",
+      "dateRequired": "Date Required",
+      "tabProducts": "Products",
+      "tabAdditionalCosts": "Additional Costs",
+      "noAdditionalCosts": "No additional costs on this requisition.",
+      "imprestLedger": "Imprest Ledger",
+      "unknownImprestLedger": "Unknown Imprest Ledger",
+      "sendBackTo": "Send back to",
+      "remarksRequiredOnReturn": "Remarks are required when returning a requisition",
+      "cancel": "Cancel",
+      "confirmReturn": "Confirm Return",
+      "next": "Next >",
+      "prev": "< Prev",
+      "approve": "Approve",
+      "hold": "Hold",
+      "reject": "Reject",
+      "returnToEarlierLevel": "Return to earlier level…",
+      "validation": {
+        "approvalDate": "Approval Date is required",
+        "fulfillmentType": "Fulfillment type is required",
+        "storeForStock": "Store is required for stock fulfillment",
+        "rate": "Rate is required",
+        "rateFinal": "Rate is required for final approval",
+        "quantity": "Quantity is required",
+        "imprestLedgerForMaterial": "Imprest Ledger is required when any line is Imprest",
+        "amount": "Amount is required",
+        "ledger": "Ledger is required",
+        "quantityPositive": "Quantity must be positive",
+        "quantityNumber": "Quantity must be a number",
+        "ratePositive": "Rate must be positive",
+        "rateNumber": "Rate must be a number"
+      }
+    }
+  },
+  "approvedRequisitions": {
+    "common": {
+      "amount": "Amount",
+      "description": "Description",
+      "reference": "Reference",
+      "narration": "Narration",
+      "cancel": "Cancel",
+      "submit": "Submit",
+      "exchangeRate": "Exchange Rate",
+      "imprestLedgerWithName": "Imprest Ledger ({name})",
+      "balance": "Balance: {balance}",
+      "close": "Close"
+    },
+    "approvedPayment": {
+      "debitExceedsUnpaid": "Debit Amount cannot exceed Unpaid Amount",
+      "titleEditImprest": "Edit Approved Imprest Payment Form",
+      "titleEdit": "Edit Payment",
+      "titleNewImprest": "New Approved Imprest Payment Form",
+      "titleNew": "New Approved Payment Form",
+      "paymentDate": "Payment Date (MM/DD/YYYY)",
+      "payFromCredit": "Pay From (Credit)",
+      "validation": {
+        "narration": "Narration is required",
+        "creditLedger": "Paying (credit) account is required",
+        "currency": "Currency is required",
+        "exchangeRate": "Exchange rate is required",
+        "paymentDate": "Payment Date is required",
+        "atLeastOneItem": "You must add at least one item"
+      }
+    },
+    "approvedIssue": {
+      "title": "Issue Stock Items",
+      "noLines": "No stock lines with remaining unissued quantity.",
+      "issueDate": "Issue Date",
+      "unissued": "Unissued:",
+      "issueQuantity": "Issue Quantity",
+      "issueAs": "Issue As",
+      "consume": "Consume (expense to requester)",
+      "transfer": "Transfer to another store",
+      "destinationStore": "Destination Store",
+      "issue": "Issue",
+      "messages": {
+        "issuedSuccess": "Items issued successfully",
+        "issueFailed": "Failed to issue approved items",
+        "enterQuantity": "Enter at least one issue quantity greater than 0",
+        "selectedItem": "selected item",
+        "theSelectedItem": "the selected item",
+        "thisProduct": "This product",
+        "exceedsUnissued": "Issue quantity for {product} exceeds unissued quantity",
+        "selectDestination": "Select a destination store for {product}",
+        "wholeUnits": "{product} is sold in whole units — quantity cannot be a fraction"
+      }
+    },
+    "approvedPurchase": {
+      "titleEdit": "Edit Order",
+      "titleNew": "New Approved Purchase Order",
+      "tabProducts": "Products",
+      "tabAdditionalCosts": "Additional Costs",
+      "approvedPrice": "Approved Price",
+      "valueExceedsCost": "Value should not exceed cost amount ({amount}).",
+      "vatExempt": "VAT Exempt",
+      "noAdditionalCosts": "No additional costs found on this approved requisition.",
+      "otherAdditionalCosts": "Other Addtional Costs",
+      "removedAdditionalCosts": "Removed Addtional Costs",
+      "next": "Next >",
+      "prev": "< Prev",
+      "ensureWithinCost": "Please ensure each value does not exceed its cost amount.",
+      "validation": {
+        "orderDate": "Order date is required",
+        "currency": "Currency is required",
+        "costCenterMin": "At least one cost center must be selected",
+        "costCenter": "Cost Center is required",
+        "exchangeRate": "Exchange rate is required",
+        "creditAccount": "Credit Account(From) is required",
+        "receivingStore": "Receiving store is required",
+        "supplierNoAccount": "Selected supplier doesn't have any account"
+      },
+      "item": {
+        "quantity": "Quantity",
+        "quantityExceeds": "Quantity cannot exceed unordered quantity",
+        "vat": "VAT",
+        "price": "Price",
+        "priceExceeds": "Price cannot exceed approved price ({price})"
+      },
+      "top": {
+        "orderDate": "Order Date",
+        "supplier": "Supplier",
+        "cashPurchase": "Cash Purchase",
+        "dateRequired": "Date required"
+      }
+    },
+    "imprestRetirement": {
+      "item": {
+        "product": "Product",
+        "itemLedger": "Item Ledger",
+        "store": "Store",
+        "unit": "Unit",
+        "quantity": "Quantity",
+        "qty": "Qty",
+        "rate": "Rate",
+        "amount": "Amount",
+        "description": "Description",
+        "lineType": "Line Type",
+        "expense": "Expense",
+        "productType": "Product",
+        "itemLedgerPaidVia": "Item Ledger (Paid via {ledger})"
+      },
+      "approval": {
+        "decisionRecorded": "Decision recorded",
+        "submitFailed": "Failed to submit decision",
+        "productRequired": "Product is required.",
+        "productAndStoreRequired": "Product and Store are required.",
+        "storeRequired": "Store is required.",
+        "ledgerRequired": "Ledger is required.",
+        "unitRequired": "Unit is required.",
+        "quantityGreaterThanZero": "Quantity must be greater than 0.",
+        "rateRequiredFinal": "Rate is required for final approval.",
+        "chainLevelUnknown": "Approval chain level could not be determined. Please contact support.",
+        "remarksRequired": "Remarks are required for this decision.",
+        "finalItemsInvalid": "Final approval requires valid source, unit, quantity, and rate on each item.",
+        "itemsInvalid": "Each item requires valid source, unit, and quantity.",
+        "approvalRecordUnknown": "Approval record could not be determined for update.",
+        "titleEdit": "Edit Approval — {no}",
+        "titleApprove": "Approve Retirement {no}",
+        "status": "Status: {status}",
+        "retirementDate": "Retirement Date: {date}",
+        "totalRetiredToDate": "Total Retired To Date",
+        "currentItemsTotal": "Current Items Total",
+        "remarks": "Remarks (required for On Hold / Reject)",
+        "supportingDocuments": "Receipts / Supporting Documents",
+        "documentsUnavailable": "Supporting documents are unavailable because retirement reference is missing.",
+        "reject": "Reject",
+        "onHold": "On Hold",
+        "approve": "Approve"
+      },
+      "form": {
+        "ledgerNo": "Ledger #{id}",
+        "productNo": "Product #{id}",
+        "storeNo": "Store #{id}",
+        "draftCreated": "Imprest retirement draft created",
+        "draftUpdated": "Imprest retirement draft updated",
+        "submittedForApproval": "Imprest retirement submitted for approval",
+        "approvalRefMissing": "Requisition approval reference is missing. Please reopen the form and try again.",
+        "ledgerRequired": "Imprest ledger is required.",
+        "dateRequired": "Retirement date is required.",
+        "itemRequired": "At least one retirement item is required.",
+        "itemInvalid": "Each item requires source account/product, measurement unit, quantity greater than 0 and rate greater than 0.",
+        "wholeUnits": "This product is sold in whole units — quantity cannot be a fraction.",
+        "resolveIdFailed": "Retirement created but could not resolve record id for submit.",
+        "loadingDraft": "Loading retirement draft...",
+        "titleUpdate": "Update {no}",
+        "title": "Imprest Retirement Form",
+        "status": "Status: {status}",
+        "approvedAmount": "Approved Amount",
+        "totalItemsAmount": "Total Items Amount",
+        "currentBalance": "Current Balance",
+        "balanceAfterRetirement": "Balance After Retirement",
+        "imprestLedger": "Imprest Ledger",
+        "currentBalanceValue": "Current Balance: {balance}",
+        "retirementDate": "Retirement Date",
+        "referenceRequisition": "Reference Requisition",
+        "remarks": "Remarks",
+        "productStore": "Product / Store",
+        "paidThrough": "Paid Through (Item Ledger)",
+        "addItem": "Add Item",
+        "update": "Update",
+        "saveDraft": "Save Draft"
+      }
+    }
+  },
+  "rfqs": {
+    "common": {
+      "cancel": "Cancel",
+      "submit": "Submit",
+      "update": "Update",
+      "add": "Add",
+      "product": "Product",
+      "unit": "Unit",
+      "quantity": "Quantity",
+      "remarks": "Remarks",
+      "reference": "Reference",
+      "amount": "Amount",
+      "status": "Status",
+      "rate": "Rate"
+    },
+    "form": {
+      "titleEdit": "Edit RFQ",
+      "titleNew": "New RFQ",
+      "rfqDate": "RFQ Date",
+      "responseDeadline": "Response Deadline",
+      "invitedSuppliers": "Invited Suppliers",
+      "statusOptions": {
+        "draft": "Draft",
+        "sent": "Sent",
+        "closed": "Closed",
+        "canceled": "Canceled"
+      },
+      "messages": {
+        "saved": "RFQ saved successfully",
+        "updated": "RFQ updated successfully",
+        "addAtLeastOneItem": "Add at least one RFQ item",
+        "itemNeedsProductAndQuantity": "Each RFQ item needs a product and quantity"
+      },
+      "validation": {
+        "rfqDate": "RFQ date is required",
+        "responseDeadline": "Response deadline is required",
+        "status": "Status is required"
+      }
+    },
+    "item": {
+      "addTitle": "Add RFQ Item",
+      "validation": {
+        "product": "Product is required",
+        "quantity": "Quantity is required"
+      }
+    },
+    "response": {
+      "titleEdit": "Edit RFQ Response - {name}",
+      "titleNewFor": "New RFQ Response - {name}",
+      "titleNew": "New RFQ Response",
+      "responseDate": "Response Date",
+      "validityDate": "Validity Date",
+      "supplier": "Supplier",
+      "noSuppliers": "No suppliers available",
+      "exchangeRate": "Exchange Rate",
+      "itemsHeading": "RFQ Response Items",
+      "itemFallback": "Item",
+      "required": "Required: {quantity} {unit}",
+      "removed": "Removed",
+      "removedItems": "Removed Items ({count})",
+      "restoreAll": "Restore All",
+      "allItemsRemoved": "All items have been removed. Please restore at least one item to submit the response.",
+      "updateResponse": "Update Response",
+      "submitResponse": "Submit Response",
+      "messages": {
+        "saved": "RFQ response saved successfully",
+        "updated": "RFQ response updated successfully",
+        "checkInformation": "Please check the information you submitted",
+        "atLeastOneItemRemain": "At least one item must remain in the response",
+        "itemRestored": "Item restored successfully",
+        "itemsRestored": "Restored {count} item(s)",
+        "addItemWithQuantityAndRate": "Please add at least one item with quantity and rate"
+      },
+      "validation": {
+        "responseDate": "Response date is required",
+        "supplier": "Supplier is required",
+        "currency": "Currency is required",
+        "exchangeRate": "Exchange rate is required",
+        "exchangeRatePositive": "Exchange rate must be positive"
+      },
+      "item": {
+        "vat": "VAT",
+        "priceVatInclusive": "Price (VAT Inclusive)",
+        "deliveryDate": "Delivery Date",
+        "cannotRemoveLast": "Cannot remove last item",
+        "removeThis": "Remove this item"
+      }
+    },
+    "purchaseOrder": {
+      "title": "New Purchase Order from RFQ",
+      "multipleOrders": "Creating multiple orders for different suppliers",
+      "noItems": "No items available. Please go back and select items from the comparison.",
+      "createAndNext": "Create & Next",
+      "messages": {
+        "atLeastOneItem": "At least one item is required",
+        "createFailed": "Failed to create purchase order",
+        "updateFailed": "Failed to update purchase order"
+      },
+      "validation": {
+        "orderDate": "Order date is required",
+        "currency": "Currency is required",
+        "costCenterMin": "At least one cost center must be selected",
+        "costCenter": "Cost Center is required",
+        "exchangeRate": "Exchange rate is required",
+        "creditAccount": "Credit Account(From) is required",
+        "receivingStore": "Receiving store is required",
+        "supplierNoAccount": "Selected supplier doesn't have any account"
+      },
+      "tabProducts": "Products",
+      "item": {
+        "rfqQty": "RFQ Qty: {quantity}",
+        "vat": "VAT"
+      },
+      "top": {
+        "orderDate": "Order Date",
+        "supplier": "Supplier:",
+        "notAvailable": "N/A",
+        "dateRequired": "Date Required"
+      }
+    }
+  }
+}

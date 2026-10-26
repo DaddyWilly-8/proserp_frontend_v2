@@ -1,0 +1,447 @@
+{
+  "banks": {
+    "labels": {
+      "pageTitle": "Banks"
+    },
+    "form": {
+      "labels": {
+        "addTitle": "Add Bank",
+        "editTitle": "Edit Bank {name}",
+        "name": "Name",
+        "shortName": "Short Name",
+        "swiftCode": "SWIFT Code"
+      },
+      "buttons": {
+        "cancel": "Cancel",
+        "submit": "Submit"
+      },
+      "messages": {
+        "added": "Bank Added Successfully",
+        "addError": "Error Adding Bank",
+        "updated": "Bank Updated Successfully",
+        "updateError": "Error Updating Bank"
+      },
+      "errors": {
+        "nameRequired": "Name is required",
+        "nameMax": "Name cannot exceed 150 characters",
+        "shortNameMax": "Short name cannot exceed 20 characters",
+        "swiftCodeMax": "Swift code cannot exceed 20 characters"
+      }
+    },
+    "menu": {
+      "edit": "Edit",
+      "delete": "Delete"
+    },
+    "dialog": {
+      "confirmDeleteTitle": "Confirm Delete",
+      "confirmDeleteContent": "Are you sure you want to delete this Bank?"
+    },
+    "messages": {
+      "deleted": "Bank Deleted Successfully",
+      "deleteError": "Error Deleting Bank"
+    }
+  },
+  "bankFile": {
+    "menu": {
+      "searchPlaceholder": "Search bank format...",
+      "noMatch": "No matching bank formats",
+      "configure": "Configure {name}"
+    },
+    "settings": {
+      "title": "{name} Settings",
+      "info1": "These values come from your organization's own account at",
+      "info2": "— set once, reused on every export.",
+      "noConfig": "This format needs no extra configuration.",
+      "saved": "Bank file settings saved",
+      "cancel": "Cancel",
+      "saveAndDownload": "Save & Download"
+    }
+  },
+  "payrollRuns": {
+    "months": [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December"
+    ],
+    "list": {
+      "title": "Payroll Runs",
+      "approvedTitle": "Approved Payroll Runs",
+      "payrollPeriod": "Payroll Period"
+    },
+    "form": {
+      "title": {
+        "create": "Create Payroll Run",
+        "edit": "Edit Payroll Run"
+      },
+      "errors": {
+        "periodRequired": "Payroll period is required",
+        "costCenterRequired": "Cost center is required - this period already has branch runs"
+      },
+      "messages": {
+        "created": "Payroll run created successfully"
+      },
+      "info": {
+        "edit": "Edit the payroll run details below.",
+        "hasBranchRun": "This period already has branch runs. You must select a cost center for this run. Company-wide runs are not allowed.",
+        "hasCompanyWideRun": "This period already has a company-wide run. Only cost center runs are allowed. Select a cost center to create a branch run.",
+        "createNew": "Create a new payroll run for {period}. Leave cost center empty for a company-wide run."
+      },
+      "labels": {
+        "costCenterRequired": "Cost Center *",
+        "costCenterOptional": "Cost Center (optional)",
+        "leaveEmpty": "Leave empty to create a company-wide run",
+        "currentStatus": "Current Status:",
+        "draft": "Draft"
+      },
+      "buttons": {
+        "cancel": "Cancel",
+        "update": "Update",
+        "create": "Create"
+      }
+    },
+    "status": {
+      "draft": "Draft",
+      "submitted": "Submitted",
+      "approved": "Approved",
+      "posted": "Posted",
+      "partially_paid": "Partially Paid",
+      "paid": "Paid",
+      "completed": "Completed",
+      "rejected": "Rejected",
+      "cancelled": "Cancelled",
+      "processing": "Processing",
+      "finalized": "Finalized",
+      "pending": "Pending",
+      "unpaid": "Unpaid"
+    },
+    "actionTail": {
+      "selectPeriodFirst": "Select a payroll period first",
+      "companyWideExists": "Cannot create another run - this period already has a company-wide run",
+      "create": "Create Payroll Run"
+    },
+    "listItem": {
+      "somethingWentWrong": "Something went wrong",
+      "companyWideRun": "Company-wide run",
+      "messages": {
+        "submitted": "Payroll submitted for approval",
+        "approved": "Payroll run approved",
+        "completed": "Payroll run completed",
+        "revertedToApproved": "Payroll run reverted to approved",
+        "withdrawn": "Payroll run withdrawn back to draft",
+        "transactionsReversed": "Payroll transactions reversed; run reverted to approved",
+        "postedWithVoucher": "Payroll posted: {voucher}",
+        "posted": "Payroll transactions posted",
+        "deleted": "Payroll run deleted",
+        "simulationGenerated": "Employee simulation generated"
+      },
+      "tabs": {
+        "summary": "Summary",
+        "approvals": "Approvals",
+        "payments": "Payments",
+        "payableSettlements": "Payable Settlements",
+        "payslips": "Payslips"
+      },
+      "noEmployeePayments": "No employee payments have been made against this run yet.",
+      "noPayableSettlements": "No payable settlements have been recorded against this run yet."
+    },
+    "approvalsTab": {
+      "by": "by",
+      "pending": "Pending",
+      "noApprovals": "No Approvals Found"
+    },
+    "summary": {
+      "simulatePayslip": "Simulate Payslip",
+      "employees": "Employees",
+      "basicSalary": "Basic Salary",
+      "grossSalary": "Gross Salary",
+      "paye": "PAYE",
+      "netSalary": "Net Salary",
+      "totalEmployerCost": "Total Employer Cost",
+      "totalAllowances": "Total Allowances",
+      "totalDeductions": "Total Deductions",
+      "totalEmployerContributions": "Total Employer Contributions"
+    },
+    "payments": {
+      "paymentReversed": "Payment reversed",
+      "reverseTitle": "Reverse Payment",
+      "reverseContent": "This deletes {voucher} ({amount}) and its journals, and adjusts the run's paid status accordingly. Continue?",
+      "voucher": "Voucher",
+      "date": "Date",
+      "narration": "Narration",
+      "amount": "Amount",
+      "actions": "Actions"
+    },
+    "approvalItem": {
+      "confirmDeleteTitle": "Confirm Delete?",
+      "confirmDeleteContent": "If you click yes, this Approval will be deleted"
+    },
+    "payPayables": {
+      "title": "Pay Payables",
+      "info": "Settles what this run accrued for deduction/employer-contribution types (e.g. remitting NSSF) — separate from paying employees.",
+      "bankOrCash": "Bank or Cash Account",
+      "settlementDate": "Settlement Date & Time",
+      "nothingOutstanding": "Nothing outstanding — every payable this run accrued has been settled.",
+      "type": "Type",
+      "accrued": "Accrued",
+      "remaining": "Remaining",
+      "amountToPay": "Amount to Pay",
+      "deduction": "Deduction",
+      "employerContribution": "Employer Contribution",
+      "totalThisPayment": "Total this payment: {amount}",
+      "cancel": "Cancel",
+      "settle": "Settle",
+      "recorded": "Payable settlement recorded"
+    },
+    "payEmployees": {
+      "title": "Pay Employees",
+      "payInFull": "Pay Everyone in Full",
+      "paySelected": "Pay Selected Amounts",
+      "bankOrCash": "Bank or Cash Account",
+      "paymentDate": "Payment Date & Time",
+      "allPaid": "Everyone on this run has already been paid in full.",
+      "fullInfo": "Pays every employee's full remaining balance — {count} {employees}, totaling {total}.",
+      "employeeSingular": "employee",
+      "employeePlural": "employees",
+      "selectAll": "Select All",
+      "selectNone": "Select None",
+      "employee": "Employee",
+      "remaining": "Remaining",
+      "amountToPay": "Amount to Pay",
+      "alreadyPaid": "{amount} already paid",
+      "totalThisPayment": "Total this payment: {amount}",
+      "cancel": "Cancel",
+      "pay": "Pay",
+      "recorded": "Payment recorded"
+    },
+    "approvalDialog": {
+      "title": "Payroll Approval",
+      "editTitle": "Edit Payroll Approval",
+      "approvalDate": "Approval Date",
+      "remarks": "Remarks",
+      "remarksRequired": "Remarks are required",
+      "cancel": "Cancel",
+      "reject": "Reject",
+      "approve": "Approve",
+      "recorded": "Payroll approval recorded",
+      "somethingWentWrong": "Something went wrong",
+      "unableToResolveLevel": "Unable to resolve approval chain level",
+      "companyWideRun": "Company-wide Run"
+    },
+    "actions": {
+      "thisRun": "this run",
+      "companyWideRun": "Company-wide Run",
+      "approvedMsg": "Payroll Run Approved",
+      "somethingWentWrong": "Something went wrong",
+      "submitTitle": "Submit Payroll Run",
+      "submitMessage": "Are you sure you want to submit \"{name}\" for approval? This will save all payslips.",
+      "submitConfirm": "Submit",
+      "deleteTitle": "Delete Payroll Run",
+      "deleteMessage": "Are you sure you want to delete \"{name}\"? This action cannot be undone.",
+      "deleteConfirm": "Delete",
+      "revertTitle": "Revert to Approved",
+      "revertContent": "This puts the run back to Approved so it can be corrected. No payment was ever created for this path, so nothing else changes. Continue?",
+      "withdrawTitle": "Withdraw Submission",
+      "withdrawContent": "This puts the run back to Draft so it can be corrected before re-submitting. Continue?",
+      "reverseTitle": "Reverse Posted Transactions",
+      "reverseContent": "This deletes the journal voucher posted to the GL and puts the run back to Approved so it can be corrected before re-posting. Continue?",
+      "approveTitle": "Approve Payroll Run",
+      "approveContent": "Once approved, this action cannot be undone",
+      "cancel": "Cancel",
+      "postTitle": "Post Payroll Transactions",
+      "postInfo": "Posting records payroll in the general ledger. It does not pay employees yet.",
+      "salaryExpenseAccount": "Salary Expense Account (fallback)",
+      "payeAccount": "PAYE Payable Account",
+      "fallbackPayableAccount": "Fallback Employee Payable Account",
+      "transactionDate": "Transaction Date & Time",
+      "post": "Post",
+      "completeQuestion": "Are you sure you want to complete the payroll",
+      "completePayroll": "Complete Payroll"
+    },
+    "itemAction": {
+      "finalized": "Payroll Run Finalized Successfully",
+      "submitContent": "Submit this payroll run and save payslips for approval?",
+      "approveContent": "Approve this payroll run directly?",
+      "deleteContent": "Delete this draft payroll run?",
+      "finalizeTitle": "Finalize Payroll Run",
+      "finalizeContent": "Are you sure you want to finalize this payroll run?",
+      "exportStarted": "Export started",
+      "approveLevel": "Approve Level",
+      "approve": "Approve",
+      "dialogTitle": "Payroll Approval",
+      "pendingLevel": "Pending level: {name}",
+      "nextLevel": "Next level",
+      "decision": "Decision",
+      "approved": "Approved",
+      "rejected": "Rejected",
+      "onHold": "On Hold",
+      "remarks": "Remarks",
+      "optionalForApprovals": "Optional for approvals",
+      "requiredUnlessApproving": "Required unless approving",
+      "cancel": "Cancel",
+      "saveDecision": "Save Decision",
+      "postTitle": "Post Payroll Transactions",
+      "postInfo": "Posting records payroll in the general ledger. It does not pay employees yet.",
+      "salaryExpenseAccount": "Salary Expense Account (fallback)",
+      "payeAccount": "PAYE Payable Account",
+      "fallbackPayableAccount": "Fallback Employee Payable Account",
+      "transactionDate": "Transaction Date & Time",
+      "post": "Post"
+    },
+    "dialogs": {
+      "simulationTitle": "Employee Simulation",
+      "simulatedPayslip": "{name} - Simulated Payslip",
+      "employee": "Employee",
+      "basicSalary": "Basic Salary",
+      "grossSalary": "Gross Salary",
+      "paye": "PAYE",
+      "totalAllowances": "Total Allowances",
+      "totalDeductions": "Total Deductions",
+      "totalEmployerContributions": "Total Employer Contributions",
+      "netPay": "Net Pay",
+      "allowances": "Allowances",
+      "deductions": "Deductions",
+      "employerContributions": "Employer Contributions",
+      "label": "Label",
+      "amount": "Amount",
+      "prorated": "Prorated ({active}/{total} days): {amount}",
+      "proratedShort": "Prorated ({active}/{total} days)",
+      "noSimulationData": "No simulation data available",
+      "close": "Close",
+      "payslipDetails": "Payslip Details",
+      "employeeNumber": "Employee Number",
+      "notAvailable": "N/A",
+      "noPayslipData": "No payslip data available"
+    },
+    "payslipsList": {
+      "employee": "Employee",
+      "basic": "Basic",
+      "allowances": "Allowances",
+      "gross": "Gross",
+      "deductions": "Deductions",
+      "paye": "PAYE",
+      "netPay": "Net Pay",
+      "status": "Status",
+      "actions": "Actions",
+      "employeeRemoved": "Employee removed"
+    },
+    "payslipCalc": {
+      "basicSalary": "Basic Salary",
+      "employerContribution": "Employer Contribution {n}"
+    },
+    "payslipDialog": {
+      "finalized": "Payslip finalized",
+      "errorFinalizing": "Error finalizing payslip",
+      "title": "Payslip",
+      "payrollPeriod": "Payroll Period",
+      "titleUpper": "PAYSLIP",
+      "organization": "Organization",
+      "employee": "Employee",
+      "employeeNo": "Employee No.",
+      "designation": "Designation",
+      "earnings": "Earnings",
+      "nonTaxable": "(Non-Taxable)",
+      "grossSalary": "Gross Salary",
+      "deductions": "Deductions",
+      "description": "Description",
+      "category": "Category",
+      "amount": "Amount",
+      "totalDeductions": "Total Deductions",
+      "netPay": "Net Pay",
+      "taxableIncomeBreakdown": "Taxable Income Breakdown",
+      "basicSalary": "Basic Salary",
+      "taxableAllowances": "Taxable Allowances",
+      "preTaxDeductions": "Pre-Tax Deductions",
+      "taxableIncome": "Taxable Income",
+      "employerContributionsRef": "Employer Contributions (for reference only)",
+      "noEmployerContributions": "No employer contributions",
+      "totalEmployerContributions": "Total Employer Contributions",
+      "totalEmployerCost": "Total Employer Cost",
+      "finalize": "Finalize",
+      "printPayslip": "Print Payslip",
+      "close": "Close"
+    },
+    "paymentView": {
+      "updated": "Payment updated",
+      "itemRemoved": "Item removed",
+      "removeTitle": "Remove Item",
+      "removeLastContent": "This is the only line left on this payment — removing it deletes the whole payment. Continue?",
+      "removeContent": "Remove {name} ({amount}) from this payment?",
+      "payment": "Payment",
+      "transactionDateTime": "Transaction Date & Time",
+      "transactionDate": "Transaction Date",
+      "bankOrCash": "Bank or Cash Account",
+      "reference": "Reference",
+      "narration": "Narration",
+      "payableType": "Payable Type",
+      "employee": "Employee",
+      "amount": "Amount",
+      "total": "Total: {amount}",
+      "close": "Close",
+      "edit": "Edit",
+      "save": "Save"
+    },
+    "payslipPdf": {
+      "title": "PAYSLIP",
+      "employeeColon": "Employee:",
+      "empNoColon": "Emp No:",
+      "periodColon": "Period:",
+      "item": "Item",
+      "amount": "Amount",
+      "basicSalary": "Basic Salary",
+      "grossSalary": "Gross Salary",
+      "totalAllowances": "Total Allowances",
+      "totalDeductions": "Total Deductions",
+      "paye": "PAYE",
+      "netPay": "Net Pay",
+      "allowances": "Allowances",
+      "deductions": "Deductions",
+      "employerContributions": "Employer Contributions",
+      "proratedNote": "* Prorated for {active}/{total} days this period (full Basic Salary: {full}) — any allowance marked * below was reduced the same way.",
+      "employeeName": "Employee Name",
+      "employeeNo": "Employee No.",
+      "company": "Company",
+      "description": "Description",
+      "allowancesBreakdown": "Allowances Breakdown",
+      "deductionsBreakdown": "Deductions Breakdown",
+      "label": "Label",
+      "docTitle": "Payslip - {name}",
+      "docSubject": "Employee Payslip",
+      "notAvailable": "N/A"
+    },
+    "bankTransfer": {
+      "title": "Bank Transfer List",
+      "costCenter": "Cost Center",
+      "payrollPeriod": "Payroll Period",
+      "payrollStatus": "Payroll Status",
+      "employeesWithoutBank": "Employees without bank accounts",
+      "noBankAccount": "No Bank Account",
+      "totalEmployees": "Total Employees",
+      "netSalary": "Net Salary",
+      "sn": "S/N",
+      "employeeNo": "Employee No.",
+      "empNo": "Emp No.",
+      "employeeNumber": "Employee Number",
+      "employeeName": "Employee Name",
+      "bankName": "Bank Name",
+      "branch": "Branch",
+      "bankCode": "Bank Code",
+      "accountNumber": "Account Number",
+      "accountName": "Account Name",
+      "netPay": "Net Pay",
+      "totalNetPay": "Total Net Pay",
+      "zeroPayHeader": "Employees Excluded from Transfer (Zero Pay)",
+      "docTitle": "Salary Sheet - {period}",
+      "docSubject": "Bank Transfer List",
+      "fileName": "Salary-sheet"
+    }
+  }
+}

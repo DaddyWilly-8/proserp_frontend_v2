@@ -15,6 +15,7 @@ import {
   Typography,
 } from '@mui/material';
 import smsAccountsServices from './smsAccounts-services';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface SmsAccount {
   id: number;
@@ -43,6 +44,7 @@ const typeColor = (type: string) => {
 };
 
 const SmsAccountTransactionsDialog = ({ account }: { account: SmsAccount }) => {
+  const dictionary = useDictionary();
   const [page, setPage] = useState(1);
 
   const { data, isLoading } = useQuery({
@@ -55,10 +57,10 @@ const SmsAccountTransactionsDialog = ({ account }: { account: SmsAccount }) => {
 
   return (
     <>
-      <DialogTitle>{account.organization?.name} &mdash; SMS Transactions</DialogTitle>
+      <DialogTitle>{dictionary.forms.smsAccounts.form.transactionsTitle.replace('{name}', String(account.organization?.name ?? ''))}</DialogTitle>
       <DialogContent>
         {!isLoading && transactions.length === 0 && (
-          <Typography color='text.secondary'>No transactions yet.</Typography>
+          <Typography color='text.secondary'>{dictionary.forms.smsAccounts.form.noTransactions}</Typography>
         )}
         <List dense disablePadding>
           {transactions.map((transaction) => (

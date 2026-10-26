@@ -50,7 +50,7 @@ function StakeholderListItem({ stakeholder }:{stakeholder: Stakeholder}) {
                 stakeholder.email &&
                   <Box component="span" display="inline-flex" flexDirection="row" alignItems="center">
                     <EmailOutlined fontSize='small'/>
-                    <Tooltip title='Email'>
+                    <Tooltip title={dictionary.tooltips.email}>
                       <Typography component={'span'}>&nbsp;{stakeholder.email}</Typography>
                     </Tooltip>
                   </Box>
@@ -69,7 +69,7 @@ function StakeholderListItem({ stakeholder }:{stakeholder: Stakeholder}) {
               }
               secondary={
                 stakeholder.vrn &&
-                <Tooltip title='VRN'>
+                <Tooltip title={dictionary.tooltips.vrn}>
                   <Typography component={'span'}>VRN: {stakeholder.vrn}</Typography>
                 </Tooltip>
               }
@@ -79,7 +79,7 @@ function StakeholderListItem({ stakeholder }:{stakeholder: Stakeholder}) {
             <ListItemText
               primary={
                 stakeholder.website &&
-                  <Tooltip title='Website'>
+                  <Tooltip title={dictionary.tooltips.website}>
                     <Stack direction={'row'} spacing={1}>
                       <LanguageOutlined fontSize='small' />
                       <Typography component={'span'}>{stakeholder.website}</Typography>

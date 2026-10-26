@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/app/[lang]/contexts/LanguageContext';
 import BankAccountListItemAction from './BankAccountListItemAction';
 import { formatDate } from '../reconciliation/date-format';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface BankAccount {
   id: number;
@@ -25,6 +26,7 @@ interface Props {
 }
 
 const BankAccountListItem: React.FC<Props> = ({ bankAccount }) => {
+  const dictionary = useDictionary();
   const router = useRouter();
   const lang = useLanguage();
 
@@ -43,22 +45,22 @@ const BankAccountListItem: React.FC<Props> = ({ bankAccount }) => {
         onClick={() => router.push(`/${lang}/accounts/bank-reconciliation/${bankAccount.id}`)}
       >
         <Grid size={{ xs: 6, md: 3.5 }}>
-          <Tooltip title='Ledger'>
+          <Tooltip title={dictionary.tooltips.ledger}>
             <Typography variant='body1'>{bankAccount.ledger?.name}</Typography>
           </Tooltip>
         </Grid>
         <Grid size={{ xs: 6, md: 3 }}>
-          <Tooltip title='Bank'>
+          <Tooltip title={dictionary.tooltips.bank}>
             <Typography variant='body1'>{bankAccount.bank?.name || '—'}</Typography>
           </Tooltip>
         </Grid>
         <Grid size={{ xs: 6, md: 2.5 }}>
-          <Tooltip title='Account Number'>
+          <Tooltip title={dictionary.tooltips.accountNumber}>
             <Typography variant='body1'>{bankAccount.account_number || '—'}</Typography>
           </Tooltip>
         </Grid>
         <Grid size={{ xs: 6, md: 2.5 }}>
-          <Tooltip title='Last Reconciled'>
+          <Tooltip title={dictionary.tooltips.lastReconciled}>
             <Typography variant='body1'>
               {bankAccount.last_reconciled_date ? formatDate(bankAccount.last_reconciled_date) : 'Never'}
             </Typography>

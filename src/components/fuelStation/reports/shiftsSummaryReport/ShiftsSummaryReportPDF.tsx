@@ -60,6 +60,7 @@ interface ShiftsSummaryReportPDFProps {
   reportData: ShiftsSummaryReportData;
   organization: any;
   user: any;
+  dictionary: any;
   from: string;
   to: string;
 }
@@ -74,10 +75,12 @@ const ShiftsSummaryReportPDF: React.FC<ShiftsSummaryReportPDFProps> = ({
   reportData,
   organization,
   user,
+  dictionary,
   from,
   to,
 }) => {
-  const reportPeriod = `${readableDate(from, true)} to ${readableDate(to, true)}`;
+  const t = dictionary.reports.fuelStationReports.shiftsSummary;
+  const reportPeriod = t.periodRange.replace('{from}', readableDate(from, true)).replace('{to}', readableDate(to, true));
   const mainColor = organization.settings?.main_color || '#2113AD';
   const lightColor = organization.settings?.light_color || '#bec5da';
   const contrastText = organization.settings?.contrast_text || '#FFFFFF';
@@ -191,7 +194,7 @@ const ShiftsSummaryReportPDF: React.FC<ShiftsSummaryReportPDFProps> = ({
     <Document
       creator={`${user?.name} | Powered By ProsERP`}
       producer='ProsERP'
-      title={`Shifts Summary Report ${reportPeriod}`}
+      title={`${t.title} ${reportPeriod}`}
     >
       <Page size='A4' orientation='landscape' style={pdfStyles.page}>
         <View style={pdfStyles.table}>
@@ -200,7 +203,7 @@ const ShiftsSummaryReportPDF: React.FC<ShiftsSummaryReportPDFProps> = ({
               <PdfLogo organization={organization} />
             </View>
             <View style={{ flex: 1, textAlign: 'right' }}>
-              <Text style={{ ...pdfStyles.majorInfo, color: mainColor }}>Shifts Summary Report</Text>
+              <Text style={{ ...pdfStyles.majorInfo, color: mainColor }}>{t.title}</Text>
               <Text style={{ ...pdfStyles.minInfo }}>{reportPeriod}</Text>
             </View>
           </View>
@@ -208,11 +211,11 @@ const ShiftsSummaryReportPDF: React.FC<ShiftsSummaryReportPDFProps> = ({
 
         <View style={{ ...pdfStyles.tableRow, marginTop: 10 }}>
           <View style={{ flex: 1, padding: 2 }}>
-            <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>Printed By</Text>
+            <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>{t.printedBy}</Text>
             <Text style={{ ...pdfStyles.minInfo }}>{user?.name}</Text>
           </View>
           <View style={{ flex: 1, padding: 2 }}>
-            <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>Printed On</Text>
+            <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>{t.printedOn}</Text>
             <Text style={{ ...pdfStyles.minInfo }}>{readableDate(undefined, true)}</Text>
           </View>
         </View>
@@ -221,7 +224,7 @@ const ShiftsSummaryReportPDF: React.FC<ShiftsSummaryReportPDFProps> = ({
         {fuelSoldByProduct.length > 0 && (
           <View style={{ width: '100%', marginTop: 15 }}>
             <View style={{ ...pdfStyles.tableRow }}>
-              <Text style={{ ...pdfStyles.tableHeader, ...pdfStyles.midInfo, backgroundColor: mainColor, flex: 1, color: contrastText, textAlign: 'center' }}>Fuel Sold by Product</Text>
+              <Text style={{ ...pdfStyles.tableHeader, ...pdfStyles.midInfo, backgroundColor: mainColor, flex: 1, color: contrastText, textAlign: 'center' }}>{t.fuelSoldByProduct}</Text>
             </View>
             <View style={pdfStyles.tableRow}>
               <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: stationFlex, marginRight: 0 }} />
@@ -243,15 +246,15 @@ const ShiftsSummaryReportPDF: React.FC<ShiftsSummaryReportPDFProps> = ({
               <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: totalAmountFlex, marginRight: 0 }} />
             </View>
             <View style={pdfStyles.tableRow}>
-              <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: stationFlex, marginRight: 0 }}>Station</Text>
+              <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: stationFlex, marginRight: 0 }}>{t.station}</Text>
               {products.map((product) => (
                 <React.Fragment key={product.product_id}>
-                  <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: tripletFlex.qty, textAlign: 'right', marginRight: 0 }}>{`Qty (${product.unit_symbol})`}</Text>
-                  <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: tripletFlex.price, textAlign: 'right', marginRight: 0 }}>Price</Text>
-                  <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: tripletFlex.amount, textAlign: 'right', marginRight: 0 }}>Amount</Text>
+                  <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: tripletFlex.qty, textAlign: 'right', marginRight: 0 }}>{`${t.qty} (${product.unit_symbol})`}</Text>
+                  <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: tripletFlex.price, textAlign: 'right', marginRight: 0 }}>{t.price}</Text>
+                  <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: tripletFlex.amount, textAlign: 'right', marginRight: 0 }}>{t.amount}</Text>
                 </React.Fragment>
               ))}
-              <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: totalAmountFlex, textAlign: 'right', marginRight: 0 }}>Total</Text>
+              <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: totalAmountFlex, textAlign: 'right', marginRight: 0 }}>{t.total}</Text>
             </View>
             {stations.map((station, index) => {
               const stationTotal = products.reduce(
@@ -276,7 +279,7 @@ const ShiftsSummaryReportPDF: React.FC<ShiftsSummaryReportPDFProps> = ({
               );
             })}
             <View style={pdfStyles.tableRow}>
-              <Text style={{ ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: stationFlex, marginRight: 0 }}>Total</Text>
+              <Text style={{ ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: stationFlex, marginRight: 0 }}>{t.total}</Text>
               {products.map((product) => (
                 <React.Fragment key={product.product_id}>
                   <Text style={{ ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: tripletFlex.qty, textAlign: 'right', marginRight: 0 }}>{numberFormat(productTotals[product.product_id].quantity)}</Text>
@@ -293,18 +296,18 @@ const ShiftsSummaryReportPDF: React.FC<ShiftsSummaryReportPDFProps> = ({
         {cashCreditSummary.length > 0 && (
           <View style={{ width: '100%', marginTop: 15 }}>
             <View style={{ ...pdfStyles.tableRow }}>
-              <Text style={{ ...pdfStyles.tableHeader, ...pdfStyles.midInfo, backgroundColor: mainColor, flex: 1, color: contrastText, textAlign: 'center' }}>Cash &amp; Credit Summary</Text>
+              <Text style={{ ...pdfStyles.tableHeader, ...pdfStyles.midInfo, backgroundColor: mainColor, flex: 1, color: contrastText, textAlign: 'center' }}>{t.cashCreditSummary}</Text>
             </View>
             <View style={pdfStyles.tableRow}>
-              <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 0.15 }}>Station</Text>
-              <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 0.06, textAlign: 'right' }}>Shifts</Text>
-              <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 0.11, textAlign: 'right' }}>Fuel Value</Text>
-              <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 0.11, textAlign: 'right' }}>Fuel Vouchers</Text>
-              <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 0.11, textAlign: 'right' }}>Cashless</Text>
-              <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 0.11, textAlign: 'right' }}>Cash Expected</Text>
-              <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 0.11, textAlign: 'right' }}>Cash Collected</Text>
-              <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 0.1, textAlign: 'right' }}>Short/Over</Text>
-              <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 0.14, textAlign: 'right' }}>Payments Received</Text>
+              <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 0.15 }}>{t.station}</Text>
+              <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 0.06, textAlign: 'right' }}>{t.shifts}</Text>
+              <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 0.11, textAlign: 'right' }}>{t.fuelValue}</Text>
+              <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 0.11, textAlign: 'right' }}>{t.fuelVouchers}</Text>
+              <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 0.11, textAlign: 'right' }}>{t.cashless}</Text>
+              <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 0.11, textAlign: 'right' }}>{t.cashExpected}</Text>
+              <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 0.11, textAlign: 'right' }}>{t.cashCollected}</Text>
+              <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 0.1, textAlign: 'right' }}>{t.shortOver}</Text>
+              <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 0.14, textAlign: 'right' }}>{t.paymentsReceived}</Text>
             </View>
             {cashCreditSummary.map((row, index) => (
               <View key={row.station_id} style={pdfStyles.tableRow}>
@@ -320,7 +323,7 @@ const ShiftsSummaryReportPDF: React.FC<ShiftsSummaryReportPDFProps> = ({
               </View>
             ))}
             <View style={pdfStyles.tableRow}>
-              <Text style={{ ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 0.21, textAlign: 'center' }}>Total</Text>
+              <Text style={{ ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 0.21, textAlign: 'center' }}>{t.total}</Text>
               <Text style={{ ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 0.11, textAlign: 'right' }}>{numberFormat(cashCreditTotals.total_fuel_value)}</Text>
               <Text style={{ ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 0.11, textAlign: 'right' }}>{numberFormat(cashCreditTotals.credit_sales)}</Text>
               <Text style={{ ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 0.11, textAlign: 'right' }}>{numberFormat(cashCreditTotals.mpesa_bank_collected)}</Text>
@@ -336,19 +339,19 @@ const ShiftsSummaryReportPDF: React.FC<ShiftsSummaryReportPDFProps> = ({
         {shiftDetail.length > 0 && (
           <View style={{ width: '100%', marginTop: 15 }}>
             <View style={{ ...pdfStyles.tableRow }}>
-              <Text style={{ ...pdfStyles.tableHeader, ...pdfStyles.midInfo, backgroundColor: mainColor, flex: 1, color: contrastText, textAlign: 'center' }}>Shift Detail</Text>
+              <Text style={{ ...pdfStyles.tableHeader, ...pdfStyles.midInfo, backgroundColor: mainColor, flex: 1, color: contrastText, textAlign: 'center' }}>{t.shiftDetail}</Text>
             </View>
             <View style={pdfStyles.tableRow}>
-              <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 0.1 }}>Shift No</Text>
-              <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 0.11 }}>Station</Text>
-              <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 0.17 }}>Shift</Text>
-              <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 0.06, textAlign: 'right' }}>Cashiers</Text>
-              <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 0.1, textAlign: 'right' }}>Fuel Value</Text>
-              <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 0.1, textAlign: 'right' }}>Fuel Vouchers</Text>
-              <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 0.1, textAlign: 'right' }}>Cash Expected</Text>
-              <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 0.1, textAlign: 'right' }}>Cash Collected</Text>
-              <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 0.08, textAlign: 'right' }}>Short/Over</Text>
-              <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 0.08, textAlign: 'center' }}>Status</Text>
+              <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 0.1 }}>{t.shiftNo}</Text>
+              <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 0.11 }}>{t.station}</Text>
+              <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 0.17 }}>{t.shift}</Text>
+              <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 0.06, textAlign: 'right' }}>{t.cashiers}</Text>
+              <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 0.1, textAlign: 'right' }}>{t.fuelValue}</Text>
+              <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 0.1, textAlign: 'right' }}>{t.fuelVouchers}</Text>
+              <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 0.1, textAlign: 'right' }}>{t.cashExpected}</Text>
+              <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 0.1, textAlign: 'right' }}>{t.cashCollected}</Text>
+              <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 0.08, textAlign: 'right' }}>{t.shortOver}</Text>
+              <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 0.08, textAlign: 'center' }}>{t.status}</Text>
             </View>
             {shiftDetail.map((row, index) => (
               <View key={row.shift_id} style={pdfStyles.tableRow}>
@@ -364,11 +367,11 @@ const ShiftsSummaryReportPDF: React.FC<ShiftsSummaryReportPDFProps> = ({
                 <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 0.1, textAlign: 'right' }}>{numberFormat(row.cash_expected)}</Text>
                 <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 0.1, textAlign: 'right' }}>{numberFormat(row.cash_collected)}</Text>
                 <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 0.08, textAlign: 'right', color: shortOverColor(row.short_over), fontWeight: 'bold' }}>{numberFormat(row.short_over)}</Text>
-                <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 0.08, textAlign: 'center', color: shortOverColor(row.short_over) }}>{row.balance_status?.toUpperCase()}</Text>
+                <Text style={{ ...pdfStyles.tableCell, backgroundColor: index % 2 === 0 ? '#FFFFFF' : lightColor, flex: 0.08, textAlign: 'center', color: shortOverColor(row.short_over) }}>{row.balance_status === 'over' ? t.statusOver : row.balance_status === 'short' ? t.statusShort : t.statusBalanced}</Text>
               </View>
             ))}
             <View style={pdfStyles.tableRow}>
-              <Text style={{ ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 0.44, textAlign: 'center' }}>Total</Text>
+              <Text style={{ ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 0.44, textAlign: 'center' }}>{t.total}</Text>
               <Text style={{ ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 0.1, textAlign: 'right' }}>{numberFormat(shiftDetailTotals.total_fuel_value)}</Text>
               <Text style={{ ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 0.1, textAlign: 'right' }}>{numberFormat(shiftDetailTotals.credit_sales)}</Text>
               <Text style={{ ...pdfStyles.tableCell, backgroundColor: mainColor, color: contrastText, flex: 0.1, textAlign: 'right' }}>{numberFormat(shiftDetailTotals.cash_expected)}</Text>

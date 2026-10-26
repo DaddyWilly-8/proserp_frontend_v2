@@ -186,7 +186,8 @@ export default function BankReconciliationWorkspace({ bankAccountId }: Props) {
             )}
           </Box>
           <Box sx={{ display: 'flex', gap: 1 }}>
-            {!isCompleted && checkOrganizationPermission(PERMISSIONS.BANK_RECONCILIATION_CREATE) && (
+            {/* Also offered on a completed statement: that's exactly when the next period's statement is imported */}
+            {checkOrganizationPermission(PERMISSIONS.BANK_RECONCILIATION_CREATE) && (
               <Button variant='outlined' startIcon={<UploadOutlined />} onClick={() => setImportDialogOpen(true)}>
                 Import New Statement
               </Button>

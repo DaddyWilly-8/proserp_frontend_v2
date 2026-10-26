@@ -19,12 +19,14 @@ import {
   useMediaQuery,
 } from '@mui/material';
 import React, { useEffect, useState } from 'react';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import ProjectStatusReport from '../projectStatusReport/ProjectStatusReport';
 
 // Mirrors ProcurementReports/AccountsReports - an independent Reports page for Project
 // Management (not a Reports submenu entry), opening each report in a shared dialog. Only one
 // report exists today; more land here as tiles the same way the other sections' hubs grew.
 function ProjectReports() {
+  const dictionary = useDictionary();
   const css = useProsERPStyles();
   const [openDialog, setOpenDialog] = useState(false);
   const [report, setReport] = useState<React.ReactNode>(null);
@@ -42,7 +44,7 @@ function ProjectReports() {
   if (!mounted) return <PageLoadingSkeleton />;
 
   if (!organizationHasSubscribed(MODULES.PROJECT_MANAGEMENT)) {
-    return <UnsubscribedAccess modules={'Project Management'} />;
+    return <UnsubscribedAccess modules={dictionary.projectManagement.projects.moduleName} />;
   }
 
   if (!checkOrganizationPermission(PERMISSIONS.PROJECTS_REPORTS)) {
@@ -66,13 +68,13 @@ function ProjectReports() {
             variant='outlined'
             onClick={() => setOpenDialog(false)}
           >
-            Close
+            {dictionary.projectManagement.dashboard.close}
           </Button>
         </DialogActions>
       </Dialog>
 
       <Typography variant='h4' mb={2}>
-        Project Management Reports
+        {dictionary.projectManagement.reports.title}
       </Typography>
 
       <JumboCardQuick sx={{ height: '100%' }}>
@@ -91,7 +93,7 @@ function ProjectReports() {
             }}
           >
             <AssessmentOutlined sx={{ fontSize: '40px' }} />
-            <Typography>Project Status Report</Typography>
+            <Typography>{dictionary.projectManagement.reports.projectStatusReport}</Typography>
           </Grid>
         </Grid>
       </JumboCardQuick>

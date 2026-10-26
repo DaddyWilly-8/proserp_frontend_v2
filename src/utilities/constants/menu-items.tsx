@@ -267,6 +267,12 @@ export async function getMenus(locale: string) {
           icon: icon('transactions'),
         },
         {
+          uri: `/${locale}/accounts/recurring-transactions`,
+          label: sidebar.menuItem.recurringTransactions,
+          type: 'nav-item',
+          icon: icon('recurringTransactions'),
+        },
+        {
           uri: `/${locale}/accounts/bank-reconciliation`,
           label: sidebar.menuItem.bankReconciliation,
           type: 'nav-item',

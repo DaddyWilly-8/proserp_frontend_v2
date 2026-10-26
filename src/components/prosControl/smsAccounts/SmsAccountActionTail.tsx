@@ -7,8 +7,10 @@ import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 import { PROS_CONTROL_PERMISSIONS } from '@/utilities/constants/prosControlPermissions';
 import SmsAccountForm from './SmsAccountForm';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const SmsAccountActionTail = () => {
+  const dictionary = useDictionary();
   const { checkPermission } = useJumboAuth();
   const [openDialog, setOpenDialog] = useState(false);
   const { theme } = useJumboTheme();
@@ -22,7 +24,7 @@ const SmsAccountActionTail = () => {
         </Dialog>
 
         <ButtonGroup variant='outlined' size='small' disableElevation sx={{ '& .MuiButton-root': { px: 1 } }}>
-          <Tooltip title='New SMS Account'>
+          <Tooltip title={dictionary.tooltips.newSmsAccount}>
             <IconButton onClick={() => setOpenDialog(true)}>
               <AddOutlined />
             </IconButton>

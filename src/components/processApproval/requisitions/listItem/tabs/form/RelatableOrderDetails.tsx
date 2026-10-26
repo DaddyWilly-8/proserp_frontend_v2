@@ -1,4 +1,5 @@
 import { Button, DialogActions, DialogContent } from '@mui/material';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import PurchaseOrderOnScreenPreview from '@/components/procurement/purchases/PurchaseOrderOnScreenPreview';
 
 interface RelatableOrderDetailsProps {
@@ -7,6 +8,7 @@ interface RelatableOrderDetailsProps {
 }
 
 function RelatableOrderDetails({ order, toggleOpen }: RelatableOrderDetailsProps) {
+    const dictionary = useDictionary();
     return (
         <>
             <DialogContent>
@@ -14,7 +16,7 @@ function RelatableOrderDetails({ order, toggleOpen }: RelatableOrderDetailsProps
             </DialogContent>
             <DialogActions>
                 <Button size="small" variant='outlined' onClick={() => toggleOpen(false)}>
-                    Close
+                    {dictionary.forms.requisitions.common.close}
                 </Button>
             </DialogActions>
         </>

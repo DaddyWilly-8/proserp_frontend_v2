@@ -36,6 +36,7 @@ const ImprestRetirementForm = dynamic(() => import('./form/ImprestRetirementForm
 const ImprestRetirementOnScreenPreview = dynamic(() => import('./preview/ImprestRetirementOnScreenPreview'), { ssr: false });
 import ImprestRetirementPDF from './preview/ImprestRetirementPDF';
 import dynamic from 'next/dynamic';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 dayjs.extend(isSameOrAfter);
 
@@ -54,6 +55,7 @@ function ImprestRetirementItemAction({
   approvedRequisition,
   isExpanded,
 }: ImprestRetirementItemActionProps) {
+  const dictionary = useDictionary();
   const { showDialog, hideDialog } = useJumboDialog();
   const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
@@ -288,14 +290,14 @@ function ImprestRetirementItemAction({
         )}
       </Dialog>
 
-      <Tooltip title='Preview Retirement'>
+      <Tooltip title={dictionary.tooltips.previewRetirement}>
         <IconButton size='small' onClick={() => setOpenPreviewDialog(true)}>
           <VisibilityOutlined />
         </IconButton>
       </Tooltip>
 
       {showEdit && (
-        <Tooltip title='Edit'>
+        <Tooltip title={dictionary.tooltips.edit}>
           <IconButton size='small' onClick={() => setOpenUpdateDialog(true)}>
             <EditOutlined />
           </IconButton>
@@ -303,7 +305,7 @@ function ImprestRetirementItemAction({
       )}
 
       {showApprove && (
-        <Tooltip title='Approve'>
+        <Tooltip title={dictionary.tooltips.approve}>
           <IconButton size='small' onClick={() => setOpenApprovalDialog(true)}>
             <FactCheckOutlined />
           </IconButton>
@@ -311,7 +313,7 @@ function ImprestRetirementItemAction({
       )}
 
       {showDelete && (
-        <Tooltip title='Delete'>
+        <Tooltip title={dictionary.tooltips.delete}>
           <IconButton size='small' onClick={handleDeleteDraft}>
             <DeleteOutlined color='error' />
           </IconButton>

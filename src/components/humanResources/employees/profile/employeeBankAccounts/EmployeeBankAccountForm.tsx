@@ -22,6 +22,7 @@ import * as yup from 'yup';
 import { BankType } from '../../../banks/BankType';
 import humanResourcesServices from '../../../humanResourcesServices';
 import { EmployeeBankAccountType } from './EmployeeBankAccountType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface EmployeeBankAccountFormProps {
   setOpenDialog: (open: boolean) => void;
@@ -52,6 +53,7 @@ const EmployeeBankAccountForm = ({
   account = null,
   employeeId,
 }: EmployeeBankAccountFormProps) => {
+  const dictionary = useDictionary();
   const queryClient = useQueryClient();
   const { enqueueSnackbar } = useSnackbar();
 
@@ -71,13 +73,13 @@ const EmployeeBankAccountForm = ({
     mutationFn: humanResourcesServices.addEmployeeBankAccount,
     onSuccess: () => {
       setOpenDialog(false);
-      enqueueSnackbar('Bank Account Added Successfully', {
+      enqueueSnackbar(dictionary.humanResources.employeeBankAccounts.messages.added, {
         variant: 'success',
       });
       queryClient.invalidateQueries({ queryKey: ['employeeBankAccounts'] });
     },
     onError: (mutationError) => {
-      let message = 'Something went wrong';
+      let message = dictionary.humanResources.profileSectionsCommon.somethingWentWrong;
 
       if (
         typeof mutationError === 'object' &&
@@ -101,13 +103,13 @@ const EmployeeBankAccountForm = ({
     mutationFn: humanResourcesServices.updateEmployeeBankAccount,
     onSuccess: () => {
       setOpenDialog(false);
-      enqueueSnackbar('Bank Account Updated Successfully', {
+      enqueueSnackbar(dictionary.humanResources.employeeBankAccounts.messages.updated, {
         variant: 'success',
       });
       queryClient.invalidateQueries({ queryKey: ['employeeBankAccounts'] });
     },
     onError: (mutationError) => {
-      let message = 'Something went wrong';
+      let message = dictionary.humanResources.profileSectionsCommon.somethingWentWrong;
 
       if (
         typeof mutationError === 'object' &&
@@ -127,18 +129,18 @@ const EmployeeBankAccountForm = ({
     id: yup.number().optional(),
     bank_id: yup
       .number()
-      .typeError('Bank is required')
-      .required('Bank is required'),
-    branch: yup.string().max(100, 'Branch cannot exceed 100 characters'),
-    bank_code: yup.string().max(50, 'Bank code cannot exceed 50 characters'),
+      .typeError(dictionary.humanResources.employeeBankAccounts.form.validation.bankRequired)
+      .required(dictionary.humanResources.employeeBankAccounts.form.validation.bankRequired),
+    branch: yup.string().max(100, dictionary.humanResources.employeeBankAccounts.form.validation.branchMax),
+    bank_code: yup.string().max(50, dictionary.humanResources.employeeBankAccounts.form.validation.bankCodeMax),
     account_number: yup
       .string()
-      .required('Account number is required')
-      .max(50, 'Account number cannot exceed 50 characters'),
+      .required(dictionary.humanResources.employeeBankAccounts.form.validation.accountNumberRequired)
+      .max(50, dictionary.humanResources.employeeBankAccounts.form.validation.accountNumberMax),
     account_name: yup
       .string()
-      .required('Account name is required')
-      .max(200, 'Account name cannot exceed 200 characters'),
+      .required(dictionary.humanResources.employeeBankAccounts.form.validation.accountNameRequired)
+      .max(200, dictionary.humanResources.employeeBankAccounts.form.validation.accountNameMax),
     is_primary: yup.boolean().required(),
   });
 
@@ -198,7 +200,7 @@ const EmployeeBankAccountForm = ({
     <>
       <DialogTitle>
         <Grid size={12} textAlign={'center'}>
-          {!account?.id ? 'Add Bank Account' : 'Edit Bank Account'}
+          {!account?.id ? dictionary.humanResources.employeeBankAccounts.form.addTitle : dictionary.humanResources.employeeBankAccounts.form.editTitle}
         </Grid>
       </DialogTitle>
       <DialogContent>
@@ -231,7 +233,7 @@ const EmployeeBankAccountForm = ({
                       renderInput={(params) => (
                         <TextField
                           {...params}
-                          label='Bank'
+                          label={dictionary.humanResources.employeeBankAccounts.form.labels.bank}
                           fullWidth
                           error={
                             !!errors?.bank_id ||
@@ -252,7 +254,7 @@ const EmployeeBankAccountForm = ({
             <Grid size={{ xs: 12, md: 6 }}>
               <Div sx={{ mt: 1, mb: 1 }}>
                 <TextField
-                  label='Branch'
+                  label={dictionary.humanResources.employeeBankAccounts.form.labels.branch}
                   size='small'
                   fullWidth
                   error={
@@ -271,13 +273,13 @@ const EmployeeBankAccountForm = ({
             <Grid size={{ xs: 12, md: 6 }}>
               <Div sx={{ mt: 1, mb: 1 }}>
                 <TextField
-                  label='Bank Code'
+                  label={dictionary.humanResources.employeeBankAccounts.form.labels.bankCode}
                   size='small'
                   fullWidth
                   helperText={
                     errors.bank_code?.message ||
                     getValidationMessage(validationErrors, 'bank_code') ||
-                    'Optional — only needed if your bank requires a routing/branch code for transfers'
+                    dictionary.humanResources.employeeBankAccounts.form.helper.bankCode
                   }
                   error={
                     !!errors?.bank_code ||
@@ -291,7 +293,7 @@ const EmployeeBankAccountForm = ({
             <Grid size={{ xs: 12, md: 6 }}>
               <Div sx={{ mt: 1, mb: 1 }}>
                 <TextField
-                  label='Account Number'
+                  label={dictionary.humanResources.employeeBankAccounts.form.labels.accountNumber}
                   size='small'
                   fullWidth
                   error={
@@ -310,7 +312,7 @@ const EmployeeBankAccountForm = ({
             <Grid size={{ xs: 12, md: 6 }}>
               <Div sx={{ mt: 1, mb: 1 }}>
                 <TextField
-                  label='Account Name'
+                  label={dictionary.humanResources.employeeBankAccounts.form.labels.accountName}
                   size='small'
                   fullWidth
                   error={
@@ -340,7 +342,7 @@ const EmployeeBankAccountForm = ({
                           }
                         />
                       }
-                      label='Set as Primary Account'
+                      label={dictionary.humanResources.employeeBankAccounts.form.labels.setPrimary}
                     />
                   )}
                 />
@@ -350,7 +352,7 @@ const EmployeeBankAccountForm = ({
 
           <DialogActions>
             <Button size='small' onClick={() => setOpenDialog(false)}>
-              Cancel
+              {dictionary.humanResources.profileSectionsCommon.cancel}
             </Button>
             <LoadingButton
               type='submit'
@@ -359,7 +361,7 @@ const EmployeeBankAccountForm = ({
               sx={{ display: 'flex' }}
               loading={isPending || updateIsPending}
             >
-              Submit
+              {dictionary.humanResources.profileSectionsCommon.submit}
             </LoadingButton>
           </DialogActions>
         </form>

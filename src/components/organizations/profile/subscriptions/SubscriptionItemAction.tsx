@@ -99,7 +99,7 @@ const SubscriptionItemAction: React.FC<SubscriptionItemActionProps> = ({ subscri
         </IconButton>
       </Tooltip>
 
-      <Tooltip title='Duplicate'>
+      <Tooltip title={dictionary.tooltips.duplicate}>
         <IconButton
           color='primary'
           size='small'

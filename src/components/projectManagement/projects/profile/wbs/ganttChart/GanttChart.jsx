@@ -8,12 +8,14 @@ import { HighlightOff } from "@mui/icons-material";
 import dayjs from "dayjs";
 import { useProjectProfile } from "../../ProjectProfileProvider";
 import { BackdropSpinner } from "@/shared/ProgressIndicators/BackdropSpinner";
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const HighchartsReact = dynamic(() => import("highcharts-react-official"), {
   ssr: false,
 });
 
 function GanttChart({ setOpenGanttChart }) {
+  const dictionary = useDictionary();
   const { project, projectTimelineActivities } = useProjectProfile();
   const [isReady, setIsReady] = useState(false);
 
@@ -201,15 +203,15 @@ function GanttChart({ setOpenGanttChart }) {
         },
         tooltip: {
           pointFormatter: function () {
-            const startDate = this.start ? Highcharts.dateFormat('%d %b %Y', this.start) : 'Unknown start date';
+            const startDate = this.start ? Highcharts.dateFormat('%d %b %Y', this.start) : dictionary.projectManagement.wbs.gantt.unknownStart;
             const endDate = this.milestone ? '' : (this.end ? ` → ${Highcharts.dateFormat('%d %b %Y', this.end)}` : '');
   
             let handlerInfo = '';
             if (this.handlers && this.handlers.length > 0) {
               const handlerNames = this.handlers.map(handler => handler.name).join(', ');
-              handlerInfo = `Handler(s): ${handlerNames}<br>`;
+              handlerInfo = `${dictionary.projectManagement.wbs.gantt.handlers.replace('{names}', handlerNames)}<br>`;
             } else if (this.isTask === true) {
-              handlerInfo = 'Handler(s): unassigned<br>';
+              handlerInfo = `${dictionary.projectManagement.wbs.gantt.handlersUnassigned}<br>`;
             }
   
             return `<span style="font-weight: bold">${this.name}</span><br>` +
@@ -286,9 +288,9 @@ function GanttChart({ setOpenGanttChart }) {
         }}
       >
         <span style={{ flexGrow: 1, textAlign: "center" }}>
-          {`${project.name} Gantt Chart`}
+          {dictionary.projectManagement.wbs.gantt.title.replace('{name}', project.name)}
         </span>
-        <Tooltip title="Close">
+        <Tooltip title={dictionary.tooltips.close}>
           <IconButton
             size="small"
             color="primary"
@@ -308,7 +310,7 @@ function GanttChart({ setOpenGanttChart }) {
       </DialogContent>
 
       <DialogActions>
-        <Button onClick={() => setOpenGanttChart(false)}>Close</Button>
+        <Button onClick={() => setOpenGanttChart(false)}>{dictionary.projectManagement.wbs.common.close}</Button>
       </DialogActions>
     </>
   );

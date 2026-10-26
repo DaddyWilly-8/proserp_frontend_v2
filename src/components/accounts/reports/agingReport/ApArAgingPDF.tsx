@@ -3,8 +3,8 @@ import { Document, Page, Text, View } from '@react-pdf/renderer';
 import pdfStyles from '../../../pdf/pdf-styles';
 import PdfLogo from '../../../pdf/PdfLogo';
 
-const BUCKET_COLUMNS = [
-  { key: 'current', label: 'Current (0-30)' },
+const getBucketColumns = (currentLabel: string) => [
+  { key: 'current', label: currentLabel },
   { key: 'days_31_60', label: '31-60' },
   { key: 'days_61_90', label: '61-90' },
   { key: 'days_91_120', label: '91-120' },
@@ -30,13 +30,15 @@ const flattenAgingTree = (group: any, level: number, rows: any[] = []): any[] =>
   return rows;
 };
 
-const ApArAgingPDF = ({ reportData, authOrganization, user }: any) => {
+const ApArAgingPDF = ({ reportData, authOrganization, user, dictionary }: any) => {
+  const t = dictionary.reports.accountsReports;
+  const BUCKET_COLUMNS = getBucketColumns(t.agingReport.current);
   const organization = authOrganization?.organization;
   const mainColor = organization?.settings?.main_color || '#2113AD';
   const lightColor = organization?.settings?.light_color || '#bec5da';
   const contrastText = organization?.settings?.contrast_text || '#FFFFFF';
-  const reportTitle = reportData?.filters?.type === 'receivable' ? 'A/R Aging Report' : 'A/P Aging Report';
-  const reportPeriod = `As at: ${readableDate(reportData?.filters?.as_at, true)}`;
+  const reportTitle = reportData?.filters?.type === 'receivable' ? t.agingReport.receivableReport : t.agingReport.payableReport;
+  const reportPeriod = t.agingReport.asAtDate.replace('{date}', readableDate(reportData?.filters?.as_at, true));
   const rows = reportData?.group ? flattenAgingTree(reportData.group, 0) : [];
 
   if (!reportData) return null;
@@ -57,18 +59,18 @@ const ApArAgingPDF = ({ reportData, authOrganization, user }: any) => {
         <View style={{ ...pdfStyles.tableRow, marginTop: 10, marginBottom: 10 }}>
           {reportData.filters?.cost_centers?.length > 0 && (
             <View style={{ flex: 2, padding: 2 }}>
-              <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>Cost Centers</Text>
+              <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>{t.common.costCenters}</Text>
               <Text style={pdfStyles.minInfo}>
                 {reportData.filters.cost_centers.map((c: any) => c.name).join(', ')}
               </Text>
             </View>
           )}
           <View style={{ flex: 1, padding: 2 }}>
-            <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>Printed By</Text>
+            <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>{t.common.printedBy}</Text>
             <Text style={pdfStyles.minInfo}>{user?.name || ''}</Text>
           </View>
           <View style={{ flex: 1, padding: 2 }}>
-            <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>Printed On</Text>
+            <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>{t.common.printedOn}</Text>
             <Text style={pdfStyles.minInfo}>{readableDate(undefined, true)}</Text>
           </View>
         </View>
@@ -76,7 +78,7 @@ const ApArAgingPDF = ({ reportData, authOrganization, user }: any) => {
         <View style={{ ...pdfStyles.table, minHeight: 230 }}>
           <View style={pdfStyles.tableRow}>
             <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 3.5 }}>
-              Name
+              {t.agingReport.name}
             </Text>
             {BUCKET_COLUMNS.map((col) => (
               <Text
@@ -101,7 +103,7 @@ const ApArAgingPDF = ({ reportData, authOrganization, user }: any) => {
                 textAlign: 'right',
               }}
             >
-              Total
+              {t.common.total}
             </Text>
           </View>
           {rows.map((row: any, index: number) => (
@@ -154,7 +156,7 @@ const ApArAgingPDF = ({ reportData, authOrganization, user }: any) => {
                 paddingLeft: 10,
               }}
             >
-              Total
+              {t.common.total}
             </Text>
             {BUCKET_COLUMNS.map((col) => (
               <Text

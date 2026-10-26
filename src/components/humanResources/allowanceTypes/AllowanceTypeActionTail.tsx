@@ -11,8 +11,10 @@ import {
 } from '@mui/material';
 import { useState } from 'react';
 import AllowanceTypeForm from '@/components/humanResources/allowanceTypes/AllowanceTypeForm';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const AllowanceTypeActionTail = () => {
+  const dictionary = useDictionary();
   const [openDialog, setOpenDialog] = useState(false);
 
   const { theme } = useJumboTheme();
@@ -29,7 +31,7 @@ const AllowanceTypeActionTail = () => {
         disableElevation
         sx={{ '& .MuiButton-root': { px: 1 } }}
       >
-        <Tooltip title='Add Allowance Type'>
+        <Tooltip title={dictionary.tooltips.addAllowanceType}>
           <IconButton onClick={() => setOpenDialog(true)}>
             <AddOutlined />
           </IconButton>

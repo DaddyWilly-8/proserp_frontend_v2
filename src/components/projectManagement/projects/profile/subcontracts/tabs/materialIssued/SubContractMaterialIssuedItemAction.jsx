@@ -13,8 +13,10 @@ import projectsServices from '@/components/projectManagement/projects/project-se
 const SubContractMaterialIssuedOnScreen = dynamic(() => import('./SubContractMaterialIssuedOnScreen'), { ssr: false });
 import SubContractMaterialIssuedPDF from './SubContractMaterialIssuedPDF';
 import dynamic from 'next/dynamic';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const DocumentDialog = ({ setOpenDocumentDialog, SubContractMaterialIssued, organization }) => {
+    const dictionary = useDictionary();
     const {data:SubContractMaterialIssuedDetails,isFetching} = useQuery({
         queryKey: ['SubContractMaterialIssuedDetails',{id:SubContractMaterialIssued.id}],
         queryFn: async() => projectsServices.getSubContractMaterialIssuedDetails(SubContractMaterialIssued.id)
@@ -41,14 +43,14 @@ const DocumentDialog = ({ setOpenDocumentDialog, SubContractMaterialIssued, orga
                 <Grid container alignItems="center" justifyContent="space-between">
                   <Grid size={{xs: belowLargeScreen ? 11 : 12}}>
                     <Tabs value={selectedTab} onChange={handleTabChange}>
-                      <Tab label="On Screen" />
+                      <Tab label={dictionary.projectManagement.materialIssued.onScreen} />
                       <Tab label="PDF" />
                     </Tabs>
                   </Grid>
   
                   {belowLargeScreen && (
                     <Grid size={{xs: 1}} textAlign="right">
-                      <Tooltip title="Close">
+                      <Tooltip title={dictionary.tooltips.close}>
                         <IconButton
                           size="small"
                           color="primary"
@@ -66,7 +68,7 @@ const DocumentDialog = ({ setOpenDocumentDialog, SubContractMaterialIssued, orga
                 )}
                 {selectedTab === 1 && (
                   <PDFContent
-                    document={<SubContractMaterialIssuedPDF organization={organization} SubContractMaterialIssuedDetails={SubContractMaterialIssuedDetails} />}
+                    document={<SubContractMaterialIssuedPDF organization={organization} SubContractMaterialIssuedDetails={SubContractMaterialIssuedDetails} dictionary={dictionary} />}
                     fileName={SubContractMaterialIssued.issueNo}
                   />
                 )}
@@ -74,7 +76,7 @@ const DocumentDialog = ({ setOpenDocumentDialog, SubContractMaterialIssued, orga
             </Box>
           ) : (
             <PDFContent
-              document={<SubContractMaterialIssuedPDF organization={organization} SubContractMaterialIssuedDetails={SubContractMaterialIssuedDetails} />}
+              document={<SubContractMaterialIssuedPDF organization={organization} SubContractMaterialIssuedDetails={SubContractMaterialIssuedDetails} dictionary={dictionary} />}
               fileName={SubContractMaterialIssued.issueNo}
             />
           )}
@@ -82,7 +84,7 @@ const DocumentDialog = ({ setOpenDocumentDialog, SubContractMaterialIssued, orga
         {belowLargeScreen &&
           <Box textAlign="right" margin={2}>
             <Button variant="outlined" size='small' color="primary" onClick={() => setOpenDocumentDialog(false)}>
-            Close
+            {dictionary.projectManagement.dashboard.close}
             </Button>
           </Box>
         }
@@ -91,6 +93,7 @@ const DocumentDialog = ({ setOpenDocumentDialog, SubContractMaterialIssued, orga
 };
 
 const SubContractMaterialIssuedItemAction = ({ SubContractMaterialIssued}) => {
+    const dictionary = useDictionary();
     const {showDialog,hideDialog} = useJumboDialog();
     const [openDocumentDialog, setOpenDocumentDialog] = useState(false);
     const { enqueueSnackbar } = useSnackbar();
@@ -116,9 +119,9 @@ const SubContractMaterialIssuedItemAction = ({ SubContractMaterialIssued}) => {
     });
 
     const menuItems = [
-        {icon: <VisibilityOutlined />, title: "View", action: "open" },
-        {icon: <EditOutlined/>, title: 'Edit', action: 'edit'},
-        {icon: <DeleteOutlined color='error'/>, title: 'Delete', action: 'delete'}
+        {icon: <VisibilityOutlined />, title: dictionary.projectManagement.common.view, action: "open" },
+        {icon: <EditOutlined/>, title: dictionary.projectManagement.common.edit, action: 'edit'},
+        {icon: <DeleteOutlined color='error'/>, title: dictionary.projectManagement.common.delete, action: 'delete'}
     ];
 
   const handleItemAction = (menuItem) => {
@@ -128,8 +131,8 @@ const SubContractMaterialIssuedItemAction = ({ SubContractMaterialIssued}) => {
         break;
       case 'delete':
         showDialog({
-            title: 'Confirm Delete',
-            content: 'Are you sure you want to delete this Material Used?',
+            title: dictionary.projectManagement.common.confirmDelete,
+            content: dictionary.projectManagement.materialIssued.confirmDeleteText,
             onYes: () =>{ 
                 hideDialog();
                 deleteSubContractMaterialIssued(SubContractMaterialIssued.id)
@@ -157,7 +160,7 @@ const SubContractMaterialIssuedItemAction = ({ SubContractMaterialIssued}) => {
         </Dialog>
         <JumboDdMenu
             icon={
-                <Tooltip title='Actions'>
+                <Tooltip title={dictionary.tooltips.actions}>
                     <MoreHorizOutlined/>
                 </Tooltip>
             }

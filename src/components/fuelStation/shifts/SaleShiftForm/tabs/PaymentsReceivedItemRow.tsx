@@ -3,6 +3,7 @@ import { DisabledByDefault, EditOutlined } from '@mui/icons-material';
 import { Divider, Grid, IconButton, Tooltip, Typography } from '@mui/material';
 import React, { useState } from 'react';
 import PaymentsReceived from './PaymentsReceived';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface Ledger {
   id?: number;
@@ -46,6 +47,7 @@ function PaymentsReceivedItemRow({
     setShowWarning,
     clearFormKey
 }: PaymentsReceivedItemRowProps & { showWarning: boolean; setShowWarning: (val: boolean) => void; clearFormKey: number }) {
+    const dictionary = useDictionary();
     const { ungroupedLedgerOptions } = useLedgerSelect();
     const debit_ledger = ungroupedLedgerOptions.find(ledger => ledger.id === item.debit_ledger_id)
     const credit_ledger = ungroupedLedgerOptions.find(ledger => ledger.id === item.credit_ledger_id)
@@ -68,36 +70,36 @@ function PaymentsReceivedItemRow({
                     </Grid>
                     
                     <Grid size={{xs: 6, md: 3}}>
-                        <Tooltip title="Paid By">
+                        <Tooltip title={dictionary.tooltips.paidBy}>
                             <Typography>{credit_ledger?.name || item.creditLedgerName}</Typography>
                         </Tooltip>
                     </Grid>
                     
                     <Grid size={{xs: 6, md: 3}}>
-                        <Tooltip title="Paid To">
+                        <Tooltip title={dictionary.tooltips.paidTo}>
                             <Typography>{debit_ledger?.name || item.debitLedgerName}</Typography>
                         </Tooltip>
                     </Grid>
                     
                     <Grid size={{xs: 6, md: 4, lg: 2.5}}>
-                        <Tooltip title="Narration">
+                        <Tooltip title={dictionary.tooltips.narration}>
                             <Typography>{item.narration}</Typography>
                         </Tooltip>
                     </Grid>
                     
                     <Grid size={{xs: 6, md: 3, lg: 2}}>
-                        <Tooltip title="Amount">
+                        <Tooltip title={dictionary.tooltips.amount}>
                             <Typography textAlign={'right'}>{item.amount?.toLocaleString()}</Typography>
                         </Tooltip>
                     </Grid>
                     
                     <Grid textAlign={'end'} size={{xs: 12, md: 12, lg: 1}}>
-                        <Tooltip title='Edit Item'>
+                        <Tooltip title={dictionary.tooltips.editItem}>
                             <IconButton size='small' onClick={() => { setShowForm(true) }}>
                                 <EditOutlined fontSize='small' />
                             </IconButton>
                         </Tooltip>
-                        <Tooltip title='Remove Item'>
+                        <Tooltip title={dictionary.tooltips.removeItem}>
                             <IconButton size='small'
                                 onClick={() => setPaymentItems(prevItems => {
                                     const newItems = [...prevItems];

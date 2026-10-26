@@ -6,8 +6,11 @@ import ProductInsights from './ProductInsights';
 import useProsERPStyles from '@/app/helpers/style-helpers';
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 import { Div } from '@jumbo/shared';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function DashboardQuickLink() {
+  const dictionary = useDictionary();
+  const dict = dictionary.reports.procurementReports;
   const css = useProsERPStyles();
   const [openDialog, setOpenDialog] = useState(false);
 
@@ -21,13 +24,13 @@ function DashboardQuickLink() {
           <ProductInsights/>
           <DialogActions className={css.hiddenOnPrint}>
               <Button sx={{ m:1 }} size='small' variant='outlined' onClick={() =>{setOpenDialog(false)}}>
-                  Close
+                  {dict.close}
               </Button>
           </DialogActions>
       </Dialog>
       <Div onClick={() => setOpenDialog(true)}>
         <InsightsOutlined  sx={{ fontSize: '40px' }} />
-        <Typography>Product Insights</Typography>
+        <Typography>{dict.productInsights.title}</Typography>
       </Div>
     </React.Fragment>
   )

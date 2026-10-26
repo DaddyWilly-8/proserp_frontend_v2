@@ -16,19 +16,20 @@ function ProjectLiabilitiesPDF({
   rows,
   total,
   activeTab,
+  dictionary,
 }) {
   const mainColor = organization?.settings?.main_color ?? '#2113AD';
   const lightColor = organization?.settings?.light_color ?? '#F4F6FB';
   const contrastText = organization?.settings?.contrast_text ?? '#FFFFFF';
-  const organizationName = organization?.name || 'Organization';
+  const organizationName = organization?.name || dictionary.projectManagement.dashboard.organization;
   const projectName =
-    project?.name || project?.project_name || project?.title || 'Project';
+    project?.name || project?.project_name || project?.title || dictionary.projectManagement.dashboard.project;
 
   return (
     <Document
-      title={`Project Liabilities Summary | ${organizationName}`}
+      title={`${dictionary.projectManagement.dashboard.projectLiabilitiesSummary} | ${organizationName}`}
       author={organizationName}
-      subject='Project Liabilities Summary'
+      subject={dictionary.projectManagement.dashboard.projectLiabilitiesSummary}
       creator='Powered By ProsERP'
       producer='ProsERP'
     >
@@ -41,14 +42,14 @@ function ProjectLiabilitiesPDF({
           </View>
           <View style={{ flex: 1, textAlign: 'right' }}>
             <Text style={{ ...pdfStyles.majorInfo, color: mainColor }}>
-              Project {activeTab === 0 ? 'Creditors' : 'Debtors'}
+              {activeTab === 0 ? dictionary.projectManagement.dashboard.projectCreditors : dictionary.projectManagement.dashboard.projectDebtors}
             </Text>
             <Text style={pdfStyles.midInfo}>{projectName}</Text>
           </View>
         </View>
 
         <View style={{ marginBottom: 12 }}>
-          <Text style={{ ...pdfStyles.midInfo, color: mainColor }}>As At</Text>
+          <Text style={{ ...pdfStyles.midInfo, color: mainColor }}>{dictionary.projectManagement.dashboard.asAt}</Text>
           <Text style={pdfStyles.midInfo}>
             {dayjs().format('DD MMM YYYY, HH:mm')}
           </Text>
@@ -65,7 +66,7 @@ function ProjectLiabilitiesPDF({
                 flex: 2,
               }}
             >
-              {activeTab === 0 ? 'Creditors' : 'Debtors'}
+              {activeTab === 0 ? dictionary.projectManagement.dashboard.creditors : dictionary.projectManagement.dashboard.debtors}
             </Text>
             <Text
               style={{
@@ -77,7 +78,7 @@ function ProjectLiabilitiesPDF({
                 textAlign: 'right',
               }}
             >
-              {currencyCode || 'Amount'}
+              {currencyCode || dictionary.projectManagement.dashboard.amount}
             </Text>
           </View>
 
@@ -120,7 +121,7 @@ function ProjectLiabilitiesPDF({
           ) : (
             <View style={pdfStyles.tableRow}>
               <Text style={{ ...pdfStyles.tableCell, padding: 10, flex: 1 }}>
-                No liabilities available
+                {dictionary.projectManagement.dashboard.noLiabilitiesAvailable}
               </Text>
             </View>
           )}
@@ -135,7 +136,7 @@ function ProjectLiabilitiesPDF({
                 flex: 2,
               }}
             >
-              Total
+              {dictionary.projectManagement.dashboard.total}
             </Text>
             <Text
               style={{

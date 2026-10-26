@@ -23,6 +23,7 @@ import * as yup from 'yup';
 import { AllowanceType } from '../../../allowanceTypes/AllowanceType';
 import humanResourcesServices from '../../../humanResourcesServices';
 import { EmployeeAllowanceType } from './EmployeeAllowanceType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface EmployeeAllowanceFormProps {
   setOpenDialog: (open: boolean) => void;
@@ -61,6 +62,7 @@ const EmployeeAllowanceForm = ({
   employeeAllowance = null,
   employeeId,
 }: EmployeeAllowanceFormProps) => {
+  const dictionary = useDictionary();
   const queryClient = useQueryClient();
   const { enqueueSnackbar } = useSnackbar();
 
@@ -86,13 +88,13 @@ const EmployeeAllowanceForm = ({
     mutationFn: humanResourcesServices.addEmployeeAllowance,
     onSuccess: () => {
       setOpenDialog(false);
-      enqueueSnackbar('Employee Allowance Added Successfully', {
+      enqueueSnackbar(dictionary.humanResources.employeeAllowances.messages.added, {
         variant: 'success',
       });
       queryClient.invalidateQueries({ queryKey: ['employeeAllowances'] });
     },
     onError: (mutationError) => {
-      let message = 'Something went wrong';
+      let message = dictionary.humanResources.profileSectionsCommon.somethingWentWrong;
 
       if (
         typeof mutationError === 'object' &&
@@ -116,13 +118,13 @@ const EmployeeAllowanceForm = ({
     mutationFn: humanResourcesServices.updateEmployeeAllowance,
     onSuccess: () => {
       setOpenDialog(false);
-      enqueueSnackbar('Employee Allowance Updated Successfully', {
+      enqueueSnackbar(dictionary.humanResources.employeeAllowances.messages.updated, {
         variant: 'success',
       });
       queryClient.invalidateQueries({ queryKey: ['employeeAllowances'] });
     },
     onError: (mutationError) => {
-      let message = 'Something went wrong';
+      let message = dictionary.humanResources.profileSectionsCommon.somethingWentWrong;
 
       if (
         typeof mutationError === 'object' &&
@@ -140,13 +142,13 @@ const EmployeeAllowanceForm = ({
 
   const validationSchema = yup.object({
     id: yup.number().optional(),
-    allowance_type_id: yup.number().required('Allowance type is required'),
+    allowance_type_id: yup.number().required(dictionary.humanResources.employeeAllowances.form.validation.allowanceTypeRequired),
     amount: yup
       .number()
-      .typeError('Amount must be a number')
-      .required('Amount is required')
-      .min(0, 'Amount must be 0 or greater'),
-    effective_from: yup.string().required('Effective from is required'),
+      .typeError(dictionary.humanResources.employeeAllowances.form.validation.amountNumber)
+      .required(dictionary.humanResources.employeeAllowances.form.validation.amountRequired)
+      .min(0, dictionary.humanResources.employeeAllowances.form.validation.amountMin),
+    effective_from: yup.string().required(dictionary.humanResources.employeeAllowances.form.validation.effectiveFromRequired),
     effective_to: yup.string().nullable().optional(),
   });
 
@@ -201,7 +203,7 @@ const EmployeeAllowanceForm = ({
     <>
       <DialogTitle>
         <Grid size={12} textAlign={'center'}>
-          {!employeeAllowance?.id ? 'Add Allowance' : 'Edit Allowance'}
+          {!employeeAllowance?.id ? dictionary.humanResources.employeeAllowances.form.addTitle : dictionary.humanResources.employeeAllowances.form.editTitle}
         </Grid>
       </DialogTitle>
       <DialogContent>
@@ -215,7 +217,7 @@ const EmployeeAllowanceForm = ({
                   <Controller
                     name='allowance_type_id'
                     control={control}
-                    rules={{ required: 'Allowance type is required' }}
+                    rules={{ required: dictionary.humanResources.employeeAllowances.form.validation.allowanceTypeRequired }}
                     render={({ field, fieldState }) => (
                       <Autocomplete
                         size='small'
@@ -235,7 +237,7 @@ const EmployeeAllowanceForm = ({
                         renderInput={(params) => (
                           <TextField
                             {...params}
-                            label='Allowance Type'
+                            label={dictionary.humanResources.employeeAllowances.form.labels.allowanceType}
                             error={
                               !!fieldState.error ||
                               !!getValidationMessage(
@@ -266,7 +268,7 @@ const EmployeeAllowanceForm = ({
                   control={control}
                   render={({ field }) => (
                     <TextField
-                      label='Amount'
+                      label={dictionary.humanResources.employeeAllowances.form.labels.amount}
                       size='small'
                       fullWidth
                       value={formatCommaSeparatedValue(field.value)}
@@ -295,7 +297,7 @@ const EmployeeAllowanceForm = ({
                   control={control}
                   render={({ field }) => (
                     <DateTimePicker
-                      label='Effective From'
+                      label={dictionary.humanResources.employeeAllowances.form.labels.effectiveFrom}
                       value={field.value ? dayjs(field.value) : null}
                       onChange={(newValue) => {
                         field.onChange(newValue ? newValue.toISOString() : '');
@@ -331,7 +333,7 @@ const EmployeeAllowanceForm = ({
                   control={control}
                   render={({ field }) => (
                     <DateTimePicker
-                      label='Effective To'
+                      label={dictionary.humanResources.employeeAllowances.form.labels.effectiveTo}
                       value={field.value ? dayjs(field.value) : null}
                       onChange={(newValue) => {
                         field.onChange(newValue ? newValue.toISOString() : '');
@@ -363,7 +365,7 @@ const EmployeeAllowanceForm = ({
 
           <DialogActions>
             <Button size='small' onClick={() => setOpenDialog(false)}>
-              Cancel
+              {dictionary.humanResources.profileSectionsCommon.cancel}
             </Button>
             <LoadingButton
               type='submit'
@@ -372,7 +374,7 @@ const EmployeeAllowanceForm = ({
               sx={{ display: 'flex' }}
               loading={isPending || updateIsPending}
             >
-              Submit
+              {dictionary.humanResources.profileSectionsCommon.submit}
             </LoadingButton>
           </DialogActions>
         </form>

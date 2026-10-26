@@ -41,6 +41,7 @@ import PDFContent from '../../../pdf/PDFContent';
 import fuelStationServices from '../../fuelStationServices';
 import FuelVoucherInvoicePaymentsPanel from './FuelVoucherInvoicePaymentsPanel';
 import FuelVoucherInvoicePDF from './FuelVoucherInvoicePDF';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const money = (value = 0) =>
   (value ?? 0).toLocaleString('en-US', {
@@ -48,13 +49,15 @@ const money = (value = 0) =>
     maximumFractionDigits: 2,
   });
 
-const errorMessage = (error) =>
-  error?.response?.data?.message || 'Something went wrong, please try again';
+const errorMessage = (error, fallback) =>
+  error?.response?.data?.message || fallback;
 
 /**
  * @param {{ closeDialog?: (open: boolean) => void, onCreated?: (invoice: any) => void }} props
  */
 function FuelVoucherInvoices({ closeDialog, onCreated }) {
+  const dictionary = useDictionary();
+  const t = dictionary.reports.fuelStationReports.fuelVoucherInvoices;
   const { authUser, authOrganization } = useJumboAuth();
   const organization = authOrganization.organization;
   const { theme } = useJumboTheme();
@@ -62,7 +65,7 @@ function FuelVoucherInvoices({ closeDialog, onCreated }) {
   const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
 
-  document.title = 'New Fuel Voucher Invoice';
+  document.title = t.newInvoice;
 
   const [invoiceToView, setInvoiceToView] = useState(null);
   // Off: lines of the same product and price are grouped. On: every voucher is listed.
@@ -100,7 +103,7 @@ function FuelVoucherInvoices({ closeDialog, onCreated }) {
 
   const loadVouchers = async () => {
     if (!customer?.id) {
-      enqueueSnackbar('Select a customer first', { variant: 'warning' });
+      enqueueSnackbar(t.selectCustomerFirst, { variant: 'warning' });
       return;
     }
     setIsLoadingVouchers(true);
@@ -115,7 +118,7 @@ function FuelVoucherInvoices({ closeDialog, onCreated }) {
       setVoucherKeyword('');
       setSelectedIds(data.map((voucher) => voucher.id));
     } catch (error) {
-      enqueueSnackbar(errorMessage(error), { variant: 'error' });
+      enqueueSnackbar(errorMessage(error, t.errorFallback), { variant: 'error' });
     } finally {
       setIsLoadingVouchers(false);
     }
@@ -184,7 +187,7 @@ function FuelVoucherInvoices({ closeDialog, onCreated }) {
       setTerms('');
       setInvoiceToView(invoice);
     } catch (error) {
-      enqueueSnackbar(errorMessage(error), { variant: 'error' });
+      enqueueSnackbar(errorMessage(error, t.errorFallback), { variant: 'error' });
     } finally {
       setIsCreating(false);
     }
@@ -198,7 +201,7 @@ function FuelVoucherInvoices({ closeDialog, onCreated }) {
       position='relative'
     >
       {invoiceToView && (
-        <Tooltip title='Back'>
+        <Tooltip title={dictionary.tooltips.back}>
           <IconButton
             size='small'
             sx={{ position: 'absolute', left: 0 }}
@@ -209,10 +212,10 @@ function FuelVoucherInvoices({ closeDialog, onCreated }) {
         </Tooltip>
       )}
       <Typography variant='h3' textAlign='center'>
-        {invoiceToView ? invoiceToView.invoice_no : 'New Fuel Voucher Invoice'}
+        {invoiceToView ? invoiceToView.invoice_no : t.newInvoice}
       </Typography>
       {belowLargeScreen && (
-        <Tooltip title='Close'>
+        <Tooltip title={dictionary.tooltips.close}>
           <IconButton
             size='small'
             sx={{ position: 'absolute', right: 20, top: 0 }}
@@ -231,7 +234,7 @@ function FuelVoucherInvoices({ closeDialog, onCreated }) {
         <DialogTitle textAlign='center'>{title}</DialogTitle>
         <DialogContent>
           <Stack direction='row' justifyContent='center' alignItems='center'>
-            <Typography>Detailed</Typography>
+            <Typography>{t.detailed}</Typography>
             <Switch
               checked={openDetails}
               onChange={(event) => setOpenDetails(event.target.checked)}
@@ -247,6 +250,7 @@ function FuelVoucherInvoices({ closeDialog, onCreated }) {
               <FuelVoucherInvoicePDF
                 invoice={invoiceToView}
                 organization={organization}
+                dictionary={dictionary}
                 summarize={!openDetails}
               />
             }
@@ -256,9 +260,7 @@ function FuelVoucherInvoices({ closeDialog, onCreated }) {
           />
         </DialogContent>
         <DialogActions>
-          <Button size='small' onClick={() => closeDialog?.(false)}>
-            Close
-          </Button>
+          <Button size='small' onClick={() => closeDialog?.(false)}>{t.close}</Button>
         </DialogActions>
       </>
     );
@@ -272,7 +274,7 @@ function FuelVoucherInvoices({ closeDialog, onCreated }) {
             <Grid container columnSpacing={1} rowSpacing={1} sx={{ mt: 0.5 }}>
               <Grid size={{ xs: 12, md: 4 }}>
                 <StakeholderSelector
-                  label='Customer'
+                  label={t.customer}
                   onChange={(value) => {
                     setCustomer(value);
                     setVouchers(null);
@@ -289,7 +291,7 @@ function FuelVoucherInvoices({ closeDialog, onCreated }) {
                   }
                   getOptionLabel={(option) => option.name}
                   renderInput={(params) => (
-                    <TextField {...params} label='Station (optional)' />
+                    <TextField {...params} label={t.stationOptional} />
                   )}
                   onChange={(event, value) => {
                     setStation(value);
@@ -299,7 +301,7 @@ function FuelVoucherInvoices({ closeDialog, onCreated }) {
               </Grid>
               <Grid size={{ xs: 12, sm: 6, md: 2 }}>
                 <DateTimePicker
-                  label='From'
+                  label={t.from}
                   value={from}
                   ampm={false}
                   minDate={dayjs(organization.recording_start_date)}
@@ -312,7 +314,7 @@ function FuelVoucherInvoices({ closeDialog, onCreated }) {
               </Grid>
               <Grid size={{ xs: 12, sm: 6, md: 2 }}>
                 <DateTimePicker
-                  label='To'
+                  label={t.to}
                   value={to}
                   ampm={false}
                   minDate={from}
@@ -329,9 +331,7 @@ function FuelVoucherInvoices({ closeDialog, onCreated }) {
                   variant='contained'
                   loading={isLoadingVouchers}
                   onClick={loadVouchers}
-                >
-                  Find Vouchers
-                </LoadingButton>
+                >{t.findVouchers}</LoadingButton>
               </Grid>
             </Grid>
 
@@ -339,7 +339,7 @@ function FuelVoucherInvoices({ closeDialog, onCreated }) {
             <Grid container columnSpacing={1} rowSpacing={1} sx={{ mt: 1 }}>
                   <Grid size={{ xs: 12, md: 3 }}>
                     <DatePicker
-                      label='Invoice Date'
+                      label={t.invoiceDate}
                       value={invoiceDate}
                       slotProps={{ textField: { size: 'small', fullWidth: true } }}
                       onChange={setInvoiceDate}
@@ -347,7 +347,7 @@ function FuelVoucherInvoices({ closeDialog, onCreated }) {
                   </Grid>
                   <Grid size={{ xs: 12, md: 3 }}>
                     <DatePicker
-                      label='Due Date'
+                      label={t.dueDate}
                       value={dueDate}
                       minDate={invoiceDate ?? undefined}
                       slotProps={{
@@ -361,7 +361,7 @@ function FuelVoucherInvoices({ closeDialog, onCreated }) {
                     <TextField
                       size='small'
                       fullWidth
-                      label='Internal Reference'
+                      label={t.internalReference}
                       value={internalReference}
                       onChange={(event) => setInternalReference(event.target.value)}
                       inputProps={{ maxLength: 191 }}
@@ -371,7 +371,7 @@ function FuelVoucherInvoices({ closeDialog, onCreated }) {
                     <TextField
                       size='small'
                       fullWidth
-                      label='Customer Reference'
+                      label={t.customerReference}
                       value={customerReference}
                       onChange={(event) => setCustomerReference(event.target.value)}
                       inputProps={{ maxLength: 191 }}
@@ -386,7 +386,7 @@ function FuelVoucherInvoices({ closeDialog, onCreated }) {
                       renderInput={(params) => (
                         <TextField
                           {...params}
-                          label='Terms and Instructions'
+                          label={t.termsAndInstructions}
                           size='small'
                           fullWidth
                           multiline
@@ -401,7 +401,7 @@ function FuelVoucherInvoices({ closeDialog, onCreated }) {
                       fullWidth
                       multiline
                       minRows={2}
-                      label='Narration'
+                      label={t.narration}
                       value={narration}
                       onChange={(event) => setNarration(event.target.value)}
                       inputProps={{ maxLength: 500 }}
@@ -412,13 +412,9 @@ function FuelVoucherInvoices({ closeDialog, onCreated }) {
             {isLoadingVouchers ? (
               <Skeleton variant='rectangular' height={120} sx={{ mt: 2 }} />
             ) : vouchers === null ? (
-              <Alert variant='outlined' severity='info' sx={{ mt: 2 }}>
-                Choose a customer and dates to see the vouchers not yet invoiced
-              </Alert>
+              <Alert variant='outlined' severity='info' sx={{ mt: 2 }}>{t.chooseCustomer}</Alert>
             ) : vouchers.length === 0 ? (
-              <Alert variant='outlined' severity='info' sx={{ mt: 2 }}>
-                No un-invoiced vouchers for this customer in the selected period
-              </Alert>
+              <Alert variant='outlined' severity='info' sx={{ mt: 2 }}>{t.noUninvoiced}</Alert>
             ) : (
               <>
                 {/* The figure being invoiced, right above the vouchers it comes from */}
@@ -437,10 +433,10 @@ function FuelVoucherInvoices({ closeDialog, onCreated }) {
                   }}
                 >
                   <Typography color='inherit'>
-                    {`${selectedIds.length} of ${vouchers.length} vouchers selected`}
+                    {t.vouchersSelected.replace('{selected}', selectedIds.length).replace('{total}', vouchers.length)}
                   </Typography>
                   <Typography variant='h5' color='inherit' mb={0}>
-                    {`TOTAL: ${money(selectedTotal)}`}
+                    {t.totalAmount.replace('{amount}', money(selectedTotal))}
                   </Typography>
                 </Box>
 
@@ -448,12 +444,12 @@ function FuelVoucherInvoices({ closeDialog, onCreated }) {
                   size='small'
                   fullWidth
                   sx={{ mt: 1 }}
-                  placeholder='Search vouchers by number, date, station, product, reference or narration...'
+                  placeholder={t.searchPlaceholder}
                   value={voucherKeyword}
                   onChange={(event) => setVoucherKeyword(event.target.value)}
                   helperText={
                     needle
-                      ? `Showing ${visibleVouchers.length} of ${vouchers.length} vouchers`
+                      ? t.showingOf.replace('{shown}', visibleVouchers.length).replace('{total}', vouchers.length)
                       : undefined
                   }
                   slotProps={{
@@ -469,7 +465,7 @@ function FuelVoucherInvoices({ closeDialog, onCreated }) {
 
                 {needle && visibleVouchers.length === 0 ? (
                   <Alert variant='outlined' severity='info' sx={{ mt: 1 }}>
-                    No vouchers match "{voucherKeyword}"
+                    {t.noMatch.replace('{keyword}', voucherKeyword)}
                   </Alert>
                 ) : (
                 <TableContainer component={Paper} sx={{ mt: 1, overflowX: 'auto' }}>
@@ -490,15 +486,15 @@ function FuelVoucherInvoices({ closeDialog, onCreated }) {
                             onChange={(event) => toggleVisible(event.target.checked)}
                           />
                         </TableCell>
-                        <TableCell>Date</TableCell>
-                        <TableCell>Voucher No.</TableCell>
-                        <TableCell>Station</TableCell>
-                        <TableCell>Product</TableCell>
-                        <TableCell>Reference</TableCell>
-                        <TableCell>Narration</TableCell>
-                        <TableCell align='right'>Qty</TableCell>
-                        <TableCell align='right'>Price</TableCell>
-                        <TableCell align='right'>Amount</TableCell>
+                        <TableCell>{t.date}</TableCell>
+                        <TableCell>{t.voucherNo}</TableCell>
+                        <TableCell>{t.station}</TableCell>
+                        <TableCell>{t.product}</TableCell>
+                        <TableCell>{t.reference}</TableCell>
+                        <TableCell>{t.narration}</TableCell>
+                        <TableCell align='right'>{t.qty}</TableCell>
+                        <TableCell align='right'>{t.price}</TableCell>
+                        <TableCell align='right'>{t.amount}</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
@@ -533,9 +529,7 @@ function FuelVoucherInvoices({ closeDialog, onCreated }) {
         </>
       </DialogContent>
       <DialogActions>
-        <Button size='small' onClick={() => closeDialog?.(false)}>
-          Cancel
-        </Button>
+        <Button size='small' onClick={() => closeDialog?.(false)}>{t.cancel}</Button>
         <LoadingButton
           size='small'
           variant='contained'
@@ -546,9 +540,7 @@ function FuelVoucherInvoices({ closeDialog, onCreated }) {
             (!!dueDate && dueDate.isBefore(invoiceDate, 'day'))
           }
           onClick={createInvoice}
-        >
-          Generate Invoice
-        </LoadingButton>
+        >{t.generateInvoice}</LoadingButton>
       </DialogActions>
     </>
   );

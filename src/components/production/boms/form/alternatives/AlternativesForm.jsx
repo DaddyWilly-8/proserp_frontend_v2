@@ -12,8 +12,10 @@ import CommaSeparatedField from '@/shared/Inputs/CommaSeparatedField';
 import { sanitizedNumber } from '@/app/helpers/input-sanitization-helpers';
 import { wholeUnitQuantityTest } from '@/app/helpers/measurement-unit-helpers';
 import ProductQuickAdd from '@/components/productAndServices/products/ProductQuickAdd';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function AlternativesForm({alternativeIndex, alternative, setItems, alternatives=[], setAlternatives, setClearFormKey, submitMainForm, submitItemForm, setSubmitItemForm, setIsDirty, index = -1, setShowForm = null}) {
+    const dictionary = useDictionary();
     const { productOptions } = useProductsSelect();
     const {checkOrganizationPermission} = useJumboAuth();
     const nonInventoryIds = productOptions?.filter(product => product.type !== 'Inventory').map(product => product.id);
@@ -22,7 +24,7 @@ function AlternativesForm({alternativeIndex, alternative, setItems, alternatives
     const [selectedUnit, setSelectedUnit] = useState(alternative && (alternative.measurement_unit_id ? alternative.measurement_unit_id : alternative.measurement_unit.id));
 
     const validationSchema = yup.object({
-      product: yup.object().required("Material is required").typeError('Material is required'),
+      product: yup.object().required(dictionary.forms.boms.validation.materialRequired).typeError(dictionary.forms.boms.validation.materialRequired),
       quantity: yup
         .number()
         .transform((value, originalValue) => 
@@ -32,9 +34,9 @@ function AlternativesForm({alternativeIndex, alternative, setItems, alternatives
         .when('product', (product, schema) => {
           if (product && product.type === 'Inventory') {
             return schema
-              .required("Quantity is required")
-              .positive("Quantity must be a positive number")
-              .typeError("Quantity must be a number")
+              .required(dictionary.forms.boms.validation.quantityRequired)
+              .positive(dictionary.forms.boms.validation.quantityPositive)
+              .typeError(dictionary.forms.boms.validation.quantityNumber)
               .test(wholeUnitQuantityTest);
           }
           return schema.nullable();
@@ -129,14 +131,14 @@ function AlternativesForm({alternativeIndex, alternative, setItems, alternatives
       <Grid container columnSpacing={1} rowSpacing={1} mt={1}>
         {!!openProductQuickAdd && !alternative && (
           <Grid size={12} textAlign={'center'} >
-            <Typography variant='h5'>Quick Alternative Input Product Registration</Typography>
+            <Typography variant='h5'>{dictionary.forms.boms.titles.quickAlternative}</Typography>
           </Grid>
         )}
         {!openProductQuickAdd && 
           <>
             <Grid size={{xs: 12, md: 8}}>
               <ProductSelect
-                label='Alternative Input Product'
+                label={dictionary.forms.boms.labels.alternativeInputProduct}
                 frontError={errors.product}
                 addedProduct={addedProduct}
                 defaultValue={alternative && alternative.product}
@@ -165,7 +167,7 @@ function AlternativesForm({alternativeIndex, alternative, setItems, alternatives
                 }}
                 startAdornment={
                   checkOrganizationPermission([PERMISSIONS.PRODUCTS_CREATE]) &&
-                  <Tooltip title={'Add New Material'}>
+                  <Tooltip title={dictionary.tooltips.addNewMaterial}>
                     <AddOutlined
                       onClick={() => setOpenProductQuickAdd(true)}
                       sx={{
@@ -178,7 +180,7 @@ function AlternativesForm({alternativeIndex, alternative, setItems, alternatives
             </Grid>
             <Grid size={{xs: 12, md: 4}}>
               <TextField
-                label="Quantity"
+                label={dictionary.forms.boms.labels.quantity}
                 fullWidth
                 size='small'
                 defaultValue={alternative && alternative.quantity}
@@ -247,15 +249,15 @@ function AlternativesForm({alternativeIndex, alternative, setItems, alternatives
               >
                 {
                   alternative ? (
-                    <><CheckOutlined fontSize='small' /> Done</>
+                    <><CheckOutlined fontSize='small' /> {dictionary.forms.boms.buttons.done}</>
                   ) : (
-                    <><AddOutlined fontSize='small' /> Add</>
+                    <><AddOutlined fontSize='small' /> {dictionary.forms.boms.buttons.add}</>
                   )
                 }
               </Button>
               {
                 alternative && 
-                <Tooltip title='Close Edit'>
+                <Tooltip title={dictionary.tooltips.closeEdit}>
                   <IconButton size='small' 
                     onClick={() => {
                       setShowForm(false);

@@ -17,8 +17,10 @@ import projectsServices from '../../project-services';
 import { JumboDdMenu } from '@jumbo/components';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function DeliverableGroupItemAction({ group, isAccDetails }) {
+  const dictionary = useDictionary();
   const { showDialog, hideDialog } = useJumboDialog();
   const { enqueueSnackbar } = useSnackbar();
   const [openEditDialog, setOpenEditDialog] = useState(false);
@@ -36,7 +38,7 @@ function DeliverableGroupItemAction({ group, isAccDetails }) {
       queryClient.invalidateQueries({ queryKey: ['projectDeliverableGroups'] });
     },
     onError: (error) => {
-      enqueueSnackbar(error?.response?.data?.message || 'Failed to delete', {
+      enqueueSnackbar(error?.response?.data?.message || dictionary.projectManagement.deliverables.failedToDelete, {
         variant: 'error',
       });
     },
@@ -45,13 +47,13 @@ function DeliverableGroupItemAction({ group, isAccDetails }) {
   const menuItems = [
     checkOrganizationPermission(PERMISSIONS.PROJECTS_EDIT) && {
       icon: <EditOutlined />,
-      title: 'Edit',
+      title: dictionary.projectManagement.deliverables.edit,
       action: 'edit',
     },
     checkOrganizationPermission(PERMISSIONS.PROJECTS_DELETE) &&
       !(group.children.length > 0 || group.deliverables.length > 0) && {
         icon: <DeleteOutlined color="error" />,
-        title: 'Delete',
+        title: dictionary.projectManagement.deliverables.delete,
         action: 'delete',
       },
   ].filter(Boolean); // ✅ filter to remove false entries
@@ -63,8 +65,8 @@ function DeliverableGroupItemAction({ group, isAccDetails }) {
         break;
       case 'delete':
         showDialog({
-          title: 'Confirm Delete',
-          content: 'Are you sure you want to delete this Deliverable Group?',
+          title: dictionary.projectManagement.deliverables.confirmDelete,
+          content: dictionary.projectManagement.deliverables.confirmDeleteGroupText,
           onYes: () => {
             hideDialog();
             deleteDeliverableGroup.mutate(group);
@@ -102,7 +104,7 @@ function DeliverableGroupItemAction({ group, isAccDetails }) {
       {!isAccDetails && (
         <JumboDdMenu
           icon={
-            <Tooltip title="Actions">
+            <Tooltip title={dictionary.tooltips.actions}>
               <MoreHorizOutlined />
             </Tooltip>
           }
@@ -113,7 +115,7 @@ function DeliverableGroupItemAction({ group, isAccDetails }) {
 
       {/* Add Deliverable (for account details view) */}
       {!!isAccDetails && checkOrganizationPermission(PERMISSIONS.PROJECTS_EDIT) && (
-        <Tooltip title={'Add Deliverable'}>
+        <Tooltip title={dictionary.tooltips.addDeliverable}>
           <IconButton onClick={() => setOpenDialog(true)}>
             <PlaylistAddCheck />
           </IconButton>

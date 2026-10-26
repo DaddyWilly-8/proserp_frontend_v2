@@ -1,0 +1,540 @@
+{
+  "leaveTypes": {
+    "list": {
+      "title": "Leave Types"
+    },
+    "actions": {
+      "edit": "Edit",
+      "delete": "Delete",
+      "confirmDeleteTitle": "Confirm Delete",
+      "confirmDeleteContent": "Are you sure you want to delete this Leave Type?",
+      "deleteSuccess": "Leave Type Deleted Successfully",
+      "somethingWrong": "Something went wrong"
+    },
+    "form": {
+      "titles": {
+        "add": "Add Leave Type",
+        "edit": "Edit Leave Type {name}",
+        "confirmBulk": "Confirm Bulk Leave Allocation"
+      },
+      "labels": {
+        "name": "Name",
+        "daysPerYear": "Days Per Year",
+        "cycleMonths": "Cycle (Months)",
+        "carryForwardMonths": "Carry Forward (Months)",
+        "excludesSaturday": "Excludes Saturday",
+        "excludesSunday": "Excludes Sunday",
+        "applyToEmployees": "Apply To Employees",
+        "gender": "Gender",
+        "startDate": "Start Date"
+      },
+      "placeholders": {
+        "name": "Leave Type Name",
+        "daysPerYear": "Days Per Year",
+        "cycleMonths": "Cycle (Months)",
+        "carryForwardMonths": "Carry Forward (Months)"
+      },
+      "hints": {
+        "cycleMonths": "Leave at 12 for a normal annual leave type — set to 36 for a leave type usable once every 3 years (e.g. Maternity). Changing this later reshapes every existing allocation for this type.",
+        "carryForwardMonths": "Optional — how many months unused balance from one cycle can still be used into the next. Leave blank to disable carry forward.",
+        "excludesSaturday": "On — Saturdays within the requested date range are not counted as leave days. Off — Saturdays count like any other day.",
+        "excludesSunday": "On — Sundays within the requested date range are not counted as leave days (e.g. Annual Leave in a 5- or 6-day work week). Off — Sundays count like any other day (e.g. some Sick Leave policies).",
+        "applyAll": "This will allocate leave days to all existing employees",
+        "applyEditNone": "Changes above (e.g. Days Per Year) won't reach employees who already have this leave type unless you pick a scope here",
+        "applyNewNone": "Select an option to bulk allocate leave days",
+        "gender": "Optional — narrow the scope above to only male or female employees (e.g. Maternity)",
+        "startDate": "Optional — overrides the automatic date (Jan 1 for annual types, today for longer cycles) for any newly-created allocations."
+      },
+      "options": {
+        "excluded": "Excluded",
+        "counted": "Counted as a leave day",
+        "none": "None",
+        "allEmployees": "All Employees",
+        "activeContracts": "Employees With Active Contracts",
+        "any": "Any",
+        "female": "Female",
+        "male": "Male"
+      },
+      "messages": {
+        "addSuccess": "Success Adding Leave Type",
+        "updateSuccess": "Leave Type update success"
+      },
+      "validation": {
+        "nameRequired": "name is required",
+        "nameMax": "The name cannot exceed 255 characters",
+        "daysRequired": "days per year is required",
+        "daysMin": "Days per year must be greater than 0",
+        "cycleMin": "Cycle must be at least 1 month",
+        "cycleMax": "Cycle cannot exceed 240 months",
+        "carryMin": "Carry forward cannot be negative",
+        "carryMax": "Carry forward cannot exceed 60 months"
+      },
+      "buttons": {
+        "cancel": "Cancel",
+        "submit": "Submit",
+        "continue": "Continue"
+      },
+      "bulk": {
+        "intro": "This action will allocate {days} leave days to multiple employees:",
+        "willUpdate": "Will Update:",
+        "employeesCount": "{count} employees",
+        "updateNote": "(Employees who already have this leave type will have their allocation updated)",
+        "willCreate": "Will Create:",
+        "newEmployeesCount": "{count} new employees",
+        "createNote": "(Employees who don't have this leave type will get it allocated)",
+        "willSkip": "Will Skip (already mid-cycle):",
+        "skipNote": "(Employees already partway through a multi-year cycle are left untouched — edit their allocation individually if you need to change it)",
+        "warning": "This action cannot be undone. Continue?"
+      }
+    }
+  },
+  "deductionTypes": {
+    "list": {
+      "title": "Deduction Types",
+      "statutory": "Statutory",
+      "voluntary": "Voluntary",
+      "preTax": "Pre-tax",
+      "postTax": "Post-tax",
+      "computationMethods": {
+        "fixed": "Fixed",
+        "percentage_of_basic": "Percentage Of Basic",
+        "percentage_of_gross": "Percentage Of Gross"
+      }
+    },
+    "actions": {
+      "edit": "Edit",
+      "delete": "Delete",
+      "confirmDeleteTitle": "Confirm Delete",
+      "confirmDeleteContent": "Are you sure you want to delete this Deduction Type?",
+      "deleteSuccess": "Deduction Type Deleted Successfully",
+      "somethingWrong": "Something went wrong",
+      "inUseTitle": "Deduction type still in use",
+      "inUseContent": "{message} Remove it from all of them and delete the type?"
+    },
+    "form": {
+      "titles": {
+        "add": "Add Deduction Type",
+        "edit": "Edit Deduction Type",
+        "confirmBulk": "Confirm Bulk Application",
+        "quickAddLedger": "Quick Add Ledger"
+      },
+      "labels": {
+        "name": "Name",
+        "code": "Code",
+        "category": "Category",
+        "computationMethod": "Computation Method",
+        "defaultValue": "Default Value",
+        "isPreTax": "Is Pre-tax",
+        "receivableLedger": "Receivable Ledger",
+        "expenseLedger": "Expense Ledger (credited back)",
+        "payableLedger": "Payable Ledger",
+        "applyToEmployees": "Apply To Employees",
+        "description": "Description"
+      },
+      "helpers": {
+        "applyAll": "This will apply to all existing employees",
+        "applyNone": "Select an option to bulk apply this deduction",
+        "reservedAlert": "This is a system-provisioned deduction type — payroll matches it by its Code, so Name, Code, Category, Computation Method, Default Value, and Is Pre-tax are locked. Only the ledger mapping and description can be changed here.",
+        "staffLoan": "Staff loans are recovered from employees, so this is money owed to the company — pick a receivable ledger, not a payable one.",
+        "absence": "Absence deductions aren't owed to anyone — the hours were simply never earned. Optional: leave this blank and posting automatically credits back whichever Salary Expense account basic salary was debited to for that employee (their department's, or the fallback chosen when posting). Only map a ledger here if you want absence deductions to post to their own separate account instead."
+      },
+      "options": {
+        "statutory": "Statutory",
+        "voluntary": "Voluntary",
+        "fixed": "Fixed",
+        "percentageOfBasic": "Percentage Of Basic",
+        "percentageOfGross": "Percentage Of Gross",
+        "none": "None",
+        "allEmployees": "All Employees",
+        "activeContracts": "Employees With Active Contracts"
+      },
+      "messages": {
+        "addSuccess": "Deduction Type Added Successfully",
+        "updateSuccess": "Deduction Type Updated Successfully"
+      },
+      "validation": {
+        "nameRequired": "Name is required",
+        "nameMax": "Name cannot exceed 255 characters",
+        "codeMax": "Code cannot exceed 50 characters",
+        "categoryRequired": "Category is required",
+        "methodRequired": "Computation method is required",
+        "defaultValueNumber": "Default value must be a number",
+        "defaultValueRequired": "Default value is required",
+        "defaultValueMin": "Default value must be 0 or greater",
+        "fieldRequired": "This field is required",
+        "descriptionMax": "Description cannot exceed 500 characters"
+      },
+      "buttons": {
+        "cancel": "Cancel",
+        "submit": "Submit",
+        "continue": "Continue"
+      },
+      "bulk": {
+        "intro": "This action will apply this deduction type to multiple employees:",
+        "willUpdate": "Will Update:",
+        "employeesCount": "{count} employees",
+        "updateNote": "(Employees who already have this deduction will be updated with the new rate)",
+        "willCreate": "Will Create:",
+        "newEmployeesCount": "{count} new employees",
+        "createNote": "(Employees who don't have this deduction will get it added)",
+        "warning": "This action cannot be undone. Continue?"
+      }
+    }
+  },
+  "employerContributionTypes": {
+    "list": {
+      "title": "Employer Contribution Types",
+      "statutory": "Statutory",
+      "voluntary": "Voluntary",
+      "computationMethods": {
+        "fixed": "Fixed",
+        "percentage_of_basic": "Percentage Of Basic",
+        "percentage_of_gross": "Percentage Of Gross"
+      }
+    },
+    "actions": {
+      "edit": "Edit",
+      "delete": "Delete",
+      "confirmDeleteTitle": "Confirm Delete",
+      "confirmDeleteContent": "Are you sure you want to delete this Employer Contribution Type?",
+      "deleteSuccess": "Employer Contribution Type Deleted Successfully",
+      "somethingWrong": "Something went wrong",
+      "inUseTitle": "Employer contribution type still in use",
+      "inUseContent": "{message} Remove it from all of them and delete the type?"
+    },
+    "form": {
+      "titles": {
+        "add": "Add Employer Contribution Type",
+        "edit": "Edit Employer Contribution Type",
+        "confirmBulk": "Confirm Bulk Application",
+        "quickAddLedger": "Quick Add Ledger"
+      },
+      "labels": {
+        "name": "Name",
+        "code": "Code",
+        "category": "Category",
+        "computationMethod": "Computation Method",
+        "defaultValue": "Default Value",
+        "payableLedger": "Payable Ledger",
+        "applyToEmployees": "Apply To Employees",
+        "description": "Description"
+      },
+      "helpers": {
+        "applyAll": "This will apply to all existing employees",
+        "applyNone": "Select an option to bulk apply this contribution"
+      },
+      "options": {
+        "statutory": "Statutory",
+        "voluntary": "Voluntary",
+        "fixed": "Fixed",
+        "percentageOfBasic": "Percentage Of Basic",
+        "percentageOfGross": "Percentage Of Gross",
+        "none": "None",
+        "allEmployees": "All Employees",
+        "activeContracts": "Employees With Active Contracts"
+      },
+      "messages": {
+        "addSuccess": "Employer Contribution Type Added Successfully",
+        "updateSuccess": "Employer Contribution Type Updated Successfully"
+      },
+      "validation": {
+        "nameRequired": "Name is required",
+        "nameMax": "Name cannot exceed 255 characters",
+        "codeMax": "Code cannot exceed 50 characters",
+        "categoryRequired": "Category is required",
+        "methodRequired": "Computation method is required",
+        "defaultValueNumber": "Default value must be a number",
+        "defaultValueRequired": "Default value is required",
+        "defaultValueMin": "Default value must be 0 or greater",
+        "fieldRequired": "This field is required",
+        "descriptionMax": "Description cannot exceed 500 characters"
+      },
+      "buttons": {
+        "cancel": "Cancel",
+        "submit": "Submit",
+        "continue": "Continue"
+      },
+      "bulk": {
+        "intro": "This action will apply this employer contribution to multiple employees:",
+        "willUpdate": "Will Update:",
+        "employeesCount": "{count} employees",
+        "updateNote": "(Employees who already have this contribution will be updated with the new rate)",
+        "willCreate": "Will Create:",
+        "newEmployeesCount": "{count} new employees",
+        "createNote": "(Employees who don't have this contribution will get it added)",
+        "warning": "This action cannot be undone. Continue?"
+      }
+    }
+  },
+  "allowanceTypes": {
+    "list": {
+      "title": "Allowance Types",
+      "taxable": "Taxable",
+      "nonTaxable": "Non-taxable"
+    },
+    "actions": {
+      "edit": "Edit",
+      "delete": "Delete",
+      "confirmDeleteTitle": "Confirm Delete",
+      "confirmDeleteContent": "Are you sure you want to delete this Allowance Type?",
+      "deleteSuccess": "Allowance Type Deleted Successfully",
+      "somethingWrong": "Something went wrong",
+      "inUseTitle": "Allowance type still in use",
+      "inUseContent": "{message} Remove it from all of them and delete the type?"
+    },
+    "form": {
+      "titles": {
+        "add": "Add Allowance Type",
+        "edit": "Edit Allowance Type",
+        "confirmBulk": "Confirm Bulk Application",
+        "quickAddLedger": "Quick Add Ledger"
+      },
+      "labels": {
+        "name": "Name",
+        "code": "Code",
+        "defaultValue": "Default Value",
+        "applyToEmployees": "Apply To Employees",
+        "description": "Description",
+        "isTaxable": "Is Taxable"
+      },
+      "helpers": {
+        "applyAll": "This will apply to all existing employees",
+        "applyNone": "Select an option to bulk apply this allowance",
+        "reservedAlert": "This is a system-provisioned allowance type — payroll matches it by its Code, so Name, Code, Default Value, and Is Taxable are locked. Only the ledger mapping and description can be changed here."
+      },
+      "options": {
+        "none": "None",
+        "allEmployees": "All Employees",
+        "activeContracts": "Employees With Active Contracts"
+      },
+      "messages": {
+        "addSuccess": "Allowance Type Added Successfully",
+        "updateSuccess": "Allowance Type Updated Successfully"
+      },
+      "validation": {
+        "nameRequired": "Name is required",
+        "nameMax": "Name cannot exceed 255 characters",
+        "codeMax": "Code cannot exceed 50 characters",
+        "defaultValueNumber": "Default value must be a number",
+        "defaultValueRequired": "Default value is required",
+        "defaultValueMin": "Default value must be 0 or greater",
+        "descriptionMax": "Description cannot exceed 500 characters"
+      },
+      "buttons": {
+        "cancel": "Cancel",
+        "submit": "Submit",
+        "continue": "Continue"
+      },
+      "bulk": {
+        "intro": "This action will apply this allowance type to multiple employees:",
+        "willUpdate": "Will Update:",
+        "employeesCount": "{count} employees",
+        "updateNote": "(Employees who already have this allowance will be updated with the new amount)",
+        "willCreate": "Will Create:",
+        "newEmployeesCount": "{count} new employees",
+        "createNote": "(Employees who don't have this allowance will get it added)",
+        "warning": "This action cannot be undone. Continue?"
+      }
+    }
+  },
+  "payeTaxBands": {
+    "list": {
+      "title": "PAYE Tax Bands",
+      "openEnded": "Open-ended",
+      "minToMax": "Min to max taxable income",
+      "fixedTax": "Fixed tax",
+      "excessOver": "Excess over",
+      "to": "to {date}",
+      "status": {
+        "upcoming": "Upcoming",
+        "expired": "Expired",
+        "active": "Active"
+      }
+    },
+    "actions": {
+      "edit": "Edit",
+      "delete": "Delete",
+      "confirmDeleteTitle": "Confirm Delete",
+      "confirmDeleteContent": "Are you sure you want to delete this PAYE Tax Band?",
+      "deleteSuccess": "PAYE Tax Band Deleted Successfully",
+      "somethingWrong": "Something went wrong"
+    },
+    "form": {
+      "titles": {
+        "add": "Add PAYE Tax Band",
+        "edit": "Edit PAYE Tax Band"
+      },
+      "labels": {
+        "minIncome": "Minimum Income",
+        "maxIncome": "Maximum Income",
+        "rate": "Rate (decimal, e.g. 0.30 = 30%)",
+        "fixedTax": "Fixed Tax",
+        "excessOver": "Excess Over",
+        "effectiveFrom": "Effective From *",
+        "effectiveTo": "Effective To"
+      },
+      "messages": {
+        "addSuccess": "PAYE Tax Band Added Successfully",
+        "updateSuccess": "PAYE Tax Band Updated Successfully"
+      },
+      "validation": {
+        "minIncomeNumber": "Minimum income must be a number",
+        "minIncomeRequired": "Minimum income is required",
+        "minIncomeMin": "Minimum income must be 0 or greater",
+        "maxIncomeMin": "Maximum income must be 0 or greater",
+        "rateNumber": "Rate must be a number",
+        "rateRequired": "Rate is required",
+        "rateMin": "Rate must be 0 or greater",
+        "rateMax": "Rate must be a decimal (e.g. 0.30 for 30%)",
+        "fixedTaxNumber": "Fixed tax must be a number",
+        "fixedTaxRequired": "Fixed tax is required",
+        "fixedTaxMin": "Fixed tax must be 0 or greater",
+        "excessOverNumber": "Excess over must be a number",
+        "excessOverRequired": "Excess over is required",
+        "excessOverMin": "Excess over must be 0 or greater",
+        "effectiveFromRequired": "Effective from is required"
+      },
+      "buttons": {
+        "cancel": "Cancel",
+        "submit": "Submit"
+      }
+    }
+  },
+  "departments": {
+    "list": {
+      "title": "Departments"
+    },
+    "selector": {
+      "label": "Select Departments"
+    },
+    "actions": {
+      "edit": "Edit",
+      "delete": "Delete",
+      "confirmDeleteTitle": "Confirm Delete",
+      "confirmDeleteContent": "Are you sure you want to delete this Department?",
+      "deleteSuccess": "Department Deleted Successfully",
+      "somethingWrong": "Something went wrong"
+    },
+    "form": {
+      "titles": {
+        "add": "Add Department",
+        "edit": "Edit {name} Department"
+      },
+      "labels": {
+        "name": "Name",
+        "code": "Code",
+        "salaryExpenseLedger": "Salary Expense Ledger",
+        "description": "Description"
+      },
+      "placeholders": {
+        "name": "Department Name",
+        "code": "Department Code",
+        "description": "Department Description"
+      },
+      "messages": {
+        "addSuccess": "Success Adding Department",
+        "updateSuccess": "Department update success"
+      },
+      "validation": {
+        "nameRequired": "Name is required",
+        "fieldRequired": "This field is required",
+        "invalidLedger": "Invalid ledger selected"
+      },
+      "buttons": {
+        "cancel": "Cancel",
+        "submit": "Submit"
+      }
+    }
+  },
+  "designations": {
+    "list": {
+      "title": "Designations"
+    },
+    "selector": {
+      "label": "Select Designation"
+    },
+    "actions": {
+      "edit": "Edit",
+      "delete": "Delete",
+      "confirmDeleteTitle": "Confirm Delete",
+      "confirmDeleteContent": "Are you sure you want to delete this Designation?",
+      "deleteSuccess": "Designation Deleted Successfully",
+      "somethingWrong": "Something went wrong"
+    },
+    "form": {
+      "titles": {
+        "add": "Add Designation",
+        "edit": "Edit Designation {title}"
+      },
+      "labels": {
+        "title": "Title",
+        "code": "Code",
+        "description": "Description"
+      },
+      "placeholders": {
+        "title": "Designation Title",
+        "code": "Designation Code",
+        "description": "Designation Description"
+      },
+      "messages": {
+        "addSuccess": "Success Adding Designation",
+        "updateSuccess": "Success Updating Designation"
+      },
+      "validation": {
+        "titleRequired": "Title is required"
+      },
+      "buttons": {
+        "cancel": "Cancel",
+        "submit": "Submit"
+      }
+    }
+  },
+  "overtimeTypes": {
+    "list": {
+      "title": "Overtime Types",
+      "taxable": "Taxable",
+      "nonTaxable": "Non-taxable"
+    },
+    "actions": {
+      "edit": "Edit",
+      "delete": "Delete",
+      "confirmDeleteTitle": "Confirm Delete",
+      "confirmDeleteContent": "Are you sure you want to delete this Overtime Type?",
+      "deleteSuccess": "Overtime Type Deleted Successfully",
+      "somethingWrong": "Something went wrong"
+    },
+    "form": {
+      "titles": {
+        "add": "Add Overtime Type",
+        "edit": "Edit Overtime Type"
+      },
+      "labels": {
+        "name": "Name",
+        "code": "Code",
+        "multiplier": "Multiplier",
+        "description": "Description",
+        "isTaxable": "Is Taxable"
+      },
+      "helpers": {
+        "multiplier": "e.g. 1.5 for time-and-a-half"
+      },
+      "messages": {
+        "addSuccess": "Overtime Type Added Successfully",
+        "updateSuccess": "Overtime Type Updated Successfully"
+      },
+      "validation": {
+        "nameRequired": "Name is required",
+        "nameMax": "Name cannot exceed 255 characters",
+        "codeMax": "Code cannot exceed 50 characters",
+        "multiplierNumber": "Multiplier must be a number",
+        "multiplierRequired": "Multiplier is required",
+        "multiplierMin": "Multiplier must be at least 1",
+        "descriptionMax": "Description cannot exceed 500 characters"
+      },
+      "buttons": {
+        "cancel": "Cancel",
+        "submit": "Submit"
+      }
+    }
+  }
+}

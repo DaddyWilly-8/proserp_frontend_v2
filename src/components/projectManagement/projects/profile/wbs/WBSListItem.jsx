@@ -27,6 +27,7 @@ import WBSItemAction from './WBSItemAction';
 import TasksActionTail from './task/TasksActionTail';
 import TasksListItem from './task/TasksListItem';
 import TasksTreeViewActionTail from './tasksTreeView/TasksTreeViewActionTail';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const GanttChartActionTail = lazy(
   () => import('./ganttChart/GanttChartActionTail')
@@ -73,15 +74,16 @@ function LinearProgressWithLabel({
   timePercent,
   hasTimeDates,
 }) {
+  const dictionary = useDictionary();
   const tooltipMsg = !hasTimeDates
-    ? 'No start/end dates set — execution progress only.'
+    ? dictionary.projectManagement.wbs.common.noDatesSet
     : color === 'success'
-      ? 'Execution is on track with time elapsed.'
+      ? dictionary.projectManagement.wbs.common.onTrack
       : color === 'warning'
-        ? 'Execution is lagging behind time elapsed. Monitor closely.'
+        ? dictionary.projectManagement.wbs.common.lagging
         : color === 'error'
-          ? 'Execution is significantly behind schedule.'
-          : 'Progress status.';
+          ? dictionary.projectManagement.wbs.common.behindSchedule
+          : dictionary.projectManagement.wbs.common.progressStatus;
   return (
     <Box sx={{ width: '100%' }}>
       <Box
@@ -95,16 +97,16 @@ function LinearProgressWithLabel({
         })}
       >
         <Typography variant='body2' color='text.secondary' fontWeight={500}>
-          Execution: {Math.min(100, Number(execPercent).toFixed(2))}%
+          {dictionary.projectManagement.wbs.common.execution}: {Math.min(100, Number(execPercent).toFixed(2))}%
         </Typography>
         {hasTimeDates ? (
           <Typography variant='body2' color='text.secondary' fontWeight={500}>
-            Time Elapsed: {Math.min(100, Number(timePercent).toFixed(2))}%
+            {dictionary.projectManagement.wbs.common.timeElapsed}: {Math.min(100, Number(timePercent).toFixed(2))}%
           </Typography>
         ) : (
           <Chip
             size='small'
-            label='Time: Not Set'
+            label={dictionary.projectManagement.wbs.common.timeNotSet}
             variant='outlined'
             sx={{ fontSize: '0.7rem', height: 20 }}
           />
@@ -123,6 +125,7 @@ function LinearProgressWithLabel({
 }
 
 const TimelineActivityAccordion = memo(function TimelineActivityAccordion({ activity, expanded, handleChange }) {
+  const dictionary = useDictionary();
   const [childExpanded, setChildExpanded] = useState({});
   const [openDialog, setOpenDialog] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -227,13 +230,13 @@ const TimelineActivityAccordion = memo(function TimelineActivityAccordion({ acti
             <ListItemText
               primary={
                 <>
-                  <Tooltip title='Activity Name'>
+                  <Tooltip title={dictionary.tooltips.activityName}>
                     <Typography component='span' color='text.primary'>
                       {activity.name}
                     </Typography>
                   </Tooltip>
                   {activity.code && (
-                    <Tooltip title='Activity Code'>
+                    <Tooltip title={dictionary.tooltips.activityCode}>
                       <Typography
                         component='h4'
                         variant='body2'
@@ -247,7 +250,7 @@ const TimelineActivityAccordion = memo(function TimelineActivityAccordion({ acti
                 </>
               }
               secondary={
-                <Tooltip title='Description'>
+                <Tooltip title={dictionary.tooltips.description}>
                   <Typography
                     component='span'
                     color='text.secondary'
@@ -261,27 +264,27 @@ const TimelineActivityAccordion = memo(function TimelineActivityAccordion({ acti
           </Grid>
 
           <Grid size={{ xs: 12, md: 2.5 }}>
-            <Tooltip title='Start to End Date'>
+            <Tooltip title={dictionary.tooltips.startToEndDate}>
               <Typography variant='body2'>
                 {activity.start_date || activity.end_date
-                  ? `${activity.start_date ? readableDate(activity.start_date, false) : 'Not Set'} ${
+                  ? `${activity.start_date ? readableDate(activity.start_date, false) : dictionary.projectManagement.wbs.common.notSet} ${
                       activity.end_date
                         ? '→ ' + readableDate(activity.end_date, false)
                         : ''
                     }`
-                  : 'Not Set'}
+                  : dictionary.projectManagement.wbs.common.notSet}
               </Typography>
             </Tooltip>
           </Grid>
 
           <Grid size={{ xs: 12, md: 2.5 }}>
-            <Tooltip title='Duration (in days) and Days Remaining'>
+            <Tooltip title={dictionary.tooltips.durationInDaysAndDaysRemaining}>
               <ListItemText
                 primary={
                   <Typography variant='body2' color='text.secondary'>
-                    <strong>Duration:</strong>{' '}
+                    <strong>{dictionary.projectManagement.wbs.common.duration}:</strong>{' '}
                     {activity.number_of_days
-                      ? `${activity.number_of_days} days`
+                      ? `${activity.number_of_days} ${dictionary.projectManagement.wbs.common.days}`
                       : '-'}
                   </Typography>
                 }
@@ -294,7 +297,7 @@ const TimelineActivityAccordion = memo(function TimelineActivityAccordion({ acti
                         : 'text.secondary'
                     }
                   >
-                    <strong>Remaining:</strong>{' '}
+                    <strong>{dictionary.projectManagement.wbs.common.remaining}:</strong>{' '}
                     {activity.days_remaining < 0
                       ? 0
                       : (activity.days_remaining ?? '—')}
@@ -308,7 +311,7 @@ const TimelineActivityAccordion = memo(function TimelineActivityAccordion({ acti
             <Box>
               <LinearProgressWithLabel
                 value={Math.min(100, Number(execPercent).toFixed(2))}
-                label={`Progress (${Number(execPercent).toFixed(2)}%)`}
+                label={`${dictionary.projectManagement.wbs.common.progress} (${Number(execPercent).toFixed(2)}%)`}
                 color={execColor}
                 execPercent={execPercent}
                 timePercent={timePercent}
@@ -324,10 +327,10 @@ const TimelineActivityAccordion = memo(function TimelineActivityAccordion({ acti
               alignItems='center'
               justifyContent='flex-end'
             >
-              <Tooltip title='Weighted Percentage'>
+              <Tooltip title={dictionary.tooltips.weightedPercentage}>
                 <Chip
                   size='small'
-                  label={`${typeof activity.weighted_percentage === 'number' ? activity.weighted_percentage.toFixed(2) : 0}% Weight`}
+                  label={`${typeof activity.weighted_percentage === 'number' ? activity.weighted_percentage.toFixed(2) : 0}% ${dictionary.projectManagement.wbs.common.weight}`}
                   color='default'
                 />
               </Tooltip>
@@ -357,7 +360,7 @@ const TimelineActivityAccordion = memo(function TimelineActivityAccordion({ acti
           >
             {(activity.children?.length > 0 || activity.tasks.length > 0) && (
               <Grid size={{ xs: 12, md: 4 }} pb={1}>
-                <Tooltip title='Search Tasks or Activities'>
+                <Tooltip title={dictionary.tooltips.searchTasksOrActivities}>
                   <div>
                     <JumboSearch
                       value={searchQuery}
@@ -369,7 +372,7 @@ const TimelineActivityAccordion = memo(function TimelineActivityAccordion({ acti
             )}
             <Grid>
               {!activity.children.length > 0 && (
-                <Tooltip title='Add Task'>
+                <Tooltip title={dictionary.tooltips.addTask}>
                   <div>
                     <TasksActionTail
                       openDialog={openDialog}
@@ -382,7 +385,7 @@ const TimelineActivityAccordion = memo(function TimelineActivityAccordion({ acti
             </Grid>
             <Grid>
               {!activity.tasks?.length > 0 && (
-                <Tooltip title='Add Sub-Activity'>
+                <Tooltip title={dictionary.tooltips.addSubActivity2}>
                   <div>
                     <WBSItemAction activity={activity} isAccDetails />
                   </div>
@@ -555,12 +558,12 @@ function WBSListItem() {
           ))
         ) : (
           <Alert variant='outlined' severity='info'>
-            No Timeline Activity Found
+            {dictionary.projectManagement.wbs.activity.notFound}
           </Alert>
         )}
         {hasMore && (
           <Box display='flex' justifyContent='center' py={1}>
-            <Chip label='Load more activities' onClick={loadMore} clickable variant='outlined' />
+            <Chip label={dictionary.projectManagement.wbs.activity.loadMore} onClick={loadMore} clickable variant='outlined' />
           </Box>
         )}
       </Stack>

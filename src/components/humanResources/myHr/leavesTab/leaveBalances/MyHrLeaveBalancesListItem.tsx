@@ -1,3 +1,4 @@
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import { readableDate } from '@/app/helpers/input-sanitization-helpers';
 import { LeaveAllocationType } from '@/components/humanResources/employees/profile/leaveAllocations/LeaveAllocationType';
 import { Box, Card, Divider, Grid, Tooltip, Typography } from '@mui/material';
@@ -15,6 +16,8 @@ const MyHrLeaveBalancesListItem = ({
 }: {
   leaveAllocation: LeaveAllocationType;
 }) => {
+  const dictionary = useDictionary();
+  const t = dictionary.humanResources.myHr.leaves.balances;
   const startYear = leaveAllocation.start_date
     ? new Date(leaveAllocation.start_date).getFullYear()
     : undefined;
@@ -27,11 +30,16 @@ const MyHrLeaveBalancesListItem = ({
       : startYear;
 
   const carryForwardNote = leaveAllocation.carried_forward_days
-    ? `Includes ${leaveAllocation.carried_forward_days} carried-forward day(s)${
-        leaveAllocation.carry_forward_expires_at
-          ? `, usable until ${readableDate(leaveAllocation.carry_forward_expires_at, false)}`
-          : ''
-      }`
+    ? t.carryForwardNote.replace(
+        '{days}',
+        String(leaveAllocation.carried_forward_days)
+      ) +
+      (leaveAllocation.carry_forward_expires_at
+        ? t.carryForwardUsableUntil.replace(
+            '{date}',
+            readableDate(leaveAllocation.carry_forward_expires_at, false)
+          )
+        : '')
     : null;
 
   const remainingDays =
@@ -54,7 +62,7 @@ const MyHrLeaveBalancesListItem = ({
           <Grid size={MY_HR_LEAVE_BALANCE_COLUMN_WIDTHS.leaveType}>
             <Typography>
               {leaveAllocation.leave_type?.name ||
-                `Type #${leaveAllocation.leave_type_id}`}
+                t.typeNumber.replace('{id}', String(leaveAllocation.leave_type_id))}
             </Typography>
           </Grid>
 
@@ -94,19 +102,19 @@ const MyHrLeaveBalancesListItem = ({
         <Box sx={{ p: 1.5 }}>
           <Typography variant='subtitle1' fontWeight={600} mb={1}>
             {leaveAllocation.leave_type?.name ||
-              `Type #${leaveAllocation.leave_type_id}`}
+              t.typeNumber.replace('{id}', String(leaveAllocation.leave_type_id))}
           </Typography>
 
           <Grid container spacing={1}>
             <Grid size={6}>
               <Typography variant='caption' color='text.secondary' display='block'>
-                Period
+                {t.period}
               </Typography>
               <Typography variant='body2'>{period ?? '—'}</Typography>
             </Grid>
             <Grid size={6}>
               <Typography variant='caption' color='text.secondary' display='block'>
-                Allocated
+                {t.allocated}
               </Typography>
               <Typography variant='body2'>
                 {leaveAllocation.allocated_days}
@@ -114,7 +122,7 @@ const MyHrLeaveBalancesListItem = ({
             </Grid>
             <Grid size={6}>
               <Typography variant='caption' color='text.secondary' display='block'>
-                Used
+                {t.used}
               </Typography>
               <Typography variant='body2'>
                 {leaveAllocation.used_days ?? 0}
@@ -122,7 +130,7 @@ const MyHrLeaveBalancesListItem = ({
             </Grid>
             <Grid size={6}>
               <Typography variant='caption' color='text.secondary' display='block'>
-                Remaining
+                {t.remaining}
               </Typography>
               <Typography variant='body2'>{remainingDays}</Typography>
             </Grid>

@@ -10,6 +10,7 @@ import bankReconciliationServices from '../bank-reconciliation-services';
 import { journalDisplayParts } from './journal-display';
 import PostTransactionDialog from './PostTransactionDialog';
 import { formatDate } from './date-format';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface Journal {
   id: number;
@@ -18,6 +19,7 @@ interface Journal {
   amount: number;
   comparable_amount: number;
   voucher_no?: string | null;
+  is_scheduled?: boolean;
   counterparty?: string | null;
   credit_ledger?: { name: string };
   debit_ledger?: { name: string };
@@ -68,6 +70,7 @@ export default function UnmatchedLineRow({
   remainingAmount,
   tolerance = 0.01,
 }: Props) {
+  const dictionary = useDictionary();
   const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
 
@@ -210,7 +213,7 @@ export default function UnmatchedLineRow({
         </Box>
       </Grid>
       <Grid size={{ xs: 12, md: 2 }} textAlign='end'>
-        <Tooltip title='Match selected book entries to this line'>
+        <Tooltip title={dictionary.tooltips.matchSelectedBookEntriesToThis}>
           <span>
             <LoadingButton
               size='small'
@@ -225,7 +228,7 @@ export default function UnmatchedLineRow({
             </LoadingButton>
           </span>
         </Tooltip>
-        <Tooltip title='Post the missing transaction (e.g. bank charges) and match it to this line'>
+        <Tooltip title={dictionary.tooltips.postTheMissingTransactionEG}>
           <span>
             <IconButton
               size='small'
@@ -237,7 +240,7 @@ export default function UnmatchedLineRow({
             </IconButton>
           </span>
         </Tooltip>
-        <Tooltip title='Ignore this line (not expected to have a book entry)'>
+        <Tooltip title={dictionary.tooltips.ignoreThisLineNotExpectedTo}>
           <span>
             <IconButton
               size='small'

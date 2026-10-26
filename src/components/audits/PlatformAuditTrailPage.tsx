@@ -26,10 +26,12 @@ import prosAuditServices from './pros-audit-services';
 import AuditActionGroupList from './AuditActionGroupList';
 import AuditEntryDialog from './AuditEntryDialog';
 import { getRows, getTotal } from './audit-helpers';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 type Organization = { id: number | string; name: string; deleted_at?: string | null };
 
 function PlatformAuditTrailPage() {
+  const dictionary = useDictionary();
   const { checkPermission } = useJumboAuth();
   const canReadPlatform = checkPermission(PROS_CONTROL_PERMISSIONS.AUDIT_READ);
   const canReadOrganizations = checkPermission(PROS_CONTROL_PERMISSIONS.AUDIT_READ_ORGANIZATIONS);
@@ -125,14 +127,14 @@ function PlatformAuditTrailPage() {
           mb={2}
           gap={2}
         >
-          <Typography variant='h4'>Platform Audit Trail</Typography>
+          <Typography variant='h4'>{dictionary.forms.audits.platform.title}</Typography>
           {(isFetchingPlatform || isFetchingOrgTrail) && <CircularProgress size={20} />}
         </Stack>
 
         <Card sx={{ p: 2, mb: 2 }}>
           <Tabs value={tab} onChange={(_, value) => setTab(value)} sx={{ mb: 2 }}>
-            {canReadPlatform && <Tab value='platform' label='Platform Trail' />}
-            {canReadOrganizations && <Tab value='organization' label='Organization Trail' />}
+            {canReadPlatform && <Tab value='platform' label={dictionary.forms.audits.platform.tabs.platform} />}
+            {canReadOrganizations && <Tab value='organization' label={dictionary.forms.audits.platform.tabs.organization} />}
           </Tabs>
 
           <Grid container spacing={2}>
@@ -145,7 +147,7 @@ function PlatformAuditTrailPage() {
                   isOptionEqualToValue={(option, value) => String(option.id) === String(value?.id)}
                   value={organization}
                   onChange={(_, newValue) => setOrganization(newValue)}
-                  renderInput={(params) => <TextField {...params} label="Organization" placeholder="Select organization..." />}
+                  renderInput={(params) => <TextField {...params} label={dictionary.forms.audits.platform.labels.organization} placeholder={dictionary.forms.audits.platform.placeholders.organization} />}
                 />
               </Grid>
             )}
@@ -154,7 +156,7 @@ function PlatformAuditTrailPage() {
               <TextField
                 fullWidth
                 size='small'
-                label='Keyword'
+                label={dictionary.forms.audits.platform.labels.keyword}
                 value={filters.keyword}
                 onChange={(event) => {
                   setFilters((prev) => ({ ...prev, keyword: event.target.value }));
@@ -165,7 +167,7 @@ function PlatformAuditTrailPage() {
 
             <Grid size={{ xs: 6, md: 2 }}>
               <DateTimePicker
-                label="From"
+                label={dictionary.forms.audits.platform.labels.from}
                 value={filters.from}
                 onChange={(newValue) => {
                   setFilters((prev) => ({ ...prev, from: newValue }));
@@ -177,7 +179,7 @@ function PlatformAuditTrailPage() {
 
             <Grid size={{ xs: 6, md: 2 }}>
               <DateTimePicker
-                label="To"
+                label={dictionary.forms.audits.platform.labels.to}
                 value={filters.to}
                 onChange={(newValue) => {
                   setFilters((prev) => ({ ...prev, to: newValue }));
@@ -189,7 +191,7 @@ function PlatformAuditTrailPage() {
 
             <Grid size={{ xs: 12, md: 1 }}>
               <Button fullWidth variant='outlined' onClick={clearFilters}>
-                Clear
+                {dictionary.forms.audits.platform.buttons.clear}
               </Button>
             </Grid>
           </Grid>
@@ -209,7 +211,7 @@ function PlatformAuditTrailPage() {
                 setPage(0);
               }}
               onViewEntry={setPlatformSelectedEntryId}
-              emptyMessage="No platform audit records found."
+              emptyMessage={dictionary.forms.audits.platform.empty.platform}
             />
 
             <AuditEntryDialog
@@ -217,7 +219,7 @@ function PlatformAuditTrailPage() {
               onClose={() => setPlatformSelectedEntryId(null)}
               isLoading={isLoadingPlatformSelectedEntry}
               data={platformSelectedEntryData}
-              title="Audit Entry"
+              title={dictionary.forms.audits.platform.entryTitle}
             />
           </>
         )}
@@ -227,7 +229,7 @@ function PlatformAuditTrailPage() {
             {!organization ? (
               <Card sx={{ p: 4, textAlign: 'center' }}>
                 <Typography color="text.secondary">
-                  Select an organization above to view its audit trail.
+                  {dictionary.forms.audits.platform.empty.selectOrganization}
                 </Typography>
               </Card>
             ) : (
@@ -243,7 +245,7 @@ function PlatformAuditTrailPage() {
                   setPage(0);
                 }}
                 onViewEntry={(id) => setOrgSelectedEntry(orgRows.find((row) => String(row.id) === id) || null)}
-                emptyMessage="No audit records found for this organization."
+                emptyMessage={dictionary.forms.audits.platform.empty.organization}
               />
             )}
 
@@ -251,7 +253,7 @@ function PlatformAuditTrailPage() {
               open={!!orgSelectedEntry}
               onClose={() => setOrgSelectedEntry(null)}
               data={orgSelectedEntry}
-              title={`Audit Entry — ${organization?.name || ''}`}
+              title={dictionary.forms.audits.platform.orgEntryTitle.replace('{name}', organization?.name || '')}
             />
           </>
         )}

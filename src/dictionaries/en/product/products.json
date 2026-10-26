@@ -75,8 +75,8 @@
         "submit": "Submit",
         "cancel": "Cancel"
       },
-      "pageTitle": "Hariri: {unitName}",
-      "heading": "Inahaririwa: {unitName}",
+      "pageTitle": "Edit: {unitName}",
+      "heading": "Editing: {unitName}",
       "labels": {
         "unitName": "Unit Name",
         "symbol": "Symbol",

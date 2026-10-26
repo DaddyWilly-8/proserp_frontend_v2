@@ -33,6 +33,7 @@ import { Dayjs } from 'dayjs';
 import { useMemo, useState } from 'react';
 import humanResourcesServices from '../../humanResourcesServices';
 import { MyHrImprestLedgerLink } from './imprestAccountsType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const formatAmount = (value: number | null) =>
   value && value !== 0
@@ -72,6 +73,9 @@ interface MyHrImprestAccountItemActionProps {
 const MyHrImprestAccountItemAction = ({
   link,
 }: MyHrImprestAccountItemActionProps) => {
+  const dictionary = useDictionary();
+  const t = dictionary.humanResources.myHr.imprest;
+  const ts = dictionary.humanResources.myHr.accountStatement;
   const { authOrganization } = useJumboAuth();
   const { theme } = useJumboTheme();
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
@@ -148,7 +152,7 @@ const MyHrImprestAccountItemAction = ({
 
   return (
     <>
-      <Tooltip title='View Statement'>
+      <Tooltip title={dictionary.tooltips.viewStatement}>
         <IconButton size='small' onClick={() => setOpen(true)}>
           <VisibilityOutlined fontSize='small' />
         </IconButton>
@@ -162,7 +166,10 @@ const MyHrImprestAccountItemAction = ({
         maxWidth='md'
       >
         <DialogTitle>
-          {link.ledger?.name || 'Imprest Account'} — Statement
+          {t.statementTitle.replace(
+            '{name}',
+            link.ledger?.name || t.defaultName
+          )}
         </DialogTitle>
         <DialogContent>
           <Stack spacing={2}>
@@ -174,7 +181,7 @@ const MyHrImprestAccountItemAction = ({
             >
               <Grid size={{ xs: 6, md: 5 }}>
                 <DateTimePicker
-                  label='From'
+                  label={ts.from}
                   sx={{ width: '100%' }}
                   value={fromDate}
                   slotProps={{ textField: { size: 'small', fullWidth: true } }}
@@ -183,7 +190,7 @@ const MyHrImprestAccountItemAction = ({
               </Grid>
               <Grid size={{ xs: 6, md: 5 }}>
                 <DateTimePicker
-                  label='To'
+                  label={ts.to}
                   sx={{ width: '100%' }}
                   value={toDate}
                   minDate={fromDate ?? undefined}
@@ -199,7 +206,7 @@ const MyHrImprestAccountItemAction = ({
                   size='small'
                   fullWidth
                 >
-                  Filter
+                  {ts.filter}
                 </LoadingButton>
               </Grid>
             </Grid>
@@ -231,7 +238,7 @@ const MyHrImprestAccountItemAction = ({
               </Box>
             ) : rows.length === 0 ? (
               <Typography textAlign='center' color='text.secondary' py={3}>
-                No transactions found for this period.
+                {ts.noTransactions}
               </Typography>
             ) : (
               <TableContainer sx={{ overflowX: 'auto' }}>
@@ -241,35 +248,35 @@ const MyHrImprestAccountItemAction = ({
                       <TableCell
                         sx={{ backgroundColor: mainColor, color: contrastText }}
                       >
-                        Date
+                        {ts.date}
                       </TableCell>
                       <TableCell
                         sx={{ backgroundColor: mainColor, color: contrastText }}
                       >
-                        Reference
+                        {ts.reference}
                       </TableCell>
                       <TableCell
                         sx={{ backgroundColor: mainColor, color: contrastText }}
                       >
-                        Description
-                      </TableCell>
-                      <TableCell
-                        align='right'
-                        sx={{ backgroundColor: mainColor, color: contrastText }}
-                      >
-                        Debit
+                        {ts.description}
                       </TableCell>
                       <TableCell
                         align='right'
                         sx={{ backgroundColor: mainColor, color: contrastText }}
                       >
-                        Credit
+                        {ts.debit}
                       </TableCell>
                       <TableCell
                         align='right'
                         sx={{ backgroundColor: mainColor, color: contrastText }}
                       >
-                        Balance
+                        {ts.credit}
+                      </TableCell>
+                      <TableCell
+                        align='right'
+                        sx={{ backgroundColor: mainColor, color: contrastText }}
+                      >
+                        {ts.balance}
                       </TableCell>
                     </TableRow>
                   </TableHead>
@@ -315,7 +322,7 @@ const MyHrImprestAccountItemAction = ({
                           borderBottom: 'none',
                         }}
                       >
-                        TOTAL
+                        {ts.total}
                       </TableCell>
                       <TableCell
                         align='right'
@@ -353,7 +360,7 @@ const MyHrImprestAccountItemAction = ({
 
         <DialogActions>
           <Button size='small' onClick={() => setOpen(false)}>
-            Cancel
+            {t.cancel}
           </Button>
         </DialogActions>
       </Dialog>

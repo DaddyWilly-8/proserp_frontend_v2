@@ -19,8 +19,10 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { signOut } from "next-auth/react";
 import { useLanguage } from "@/app/[lang]/contexts/LanguageContext";
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const EmailVerificationNotice = () => {
+  const dictionary = useDictionary();
   const { authUser } = useJumboAuth();
   const [isSending, setIsSending] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
@@ -59,12 +61,12 @@ const EmailVerificationNotice = () => {
         { email: authUser.user.email }
       );
 
-      enqueueSnackbar(response.data?.message || "Verification link sent", {
+      enqueueSnackbar(response.data?.message || dictionary.forms.emailVerification.linkSent, {
         variant: "success",
       });
     } catch (err) {
       enqueueSnackbar(
-        err?.response?.data?.message || "Failed to resend verification email",
+        err?.response?.data?.message || dictionary.forms.emailVerification.resendFailed,
         { variant: "error" }
       );
     } finally {
@@ -110,16 +112,14 @@ const EmailVerificationNotice = () => {
       <Card sx={{ maxWidth: "100%", width: 360, mb: 4 }}>
         <CardContent>
           <Typography textAlign="center" sx={{ mb: 2 }} variant="body1">
-            Please verify your email through the link sent to the email address
-            below. If the link has expired or you misplaced it, click the Resend
-            verification link button to get a new one.
+            {dictionary.forms.emailVerification.notice}
           </Typography>
 
           <Div sx={{ mb: 3, mt: 1 }}>
             <TextField
               fullWidth
               id="email"
-              label="Email"
+              label={dictionary.forms.emailVerification.emailLabel}
               value={authUser?.user?.email || ""}
               disabled
             />
@@ -133,7 +133,7 @@ const EmailVerificationNotice = () => {
             size="large"
             sx={{ mb: 2 }}
           >
-            Resend verification link
+            {dictionary.forms.emailVerification.resend}
           </LoadingButton>
 
           <Divider sx={{ my: 2 }} />
@@ -147,32 +147,32 @@ const EmailVerificationNotice = () => {
             size="large"
             sx={{ mb: 2 }}
           >
-            Logout
+            {dictionary.forms.emailVerification.logout}
           </LoadingButton>
 
           <Typography textAlign="center" variant="body2" mb={1}>
-            Already Verified?{' '}
+            {dictionary.forms.emailVerification.alreadyVerified}{' '}
             <span
               style={{ textDecoration: 'none', fontWeight: 500, color: '#1976d2', cursor: 'pointer' }}
               onClick={async () => {
                 try {
                   window.location.href = '/';
                 } catch (e) {
-                  enqueueSnackbar('Could not recheck verification. Please try again.', { variant: 'error' });
+                  enqueueSnackbar(dictionary.forms.emailVerification.recheckFailed, { variant: 'error' });
                 }
               }}
               role="button"
               tabIndex={0}
               onKeyPress={e => { if (e.key === 'Enter') window.location.href = '/'; }}
             >
-              Proceed to Homepage
+              {dictionary.forms.emailVerification.proceedToHomepage}
             </span>
           </Typography>
 
           <Typography textAlign="center" variant="body2">
-            Don't remember your email?{" "}
+            {dictionary.forms.emailVerification.forgotEmail}{" "}
             <Link href="/support" style={{ textDecoration: "none" }}>
-              Contact Support
+              {dictionary.forms.emailVerification.contactSupport}
             </Link>
           </Typography>
         </CardContent>

@@ -20,8 +20,10 @@ import {
 } from '@mui/material';
 import { useSnackbar } from 'notistack';
 import { LabelProps } from '../labelsWithChip/data';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const LabelPopover = ({ labels }: { labels: LabelProps[] }) => {
+  const dictionary = useDictionary();
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [selectedValues, setSelectedValues] = React.useState<number[]>([]);
   const { enqueueSnackbar } = useSnackbar();
@@ -67,7 +69,7 @@ const LabelPopover = ({ labels }: { labels: LabelProps[] }) => {
   return (
     <Div>
       <IconButton>
-        <Tooltip title={'Labels'}>
+        <Tooltip title={dictionary.tooltips.labels}>
           <LabelOutlinedIcon onClick={handleClick} />
         </Tooltip>
       </IconButton>

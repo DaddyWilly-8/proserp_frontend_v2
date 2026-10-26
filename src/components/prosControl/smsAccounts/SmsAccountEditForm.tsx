@@ -20,6 +20,7 @@ import { LoadingButton } from '@mui/lab';
 import { Div } from '@jumbo/shared';
 import smsAccountsServices from './smsAccounts-services';
 import { getErrorMessage } from '@/utilities/helpers/errorHandler';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface SmsAccount {
   id: number;
@@ -43,13 +44,14 @@ const SmsAccountEditForm = ({
   account: SmsAccount;
   setOpenDialog: (open: boolean) => void;
 }) => {
+  const dictionary = useDictionary();
   const queryClient = useQueryClient();
   const { enqueueSnackbar } = useSnackbar();
 
   const validationSchema = yup.object({
-    unit_price: yup.number().min(0, 'Must be at least 0').required('Unit price is required'),
-    sender_id: yup.string().max(11, 'Sender ID must be at most 11 characters').default(''),
-    low_balance_threshold: yup.number().min(0, 'Must be at least 0').required(),
+    unit_price: yup.number().min(0, dictionary.forms.smsAccounts.form.errors.min0).required(dictionary.forms.smsAccounts.form.errors.unitPriceRequired),
+    sender_id: yup.string().max(11, dictionary.forms.smsAccounts.form.errors.senderIdMax).default(''),
+    low_balance_threshold: yup.number().min(0, dictionary.forms.smsAccounts.form.errors.min0).required(),
     is_active: yup.boolean().required(),
   });
 
@@ -71,7 +73,7 @@ const SmsAccountEditForm = ({
     mutationFn: (data: FormData) => smsAccountsServices.update({ id: account.id, ...data }),
     onSuccess: () => {
       setOpenDialog(false);
-      enqueueSnackbar('SMS account updated successfully', { variant: 'success' });
+      enqueueSnackbar(dictionary.forms.smsAccounts.form.messages.updated, { variant: 'success' });
       queryClient.invalidateQueries({ queryKey: ['sms-accounts'] });
     },
     onError: (error) => {
@@ -83,7 +85,7 @@ const SmsAccountEditForm = ({
 
   return (
     <>
-      <DialogTitle>Edit SMS Account</DialogTitle>
+      <DialogTitle>{dictionary.forms.smsAccounts.form.editTitle}</DialogTitle>
       <DialogContent>
         <form autoComplete='off' onSubmit={onSubmit}>
           <Grid container spacing={2}>
@@ -95,7 +97,7 @@ const SmsAccountEditForm = ({
                   render={({ field }) => (
                     <TextField
                       {...field}
-                      label='Unit Price'
+                      label={dictionary.forms.smsAccounts.form.labels.unitPrice}
                       type='number'
                       fullWidth
                       size='small'
@@ -114,7 +116,7 @@ const SmsAccountEditForm = ({
                   render={({ field }) => (
                     <TextField
                       {...field}
-                      label='Low Balance Threshold'
+                      label={dictionary.forms.smsAccounts.form.labels.lowBalanceThreshold}
                       type='number'
                       fullWidth
                       size='small'
@@ -133,7 +135,7 @@ const SmsAccountEditForm = ({
                   render={({ field }) => (
                     <TextField
                       {...field}
-                      label='Sender ID (optional, max 11 characters)'
+                      label={dictionary.forms.smsAccounts.form.labels.senderId}
                       fullWidth
                       size='small'
                       error={!!errors.sender_id}
@@ -151,7 +153,7 @@ const SmsAccountEditForm = ({
                   render={({ field }) => (
                     <FormControlLabel
                       control={<Switch checked={field.value} onChange={(e) => field.onChange(e.target.checked)} />}
-                      label='Active'
+                      label={dictionary.forms.smsAccounts.form.labels.active}
                     />
                   )}
                 />
@@ -160,10 +162,10 @@ const SmsAccountEditForm = ({
           </Grid>
           <DialogActions>
             <Button size='small' onClick={() => setOpenDialog(false)}>
-              Cancel
+              {dictionary.forms.smsAccounts.form.buttons.cancel}
             </Button>
             <LoadingButton type='submit' variant='contained' size='small' loading={isPending}>
-              Save
+              {dictionary.forms.smsAccounts.form.buttons.save}
             </LoadingButton>
           </DialogActions>
         </form>

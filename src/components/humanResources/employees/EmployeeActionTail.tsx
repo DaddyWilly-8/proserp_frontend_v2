@@ -16,15 +16,16 @@ import humanResourcesServices from '../humanResourcesServices';
 import { DepartmentsProvider } from '../departments/DepartmentsProvider';
 import EmployeeForm from './EmployeeForm';
 import EmployeeOnboardingDialog from './EmployeeOnboardingDialog';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
-const getErrorMessage = (error: any) => {
+const getErrorMessage = (error: any, fallback: string) => {
   const validationErrors = error?.response?.data?.validation_errors;
   if (validationErrors && typeof validationErrors === 'object') {
     const first = Object.values(validationErrors)[0] as any;
     return Array.isArray(first) ? first[0] : String(first);
   }
   return (
-    error?.response?.data?.message || error?.message || 'Something went wrong'
+    error?.response?.data?.message || error?.message || fallback
   );
 };
 
@@ -58,6 +59,7 @@ const ExcelUploadIcon = () => (
 );
 
 const EmployeeActionTail = () => {
+  const dictionary = useDictionary();
   const [openDialog, setOpenDialog] = useState(false);
   const [openOnboardingDialog, setOpenOnboardingDialog] = useState(false);
   const { theme } = useJumboTheme();
@@ -75,7 +77,13 @@ const EmployeeActionTail = () => {
       window.URL.revokeObjectURL(url);
     },
     onError: (error: any) =>
-      enqueueSnackbar(getErrorMessage(error), { variant: 'error' }),
+      enqueueSnackbar(
+        getErrorMessage(
+          error,
+          dictionary.humanResources.employees.common.somethingWentWrong
+        ),
+        { variant: 'error' }
+      ),
   });
 
   return (
@@ -111,7 +119,7 @@ const EmployeeActionTail = () => {
           },
         }}
       >
-        <Tooltip title='Employee Onboarding Import'>
+        <Tooltip title={dictionary.tooltips.employeeOnboardingImport}>
           <IconButton
             onClick={() => setOpenOnboardingDialog(true)}
             sx={{
@@ -124,7 +132,7 @@ const EmployeeActionTail = () => {
             <ExcelUploadIcon />
           </IconButton>
         </Tooltip>
-        <Tooltip title='Export Employees to Excel'>
+        <Tooltip title={dictionary.tooltips.exportEmployeesToExcel}>
           <span>
             <IconButton
               disabled={isExporting}
@@ -134,7 +142,7 @@ const EmployeeActionTail = () => {
             </IconButton>
           </span>
         </Tooltip>
-        <Tooltip title='Add Employee'>
+        <Tooltip title={dictionary.tooltips.addEmployee}>
           <IconButton onClick={() => setOpenDialog(true)}>
             <AddOutlined />
           </IconButton>

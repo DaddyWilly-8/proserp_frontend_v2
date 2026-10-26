@@ -3,8 +3,10 @@ import { AddOutlined, LinkOffOutlined } from "@mui/icons-material";
 import { ButtonGroup, Dialog, IconButton, Tooltip, Menu, MenuItem, useMediaQuery } from "@mui/material";
 import React, { useState } from "react";
 import ProjectUsersForm from "./ProjectUsersForm";
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const ProjectUsersActionTail = () => {
+  const dictionary = useDictionary();
   const [openDialog, setOpenDialog] = useState(false);
 
   return (
@@ -20,7 +22,7 @@ const ProjectUsersActionTail = () => {
       </Dialog>
 
       <ButtonGroup variant="outlined" size="small" disableElevation>
-        <Tooltip title="Attach Users">
+        <Tooltip title={dictionary.tooltips.attachUsers}>
           <IconButton onClick={()=> setOpenDialog(true)}>
             <AddOutlined />
           </IconButton>

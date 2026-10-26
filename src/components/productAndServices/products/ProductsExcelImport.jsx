@@ -14,14 +14,15 @@ import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function ProductsExcelImport({setOpenDialog}) {
+    const dictionary = useDictionary();
       //Validation schema
     const validationSchema = yup.object({
         stock_as_at: yup
             .string()
-            .required('Stock Date is required').typeError('Stock Date is required'),
+            .required(dictionary.forms.products.excelImport.errors.validation.stockDate.required).typeError(dictionary.forms.products.excelImport.errors.validation.stockDate.required),
         stock_complement_ledger_id: yup
-                .number().positive('Complement Ledger is required')
-                .required('Complement Ledger is required').typeError('Complement Ledger is required'),
+                .number().positive(dictionary.forms.products.excelImport.errors.validation.complementLedger.required)
+                .required(dictionary.forms.products.excelImport.errors.validation.complementLedger.required).typeError(dictionary.forms.products.excelImport.errors.validation.complementLedger.required),
     });
 
     const {register, handleSubmit, setValue, formState: {errors}} = useForm({
@@ -33,7 +34,6 @@ function ProductsExcelImport({setOpenDialog}) {
     const queryClient = useQueryClient();
     const {enqueueSnackbar} = useSnackbar();
     const {authOrganization} = useJumboAuth();
-    const dictionary = useDictionary();
 
     const uploadExcel = useMutation({
         mutationFn: productServices.importProductsExcel,
@@ -59,7 +59,7 @@ function ProductsExcelImport({setOpenDialog}) {
 
             <Grid size={12}>
                 <Input
-                    label={'Products Excel'}
+                    label={dictionary.forms.products.excelImport.labels.productsExcel}
                     type="file"
                     required
                     id="excel-import"

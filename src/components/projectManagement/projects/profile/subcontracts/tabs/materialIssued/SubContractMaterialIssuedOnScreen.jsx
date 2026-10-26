@@ -13,9 +13,11 @@ import {
   TableContainer,
   Divider
 } from '@mui/material';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import { readableDate } from '@/app/helpers/input-sanitization-helpers';
 
 function SubContractMaterialIssuedOnScreen({ SubContractMaterialIssuedDetails, organization }) {
+  const dictionary = useDictionary();
   const theme = useTheme();
   
   const mainColor = organization.settings?.main_color || "#2113AD";
@@ -50,7 +52,7 @@ function SubContractMaterialIssuedOnScreen({ SubContractMaterialIssuedDetails, o
               sx={{ color: headerColor }} 
               gutterBottom
             >
-              SUBCONTRACT MATERIALS ISSUED
+              {dictionary.projectManagement.materialIssued.subcontractMaterialsIssued}
             </Typography>
             <Typography 
               variant="h6" 
@@ -68,7 +70,7 @@ function SubContractMaterialIssuedOnScreen({ SubContractMaterialIssuedDetails, o
         <Grid size={{xs: 12, sm: 6, md: 4}}>
           <Box>
             <Typography variant="subtitle2" sx={{ color: headerColor }} gutterBottom>
-              Issue No
+              {dictionary.projectManagement.materialIssued.issueNo}
             </Typography>
             <Typography variant="body1">{SubContractMaterialIssuedDetails.issueNo}</Typography>
           </Box>
@@ -76,7 +78,7 @@ function SubContractMaterialIssuedOnScreen({ SubContractMaterialIssuedDetails, o
         <Grid size={{xs: 12, sm: 6, md: 4}}>
           <Box>
             <Typography variant="subtitle2" sx={{ color: headerColor }} gutterBottom>
-              Issue Date
+              {dictionary.projectManagement.materialIssued.issueDate}
             </Typography>
             <Typography variant="body1">
               {readableDate(SubContractMaterialIssuedDetails.issue_date)}
@@ -86,7 +88,7 @@ function SubContractMaterialIssuedOnScreen({ SubContractMaterialIssuedDetails, o
         <Grid size={{xs: 12, sm: 6, md: 4}}>
           <Box>
             <Typography variant="subtitle2" sx={{ color: headerColor }} gutterBottom>
-              Project
+              {dictionary.projectManagement.materialIssued.project}
             </Typography>
             <Typography variant="body1">
               {SubContractMaterialIssuedDetails.subcontract.project.name}
@@ -96,7 +98,7 @@ function SubContractMaterialIssuedOnScreen({ SubContractMaterialIssuedDetails, o
         <Grid size={{xs: 12, sm: 6, md: 4}}>
           <Box>
             <Typography variant="subtitle2" sx={{ color: headerColor }} gutterBottom>
-              Reference
+              {dictionary.projectManagement.materialIssued.reference}
             </Typography>
             <Typography variant="body1">{SubContractMaterialIssuedDetails.reference}</Typography>
           </Box>
@@ -104,7 +106,7 @@ function SubContractMaterialIssuedOnScreen({ SubContractMaterialIssuedDetails, o
         <Grid size={{xs: 12, sm: 6, md: 4}}>
           <Box>
             <Typography variant="subtitle2" sx={{ color: headerColor }} gutterBottom>
-              Subcontract No
+              {dictionary.projectManagement.materialIssued.subcontractNo}
             </Typography>
             <Typography variant="body1">{SubContractMaterialIssuedDetails.subcontract.subcontractNo}</Typography>
           </Box>
@@ -112,7 +114,7 @@ function SubContractMaterialIssuedOnScreen({ SubContractMaterialIssuedDetails, o
         <Grid size={{xs: 12, sm: 6, md: 4}}>
           <Box>
             <Typography variant="subtitle2" sx={{ color: headerColor }} gutterBottom>
-              Subcontractor Name
+              {dictionary.projectManagement.materialIssued.subcontractorName}
             </Typography>
             <Typography variant="body1">
               {SubContractMaterialIssuedDetails.subcontract.subcontractor.name}
@@ -133,7 +135,7 @@ function SubContractMaterialIssuedOnScreen({ SubContractMaterialIssuedDetails, o
             mb: 2
           }}
         >
-          MATERIALS USED
+          {dictionary.projectManagement.materialIssued.materialsUsedUpper}
         </Typography>
         
         <TableContainer 
@@ -152,13 +154,13 @@ function SubContractMaterialIssuedOnScreen({ SubContractMaterialIssuedDetails, o
                   S/N
                 </TableCell>
                 <TableCell sx={{ backgroundColor: mainColor, color: contrastText, fontSize: '0.875rem' }}>
-                  Material
+                  {dictionary.projectManagement.materialIssued.material}
                 </TableCell>
                 <TableCell sx={{ backgroundColor: mainColor, color: contrastText, fontSize: '0.875rem' }}>
-                  Unit
+                  {dictionary.projectManagement.materialIssued.unit}
                 </TableCell>
                 <TableCell sx={{ backgroundColor: mainColor, color: contrastText, fontSize: '0.875rem' }} align="right">
-                  Quantity
+                  {dictionary.projectManagement.materialIssued.quantity}
                 </TableCell>
               </TableRow>
             </TableHead>
@@ -187,7 +189,7 @@ function SubContractMaterialIssuedOnScreen({ SubContractMaterialIssuedDetails, o
                 <TableRow>
                   <TableCell colSpan={4} sx={{ textAlign: 'center', py: 4 }}>
                     <Typography variant="body1" color="text.secondary">
-                      No materials used recorded
+                      {dictionary.projectManagement.materialIssued.noMaterialsRecorded}
                     </Typography>
                   </TableCell>
                 </TableRow>
@@ -203,7 +205,7 @@ function SubContractMaterialIssuedOnScreen({ SubContractMaterialIssuedDetails, o
                       borderBottom: 'none'
                     }}
                   >
-                    Total Materials
+                    {dictionary.projectManagement.materialIssued.totalMaterials}
                   </TableCell>
                   <TableCell 
                     align="right" 
@@ -227,7 +229,7 @@ function SubContractMaterialIssuedOnScreen({ SubContractMaterialIssuedDetails, o
         <Grid container spacing={2}>
           <Grid size={{xs: 12, sm: 6}}>
             <Typography variant="subtitle2" sx={{ color: headerColor }} gutterBottom>
-              Subcontractor Details
+              {dictionary.projectManagement.materialIssued.subcontractorDetails}
             </Typography>
             <Typography variant="body2">
               {SubContractMaterialIssuedDetails.subcontract.subcontractor.name}
@@ -240,7 +242,7 @@ function SubContractMaterialIssuedOnScreen({ SubContractMaterialIssuedDetails, o
           </Grid>
           <Grid size={{xs: 12, sm: 6}}>
             <Typography variant="subtitle2" sx={{ color: headerColor }} gutterBottom>
-              Project Information
+              {dictionary.projectManagement.materialIssued.projectInformation}
             </Typography>
             <Typography variant="body2">
               {SubContractMaterialIssuedDetails.subcontract.project.name}

@@ -26,6 +26,7 @@ import {
   stringToColor,
   summarizeEntry,
 } from './audit-helpers';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface AuditActionGroupListProps {
   rows: AuditRow[];
@@ -66,6 +67,7 @@ interface GroupCardProps {
 }
 
 function AuditActionGroupCard({ requestId, rows, onViewEntry, onViewHistory }: GroupCardProps) {
+  const dictionary = useDictionary();
   const [expanded, setExpanded] = React.useState(false);
   const primary = rows[0];
   const expandable = rows.length > 1 && !requestId.startsWith('single-');
@@ -173,14 +175,14 @@ function AuditActionGroupCard({ requestId, rows, onViewEntry, onViewHistory }: G
             />
           )}
 
-          <Tooltip title="View entry">
+          <Tooltip title={dictionary.tooltips.viewEntry}>
             <IconButton size="small" onClick={(e) => { e.stopPropagation(); onViewEntry(String(primary.id)); }}>
               <VisibilityOutlinedIcon fontSize="inherit" />
             </IconButton>
           </Tooltip>
 
           {history && onViewHistory && (
-            <Tooltip title="View resource history">
+            <Tooltip title={dictionary.tooltips.viewResourceHistory}>
               <IconButton
                 size="small"
                 onClick={(e) => {

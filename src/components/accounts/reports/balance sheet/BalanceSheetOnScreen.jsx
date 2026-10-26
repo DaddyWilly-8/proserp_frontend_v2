@@ -1,3 +1,4 @@
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import { KeyboardArrowDown, KeyboardArrowRight } from '@mui/icons-material';
 import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
 import React, { useState } from 'react';
@@ -9,6 +10,8 @@ import {
 } from '../periodColumns';
 
 const BalanceSheetOnScreen = ({ reportData, netOnly, closingOnly }) => {
+  const dictionary = useDictionary();
+  const t = dictionary.reports.accountsReports;
   const [openRows, setOpenRows] = useState([]);
 
   const toggleRow = (rowId) => {
@@ -40,7 +43,9 @@ const BalanceSheetOnScreen = ({ reportData, netOnly, closingOnly }) => {
       })}
       <TableRow sx={{ '&:hover': { bgcolor: 'action.hover' } }}>
         <TableCell style={{ paddingLeft: level * 20 }}>
-          <span>Total {parent.name}</span>
+          <span>
+            {t.common.total} {parent.name}
+          </span>
         </TableCell>
         <PeriodCells netOnly={netOnly} closingOnly={closingOnly} node={parent} />
       </TableRow>
@@ -52,7 +57,8 @@ const BalanceSheetOnScreen = ({ reportData, netOnly, closingOnly }) => {
       <Table size="small" aria-label="balance-sheet">
         <TableHead>
           <PeriodTableHead netOnly={netOnly} closingOnly={closingOnly}
-            leadingLabels={['CATEGORY']}
+            leadingLabels={[t.balanceSheet.category.toUpperCase()]}
+            labels={t.common}
             backgroundColor='transparent'
             color='inherit'
             filters={reportData.filters}

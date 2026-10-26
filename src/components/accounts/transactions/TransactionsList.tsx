@@ -20,6 +20,7 @@ import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
 import { CostCenter } from '@/components/masters/costCenters/CostCenterType';
 import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface QueryOptions {
   queryKey: string;
@@ -41,6 +42,7 @@ interface FilterDate {
 }
 
 const TransactionsList: React.FC = () => {
+    const dictionary = useDictionary();
     const params = useParams<{ category?: string; id?: string; keyword?: string }>();
     const searchParams = useSearchParams();
     const listRef = useRef<any>(null);
@@ -312,7 +314,7 @@ const TransactionsList: React.FC = () => {
                         />
                       </Grid>
                       <Grid size={{xs: 1, md: 0.5}} alignContent={'end'}>
-                        <Tooltip title="Filter Dates">
+                        <Tooltip title={dictionary.tooltips.filterDates}>
                           <IconButton onClick={applyDateFilters}>
                             <EventAvailableOutlined/>
                           </IconButton> 

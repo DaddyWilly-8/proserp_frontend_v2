@@ -1,5 +1,6 @@
 'use client'
 
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import JumboCardQuick from '@jumbo/components/JumboCardQuick/JumboCardQuick';
 import { Dialog, Grid, Typography, useMediaQuery } from '@mui/material';
 import React, { useState, ReactNode } from 'react';
@@ -22,6 +23,7 @@ import UnauthorizedAccess from '@/shared/Information/UnauthorizedAccess';
 import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
 
 function SalesReports() {
+    const dictionary = useDictionary();
     const searchParams = useSearchParams();
     const [openCashierReport, setOpenCashierReport] = useState<boolean>(false);
     const [openSalesAndCashSummary, setOpenSalesAndCashSummary] = useState<boolean>(false);
@@ -83,7 +85,7 @@ function SalesReports() {
                     >
                         {report}
                     </Dialog>
-                    <Typography variant={'h4'} mb={2}>POS Reports</Typography>
+                    <Typography variant={'h4'} mb={2}>{dictionary.reports.posReports.title}</Typography>
                     <JumboCardQuick sx={{ height: '100%' }}>
                         <Grid container textAlign={'center'} columnSpacing={2} rowSpacing={2}>
                             {/* Cashier Report Card */}
@@ -107,7 +109,7 @@ function SalesReports() {
                                     icon={faMoneyBill1}  
                                     style={{ fontSize: '48px' }}
                                 />
-                                <Typography>Cashier Report</Typography>
+                                <Typography>{dictionary.reports.posReports.cashierReport}</Typography>
                             </Grid>
 
                             {/* Sales Manifest Card */}
@@ -127,7 +129,7 @@ function SalesReports() {
                                 }}
                             >
                                 <ListAltOutlined sx={{ fontSize: '40px' }} />
-                                <Typography>Sales Manifest</Typography>
+                                <Typography>{dictionary.reports.posReports.salesManifestCard}</Typography>
                             </Grid>
 
                             {/* Sales & Cash Summary Card */}
@@ -147,7 +149,7 @@ function SalesReports() {
                                 }}
                             >
                                 <SummarizeOutlined sx={{ fontSize: '40px' }} />
-                                <Typography>Sales & Cash Summary</Typography>
+                                <Typography>{dictionary.reports.posReports.salesAndCashSummaryCard}</Typography>
                             </Grid>
 
                             {/* Sales Performance Card */}
@@ -167,7 +169,7 @@ function SalesReports() {
                                 }}
                             >
                                 <LeaderboardOutlined sx={{ fontSize: '40px' }} />
-                                <Typography>Sales Performance</Typography>
+                                <Typography>{dictionary.reports.posReports.salesPerformanceCard}</Typography>
                             </Grid>
                         </Grid>
                     </JumboCardQuick>

@@ -17,6 +17,7 @@ import { useSnackbar } from 'notistack';
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import * as yup from 'yup';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import projectsServices from '../../project-services';
 import { useProjectProfile } from '../ProjectProfileProvider';
 
@@ -25,6 +26,9 @@ const WBSForm = ({
   timelineActivity = null,
   parentActivity = null,
 }) => {
+  const dictionary = useDictionary();
+  const t = dictionary.forms.projects.wbs;
+  const sh = dictionary.forms.projects.shared;
   const queryClient = useQueryClient();
   const { enqueueSnackbar } = useSnackbar();
   const { project, projectTimelineActivities } = useProjectProfile();
@@ -82,7 +86,7 @@ const WBSForm = ({
       } = group;
 
       const option = {
-        name: `After - ${name}`,
+        name: sh.afterName.replace('{name}', name),
         depth,
         id,
         parent_id,
@@ -109,7 +113,7 @@ const WBSForm = ({
   );
 
   const positionIndexOptions = [
-    { name: 'At the beginning', position_index: null, id: null },
+    { name: sh.atTheBeginning, position_index: null, id: null },
     ...sameLevelActivities,
   ];
 
@@ -117,36 +121,36 @@ const WBSForm = ({
     if (Object.keys(errors).length === 0) {
       saveMutation(data);
     } else {
-      enqueueSnackbar('Please resolve the errors before submitting.', {
+      enqueueSnackbar(sh.resolveErrors, {
         variant: 'error',
       });
     }
   };
 
  const validationSchema = yup.object({
-    name: yup.string().required("Activity name is required").typeError('Activity name is required'),
+    name: yup.string().required(t.errors.nameRequired).typeError(t.errors.nameRequired),
     weighted_percentage: yup
     .number()
-    .required('Weighted percentage is required')
-    .typeError('Weighted percentage is required')
-    .test("greater-than-zero", "Weight Percentage must be greater than 0", function (value) {
+    .required(t.errors.weightRequired)
+    .typeError(t.errors.weightRequired)
+    .test("greater-than-zero", sh.weightGreaterThanZero, function (value) {
       // Check if value is a valid number
       if (isNaN(value)) {
         return this.createError({
-          message: "Weight Percentage must be a valid number"
+          message: sh.weightValidNumber
         });
       }
       
       // Reject 0 and negative numbers
       if (value <= 0) {
         return this.createError({
-          message: "Weight Percentage must be greater than 0"
+          message: sh.weightGreaterThanZero
         });
       }
       
       return true;
     })
-    .max(100, "Weight Percentage must be less than or equal to 100")
+    .max(100, sh.weightMax)
     .test('check-total', function (value) {
       const context = this.options.context || {};
       const { sameLevelActivities, timelineActivity } = context;
@@ -160,7 +164,7 @@ const WBSForm = ({
 
       if ((totalWeightPercentages + value) > 100) {
         return this.createError({
-          message: `Total percentage should not exceed 100%. You currently have ${totalWeightPercentages}% allocated.`,
+          message: sh.totalExceeds.replace('{total}', totalWeightPercentages),
         });
       }
       return true;
@@ -194,10 +198,10 @@ const WBSForm = ({
     <>
       <DialogTitle textAlign={'center'}>
         {timelineActivity
-          ? `Edit: ${timelineActivity.name}`
+          ? t.titles.edit.replace('{name}', timelineActivity.name)
           : parentActivity
-            ? `New ${parentActivity.name} Activity`
-            : `New Timeline Activity`}
+            ? t.titles.newSub.replace('{name}', parentActivity.name)
+            : t.titles.new}
       </DialogTitle>
       <DialogContent>
         <form autoComplete='off'>
@@ -206,7 +210,7 @@ const WBSForm = ({
               <Div sx={{ mt: 1 }}>
                 <TextField
                   size='small'
-                  label='Name'
+                  label={sh.name}
                   fullWidth
                   error={!!errors?.name}
                   helperText={errors?.name?.message}
@@ -218,7 +222,7 @@ const WBSForm = ({
               <Div sx={{ mt: 1 }}>
                 <TextField
                   size='small'
-                  label='Code'
+                  label={sh.code}
                   fullWidth
                   {...register('code')}
                 />
@@ -232,7 +236,7 @@ const WBSForm = ({
                   defaultValue={timelineActivity?.weighted_percentage}
                   error={!!errors?.weighted_percentage}
                   helperText={errors?.weighted_percentage?.message}
-                  label='Weighted Percentage'
+                  label={sh.weightedPercentage}
                   InputProps={{
                     endAdornment: <span>%</span>,
                   }}
@@ -268,7 +272,7 @@ const WBSForm = ({
                   renderInput={(params) => (
                     <TextField
                       {...params}
-                      label='Position'
+                      label={sh.position}
                       size='small'
                       fullWidth
                     />
@@ -293,7 +297,7 @@ const WBSForm = ({
                   fullWidth
                   multiline={true}
                   rows={2}
-                  label='Description'
+                  label={sh.description}
                   {...register(`description`)}
                 />
               </Div>
@@ -303,7 +307,7 @@ const WBSForm = ({
       </DialogContent>
       <DialogActions>
         <Button size='small' onClick={() => setOpenDialog(false)}>
-          Cancel
+          {sh.cancel}
         </Button>
         <LoadingButton
           type='submit'
@@ -313,7 +317,7 @@ const WBSForm = ({
           sx={{ display: 'flex' }}
           loading={isPending || updateLoading}
         >
-          Submit
+          {sh.submit}
         </LoadingButton>
       </DialogActions>
     </>

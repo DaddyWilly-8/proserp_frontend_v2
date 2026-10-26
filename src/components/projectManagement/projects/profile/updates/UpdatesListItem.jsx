@@ -9,8 +9,10 @@ import { readableDate } from '@/app/helpers/input-sanitization-helpers';
 import UpdateItemAction from './UpdateItemAction';
 import projectsServices from '../../project-services';
 import { useQuery } from '@tanstack/react-query';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const UpdatesAccordion = ({ accordionExpanded, handleChange, update }) => {
+  const dictionary = useDictionary();
   const [isUpdateFormOpen, setIsUpdateFormOpen] = useState(false);
   const theme = useTheme();
   const isDarkMode = theme.type === 'dark';
@@ -32,7 +34,7 @@ const UpdatesAccordion = ({ accordionExpanded, handleChange, update }) => {
 
   const renderTaskProgress = () => {
     if (taskProgressItems.length === 0) {
-      return <Typography color="text.secondary">No task progress recorded.</Typography>;
+      return <Typography color="text.secondary">{dictionary.projectManagement.updates.noTaskProgress}</Typography>;
     }
     return (
       <Stack spacing={2}>
@@ -44,16 +46,16 @@ const UpdatesAccordion = ({ accordionExpanded, handleChange, update }) => {
             >
               <Grid container spacing={1} alignItems="center" width={'100%'} padding={0.5}>
                 <Grid size={{ xs: 12, md: 4 }}>
-                  <Tooltip title="Execution Date">
+                  <Tooltip title={dictionary.tooltips.executionDate}>
                     <Typography>{readableDate(taskProgressItem.execution_date, false)}</Typography>
                   </Tooltip>
                 </Grid>
                 <Grid size={{ xs: 12, md: 5 }}>
-                  <Tooltip title="Task Name">
+                  <Tooltip title={dictionary.tooltips.taskName}>
                     <Typography>{formatTaskLabel(taskProgressItem.task)}</Typography>
                   </Tooltip>
                   {taskProgressItem.project_subcontract?.subcontractor?.name && taskProgressItem.project_subcontract?.subcontractNo && (
-                    <Tooltip title="Subcontract">
+                    <Tooltip title={dictionary.tooltips.subcontract}>
                       <Typography variant="body2" color="text.secondary">
                         {`${taskProgressItem.project_subcontract.subcontractor.name} (${taskProgressItem.project_subcontract.subcontractNo})`}
                       </Typography>
@@ -61,7 +63,7 @@ const UpdatesAccordion = ({ accordionExpanded, handleChange, update }) => {
                   )}
                 </Grid>
                 <Grid size={{ xs: 12, md: 3 }} textAlign={{ xs: 'end', md: 'start' }}>
-                  <Tooltip title="Executed Quantity">
+                  <Tooltip title={dictionary.tooltips.executedQuantity}>
                     <Typography color="success.main">
                       {taskProgressItem.quantity_executed}{' '}
                       {taskProgressItem.unit_symbol || taskProgressItem.task?.measurement_unit?.symbol || ''}
@@ -74,7 +76,7 @@ const UpdatesAccordion = ({ accordionExpanded, handleChange, update }) => {
               {taskProgressItem.material_used && taskProgressItem.material_used.length > 0 ? (
                 <Stack spacing={1}>
                   <Typography variant="subtitle2" color="primary" sx={{ mb: 0.5 }}>
-                    Materials Used:
+                    {dictionary.projectManagement.updates.materialsUsed}
                   </Typography>
                   {taskProgressItem.material_used.map((mat, mIdx) => (
                     <React.Fragment key={mIdx}>
@@ -92,22 +94,22 @@ const UpdatesAccordion = ({ accordionExpanded, handleChange, update }) => {
                             <Typography>{mIdx+1}.</Typography>
                           </Grid>
                           <Grid size={{xs: 11, md: 3.5}}>
-                            <Tooltip title="Product">
+                            <Tooltip title={dictionary.tooltips.product}>
                               <Typography>{mat?.product?.name}</Typography>
                             </Tooltip>
                           </Grid>
                           <Grid size={{xs: 12, md: 2.5}}>
-                            <Tooltip title="Store">
+                            <Tooltip title={dictionary.tooltips.store}>
                               <Typography>{mat?.store?.name}</Typography>
                             </Tooltip>
                           </Grid>
                           <Grid size={{xs: 6, md: 2}} textAlign={{ md: 'end' }}>
-                            <Tooltip title="Quantity">
+                            <Tooltip title={dictionary.tooltips.quantity}>
                               <Typography>{mat?.quantity} {mat?.unit_symbol || mat?.measurement_unit?.symbol || ''}</Typography>
                             </Tooltip>
                           </Grid>
                           <Grid size={{xs: 6, md: 2.5}} paddingLeft={3}>
-                            <Tooltip title="Remarks">
+                            <Tooltip title={dictionary.tooltips.remarks}>
                               <Typography>{mat?.remarks}</Typography>
                             </Tooltip>
                           </Grid>
@@ -116,7 +118,7 @@ const UpdatesAccordion = ({ accordionExpanded, handleChange, update }) => {
                   ))}
                 </Stack>
               ) : (
-                <Typography color="text.secondary">No materials used.</Typography>
+                <Typography color="text.secondary">{dictionary.projectManagement.updates.noMaterialsUsed}</Typography>
               )}
             </AccordionDetails>
           </Accordion>
@@ -175,14 +177,14 @@ const UpdatesAccordion = ({ accordionExpanded, handleChange, update }) => {
       >
         <Grid container paddingLeft={1} width={'100%'} columnSpacing={1} rowSpacing={1} alignItems={'center'}>
           <Grid size={6}>
-            <Tooltip title="Start Date">
+            <Tooltip title={dictionary.tooltips.startDate}>
               <Typography variant="h5" fontSize={14} lineHeight={1.25} mb={0} noWrap>
                 {readableDate(update.update_date, true)}
               </Typography>
             </Tooltip>
           </Grid>
           <Grid size={6}>
-            <Tooltip title="Date Modified">
+            <Tooltip title={dictionary.tooltips.dateModified}>
               <Typography variant="h5" fontSize={14} lineHeight={1.25} mb={0} noWrap>
                 {readableDate(update.updated_at, true)}
               </Typography>
@@ -219,8 +221,8 @@ const UpdatesAccordion = ({ accordionExpanded, handleChange, update }) => {
                   allowScrollButtonsMobile
                   sx={{ mb: 2 }}
                 >
-                  <Tab label="Description" />
-                  <Tab label="Tasks Progress" />
+                  <Tab label={dictionary.projectManagement.updates.tabs.description} />
+                  <Tab label={dictionary.projectManagement.updates.tabs.tasksProgress} />
                 </Tabs>
               </Grid>
               {tabValue === 0 && (

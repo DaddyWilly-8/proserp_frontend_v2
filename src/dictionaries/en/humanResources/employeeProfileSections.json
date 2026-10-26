@@ -1,0 +1,457 @@
+{
+  "profileSectionsCommon": {
+    "cancel": "Cancel",
+    "submit": "Submit",
+    "somethingWentWrong": "Something went wrong",
+    "edit": "Edit",
+    "delete": "Delete",
+    "confirmDelete": "Confirm Delete"
+  },
+  "nextOfKins": {
+    "list": {
+      "primary": "Primary",
+      "secondary": "Secondary"
+    },
+    "messages": {
+      "added": "Next Of Kin Added Successfully",
+      "updated": "Next Of Kin Updated Successfully",
+      "deleted": "Next Of Kin Deleted Successfully",
+      "deleteConfirm": "Are you sure you want to delete this Next Of Kin?"
+    },
+    "form": {
+      "addTitle": "Add Employee Next Of Kin",
+      "editTitle": "Edit Employee Next Of Kin",
+      "labels": {
+        "name": "Name",
+        "relationship": "Relationship",
+        "phone": "Phone",
+        "email": "Email",
+        "address": "Address",
+        "setPrimary": "Set as Primary Contact"
+      },
+      "validation": {
+        "employeeRequired": "Employee is required",
+        "nameRequired": "Name is required",
+        "nameMax": "Name cannot exceed 200 characters",
+        "relationshipRequired": "Relationship is required",
+        "relationshipMax": "Relationship cannot exceed 50 characters",
+        "phoneMax": "Phone cannot exceed 20 characters",
+        "emailInvalid": "Email is invalid",
+        "emailMax": "Email cannot exceed 150 characters",
+        "addressMax": "Address cannot exceed 500 characters"
+      }
+    }
+  },
+  "leaveAllocations": {
+    "list": {
+      "leaveType": "Leave Type",
+      "period": "Period",
+      "allocated": "Allocated",
+      "used": "Used",
+      "remaining": "Remaining",
+      "typeFallback": "Type #{id}",
+      "carryForwardNote": "Includes {days} carried-forward day(s)",
+      "carryForwardUntil": ", usable until {date}"
+    },
+    "messages": {
+      "added": "Leave Allocation Added Successfully",
+      "updated": "Leave Allocation Updated Successfully",
+      "deleted": "Leave Allocation Deleted Successfully",
+      "deleteConfirm": "Are you sure you want to delete this Leave Allocation?"
+    },
+    "form": {
+      "addTitle": "Add Leave Allocation",
+      "editTitle": "Edit Leave Allocation",
+      "labels": {
+        "leaveType": "Leave Type",
+        "startDate": "Start Date",
+        "allocatedDays": "Allocated Days"
+      },
+      "helper": {
+        "cannotChange": "Cannot be changed once created",
+        "startDate": "The cycle's start — its end is computed from the leave type's cycle length"
+      },
+      "validation": {
+        "leaveTypeRequired": "Leave type is required",
+        "startDateRequired": "Start date is required",
+        "allocatedDaysNumber": "Allocated days must be a number",
+        "allocatedDaysRequired": "Allocated days is required",
+        "allocatedDaysMin": "Allocated days must be at least 0.5"
+      }
+    }
+  },
+  "employeesContracts": {
+    "contractTypes": {
+      "permanent": "Permanent",
+      "fixed_term": "Fixed",
+      "specific_task": "Specific",
+      "probation": "Probation"
+    },
+    "payBasis": {
+      "monthly": "Monthly",
+      "daily": "Daily",
+      "hourly": "Hourly"
+    },
+    "status": {
+      "active": "active",
+      "terminated": "terminated",
+      "expired": "expired"
+    },
+    "actions": {
+      "terminate": "Terminate"
+    },
+    "messages": {
+      "added": "Success Adding Employee Contract",
+      "updated": "Employee Contract update success",
+      "deleted": "Employee Contract Deleted Successfully",
+      "deleteConfirm": "Are you sure you want to delete this Contract?",
+      "terminated": "Employee Contract Terminated Successfully",
+      "terminateError": "Error Terminating Employee Contract",
+      "cannotEditTerminated": "This contract has been terminated and cannot be edited."
+    },
+    "terminate": {
+      "title": "Terminate Contract",
+      "intro": "You are about to terminate the contract for",
+      "introSuffix": ". Please provide the termination details below.",
+      "terminationDate": "Termination Date",
+      "remarks": "Remarks",
+      "button": "Terminate Contract",
+      "remarksMax": "Remarks should not exceed 1000 characters"
+    },
+    "form": {
+      "addTitle": "Add Contract",
+      "editTitle": "Edit Contract",
+      "labels": {
+        "designation": "Designation",
+        "contractType": "Contract Type",
+        "dailyRate": "Daily Rate",
+        "hourlyRate": "Hourly Rate",
+        "basicSalary": "Basic Salary",
+        "payBasis": "Pay Basis",
+        "standardHoursMonth": "Standard Hours/Month",
+        "payeExempt": "PAYE Exempt",
+        "standardHoursDay": "Standard Hours/Day",
+        "overtimeMultiplier": "Overtime Multiplier",
+        "holidayWorkMultiplier": "Holiday Work Multiplier",
+        "startDate": "Start Date",
+        "endDate": "End Date",
+        "probationEndDate": "Probation End Date",
+        "remarks": "Remarks"
+      },
+      "helper": {
+        "orgDefault": "Leave blank to use the organization default"
+      },
+      "validation": {
+        "employeeRequired": "Employee is required",
+        "designationRequired": "Designation is required",
+        "contractTypeRequired": "Contract type is required",
+        "startDateRequired": "Start date is required",
+        "endDateRequired": "End date is required",
+        "endAfterStart": "End date must be after start date",
+        "probationAfterStart": "Probation End Date must be after start date",
+        "basicSalaryRequired": "Basic salary is required",
+        "basicSalaryMin": "Basic salary cannot be less than 0",
+        "number": "This value should be a number",
+        "remarksMax": "Remarks should not exceed 1000 characters"
+      }
+    }
+  },
+  "employeeBankAccounts": {
+    "list": {
+      "code": "Code: {code}",
+      "primary": "Primary",
+      "secondary": "Secondary"
+    },
+    "messages": {
+      "added": "Bank Account Added Successfully",
+      "updated": "Bank Account Updated Successfully",
+      "deleted": "Bank Account Deleted Successfully",
+      "deleteConfirm": "Are you sure you want to delete this Bank Account?"
+    },
+    "form": {
+      "addTitle": "Add Bank Account",
+      "editTitle": "Edit Bank Account",
+      "labels": {
+        "bank": "Bank",
+        "branch": "Branch",
+        "bankCode": "Bank Code",
+        "accountNumber": "Account Number",
+        "accountName": "Account Name",
+        "setPrimary": "Set as Primary Account"
+      },
+      "helper": {
+        "bankCode": "Optional — only needed if your bank requires a routing/branch code for transfers"
+      },
+      "validation": {
+        "bankRequired": "Bank is required",
+        "branchMax": "Branch cannot exceed 100 characters",
+        "bankCodeMax": "Bank code cannot exceed 50 characters",
+        "accountNumberRequired": "Account number is required",
+        "accountNumberMax": "Account number cannot exceed 50 characters",
+        "accountNameRequired": "Account name is required",
+        "accountNameMax": "Account name cannot exceed 200 characters"
+      }
+    }
+  },
+  "leaveRequests": {
+    "dayCountOne": "{n} day",
+    "dayCountMany": "{n} days",
+    "status": {
+      "in_review": "In Review",
+      "approved": "Approved",
+      "rejected": "Rejected",
+      "cancelled": "Cancelled",
+      "pending": "Pending",
+      "on hold": "On Hold"
+    },
+    "messages": {
+      "added": "Leave Request Added Successfully",
+      "updated": "Leave Request Updated Successfully",
+      "deleted": "Leave Request Deleted Successfully",
+      "cancelled": "Leave Request Cancelled Successfully",
+      "deleteConfirm": "Are you sure you want to delete this Leave Request?",
+      "confirmCancelTitle": "Confirm Cancel",
+      "cancelConfirm": "Are you sure you want to cancel this Leave Request?",
+      "approved": "Leave request approved",
+      "rejected": "Leave request rejected",
+      "approvalRecorded": "Leave approval recorded",
+      "approvalUpdated": "Leave approval updated",
+      "approvalNotFound": "Approval not found",
+      "pendingLevelNotFound": "Pending approval level not found",
+      "approvalDeleteTitle": "Confirm Delete?",
+      "approvalDeleteContent": "If you click yes, this Approval will be deleted"
+    },
+    "list": {
+      "typeFallback": "Type #{id}",
+      "close": "Close",
+      "approvalHistory": "Approval History",
+      "noApprovals": "No Approvals Found",
+      "applicationTitle": "Leave Application"
+    },
+    "decision": {
+      "title": "Leave Approval",
+      "editTitle": "Edit Leave Approval",
+      "daysApproved": "Days Approved",
+      "approvalDateTime": "Approval Date & Time",
+      "rejectionDateTime": "Rejection Date & Time",
+      "remarks": "Remarks",
+      "cancel": "Cancel",
+      "approve": "Approve",
+      "reject": "Reject",
+      "remarksRequired": "Remarks are required",
+      "daysRequired": "Days approved is required"
+    },
+    "approvalDialog": {
+      "approvedStartDate": "Approved Start Date",
+      "approvedEndDate": "Approved End Date",
+      "datesRequired": "Start and end date are required",
+      "endBeforeStart": "End date cannot be before start date",
+      "noDaysGranted": "Selected dates grant no leave days",
+      "exceedsMax": "Days approved cannot exceed {max}",
+      "balance": "Balance for {period}: {remaining} remaining ({used} used of {allocated} allocated), before this request.",
+      "carryIncludes": "Includes {days} carried forward",
+      "carryUntil": ", usable until {date}",
+      "noAllocation": "No leave allocation found covering {date} — nothing to grant against.",
+      "exceedsBalance": "Approving {days} exceeds the requester's remaining balance of {remaining}.",
+      "daysHint": "{days} — max {max}"
+    },
+    "form": {
+      "addTitle": "Add Leave Request",
+      "editTitle": "Edit Leave Request",
+      "labels": {
+        "leaveType": "Leave Type",
+        "daysRequested": "Days Requested",
+        "startDate": "Start Date",
+        "endDate": "End Date",
+        "reason": "Reason"
+      },
+      "hint": {
+        "saturdays": "Saturdays",
+        "sundays": "Sundays",
+        "and": " and ",
+        "excluded": " ({excluded} excluded)",
+        "summary": "{days}{excluded} between selected dates{match}",
+        "differs": " — differs from days requested",
+        "matches": " — matches days requested"
+      },
+      "validation": {
+        "employeeRequired": "Employee is required",
+        "leaveTypeRequired": "Leave type is required",
+        "startDateRequired": "Start date is required",
+        "endDateRequired": "End date is required",
+        "daysNumber": "Days requested must be a number",
+        "daysRequired": "Days requested is required",
+        "daysMin": "Days requested must be at least 0.5",
+        "reasonMax": "Reason cannot exceed 1000 characters"
+      }
+    },
+    "preview": {
+      "employeeFallback": "Employee #{id}",
+      "startDate": "Start Date",
+      "endDate": "End Date",
+      "days": "Days",
+      "daysGranted": "{granted} / {requested} days",
+      "approvalStages": "Approval Stages",
+      "decidedDirectly": "Decided directly on {date}",
+      "noChain": "No approval chain configured for this request — awaiting a direct decision.",
+      "approved": "Approved",
+      "rejected": "Rejected",
+      "putOnHold": "Put on hold",
+      "decisionRecorded": "Decision recorded",
+      "actionBy": "{action} by {name}",
+      "unknownReviewer": "Unknown reviewer",
+      "approvedDays": "Approved {n} days",
+      "waitingFor": "Waiting for {role}",
+      "nextReviewer": "next reviewer",
+      "pending": "Pending",
+      "notReached": "Not reached yet"
+    },
+    "pdf": {
+      "title": "Leave Application Form",
+      "applicationTitle": "Leave Application",
+      "employee": "Employee",
+      "leaveType": "Leave Type",
+      "status": "Status",
+      "printedOn": "Printed On",
+      "startDate": "Start Date",
+      "endDate": "End Date",
+      "daysRequested": "Days Requested",
+      "daysGranted": "Days Granted",
+      "reason": "Reason",
+      "allocated": "Allocated",
+      "used": "Used",
+      "carriedForward": "Carried Forward",
+      "remaining": "Remaining",
+      "approvalHistory": "Approval History",
+      "noApprovalAction": "No approval action recorded yet.",
+      "date": "Date",
+      "by": "By",
+      "remarks": "Remarks",
+      "employeeSignature": "Employee Signature",
+      "dateLine": "Date: ______________",
+      "approverSignature": "Approver Signature",
+      "signature": "{role} Signature",
+      "approver": "Approver"
+    }
+  },
+  "employeeAllowances": {
+    "list": {
+      "typeFallback": "Type #{id}",
+      "openEnded": "Open-ended"
+    },
+    "messages": {
+      "added": "Employee Allowance Added Successfully",
+      "updated": "Employee Allowance Updated Successfully",
+      "deleted": "Employee Allowance Deleted Successfully",
+      "deleteConfirm": "Are you sure you want to delete this Employee Allowance?"
+    },
+    "form": {
+      "addTitle": "Add Allowance",
+      "editTitle": "Edit Allowance",
+      "labels": {
+        "allowanceType": "Allowance Type",
+        "amount": "Amount",
+        "effectiveFrom": "Effective From",
+        "effectiveTo": "Effective To"
+      },
+      "validation": {
+        "allowanceTypeRequired": "Allowance type is required",
+        "amountNumber": "Amount must be a number",
+        "amountRequired": "Amount is required",
+        "amountMin": "Amount must be 0 or greater",
+        "effectiveFromRequired": "Effective from is required"
+      }
+    }
+  },
+  "employeeDeductions": {
+    "list": {
+      "typeFallback": "Type #{id}",
+      "openEnded": "Open-ended",
+      "memberNo": "No: {no}"
+    },
+    "messages": {
+      "added": "Employee Deduction Added Successfully",
+      "updated": "Employee Deduction Updated Successfully",
+      "deleted": "Employee Deduction Deleted Successfully",
+      "deleteConfirm": "Are you sure you want to delete this Employee Deduction?",
+      "addFailed": "Failed to add deduction",
+      "updateFailed": "Failed to update deduction"
+    },
+    "form": {
+      "addTitle": "Add Employee Deduction",
+      "editTitle": "Edit Employee Deduction",
+      "labels": {
+        "deductionType": "Deduction Type",
+        "memberNo": "Member No.",
+        "value": "Value",
+        "effectiveFrom": "Effective From",
+        "effectiveTo": "Effective To"
+      },
+      "placeholders": {
+        "memberNo": "e.g. NSSF No, WCF No"
+      },
+      "validation": {
+        "deductionTypeRequired": "Deduction type is required",
+        "valueNumber": "Value must be a number",
+        "valueRequired": "Value is required",
+        "valueMin": "Value must be 0 or greater",
+        "effectiveFromRequired": "Effective from is required"
+      }
+    }
+  },
+  "employeeEmployerContributions": {
+    "list": {
+      "typeFallback": "Type #{id}",
+      "openEnded": "Open-ended",
+      "memberNo": "No: {no}"
+    },
+    "messages": {
+      "added": "Employee Employer Contribution Added Successfully",
+      "updated": "Employee Employer Contribution Updated Successfully",
+      "deleted": "Employee Employer Contribution Deleted Successfully",
+      "deleteConfirm": "Are you sure you want to delete this Employee Employer Contribution?"
+    },
+    "form": {
+      "addTitle": "Add Employee Employer Contribution",
+      "editTitle": "Edit Employee Employer Contribution",
+      "labels": {
+        "contributionType": "Contribution Type",
+        "memberNo": "Member No.",
+        "value": "Value",
+        "effectiveFrom": "Effective From",
+        "effectiveTo": "Effective To"
+      },
+      "placeholders": {
+        "memberNo": "e.g. NSSF No, WCF No"
+      },
+      "validation": {
+        "employeeRequired": "Employee is required",
+        "contributionTypeRequired": "Contribution type is required",
+        "valueNumber": "Value must be a number",
+        "valueRequired": "Value is required",
+        "valueMin": "Value must be 0 or greater",
+        "effectiveFromRequired": "Effective from is required"
+      }
+    }
+  },
+  "auditTrail": {
+    "headers": {
+      "date": "Date",
+      "from": "From",
+      "to": "To",
+      "reason": "Reason"
+    },
+    "movementTypes": {
+      "all": "All Movements",
+      "cost_center": "Cost Center Changes",
+      "department": "Department Changes",
+      "manager": "Manager Changes"
+    },
+    "movementType": "Movement Type",
+    "kinds": {
+      "costCenter": "Cost Center",
+      "manager": "Manager",
+      "department": "Department"
+    }
+  }
+}

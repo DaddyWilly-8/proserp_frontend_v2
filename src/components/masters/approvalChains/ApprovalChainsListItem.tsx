@@ -18,6 +18,7 @@ import approvalChainsServices from './approvalChainsServices';
 import { ApprovalChain, ApprovalChainLevel } from './ApprovalChainType';
 import { DEPARTMENT_SCOPABLE_PROCESS_TYPES } from '@/utilities/constants/processTypes';
 import { useQuery } from '@tanstack/react-query';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface ApprovalChainsListItemContextValue {
   approvalChainLevels: ApprovalChainLevel[];
@@ -41,6 +42,7 @@ interface ApprovalChainsListItemProps {
 }
 
 const ApprovalChainsListItem: React.FC<ApprovalChainsListItemProps> = ({ approvalChain }) => {
+  const dictionary = useDictionary();
   const [expanded, setExpanded] = useState(false);
   const [selectedApprovalChainLevel, setSelectedApprovalChainLevel] = useState<ApprovalChainLevel | null>(null);
   const [openDialog, setOpenDialog] = useState(false);
@@ -117,13 +119,13 @@ const ApprovalChainsListItem: React.FC<ApprovalChainsListItemProps> = ({ approva
             container
           >
             <Grid size={{xs: 6, md: 5}}>
-              <Tooltip title={'Type'}>
+              <Tooltip title={dictionary.tooltips.type}>
                 <Typography>{approvalChain.process_type}</Typography>
               </Tooltip>
             </Grid>
             <Grid size={{xs: 6, md: 5}}>
               {approvalChain.department?.name && (
-                <Tooltip title={'Department'}>
+                <Tooltip title={dictionary.tooltips.department}>
                   <Chip
                     size="small"
                     label={approvalChain.department.name}
@@ -132,7 +134,7 @@ const ApprovalChainsListItem: React.FC<ApprovalChainsListItemProps> = ({ approva
                 </Tooltip>
               )}
               {approvalChain.cost_center?.name && !DEPARTMENT_SCOPABLE_PROCESS_TYPES.includes(approvalChain.process_type) && (
-                <Tooltip title={'Cost Center'}>
+                <Tooltip title={dictionary.tooltips.costCenter}>
                   <Chip
                     size="small"
                     label={approvalChain.cost_center.name}
@@ -141,7 +143,7 @@ const ApprovalChainsListItem: React.FC<ApprovalChainsListItemProps> = ({ approva
               )}
             </Grid>
             <Grid size={{xs: 12, md: 2}} display={'flex'} alignItems={{xs: 'end', md: 'start'}} justifyContent={{xs: 'end', md: 'start'}}>
-              <Tooltip title={'Status'}>
+              <Tooltip title={dictionary.tooltips.status}>
                 <Chip
                   size="small"
                   label={approvalChain.status}

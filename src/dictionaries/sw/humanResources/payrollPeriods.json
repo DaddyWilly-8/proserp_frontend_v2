@@ -1,0 +1,587 @@
+{
+  "payrollPeriods": {
+    "adjustmentsTab": {
+      "buttons": {
+        "addAllowance": "Ongeza Posho",
+        "addDeduction": "Ongeza Makato",
+        "buyLeave": "Nunua Likizo",
+        "logAbsence": "Rekodi Kutokuwepo Kazini",
+        "logOvertime": "Rekodi Muda wa Ziada",
+        "uploadAdjustments": "Pakia Marekebisho"
+      },
+      "columns": {
+        "actions": "Vitendo",
+        "daysBought": "Siku Zilizonunuliwa",
+        "employee": "Mfanyakazi",
+        "hours": "Saa",
+        "leaveType": "Aina ya Likizo",
+        "ratePerHour": "Kiwango/Saa",
+        "type": "Aina"
+      },
+      "delete": {
+        "message": {
+          "absence": "Una uhakika unataka kufuta rekodi hii ya kutokuwepo kazini? Kitendo hiki hakiwezi kutenduliwa.",
+          "allowance": "Una uhakika unataka kufuta marekebisho haya ya posho? Kitendo hiki hakiwezi kutenduliwa.",
+          "deduction": "Una uhakika unataka kufuta marekebisho haya ya makato? Kitendo hiki hakiwezi kutenduliwa.",
+          "leaveEncashment": "Una uhakika unataka kufuta rekodi hii ya ununuzi wa likizo? Kitendo hiki hakiwezi kutenduliwa (siku zilizonunuliwa zitarejeshwa kwenye salio la likizo).",
+          "overtime": "Una uhakika unataka kufuta rekodi hii ya muda wa ziada? Kitendo hiki hakiwezi kutenduliwa."
+        },
+        "title": "Thibitisha Kufuta"
+      },
+      "edit": {
+        "absenceTitle": "Hariri Rekodi ya Kutokuwepo Kazini",
+        "deductionHint": "Weka saa na kiwango ili kuona makato yaliyokokotolewa",
+        "deductionPreview": "Makato: {amount} (saa {hours} × {rate}/saa)",
+        "editAllowance": "Hariri Posho",
+        "editDeduction": "Hariri Makato",
+        "entryRemarksPlaceholder": "Maelezo ya hiari kwa rekodi hii",
+        "mustFallWithin": "Lazima iwe ndani ya {month} {year}",
+        "overtimeTitle": "Hariri Rekodi ya Muda wa Ziada",
+        "overtimeType": "Aina ya Muda wa Ziada",
+        "rateCouldNotDerive": "Imeshindwa kukokotoa kiwango cha mfanyakazi huyu — kiweke mwenyewe",
+        "rateDerived": "Imekokotolewa kiotomatiki kutoka kwenye mkataba (mshahara wa msingi ÷ saa za kawaida kwa mwezi) — hariri kubadilisha",
+        "rateOverridden": "Imebadilishwa — hariri kubadilisha, au futa ili kurudi kwenye kiwango kilichokokotolewa",
+        "ratePerHour": "Kiwango/Saa",
+        "remarksPlaceholder": "Maelezo ya hiari kwa marekebisho haya"
+      },
+      "empty": {
+        "noAbsences": "Bado hakuna kutokuwepo kazini kulikorekodiwa kwa kipindi hiki. Tumia kitufe cha \"Rekodi Kutokuwepo Kazini\" kuongeza rekodi.",
+        "noAbsencesMatch": "Hakuna rekodi za kutokuwepo kazini zinazolingana na \"{query}\".",
+        "noAllowances": "Hakuna posho zilizopakiwa kwa kipindi hiki. Tumia kitufe cha \"Pakia Marekebisho\" kuongeza.",
+        "noAllowancesMatch": "Hakuna posho zinazolingana na \"{query}\".",
+        "noDeductions": "Hakuna makato yaliyopakiwa kwa kipindi hiki. Tumia kitufe cha \"Pakia Marekebisho\" kuongeza.",
+        "noDeductionsMatch": "Hakuna makato yanayolingana na \"{query}\".",
+        "noLeaveEncashments": "Bado hakuna likizo iliyonunuliwa kwa kipindi hiki. Tumia kitufe cha \"Nunua Likizo\" kuongeza rekodi.",
+        "noLeaveEncashmentsMatch": "Hakuna rekodi za ununuzi wa likizo zinazolingana na \"{query}\".",
+        "noOvertime": "Bado hakuna muda wa ziada uliorekodiwa kwa kipindi hiki. Tumia kitufe cha \"Rekodi Muda wa Ziada\" kuongeza rekodi.",
+        "noOvertimeMatch": "Hakuna rekodi za muda wa ziada zinazolingana na \"{query}\"."
+      },
+      "leaveDialog": {
+        "amountAuto": "Imekokotolewa kiotomatiki: {rate}/siku × siku zilizonunuliwa — hariri kubadilisha",
+        "amountCouldNotDerive": "Imeshindwa kukokotoa kiwango cha kila siku cha mfanyakazi huyu — weka kiasi mwenyewe",
+        "amountDefault": "Thamani ya fedha inayotozwa kodi inayolipwa kwa siku zilizonunuliwa",
+        "amountManual": "Thamani ya fedha inayotozwa kodi inayolipwa kwa siku zilizonunuliwa — imewekwa mwenyewe",
+        "exceedsBalance": "Inazidi salio lililobaki la siku {days}",
+        "noAllocation": "Hakuna mgao wa likizo uliopatikana kwa mfanyakazi/aina hii ya likizo mwaka {year}.",
+        "remainingBalance": "Salio lililobaki la {year}: siku {days}",
+        "title": "Nunua Likizo (Fidia ya Likizo)"
+      },
+      "locked": {
+        "absence": "Uendeshaji wa kipindi hiki tayari uko katika hali ya {status} — rekodi mpya za kutokuwepo kazini hazitaonekana humo",
+        "adjustments": "Uendeshaji wa kipindi hiki tayari uko katika hali ya {status} — marekebisho mapya hayataonekana humo",
+        "description": "Marekebisho, muda wa ziada, kutokuwepo kazini, na ununuzi wa likizo yako katika hali ya kusoma tu hapa chini — chochote kitakachoongezwa au kubadilishwa hapa hakitaonekana kwenye uendeshaji huo. Tengeneza uendeshaji mpya kwa kipindi hiki ili kutekeleza mabadiliko, au yafanye wakati uendeshaji wake bado uko katika hali ya Rasimu.",
+        "leaveEncashment": "Uendeshaji wa kipindi hiki tayari uko katika hali ya {status} — ununuzi mpya wa likizo hautaonekana humo",
+        "overtime": "Uendeshaji wa kipindi hiki tayari uko katika hali ya {status} — rekodi mpya za muda wa ziada hazitaonekana humo",
+        "title": "Uendeshaji wa mishahara wa kipindi hiki tayari uko katika hali ya {status}"
+      },
+      "messages": {
+        "absenceRemoved": "Rekodi ya kutokuwepo kazini imeondolewa kwa mafanikio",
+        "absenceUpdated": "Rekodi ya kutokuwepo kazini imesasishwa kwa mafanikio",
+        "allowanceDeleted": "Posho imefutwa kwa mafanikio",
+        "allowanceUpdated": "Posho imesasishwa kwa mafanikio",
+        "deductionDeleted": "Makato yamefutwa kwa mafanikio",
+        "deductionUpdated": "Makato yamesasishwa kwa mafanikio",
+        "errorsFound": "{message}. Makosa {count} yamepatikana. Angalia maelezo hapa chini.",
+        "importSuccess": "Marekebisho yameingizwa kwa mafanikio",
+        "importedSkipped": "{message}. {imported} yameingizwa, {skipped} yameachwa.",
+        "leaveEncashmentAdded": "Ununuzi wa likizo umeongezwa kwa mafanikio",
+        "leaveEncashmentRemoved": "Ununuzi wa likizo umeondolewa na siku zimerejeshwa kwenye salio",
+        "noneImported": "Hakuna marekebisho yaliyoingizwa. Tafadhali angalia makosa hapa chini.",
+        "overtimeRemoved": "Rekodi ya muda wa ziada imeondolewa kwa mafanikio",
+        "overtimeUpdated": "Rekodi ya muda wa ziada imesasishwa kwa mafanikio",
+        "templateDownloaded": "Kiolezo kimepakuliwa kwa mafanikio"
+      },
+      "panels": {
+        "absencesDescription": "Saa zilizorekodiwa hapa kwa wafanyakazi wanaolipwa kila mwezi hubadilishwa kuwa kiasi cha \"Makato ya Kutokuwepo Kazini\" kabla ya kodi uendeshaji wa mishahara unapotengenezwa, kwa kutumia saa za kawaida za kila mfanyakazi kwa mwezi — hukatwa kutoka mshahara wa msingi kabla ya PAYE, kinyume cha Muda wa Ziada.",
+        "absencesTitle": "Kutokuwepo Kazini Kulikorekodiwa — {month} {year}",
+        "adHocDescription": "Hizi zitaonekana kwenye hati za mshahara uendeshaji wa mishahara utakapowasilishwa. Unaweza kuhariri kiasi na maelezo, au kufuta rekodi inapohitajika.",
+        "allowancesTitle": "Posho za Muda — {month} {year}",
+        "deductionsTitle": "Makato ya Muda — {month} {year}",
+        "leaveEncashmentDescription": "Siku za likizo zilizonunuliwa na mwajiri. Kila rekodi hulipwa kama posho ya \"Ununuzi wa Likizo\" inayotozwa kodi kwenye hati ya mshahara ya kipindi hiki na hupunguza siku zilizonunuliwa kutoka salio la likizo la mfanyakazi kwa mwaka. Kufuta rekodi hurejesha siku hizo.",
+        "leaveEncashmentTitle": "Ununuzi wa Likizo — {month} {year}",
+        "overtimeDescription": "Saa zilizorekodiwa hapa kwa wafanyakazi wanaolipwa kila mwezi hubadilishwa kuwa kiasi cha \"Malipo ya Muda wa Ziada\" uendeshaji wa mishahara unapotengenezwa, kwa kutumia saa za kawaida za kila mfanyakazi kwa mwezi na kigezo cha aina ya muda wa ziada iliyochaguliwa.",
+        "overtimeTitle": "Muda wa Ziada Uliorekodiwa — {month} {year}"
+      },
+      "search": {
+        "leaveType": "Tafuta kwa namba ya mfanyakazi, jina, aina ya likizo, au maelezo",
+        "nameRemarks": "Tafuta kwa namba ya mfanyakazi, jina, au maelezo",
+        "typeRemarks": "Tafuta kwa namba ya mfanyakazi, jina, aina, au maelezo"
+      },
+      "somethingWentWrong": "Hitilafu imetokea",
+      "tabs": {
+        "absent": "Kutokuwepo",
+        "allowances": "Posho",
+        "deductions": "Makato",
+        "leaveEncashment": "Ununuzi wa Likizo",
+        "overtime": "Muda wa Ziada"
+      },
+      "tooltips": {
+        "deleteRestores": "Futa (hurejesha siku zilizonunuliwa kwenye salio)",
+        "derivedFromContract": "Imekokotolewa kutoka kwenye mkataba",
+        "overridden": "Imebadilishwa",
+        "periodLocked": "Kipindi kimefungwa"
+      },
+      "total": "Jumla ({count})",
+      "totalOf": "Jumla ({count} kati ya {all})",
+      "upload": {
+        "allImported": "Marekebisho yote {count} yameingizwa kwa mafanikio!",
+        "downloadTemplate": "Pakua Kiolezo",
+        "downloading": "Inapakua...",
+        "errorDescription": "Maelezo ya Kosa",
+        "errors": "Makosa",
+        "importSummary": "Muhtasari wa Uingizaji",
+        "imported": "Zilizoingizwa",
+        "instructions": "Pakua kiolezo, jaza marekebisho, kisha pakia faili. Kila safu inawakilisha marekebisho moja kwa mfanyakazi. Kupakia tena kutaandika juu ya rekodi zinazolingana kulingana na (kipindi, mfanyakazi, aina).",
+        "instructionsTitle": "Maelekezo ya Kupakia",
+        "noFile": "Hakuna faili iliyochaguliwa",
+        "readyToUpload": "KB {size} • Tayari kupakiwa",
+        "removeFile": "Ondoa Faili",
+        "rowNo": "Na. ya Safu",
+        "selectFile": "Chagua Faili ya Excel",
+        "skipped": "Zilizoachwa",
+        "skippedRows": "Safu Zilizoachwa ({count})",
+        "title": "Pakia Marekebisho",
+        "uploadImport": "Pakia na Ingiza",
+        "uploading": "Inapakia..."
+      }
+    },
+    "advances": {
+      "add": {
+        "intro": "Ongeza safu moja kwa kila mfanyakazi, kisha zihifadhi zote kwa pamoja. Kila safu hurekodi kiotomatiki makato yanayolingana katika kipindi hiki hiki ili kurejesha — hakuna hatua nyingine inayohitajika. Safu yenye tatizo (mfano mfanyakazi aliyekwisha lipwa malipo ya awali kipindi hiki) huruka na kuripotiwa — haizuii zingine.",
+        "title": "Ongeza Malipo ya Awali"
+      },
+      "markPaid": {
+        "button": "Weka kuwa Imelipwa",
+        "intro": "Hii inaweka kila malipo ya awali ambayo bado hayajalipwa kwa kipindi hiki kuwa yamelipwa, bila kurekodi malipo kwenye vitabu.",
+        "marked": "Malipo ya awali yamewekwa kuwa yamelipwa",
+        "reference": "Kumbukumbu (si lazima)",
+        "referencePlaceholder": "mfano Fedha taslimu zimekabidhiwa, kundi la pesa mtandaoni #4521",
+        "title": "Weka Malipo ya Awali kuwa Yamelipwa"
+      },
+      "pay": {
+        "bankOrCash": "Akaunti ya Benki au Fedha Taslimu",
+        "intro": "Hii inalipa kila malipo ya awali ambayo bado hayajalipwa kwa kipindi hiki kwa mkupuo mmoja — malipo moja, yakikata kutoka akaunti iliyo hapa chini.",
+        "paid": "Malipo ya awali yamelipwa",
+        "pay": "Lipa",
+        "title": "Lipa Malipo ya Awali"
+      },
+      "paymentDateTime": "Tarehe na Saa ya Malipo",
+      "transfer": {
+        "columns": {
+          "accountName": "Jina la Akaunti",
+          "accountNumber": "Namba ya Akaunti",
+          "advanceAmount": "Kiasi cha Malipo ya Awali",
+          "bankCode": "Msimbo wa Benki",
+          "bankName": "Jina la Benki",
+          "branch": "Tawi",
+          "empNo": "Namba ya Mf.",
+          "employeeName": "Jina la Mfanyakazi",
+          "employeeNo": "Namba ya Mfanyakazi",
+          "sn": "Na.",
+          "status": "Hali"
+        },
+        "docTitle": "Karatasi ya Uhamisho wa Awali",
+        "noBankAccount": "Hakuna Akaunti ya Benki",
+        "payrollPeriod": "Kipindi cha Mishahara",
+        "title": "Karatasi ya Uhamisho wa Malipo ya Awali",
+        "totalAmount": "Jumla ya Kiasi cha Malipo ya Awali",
+        "totalEmployees": "Jumla ya Wafanyakazi",
+        "withoutBank": "Wafanyakazi wasio na akaunti za benki"
+      }
+    },
+    "advancesTab": {
+      "addAdvance": "Ongeza Malipo ya Awali",
+      "columns": {
+        "actions": "Vitendo",
+        "employee": "Mfanyakazi",
+        "status": "Hali"
+      },
+      "confirmDelete": "Thibitisha Kufuta",
+      "deleteConfirm": "Una uhakika unataka kufuta malipo haya ya awali? Kitendo hiki hakiwezi kutenduliwa.",
+      "editTitle": "Hariri Malipo ya Awali",
+      "empty": "Hakuna malipo ya awali yaliyopakiwa kwa kipindi hiki. Tumia kitufe cha \"Pakia Malipo ya Awali\" kuongeza.",
+      "generateTransferSheet": "Tengeneza Karatasi ya Uhamisho",
+      "heading": "Malipo ya Awali ya Mshahara — {month} {year}",
+      "info": "Kupakia malipo ya awali hurekodi kiotomatiki makato yanayolingana katika kipindi hiki hiki ili kurejesha — hakuna hatua nyingine inayohitajika. Yakishalipwa, malipo ya awali hayawezi tena kuhaririwa au kufutwa.",
+      "locked": {
+        "body": "Kupakia, kuhariri, au kufuta malipo ya awali kumezuiwa hapa chini — mabadiliko hapa hayataonekana kwenye uendeshaji huo. Unda uendeshaji mpya kwa kipindi hiki ili kutumia mabadiliko, au yafanye wakati uendeshaji bado ni Rasimu. Kulipa au kuweka malipo ya awali yaliyopakiwa kuwa yamelipwa hakuathiriwi.",
+        "title": "Uendeshaji wa mishahara wa kipindi hiki tayari ni: {status}",
+        "tooltip": "Uendeshaji wa kipindi hiki tayari ni {status} — malipo mapya ya awali hayataonekana ndani yake"
+      },
+      "markAdvancesPaid": "Weka Malipo ya Awali kuwa Yamelipwa",
+      "messages": {
+        "importWithErrors": "{message}. Makosa {count} yamepatikana. Angalia maelezo hapa chini.",
+        "imported": "Malipo ya awali yameingizwa kwa mafanikio",
+        "noneImported": "Hakuna malipo ya awali yaliyoingizwa. Tafadhali angalia makosa hapa chini.",
+        "paymentReversed": "Malipo ya awali yametenguliwa",
+        "removed": "Malipo ya awali yameondolewa kwa mafanikio",
+        "revertedToUnpaid": "Malipo ya awali yamerudishwa kuwa hayajalipwa",
+        "templateDownloaded": "Kiolezo kimepakuliwa kwa mafanikio",
+        "updated": "Malipo ya awali yamesasishwa kwa mafanikio"
+      },
+      "noMatch": "Hakuna malipo ya awali yanayolingana na \"{search}\".",
+      "payAdvances": "Lipa Malipo ya Awali",
+      "remarksPlaceholder": "Maelezo ya hiari kwa malipo haya ya awali",
+      "reversePayment": {
+        "content": "Hii inafuta malipo na majarida yake, na kurudisha kila malipo ya awali yaliyohusika kuwa hayajalipwa ili kundi lirekebishwe na kulipwa upya. Endelea?",
+        "title": "Tengua Malipo ya Awali"
+      },
+      "reversePaymentButton": "Tengua Malipo",
+      "searchPlaceholder": "Tafuta kwa namba ya mfanyakazi, jina, au maelezo",
+      "tooltips": {
+        "paidCannotDelete": "Tayari yamelipwa — hayawezi kufutwa",
+        "paidCannotEdit": "Tayari yamelipwa — hayawezi kuhaririwa",
+        "periodLocked": "Kipindi kimefungwa"
+      },
+      "total": "Jumla",
+      "undoMarkPaid": {
+        "content": "Hii inarudisha malipo ya awali ya kipindi hiki yaliyowekwa kuwa yamelipwa kwa mkono kuwa hayajalipwa ili yarekebishwe. Endelea?",
+        "title": "Tengua Kuweka kuwa Imelipwa"
+      },
+      "upload": {
+        "downloadTemplate": "Pakua Kiolezo",
+        "downloading": "Inapakua...",
+        "importResult": "Yaliyoingizwa {imported}, yaliyorukwa {skipped}",
+        "instructions": "Pakua kiolezo, jaza wafanyakazi na kiasi, kisha pakia faili. Kupakia tena kutaandika juu ya malipo ya awali ambayo hayajalipwa ya mfanyakazi kwa kipindi hiki badala ya kuyarudufu.",
+        "instructionsTitle": "Maelekezo ya Kupakia",
+        "noFile": "Hakuna faili iliyochaguliwa",
+        "readyToUpload": "Tayari kupakiwa",
+        "removeFile": "Ondoa Faili",
+        "selectFile": "Chagua Faili la Excel",
+        "skippedRows": "Safu Zilizorukwa ({count})",
+        "uploadAndImport": "Pakia na Ingiza",
+        "uploading": "Inapakia..."
+      },
+      "uploadAdvances": "Pakia Malipo ya Awali"
+    },
+    "batchDialogs": {
+      "addRow": "Ongeza Safu",
+      "allowance": {
+        "intro": "Ongeza safu moja kwa kila mfanyakazi/posho, kisha zihifadhi zote kwa pamoja. Safu yenye tatizo (mfano nakala rudufu) huruka na kuripotiwa — haizuii zingine.",
+        "title": "Ongeza Posho",
+        "typeLabel": "Aina ya Posho"
+      },
+      "deduction": {
+        "intro": "Ongeza safu moja kwa kila mfanyakazi/makato, kisha zihifadhi zote kwa pamoja. Safu yenye tatizo (mfano nakala rudufu) huruka na kuripotiwa — haizuii zingine.",
+        "title": "Ongeza Makato",
+        "typeLabel": "Aina ya Makato"
+      },
+      "deductionAmount": "Makato: {amount}",
+      "enterHoursAndRate": "Weka saa na kiwango ili kuona makato",
+      "hours": "Saa",
+      "intro": "Ongeza safu moja kwa kila mfanyakazi/tarehe, kisha zihifadhi zote kwa pamoja. Tarehe lazima ziwe ndani ya {month} {year}. Safu yenye tatizo huruka na kuripotiwa — haizuii zingine.",
+      "logAbsenceTitle": "Rekodi Maingizo ya Kutokuwepo Kazini",
+      "logOvertimeTitle": "Rekodi Maingizo ya Muda wa Ziada",
+      "overtimeType": "Aina ya Muda wa Ziada",
+      "rate": {
+        "autoDerived": "Imekokotolewa kiotomatiki kutoka kwenye mkataba — hariri ili kubadilisha",
+        "couldNotDerive": "Imeshindwa kukokotoa kiwango cha mfanyakazi huyu — kiingize mwenyewe",
+        "overridden": "Imebadilishwa — futa ili kurudi kwenye kiwango kilichokokotolewa",
+        "pickEmployee": "Chagua mfanyakazi ili kukokotoa kiwango kiotomatiki"
+      },
+      "ratePerHour": "Kiwango/Saa",
+      "row": "Safu {n}",
+      "rowError": "Safu {row}: {error}",
+      "saveRow": "Hifadhi Safu",
+      "saveRows": "Hifadhi Safu {count}",
+      "somethingWentWrong": "Hitilafu imetokea"
+    },
+    "common": {
+      "amount": "Kiasi",
+      "cancel": "Ghairi",
+      "close": "Funga",
+      "date": "Tarehe",
+      "delete": "Futa",
+      "edit": "Hariri",
+      "month": "Mwezi",
+      "months": {
+        "april": "Aprili",
+        "august": "Agosti",
+        "december": "Desemba",
+        "february": "Februari",
+        "january": "Januari",
+        "july": "Julai",
+        "june": "Juni",
+        "march": "Machi",
+        "may": "Mei",
+        "november": "Novemba",
+        "october": "Oktoba",
+        "september": "Septemba"
+      },
+      "notAvailable": "Haipo",
+      "of": "kati ya",
+      "optional": "Si lazima",
+      "paid": "Imelipwa",
+      "remarks": "Maelezo",
+      "save": "Hifadhi",
+      "status": {
+        "active": "Inatumika",
+        "approved": "Imeidhinishwa",
+        "cancelled": "Imeghairiwa",
+        "closed": "Imefungwa",
+        "completed": "Imekamilika",
+        "draft": "Rasimu",
+        "finalized": "Imekamilishwa",
+        "paid": "Imelipwa",
+        "pending": "Inasubiri",
+        "processing": "Inachakatwa",
+        "rejected": "Imekataliwa",
+        "reversed": "Imetenguliwa",
+        "submitted": "Imewasilishwa"
+      },
+      "submit": "Wasilisha",
+      "unpaid": "Haijalipwa",
+      "year": "Mwaka"
+    },
+    "comparison": {
+      "all": "Zote",
+      "allowances": "Posho",
+      "basicSalary": "Mshahara wa Msingi",
+      "companyWide": "kampuni nzima",
+      "compare": "Linganisha",
+      "comparing": "Inalinganisha",
+      "costCenters": "Vituo vya Gharama",
+      "deductions": "Makato",
+      "difference": "Tofauti",
+      "employerContributions": "Michango ya Mwajiri",
+      "employerContributionsTotal": "Jumla ya Michango ya Mwajiri",
+      "errors": {
+        "exportFailed": "Imeshindwa kusafirisha ulinganisho wa mishahara",
+        "loadFailed": "Imeshindwa kupakia ulinganisho wa mishahara."
+      },
+      "grossSalary": "Mshahara Ghafi",
+      "metric": "Kipimo",
+      "netSalary": "Mshahara Halisi",
+      "noData": "Hakuna data ya mishahara kwa vipindi vilivyochaguliwa.",
+      "periodAMonth": "Kipindi A — Mwezi",
+      "periodAYear": "Kipindi A — Mwaka",
+      "periodBMonth": "Kipindi B — Mwezi",
+      "periodBYear": "Kipindi B — Mwaka",
+      "printedOn": "Imechapishwa Tarehe",
+      "title": "Ulinganisho wa Mishahara",
+      "totalEmployees": "Jumla ya Wafanyakazi",
+      "totalEmployerCost": "Jumla ya Gharama za Mwajiri",
+      "type": "Aina",
+      "vs": "{a} dhidi ya {b}"
+    },
+    "details": {
+      "tabs": {
+        "adjustments": "Marekebisho ya Dharura",
+        "advances": "Malipo ya Awali",
+        "runs": "Uendeshaji",
+        "statutory": "Ratiba ya Kisheria"
+      }
+    },
+    "form": {
+      "errors": {
+        "monthNumber": "Mwezi lazima uwe namba",
+        "monthRange": "Mwezi lazima uwe kati ya 1 na 12",
+        "monthRequired": "Mwezi unahitajika",
+        "remarksMax": "Maelezo hayawezi kuzidi herufi 500",
+        "yearMax": "Mwaka hauwezi kuwa zaidi ya {year}",
+        "yearMin": "Mwaka lazima uwe {year} au zaidi",
+        "yearNumber": "Mwaka lazima uwe namba",
+        "yearRequired": "Mwaka unahitajika"
+      },
+      "messages": {
+        "added": "Kipindi cha Mishahara kimeongezwa kwa mafanikio",
+        "updated": "Kipindi cha Mishahara kimesasishwa kwa mafanikio"
+      },
+      "titleAdd": "Ongeza Kipindi cha Mishahara",
+      "titleEdit": "Hariri Kipindi cha Mishahara"
+    },
+    "itemAction": {
+      "deleteDialog": {
+        "content": "Futa {year} - {month}?",
+        "title": "Futa Kipindi cha Mishahara"
+      },
+      "messages": {
+        "cannotDeleteWithRuns": "Haiwezekani kufuta kipindi chenye uendeshaji uliopo",
+        "deleteFailed": "Imeshindwa kufuta kipindi",
+        "deleted": "Kipindi cha mishahara kimefutwa kwa mafanikio"
+      }
+    },
+    "list": {
+      "title": "Vipindi vya Mishahara"
+    },
+    "periodView": {
+      "allowance": "Posho",
+      "allowances": "Posho",
+      "approvedBy": "Imeidhinishwa na",
+      "basic": "Msingi",
+      "basicSalary": "Mshahara wa Msingi",
+      "company": "Kampuni",
+      "companyWideRun": "Uendeshaji wa Kampuni Nzima",
+      "contribution": "Mchango",
+      "costCenter": "Kituo cha Gharama",
+      "costCenterUpper": "KITUO CHA GHARAMA",
+      "deduction": "Makato",
+      "deductions": "Makato",
+      "designation": "Cheo",
+      "employee": "MFANYAKAZI",
+      "employeeCol": "Mfanyakazi",
+      "employeeUpper": "MFANYAKAZI",
+      "employer": "MWAJIRI",
+      "employerContributions": "Michango ya Mwajiri",
+      "employerUpper": "MWAJIRI",
+      "generatingPreview": "Inaandaa Onyesho la Awali...",
+      "gross": "Jumla (Ghafi)",
+      "grossPayByEmployer": "Mshahara wa Jumla kwa Mwajiri",
+      "netEmployeePayment": "Malipo Halisi kwa Wafanyakazi",
+      "netPayable": "Jumla Inayolipwa",
+      "paye": "PAYE",
+      "payeDotted": "P.A.Y.E",
+      "payrollTaxesBenefits": "Kodi na Marupurupu ya Mishahara",
+      "pdfSubject": "Kipindi cha Mishahara",
+      "preparedBy": "Imeandaliwa na",
+      "print": "Chapisha",
+      "recruitment": "UAJIRI",
+      "recruitmentUpper": "UAJIRI",
+      "salaryPayroll": "Mishahara ya Wafanyakazi",
+      "salaryPayrollUpper": "MISHAHARA YA WAFANYAKAZI",
+      "signature": "Sahihi",
+      "sn": "Na.",
+      "totalEmprCost": "Jumla ya Gharama ya Mwajiri",
+      "totals": "JUMLA",
+      "verifiedBy": "Imekaguliwa na"
+    },
+    "runsTab": {
+      "columns": {
+        "actions": "Vitendo",
+        "costCenter": "Kituo cha Gharama",
+        "employees": "Wafanyakazi",
+        "status": "Hali"
+      },
+      "companyWideRun": "Uendeshaji wa Kampuni Nzima",
+      "createdBy": "Imeundwa na {first} {last}",
+      "empty": "Hakuna uendeshaji wa mishahara uliopatikana kwa kipindi hiki. Bofya kitufe cha + kuunda uendeshaji.",
+      "unnamedRun": "Uendeshaji Usio na Jina"
+    },
+    "salaryComponents": {
+      "all": "Zote",
+      "allowances": "Posho",
+      "basicSalary": "Mshahara wa Msingi",
+      "companyWide": "kampuni nzima",
+      "costCenters": "Vituo vya Gharama",
+      "deductions": "Makato",
+      "employees": "Wafanyakazi",
+      "employerContributions": "Michango ya Mwajiri",
+      "errors": {
+        "exportFailed": "Imeshindwa kusafirisha muhtasari wa vipengele vya mishahara",
+        "fromAfterTo": "Kipindi cha \"Kuanzia\" hakipaswi kuwa baada ya kipindi cha \"Hadi\"",
+        "loadFailed": "Imeshindwa kupakia muhtasari wa mishahara."
+      },
+      "filter": "Chuja",
+      "fromMonth": "Mwezi wa Kuanzia",
+      "fromYear": "Mwaka wa Kuanzia",
+      "grossSalary": "Mshahara Ghafi",
+      "name": "Jina",
+      "netSalary": "Mshahara Halisi",
+      "noData": "Hakuna data ya posho, makato, au michango ya mwajiri kwa vichujio vilivyochaguliwa.",
+      "noSummaryData": "Hakuna data ya muhtasari wa mishahara kwa vichujio vilivyochaguliwa.",
+      "payrollRuns": "Uendeshaji wa Mishahara",
+      "period": "Kipindi",
+      "printedOn": "Imechapishwa Tarehe",
+      "reportTitle": "Muhtasari wa Vipengele vya Mishahara",
+      "summary": "Muhtasari",
+      "summaryFor": "Muhtasari wa {period}",
+      "toMonth": "Mwezi wa Mwisho",
+      "toYear": "Mwaka wa Mwisho",
+      "total": "Jumla",
+      "totalEmployerCost": "Jumla ya Gharama za Mwajiri",
+      "value": "Thamani"
+    },
+    "salarySheet": {
+      "columns": {
+        "allowances": "Posho",
+        "amount": "Kiasi",
+        "basic": "Msingi",
+        "basicSalary": "Mshahara wa Msingi",
+        "cost": "Gharama",
+        "deductions": "Makato",
+        "designation": "Cheo",
+        "employee": "MFANYAKAZI",
+        "employeeName": "Mfanyakazi",
+        "employer": "MWAJIRI",
+        "employerContributions": "Michango ya Mwajiri",
+        "gross": "Jumla (Ghafi)",
+        "grossSalary": "Mshahara Ghafi",
+        "netPayable": "Jumla Inayolipwa",
+        "paye": "PAYE",
+        "recruitment": "UAJIRI",
+        "serialNumber": "Na.",
+        "taxableSalary": "Mshahara Unaotozwa Kodi",
+        "total": "Jumla",
+        "totalDed": "Jumla ya Makato",
+        "totalDeductions": "Jumla ya Makato",
+        "totalEmployerContributions": "Jumla Mch. Mwajiri",
+        "totalEmployerCost": "Jumla Gharama ya Mwajiri",
+        "totals": "JUMLA"
+      },
+      "groupBy": {
+        "costCenter": "Kituo cha Gharama",
+        "department": "Idara",
+        "oneTable": "Jedwali moja",
+        "oneTableDefault": "Jedwali moja (chaguo-msingi)"
+      },
+      "groupView": {
+        "detailed": "Kwa undani",
+        "detailedDefault": "Kwa undani (chaguo-msingi)",
+        "hidden": "Imefichwa",
+        "merged": "Imeunganishwa"
+      },
+      "labels": {
+        "allowance": "Posho",
+        "allowances": "Posho",
+        "approvedBy": "Imeidhinishwa na",
+        "company": "Kampuni",
+        "contribution": "Mchango",
+        "contributions": "Michango",
+        "deduction": "Makato",
+        "deductions": "Makato",
+        "employeeCountMany": "Wafanyakazi {count}",
+        "employeeCountOne": "Mfanyakazi {count}",
+        "grossPayByEmployer": "Malipo Ghafi na Mwajiri",
+        "groupBy": "Panga Kwa",
+        "netEmployeePayment": "Malipo Halisi ya Mfanyakazi",
+        "payeDotted": "P.A.Y.E",
+        "payrollTaxesBenefits": "Kodi za Mishahara na Marupurupu",
+        "preparedBy": "Imeandaliwa na",
+        "printedBy": "Imechapishwa Na",
+        "printedOn": "Imechapishwa Tarehe",
+        "salaryPayroll": "Mishahara",
+        "salaryPayrollTitle": "MISHAHARA",
+        "salarySheet": "Jedwali la Mishahara",
+        "signature": "Sahihi",
+        "subtotal": "Jumla Ndogo",
+        "unassigned": "Haijapangiwa",
+        "verifiedBy": "Imehakikiwa na"
+      },
+      "messages": {
+        "generating": "Inaandaa jedwali la mishahara...",
+        "noEmployees": "Hakuna wafanyakazi waliopatikana kwa uendeshaji huu wa mishahara.",
+        "proratedNote": "* Mshahara wa Msingi umegawanywa kwa uwiano — mkataba wa mfanyakazi haukuhusisha mwezi mzima wa mishahara. Elekeza kipanya kwenye kiasi kilichotiwa alama ili kuona kiasi kamili kilichowekwa.",
+        "proratedNotePdf": "* Mshahara wa Msingi umegawanywa kwa uwiano — mkataba wa mfanyakazi haukuhusisha mwezi mzima wa mishahara.",
+        "proratedTooltip": "Umegawanywa kwa uwiano kwa siku {activeDays}/{totalDays} — mshahara kamili wa msingi ni {amount}"
+      }
+    },
+    "statutoryTab": {
+      "deductions": "Makato",
+      "downloadAll": "Pakua Zote (karatasi 3)",
+      "downloadIndividually": "Pakua moja moja",
+      "downloadRow": "Pakua {label}",
+      "downloading": "Inapakua...",
+      "employerContributions": "Michango ya Mwajiri",
+      "empty": "Bado hakuna hati za mshahara zilizotolewa kwa kipindi hiki — ratiba itajazwa baada ya uendeshaji wa mishahara wa kipindi hiki kuchakatwa.",
+      "heading": "Ratiba ya Kisheria — {month} {year}",
+      "intro": "Pakua unachohitaji tu — PAYE, au mpango wowote mmoja wa makato/michango (mfano NSSF pekee) — karatasi moja safi kwa kila upakuaji, tayari kwa uwasilishaji wa kisheria.",
+      "linePlural": "mistari {count}",
+      "lineSingular": "mstari {count}",
+      "messages": {
+        "downloaded": "Imepakuliwa kwa mafanikio",
+        "scheduleDownloaded": "Ratiba ya kisheria imepakuliwa kwa mafanikio"
+      },
+      "paye": "PAYE"
+    }
+  }
+}

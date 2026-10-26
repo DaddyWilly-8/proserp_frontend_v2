@@ -7,8 +7,10 @@ import { useJumboTheme } from "@jumbo/components/JumboTheme/hooks";
 import WBSCloneDialog from "./clone/WBSCloneDialog";
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const WBSActionTail = ({ openDialog, setOpenDialog, group }) => {
+    const dictionary = useDictionary();
     const { theme } = useJumboTheme();
     const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
     const [openCloneDialog, setOpenCloneDialog] = useState(false);
@@ -34,7 +36,7 @@ const WBSActionTail = ({ openDialog, setOpenDialog, group }) => {
               <CloudDownloadOutlined />
             </IconButton>
           </Tooltip> */}
-          <Tooltip title={"New Timeline Activity"}>
+          <Tooltip title={dictionary.tooltips.newTimelineActivity}>
             <IconButton onClick={() => setOpenDialog(true)}>
               <PlaylistAdd />
             </IconButton>

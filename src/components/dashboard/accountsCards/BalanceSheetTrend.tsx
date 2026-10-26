@@ -35,6 +35,7 @@ import {
 import BalanceSheet from '../../accounts/reports/balance sheet/BalanceSheet';
 import financialReportsServices from '../../accounts/reports/financial-reports-services';
 import { useDashboardSettings } from '../Dashboard';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface BalanceSheetItem {
   period: string;
@@ -43,6 +44,7 @@ interface BalanceSheetItem {
 }
 
 function BalanceSheetTrend() {
+  const dictionary = useDictionary();
   const [openDialog, setOpenDialog] = useState(false);
 
   const { theme } = useJumboTheme();
@@ -93,7 +95,7 @@ function BalanceSheetTrend() {
 
   return (
     <JumboCardQuick
-      title='Balance Sheet Trend'
+      title={dictionary.dashboardCards.balanceSheetTrend}
       sx={{
         height: 360,
       }}
@@ -107,7 +109,7 @@ function BalanceSheetTrend() {
                 disableElevation
                 sx={{ p: 0 }}
               >
-                <Tooltip title='Daily Trend'>
+                <Tooltip title={dictionary.tooltips.dailyTrend}>
                   <Button
                     variant={
                       params.aggregate_by === 'day' ? 'contained' : 'outlined'
@@ -119,7 +121,7 @@ function BalanceSheetTrend() {
                     Daily
                   </Button>
                 </Tooltip>
-                <Tooltip title='Weekly Trend'>
+                <Tooltip title={dictionary.tooltips.weeklyTrend}>
                   <Button
                     variant={
                       params.aggregate_by === 'week' ? 'contained' : 'outlined'
@@ -131,7 +133,7 @@ function BalanceSheetTrend() {
                     Weekly
                   </Button>
                 </Tooltip>
-                <Tooltip title='Monthly Trend'>
+                <Tooltip title={dictionary.tooltips.monthlyTrend}>
                   <Button
                     variant={
                       params.aggregate_by === 'month' ? 'contained' : 'outlined'
@@ -143,7 +145,7 @@ function BalanceSheetTrend() {
                     Monthly
                   </Button>
                 </Tooltip>
-                <Tooltip title='Yearly Trend'>
+                <Tooltip title={dictionary.tooltips.yearlyTrend}>
                   <Button
                     variant={
                       params.aggregate_by === 'year' ? 'contained' : 'outlined'
@@ -188,7 +190,7 @@ function BalanceSheetTrend() {
             )}
           </Grid>
           <Grid size={4} textAlign={'end'} p={0}>
-            <Tooltip title='Open Balance Sheet Report' sx={{ p: 0 }}>
+            <Tooltip title={dictionary.tooltips.openBalanceSheetReport} sx={{ p: 0 }}>
               <IconButton
                 onClick={() => setOpenDialog(true)}
                 size='small'

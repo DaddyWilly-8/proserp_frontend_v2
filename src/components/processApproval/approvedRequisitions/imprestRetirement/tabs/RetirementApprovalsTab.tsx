@@ -13,6 +13,7 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import React from 'react';
 import ImprestRetirementApprovalItemAction from '../ImprestRetirementApprovalItemAction';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const getStatusChipColor = (status: string, statusLabel?: string) => {
   const normalizedStatus = String(status || '').toLowerCase();
@@ -49,6 +50,7 @@ function RetirementApprovalsTab({
   isActive,
   approvedRequisition: _approvedRequisition,
 }: RetirementApprovalsTabProps) {
+  const dictionary = useDictionary();
   const { data: retirementDetails, isFetching } = useQuery({
     queryKey: [
       'imprestRetirementDetails',
@@ -152,12 +154,12 @@ function RetirementApprovalsTab({
             }}
           >
             <Grid size={{ xs: 12, md: 3 }}>
-              <Tooltip title='Approval Date'>
+              <Tooltip title={dictionary.tooltips.approvalDate}>
                 <Typography variant='body2' fontWeight={600} noWrap>
                   {readableDate(approval?.approval_date)}
                 </Typography>
               </Tooltip>
-              <Tooltip title='Approved By'>
+              <Tooltip title={dictionary.tooltips.approvedBy}>
                 <Typography variant='caption' color='text.secondary' noWrap>
                   {approval?.creator?.name}
                 </Typography>
@@ -165,7 +167,7 @@ function RetirementApprovalsTab({
             </Grid>
 
             <Grid size={{ xs: 12, md: 2 }}>
-              <Tooltip title='Status'>
+              <Tooltip title={dictionary.tooltips.status}>
                 <Chip
                   size='small'
                   label={approval?.status_label}
@@ -176,7 +178,7 @@ function RetirementApprovalsTab({
             </Grid>
 
             <Grid size={{ xs: 12, md: 2 }}>
-              <Tooltip title='Amount'>
+              <Tooltip title={dictionary.tooltips.amount}>
                 <Typography variant='body2' noWrap>
                   {formattedApprovalTotal}
                 </Typography>
@@ -184,7 +186,7 @@ function RetirementApprovalsTab({
             </Grid>
 
             <Grid size={{ xs: 12, md: 2 }}>
-              <Tooltip title='Remarks'>
+              <Tooltip title={dictionary.tooltips.remarks}>
                 <Typography variant='caption' color='text.secondary' noWrap>
                   {approval?.remarks}
                 </Typography>

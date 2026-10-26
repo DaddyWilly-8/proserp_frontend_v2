@@ -12,8 +12,10 @@ import React, { useState } from 'react';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { PERMISSIONS } from '@/utilities/constants/permissions'; 
 import OutletFormDialog from './OutletFormDialog';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const OutletActionTail = () => {
+  const dictionary = useDictionary();
   const [openDialog, setOpenDialog] = useState(false);
   const { theme } = useJumboTheme();
   const { checkOrganizationPermission } = useJumboAuth();
@@ -26,7 +28,7 @@ const OutletActionTail = () => {
       </Dialog>
       <ButtonGroup variant="outlined" size="small" disableElevation sx={{ '& .MuiButton-root': { px: 1 } }}>
         {(
-          <Tooltip title={'New Outlet'}>
+          <Tooltip title={dictionary.tooltips.newOutlet}>
             <IconButton onClick={() => setOpenDialog(true)}>
               <AddOutlined />
             </IconButton>

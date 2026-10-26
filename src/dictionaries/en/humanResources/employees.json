@@ -1,0 +1,293 @@
+{
+  "employees": {
+    "common": {
+      "add": "add",
+      "scope": "Scope",
+      "scopeAll": "All",
+      "scopeActiveContracts": "Active Contracts",
+      "somethingWentWrong": "Something went wrong"
+    },
+    "employmentTypes": {
+      "full_time": "Full Time",
+      "part_time": "Part Time",
+      "casual": "Casual"
+    },
+    "residenceStatuses": {
+      "resident": "Resident",
+      "non_resident": "Non-Resident"
+    },
+    "contractTypes": {
+      "permanent": "Permanent",
+      "fixed_term": "Fixed Term",
+      "probation": "Probation",
+      "specific_task": "Specific Task"
+    },
+    "options": {
+      "gender": {
+        "male": "Male",
+        "female": "Female"
+      }
+    },
+    "selector": {
+      "label": "Select Employee"
+    },
+    "list": {
+      "title": "Employees",
+      "labels": {
+        "status": "Status",
+        "costCenters": "Cost Centers",
+        "joined": "Joined"
+      },
+      "status": {
+        "active": "Active",
+        "inactive": "Deactivated",
+        "all": "All"
+      },
+      "actions": {
+        "edit": "Edit",
+        "deactivate": "Deactivate",
+        "reactivate": "Reactivate",
+        "delete": "Delete"
+      },
+      "dialogs": {
+        "deactivateTitle": "Deactivate Employee",
+        "deactivateContent": "They will stop appearing in employee selectors and payroll, and lose My HR access. Their history stays intact and you can reactivate them at any time. Continue?",
+        "reactivateTitle": "Reactivate Employee",
+        "reactivateContent": "They will appear in employee selectors and payroll again, and regain My HR access. Continue?",
+        "deleteTitle": "Confirm Delete",
+        "deleteContent": "Are you sure you want to delete this Employee?"
+      },
+      "messages": {
+        "deleted": "Employee Deleted Successfully",
+        "deleteError": "Error Deleting Employee",
+        "deactivateError": "Error deactivating employee",
+        "reactivateError": "Error reactivating employee"
+      }
+    },
+    "photo": {
+      "updated": "Photo updated successfully",
+      "removed": "Photo removed successfully",
+      "removeTitle": "Remove Photo",
+      "removeContent": "Are you sure you want to remove this employee's photo?",
+      "replace": "Replace photo",
+      "upload": "Upload photo",
+      "remove": "Remove photo"
+    },
+    "contributions": {
+      "labels": {
+        "contributionType": "Contribution Type"
+      },
+      "errors": {
+        "typeRequired": "Contribution Type is required",
+        "scopeRequired": "Scope is required"
+      }
+    },
+    "deductions": {
+      "labels": {
+        "deductionType": "Deduction Type"
+      },
+      "errors": {
+        "typeRequired": "Deduction Type is required",
+        "scopeRequired": "Scope is required"
+      }
+    },
+    "leaveAllocations": {
+      "labels": {
+        "leaveType": "Leave Type",
+        "allocationAmount": "Allocation Amount"
+      },
+      "errors": {
+        "leaveTypeRequired": "Leave Type is required",
+        "amountRequired": "Allocation Amount is required"
+      }
+    },
+    "form": {
+      "titleAdd": "Add Employee",
+      "titleEdit": "Edit {firstName} {lastName}",
+      "sections": {
+        "personal": "Personal Information",
+        "contact": "Contact Information",
+        "identification": "Identification",
+        "employment": "Employment Details",
+        "payrollContract": "Payroll & Contract Settings",
+        "accounting": "Accounting Settings",
+        "linkedUser": "Linked User Account"
+      },
+      "labels": {
+        "firstName": "First Name *",
+        "middleName": "Middle Name",
+        "lastName": "Last Name *",
+        "employeeNumber": "Employee Number",
+        "gender": "Gender *",
+        "dateOfBirth": "Date of Birth",
+        "email": "Email",
+        "phoneNumber": "Phone Number",
+        "address": "Address",
+        "nationalId": "National ID",
+        "passportNumber": "Passport Number",
+        "tin": "TIN",
+        "residenceStatus": "Residence Status",
+        "department": "Department",
+        "employmentType": "Employment Type",
+        "joinDate": "Join Date",
+        "costCenter": "Cost Center",
+        "lineManager": "Line Manager",
+        "reasonForChange": "Reason for Change",
+        "designation": "Designation",
+        "basicSalary": "Basic Salary",
+        "contractStartDate": "Contract Start Date",
+        "contractType": "Contract Type",
+        "customAccountName": "Enter custom account name",
+        "payableAccount": "Payable Account",
+        "payableLedgerName": "Payable Ledger Name",
+        "linkedUser": "Linked User Account"
+      },
+      "placeholders": {
+        "reasonForChange": "e.g., Site relocation, Team restructuring, Promotion, Department transfer...",
+        "payableLedgerName": "e.g., Payable - Jane Doe"
+      },
+      "helpers": {
+        "suggestedNumber": "Suggested — edit to override",
+        "reasonForChange": "Please provide a reason for this change for audit trail purposes"
+      },
+      "errors": {
+        "firstNameRequired": "First name is required",
+        "lastNameRequired": "Last name is required",
+        "genderRequired": "Gender is required",
+        "invalidEmail": "Invalid email format",
+        "fieldRequired": "This field is required",
+        "designationRequired": "Designation is required",
+        "salaryMin": "Basic salary must be >= 0",
+        "salaryNumber": "Basic salary must be a number"
+      },
+      "messages": {
+        "added": "Employee added successfully",
+        "updated": "Employee updated successfully"
+      },
+      "buttons": {
+        "cancel": "Cancel",
+        "update": "Update",
+        "create": "Create"
+      }
+    },
+    "onboarding": {
+      "title": "Employee Onboarding",
+      "tabs": {
+        "download": "Download Template",
+        "upload": "Upload Excel"
+      },
+      "settingTabs": {
+        "deductions": "Deductions",
+        "contributions": "Contributions",
+        "leaveAllocations": "Leave Allocations"
+      },
+      "download": {
+        "gettingStarted": "Getting Started",
+        "instructions": "Download the Excel template below. Fill in employee details following the format provided. The template includes dropdown validation for fields like Gender, Department, and Employment Type.",
+        "templateTitle": "Employee Registration Template",
+        "templateDescription": "Excel file with pre-defined columns and dropdown validation"
+      },
+      "upload": {
+        "instructionsTitle": "Upload Instructions",
+        "instructions": "Upload the filled Excel file. Employees with existing IDs or duplicate entries will be skipped. If a row has Basic Salary, an active contract will be created automatically.",
+        "readyToUpload": "Ready to upload",
+        "removeFile": "Remove File",
+        "noFileSelected": "No file selected",
+        "selectFile": "Select Excel File",
+        "autoCreateLedger": "Auto create payable ledger",
+        "updateExisting": "Update existing employees (fill in missing fields only, e.g. re-uploading with bank details added)"
+      },
+      "results": {
+        "summary": "Import Summary",
+        "imported": "Imported",
+        "updated": "Updated",
+        "skipped": "Skipped",
+        "errors": "Errors",
+        "totalProcessed": "Total Processed",
+        "skippedRowsOne": "Skipped Rows ({count} row)",
+        "skippedRowsMany": "Skipped Rows ({count} rows)",
+        "rowNo": "Row No.",
+        "errorDescription": "Error Description",
+        "rowData": "Row data",
+        "tipLabel": "Tip",
+        "tip": "Correct the errors above and re-upload the Excel file to import these employees.",
+        "importedOne": "{count} employee imported",
+        "importedMany": "{count} employees imported",
+        "updatedOne": "{count} employee updated",
+        "updatedMany": "{count} employees updated",
+        "successfully": "successfully!"
+      },
+      "messages": {
+        "templateDownloaded": "Template downloaded successfully",
+        "errorsFound": "{count} error(s) found. Check the details below.",
+        "imported": "Employees imported successfully",
+        "processedSkipped": "{processed} processed, {skipped} skipped.",
+        "noneImported": "No employees were imported. Please check the errors below."
+      },
+      "buttons": {
+        "close": "Close",
+        "downloadTemplate": "Download Template",
+        "downloading": "Downloading...",
+        "uploadImport": "Upload & Import",
+        "uploading": "Uploading..."
+      }
+    },
+    "profile": {
+      "reportsTo": "Reports to",
+      "joinedOn": "Joined {date}",
+      "attachmentName": "Employee",
+      "buttons": {
+        "edit": "Edit",
+        "delete": "Delete"
+      },
+      "messages": {
+        "deleted": "Employee deleted successfully",
+        "deleteError": "Error deleting employee",
+        "loadError": "Error loading employee details"
+      },
+      "dialogs": {
+        "deleteTitle": "Delete Employee",
+        "deleteContent": "Are you sure you want to delete this employee?"
+      },
+      "tabs": {
+        "personalInfo": "Personal Info",
+        "contracts": "Contracts",
+        "bankAccounts": "Bank Accounts",
+        "nextOfKin": "Next of Kin",
+        "allowances": "Allowances",
+        "deductions": "Deductions",
+        "employerContributions": "Employer Contributions",
+        "leave": "Leave",
+        "attachments": "Attachments",
+        "movements": "Movements",
+        "salaryHistory": "Salary History",
+        "leaveAllocations": "Leave Allocations",
+        "leaveRequests": "Leave Requests"
+      },
+      "personal": {
+        "sections": {
+          "identity": "Identity",
+          "contact": "Contact",
+          "work": "Work"
+        },
+        "labels": {
+          "firstName": "First Name",
+          "middleName": "Middle Name",
+          "lastName": "Last Name",
+          "gender": "Gender",
+          "dateOfBirth": "Date of Birth",
+          "nationalId": "National ID",
+          "passportNumber": "Passport Number",
+          "tin": "TIN",
+          "residenceStatus": "Residence Status",
+          "phoneNumber": "Phone Number",
+          "email": "Email",
+          "address": "Address",
+          "department": "Department",
+          "employmentType": "Employment Type",
+          "joinDate": "Join Date"
+        }
+      }
+    }
+  }
+}

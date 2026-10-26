@@ -2,6 +2,7 @@ import { DisabledByDefault, EditOutlined } from '@mui/icons-material'
 import { Chip, Divider, Grid, IconButton, ListItemText, Tooltip, Typography } from '@mui/material'
 import React, { useState } from 'react'
 import ProductItemsTab from './ProductItemsTab';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function ProductItemsRow({ 
   productItem,
@@ -14,7 +15,8 @@ function ProductItemsRow({
   setIsDirty,
   allTasks,
   selectedCostCenter
-}) { 
+}) {
+    const dictionary = useDictionary(); 
     const [showForm, setShowForm] = useState(false);
 
     const handleDelete = () => {
@@ -66,11 +68,11 @@ function ProductItemsRow({
                     <ListItemText
                         primary={
                         <>
-                            <Tooltip title="Product name">
+                            <Tooltip title={dictionary.tooltips.productName2}>
                                <Typography component="span">{productItem.product_name || productItem?.product?.name}</Typography>
                             </Tooltip>
                             <br />
-                            <Tooltip title="Bound To Task">
+                            <Tooltip title={dictionary.tooltips.boundToTask}>
                                 <Typography component="span">
                                     {formatTaskLabel(boundTask)}
                                 </Typography>
@@ -78,19 +80,19 @@ function ProductItemsRow({
                         </>
                         }
                         secondary={
-                            <Tooltip title="Description">
+                            <Tooltip title={dictionary.tooltips.description}>
                                <Typography component="span">{productItem.description}</Typography>
                             </Tooltip>
                         }
                     />
                 </Grid>
                 <Grid size={{xs: 6, md: alternativeProducts.length > 0 ? 1.6 : 1.5}} textAlign={{xs: 'left', md: 'center'}}>
-                    <Tooltip title="Quantity">
+                    <Tooltip title={dictionary.tooltips.quantity}>
                         <Typography>{Number(productItem.quantity || 0).toLocaleString()} {productItem?.unit_symbol ? productItem.unit_symbol : (productItem.measurement_unit?.symbol ? productItem.measurement_unit?.symbol : productItem?.product?.unit_symbol || '')}</Typography>
                     </Tooltip>
                 </Grid>
                 <Grid size={{xs: 6, md: alternativeProducts.length > 0 ? 2 : 1.5}} paddingRight={alternativeProducts.length > 0 ? 2 : 0} textAlign={alternativeProducts.length > 0 ? 'center' : 'right'}>
-                    <Tooltip title="Rate">
+                    <Tooltip title={dictionary.tooltips.rate}>
                         <span>
                             <Typography>{Number(productItem.rate || 0).toLocaleString('en-US', 
                                 {
@@ -107,7 +109,7 @@ function ProductItemsRow({
                     </Tooltip>
                 </Grid>
                 <Grid size={{xs: 4, md: alternativeProducts.length > 0 ? 2.4 : 2.5}} textAlign={{xs: 'left', md: 'center'}}>
-                    <Tooltip title="Amount">
+                    <Tooltip title={dictionary.tooltips.amount}>
                         <Typography>{(Number(productItem.rate || 0) * Number(productItem.quantity || 0))?.toLocaleString('en-US', 
                             {
                                 style: 'currency',
@@ -118,7 +120,7 @@ function ProductItemsRow({
                 </Grid>
                 {alternativeProducts.length > 0 &&
                     <Grid size={{xs: 8, md: 11}}>
-                        <Tooltip title="Alternative Products">
+                        <Tooltip title={dictionary.tooltips.alternativeProducts}>
                             <div>
                                 {alternativeProducts.map((product, index) => (
                                     <Chip
@@ -133,12 +135,12 @@ function ProductItemsRow({
                     </Grid>
                 }
                 <Grid size={{xs: 12, md: 1}} textAlign={'end'}>
-                    <Tooltip title='Edit Product Item'>
+                    <Tooltip title={dictionary.tooltips.editProductItem}>
                         <IconButton size='small' onClick={() => setShowForm(true)}>
                             <EditOutlined fontSize='small' />
                         </IconButton>
                     </Tooltip>
-                    <Tooltip title='Remove Product Item'>
+                    <Tooltip title={dictionary.tooltips.removeProductItem}>
                         <IconButton size='small' 
                             onClick={() => {
                                 handleDelete();

@@ -12,10 +12,12 @@ import { Grid, TextField, Tooltip } from '@mui/material';
 import { DatePicker, DateTimePicker } from '@mui/x-date-pickers';
 import dayjs from 'dayjs';
 import React, { useEffect } from 'react'
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function PurchaseOrderTopInformation({setValue, errors, clearErrors, watch, register, order, setStakeholderQuickAddDisplay, setAddedStakeholder, stakeholderQuickAddDisplay, addedStakeholder, order_date, costCenters, lockedCurrencyId = null, isCurrencyLocked = false}) {
+    const dictionary = useDictionary();
     const {authOrganization,checkOrganizationPermission} = useJumboAuth();
-    const cp = {id:null,name: 'Cash Purchase'};
+    const cp = {id:null,name: dictionary.forms.purchases.orderForm.labels.cashPurchase};
     const canCashPurchase = checkOrganizationPermission(PERMISSIONS.PURCHASES_INSTANT_PAY);
 
     // setvalues from coming addedStakeholder
@@ -36,7 +38,7 @@ function PurchaseOrderTopInformation({setValue, errors, clearErrors, watch, regi
             <Div sx={{mt: 0.3}}>
                 <DateTimePicker
                     fullWidth={true}
-                    label="Order Date"
+                    label={dictionary.forms.purchases.orderForm.labels.orderDate}
                     minDate={checkOrganizationPermission(PERMISSIONS.PURCHASES_BACKDATE) ? dayjs(authOrganization.organization.recording_start_date) : dayjs().startOf('day')}
                     maxDate={checkOrganizationPermission(PERMISSIONS.PURCHASES_POSTDATE) ? dayjs().add(10,'year').endOf('year') : dayjs().endOf('day')}
                     defaultValue={order_date}
@@ -62,7 +64,7 @@ function PurchaseOrderTopInformation({setValue, errors, clearErrors, watch, regi
             <Grid size={{xs: 12, md: 8}}>
                 <Div sx={{ mt: 0.3 }}>
                     <StakeholderSelector
-                        label='Vendor'
+                        label={dictionary.forms.purchases.orderForm.labels.vendor}
                         frontError={errors?.stakeholder_id}
                         defaultValue={order && order.stakeholder.id}
                         addedStakeholder={addedStakeholder}
@@ -87,7 +89,7 @@ function PurchaseOrderTopInformation({setValue, errors, clearErrors, watch, regi
                         }}
                         startAdornment= {
                             checkOrganizationPermission(PERMISSIONS.STAKEHOLDERS_CREATE) && (
-                                <Tooltip title="Add Supplier">
+                                <Tooltip title={dictionary.tooltips.addSupplier}>
                                     <AddOutlined
                                         onClick={() => setStakeholderQuickAddDisplay(true)}
                                         sx={{ cursor: 'pointer' }}
@@ -108,7 +110,7 @@ function PurchaseOrderTopInformation({setValue, errors, clearErrors, watch, regi
                     <Div sx={{mt: 0.3}}>
                         <TextField
                             size='small'
-                            label='Reference'
+                            label={dictionary.forms.purchases.orderForm.labels.reference}
                             fullWidth
                             error={!!errors?.reference}
                             helperText={errors?.reference?.message}
@@ -120,7 +122,7 @@ function PurchaseOrderTopInformation({setValue, errors, clearErrors, watch, regi
                     <Div sx={{mt: 0.3}}>
                         <DatePicker
                             fullWidth={true}
-                            label="Date required"
+                            label={dictionary.forms.purchases.orderForm.labels.dateRequired}
                             minDate={order && dayjs(order.order_date)}
                             defaultValue={order && dayjs(order.date_required)}
                             slotProps={{
@@ -167,7 +169,7 @@ function PurchaseOrderTopInformation({setValue, errors, clearErrors, watch, regi
                     <Grid size={{xs: 12, md: 4}}>
                         <Div sx={{mt: 0.3}}>
                             <TextField
-                                label="Exchange Rate"
+                                label={dictionary.forms.purchases.orderForm.labels.exchangeRate}
                                 fullWidth
                                 size='small'
                                 error={!!errors?.exchange_rate}
@@ -190,7 +192,7 @@ function PurchaseOrderTopInformation({setValue, errors, clearErrors, watch, regi
                 <Grid size={{xs: 12, md: watch('currency_id') > 1 ? 8 : 12}}>
                     <Div sx={{mt: 0.3}}>
                         <CostCenterSelector
-                            label="Cost Centers"
+                            label={dictionary.forms.purchases.orderForm.labels.costCenters}
                             frontError={errors?.cost_centers}
                             multiple={true}
                             allowSameType={false}

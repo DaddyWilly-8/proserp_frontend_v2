@@ -33,6 +33,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import dayjs, { Dayjs } from 'dayjs';
 import { useSnackbar } from 'notistack';
 import React from 'react';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 type RetirementItem = {
   id?: number;
@@ -144,6 +145,7 @@ function ImprestRetirementForm({
   preferredRetirementId = null,
   startNew = false,
 }: ImprestRetirementFormProps) {
+  const dictionary = useDictionary();
   const queryClient = useQueryClient();
   const { enqueueSnackbar } = useSnackbar();
   const { productOptions } = useProductsSelect();
@@ -201,11 +203,16 @@ function ImprestRetirementForm({
       )
       .map((entry: any) => ({
         id: Number(entry?.ledger_id || entry?.ledger?.id),
-        name: entry?.ledger?.name || `Ledger #${entry?.ledger_id}`,
+        name:
+          entry?.ledger?.name ||
+          dictionary.forms.approvedRequisitions.imprestRetirement.form.ledgerNo.replace(
+            '{id}',
+            String(entry?.ledger_id)
+          ),
         balance: entry?.ledger?.balance,
       }))
       .filter((entry: any) => Number.isFinite(entry.id));
-  }, [myLedgersResponse]);
+  }, [myLedgersResponse, dictionary]);
 
   const existingRetirement = React.useMemo(() => {
     if (startNew) return null;
@@ -463,7 +470,7 @@ function ImprestRetirementForm({
   const selectedLedgerName =
     myImprestLedgers.find((option) => option.id === ledgerId)?.name ||
     existingRetirement?.ledger?.name ||
-    (ledgerId ? `Ledger #${ledgerId}` : '-');
+    (ledgerId ? dictionary.forms.approvedRequisitions.imprestRetirement.form.ledgerNo.replace('{id}', String(ledgerId)) : '-');
   const paidThroughLabel =
     selectedLedgerName && selectedLedgerName !== '-'
       ? selectedLedgerName
@@ -513,7 +520,7 @@ function ImprestRetirementForm({
   const addRetirement = useMutation({
     mutationFn: imprestRetirementServices.add,
     onSuccess: async (response: any) => {
-      enqueueSnackbar(response?.message || 'Imprest retirement draft created', {
+      enqueueSnackbar(response?.message || dictionary.forms.approvedRequisitions.imprestRetirement.form.draftCreated, {
         variant: 'success',
       });
       queryClient.invalidateQueries({ queryKey: ['imprestRetirements'] });
@@ -532,7 +539,7 @@ function ImprestRetirementForm({
   const updateRetirement = useMutation({
     mutationFn: imprestRetirementServices.update,
     onSuccess: (response: any) => {
-      enqueueSnackbar(response?.message || 'Imprest retirement draft updated', {
+      enqueueSnackbar(response?.message || dictionary.forms.approvedRequisitions.imprestRetirement.form.draftUpdated, {
         variant: 'success',
       });
       queryClient.invalidateQueries({ queryKey: ['imprestRetirements'] });
@@ -552,7 +559,7 @@ function ImprestRetirementForm({
     mutationFn: imprestRetirementServices.submit,
     onSuccess: (response: any) => {
       enqueueSnackbar(
-        response?.message || 'Imprest retirement submitted for approval',
+        response?.message || dictionary.forms.approvedRequisitions.imprestRetirement.form.submittedForApproval,
         {
           variant: 'success',
         }
@@ -588,24 +595,22 @@ function ImprestRetirementForm({
 
   const validateBeforeSave = () => {
     if (!requisitionApprovalId) {
-      setClientError(
-        'Requisition approval reference is missing. Please reopen the form and try again.'
-      );
+      setClientError(dictionary.forms.approvedRequisitions.imprestRetirement.form.approvalRefMissing);
       return false;
     }
 
     if (!ledgerId) {
-      setClientError('Imprest ledger is required.');
+      setClientError(dictionary.forms.approvedRequisitions.imprestRetirement.form.ledgerRequired);
       return false;
     }
 
     if (!retirementDate) {
-      setClientError('Retirement date is required.');
+      setClientError(dictionary.forms.approvedRequisitions.imprestRetirement.form.dateRequired);
       return false;
     }
 
     if (items.length < 1) {
-      setClientError('At least one retirement item is required.');
+      setClientError(dictionary.forms.approvedRequisitions.imprestRetirement.form.itemRequired);
       return false;
     }
 
@@ -627,9 +632,7 @@ function ImprestRetirementForm({
     });
 
     if (hasInvalidItem) {
-      setClientError(
-        'Each item requires source account/product, measurement unit, quantity greater than 0 and rate greater than 0.'
-      );
+      setClientError(dictionary.forms.approvedRequisitions.imprestRetirement.form.itemInvalid);
       return false;
     }
 
@@ -643,7 +646,7 @@ function ImprestRetirementForm({
     });
 
     if (hasFractionalWhereNotAllowed) {
-      setClientError('This product is sold in whole units — quantity cannot be a fraction.');
+      setClientError(dictionary.forms.approvedRequisitions.imprestRetirement.form.wholeUnits);
       return false;
     }
 
@@ -699,12 +702,9 @@ function ImprestRetirementForm({
     const createdId = await resolveRetirementIdFromResponse(response);
 
     if (!createdId) {
-      enqueueSnackbar(
-        'Retirement created but could not resolve record id for submit.',
-        {
-          variant: 'error',
-        }
-      );
+      enqueueSnackbar(dictionary.forms.approvedRequisitions.imprestRetirement.form.resolveIdFailed, {
+        variant: 'error',
+      });
       return;
     }
 
@@ -712,15 +712,15 @@ function ImprestRetirementForm({
   };
 
   if (isFetchingExisting) {
-    return <DialogContent>Loading retirement draft...</DialogContent>;
+    return <DialogContent>{dictionary.forms.approvedRequisitions.imprestRetirement.form.loadingDraft}</DialogContent>;
   }
 
   return (
     <>
       <DialogTitle textAlign='center'>
         {retirementId
-          ? `Update ${retirementDisplayNo}`
-          : 'Imprest Retirement Form'}
+          ? dictionary.forms.approvedRequisitions.imprestRetirement.form.titleUpdate.replace('{no}', String(retirementDisplayNo))
+          : dictionary.forms.approvedRequisitions.imprestRetirement.form.title}
       </DialogTitle>
       <DialogContent>
         <Grid container spacing={1.5} marginBottom={2}>
@@ -728,7 +728,7 @@ function ImprestRetirementForm({
             <Chip
               size='small'
               color='primary'
-              label={`Status: ${statusLabel}`}
+              label={dictionary.forms.approvedRequisitions.imprestRetirement.form.status.replace('{status}', statusLabel)}
             />
           </Grid>
           <Grid size={{ xs: 12, md: 9 }}>
@@ -759,7 +759,7 @@ function ImprestRetirementForm({
                     variant='caption'
                     sx={{ display: 'block', opacity: 0.9 }}
                   >
-                    Approved Amount
+                    {dictionary.forms.approvedRequisitions.imprestRetirement.form.approvedAmount}
                   </Typography>
                   <Typography
                     variant='h6'
@@ -791,7 +791,7 @@ function ImprestRetirementForm({
                     variant='caption'
                     sx={{ display: 'block', opacity: 0.9 }}
                   >
-                    Total Items Amount
+                    {dictionary.forms.approvedRequisitions.imprestRetirement.form.totalItemsAmount}
                   </Typography>
                   <Typography
                     variant='h6'
@@ -824,7 +824,7 @@ function ImprestRetirementForm({
                       variant='caption'
                       sx={{ display: 'block', opacity: 0.9 }}
                     >
-                      Current Balance
+                      {dictionary.forms.approvedRequisitions.imprestRetirement.form.currentBalance}
                     </Typography>
                     <Typography
                       variant='h6'
@@ -860,7 +860,7 @@ function ImprestRetirementForm({
                       variant='caption'
                       sx={{ display: 'block', opacity: 0.9 }}
                     >
-                    Balance After Retirement
+                    {dictionary.forms.approvedRequisitions.imprestRetirement.form.balanceAfterRetirement}
                   </Typography>
                   <Typography
                     variant='h6'
@@ -909,12 +909,14 @@ function ImprestRetirementForm({
                   <TextField
                     {...params}
                     size='small'
-                    label='Imprest Ledger'
+                    label={dictionary.forms.approvedRequisitions.imprestRetirement.form.imprestLedger}
                     fullWidth
                     helperText={
                       myImprestLedgers.find((option) => option.id === ledgerId)
                         ?.balance
-                        ? `Current Balance: ${myImprestLedgers
+                        ? dictionary.forms.approvedRequisitions.imprestRetirement.form.currentBalanceValue.replace(
+                            '{balance}',
+                            `${myImprestLedgers
                             .find((option) => option.id === ledgerId)
                             ?.balance?.amount.toLocaleString('en-US', {
                               minimumFractionDigits: 2,
@@ -924,6 +926,7 @@ function ImprestRetirementForm({
                               (option) => option.id === ledgerId
                             )?.balance?.side
                           }`
+                          )
                         : undefined
                     }
                   />
@@ -932,7 +935,7 @@ function ImprestRetirementForm({
             </Grid>
             <Grid size={{ xs: 12, md: 4 }}>
               <DateTimePicker
-                label='Retirement Date'
+                label={dictionary.forms.approvedRequisitions.imprestRetirement.form.retirementDate}
                 disabled={isLocked}
                 value={retirementDate}
                 onChange={(value: Dayjs | null) => setRetirementDate(value)}
@@ -948,7 +951,7 @@ function ImprestRetirementForm({
               <TextField
                 size='small'
                 fullWidth
-                label='Reference Requisition'
+                label={dictionary.forms.approvedRequisitions.imprestRetirement.form.referenceRequisition}
                 disabled
                 value={approvedRequisition?.requisition?.requisitionNo || ''}
               />
@@ -960,7 +963,7 @@ function ImprestRetirementForm({
                 multiline
                 minRows={2}
                 disabled={isLocked}
-                label='Remarks'
+                label={dictionary.forms.approvedRequisitions.imprestRetirement.form.remarks}
                 value={remarks}
                 onChange={(e) => setRemarks(e.target.value)}
               />
@@ -991,19 +994,19 @@ function ImprestRetirementForm({
                     <ReadOnlyField
                       label={
                         isProductLine
-                          ? 'Product / Store'
-                          : 'Paid Through (Item Ledger)'
+                          ? dictionary.forms.approvedRequisitions.imprestRetirement.form.productStore
+                          : dictionary.forms.approvedRequisitions.imprestRetirement.form.paidThrough
                       }
                       value={
                         isProductLine
-                          ? `${item.product?.item_name || item.product?.name || (item.product_id ? `Product #${item.product_id}` : '-')} (${item.store?.name || (item.store_id ? `Store #${item.store_id}` : '-')})`
-                          : `${paidThroughLabel} (${item.ledger?.name || (item.ledger_id ? `Ledger #${item.ledger_id}` : '-')})`
+                          ? `${item.product?.item_name || item.product?.name || (item.product_id ? dictionary.forms.approvedRequisitions.imprestRetirement.form.productNo.replace('{id}', String(item.product_id)) : '-')} (${item.store?.name || (item.store_id ? dictionary.forms.approvedRequisitions.imprestRetirement.form.storeNo.replace('{id}', String(item.store_id)) : '-')})`
+                          : `${paidThroughLabel} (${item.ledger?.name || (item.ledger_id ? dictionary.forms.approvedRequisitions.imprestRetirement.form.ledgerNo.replace('{id}', String(item.ledger_id)) : '-')})`
                       }
                     />
                   </Grid>
                   <Grid size={{ xs: 12, md: 2 }}>
                     <ReadOnlyField
-                      label='Unit'
+                      label={dictionary.forms.approvedRequisitions.imprestRetirement.item.unit}
                       value={
                         item.measurement_unit?.alias ||
                         item.measurement_unit?.symbol ||
@@ -1014,7 +1017,7 @@ function ImprestRetirementForm({
                   </Grid>
                   <Grid size={{ xs: 12, md: 1.5 }}>
                     <ReadOnlyField
-                      label='Qty'
+                      label={dictionary.forms.approvedRequisitions.imprestRetirement.item.qty}
                       value={Number(item.quantity || 0).toLocaleString(
                         'en-US',
                         {
@@ -1025,7 +1028,7 @@ function ImprestRetirementForm({
                   </Grid>
                   <Grid size={{ xs: 12, md: 2.5 }}>
                     <ReadOnlyField
-                      label='Rate'
+                      label={dictionary.forms.approvedRequisitions.imprestRetirement.item.rate}
                       value={formatMoney(
                         Number.isFinite(Number(item.rate))
                           ? Number(item.rate)
@@ -1035,7 +1038,7 @@ function ImprestRetirementForm({
                   </Grid>
                   <Grid size={{ xs: 12, md: 1.5 }}>
                     <ReadOnlyField
-                      label='Amount'
+                      label={dictionary.forms.approvedRequisitions.imprestRetirement.item.amount}
                       value={formatMoney(
                         (Number.isFinite(Number(item.quantity))
                           ? Number(item.quantity)
@@ -1048,7 +1051,7 @@ function ImprestRetirementForm({
                   </Grid>
                   <Grid size={{ xs: 12, md: 3 }}>
                     <ReadOnlyField
-                      label='Description'
+                      label={dictionary.forms.approvedRequisitions.imprestRetirement.item.description}
                       value={item.description || '-'}
                     />
                   </Grid>
@@ -1060,7 +1063,7 @@ function ImprestRetirementForm({
                       select
                       size='small'
                       fullWidth
-                      label='Line Type'
+                      label={dictionary.forms.approvedRequisitions.imprestRetirement.item.lineType}
                       value={item.line_type || 'EXPENSE'}
                       onChange={(e) => {
                         const lineType =
@@ -1078,15 +1081,15 @@ function ImprestRetirementForm({
                         });
                       }}
                     >
-                      <MenuItem value='EXPENSE'>Expense</MenuItem>
-                      <MenuItem value='PRODUCT'>Product</MenuItem>
+                      <MenuItem value='EXPENSE'>{dictionary.forms.approvedRequisitions.imprestRetirement.item.expense}</MenuItem>
+                      <MenuItem value='PRODUCT'>{dictionary.forms.approvedRequisitions.imprestRetirement.item.productType}</MenuItem>
                     </TextField>
                   </Grid>
 
                   <Grid size={{ xs: 12, md: 3 }}>
                     {isProductLine ? (
                       <ProductSelect
-                        label='Product'
+                        label={dictionary.forms.approvedRequisitions.imprestRetirement.item.product}
                         defaultValue={item.product || null}
                         excludeIds={nonInventoryIds}
                         onChange={(newValue: any) => {
@@ -1108,7 +1111,10 @@ function ImprestRetirementForm({
                       />
                     ) : (
                       <LedgerSelect
-                        label={`Item Ledger (Paid via ${paidThroughLabel})`}
+                        label={dictionary.forms.approvedRequisitions.imprestRetirement.item.itemLedgerPaidVia.replace(
+                          '{ledger}',
+                          String(paidThroughLabel)
+                        )}
                         defaultValue={
                           item.ledger_id
                             ? ({
@@ -1134,7 +1140,7 @@ function ImprestRetirementForm({
                   {isProductLine && (
                     <Grid size={{ xs: 12, md: 3 }}>
                       <StoreSelector
-                        label='Store'
+                        label={dictionary.forms.approvedRequisitions.imprestRetirement.item.store}
                         multiple={false}
                         defaultValue={item.store?.id ? item.store : null}
                         onChange={(newValue: any) => {
@@ -1149,7 +1155,7 @@ function ImprestRetirementForm({
 
                   <Grid size={{ xs: 12, md: isProductLine ? 2.5 : 2.5 }}>
                     <MeasurementSelector
-                      label='Unit'
+                      label={dictionary.forms.approvedRequisitions.imprestRetirement.item.unit}
                       defaultValue={item.measurement_unit_id || null}
                       onChange={(newValue: any) => {
                         const selected = Array.isArray(newValue)
@@ -1169,7 +1175,7 @@ function ImprestRetirementForm({
                       size='small'
                       fullWidth
                       disabled={isLocked}
-                      label='Quantity'
+                      label={dictionary.forms.approvedRequisitions.imprestRetirement.item.quantity}
                       value={item.quantity ?? 0}
                       InputProps={{
                         inputComponent: CommaSeparatedField as any,
@@ -1188,7 +1194,7 @@ function ImprestRetirementForm({
                       size='small'
                       fullWidth
                       disabled={isLocked}
-                      label='Rate'
+                      label={dictionary.forms.approvedRequisitions.imprestRetirement.item.rate}
                       value={item.rate ?? 0}
                       InputProps={{
                         inputComponent: CommaSeparatedField as any,
@@ -1206,7 +1212,7 @@ function ImprestRetirementForm({
                     <TextField
                       size='small'
                       fullWidth
-                      label='Amount'
+                      label={dictionary.forms.approvedRequisitions.imprestRetirement.item.amount}
                       value={(
                         (Number.isFinite(Number(item.quantity))
                           ? Number(item.quantity)
@@ -1229,7 +1235,7 @@ function ImprestRetirementForm({
                       multiline
                       minRows={2}
                       disabled={isLocked}
-                      label='Description'
+                      label={dictionary.forms.approvedRequisitions.imprestRetirement.item.description}
                       value={item.description || ''}
                       onChange={(e) =>
                         updateItem(index, { description: e.target.value })
@@ -1239,7 +1245,7 @@ function ImprestRetirementForm({
 
                   <Grid size={{ xs: 0.5 }} textAlign='right'>
                     {!isLocked && items.length > 1 && (
-                      <Tooltip title='Remove Item'>
+                      <Tooltip title={dictionary.tooltips.removeItem}>
                         <IconButton
                           size='small'
                           onClick={() => removeItem(index)}
@@ -1263,7 +1269,7 @@ function ImprestRetirementForm({
               startIcon={<AddOutlined />}
               onClick={appendItem}
             >
-              Add Item
+              {dictionary.forms.approvedRequisitions.imprestRetirement.form.addItem}
             </Button>
           </Div>
         )}
@@ -1277,7 +1283,7 @@ function ImprestRetirementForm({
 
       <DialogActions>
         <Button size='small' onClick={() => toggleOpen(false)}>
-          Cancel
+          {dictionary.forms.approvedRequisitions.common.cancel}
         </Button>
         {!isLocked && (
           <LoadingButton
@@ -1286,7 +1292,7 @@ function ImprestRetirementForm({
             onClick={handleSaveDraft}
             loading={addRetirement.isPending || updateRetirement.isPending}
           >
-            {retirementId ? 'Update' : 'Save Draft'}
+            {retirementId ? dictionary.forms.approvedRequisitions.imprestRetirement.form.update : dictionary.forms.approvedRequisitions.imprestRetirement.form.saveDraft}
           </LoadingButton>
         )}
         {canSubmitForApproval && (
@@ -1297,7 +1303,7 @@ function ImprestRetirementForm({
             onClick={handleSubmitForApproval}
             loading={submitRetirement.isPending || addRetirement.isPending}
           >
-            Submit
+            {dictionary.forms.approvedRequisitions.common.submit}
           </LoadingButton>
         )}
       </DialogActions>

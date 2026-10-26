@@ -24,6 +24,7 @@ import * as yup from 'yup';
 import humanResourcesServices from '../humanResourcesServices';
 import { PayrollPeriodType } from '../payrollPeriods/PayrollPeriodType';
 import { PayrollRunType } from './PayrollRunType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface PayrollRunFormProps {
   setOpenDialog: (open: boolean) => void;
@@ -45,6 +46,8 @@ const PayrollRunForm = ({
   onSuccess,
   runs = [],
 }: PayrollRunFormProps) => {
+  const dictionary = useDictionary();
+  const t = dictionary.humanResources.payrollRuns.form;
   const queryClient = useQueryClient();
   const { enqueueSnackbar } = useSnackbar();
   const [costCenter, setCostCenter] = useState<CostCenter | null>(null);
@@ -61,16 +64,14 @@ const PayrollRunForm = ({
 
   // Validation schema - conditionally require cost_center_id
   const validationSchema = yup.object({
-    payroll_period_id: yup.number().required('Payroll period is required'),
+    payroll_period_id: yup.number().required(t.errors.periodRequired),
     cost_center_id: yup
       .number()
       .nullable()
       .when([], {
         is: () => isCostCenterRequired,
         then: (schema) =>
-          schema.required(
-            'Cost center is required - this period already has branch runs'
-          ),
+          schema.required(t.errors.costCenterRequired),
         otherwise: (schema) => schema.optional(),
       }),
   });
@@ -106,7 +107,7 @@ const PayrollRunForm = ({
     mutationFn: humanResourcesServices.addPayrollRun,
     onSuccess: () => {
       setOpenDialog(false);
-      enqueueSnackbar('Payroll run created successfully', {
+      enqueueSnackbar(t.messages.created, {
         variant: 'success',
       });
       queryClient.invalidateQueries({ queryKey: ['payrollRuns'] });
@@ -136,18 +137,21 @@ const PayrollRunForm = ({
   // Get info message based on existing runs
   const getInfoMessage = () => {
     if (payrollRun?.id) {
-      return 'Edit the payroll run details below.';
+      return t.info.edit;
     }
 
     if (hasBranchRun) {
-      return `This period already has branch runs. You must select a cost center for this run. Company-wide runs are not allowed.`;
+      return t.info.hasBranchRun;
     }
 
     if (hasCompanyWideRun) {
-      return `This period already has a company-wide run. Only cost center runs are allowed. Select a cost center to create a branch run.`;
+      return t.info.hasCompanyWideRun;
     }
 
-    return `Create a new payroll run for ${monthName} ${payrollPeriod?.year || ''}. Leave cost center empty for a company-wide run.`;
+    return t.info.createNew.replace(
+      '{period}',
+      `${monthName} ${payrollPeriod?.year || ''}`
+    );
   };
 
   const isEditMode = !!payrollRun?.id;
@@ -156,7 +160,7 @@ const PayrollRunForm = ({
     <>
       <DialogTitle>
         <Grid size={12} textAlign='center'>
-          {isEditMode ? 'Edit Payroll Run' : 'Create Payroll Run'}
+          {isEditMode ? t.title.edit : t.title.create}
         </Grid>
       </DialogTitle>
       <DialogContent>
@@ -191,8 +195,8 @@ const PayrollRunForm = ({
                       withNotSpecified={false}
                       label={
                         isCostCenterRequired
-                          ? 'Cost Center *'
-                          : 'Cost Center (optional)'
+                          ? t.labels.costCenterRequired
+                          : t.labels.costCenterOptional
                       }
                       defaultValue={costCenter}
                       onChange={(value) => {
@@ -216,7 +220,7 @@ const PayrollRunForm = ({
                     color='text.secondary'
                     sx={{ display: 'block', mt: 0.5 }}
                   >
-                    Leave empty to create a company-wide run
+                    {t.labels.leaveEmpty}
                   </Typography>
                 )}
               </Div>
@@ -226,8 +230,8 @@ const PayrollRunForm = ({
               <Grid size={12}>
                 <Div sx={{ mt: 1, mb: 1 }}>
                   <Alert severity='info'>
-                    Current Status:{' '}
-                    <strong>{payrollRun.status || 'Draft'}</strong>
+                    {t.labels.currentStatus}{' '}
+                    <strong>{payrollRun.status || t.labels.draft}</strong>
                   </Alert>
                 </Div>
               </Grid>
@@ -236,7 +240,7 @@ const PayrollRunForm = ({
 
           <DialogActions>
             <Button size='small' onClick={() => setOpenDialog(false)}>
-              Cancel
+              {t.buttons.cancel}
             </Button>
             <LoadingButton
               type='submit'
@@ -245,7 +249,7 @@ const PayrollRunForm = ({
               sx={{ display: 'flex' }}
               loading={isAdding}
             >
-              {isEditMode ? 'Update' : 'Create'}
+              {isEditMode ? t.buttons.update : t.buttons.create}
             </LoadingButton>
           </DialogActions>
         </form>

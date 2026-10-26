@@ -34,6 +34,7 @@ import { Controller, useForm } from 'react-hook-form';
 import * as yup from 'yup';
 import humanResourcesServices from '../humanResourcesServices';
 import { DeductionType } from './DeductionType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface DeductionTypeFormProps {
   setOpenDialog: (open: boolean) => void;
@@ -91,6 +92,7 @@ const DeductionTypeForm = ({
   setOpenDialog,
   deductionType = null,
 }: DeductionTypeFormProps) => {
+  const dictionary = useDictionary();
   const queryClient = useQueryClient();
   const { enqueueSnackbar } = useSnackbar();
   const { ungroupedLedgerOptions } = useLedgerSelect();
@@ -134,7 +136,7 @@ const DeductionTypeForm = ({
     mutationFn: humanResourcesServices.addDeductionType,
     onSuccess: () => {
       setOpenDialog(false);
-      enqueueSnackbar('Deduction Type Added Successfully', {
+      enqueueSnackbar(dictionary.humanResources.deductionTypes.form.messages.addSuccess, {
         variant: 'success',
       });
       queryClient.invalidateQueries({ queryKey: ['deductionTypes'] });
@@ -152,7 +154,7 @@ const DeductionTypeForm = ({
     mutationFn: humanResourcesServices.updateDeductionType,
     onSuccess: () => {
       setOpenDialog(false);
-      enqueueSnackbar('Deduction Type Updated Successfully', {
+      enqueueSnackbar(dictionary.humanResources.deductionTypes.form.messages.updateSuccess, {
         variant: 'success',
       });
       queryClient.invalidateQueries({ queryKey: ['deductionTypes'] });
@@ -224,22 +226,22 @@ const DeductionTypeForm = ({
     id: yup.number().optional(),
     name: yup
       .string()
-      .required('Name is required')
-      .max(255, 'Name cannot exceed 255 characters'),
-    code: yup.string().max(50, 'Code cannot exceed 50 characters'),
+      .required(dictionary.humanResources.deductionTypes.form.validation.nameRequired)
+      .max(255, dictionary.humanResources.deductionTypes.form.validation.nameMax),
+    code: yup.string().max(50, dictionary.humanResources.deductionTypes.form.validation.codeMax),
     category: yup
       .string()
       .oneOf(['statutory', 'voluntary'])
-      .required('Category is required'),
+      .required(dictionary.humanResources.deductionTypes.form.validation.categoryRequired),
     computation_method: yup
       .string()
       .oneOf(['fixed', 'percentage_of_basic', 'percentage_of_gross'])
-      .required('Computation method is required'),
+      .required(dictionary.humanResources.deductionTypes.form.validation.methodRequired),
     default_value: yup
       .number()
-      .typeError('Default value must be a number')
-      .required('Default value is required')
-      .min(0, 'Default value must be 0 or greater'),
+      .typeError(dictionary.humanResources.deductionTypes.form.validation.defaultValueNumber)
+      .required(dictionary.humanResources.deductionTypes.form.validation.defaultValueRequired)
+      .min(0, dictionary.humanResources.deductionTypes.form.validation.defaultValueMin),
     // ABSENT_DEDUCTION always has somewhere to post even unmapped — an
     // unmapped ledger falls back to the department/fallback Salary Expense
     // account at posting time (see PayrollPostingService::post()) — so it's
@@ -249,13 +251,13 @@ const DeductionTypeForm = ({
       deductionType?.code !== 'ABSENT_DEDUCTION'
         ? yup
             .number()
-            .required('This field is required')
-            .positive('This field is required')
+            .required(dictionary.humanResources.deductionTypes.form.validation.fieldRequired)
+            .positive(dictionary.humanResources.deductionTypes.form.validation.fieldRequired)
         : yup.number().nullable(),
     is_pre_tax: yup.boolean().required(),
     description: yup
       .string()
-      .max(500, 'Description cannot exceed 500 characters'),
+      .max(500, dictionary.humanResources.deductionTypes.form.validation.descriptionMax),
     apply_to_employees: yup
       .string()
       .oneOf(['none', 'all', 'active_contracts'])
@@ -344,24 +346,23 @@ const DeductionTypeForm = ({
     <>
       <DialogTitle>
         <Grid size={12} textAlign={'center'}>
-          {!deductionType?.id ? 'Add Deduction Type' : 'Edit Deduction Type'}
+          {!deductionType?.id
+            ? dictionary.humanResources.deductionTypes.form.titles.add
+            : dictionary.humanResources.deductionTypes.form.titles.edit}
         </Grid>
       </DialogTitle>
       <DialogContent>
         <form autoComplete='off' onSubmit={handleSubmit(onSubmit)}>
           {isReservedType && (
             <Alert severity='info' sx={{ mb: 2 }}>
-              This is a system-provisioned deduction type — payroll matches it
-              by its Code, so Name, Code, Category, Computation Method, Default
-              Value, and Is Pre-tax are locked. Only the ledger mapping and
-              description can be changed here.
+              {dictionary.humanResources.deductionTypes.form.helpers.reservedAlert}
             </Alert>
           )}
           <Grid container rowSpacing={{ xs: 1, md: 2 }} spacing={2}>
             <Grid size={{ xs: 12, md: 4 }}>
               <Div sx={{ mt: 1 }}>
                 <TextField
-                  label='Name'
+                  label={dictionary.humanResources.deductionTypes.form.labels.name}
                   size='small'
                   fullWidth
                   disabled={isReservedType}
@@ -381,7 +382,7 @@ const DeductionTypeForm = ({
             <Grid size={{ xs: 12, md: 4 }}>
               <Div sx={{ mt: 1 }}>
                 <TextField
-                  label='Code'
+                  label={dictionary.humanResources.deductionTypes.form.labels.code}
                   size='small'
                   fullWidth
                   disabled={isReservedType}
@@ -406,7 +407,7 @@ const DeductionTypeForm = ({
                   render={({ field }) => (
                     <TextField
                       select
-                      label='Category'
+                      label={dictionary.humanResources.deductionTypes.form.labels.category}
                       size='small'
                       fullWidth
                       disabled={isReservedType}
@@ -421,8 +422,12 @@ const DeductionTypeForm = ({
                         getValidationMessage(validationErrors, 'category')
                       }
                     >
-                      <MenuItem value='statutory'>Statutory</MenuItem>
-                      <MenuItem value='voluntary'>Voluntary</MenuItem>
+                      <MenuItem value='statutory'>
+                        {dictionary.humanResources.deductionTypes.form.options.statutory}
+                      </MenuItem>
+                      <MenuItem value='voluntary'>
+                        {dictionary.humanResources.deductionTypes.form.options.voluntary}
+                      </MenuItem>
                     </TextField>
                   )}
                 />
@@ -437,7 +442,7 @@ const DeductionTypeForm = ({
                   render={({ field }) => (
                     <TextField
                       select
-                      label='Computation Method'
+                      label={dictionary.humanResources.deductionTypes.form.labels.computationMethod}
                       size='small'
                       fullWidth
                       disabled={isReservedType}
@@ -458,12 +463,12 @@ const DeductionTypeForm = ({
                         )
                       }
                     >
-                      <MenuItem value='fixed'>Fixed</MenuItem>
+                      <MenuItem value='fixed'>{dictionary.humanResources.deductionTypes.form.options.fixed}</MenuItem>
                       <MenuItem value='percentage_of_basic'>
-                        Percentage Of Basic
+                        {dictionary.humanResources.deductionTypes.form.options.percentageOfBasic}
                       </MenuItem>
                       <MenuItem value='percentage_of_gross'>
-                        Percentage Of Gross
+                        {dictionary.humanResources.deductionTypes.form.options.percentageOfGross}
                       </MenuItem>
                     </TextField>
                   )}
@@ -478,7 +483,7 @@ const DeductionTypeForm = ({
                   control={control}
                   render={({ field }) => (
                     <TextField
-                      label='Default Value'
+                      label={dictionary.humanResources.deductionTypes.form.labels.defaultValue}
                       size='small'
                       fullWidth
                       disabled={isReservedType}
@@ -526,7 +531,7 @@ const DeductionTypeForm = ({
                           }
                         />
                       }
-                      label='Is Pre-tax'
+                      label={dictionary.humanResources.deductionTypes.form.labels.isPreTax}
                     />
                   )}
                 />
@@ -539,10 +544,10 @@ const DeductionTypeForm = ({
                   <LedgerSelect
                     label={
                       isStaffLoanRepayment
-                        ? 'Receivable Ledger'
+                        ? dictionary.humanResources.deductionTypes.form.labels.receivableLedger
                         : isAbsenceDeduction
-                          ? 'Expense Ledger (credited back)'
-                          : 'Payable Ledger'
+                          ? dictionary.humanResources.deductionTypes.form.labels.expenseLedger
+                          : dictionary.humanResources.deductionTypes.form.labels.payableLedger
                     }
                     allowedGroups={
                       isStaffLoanRepayment
@@ -592,7 +597,7 @@ const DeductionTypeForm = ({
                         PERMISSIONS.ACCOUNTS_MASTERS_CREATE
                       ) && (
                         <Tooltip
-                          title={'Quick Add Ledger'}
+                          title={dictionary.tooltips.quickAddLedger}
                           onClick={() => {
                             setLedgertType('credit');
                             setOpenQuickAddLedger(true);
@@ -609,9 +614,7 @@ const DeductionTypeForm = ({
                       color='text.secondary'
                       sx={{ display: 'block', mt: 0.5 }}
                     >
-                      Staff loans are recovered from employees, so this is money
-                      owed to the company — pick a receivable ledger, not a
-                      payable one.
+                      {dictionary.humanResources.deductionTypes.form.helpers.staffLoan}
                     </Typography>
                   )}
                   {isAbsenceDeduction && (
@@ -620,13 +623,7 @@ const DeductionTypeForm = ({
                       color='text.secondary'
                       sx={{ display: 'block', mt: 0.5 }}
                     >
-                      Absence deductions aren't owed to anyone — the hours were
-                      simply never earned. Optional: leave this blank and
-                      posting automatically credits back whichever Salary
-                      Expense account basic salary was debited to for that
-                      employee (their department's, or the fallback chosen when
-                      posting). Only map a ledger here if you want absence
-                      deductions to post to their own separate account instead.
+                      {dictionary.humanResources.deductionTypes.form.helpers.absence}
                     </Typography>
                   )}
                 </Div>
@@ -646,21 +643,23 @@ const DeductionTypeForm = ({
                     render={({ field }) => (
                       <TextField
                         select
-                        label='Apply To Employees'
+                        label={dictionary.humanResources.deductionTypes.form.labels.applyToEmployees}
                         size='small'
                         fullWidth
                         value={field.value || 'none'}
                         onChange={field.onChange}
                         helperText={
                           applyScope !== 'none'
-                            ? 'This will apply to all existing employees'
-                            : 'Select an option to bulk apply this deduction'
+                            ? dictionary.humanResources.deductionTypes.form.helpers.applyAll
+                            : dictionary.humanResources.deductionTypes.form.helpers.applyNone
                         }
                       >
-                        <MenuItem value='none'>None</MenuItem>
-                        <MenuItem value='all'>All Employees</MenuItem>
+                        <MenuItem value='none'>{dictionary.humanResources.deductionTypes.form.options.none}</MenuItem>
+                        <MenuItem value='all'>
+                          {dictionary.humanResources.deductionTypes.form.options.allEmployees}
+                        </MenuItem>
                         <MenuItem value='active_contracts'>
-                          Employees With Active Contracts
+                          {dictionary.humanResources.deductionTypes.form.options.activeContracts}
                         </MenuItem>
                       </TextField>
                     )}
@@ -672,7 +671,7 @@ const DeductionTypeForm = ({
             <Grid size={{ xs: 12 }}>
               <Div sx={{ mt: 1 }}>
                 <TextField
-                  label='Description'
+                  label={dictionary.humanResources.deductionTypes.form.labels.description}
                   size='small'
                   fullWidth
                   multiline
@@ -693,7 +692,7 @@ const DeductionTypeForm = ({
 
           <DialogActions>
             <Button size='small' onClick={() => setOpenDialog(false)}>
-              Cancel
+              {dictionary.humanResources.deductionTypes.form.buttons.cancel}
             </Button>
             <LoadingButton
               type='submit'
@@ -702,7 +701,7 @@ const DeductionTypeForm = ({
               sx={{ display: 'flex' }}
               loading={isPending || updateIsPending}
             >
-              Submit
+              {dictionary.humanResources.deductionTypes.form.buttons.submit}
             </LoadingButton>
           </DialogActions>
         </form>
@@ -717,60 +716,65 @@ const DeductionTypeForm = ({
       >
         <DialogTitle>
           <Typography variant='h6' fontWeight={600}>
-            Confirm Bulk Application
+            {dictionary.humanResources.deductionTypes.form.titles.confirmBulk}
           </Typography>
         </DialogTitle>
         <DialogContent>
           <Typography variant='body2' color='text.secondary' sx={{ mb: 2 }}>
-            This action will apply this deduction type to multiple employees:
+            {dictionary.humanResources.deductionTypes.form.bulk.intro}
           </Typography>
           <Grid container spacing={1}>
             <Grid size={12}>
               <Typography variant='body2'>
-                <strong>Will Update:</strong> {confirmDialog.wouldUpdate}{' '}
-                employees
+                <strong>{dictionary.humanResources.deductionTypes.form.bulk.willUpdate}</strong>{' '}
+                {dictionary.humanResources.deductionTypes.form.bulk.employeesCount.replace(
+                  '{count}',
+                  String(confirmDialog.wouldUpdate)
+                )}
                 {confirmDialog.wouldUpdate > 0 && (
                   <Typography
                     variant='caption'
                     display='block'
                     color='text.secondary'
                   >
-                    (Employees who already have this deduction will be updated
-                    with the new rate)
+                    {dictionary.humanResources.deductionTypes.form.bulk.updateNote}
                   </Typography>
                 )}
               </Typography>
             </Grid>
             <Grid size={12}>
               <Typography variant='body2'>
-                <strong>Will Create:</strong> {confirmDialog.wouldCreate} new
-                employees
+                <strong>{dictionary.humanResources.deductionTypes.form.bulk.willCreate}</strong>{' '}
+                {dictionary.humanResources.deductionTypes.form.bulk.newEmployeesCount.replace(
+                  '{count}',
+                  String(confirmDialog.wouldCreate)
+                )}
                 {confirmDialog.wouldCreate > 0 && (
                   <Typography
                     variant='caption'
                     display='block'
                     color='text.secondary'
                   >
-                    (Employees who don't have this deduction will get it added)
+                    {dictionary.humanResources.deductionTypes.form.bulk.createNote}
                   </Typography>
                 )}
               </Typography>
             </Grid>
           </Grid>
           <Typography variant='body2' color='warning.main' sx={{ mt: 2 }}>
-            This action cannot be undone. Continue?
+            {dictionary.humanResources.deductionTypes.form.bulk.warning}
           </Typography>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCancelBulkUpdate} variant='outlined'>
-            Cancel
+            {dictionary.humanResources.deductionTypes.form.buttons.cancel}
           </Button>
           <Button
             onClick={handleConfirmBulkUpdate}
             variant='contained'
             color='warning'
           >
-            Continue
+            {dictionary.humanResources.deductionTypes.form.buttons.continue}
           </Button>
         </DialogActions>
       </Dialog>
@@ -781,7 +785,7 @@ const DeductionTypeForm = ({
           <QuickAddLedger
             ledgerType={ledgertType}
             toggleOpen={setOpenQuickAddLedger}
-            heading='Quick Add Ledger'
+            heading={dictionary.humanResources.deductionTypes.form.titles.quickAddLedger}
             setAddedLedger={(v) => {
               if (ledgertType === 'credit') {
                 setRecentlyAddedPayableLedger(v);

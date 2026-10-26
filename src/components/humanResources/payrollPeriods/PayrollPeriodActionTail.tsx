@@ -11,10 +11,12 @@ import {
 } from '@mui/material';
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 import React, { lazy, useState } from 'react';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const PayrollPeriodForm = lazy(() => import('./PayrollPeriodForm'));
 
 const PayrollPeriodActionTail = () => {
+  const dictionary = useDictionary();
   const [openDialog, setOpenDialog] = useState(false);
   const { theme } = useJumboTheme();
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
@@ -37,7 +39,7 @@ const PayrollPeriodActionTail = () => {
         disableElevation
         sx={{ '& .MuiButton-root': { px: 1 } }}
       >
-        <Tooltip title='Create Payroll Period'>
+        <Tooltip title={dictionary.tooltips.createPayrollPeriod}>
           <IconButton onClick={() => setOpenDialog(true)}>
             <AddOutlined />
           </IconButton>

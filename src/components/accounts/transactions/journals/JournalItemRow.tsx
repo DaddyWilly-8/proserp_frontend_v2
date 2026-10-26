@@ -3,6 +3,7 @@ import { Divider, Grid, IconButton, Tooltip, Typography } from '@mui/material';
 import React, { useState } from 'react';
 import JournalItemForm from './JournalItemForm';
 import { useLedgerSelect } from '../../ledgers/forms/LedgerSelectProvider';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface Ledger {
   id?: number;
@@ -47,6 +48,7 @@ function JournalItemRow({
   setItems,
   selectedCurrencyId,
 }: JournalItemRowProps) {
+    const dictionary = useDictionary();
     const { ungroupedLedgerOptions } = useLedgerSelect();
 
     const debit_ledger = ungroupedLedgerOptions.find(ledger => ledger.id === item.debit_ledger_id);
@@ -70,36 +72,36 @@ function JournalItemRow({
                     </Grid>
                     
                     <Grid size={{xs: 6, md: 3}}>
-                        <Tooltip title="Debit">
+                        <Tooltip title={dictionary.tooltips.debit}>
                             <Typography>{debit_ledger?.name || item.debitLedgerName}</Typography>
                         </Tooltip>
                     </Grid>
                     
                     <Grid size={{xs: 6, md: 3}}>
-                        <Tooltip title="Credit">
+                        <Tooltip title={dictionary.tooltips.credit}>
                             <Typography>{credit_ledger?.name || item.creditLedgerName}</Typography>
                         </Tooltip>
                     </Grid>
                     
                     <Grid size={{xs: 6, md: 4, lg: 2.5}}>
-                        <Tooltip title="Description">
+                        <Tooltip title={dictionary.tooltips.description}>
                             <Typography>{item.description}</Typography>
                         </Tooltip>
                     </Grid>
                     
                     <Grid size={{xs: 6, md: 3, lg: 2}}>
-                        <Tooltip title="Amount">
+                        <Tooltip title={dictionary.tooltips.amount}>
                             <Typography textAlign={'right'}>{item.amount?.toLocaleString()}</Typography>
                         </Tooltip>
                     </Grid>
                     
                     <Grid textAlign={'end'} size={{xs: 12, md: 12, lg: 1}}>
-                        <Tooltip title='Edit Item'>
+                        <Tooltip title={dictionary.tooltips.editItem}>
                             <IconButton size='small' onClick={() => { setShowForm(true) }}>
                                 <EditOutlined fontSize='small' />
                             </IconButton>
                         </Tooltip>
-                        <Tooltip title='Remove Item'>
+                        <Tooltip title={dictionary.tooltips.removeItem}>
                             <IconButton size='small'
                                 onClick={() => setItems(prevItems => {
                                     const newItems = [...prevItems];

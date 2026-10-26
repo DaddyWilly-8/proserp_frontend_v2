@@ -26,6 +26,7 @@ import {
 import { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as yup from 'yup';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function AdditionalCostsTab({
   index = -1,
@@ -36,6 +37,7 @@ function AdditionalCostsTab({
   additionalCosts = [],
   setAdditionalCosts,
 }) {
+  const dictionary = useDictionary();
   const { ungroupedLedgerOptions } = useLedgerSelect();
   const [isAdding, setIsAdding] = useState(false);
   const { currencies } = useCurrencySelect();
@@ -50,23 +52,23 @@ function AdditionalCostsTab({
   const validationSchema = yup.object({
     credit_ledger_id: yup
       .number()
-      .required('Cost name is required')
-      .typeError('Cost name is required'),
+      .required(dictionary.forms.purchases.receive.additionalCosts.errors.validation.costName.required)
+      .typeError(dictionary.forms.purchases.receive.additionalCosts.errors.validation.costName.required),
     currency_id: yup
       .number()
-      .positive('Currency is required')
-      .required('Currency is required')
-      .typeError('Currency is required'),
+      .positive(dictionary.forms.purchases.receive.additionalCosts.errors.validation.currency.required)
+      .required(dictionary.forms.purchases.receive.additionalCosts.errors.validation.currency.required)
+      .typeError(dictionary.forms.purchases.receive.additionalCosts.errors.validation.currency.required),
     exchange_rate: yup
       .number()
-      .positive('Exchange rate is required')
-      .required('Exchange rate is required')
-      .typeError('Exchange rate is required'),
+      .positive(dictionary.forms.purchases.receive.additionalCosts.errors.validation.exchangeRate.required)
+      .required(dictionary.forms.purchases.receive.additionalCosts.errors.validation.exchangeRate.required)
+      .typeError(dictionary.forms.purchases.receive.additionalCosts.errors.validation.exchangeRate.required),
     amount: yup
       .number()
-      .required('Amount is required')
-      .positive('Amount is required')
-      .typeError('Amount is required'),
+      .required(dictionary.forms.purchases.receive.additionalCosts.errors.validation.amount.required)
+      .positive(dictionary.forms.purchases.receive.additionalCosts.errors.validation.amount.required)
+      .typeError(dictionary.forms.purchases.receive.additionalCosts.errors.validation.amount.required),
   });
 
   const {
@@ -175,7 +177,7 @@ function AdditionalCostsTab({
             <LedgerSelect
               multiple={false}
               allowedGroups={['Expenses']}
-              label='Cost name'
+              label={dictionary.forms.purchases.receive.additionalCosts.labels.costName}
               defaultValue={ungroupedLedgerOptions.find(
                 (ledger) => ledger.id === additionalCost?.credit_ledger_id
               )}
@@ -195,7 +197,7 @@ function AdditionalCostsTab({
         <Grid size={{ xs: 12, md: 2, lg: 2 }}>
           <Div sx={{ mt: 1 }}>
             <TextField
-              label='Reference'
+              label={dictionary.forms.purchases.receive.additionalCosts.labels.reference}
               fullWidth
               size='small'
               defaultValue={additionalCost && additionalCost.reference}
@@ -234,7 +236,7 @@ function AdditionalCostsTab({
           <Grid size={{ xs: 6, md: 2, lg: 2 }}>
             <Div sx={{ mt: 1 }}>
               <TextField
-                label='Exchange Rate'
+                label={dictionary.forms.purchases.receive.additionalCosts.labels.exchangeRate}
                 fullWidth
                 size='small'
                 error={errors && !!errors.exchange_rate}
@@ -266,7 +268,7 @@ function AdditionalCostsTab({
         >
           <Div sx={{ mt: 1 }}>
             <TextField
-              label='Amount'
+              label={dictionary.forms.purchases.receive.additionalCosts.labels.amount}
               fullWidth
               size='small'
               InputProps={{
@@ -289,7 +291,7 @@ function AdditionalCostsTab({
           </Div>
         </Grid>
         <Grid size={{ xs: 12, md: 6 }}>
-          <Tooltip title="Folds this cost into the GRN's unbilled amount so it's billed to the supplier later. Uncheck for a cost already settled elsewhere — e.g. a transporter's own invoice.">
+          <Tooltip title={dictionary.tooltips.foldsThisCostIntoTheGrn}>
             <FormControlLabel
               control={
                 <Checkbox
@@ -302,11 +304,11 @@ function AdditionalCostsTab({
                   }
                 />
               }
-              label='Owed to Supplier'
+              label={dictionary.forms.purchases.receive.additionalCosts.labels.owedToSupplier}
             />
           </Tooltip>
           {owedToSupplier && deferGrnBilling && (
-            <Tooltip title="Excludes this cost from VAT when the order is later billed — e.g. CESS, a statutory levy that shouldn't itself attract VAT.">
+            <Tooltip title={dictionary.tooltips.excludesThisCostFromVatWhen}>
               <FormControlLabel
                 control={
                   <Checkbox
@@ -319,7 +321,7 @@ function AdditionalCostsTab({
                     }
                   />
                 }
-                label='VAT Exempt'
+                label={dictionary.forms.purchases.receive.additionalCosts.labels.vatExempt}
               />
             </Tooltip>
           )}
@@ -335,16 +337,16 @@ function AdditionalCostsTab({
         >
           {additionalCost ? (
             <>
-              <CheckOutlined fontSize='small' /> Done
+              <CheckOutlined fontSize='small' /> {dictionary.forms.purchases.receive.additionalCosts.buttons.done}
             </>
           ) : (
             <>
-              <AddOutlined fontSize='small' /> Add
+              <AddOutlined fontSize='small' /> {dictionary.forms.purchases.receive.additionalCosts.buttons.add}
             </>
           )}
         </LoadingButton>
         {additionalCost && (
-          <Tooltip title='Close Edit'>
+          <Tooltip title={dictionary.tooltips.closeEdit}>
             <IconButton
               size='small'
               onClick={() => {

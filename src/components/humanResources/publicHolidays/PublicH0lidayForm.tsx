@@ -21,6 +21,7 @@ import { Controller, useForm } from 'react-hook-form';
 import * as yup from 'yup';
 import humanResourcesServices from '../humanResourcesServices';
 import { PublicHolidaysType } from './PublicHOlidaysType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface PublicH0lidayFormProps {
   publicHoliday?: PublicHolidaysType;
@@ -45,6 +46,7 @@ const PublicH0lidayForm = ({
   publicHoliday,
   setOpenDialog,
 }: PublicH0lidayFormProps) => {
+  const dictionary = useDictionary();
   const queryClient = useQueryClient();
   const { enqueueSnackbar } = useSnackbar();
 
@@ -61,7 +63,7 @@ const PublicH0lidayForm = ({
     mutationFn: humanResourcesServices.addPublicHoliday,
     onSuccess: (data) => {
       setOpenDialog(false);
-      enqueueSnackbar('Success Adding Public Holiday', {
+      enqueueSnackbar(dictionary.humanResources.publicHolidays.form.messages.added, {
         variant: 'success',
       });
       queryClient.invalidateQueries({ queryKey: ['publicHolidays'] });
@@ -79,7 +81,7 @@ const PublicH0lidayForm = ({
     mutationFn: humanResourcesServices.updatePublicHoliday,
     onSuccess: (data) => {
       setOpenDialog(false);
-      enqueueSnackbar('Success Updating Public HOliday', {
+      enqueueSnackbar(dictionary.humanResources.publicHolidays.form.messages.updated, {
         variant: 'success',
       });
       queryClient.invalidateQueries({ queryKey: ['publicHolidays'] });
@@ -91,8 +93,8 @@ const PublicH0lidayForm = ({
 
   const validationSchema = yup.object({
     id: yup.number().optional(),
-    name: yup.string().required('Name is required').max(255),
-    date: yup.string().required('Date is required'),
+    name: yup.string().required(dictionary.humanResources.publicHolidays.form.errors.nameRequired).max(255),
+    date: yup.string().required(dictionary.humanResources.publicHolidays.form.errors.dateRequired),
     is_paid: yup.bool(),
   });
 
@@ -141,7 +143,9 @@ const PublicH0lidayForm = ({
     <>
       <DialogTitle>
         <Grid size={12} textAlign={'center'}>
-          {!publicHoliday?.id ? 'Add Public Holiday' : `Edit Public Holiday`}
+          {!publicHoliday?.id
+            ? dictionary.humanResources.publicHolidays.form.addTitle
+            : dictionary.humanResources.publicHolidays.form.editTitle}
         </Grid>
       </DialogTitle>
       <DialogContent>
@@ -155,7 +159,7 @@ const PublicH0lidayForm = ({
             <Grid size={{ xs: 12, md: 6 }}>
               <Div sx={{ mt: 1, mb: 1 }}>
                 <TextField
-                  label='Public HOliday Name'
+                  label={dictionary.humanResources.publicHolidays.form.labels.name}
                   size='small'
                   fullWidth
                   error={
@@ -179,7 +183,7 @@ const PublicH0lidayForm = ({
                   control={control}
                   render={({ field, fieldState }) => (
                     <DatePicker
-                      label='Date'
+                      label={dictionary.humanResources.publicHolidays.form.labels.date}
                       value={
                         publicHolidayDate ? dayjs(publicHolidayDate) : null
                       }
@@ -194,7 +198,8 @@ const PublicH0lidayForm = ({
                           fullWidth: true,
                           error: !!fieldState.error,
                           helperText:
-                            !!fieldState.error && 'This field is required',
+                            !!fieldState.error &&
+                            dictionary.humanResources.publicHolidays.form.errors.fieldRequired,
                         },
                       }}
                     />
@@ -213,14 +218,14 @@ const PublicH0lidayForm = ({
                       }}
                     />
                   }
-                  label='Is Paid'
+                  label={dictionary.humanResources.publicHolidays.form.labels.isPaid}
                 />
               </Div>
             </Grid>
           </Grid>
           <DialogActions>
             <Button size='small' onClick={() => setOpenDialog(false)}>
-              Cancel
+              {dictionary.humanResources.publicHolidays.form.buttons.cancel}
             </Button>
             <LoadingButton
               type='submit'
@@ -229,7 +234,7 @@ const PublicH0lidayForm = ({
               sx={{ display: 'flex' }}
               loading={isPending || updateIsLoading}
             >
-              Submit
+              {dictionary.humanResources.publicHolidays.form.buttons.submit}
             </LoadingButton>
           </DialogActions>
         </form>

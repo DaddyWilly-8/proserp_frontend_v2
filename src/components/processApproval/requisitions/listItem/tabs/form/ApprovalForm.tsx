@@ -55,6 +55,7 @@ import * as yup from 'yup';
 import requisitionsServices from '../../../../requisitionsServices';
 import ApprovalRequisitionLedgerItem from './ApprovalRequisitionLedgerItem';
 import ApprovalRequisitionProductItem from './ApprovalRequisitionProductItem';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface ApprovalFormProps {
   toggleOpen: (value: boolean) => void;
@@ -109,6 +110,7 @@ function ApprovalForm({
   approval,
   isEdit = false,
 }: ApprovalFormProps) {
+  const dictionary = useDictionary();
   const [approvalDate] = useState<Dayjs>(dayjs());
   const [dateRequired] = useState<Dayjs | null>(
     requisition?.date_required ? dayjs(requisition.date_required) : null
@@ -370,10 +372,13 @@ const getInitialLedgerItems = (): RequisitionItem[] => {
   // (or having to hand-preserve) whatever came before it.
   const previousRemarks = approval?.remarks || requisition?.remarks || '';
   const previousRemarksLabel = approval
-    ? approval.status_label || 'Previous remarks'
+    ? approval.status_label || dictionary.forms.requisitions.approval.previousRemarks
     : requisition?.creator?.name
-      ? `Requester's remarks (${requisition.creator.name})`
-      : "Requester's remarks";
+      ? dictionary.forms.requisitions.approval.requesterRemarksWithName.replace(
+          '{name}',
+          requisition.creator.name
+        )
+      : dictionary.forms.requisitions.approval.requesterRemarks;
 
   // "Send back" — an approver can return the requisition to an earlier level
   // (or to the requester) instead of only approving/holding/rejecting forward.
@@ -417,7 +422,7 @@ const getInitialLedgerItems = (): RequisitionItem[] => {
 
   const returnTargetOptions = React.useMemo(
     () => [
-      { id: 'requester' as const, label: 'Requester' },
+      { id: 'requester' as const, label: dictionary.forms.requisitions.approval.requester },
       ...earlierLevels.map((level: any) => ({
         id: level.id as number,
         label: `${level.label}${level.role?.name ? ` — ${level.role.name}` : ''}`,
@@ -429,8 +434,8 @@ const getInitialLedgerItems = (): RequisitionItem[] => {
   const validationSchema = yup.object().shape({
     approval_date: yup
       .string()
-      .required('Approval Date is required')
-      .typeError('Approval Date is required'),
+      .required(dictionary.forms.requisitions.approval.validation.approvalDate)
+      .typeError(dictionary.forms.requisitions.approval.validation.approvalDate),
     date_required: yup.string().nullable(),
     product_items:
       isPurchaseType || isMaterialType
@@ -439,7 +444,7 @@ const getInitialLedgerItems = (): RequisitionItem[] => {
               fulfillment_type: isMaterialType
                 ? yup
                     .string()
-                    .required('Fulfillment type is required')
+                    .required(dictionary.forms.requisitions.approval.validation.fulfillmentType)
                     .oneOf(['STOCK', 'PURCHASE', 'IMPREST'])
                 : yup.string().nullable(),
               store_id: isMaterialType
@@ -450,8 +455,8 @@ const getInitialLedgerItems = (): RequisitionItem[] => {
                       is: 'STOCK',
                       then: (schema) =>
                         schema
-                          .required('Store is required for stock fulfillment')
-                          .typeError('Store is required for stock fulfillment'),
+                          .required(dictionary.forms.requisitions.approval.validation.storeForStock)
+                          .typeError(dictionary.forms.requisitions.approval.validation.storeForStock),
                       otherwise: (schema) => schema.nullable(),
                     })
                 : yup.number().nullable(),
@@ -464,25 +469,25 @@ const getInitialLedgerItems = (): RequisitionItem[] => {
                         value === 'PURCHASE' || value === 'IMPREST',
                       then: (schema) =>
                         schema
-                          .required('Rate is required')
-                          .positive('Rate is required')
-                          .typeError('Rate is required'),
+                          .required(dictionary.forms.requisitions.approval.validation.rate)
+                          .positive(dictionary.forms.requisitions.approval.validation.rate)
+                          .typeError(dictionary.forms.requisitions.approval.validation.rate),
                       otherwise: (schema) => schema.nullable(),
                     })
                 : isFinal
                   ? yup
                       .number()
-                      .required('Rate is required for final approval')
-                      .positive('Rate is required for final approval')
-                      .typeError('Rate is required for final approval')
+                      .required(dictionary.forms.requisitions.approval.validation.rateFinal)
+                      .positive(dictionary.forms.requisitions.approval.validation.rateFinal)
+                      .typeError(dictionary.forms.requisitions.approval.validation.rateFinal)
                   : yup.number().nullable(),
               quantity:
                 isFinal || isMaterialType
                   ? yup
                       .number()
-                      .required('Quantity is required')
-                      .positive('Quantity is required')
-                      .typeError('Quantity is required')
+                      .required(dictionary.forms.requisitions.approval.validation.quantity)
+                      .positive(dictionary.forms.requisitions.approval.validation.quantity)
+                      .typeError(dictionary.forms.requisitions.approval.validation.quantity)
                   : yup.number().nullable(),
             })
           )
@@ -492,7 +497,7 @@ const getInitialLedgerItems = (): RequisitionItem[] => {
       .nullable()
       .test(
         'material-imprest-ledger',
-        'Imprest Ledger is required when any line is Imprest',
+        dictionary.forms.requisitions.approval.validation.imprestLedgerForMaterial,
         (value) => !(isMaterialType && hasImprestFulfillment) || !!value
       ),
     additional_costs: isPurchaseType
@@ -500,9 +505,9 @@ const getInitialLedgerItems = (): RequisitionItem[] => {
           yup.object().shape({
             amount: yup
               .number()
-              .required('Amount is required')
-              .positive('Amount is required')
-              .typeError('Amount is required'),
+              .required(dictionary.forms.requisitions.approval.validation.amount)
+              .positive(dictionary.forms.requisitions.approval.validation.amount)
+              .typeError(dictionary.forms.requisitions.approval.validation.amount),
           })
         )
       : yup.array().nullable(),
@@ -512,30 +517,30 @@ const getInitialLedgerItems = (): RequisitionItem[] => {
             yup.object().shape({
               rate: yup
                 .number()
-                .required('Rate is required')
-                .positive('Rate is required')
-                .typeError('Rate is required'),
+                .required(dictionary.forms.requisitions.approval.validation.rate)
+                .positive(dictionary.forms.requisitions.approval.validation.rate)
+                .typeError(dictionary.forms.requisitions.approval.validation.rate),
               quantity: yup
                 .number()
-                .required('Quantity is required')
-                .positive('Quantity is required')
-                .typeError('Quantity is required'),
+                .required(dictionary.forms.requisitions.approval.validation.quantity)
+                .positive(dictionary.forms.requisitions.approval.validation.quantity)
+                .typeError(dictionary.forms.requisitions.approval.validation.quantity),
               splits: yup.array().of(
                 yup.object().shape({
                   credit_ledger_id: yup
                     .number()
                     .nullable()
-                    .required('Ledger is required'),
+                    .required(dictionary.forms.requisitions.approval.validation.ledger),
                   quantity: yup
                     .number()
-                    .required('Quantity is required')
-                    .positive('Quantity must be positive')
-                    .typeError('Quantity must be a number'),
+                    .required(dictionary.forms.requisitions.approval.validation.quantity)
+                    .positive(dictionary.forms.requisitions.approval.validation.quantityPositive)
+                    .typeError(dictionary.forms.requisitions.approval.validation.quantityNumber),
                   rate: yup
                     .number()
-                    .required('Rate is required')
-                    .positive('Rate must be positive')
-                    .typeError('Rate must be a number'),
+                    .required(dictionary.forms.requisitions.approval.validation.rate)
+                    .positive(dictionary.forms.requisitions.approval.validation.ratePositive)
+                    .typeError(dictionary.forms.requisitions.approval.validation.rateNumber),
                 })
               ),
             })
@@ -819,10 +824,10 @@ const getInitialLedgerItems = (): RequisitionItem[] => {
         <Grid container spacing={2}>
           <Grid size={{ xs: 12 }} textAlign={'center'} mb={2}>
             {isEdit
-              ? 'Edit Approval'
+              ? dictionary.forms.requisitions.approval.titleEdit
               : isImprestType
-                ? 'Approve Imprest Requisition'
-                : 'Approve Requisition'}
+                ? dictionary.forms.requisitions.approval.titleApproveImprest
+                : dictionary.forms.requisitions.approval.titleApprove}
           </Grid>
           <Grid size={{ xs: 12, md: 3 }} sx={{ mt: 1, mb: 1 }}>
             <Div
@@ -834,7 +839,7 @@ const getInitialLedgerItems = (): RequisitionItem[] => {
               }}
             >
               <Typography variant='caption' color='text.secondary'>
-                Requisition Date
+                {dictionary.forms.requisitions.approval.requisitionDate}
               </Typography>
               <Typography variant='body2'>
                 {readableDate(requisition.requisition_date)}
@@ -851,7 +856,7 @@ const getInitialLedgerItems = (): RequisitionItem[] => {
               }}
             >
               <Typography variant='caption' color='text.secondary'>
-                Currency
+                {dictionary.forms.requisitions.approval.currency}
               </Typography>
               <Typography variant='body2'>
                 {requisition.currency?.name}
@@ -868,7 +873,7 @@ const getInitialLedgerItems = (): RequisitionItem[] => {
               }}
             >
               <Typography variant='caption' color='text.secondary'>
-                Cost Center
+                {dictionary.forms.requisitions.approval.costCenter}
               </Typography>
               <Typography variant='body2' sx={{ wordBreak: 'break-word' }}>
                 {requisition.cost_center?.name || '-'}
@@ -885,7 +890,7 @@ const getInitialLedgerItems = (): RequisitionItem[] => {
               }}
             >
               <Typography variant='caption' color='text.secondary'>
-                Grand Total
+                {dictionary.forms.requisitions.approval.grandTotal}
               </Typography>
               <Typography variant='body2'>
                 {Number(approvalDisplayValue || 0).toLocaleString('en-US', {
@@ -906,16 +911,22 @@ const getInitialLedgerItems = (): RequisitionItem[] => {
                 }}
               >
                 <Typography variant='caption' color='text.secondary'>
-                  Imprest Ledger ({requisition.imprest_ledger.name})
+                  {dictionary.forms.requisitions.approval.imprestLedgerWithName.replace(
+                    '{name}',
+                    requisition.imprest_ledger.name
+                  )}
                 </Typography>
                 <Typography variant='body2'>
                   {requisition.imprest_ledger_balance
-                    ? `Balance: ${requisition.imprest_ledger_balance.amount.toLocaleString(
-                        'en-US',
-                        {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        }
+                    ? `${dictionary.forms.requisitions.approval.balance.replace(
+                        '{balance}',
+                        requisition.imprest_ledger_balance.amount.toLocaleString(
+                          'en-US',
+                          {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          }
+                        )
                       )} ${requisition.imprest_ledger_balance.side}`
                     : '-'}
                 </Typography>
@@ -925,7 +936,7 @@ const getInitialLedgerItems = (): RequisitionItem[] => {
           <Grid size={{ xs: 12, md: 3 }}>
             <Div sx={{ mt: 0.5 }}>
               <DateTimePicker
-                label='Approval Date'
+                label={dictionary.forms.requisitions.approval.approvalDate}
                 defaultValue={approvalDate}
                 minDate={
                   checkOrganizationPermission(PERMISSIONS.APPROVAL_BACKDATE)
@@ -959,7 +970,7 @@ const getInitialLedgerItems = (): RequisitionItem[] => {
           <Grid size={{ xs: 12, md: 3 }}>
             <Div sx={{ mt: 0.5 }}>
               <DateTimePicker
-                label='Date Required'
+                label={dictionary.forms.requisitions.approval.dateRequired}
                 defaultValue={dateRequired}
                 minDate={
                   watchedApprovalDate
@@ -992,7 +1003,7 @@ const getInitialLedgerItems = (): RequisitionItem[] => {
                 variant='outlined'
                 sx={{ mt: 0.5 }}
                 action={
-                  <Tooltip title='Copy into my remarks'>
+                  <Tooltip title={dictionary.tooltips.copyIntoMyRemarks}>
                     <IconButton
                       size='small'
                       onClick={() => {
@@ -1019,7 +1030,7 @@ const getInitialLedgerItems = (): RequisitionItem[] => {
           <Grid size={{ xs: 12, md: 6 }}>
             <Div sx={{ mt: 0.5 }}>
               <TextField
-                label='Remarks'
+                label={dictionary.forms.requisitions.common.remarks}
                 fullWidth
                 defaultValue={isEdit ? approval?.remarks : ''}
                 multiline={true}
@@ -1043,8 +1054,8 @@ const getInitialLedgerItems = (): RequisitionItem[] => {
               allowScrollButtonsMobile
               sx={{ mb: 1 }}
             >
-              <Tab label='Products' />
-              <Tab label='Additional Costs' />
+              <Tab label={dictionary.forms.requisitions.approval.tabProducts} />
+              <Tab label={dictionary.forms.requisitions.approval.tabAdditionalCosts} />
             </Tabs>
 
             {activePurchaseTab === 0 && (
@@ -1083,7 +1094,7 @@ const getInitialLedgerItems = (): RequisitionItem[] => {
                         <Grid size={{ xs: 12, md: 3 }}>
                           <Div sx={{ mt: 0.5 }}>
                             <TextField
-                              label='Amount'
+                              label={dictionary.forms.requisitions.common.amount}
                               fullWidth
                               size='small'
                               value={Number(cost.amount || 0).toLocaleString(
@@ -1119,7 +1130,7 @@ const getInitialLedgerItems = (): RequisitionItem[] => {
                   color='text.secondary'
                   sx={{ mt: 0.5 }}
                 >
-                  No additional costs on this requisition.
+                  {dictionary.forms.requisitions.approval.noAdditionalCosts}
                 </Typography>
               )}
           </>
@@ -1140,7 +1151,7 @@ const getInitialLedgerItems = (): RequisitionItem[] => {
                     getOptionLabel={(option) =>
                       option.ledger?.name ||
                       option.name ||
-                      'Unknown Imprest Ledger'
+                      dictionary.forms.requisitions.approval.unknownImprestLedger
                     }
                     value={
                       filteredImprestLedgerOptions.find((option) => {
@@ -1154,7 +1165,7 @@ const getInitialLedgerItems = (): RequisitionItem[] => {
                     renderInput={(params) => (
                       <TextField
                         {...params}
-                        label='Imprest Ledger'
+                        label={dictionary.forms.requisitions.approval.imprestLedger}
                         size='small'
                         fullWidth
                         error={!!(errors as any).imprest_ledger_id}
@@ -1226,10 +1237,10 @@ const getInitialLedgerItems = (): RequisitionItem[] => {
                 renderInput={(params) => (
                   <TextField
                     {...params}
-                    label='Send back to'
+                    label={dictionary.forms.requisitions.approval.sendBackTo}
                     helperText={
                       !(watch('remarks') || '').trim()
-                        ? 'Remarks are required when returning a requisition'
+                        ? dictionary.forms.requisitions.approval.remarksRequiredOnReturn
                         : ' '
                     }
                   />
@@ -1241,7 +1252,7 @@ const getInitialLedgerItems = (): RequisitionItem[] => {
                 Autocomplete on narrow/mobile screens */}
             <Box sx={{ display: 'flex', gap: 1 }}>
               <Button size='small' onClick={() => setReturnMode(false)}>
-                Cancel
+                {dictionary.forms.requisitions.approval.cancel}
               </Button>
               <LoadingButton
                 loading={
@@ -1254,7 +1265,7 @@ const getInitialLedgerItems = (): RequisitionItem[] => {
                 disabled={!canConfirmReturn}
                 onClick={handleReturnSubmit}
               >
-                Confirm Return
+                {dictionary.forms.requisitions.approval.confirmReturn}
               </LoadingButton>
             </Box>
           </>
@@ -1262,7 +1273,7 @@ const getInitialLedgerItems = (): RequisitionItem[] => {
           <>
             <Box sx={{ display: 'flex', gap: 1 }}>
               <Button size='small' onClick={() => toggleOpen(false)}>
-                Cancel
+                {dictionary.forms.requisitions.approval.cancel}
               </Button>
               {isPurchaseType && activePurchaseTab === 0 && (
                 <Button
@@ -1270,7 +1281,7 @@ const getInitialLedgerItems = (): RequisitionItem[] => {
                   variant='outlined'
                   onClick={() => setActivePurchaseTab(1)}
                 >
-                  Next &gt;
+                  {dictionary.forms.requisitions.approval.next}
                 </Button>
               )}
               {isPurchaseType && activePurchaseTab === 1 && (
@@ -1279,7 +1290,7 @@ const getInitialLedgerItems = (): RequisitionItem[] => {
                   variant='outlined'
                   onClick={() => setActivePurchaseTab(0)}
                 >
-                  &lt; Prev
+                  {dictionary.forms.requisitions.approval.prev}
                 </Button>
               )}
             </Box>
@@ -1299,7 +1310,7 @@ const getInitialLedgerItems = (): RequisitionItem[] => {
                       handleSubmit(onSubmit)(e);
                     }}
                   >
-                    Approve
+                    {dictionary.forms.requisitions.approval.approve}
                   </LoadingButton>
                   <Button
                     size='small'
@@ -1331,7 +1342,7 @@ const getInitialLedgerItems = (): RequisitionItem[] => {
                     <ListItemIcon>
                       <PauseCircleOutlineIcon fontSize='small' />
                     </ListItemIcon>
-                    <ListItemText>Hold</ListItemText>
+                    <ListItemText>{dictionary.forms.requisitions.approval.hold}</ListItemText>
                   </MenuItem>
                   <MenuItem
                     onClick={(e) => {
@@ -1344,7 +1355,7 @@ const getInitialLedgerItems = (): RequisitionItem[] => {
                       <HighlightOffIcon fontSize='small' color='error' />
                     </ListItemIcon>
                     <ListItemText sx={{ color: 'error.main' }}>
-                      Reject
+                      {dictionary.forms.requisitions.approval.reject}
                     </ListItemText>
                   </MenuItem>
                   {canReturn && (
@@ -1361,7 +1372,7 @@ const getInitialLedgerItems = (): RequisitionItem[] => {
                           <UndoIcon fontSize='small' color='warning' />
                         </ListItemIcon>
                         <ListItemText sx={{ color: 'warning.main' }}>
-                          Return to earlier level…
+                          {dictionary.forms.requisitions.approval.returnToEarlierLevel}
                         </ListItemText>
                       </MenuItem>
                     </>

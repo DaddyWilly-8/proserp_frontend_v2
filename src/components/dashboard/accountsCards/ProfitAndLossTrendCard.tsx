@@ -35,6 +35,7 @@ import {
 import financialReportsServices from '../../accounts/reports/financial-reports-services';
 import IncomeStatement from '../../accounts/reports/incomeStatement/IncomeStatement';
 import { useDashboardSettings } from '../Dashboard';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface FinancialFigure {
   period: string;
@@ -49,6 +50,7 @@ interface ChartDataPoint {
 }
 
 function ProfitAndLossTrendCard() {
+  const dictionary = useDictionary();
   const [openDialog, setOpenDialog] = useState(false);
 
   // Screen handling constants
@@ -123,7 +125,7 @@ function ProfitAndLossTrendCard() {
 
   return (
     <JumboCardQuick
-      title='Profit & Loss Trend'
+      title={dictionary.dashboardCards.profitAndLossTrend}
       sx={{
         height: 360,
       }}
@@ -132,7 +134,7 @@ function ProfitAndLossTrendCard() {
           <Grid size={{ xs: 8 }}>
             {!midScreen && !smallScreen ? (
               <ButtonGroup variant='outlined' size='small' disableElevation>
-                <Tooltip title='Daily Trend'>
+                <Tooltip title={dictionary.tooltips.dailyTrend}>
                   <Button
                     variant={
                       params.aggregate_by === 'day' ? 'contained' : 'outlined'
@@ -144,7 +146,7 @@ function ProfitAndLossTrendCard() {
                     Daily
                   </Button>
                 </Tooltip>
-                <Tooltip title='Weekly Trend'>
+                <Tooltip title={dictionary.tooltips.weeklyTrend}>
                   <Button
                     variant={
                       params.aggregate_by === 'week' ? 'contained' : 'outlined'
@@ -156,7 +158,7 @@ function ProfitAndLossTrendCard() {
                     Weekly
                   </Button>
                 </Tooltip>
-                <Tooltip title='Monthly Trend'>
+                <Tooltip title={dictionary.tooltips.monthlyTrend}>
                   <Button
                     variant={
                       params.aggregate_by === 'month' ? 'contained' : 'outlined'
@@ -168,7 +170,7 @@ function ProfitAndLossTrendCard() {
                     Monthly
                   </Button>
                 </Tooltip>
-                <Tooltip title='Yearly Trend'>
+                <Tooltip title={dictionary.tooltips.yearlyTrend}>
                   <Button
                     variant={
                       params.aggregate_by === 'year' ? 'contained' : 'outlined'
@@ -213,7 +215,7 @@ function ProfitAndLossTrendCard() {
             )}
           </Grid>
           <Grid size={{ xs: 4 }} textAlign={'end'} p={0}>
-            <Tooltip title='Income Statement'>
+            <Tooltip title={dictionary.tooltips.incomeStatement}>
               <IconButton
                 onClick={() => setOpenDialog(true)}
                 size='small'

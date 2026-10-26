@@ -42,16 +42,17 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import { Fragment, useMemo, useState } from 'react';
 import projectsServices from '../../../project-services';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const getPercentageColor = (percentage) =>
   percentage === Infinity || percentage >= 100 ? 'error' : 'primary';
 
 const SORT_OPTIONS = [
-  { value: 'budgeted_amount', label: 'Budgeted' },
-  { value: 'committed_amount', label: 'Committed' },
-  { value: 'spent_amount', label: 'Spent' },
-  { value: 'budget_minus_spent', label: 'Budget - Spent' },
-  { value: 'remaining_amount', label: 'Available' },
+  { value: 'budgeted_amount', labelKey: 'budgeted' },
+  { value: 'committed_amount', labelKey: 'committed' },
+  { value: 'spent_amount', labelKey: 'spent' },
+  { value: 'budget_minus_spent', labelKey: 'budgetMinusSpent' },
+  { value: 'remaining_amount', labelKey: 'available' },
 ];
 
 function SummaryStat({ label, value, valueColor }) {
@@ -68,6 +69,7 @@ function SummaryStat({ label, value, valueColor }) {
 }
 
 function PercentSpentIndicator({ percentageSpent, dense }) {
+  const dictionary = useDictionary();
   return (
     <Box
       display='flex'
@@ -77,7 +79,7 @@ function PercentSpentIndicator({ percentageSpent, dense }) {
     >
       <Typography variant='caption'>
         {percentageSpent === Infinity
-          ? 'unbudgeted'
+          ? dictionary.projectManagement.budgets.details.unbudgeted
           : `${percentageSpent.toFixed(0)}%`}
       </Typography>
       <Box width={dense ? 70 : 50}>
@@ -95,6 +97,7 @@ function PercentSpentIndicator({ percentageSpent, dense }) {
 }
 
 function ItemDetails({ item, isProduct, baseCurrency }) {
+  const dictionary = useDictionary();
   const currencyCode = item.currency || baseCurrency?.code;
   const formatRate = (value) =>
     Number(value || 0).toLocaleString('en-US', {
@@ -123,7 +126,7 @@ function ItemDetails({ item, isProduct, baseCurrency }) {
     >
       <Box>
         <Typography variant='caption' color='text.secondary'>
-          Quantity Budgeted
+          {dictionary.projectManagement.budgets.position.quantityBudgeted}
         </Typography>
         <Typography variant='body2'>
           {item.quantity} {item.unit_symbol || ''}
@@ -131,13 +134,13 @@ function ItemDetails({ item, isProduct, baseCurrency }) {
       </Box>
       <Box>
         <Typography variant='caption' color='text.secondary'>
-          Budgeted Rate
+          {dictionary.projectManagement.budgets.position.budgetedRate}
         </Typography>
         <Typography variant='body2'>{formatRate(item.rate)}</Typography>
       </Box>
       <Box>
         <Typography variant='caption' color='text.secondary'>
-          {isProduct ? 'Quantity Spent' : 'Quantity Executed'}
+          {isProduct ? dictionary.projectManagement.budgets.position.quantitySpent : dictionary.projectManagement.budgets.position.quantityExecuted}
         </Typography>
         <Typography variant='body2'>
           {spentQuantity} {item.unit_symbol || ''}
@@ -145,7 +148,7 @@ function ItemDetails({ item, isProduct, baseCurrency }) {
       </Box>
       <Box>
         <Typography variant='caption' color='text.secondary'>
-          {isProduct ? 'Average Spent Rate' : 'Executed Rate'}
+          {isProduct ? dictionary.projectManagement.budgets.position.averageSpentRate : dictionary.projectManagement.budgets.position.executedRate}
         </Typography>
         <Typography variant='body2'>
           {spentRate === null ? '-' : formatRate(spentRate)}
@@ -156,6 +159,7 @@ function ItemDetails({ item, isProduct, baseCurrency }) {
 }
 
 function BudgetPositionDialog({ open, onClose, budget }) {
+  const dictionary = useDictionary();
   const { theme } = useJumboTheme();
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
   const belowSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
@@ -322,7 +326,7 @@ function BudgetPositionDialog({ open, onClose, budget }) {
         fullScreen={belowLargeScreen}
       >
         <DialogTitle>
-          Budget Position — Item Wise
+          {dictionary.projectManagement.budgets.position.title}
           {budget?.name ? ` (${budget.name})` : ''}
         </DialogTitle>
         <DialogContent>
@@ -332,11 +336,7 @@ function BudgetPositionDialog({ open, onClose, budget }) {
             <>
               {data?.process_approval_active === false && (
                 <Alert severity='info' sx={{ mb: 2 }}>
-                  This organization isn&apos;t subscribed to Process
-                  Approval, so approved-but-unpaid payment requests
-                  aren&apos;t tracked as a separate commitment here — any
-                  amount owed to a supplier is already reflected in Spent or
-                  in a product&apos;s stock on hand.
+                  {dictionary.projectManagement.budgets.position.processApprovalNote}
                 </Alert>
               )}
 
@@ -344,25 +344,25 @@ function BudgetPositionDialog({ open, onClose, budget }) {
               <Grid container spacing={2} mb={2}>
                 <Grid size={{ xs: 6, md: 2 }}>
                   <SummaryStat
-                    label='Budgeted'
+                    label={dictionary.projectManagement.budgets.details.budgeted}
                     value={formatCurrency(totals.budgeted)}
                   />
                 </Grid>
                 <Grid size={{ xs: 6, md: 2 }}>
                   <SummaryStat
-                    label='Committed'
+                    label={dictionary.projectManagement.budgets.details.committed}
                     value={formatCurrency(totals.committed)}
                   />
                 </Grid>
                 <Grid size={{ xs: 6, md: 2 }}>
                   <SummaryStat
-                    label='Spent'
+                    label={dictionary.projectManagement.budgets.details.spent}
                     value={formatCurrency(totals.spent)}
                   />
                 </Grid>
                 <Grid size={{ xs: 6, md: 2 }}>
                   <SummaryStat
-                    label='Budget - Spent'
+                    label={dictionary.projectManagement.budgets.position.budgetMinusSpent}
                     value={formatCurrency(totalBudgetMinusSpent)}
                     valueColor={
                       totalBudgetMinusSpent < 0 ? 'error.main' : undefined
@@ -371,14 +371,14 @@ function BudgetPositionDialog({ open, onClose, budget }) {
                 </Grid>
                 <Grid size={{ xs: 6, md: 2 }}>
                   <SummaryStat
-                    label='Available'
+                    label={dictionary.projectManagement.budgets.details.available}
                     value={formatCurrency(totalAvailable)}
                     valueColor={totalAvailable < 0 ? 'error.main' : undefined}
                   />
                 </Grid>
                 <Grid size={{ xs: 6, md: 2 }}>
                   <Typography variant='body2' color='text.secondary'>
-                    % Spent
+                    {dictionary.projectManagement.budgets.details.percentSpent}
                   </Typography>
                   <Box display='flex' alignItems='center' gap={1}>
                     <Typography variant='h6'>
@@ -413,21 +413,21 @@ function BudgetPositionDialog({ open, onClose, budget }) {
                   }}
                 >
                   <ToggleButton value='product'>
-                    Products ({typeCounts.product})
+                    {dictionary.projectManagement.budgets.position.products.replace('{count}', typeCounts.product)}
                   </ToggleButton>
                   <ToggleButton value='ledger'>
-                    Ledger Items ({typeCounts.ledger})
+                    {dictionary.projectManagement.budgets.position.ledgerItems.replace('{count}', typeCounts.ledger)}
                   </ToggleButton>
                   {data?.has_subcontract_tasks && (
                     <ToggleButton value='subcontract_task'>
-                      Subcontract ({typeCounts.subcontract_task})
+                      {dictionary.projectManagement.budgets.position.subcontract.replace('{count}', typeCounts.subcontract_task)}
                     </ToggleButton>
                   )}
                 </ToggleButtonGroup>
 
                 <TextField
                   size='small'
-                  placeholder='Search by name...'
+                  placeholder={dictionary.projectManagement.budgets.position.searchPlaceholder}
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   sx={{ minWidth: { sm: 220 }, ml: { sm: 'auto' } }}
@@ -453,7 +453,7 @@ function BudgetPositionDialog({ open, onClose, budget }) {
                     >
                       {SORT_OPTIONS.map((option) => (
                         <MenuItem key={option.value} value={option.value}>
-                          Sort: {option.label}
+                          {dictionary.projectManagement.budgets.position.sortBy.replace('{label}', dictionary.projectManagement.budgets.details[option.labelKey] ?? dictionary.projectManagement.budgets.position[option.labelKey])}
                         </MenuItem>
                       ))}
                     </Select>
@@ -472,7 +472,7 @@ function BudgetPositionDialog({ open, onClose, budget }) {
                   </Box>
 
                   {visibleItems.length === 0 && (
-                    <Alert severity='info'>No items match your filters</Alert>
+                    <Alert severity='info'>{dictionary.projectManagement.budgets.position.noItemsMatch}</Alert>
                   )}
 
                   {visibleItems.map((item) => {
@@ -509,7 +509,7 @@ function BudgetPositionDialog({ open, onClose, budget }) {
                             </Box>
                             <Box display='flex' flexShrink={0}>
                               {hasLedgerStatement && (
-                                <Tooltip title='View Ledger Statement'>
+                                <Tooltip title={dictionary.tooltips.viewLedgerStatement}>
                                   <IconButton
                                     size='small'
                                     onClick={() => handleViewLedger(item)}
@@ -545,7 +545,7 @@ function BudgetPositionDialog({ open, onClose, budget }) {
                                 variant='caption'
                                 color='text.secondary'
                               >
-                                Budgeted
+                                {dictionary.projectManagement.budgets.details.budgeted}
                               </Typography>
                               <Typography variant='body2'>
                                 {formatCurrency(item.budgeted_amount)}
@@ -556,7 +556,7 @@ function BudgetPositionDialog({ open, onClose, budget }) {
                                 variant='caption'
                                 color='text.secondary'
                               >
-                                Committed
+                                {dictionary.projectManagement.budgets.details.committed}
                               </Typography>
                               <Typography variant='body2'>
                                 {formatCurrency(item.committed_amount)}
@@ -567,7 +567,7 @@ function BudgetPositionDialog({ open, onClose, budget }) {
                                 variant='caption'
                                 color='text.secondary'
                               >
-                                Spent
+                                {dictionary.projectManagement.budgets.details.spent}
                               </Typography>
                               <Typography variant='body2'>
                                 {formatCurrency(item.spent_amount)}
@@ -578,7 +578,7 @@ function BudgetPositionDialog({ open, onClose, budget }) {
                                 variant='caption'
                                 color='text.secondary'
                               >
-                                Budget - Spent
+                                {dictionary.projectManagement.budgets.position.budgetMinusSpent}
                               </Typography>
                               <Typography
                                 variant='body2'
@@ -596,7 +596,7 @@ function BudgetPositionDialog({ open, onClose, budget }) {
                                 variant='caption'
                                 color='text.secondary'
                               >
-                                Available
+                                {dictionary.projectManagement.budgets.details.available}
                               </Typography>
                               <Typography
                                 variant='body2'
@@ -614,7 +614,7 @@ function BudgetPositionDialog({ open, onClose, budget }) {
                                 variant='caption'
                                 color='text.secondary'
                               >
-                                % Spent
+                                {dictionary.projectManagement.budgets.details.percentSpent}
                               </Typography>
                               <PercentSpentIndicator
                                 percentageSpent={percentageSpent}
@@ -642,23 +642,23 @@ function BudgetPositionDialog({ open, onClose, budget }) {
                   <Table size='small'>
                     <TableHead>
                       <TableRow>
-                        <TableCell>Name</TableCell>
-                        {sortableHeader('budgeted_amount', 'Budgeted')}
-                        {sortableHeader('committed_amount', 'Committed')}
-                        {sortableHeader('spent_amount', 'Spent')}
+                        <TableCell>{dictionary.projectManagement.budgets.details.name}</TableCell>
+                        {sortableHeader('budgeted_amount', dictionary.projectManagement.budgets.details.budgeted)}
+                        {sortableHeader('committed_amount', dictionary.projectManagement.budgets.details.committed)}
+                        {sortableHeader('spent_amount', dictionary.projectManagement.budgets.details.spent)}
                         {sortableHeader(
                           'budget_minus_spent',
-                          'Budget - Spent'
+                          dictionary.projectManagement.budgets.position.budgetMinusSpent
                         )}
-                        {sortableHeader('remaining_amount', 'Available')}
-                        <TableCell align='right'>% Spent</TableCell>
+                        {sortableHeader('remaining_amount', dictionary.projectManagement.budgets.details.available)}
+                        <TableCell align='right'>{dictionary.projectManagement.budgets.details.percentSpent}</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
                       {visibleItems.length === 0 && (
                         <TableRow>
                           <TableCell colSpan={7} align='center'>
-                            No items match your filters
+                            {dictionary.projectManagement.budgets.position.noItemsMatch}
                           </TableCell>
                         </TableRow>
                       )}
@@ -711,7 +711,7 @@ function BudgetPositionDialog({ open, onClose, budget }) {
                                     )}
                                   </Box>
                                   {hasLedgerStatement && (
-                                    <Tooltip title='View Ledger Statement'>
+                                    <Tooltip title={dictionary.tooltips.viewLedgerStatement}>
                                       <IconButton
                                         size='small'
                                         onClick={() => handleViewLedger(item)}
@@ -781,7 +781,7 @@ function BudgetPositionDialog({ open, onClose, budget }) {
           )}
         </DialogContent>
         <DialogActions>
-          <Button onClick={onClose}>Close</Button>
+          <Button onClick={onClose}>{dictionary.projectManagement.budgets.common.close}</Button>
         </DialogActions>
       </Dialog>
 

@@ -29,43 +29,44 @@ export const groupLines = (lines) => {
 
 // The Summary version of a batch Fuel Voucher invoice, on the shared invoice layout
 // (same look as the Proforma / Customer Invoice PDFs)
-function FuelVoucherInvoiceSummaryPDF({ invoice, organization }) {
+function FuelVoucherInvoiceSummaryPDF({ invoice, organization, dictionary }) {
+  const t = dictionary.reports.fuelStationReports.fuelVoucherInvoices;
   return (
     <StandardInvoicePDF
       organization={organization}
       meta={{
         title: invoice.invoice_no,
         author: invoice.creator?.name,
-        subject: 'Invoice',
+        subject: t.subject,
         keywords: invoice.stakeholder?.name,
       }}
       number={invoice.invoice_no}
       stakeholder={invoice.stakeholder}
-      details={fuelInvoiceDetails(invoice)}
+      details={fuelInvoiceDetails(invoice, t)}
       columns={[
         {
-          label: 'Product',
+          label: t.product,
           flex: 3,
           get: (row) => (
             <>
               <Text>{row.product}</Text>
-              <Text>{`${row.vouchers} ${row.vouchers === 1 ? 'voucher' : 'vouchers'}`}</Text>
+              <Text>{`${row.vouchers} ${row.vouchers === 1 ? t.voucher : t.vouchers}`}</Text>
             </>
           ),
         },
-        { label: 'Unit', flex: 0.5, get: (row) => row.unit ?? '' },
+        { label: t.unit, flex: 0.5, get: (row) => row.unit ?? '' },
         {
-          label: 'Quantity',
+          label: t.quantity,
           flex: 1,
           align: 'right',
           get: (row) =>
             row.quantity.toLocaleString('en-US', { maximumFractionDigits: 2 }),
         },
-        { label: 'Unit Price', flex: 1, align: 'right', get: (row) => money(row.price) },
-        { label: 'Amount', flex: 1, align: 'right', get: (row) => money(row.amount) },
+        { label: t.unitPrice, flex: 1, align: 'right', get: (row) => money(row.price) },
+        { label: t.amount, flex: 1, align: 'right', get: (row) => money(row.amount) },
       ]}
       rows={groupLines(invoice.lines)}
-      totals={fuelInvoiceTotals(invoice)}
+      totals={fuelInvoiceTotals(invoice, t)}
       receipts={invoice.receipts ?? []}
       narration={invoice.narration}
       terms={invoice.terms_and_instructions}

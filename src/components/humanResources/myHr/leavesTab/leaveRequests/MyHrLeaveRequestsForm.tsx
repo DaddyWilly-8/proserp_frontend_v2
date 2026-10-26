@@ -1,4 +1,5 @@
 'use client';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 import { LeaveRequestType } from '@/components/humanResources/employees/profile/leaveRequests/LeaveRequestType';
 import { getErrorMessage } from '@/utilities/helpers/errorHandler';
@@ -59,6 +60,8 @@ const MyHrLeaveRequestsForm = ({
   setOpenDialog,
   leaveRequest = null,
 }: LeaveRequestFormProps) => {
+  const dictionary = useDictionary();
+  const t = dictionary.humanResources.myHr.leaves.requests.form;
   const queryClient = useQueryClient();
   const { enqueueSnackbar } = useSnackbar();
 
@@ -84,7 +87,7 @@ const MyHrLeaveRequestsForm = ({
     mutationFn: humanResourcesServices.myHrAddLeaveRequests,
     onSuccess: () => {
       setOpenDialog(false);
-      enqueueSnackbar('Leave Request Created Successfully', {
+      enqueueSnackbar(t.messages.created, {
         variant: 'success',
       });
       queryClient.invalidateQueries({ queryKey: ['myHrLeaveRequests'] });
@@ -102,13 +105,13 @@ const MyHrLeaveRequestsForm = ({
     mutationFn: humanResourcesServices.updateLeaveRequest,
     onSuccess: () => {
       setOpenDialog(false);
-      enqueueSnackbar('Leave Request Updated Successfully', {
+      enqueueSnackbar(t.messages.updated, {
         variant: 'success',
       });
       queryClient.invalidateQueries({ queryKey: ['leaveRequests'] });
     },
     onError: (mutationError) => {
-      let message = 'Something went wrong';
+      let message = t.messages.somethingWentWrong;
 
       if (
         typeof mutationError === 'object' &&
@@ -126,15 +129,15 @@ const MyHrLeaveRequestsForm = ({
 
   const validationSchema = yup.object({
     id: yup.number().optional(),
-    leave_type_id: yup.number().required('Leave type is required'),
-    start_date: yup.string().required('Start date is required'),
-    end_date: yup.string().required('End date is required'),
+    leave_type_id: yup.number().required(t.errors.leaveTypeRequired),
+    start_date: yup.string().required(t.errors.startDateRequired),
+    end_date: yup.string().required(t.errors.endDateRequired),
     days_requested: yup
       .number()
-      .typeError('Days requested must be a number')
-      .required('Days requested is required')
-      .min(0.5, 'Days requested must be at least 0.5'),
-    reason: yup.string().max(1000, 'Reason cannot exceed 1000 characters'),
+      .typeError(t.errors.daysNumber)
+      .required(t.errors.daysRequired)
+      .min(0.5, t.errors.daysMin),
+    reason: yup.string().max(1000, t.errors.reasonMax),
   });
 
   const {
@@ -225,22 +228,29 @@ const MyHrLeaveRequestsForm = ({
   }, [computedDays, setValue]);
 
   const excludedDaysLabel = [
-    selectedLeaveType?.excludes_saturday && 'Saturdays',
-    selectedLeaveType?.excludes_sunday && 'Sundays',
+    selectedLeaveType?.excludes_saturday && t.hint.saturdays,
+    selectedLeaveType?.excludes_sunday && t.hint.sundays,
   ]
     .filter(Boolean)
-    .join(' and ');
+    .join(t.hint.and);
 
   const daysRequestedHint =
     computedDays === null
       ? undefined
-      : `${computedDays} day${computedDays === 1 ? '' : 's'}${
-          excludedDaysLabel ? ` (${excludedDaysLabel} excluded)` : ''
-        } between selected dates${
-          Number(watchedDaysRequested) !== computedDays
-            ? ' — differs from days requested'
-            : ' — matches days requested'
-        }`;
+      : (Number(watchedDaysRequested) !== computedDays
+          ? t.hint.differs
+          : t.hint.matches
+        )
+          .replace(
+            '{days}',
+            `${computedDays} ${computedDays === 1 ? t.hint.day : t.hint.days}`
+          )
+          .replace(
+            '{excluded}',
+            excludedDaysLabel
+              ? t.hint.excluded.replace('{label}', excludedDaysLabel)
+              : ''
+          );
 
   const validationErrors =
     error?.response?.data?.validation_errors ||
@@ -254,7 +264,7 @@ const MyHrLeaveRequestsForm = ({
     <>
       <DialogTitle>
         <Grid size={12} textAlign={'center'}>
-          {!leaveRequest?.id ? 'Create Leave Request' : 'Edit Leave Request'}
+          {!leaveRequest?.id ? t.createTitle : t.editTitle}
         </Grid>
       </DialogTitle>
       <DialogContent>
@@ -268,7 +278,7 @@ const MyHrLeaveRequestsForm = ({
                   <Controller
                     name='leave_type_id'
                     control={control}
-                    rules={{ required: 'Leave type is required' }}
+                    rules={{ required: t.errors.leaveTypeRequired }}
                     render={({ field, fieldState }) => (
                       <Autocomplete
                         size='small'
@@ -287,7 +297,7 @@ const MyHrLeaveRequestsForm = ({
                         renderInput={(params) => (
                           <TextField
                             {...params}
-                            label='Leave Type'
+                            label={t.labels.leaveType}
                             error={
                               !!fieldState.error ||
                               !!getValidationMessage(
@@ -314,7 +324,7 @@ const MyHrLeaveRequestsForm = ({
             <Grid size={{ xs: 12, md: 6 }}>
               <Div sx={{ mt: 1, mb: 1 }}>
                 <TextField
-                  label='Days Requested'
+                  label={t.labels.daysRequested}
                   size='small'
                   fullWidth
                   error={
@@ -350,7 +360,7 @@ const MyHrLeaveRequestsForm = ({
                   control={control}
                   render={({ field }) => (
                     <DateTimePicker
-                      label='Start Date'
+                      label={t.labels.startDate}
                       value={field.value ? dayjs(field.value) : null}
                       onChange={(newValue) => {
                         field.onChange(newValue ? newValue.toISOString() : '');
@@ -386,7 +396,7 @@ const MyHrLeaveRequestsForm = ({
                   control={control}
                   render={({ field }) => (
                     <DateTimePicker
-                      label='End Date'
+                      label={t.labels.endDate}
                       value={field.value ? dayjs(field.value) : null}
                       onChange={(newValue) => {
                         field.onChange(newValue ? newValue.toISOString() : '');
@@ -415,7 +425,7 @@ const MyHrLeaveRequestsForm = ({
             <Grid size={{ xs: 12, md: 6 }}>
               <Div sx={{ mt: 1, mb: 1 }}>
                 <TextField
-                  label='Reason'
+                  label={t.labels.reason}
                   size='small'
                   fullWidth
                   multiline
@@ -436,7 +446,7 @@ const MyHrLeaveRequestsForm = ({
 
           <DialogActions>
             <Button size='small' onClick={() => setOpenDialog(false)}>
-              Cancel
+              {t.buttons.cancel}
             </Button>
             <LoadingButton
               type='submit'
@@ -445,7 +455,7 @@ const MyHrLeaveRequestsForm = ({
               sx={{ display: 'flex' }}
               loading={isPending || updateIsPending}
             >
-              Submit
+              {t.buttons.submit}
             </LoadingButton>
           </DialogActions>
         </form>

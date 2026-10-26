@@ -1,4 +1,5 @@
 'use client';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 import { getErrorMessage } from '@/utilities/helpers/errorHandler';
 import { AccountBalanceWalletOutlined } from '@mui/icons-material';
@@ -9,6 +10,8 @@ import MyHrImprestAccountsListItem from './MyHrImprestAccountsListItem';
 import { MyHrImprestLedgerLink } from './imprestAccountsType';
 
 const MyHrImprestAccounts = () => {
+  const dictionary = useDictionary();
+  const t = dictionary.humanResources.myHr.imprest;
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ['showMyHrImprestAccounts'],
     queryFn: () => humanResourcesServices.myHrImprestAccounts(),
@@ -62,7 +65,7 @@ const MyHrImprestAccounts = () => {
       >
         <AccountBalanceWalletOutlined sx={{ width: 50, height: 50 }} />
         <Typography textAlign='center' fontSize={15} mt={1}>
-          No imprest accounts linked to your account.
+          {t.noAccounts}
         </Typography>
       </Box>
     );

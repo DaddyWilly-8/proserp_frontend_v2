@@ -16,6 +16,7 @@ import { useState } from 'react';
 import humanResourcesServices from '../humanResourcesServices';
 import BankForm from './BankForm';
 import { BankType } from './BankType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const EditBank = ({ bank, setOpenEditDialog }: { bank: BankType; setOpenEditDialog: (open: boolean) => void }) => {
   const { data: bankData, isFetching } = useQuery({
@@ -42,6 +43,7 @@ const EditBank = ({ bank, setOpenEditDialog }: { bank: BankType; setOpenEditDial
 };
 
 const BankItemAction = ({ bank }: { bank: BankType }) => {
+  const dictionary = useDictionary();
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const { showDialog, hideDialog } = useJumboDialog();
   const { enqueueSnackbar } = useSnackbar();
@@ -53,19 +55,19 @@ const BankItemAction = ({ bank }: { bank: BankType }) => {
     mutationFn: humanResourcesServices.deleteBank,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['banks'] });
-      enqueueSnackbar('Bank Deleted Successfully', { variant: 'success' });
+      enqueueSnackbar(dictionary.humanResources.banks.messages.deleted, { variant: 'success' });
     },
     onError: (error: any) => {
-      enqueueSnackbar('Error Deleting Bank', { variant: 'error' });
+      enqueueSnackbar(dictionary.humanResources.banks.messages.deleteError, { variant: 'error' });
       console.log('error deleting bank: ', error);
     },
   });
 
   const menuItems = [
-    { icon: <EditOutlined />, title: 'Edit', action: 'edit' },
+    { icon: <EditOutlined />, title: dictionary.humanResources.banks.menu.edit, action: 'edit' },
     {
       icon: <DeleteOutlined color='error' />,
-      title: 'Delete',
+      title: dictionary.humanResources.banks.menu.delete,
       action: 'delete',
     },
   ];
@@ -77,8 +79,8 @@ const BankItemAction = ({ bank }: { bank: BankType }) => {
         break;
       case 'delete':
         showDialog({
-          title: 'Confirm Delete',
-          content: 'Are you sure you want to delete this Bank?',
+          title: dictionary.humanResources.banks.dialog.confirmDeleteTitle,
+          content: dictionary.humanResources.banks.dialog.confirmDeleteContent,
           onYes: () => {
             hideDialog();
             deleteBank(bank.id);
@@ -109,7 +111,7 @@ const BankItemAction = ({ bank }: { bank: BankType }) => {
       </Dialog>
       <JumboDdMenu
         icon={
-          <Tooltip title='Actions'>
+          <Tooltip title={dictionary.tooltips.actions}>
             <MoreHorizOutlined fontSize='small' />
           </Tooltip>
         }

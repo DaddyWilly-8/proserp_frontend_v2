@@ -14,6 +14,7 @@ import { PayrollPeriodType } from '../payrollPeriods/PayrollPeriodType';
 import PayrollApprovalItemAction from './PayrollApprovalItemAction';
 import PayrollApprovalsActionTail from './PayrollApprovalsActionTail';
 import { PayrollRunType } from './PayrollRunType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -36,6 +37,8 @@ export const ApprovalsTab = ({
   payrollRun,
   selectedPayrollPeriod,
 }: ApprovalsTabProps) => {
+  const dictionary = useDictionary();
+  const t = dictionary.humanResources.payrollRuns.approvalsTab;
   const approvals = payrollRun?.approvals || [];
 
   return (
@@ -87,7 +90,7 @@ export const ApprovalsTab = ({
                 approval.approval_chain_level?.role?.name || chainLevel?.role?.name,
               ]
                 .filter(Boolean)
-                .join(' by ');
+                .join(` ${t.by} `);
 
               return (
                 <Grid
@@ -106,7 +109,7 @@ export const ApprovalsTab = ({
                   alignItems={'center'}
                 >
                   <Grid size={{ xs: 12, md: 3, lg: 3 }}>
-                    <Tooltip title={'Action Date'}>
+                    <Tooltip title={dictionary.tooltips.actionDate}>
                       <Typography variant='h6'>
                         {approval.approval_date
                           ? readableDate(approval.approval_date)
@@ -116,7 +119,7 @@ export const ApprovalsTab = ({
                   </Grid>
 
                   <Grid size={{ xs: 12, md: 3, lg: 3 }}>
-                    <Tooltip title={'Done By'}>
+                    <Tooltip title={dictionary.tooltips.doneBy}>
                       <Typography variant='h6'>
                         {(approval as any).creator?.name || '-'}
                       </Typography>
@@ -124,10 +127,10 @@ export const ApprovalsTab = ({
                   </Grid>
 
                   <Grid size={{ xs: 12, md: 4, lg: 4 }}>
-                    <Tooltip title={approval.status || 'Pending'}>
+                    <Tooltip title={approval.status || t.pending}>
                       <Chip
                         size='small'
-                        label={levelLabel || approval.status || 'Pending'}
+                        label={levelLabel || approval.status || t.pending}
                         color={chipColor as any}
                         sx={{ textTransform: 'capitalize' }}
                       />
@@ -152,7 +155,7 @@ export const ApprovalsTab = ({
           ) : (
             <Grid size={{ xs: 12 }}>
               <Alert variant='outlined' severity='info'>
-                No Approvals Found
+                {t.noApprovals}
               </Alert>
             </Grid>
           )}

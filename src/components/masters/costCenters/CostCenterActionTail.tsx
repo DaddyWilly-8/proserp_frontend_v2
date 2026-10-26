@@ -6,8 +6,10 @@ import { ButtonGroup, Tooltip, IconButton, Dialog, useMediaQuery } from '@mui/ma
 import CostCenterForm from './CostCenterForm';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const CostCenterActionTail = () => {
+  const dictionary = useDictionary();
   const { authUser } = useJumboAuth();
   const [openDialog, setOpenDialog] = useState(false);
 
@@ -28,7 +30,7 @@ const CostCenterActionTail = () => {
 
       <ButtonGroup variant="outlined" size="small" disableElevation sx={{ '& .MuiButton-root': { px: 1 } }}>
         {canAdd && (
-          <Tooltip title={"New Cost Center"}>
+          <Tooltip title={dictionary.tooltips.newCostCenter}>
             <IconButton onClick={() => setOpenDialog(true)}>
               <AddOutlined />
             </IconButton>

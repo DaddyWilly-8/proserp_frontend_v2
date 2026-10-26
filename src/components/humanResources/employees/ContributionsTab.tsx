@@ -22,6 +22,7 @@ import { Controller, useForm } from 'react-hook-form';
 import * as yup from 'yup';
 import { EmployerContributionType } from '../employerContributionTypes/EmployerContributionType';
 import humanResourcesServices from '../humanResourcesServices';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface FormData {
   id: number | null;
@@ -37,6 +38,7 @@ interface ContributionsTabProps {
 const ContributionsTab = ({
   setContributionSettings,
 }: ContributionsTabProps) => {
+  const dictionary = useDictionary();
   const { theme } = useJumboTheme();
   const [scopeValue, setScopeValue] = useState<string | null>(null);
 
@@ -63,10 +65,10 @@ const ContributionsTab = ({
   const validationSchema = yup.object({
     id: yup
       .number()
-      .required('Contribution Type is required')
-      .typeError('Deduction Type is required'),
+      .required(dictionary.humanResources.employees.contributions.errors.typeRequired)
+      .typeError(dictionary.humanResources.employees.contributions.errors.typeRequired),
     contribution_name: yup.string(),
-    scope: yup.string().required('Scope is required'),
+    scope: yup.string().required(dictionary.humanResources.employees.contributions.errors.scopeRequired),
     scope_lable: yup.string(),
   });
 
@@ -109,7 +111,9 @@ const ContributionsTab = ({
               <Controller
                 name='id'
                 control={control}
-                rules={{ required: 'Contribution type is required' }}
+                rules={{
+                  required: dictionary.humanResources.employees.contributions.errors.typeRequired,
+                }}
                 render={({ field, fieldState }) => (
                   <Autocomplete
                     size='small'
@@ -141,7 +145,7 @@ const ContributionsTab = ({
                     renderInput={(params) => (
                       <TextField
                         {...params}
-                        label='Contribution Type'
+                        label={dictionary.humanResources.employees.contributions.labels.contributionType}
                         error={!!fieldState.error}
                         helperText={fieldState.error?.message}
                       />
@@ -161,7 +165,7 @@ const ContributionsTab = ({
           <Div sx={{ mt: 1, mb: 1 }}>
             <FormControl>
               <FormLabel id={`contribution-scope`} sx={{ fontSize: 12 }}>
-                Scope
+                {dictionary.humanResources.employees.common.scope}
               </FormLabel>
               <RadioGroup
                 row
@@ -175,17 +179,21 @@ const ContributionsTab = ({
                     shouldDirty: true,
                   });
                   if (v === 'all') {
-                    setValue('scope_lable', 'All');
+                    setValue('scope_lable', dictionary.humanResources.employees.common.scopeAll);
                   } else {
-                    setValue('scope_lable', 'Active Contracts');
+                    setValue(
+                      'scope_lable',
+                      dictionary.humanResources.employees.common.scopeActiveContracts
+                    );
                   }
                 }}
               >
-                <FormControlLabel value='all' control={<Radio />} label='All' />
+                <FormControlLabel value='all' control={<Radio />} label={dictionary.humanResources.employees.common.scopeAll}
+                />
                 <FormControlLabel
                   value='active_contracts'
                   control={<Radio />}
-                  label='Active Contracts'
+                  label={dictionary.humanResources.employees.common.scopeActiveContracts}
                 />
               </RadioGroup>
               {errors.scope && (
@@ -204,7 +212,7 @@ const ContributionsTab = ({
         >
           <Button variant='contained' size='small' type='submit'>
             <Add />
-            add
+            {dictionary.humanResources.employees.common.add}
           </Button>
         </Grid>
       </Grid>

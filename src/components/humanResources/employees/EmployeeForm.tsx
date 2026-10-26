@@ -41,6 +41,7 @@ import { Designation } from '../designations/DesignationsType';
 import humanResourcesServices from '../humanResourcesServices';
 import EmployeeSelector from './EmployeeSelector';
 import { Employee } from './EmployeesType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface User {
   id: number;
@@ -74,31 +75,47 @@ interface OptionType {
   value: string;
 }
 
-// Constants
-const GENDER_OPTIONS: OptionType[] = [
-  { label: 'Male', value: 'male' },
-  { label: 'Female', value: 'female' },
-];
-const EMPLOYMENT_OPTIONS: OptionType[] = [
-  { label: 'Full Time', value: 'full_time' },
-  { label: 'Part Time', value: 'part_time' },
-  { label: 'Casual', value: 'casual' },
-];
-const RESIDENCE_STATUS_OPTIONS: OptionType[] = [
-  { label: 'Resident', value: 'resident' },
-  { label: 'Non-Resident', value: 'non_resident' },
-];
-const CONTRACT_TYPE_OPTIONS: OptionType[] = [
-  { label: 'Permanent', value: 'permanent' },
-  { label: 'Fixed Term', value: 'fixed_term' },
-  { label: 'Probation', value: 'probation' },
-  { label: 'Specific Task', value: 'specific_task' },
-];
+// Option values; labels come from the dictionary (see getOptions below)
+const getOptions = (t: any) => {
+  const GENDER_OPTIONS: OptionType[] = [
+    { label: t.options.gender.male, value: 'male' },
+    { label: t.options.gender.female, value: 'female' },
+  ];
+  const EMPLOYMENT_OPTIONS: OptionType[] = [
+    { label: t.employmentTypes.full_time, value: 'full_time' },
+    { label: t.employmentTypes.part_time, value: 'part_time' },
+    { label: t.employmentTypes.casual, value: 'casual' },
+  ];
+  const RESIDENCE_STATUS_OPTIONS: OptionType[] = [
+    { label: t.residenceStatuses.resident, value: 'resident' },
+    { label: t.residenceStatuses.non_resident, value: 'non_resident' },
+  ];
+  const CONTRACT_TYPE_OPTIONS: OptionType[] = [
+    { label: t.contractTypes.permanent, value: 'permanent' },
+    { label: t.contractTypes.fixed_term, value: 'fixed_term' },
+    { label: t.contractTypes.probation, value: 'probation' },
+    { label: t.contractTypes.specific_task, value: 'specific_task' },
+  ];
+  return {
+    GENDER_OPTIONS,
+    EMPLOYMENT_OPTIONS,
+    RESIDENCE_STATUS_OPTIONS,
+    CONTRACT_TYPE_OPTIONS,
+  };
+};
 
 const EmployeeForm = ({
   setOpenDialog,
   employee = null,
 }: EmployeeFormProps) => {
+  const dictionary = useDictionary();
+  const t = dictionary.humanResources.employees;
+  const {
+    GENDER_OPTIONS,
+    EMPLOYMENT_OPTIONS,
+    RESIDENCE_STATUS_OPTIONS,
+    CONTRACT_TYPE_OPTIONS,
+  } = useMemo(() => getOptions(t), [t]);
   const queryClient = useQueryClient();
   const { enqueueSnackbar } = useSnackbar();
   const {
@@ -223,7 +240,7 @@ const EmployeeForm = ({
     },
     onSuccess: () => {
       setOpenDialog(false);
-      enqueueSnackbar('Employee added successfully', { variant: 'success' });
+      enqueueSnackbar(t.form.messages.added, { variant: 'success' });
       queryClient.invalidateQueries({ queryKey: ['employees'] });
     },
     onError: (err: any) => {
@@ -251,7 +268,7 @@ const EmployeeForm = ({
     },
     onSuccess: () => {
       setOpenDialog(false);
-      enqueueSnackbar('Employee updated successfully', { variant: 'success' });
+      enqueueSnackbar(t.form.messages.updated, { variant: 'success' });
       queryClient.invalidateQueries({ queryKey: ['employees'] });
     },
     onError: (err: any) => {
@@ -264,11 +281,11 @@ const EmployeeForm = ({
   // Validation Schema
   const validationSchema = yup.object({
     employee_number: yup.string().nullable(),
-    first_name: yup.string().required('First name is required').max(100),
+    first_name: yup.string().required(t.form.errors.firstNameRequired).max(100),
     middle_name: yup.string().nullable().max(100),
-    last_name: yup.string().required('Last name is required').max(100),
-    gender: yup.string().required('Gender is required'),
-    email: yup.string().email('Invalid email format').nullable(),
+    last_name: yup.string().required(t.form.errors.lastNameRequired).max(100),
+    gender: yup.string().required(t.form.errors.genderRequired),
+    email: yup.string().email(t.form.errors.invalidEmail).nullable(),
     phone_number: yup.string().nullable(),
     address: yup.string().nullable(),
     date_of_birth: yup.string().nullable(),
@@ -282,17 +299,17 @@ const EmployeeForm = ({
     payable_ledger_id: yup.number().nullable().optional(),
     create_payable: yup.boolean().optional(),
     payable_ledger_name: yup.string().nullable().optional(),
-    employment_type: yup.string().required('This field is required'),
+    employment_type: yup.string().required(t.form.errors.fieldRequired),
     join_date: yup.string().nullable(),
-    designation_id: yup.number().nullable().typeError('This field is required'),
+    designation_id: yup.number().nullable().typeError(t.form.errors.fieldRequired),
     basic_salary: yup
       .number()
       .nullable()
       .transform((_, val) =>
         val === '' || val === undefined || val === null ? null : Number(val)
       )
-      .min(0, 'Basic salary must be >= 0')
-      .typeError('Basic salary must be a number'),
+      .min(0, t.form.errors.salaryMin)
+      .typeError(t.form.errors.salaryNumber),
     contract_start_date: yup.string().nullable(),
     contract_type: yup.string().nullable(),
     reason: yup.string().nullable().optional(),
@@ -440,8 +457,10 @@ const EmployeeForm = ({
       <DialogTitle>
         <Grid size={12} textAlign='center'>
           {employee?.id
-            ? `Edit ${employee.first_name} ${employee.last_name}`
-            : 'Add Employee'}
+            ? t.form.titleEdit
+                .replace('{firstName}', employee.first_name)
+                .replace('{lastName}', employee.last_name)
+            : t.form.titleAdd}
         </Grid>
       </DialogTitle>
       <DialogContent>
@@ -450,13 +469,13 @@ const EmployeeForm = ({
             {/* Personal Information */}
             <Grid size={12}>
               <Div sx={{ mt: 2, mb: 1, fontWeight: 600 }}>
-                Personal Information
+                {t.form.sections.personal}
               </Div>
             </Grid>
 
             <Grid size={{ xs: 12, md: 4 }}>
               <TextField
-                label='First Name *'
+                label={t.form.labels.firstName}
                 size='small'
                 fullWidth
                 error={!!errors.first_name}
@@ -466,7 +485,7 @@ const EmployeeForm = ({
             </Grid>
             <Grid size={{ xs: 12, md: 4 }}>
               <TextField
-                label='Middle Name'
+                label={t.form.labels.middleName}
                 size='small'
                 fullWidth
                 error={!!errors.middle_name}
@@ -476,7 +495,7 @@ const EmployeeForm = ({
             </Grid>
             <Grid size={{ xs: 12, md: 4 }}>
               <TextField
-                label='Last Name *'
+                label={t.form.labels.lastName}
                 size='small'
                 fullWidth
                 error={!!errors.last_name}
@@ -487,14 +506,14 @@ const EmployeeForm = ({
 
             <Grid size={{ xs: 12, md: 4 }}>
               <TextField
-                label='Employee Number'
+                label={t.form.labels.employeeNumber}
                 size='small'
                 fullWidth
                 error={!!errors.employee_number}
                 helperText={
                   errors.employee_number?.message ||
                   (!employee && nextNumberData?.employee_number
-                    ? 'Suggested — edit to override'
+                    ? t.form.helpers.suggestedNumber
                     : undefined)
                 }
                 // employee_number is registered uncontrolled — setValue()
@@ -524,7 +543,7 @@ const EmployeeForm = ({
                     renderInput={(params) => (
                       <TextField
                         {...params}
-                        label='Gender *'
+                        label={t.form.labels.gender}
                         error={!!fieldState.error}
                       />
                     )}
@@ -538,7 +557,7 @@ const EmployeeForm = ({
                 control={control}
                 render={({ field, fieldState }) => (
                   <DatePicker
-                    label='Date of Birth'
+                    label={t.form.labels.dateOfBirth}
                     value={employeeDoB ? dayjs(employeeDoB) : null}
                     onChange={(val) => {
                       const formatted = val?.format('YYYY-MM-DD') || '';
@@ -560,13 +579,13 @@ const EmployeeForm = ({
             {/* Contact Information */}
             <Grid size={12}>
               <Div sx={{ mt: 2, mb: 1, fontWeight: 600 }}>
-                Contact Information
+                {t.form.sections.contact}
               </Div>
             </Grid>
 
             <Grid size={{ xs: 12, md: 4 }}>
               <TextField
-                label='Email'
+                label={t.form.labels.email}
                 size='small'
                 fullWidth
                 type='email'
@@ -577,7 +596,7 @@ const EmployeeForm = ({
             </Grid>
             <Grid size={{ xs: 12, md: 4 }}>
               <TextField
-                label='Phone Number'
+                label={t.form.labels.phoneNumber}
                 size='small'
                 fullWidth
                 error={!!errors.phone_number}
@@ -587,7 +606,7 @@ const EmployeeForm = ({
             </Grid>
             <Grid size={{ xs: 12, md: 4 }}>
               <TextField
-                label='Address'
+                label={t.form.labels.address}
                 size='small'
                 fullWidth
                 error={!!errors.address}
@@ -598,12 +617,12 @@ const EmployeeForm = ({
 
             {/* Identification */}
             <Grid size={12}>
-              <Div sx={{ mt: 2, mb: 1, fontWeight: 600 }}>Identification</Div>
+              <Div sx={{ mt: 2, mb: 1, fontWeight: 600 }}>{t.form.sections.identification}</Div>
             </Grid>
 
             <Grid size={{ xs: 12, md: 6 }}>
               <TextField
-                label='National ID'
+                label={t.form.labels.nationalId}
                 size='small'
                 fullWidth
                 error={!!errors.national_id}
@@ -613,7 +632,7 @@ const EmployeeForm = ({
             </Grid>
             <Grid size={{ xs: 12, md: 6 }}>
               <TextField
-                label='Passport Number'
+                label={t.form.labels.passportNumber}
                 size='small'
                 fullWidth
                 error={!!errors.passport_number}
@@ -623,7 +642,7 @@ const EmployeeForm = ({
             </Grid>
             <Grid size={{ xs: 12, md: 6 }}>
               <TextField
-                label='TIN'
+                label={t.form.labels.tin}
                 size='small'
                 fullWidth
                 error={!!errors.tin}
@@ -634,7 +653,7 @@ const EmployeeForm = ({
             <Grid size={{ xs: 12, md: 6 }}>
               <TextField
                 select
-                label='Residence Status'
+                label={t.form.labels.residenceStatus}
                 size='small'
                 fullWidth
                 error={!!errors.residence_status}
@@ -653,7 +672,7 @@ const EmployeeForm = ({
             {/* Employment Details */}
             <Grid size={12}>
               <Div sx={{ mt: 2, mb: 1, fontWeight: 600 }}>
-                Employment Details
+                {t.form.sections.employment}
               </Div>
             </Grid>
 
@@ -677,7 +696,7 @@ const EmployeeForm = ({
                       renderInput={(params) => (
                         <TextField
                           {...params}
-                          label='Department'
+                          label={t.form.labels.department}
                           error={!!fieldState.error}
                         />
                       )}
@@ -704,7 +723,7 @@ const EmployeeForm = ({
                     renderInput={(params) => (
                       <TextField
                         {...params}
-                        label='Employment Type'
+                        label={t.form.labels.employmentType}
                         error={!!fieldState.error}
                         helperText={errors.employment_type?.message}
                       />
@@ -720,7 +739,7 @@ const EmployeeForm = ({
                 control={control}
                 render={({ field, fieldState }) => (
                   <DatePicker
-                    label='Join Date'
+                    label={t.form.labels.joinDate}
                     value={joinDate ? dayjs(joinDate) : null}
                     onChange={(val) => {
                       const formatted = val?.format('YYYY-MM-DD') || '';
@@ -746,7 +765,7 @@ const EmployeeForm = ({
                 render={({ field }) => (
                   <CostCenterSelector
                     multiple={false}
-                    label='Cost Center'
+                    label={t.form.labels.costCenter}
                     defaultValue={
                       (employee as any)?.cost_center ||
                       defaultCostCenter ||
@@ -768,7 +787,7 @@ const EmployeeForm = ({
                 render={({ field }) => (
                   <EmployeeSelector
                     multiple={false}
-                    label='Line Manager'
+                    label={t.form.labels.lineManager}
                     excludeId={employee?.id}
                     defaultValue={(employee as any)?.manager || null}
                     onChange={(val) => {
@@ -784,16 +803,16 @@ const EmployeeForm = ({
               <Grid size={12}>
                 <Div sx={{ mt: 1, mb: 1 }}>
                   <TextField
-                    label='Reason for Change'
+                    label={t.form.labels.reasonForChange}
                     size='small'
                     fullWidth
                     multiline
                     minRows={2}
-                    placeholder='e.g., Site relocation, Team restructuring, Promotion, Department transfer...'
+                    placeholder={t.form.placeholders.reasonForChange}
                     error={!!errors.reason}
                     helperText={
                       errors.reason?.message ||
-                      'Please provide a reason for this change for audit trail purposes'
+                      t.form.helpers.reasonForChange
                     }
                     {...register('reason')}
                   />
@@ -804,7 +823,7 @@ const EmployeeForm = ({
             {/* Payroll & Contract Settings */}
             <Grid size={12}>
               <Div sx={{ mt: 2, mb: 1, fontWeight: 600 }}>
-                Payroll & Contract Settings
+                {t.form.sections.payrollContract}
               </Div>
             </Grid>
 
@@ -815,7 +834,7 @@ const EmployeeForm = ({
                 <Controller
                   name='designation_id'
                   control={control}
-                  rules={{ required: 'Designation is required' }}
+                  rules={{ required: t.form.errors.designationRequired }}
                   render={({ field, fieldState }) => (
                     <Autocomplete
                       size='small'
@@ -831,7 +850,7 @@ const EmployeeForm = ({
                       renderInput={(params) => (
                         <TextField
                           {...params}
-                          label='Designation'
+                          label={t.form.labels.designation}
                           error={!!fieldState.error}
                           helperText={fieldState.error?.message}
                         />
@@ -844,7 +863,7 @@ const EmployeeForm = ({
 
             <Grid size={{ xs: 12, md: 4 }}>
               <TextField
-                label='Basic Salary'
+                label={t.form.labels.basicSalary}
                 size='small'
                 fullWidth
                 value={formatCurrency(watch('basic_salary'))}
@@ -863,7 +882,7 @@ const EmployeeForm = ({
                 control={control}
                 render={({ field, fieldState }) => (
                   <DatePicker
-                    label='Contract Start Date'
+                    label={t.form.labels.contractStartDate}
                     value={contractStartDate ? dayjs(contractStartDate) : null}
                     onChange={(val) => {
                       const formatted = val?.format('YYYY-MM-DD') || '';
@@ -886,7 +905,7 @@ const EmployeeForm = ({
             <Grid size={{ xs: 12, md: 4 }}>
               <TextField
                 select
-                label='Contract Type'
+                label={t.form.labels.contractType}
                 size='small'
                 fullWidth
                 {...register('contract_type')}
@@ -910,7 +929,7 @@ const EmployeeForm = ({
               <>
                 <Grid size={12}>
                   <Div sx={{ mt: 2, mb: 1, fontWeight: 600 }}>
-                    Accounting Settings
+                    {t.form.sections.accounting}
                   </Div>
                 </Grid>
 
@@ -927,7 +946,7 @@ const EmployeeForm = ({
                         }}
                       />
                     }
-                    label='Enter custom account name'
+                    label={t.form.labels.customAccountName}
                   />
                 </Grid>
 
@@ -945,17 +964,17 @@ const EmployeeForm = ({
                           });
                         }
                       }}
-                      label='Payable Account'
+                      label={t.form.labels.payableAccount}
                     />
                   </Grid>
                 ) : (
                   !employee && (
                     <Grid size={{ xs: 12, md: 6 }}>
                       <TextField
-                        label='Payable Ledger Name'
+                        label={t.form.labels.payableLedgerName}
                         size='small'
                         fullWidth
-                        placeholder='e.g., Payable - Jane Doe'
+                        placeholder={t.form.placeholders.payableLedgerName}
                         error={!!errors.payable_ledger_name}
                         helperText={errors.payable_ledger_name?.message}
                         {...register('payable_ledger_name')}
@@ -971,12 +990,12 @@ const EmployeeForm = ({
               <>
                 <Grid size={12}>
                   <Div sx={{ mt: 2, mb: 1, fontWeight: 600 }}>
-                    Linked User Account
+                    {t.form.sections.linkedUser}
                   </Div>
                 </Grid>
                 <Grid size={{ xs: 12 }}>
                   <UsersSelector
-                    label='Linked User Account'
+                    label={t.form.labels.linkedUser}
                     defaultValue={defaultUser}
                     frontError={errors.user_id}
                     onChange={(v) => {
@@ -998,7 +1017,7 @@ const EmployeeForm = ({
 
           <DialogActions>
             <Button size='small' onClick={() => setOpenDialog(false)}>
-              Cancel
+              {t.form.buttons.cancel}
             </Button>
             <LoadingButton
               type='submit'
@@ -1006,7 +1025,7 @@ const EmployeeForm = ({
               size='small'
               loading={isPending || updateIsLoading}
             >
-              {employee?.id ? 'Update' : 'Create'}
+              {employee?.id ? t.form.buttons.update : t.form.buttons.create}
             </LoadingButton>
           </DialogActions>
         </form>

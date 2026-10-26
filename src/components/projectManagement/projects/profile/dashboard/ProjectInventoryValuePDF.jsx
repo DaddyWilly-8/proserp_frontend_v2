@@ -15,19 +15,20 @@ function ProjectInventoryValuePDF({
   currencyCode,
   rows,
   total,
+  dictionary,
 }) {
   const mainColor = organization?.settings?.main_color ?? '#2113AD';
   const lightColor = organization?.settings?.light_color ?? '#F4F6FB';
   const contrastText = organization?.settings?.contrast_text ?? '#FFFFFF';
-  const organizationName = organization?.name || 'Organization';
+  const organizationName = organization?.name || dictionary.projectManagement.dashboard.organization;
   const projectName =
-    project?.name || project?.project_name || project?.title || 'Project';
+    project?.name || project?.project_name || project?.title || dictionary.projectManagement.dashboard.project;
 
   return (
     <Document
-      title={`Project Inventory Value Summary | ${organizationName}`}
+      title={`${dictionary.projectManagement.dashboard.projectInventoryValueSummary} | ${organizationName}`}
       author={organizationName}
-      subject='Project Inventory Value Summary'
+      subject={dictionary.projectManagement.dashboard.projectInventoryValueSummary}
       creator='Powered By ProsERP'
       producer='ProsERP'
     >
@@ -40,14 +41,14 @@ function ProjectInventoryValuePDF({
           </View>
           <View style={{ flex: 1, textAlign: 'right' }}>
             <Text style={{ ...pdfStyles.majorInfo, color: mainColor }}>
-              Project Inventory Value
+              {dictionary.projectManagement.dashboard.projectInventoryValue}
             </Text>
             <Text style={pdfStyles.midInfo}>{projectName}</Text>
           </View>
         </View>
 
         <View style={{ marginBottom: 12 }}>
-          <Text style={{ ...pdfStyles.midInfo, color: mainColor }}>As At</Text>
+          <Text style={{ ...pdfStyles.midInfo, color: mainColor }}>{dictionary.projectManagement.dashboard.asAt}</Text>
           <Text style={pdfStyles.midInfo}>
             {dayjs().format('DD MMM YYYY, HH:mm')}
           </Text>
@@ -64,7 +65,7 @@ function ProjectInventoryValuePDF({
                 flex: 2,
               }}
             >
-              Category
+              {dictionary.projectManagement.dashboard.category}
             </Text>
             <Text
               style={{
@@ -76,7 +77,7 @@ function ProjectInventoryValuePDF({
                 textAlign: 'right',
               }}
             >
-              {currencyCode || 'Amount'}
+              {currencyCode || dictionary.projectManagement.dashboard.amount}
             </Text>
           </View>
 
@@ -107,7 +108,7 @@ function ProjectInventoryValuePDF({
           ) : (
             <View style={pdfStyles.tableRow}>
               <Text style={{ ...pdfStyles.tableCell, padding: 10, flex: 1 }}>
-                No inventory values available
+                {dictionary.projectManagement.dashboard.noInventoryValuesAvailable}
               </Text>
             </View>
           )}
@@ -122,7 +123,7 @@ function ProjectInventoryValuePDF({
                 flex: 2,
               }}
             >
-              Total
+              {dictionary.projectManagement.dashboard.total}
             </Text>
             <Text
               style={{

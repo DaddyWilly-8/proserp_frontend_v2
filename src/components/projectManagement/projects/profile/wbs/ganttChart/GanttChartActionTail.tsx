@@ -3,8 +3,10 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { ButtonGroup, Dialog, IconButton, Tooltip } from "@mui/material";
 import React, { useState } from "react";
 import GanttChart from "./GanttChart";
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const GanttChartActionTail = () => {
+    const dictionary = useDictionary();
     const [openGanttChart, setOpenGanttChart] = useState(false);
   
     return (
@@ -14,7 +16,7 @@ const GanttChartActionTail = () => {
             </Dialog>
     
             <ButtonGroup variant="outlined" size="small" disableElevation sx={{ '& .MuiButton-root': { px: 1 } }}>
-                <Tooltip title={"Gantt Chart"}>
+                <Tooltip title={dictionary.tooltips.ganttChart}>
                     <IconButton onClick={() => setOpenGanttChart(true)}>
                         <FontAwesomeIcon size='xs' icon={faChartGantt}/>
                     </IconButton>

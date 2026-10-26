@@ -4,8 +4,10 @@ import { useForm } from 'react-hook-form'
 import { useCounter } from '../CounterProvider';
 import { useProductsSelect } from '@/components/productAndServices/products/ProductsSelectProvider';
 import productServices from '@/components/productAndServices/products/productServices';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function QuickAdd({items = [],setItems}) {
+    const dictionary = useDictionary();
     const {productOptions} = useProductsSelect();
     const {outlet} = useCounter();//From counter provider
     const { stores, cost_center } = outlet; //Destructure outlet to get needed content
@@ -26,7 +28,7 @@ function QuickAdd({items = [],setItems}) {
         if(!product){
             setError('quick_add',{
                 type: 'productNotFound',
-                message: 'No matching product found'
+                message: dictionary.forms.counter.quickAdd.productNotFound
             })
         } else {
             const store_id = stores[0]?.id;
@@ -54,13 +56,13 @@ function QuickAdd({items = [],setItems}) {
                 } else {
                     setError('quick_add',{
                         type: 'noPrice',
-                        message: 'Selling price is not defined for the found product'
+                        message: dictionary.forms.counter.quickAdd.noPrice
                     });
                 }
             } else {
                 setError('quick_add',{
                     type: 'noBalance',
-                    message: 'There is no stock balance'
+                    message: dictionary.forms.counter.quickAdd.noBalance
                 })
             }
         }
@@ -76,7 +78,7 @@ function QuickAdd({items = [],setItems}) {
                 <TextField
                     size='small'
                     fullWidth
-                    label='Quick Add By Product SKU (Product Code)'
+                    label={dictionary.forms.counter.quickAdd.label}
                     error={!!errors?.quick_add}
                     helperText={errors?.quick_add?.message}
                     value={watch('sku')}

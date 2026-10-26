@@ -23,7 +23,8 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import { useSnackbar } from 'notistack';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import { useForm } from 'react-hook-form';
 import * as yup from 'yup';
 import rfqServices from '../rfq-services';
@@ -45,18 +46,29 @@ interface FormValues {
   stakeholder_ids?: number[];
 }
 
-const validationSchema = yup.object({
-  rfq_date: yup.mixed().required('RFQ date is required').nullable(),
-  response_deadline: yup
-    .mixed()
-    .required('Response deadline is required')
-    .nullable(),
-  reference: yup.string().nullable(),
-  remarks: yup.string().nullable(),
-  status: yup.string().required('Status is required'),
-});
+const getValidationSchema = (dictionary: any) =>
+  yup.object({
+    rfq_date: yup
+      .mixed()
+      .required(dictionary.forms.rfqs.form.validation.rfqDate)
+      .nullable(),
+    response_deadline: yup
+      .mixed()
+      .required(dictionary.forms.rfqs.form.validation.responseDeadline)
+      .nullable(),
+    reference: yup.string().nullable(),
+    remarks: yup.string().nullable(),
+    status: yup
+      .string()
+      .required(dictionary.forms.rfqs.form.validation.status),
+  });
 
 function RFQDialogFormContent({ toggleOpen, rfq }: RFQDialogFormProps) {
+  const dictionary = useDictionary();
+  const validationSchema = useMemo(
+    () => getValidationSchema(dictionary),
+    [dictionary]
+  );
   const queryClient = useQueryClient();
   const { enqueueSnackbar } = useSnackbar();
   const [serverError, setServerError] = useState<string | null>(null);
@@ -157,7 +169,7 @@ function RFQDialogFormContent({ toggleOpen, rfq }: RFQDialogFormProps) {
   const addMutation = useMutation({
     mutationFn: rfqServices.add,
     onSuccess: (data) => {
-      enqueueSnackbar(data?.message || 'RFQ saved successfully', {
+      enqueueSnackbar(data?.message || dictionary.forms.rfqs.form.messages.saved, {
         variant: 'success',
       });
       queryClient.invalidateQueries({ queryKey: ['rfqs'] });
@@ -177,7 +189,7 @@ function RFQDialogFormContent({ toggleOpen, rfq }: RFQDialogFormProps) {
   const updateMutation = useMutation({
     mutationFn: rfqServices.update,
     onSuccess: (data) => {
-      enqueueSnackbar(data?.message || 'RFQ updated successfully', {
+      enqueueSnackbar(data?.message || dictionary.forms.rfqs.form.messages.updated, {
         variant: 'success',
       });
       queryClient.invalidateQueries({ queryKey: ['rfqs'] });
@@ -199,7 +211,7 @@ function RFQDialogFormContent({ toggleOpen, rfq }: RFQDialogFormProps) {
 
   const handleSave = handleSubmit((formData) => {
     if (!items.length) {
-      enqueueSnackbar('Add at least one RFQ item', { variant: 'error' });
+      enqueueSnackbar(dictionary.forms.rfqs.form.messages.addAtLeastOneItem, { variant: 'error' });
       return;
     }
 
@@ -207,7 +219,7 @@ function RFQDialogFormContent({ toggleOpen, rfq }: RFQDialogFormProps) {
       (item) => !item.product_id || !item.quantity
     );
     if (invalidItem) {
-      enqueueSnackbar('Each RFQ item needs a product and quantity', {
+      enqueueSnackbar(dictionary.forms.rfqs.form.messages.itemNeedsProductAndQuantity, {
         variant: 'error',
       });
       return;
@@ -268,7 +280,7 @@ function RFQDialogFormContent({ toggleOpen, rfq }: RFQDialogFormProps) {
         <Grid size={{ xs: 12, md: 3 }}>
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <DateTimePicker
-              label='RFQ Date'
+              label={dictionary.forms.rfqs.form.rfqDate}
               value={watch('rfq_date')}
               onChange={(newValue) =>
                 setValue('rfq_date', newValue, {
@@ -291,7 +303,7 @@ function RFQDialogFormContent({ toggleOpen, rfq }: RFQDialogFormProps) {
         <Grid size={{ xs: 12, md: 3 }}>
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <DateTimePicker
-              label='Response Deadline'
+              label={dictionary.forms.rfqs.form.responseDeadline}
               value={watch('response_deadline')}
               onChange={(newValue) =>
                 setValue('response_deadline', newValue, {
@@ -313,7 +325,7 @@ function RFQDialogFormContent({ toggleOpen, rfq }: RFQDialogFormProps) {
 
         <Grid size={{ xs: 12, md: 3 }}>
           <TextField
-            label='Reference'
+            label={dictionary.forms.rfqs.common.reference}
             fullWidth
             size='small'
             value={watch('reference') || ''}
@@ -330,7 +342,7 @@ function RFQDialogFormContent({ toggleOpen, rfq }: RFQDialogFormProps) {
 
         <Grid size={{ xs: 12, md: 3 }}>
           <TextField
-            label='Status'
+            label={dictionary.forms.rfqs.common.status}
             select
             fullWidth
             size='small'
@@ -346,7 +358,7 @@ function RFQDialogFormContent({ toggleOpen, rfq }: RFQDialogFormProps) {
           >
             {['draft', 'sent', 'closed', 'canceled'].map((option) => (
               <MenuItem key={option} value={option}>
-                {option.charAt(0).toUpperCase() + option.slice(1)}
+                {dictionary.forms.rfqs.form.statusOptions[option as 'draft' | 'sent' | 'closed' | 'canceled']}
               </MenuItem>
             ))}
           </TextField>
@@ -354,7 +366,7 @@ function RFQDialogFormContent({ toggleOpen, rfq }: RFQDialogFormProps) {
 
         <Grid size={{ xs: 12, md: 4 }}>
           <StakeholderSelector
-            label='Invited Suppliers'
+            label={dictionary.forms.rfqs.form.invitedSuppliers}
             multiple={true}
             defaultValue={selectedStakeholders as any}
             onChange={(newValue) => {
@@ -375,7 +387,7 @@ function RFQDialogFormContent({ toggleOpen, rfq }: RFQDialogFormProps) {
 
         <Grid size={{ xs: 12, md: 8 }}>
           <TextField
-            label='Remarks'
+            label={dictionary.forms.rfqs.common.remarks}
             fullWidth
             size='small'
             multiline
@@ -429,7 +441,7 @@ function RFQDialogFormContent({ toggleOpen, rfq }: RFQDialogFormProps) {
         </Grid>
         <Grid size={12} display='flex' justifyContent='flex-end' gap={1} mt={1}>
           <Button size='small' onClick={() => toggleOpen(false)}>
-            Cancel
+            {dictionary.forms.rfqs.common.cancel}
           </Button>
           <LoadingButton
             loading={loading}
@@ -437,7 +449,7 @@ function RFQDialogFormContent({ toggleOpen, rfq }: RFQDialogFormProps) {
             variant='contained'
             onClick={handleSave}
           >
-            {isEditMode ? 'Update' : 'Submit'}
+            {isEditMode ? dictionary.forms.rfqs.common.update : dictionary.forms.rfqs.common.submit}
           </LoadingButton>
         </Grid>
       </Grid>
@@ -446,11 +458,12 @@ function RFQDialogFormContent({ toggleOpen, rfq }: RFQDialogFormProps) {
 }
 
 function RFQDialogForm({ toggleOpen, rfq = null }: RFQDialogFormProps) {
+  const dictionary = useDictionary();
   return (
     <ProductsSelectProvider>
       <StakeholderSelectProvider type='suppliers'>
         <DialogTitle textAlign='center'>
-          {rfq?.id ? 'Edit RFQ' : 'New RFQ'}
+          {rfq?.id ? dictionary.forms.rfqs.form.titleEdit : dictionary.forms.rfqs.form.titleNew}
         </DialogTitle>
         <DialogContent>
           <RFQDialogFormContent toggleOpen={toggleOpen} rfq={rfq} />

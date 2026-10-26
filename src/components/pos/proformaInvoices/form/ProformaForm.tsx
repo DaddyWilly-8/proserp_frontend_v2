@@ -38,6 +38,7 @@ import proformaServices from '../proforma-services';
 import { Proforma, ProformaItem } from '../ProformaType';
 import ProformaItemForm from './ProformaItemForm';
 import ProformaItemRow from './ProformaItemRow';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface ProformaFormProps {
   toggleOpen: (open: boolean) => void;
@@ -60,6 +61,7 @@ interface ProformaFormValues {
 }
 
 function ProformaForm({ toggleOpen, proforma = null }: ProformaFormProps) {
+  const dictionary = useDictionary();
   const { authOrganization, moduleSetting } = useJumboAuth();
   const organization = authOrganization?.organization;
   const [proforma_date] = useState(
@@ -89,43 +91,43 @@ function ProformaForm({ toggleOpen, proforma = null }: ProformaFormProps) {
   const validationSchema = yup.object({
     proforma_date: yup
       .string()
-      .required('Proforma date is required')
-      .typeError('Sales date is required'),
+      .required(dictionary.forms.proformaInvoices.validation.proformaDateRequired)
+      .typeError(dictionary.forms.proformaInvoices.validation.salesDateRequired),
     stakeholder_id: yup
       .number()
-      .required('Client is required')
-      .typeError('Client is required'),
+      .required(dictionary.forms.proformaInvoices.validation.clientRequired)
+      .typeError(dictionary.forms.proformaInvoices.validation.clientRequired),
     currency_id: yup
       .number()
-      .positive('Currency is required')
-      .required('Currency is required')
-      .typeError('Currency is required'),
+      .positive(dictionary.forms.proformaInvoices.validation.currencyRequired)
+      .required(dictionary.forms.proformaInvoices.validation.currencyRequired)
+      .typeError(dictionary.forms.proformaInvoices.validation.currencyRequired),
     exchange_rate: yup
       .number()
-      .positive('Exchange rate is required')
-      .required('Exchange rate is required')
-      .typeError('Exchange rate is required'),
+      .positive(dictionary.forms.proformaInvoices.validation.exchangeRateRequired)
+      .required(dictionary.forms.proformaInvoices.validation.exchangeRateRequired)
+      .typeError(dictionary.forms.proformaInvoices.validation.exchangeRateRequired),
     items: yup
       .array()
-      .min(1, 'You must add at least one item')
-      .typeError('You must add at least one item')
+      .min(1, dictionary.forms.proformaInvoices.validation.itemMin)
+      .typeError(dictionary.forms.proformaInvoices.validation.itemMin)
       .of(
         yup.object().shape({
           product_id: yup
             .number()
-            .required('Product is required')
-            .positive('Product is required')
-            .typeError('Product is required'),
+            .required(dictionary.forms.proformaInvoices.validation.productRequired)
+            .positive(dictionary.forms.proformaInvoices.validation.productRequired)
+            .typeError(dictionary.forms.proformaInvoices.validation.productRequired),
           quantity: yup
             .number()
-            .required('Quantity is required')
-            .positive('Quantity is required')
-            .typeError('Quantity is required'),
+            .required(dictionary.forms.proformaInvoices.validation.quantityRequired)
+            .positive(dictionary.forms.proformaInvoices.validation.quantityRequired)
+            .typeError(dictionary.forms.proformaInvoices.validation.quantityRequired),
           rate: yup
             .number()
-            .required('Price is required')
-            .positive('Price is required')
-            .typeError('Price is required'),
+            .required(dictionary.forms.proformaInvoices.validation.priceRequired)
+            .positive(dictionary.forms.proformaInvoices.validation.priceRequired)
+            .typeError(dictionary.forms.proformaInvoices.validation.priceRequired),
         })
       ),
   });
@@ -268,7 +270,7 @@ function ProformaForm({ toggleOpen, proforma = null }: ProformaFormProps) {
     if (items.length === 0) {
       setError('items', {
         type: 'manual',
-        message: 'You must add at least one item',
+        message: dictionary.forms.proformaInvoices.validation.itemMin,
       });
       return;
     } else if (isDirty) {
@@ -292,7 +294,9 @@ function ProformaForm({ toggleOpen, proforma = null }: ProformaFormProps) {
           <Grid size={{ xs: 12 }} textAlign='center' mb={2}>
             <Div sx={{ mt: 0.3 }}>
               <Typography variant='h4'>
-                {!proforma ? 'New Proforma' : `Edit ${proforma.proformaNo}`}
+                {!proforma
+                  ? dictionary.forms.proformaInvoices.title.new
+                  : dictionary.forms.proformaInvoices.title.edit.replace('{name}', proforma.proformaNo)}
               </Typography>
             </Div>
           </Grid>
@@ -305,7 +309,7 @@ function ProformaForm({ toggleOpen, proforma = null }: ProformaFormProps) {
                     <Grid size={{ xs: 12, md: 4 }}>
                       <Div sx={{ mt: 0.3 }}>
                         <DatePicker
-                          label='Proforma Date'
+                          label={dictionary.forms.proformaInvoices.labels.proformaDate}
                           defaultValue={proforma_date}
                           slotProps={{
                             textField: {
@@ -330,7 +334,7 @@ function ProformaForm({ toggleOpen, proforma = null }: ProformaFormProps) {
                     <Grid size={{ xs: 12, md: 4 }}>
                       <Div sx={{ mt: 0.3 }}>
                         <DatePicker
-                          label='Expiry Date'
+                          label={dictionary.forms.proformaInvoices.labels.expiryDate}
                           minDate={dayjs(watch('proforma_date'))}
                           defaultValue={expiry_date}
                           slotProps={{
@@ -379,7 +383,7 @@ function ProformaForm({ toggleOpen, proforma = null }: ProformaFormProps) {
                       <Grid size={{ xs: 12, md: 4 }}>
                         <Div sx={{ mt: 0.3 }}>
                           <TextField
-                            label='Exchange Rate'
+                            label={dictionary.forms.proformaInvoices.labels.exchangeRate}
                             fullWidth
                             size='small'
                             error={!!errors?.exchange_rate}
@@ -410,7 +414,7 @@ function ProformaForm({ toggleOpen, proforma = null }: ProformaFormProps) {
                       >
                         <Div sx={{ mt: 0.3 }}>
                           <StakeholderSelector
-                            label='Client'
+                            label={dictionary.forms.proformaInvoices.labels.client}
                             frontError={errors?.stakeholder_id as any}
                             defaultValue={watch('stakeholder_id')}
                             addedStakeholder={addedStakeholder}
@@ -428,7 +432,7 @@ function ProformaForm({ toggleOpen, proforma = null }: ProformaFormProps) {
                               checkOrganizationPermission(
                                 PERMISSIONS.STAKEHOLDERS_CREATE
                               ) && (
-                                <Tooltip title='Add Client'>
+                                <Tooltip title={dictionary.tooltips.addClient}>
                                   <AddOutlined
                                     onClick={() =>
                                       setStakeholderQuickAddDisplay(true)
@@ -479,7 +483,7 @@ function ProformaForm({ toggleOpen, proforma = null }: ProformaFormProps) {
                           renderInput={(params) => (
                             <TextField
                               {...params}
-                              label='Remarks'
+                              label={dictionary.forms.proformaInvoices.labels.remarks}
                               size='small'
                               fullWidth
                               multiline
@@ -496,7 +500,7 @@ function ProformaForm({ toggleOpen, proforma = null }: ProformaFormProps) {
                           }}
                         /> */}
                         <TextField
-                          label='Reference'
+                          label={dictionary.forms.proformaInvoices.labels.reference}
                           variant='outlined'
                           fullWidth
                           size='small'
@@ -523,7 +527,7 @@ function ProformaForm({ toggleOpen, proforma = null }: ProformaFormProps) {
                           renderInput={(params) => (
                             <TextField
                               {...params}
-                              label='Remarks'
+                              label={dictionary.forms.proformaInvoices.labels.remarks}
                               size='small'
                               fullWidth
                               multiline
@@ -556,13 +560,13 @@ function ProformaForm({ toggleOpen, proforma = null }: ProformaFormProps) {
                 <Grid container spacing={1}>
                   <Grid size={{ xs: 12 }}>
                     <Typography variant='h6' align='center'>
-                      Summary
+                      {dictionary.forms.proformaInvoices.labels.summary}
                     </Typography>
                     <Divider />
                   </Grid>
 
                   <Grid size={{ xs: 5 }}>
-                    <Typography variant='body2'>Total:</Typography>
+                    <Typography variant='body2'>{dictionary.forms.proformaInvoices.labels.total}:</Typography>
                   </Grid>
                   <Grid size={{ xs: 7 }}>
                     <Typography variant='body1' align='right'>
@@ -574,7 +578,7 @@ function ProformaForm({ toggleOpen, proforma = null }: ProformaFormProps) {
                     <>
                       <Grid size={{ xs: 5 }}>
                         <Typography variant='body2'>
-                          VAT:
+                          {dictionary.forms.proformaInvoices.labels.vat}:
                           <Checkbox
                             size='small'
                             checked={!!vat_percentage}
@@ -602,7 +606,7 @@ function ProformaForm({ toggleOpen, proforma = null }: ProformaFormProps) {
                       </Grid>
 
                       <Grid size={{ xs: 5 }}>
-                        <Typography variant='body2'>Grand Total:</Typography>
+                        <Typography variant='body2'>{dictionary.forms.proformaInvoices.labels.grandTotal}:</Typography>
                       </Grid>
                       <Grid size={{ xs: 7 }}>
                         <Typography variant='body1' align='right'>
@@ -665,7 +669,7 @@ function ProformaForm({ toggleOpen, proforma = null }: ProformaFormProps) {
                   alignItems='center'
                   justifyContent='space-between'
                 >
-                  <Grid size={{ xs: 11 }}>Unsaved Changes</Grid>
+                  <Grid size={{ xs: 11 }}>{dictionary.forms.proformaInvoices.dialog.unsavedChanges}</Grid>
                   <Grid size={{ xs: 1 }} textAlign='right'>
                     <IconButton
                       size='small'
@@ -676,7 +680,7 @@ function ProformaForm({ toggleOpen, proforma = null }: ProformaFormProps) {
                   </Grid>
                 </Grid>
               </DialogTitle>
-              <DialogContent>Last item was not added to the list</DialogContent>
+              <DialogContent>{dictionary.forms.proformaInvoices.dialog.lastItemNotAdded}</DialogContent>
               <DialogActions>
                 <Button
                   size='small'
@@ -685,14 +689,14 @@ function ProformaForm({ toggleOpen, proforma = null }: ProformaFormProps) {
                     setShowWarning(false);
                   }}
                 >
-                  Add and Submit
+                  {dictionary.forms.proformaInvoices.buttons.addAndSubmit}
                 </Button>
                 <Button
                   size='small'
                   onClick={handleConfirmSubmitWithoutAdd}
                   color='secondary'
                 >
-                  Submit without add
+                  {dictionary.forms.proformaInvoices.buttons.submitWithoutAdd}
                 </Button>
               </DialogActions>
             </Div>
@@ -702,7 +706,7 @@ function ProformaForm({ toggleOpen, proforma = null }: ProformaFormProps) {
 
       <DialogActions>
         <Button size='small' onClick={() => toggleOpen(false)}>
-          Cancel
+          {dictionary.forms.proformaInvoices.buttons.cancel}
         </Button>
         <LoadingButton
           loading={
@@ -712,7 +716,7 @@ function ProformaForm({ toggleOpen, proforma = null }: ProformaFormProps) {
           size='small'
           onClick={handleSubmit(onSubmit)}
         >
-          Submit
+          {dictionary.forms.proformaInvoices.buttons.submit}
         </LoadingButton>
       </DialogActions>
     </React.Fragment>

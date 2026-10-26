@@ -31,6 +31,7 @@ import {
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as yup from 'yup';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function ProductItemsTab({
   index = -1,
@@ -45,6 +46,8 @@ function ProductItemsTab({
   allTasks = [],
   selectedCostCenter,
 }) {
+  const dictionary = useDictionary();
+  const t = dictionary.forms.projects.budgetItems;
   const { productOptions } = useProductsSelect();
   const [isAdding, setIsAdding] = useState(false);
   const { checkOrganizationPermission } = useJumboAuth();
@@ -82,30 +85,30 @@ function ProductItemsTab({
   const validationSchema = yup.object({
     product_id: yup
       .number()
-      .required('Product name is required')
-      .typeError('Product name is required'),
+      .required(t.errors.productRequired)
+      .typeError(t.errors.productRequired),
     currency_id: yup
       .number()
-      .positive('Currency is required')
-      .required('Currency is required')
-      .typeError('Currency is required'),
+      .positive(t.errors.currencyRequired)
+      .required(t.errors.currencyRequired)
+      .typeError(t.errors.currencyRequired),
     exchange_rate: yup
       .number()
-      .positive('Exchange rate is required')
-      .required('Exchange rate is required')
-      .typeError('Exchange rate is required'),
+      .positive(t.errors.exchangeRateRequired)
+      .required(t.errors.exchangeRateRequired)
+      .typeError(t.errors.exchangeRateRequired),
     rate: yup
       .number()
-      .positive('Rate is required')
-      .required('Rate is required')
-      .positive('Rate is required')
-      .typeError('Rate is required'),
+      .positive(t.errors.rateRequired)
+      .required(t.errors.rateRequired)
+      .positive(t.errors.rateRequired)
+      .typeError(t.errors.rateRequired),
     quantity: yup
       .number()
-      .positive('Quantity is required')
-      .required('Quantity is required')
-      .positive('Quantity is required')
-      .typeError('Quantity is required')
+      .positive(t.errors.quantityRequired)
+      .required(t.errors.quantityRequired)
+      .positive(t.errors.quantityRequired)
+      .typeError(t.errors.quantityRequired)
       .test(wholeUnitQuantityTest),
     alternative_product_ids: yup
       .array()
@@ -113,7 +116,7 @@ function ProductItemsTab({
       .nullable()
       .test(
         'unique-alternative-product',
-        'An alternative product cannot be the same as the Main Product.',
+        t.errors.alternativeSameAsMain,
         function (alternative_product_ids) {
           const productId = this.parent.product_id;
           if (!alternative_product_ids || alternative_product_ids.length === 0)
@@ -247,7 +250,7 @@ function ProductItemsTab({
               <Div sx={{ mt: 1 }}>
                 <ProductSelect
                   multiple={false}
-                  label='Product name'
+                  label={t.labels.productName}
                   frontError={errors?.product_id}
                   defaultValue={productItem && productItem.product}
                   addedProduct={addedProduct}
@@ -285,7 +288,7 @@ function ProductItemsTab({
                     checkOrganizationPermission([
                       PERMISSIONS.PRODUCTS_CREATE,
                     ]) && (
-                      <Tooltip title={'Add New Product'}>
+                      <Tooltip title={dictionary.tooltips.addNewProduct}>
                         <AddOutlined
                           onClick={() => setOpenProductQuickAdd(true)}
                           sx={{
@@ -308,12 +311,12 @@ function ProductItemsTab({
                   <Div sx={{ mt: 1, width: '100%' }}>
                     <FormControl fullWidth>
                       <InputLabel id='bound-to-label' sx={{ width: '100%' }}>
-                        Bound To
+                        {t.labels.boundTo}
                       </InputLabel>
                       <Select
                         labelId='bound-to-label'
                         value={boundToOption}
-                        label='Bound To'
+                        label={t.labels.boundTo}
                         size='small'
                         fullWidth
                         onChange={(e) => {
@@ -322,7 +325,7 @@ function ProductItemsTab({
                           setValue('bound_to', e.target.value);
                         }}
                       >
-                        <MenuItem value='Task'>Task</MenuItem>
+                        <MenuItem value='Task'>{t.labels.task}</MenuItem>
                       </Select>
                     </FormControl>
                   </Div>
@@ -339,7 +342,7 @@ function ProductItemsTab({
                       renderInput={(params) => (
                         <TextField
                           {...params}
-                          label={`Select ${boundToOption}`}
+                          label={boundToOption === 'Task' ? t.labels.selectTask : t.labels.select}
                           size='small'
                           fullWidth
                         />
@@ -362,7 +365,7 @@ function ProductItemsTab({
             <Grid size={{ xs: 12, md: 4 }}>
               <Div sx={{ mt: 1 }}>
                 <TextField
-                  label='Description'
+                  label={t.labels.description}
                   fullWidth
                   defaultValue={productItem?.description}
                   size='small'
@@ -398,7 +401,7 @@ function ProductItemsTab({
               <Grid size={{ xs: 6, md: 2 }}>
                 <Div sx={{ mt: 1 }}>
                   <TextField
-                    label='Exchange Rate'
+                    label={t.labels.exchangeRate}
                     fullWidth
                     size='small'
                     defaultValue={watch(`exchange_rate`)}
@@ -424,7 +427,7 @@ function ProductItemsTab({
             <Grid size={{ xs: watch(`currency_id`) > 1 ? 6 : 12, md: 2 }}>
               <Div sx={{ mt: 1 }}>
                 <TextField
-                  label='Quantity'
+                  label={t.labels.quantity}
                   fullWidth
                   size='small'
                   defaultValue={productItem?.quantity}
@@ -499,7 +502,7 @@ function ProductItemsTab({
             <Grid size={{ xs: watch(`currency_id`) > 1 ? 6 : 12, md: 2 }}>
               <Div sx={{ mt: 1 }}>
                 <TextField
-                  label='Rate'
+                  label={t.labels.rate}
                   fullWidth
                   size='small'
                   defaultValue={productItem?.rate}
@@ -525,7 +528,7 @@ function ProductItemsTab({
               <Div sx={{ mt: 1 }}>
                 <ProductSelect
                   multiple={true}
-                  label='Alternative Products'
+                  label={t.labels.alternativeProducts}
                   defaultValue={
                     productItem
                       ? productOptions.filter((product) =>
@@ -571,16 +574,16 @@ function ProductItemsTab({
               >
                 {productItem ? (
                   <>
-                    <CheckOutlined fontSize='small' /> Done
+                    <CheckOutlined fontSize='small' /> {t.buttons.done}
                   </>
                 ) : (
                   <>
-                    <AddOutlined fontSize='small' /> Add
+                    <AddOutlined fontSize='small' /> {t.buttons.add}
                   </>
                 )}
               </LoadingButton>
               {productItem && (
-                <Tooltip title='Close Edit'>
+                <Tooltip title={dictionary.tooltips.closeEdit}>
                   <IconButton
                     size='small'
                     onClick={() => {

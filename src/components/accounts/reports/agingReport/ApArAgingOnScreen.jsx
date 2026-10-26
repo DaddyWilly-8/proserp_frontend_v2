@@ -17,9 +17,10 @@ import {
 } from '@mui/material';
 import React, { useState } from 'react';
 import LedgerStatementDialogContent from '../../ledgers/list/ledgerStatement/LedgerStatementDialogContent';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
-const BUCKET_COLUMNS = [
-  { key: 'current', label: 'Current (0-30)' },
+const getBucketColumns = (currentLabel) => [
+  { key: 'current', label: currentLabel },
   { key: 'days_31_60', label: '31-60' },
   { key: 'days_61_90', label: '61-90' },
   { key: 'days_91_120', label: '91-120' },
@@ -33,6 +34,9 @@ const formatMoney = (value) =>
   });
 
 const ApArAgingOnScreen = ({ reportData, authOrganization }) => {
+  const dictionary = useDictionary();
+  const t = dictionary.reports.accountsReports;
+  const BUCKET_COLUMNS = getBucketColumns(t.agingReport.current);
   const theme = useTheme();
   const { theme: jumboTheme } = useJumboTheme();
   const belowLargeScreen = useMediaQuery(jumboTheme.breakpoints.down('lg'));
@@ -115,7 +119,7 @@ const ApArAgingOnScreen = ({ reportData, authOrganization }) => {
             }}
           >
             <TableCell style={{ paddingLeft: (level + 1) * 20 }}>
-              <Tooltip title='Click to view statement' placement='top' arrow>
+              <Tooltip title={dictionary.tooltips.clickToViewStatement} placement='top' arrow>
                 <Typography
                   component='span'
                   variant='body2'
@@ -144,16 +148,14 @@ const ApArAgingOnScreen = ({ reportData, authOrganization }) => {
   return (
     <Box sx={{ marginTop: 3 }}>
       <Typography variant='caption' color='text.secondary' sx={{ mb: 1, display: 'block' }}>
-        Aged from each transaction&apos;s date assuming a flat 30-day term,
-        since due dates aren&apos;t captured for every transaction type that
-        can post to these ledgers.
+        {t.agingReport.agingNote}
       </Typography>
       <TableContainer component={TablePaper}>
         <Table size='small'>
           <TableHead>
             <TableRow>
               <TableCell sx={{ backgroundColor: mainColor, color: contrastText }}>
-                Name
+                {t.agingReport.name}
               </TableCell>
               {BUCKET_COLUMNS.map((col) => (
                 <TableCell
@@ -165,7 +167,7 @@ const ApArAgingOnScreen = ({ reportData, authOrganization }) => {
                 </TableCell>
               ))}
               <TableCell align='right' sx={{ backgroundColor: mainColor, color: contrastText }}>
-                Total
+                {t.common.total}
               </TableCell>
             </TableRow>
           </TableHead>
@@ -173,7 +175,7 @@ const ApArAgingOnScreen = ({ reportData, authOrganization }) => {
             {renderGroup(reportData.group, 0)}
             <TableRow>
               <TableCell sx={{ backgroundColor: mainColor, color: contrastText, borderBottom: 'none' }}>
-                Total
+                {t.common.total}
               </TableCell>
               {BUCKET_COLUMNS.map((col) => (
                 <TableCell

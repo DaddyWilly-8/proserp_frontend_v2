@@ -20,6 +20,7 @@ import { Controller, useForm } from 'react-hook-form';
 import * as yup from 'yup';
 import humanResourcesServices from '../../../humanResourcesServices';
 import { NextOfKinType } from './NextOfKinType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface NextOfKinFormProps {
   setOpenDialog: (open: boolean) => void;
@@ -50,6 +51,7 @@ const NextOfKinForm = ({
   nextOfKin = null,
   employeeId,
 }: NextOfKinFormProps) => {
+  const dictionary = useDictionary();
   const queryClient = useQueryClient();
   const { enqueueSnackbar } = useSnackbar();
 
@@ -61,13 +63,13 @@ const NextOfKinForm = ({
     mutationFn: humanResourcesServices.addEmployeeNextOfKin,
     onSuccess: () => {
       setOpenDialog(false);
-      enqueueSnackbar('Next Of Kin Added Successfully', {
+      enqueueSnackbar(dictionary.humanResources.nextOfKins.messages.added, {
         variant: 'success',
       });
       queryClient.invalidateQueries({ queryKey: ['employeeNextOfKins'] });
     },
     onError: (mutationError) => {
-      let message = 'Something went wrong';
+      let message = dictionary.humanResources.profileSectionsCommon.somethingWentWrong;
 
       if (
         typeof mutationError === 'object' &&
@@ -91,13 +93,13 @@ const NextOfKinForm = ({
     mutationFn: humanResourcesServices.updateEmployeeNextOfKin,
     onSuccess: () => {
       setOpenDialog(false);
-      enqueueSnackbar('Next Of Kin Updated Successfully', {
+      enqueueSnackbar(dictionary.humanResources.nextOfKins.messages.updated, {
         variant: 'success',
       });
       queryClient.invalidateQueries({ queryKey: ['employeeNextOfKins'] });
     },
     onError: (mutationError) => {
-      let message = 'Something went wrong';
+      let message = dictionary.humanResources.profileSectionsCommon.somethingWentWrong;
 
       if (
         typeof mutationError === 'object' &&
@@ -115,21 +117,21 @@ const NextOfKinForm = ({
 
   const validationSchema = yup.object({
     id: yup.number().optional(),
-    employee_id: yup.number().required('Employee is required'),
+    employee_id: yup.number().required(dictionary.humanResources.nextOfKins.form.validation.employeeRequired),
     name: yup
       .string()
-      .required('Name is required')
-      .max(200, 'Name cannot exceed 200 characters'),
+      .required(dictionary.humanResources.nextOfKins.form.validation.nameRequired)
+      .max(200, dictionary.humanResources.nextOfKins.form.validation.nameMax),
     relationship: yup
       .string()
-      .required('Relationship is required')
-      .max(50, 'Relationship cannot exceed 50 characters'),
-    phone: yup.string().max(20, 'Phone cannot exceed 20 characters'),
+      .required(dictionary.humanResources.nextOfKins.form.validation.relationshipRequired)
+      .max(50, dictionary.humanResources.nextOfKins.form.validation.relationshipMax),
+    phone: yup.string().max(20, dictionary.humanResources.nextOfKins.form.validation.phoneMax),
     email: yup
       .string()
-      .email('Email is invalid')
-      .max(150, 'Email cannot exceed 150 characters'),
-    address: yup.string().max(500, 'Address cannot exceed 500 characters'),
+      .email(dictionary.humanResources.nextOfKins.form.validation.emailInvalid)
+      .max(150, dictionary.humanResources.nextOfKins.form.validation.emailMax),
+    address: yup.string().max(500, dictionary.humanResources.nextOfKins.form.validation.addressMax),
     is_primary: yup.boolean().required(),
   });
 
@@ -191,8 +193,8 @@ const NextOfKinForm = ({
       <DialogTitle>
         <Grid size={12} textAlign={'center'}>
           {!nextOfKin?.id
-            ? 'Add Employee Next Of Kin'
-            : 'Edit Employee Next Of Kin'}
+            ? dictionary.humanResources.nextOfKins.form.addTitle
+            : dictionary.humanResources.nextOfKins.form.editTitle}
         </Grid>
       </DialogTitle>
       <DialogContent>
@@ -201,7 +203,7 @@ const NextOfKinForm = ({
             <Grid size={{ xs: 12, md: 6 }}>
               <Div sx={{ mt: 1, mb: 1 }}>
                 <TextField
-                  label='Name'
+                  label={dictionary.humanResources.nextOfKins.form.labels.name}
                   size='small'
                   fullWidth
                   error={
@@ -220,7 +222,7 @@ const NextOfKinForm = ({
             <Grid size={{ xs: 12, md: 6 }}>
               <Div sx={{ mt: 1, mb: 1 }}>
                 <TextField
-                  label='Relationship'
+                  label={dictionary.humanResources.nextOfKins.form.labels.relationship}
                   size='small'
                   fullWidth
                   error={
@@ -239,7 +241,7 @@ const NextOfKinForm = ({
             <Grid size={{ xs: 12, md: 6 }}>
               <Div sx={{ mt: 1, mb: 1 }}>
                 <TextField
-                  label='Phone'
+                  label={dictionary.humanResources.nextOfKins.form.labels.phone}
                   size='small'
                   fullWidth
                   error={
@@ -258,7 +260,7 @@ const NextOfKinForm = ({
             <Grid size={{ xs: 12, md: 6 }}>
               <Div sx={{ mt: 1, mb: 1 }}>
                 <TextField
-                  label='Email'
+                  label={dictionary.humanResources.nextOfKins.form.labels.email}
                   size='small'
                   fullWidth
                   error={
@@ -277,7 +279,7 @@ const NextOfKinForm = ({
             <Grid size={{ xs: 12 }}>
               <Div sx={{ mt: 1, mb: 1 }}>
                 <TextField
-                  label='Address'
+                  label={dictionary.humanResources.nextOfKins.form.labels.address}
                   size='small'
                   fullWidth
                   multiline
@@ -310,7 +312,7 @@ const NextOfKinForm = ({
                           }
                         />
                       }
-                      label='Set as Primary Contact'
+                      label={dictionary.humanResources.nextOfKins.form.labels.setPrimary}
                     />
                   )}
                 />
@@ -320,7 +322,7 @@ const NextOfKinForm = ({
 
           <DialogActions>
             <Button size='small' onClick={() => setOpenDialog(false)}>
-              Cancel
+              {dictionary.humanResources.profileSectionsCommon.cancel}
             </Button>
             <LoadingButton
               type='submit'
@@ -329,7 +331,7 @@ const NextOfKinForm = ({
               sx={{ display: 'flex' }}
               loading={isPending || updateIsPending}
             >
-              Submit
+              {dictionary.humanResources.profileSectionsCommon.submit}
             </LoadingButton>
           </DialogActions>
         </form>

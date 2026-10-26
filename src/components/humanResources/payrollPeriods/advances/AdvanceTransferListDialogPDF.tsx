@@ -8,42 +8,45 @@ import { AdvanceSheetType } from './AdvanceSheetType';
 interface AdvanceTransferListDialogPDFProps {
   organization: Organization;
   advanceSheet: AdvanceSheetType;
+  dictionary: any;
 }
 
 const monthNames = [
-  'January',
-  'February',
-  'March',
-  'April',
-  'May',
-  'June',
-  'July',
-  'August',
-  'September',
-  'October',
-  'November',
-  'December',
+  'january',
+  'february',
+  'march',
+  'april',
+  'may',
+  'june',
+  'july',
+  'august',
+  'september',
+  'october',
+  'november',
+  'december',
 ];
 
 function AdvanceTransferListDialogPDF({
   organization,
   advanceSheet,
+  dictionary,
 }: AdvanceTransferListDialogPDFProps) {
+  const t = dictionary.humanResources.payrollPeriods;
   const mainColor = organization.settings?.main_color || '#2113AD';
   const lightColor = organization.settings?.light_color || '#bec5da';
   const contrastText = organization.settings?.contrast_text || '#FFFFFF';
 
   const monthNo = advanceSheet?.period?.month;
   const year = advanceSheet?.period?.year;
-  const monthName = monthNo ? monthNames[monthNo - 1] : '';
+  const monthName = monthNo ? t.common.months[monthNames[monthNo - 1]] : '';
   const payrollPeriod = monthName ? `${year} - ${monthName}` : '-';
 
   const rows = advanceSheet?.rows || [];
 
   return (
     <Document
-      title={`Advance Transfer Sheet - ${payrollPeriod}`}
-      subject='Advance Payment Transfer Sheet'
+      title={`${t.advances.transfer.docTitle} - ${payrollPeriod}`}
+      subject={t.advances.transfer.title}
       creator='ProsERP'
       producer='ProsERP'
     >
@@ -57,7 +60,7 @@ function AdvanceTransferListDialogPDF({
           </View>
           <View style={{ flex: 1, textAlign: 'right' }}>
             <Text style={{ ...pdfStyles.majorInfo, color: mainColor }}>
-              Advance Payment Transfer Sheet
+              {t.advances.transfer.title}
             </Text>
             <Text style={{ ...pdfStyles.minInfo }}>{payrollPeriod}</Text>
           </View>
@@ -67,13 +70,13 @@ function AdvanceTransferListDialogPDF({
         <View style={{ ...pdfStyles.tableRow, marginBottom: 15 }}>
           <View style={{ flex: 1, padding: 2 }}>
             <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>
-              Payroll Period
+              {t.advances.transfer.payrollPeriod}
             </Text>
             <Text style={{ ...pdfStyles.minInfo }}>{payrollPeriod}</Text>
           </View>
           <View style={{ flex: 1, padding: 2 }}>
             <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>
-              No Bank Account
+              {t.advances.transfer.noBankAccount}
             </Text>
             <Text style={{ ...pdfStyles.minInfo }}>
               {advanceSheet?.employees_without_bank_account ?? 0}
@@ -81,7 +84,7 @@ function AdvanceTransferListDialogPDF({
           </View>
           <View style={{ flex: 1, padding: 2 }}>
             <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>
-              Total Employees
+              {t.advances.transfer.totalEmployees}
             </Text>
             <Text style={{ ...pdfStyles.minInfo }}>
               {advanceSheet?.total_employees ?? 0}
@@ -89,7 +92,7 @@ function AdvanceTransferListDialogPDF({
           </View>
           <View style={{ flex: 1, padding: 2 }}>
             <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>
-              Total Advance Amount
+              {t.advances.transfer.totalAmount}
             </Text>
             <Text style={{ ...pdfStyles.minInfo }}>
               {advanceSheet?.total_amount?.toLocaleString('en-US', {
@@ -112,7 +115,7 @@ function AdvanceTransferListDialogPDF({
                 flex: 0.4,
               }}
             >
-              S/N
+              {t.advances.transfer.columns.sn}
             </Text>
             <Text
               style={{
@@ -122,7 +125,7 @@ function AdvanceTransferListDialogPDF({
                 flex: 1.2,
               }}
             >
-              Emp No.
+              {t.advances.transfer.columns.empNo}
             </Text>
             <Text
               style={{
@@ -132,7 +135,7 @@ function AdvanceTransferListDialogPDF({
                 flex: 2,
               }}
             >
-              Employee Name
+              {t.advances.transfer.columns.employeeName}
             </Text>
             <Text
               style={{
@@ -142,7 +145,7 @@ function AdvanceTransferListDialogPDF({
                 flex: 1.5,
               }}
             >
-              Bank Name
+              {t.advances.transfer.columns.bankName}
             </Text>
             <Text
               style={{
@@ -152,7 +155,7 @@ function AdvanceTransferListDialogPDF({
                 flex: 1.5,
               }}
             >
-              Branch
+              {t.advances.transfer.columns.branch}
             </Text>
             <Text
               style={{
@@ -162,7 +165,7 @@ function AdvanceTransferListDialogPDF({
                 flex: 1.2,
               }}
             >
-              Bank Code
+              {t.advances.transfer.columns.bankCode}
             </Text>
             <Text
               style={{
@@ -172,7 +175,7 @@ function AdvanceTransferListDialogPDF({
                 flex: 1.5,
               }}
             >
-              Account Number
+              {t.advances.transfer.columns.accountNumber}
             </Text>
             <Text
               style={{
@@ -182,7 +185,7 @@ function AdvanceTransferListDialogPDF({
                 flex: 2,
               }}
             >
-              Account Name
+              {t.advances.transfer.columns.accountName}
             </Text>
             <Text
               style={{
@@ -193,7 +196,7 @@ function AdvanceTransferListDialogPDF({
                 textAlign: 'right',
               }}
             >
-              Advance Amount
+              {t.advances.transfer.columns.advanceAmount}
             </Text>
             <Text
               style={{
@@ -204,7 +207,7 @@ function AdvanceTransferListDialogPDF({
                 textAlign: 'center',
               }}
             >
-              Status
+              {t.advances.transfer.columns.status}
             </Text>
           </View>
 
@@ -306,7 +309,7 @@ function AdvanceTransferListDialogPDF({
                     textAlign: 'center',
                   }}
                 >
-                  {row.paid ? 'Paid' : 'Unpaid'}
+                  {row.paid ? t.common.paid : t.common.unpaid}
                 </Text>
               </View>
             );
@@ -325,7 +328,7 @@ function AdvanceTransferListDialogPDF({
               textAlign: 'left',
             }}
           >
-            Total Advance Amount
+            {t.advances.transfer.totalAmount}
           </Text>
           <Text
             style={{

@@ -10,8 +10,10 @@ import {
 } from '@mui/material';
 import { useState } from 'react';
 import LeaveTypeForm from './LeaveTypeForm';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const LeaveTypeActionTail = () => {
+  const dictionary = useDictionary();
   const { checkOrganizationPermission } = useJumboAuth();
   const [openDialog, setOpenDialog] = useState(false);
 
@@ -30,7 +32,7 @@ const LeaveTypeActionTail = () => {
         sx={{ '& .MuiButton-root': { px: 1 } }}
       >
         {/* {( */}
-        <Tooltip title='Add Leave Type'>
+        <Tooltip title={dictionary.tooltips.addLeaveType}>
           <IconButton onClick={() => setOpenDialog(true)}>
             <AddOutlined />
           </IconButton>

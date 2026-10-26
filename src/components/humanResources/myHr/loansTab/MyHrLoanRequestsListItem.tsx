@@ -45,6 +45,7 @@ import { useState } from 'react';
 import humanResourcesServices from '../../humanResourcesServices';
 import LoanRequstForm from './LoanRequstForm';
 import { MyHrLoanRequestType } from './LoanRequestType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const formatCurrency = (value?: number | null) =>
   value != null ? Number(value).toLocaleString() : '—';
@@ -57,12 +58,12 @@ const STATUS_COLOR: Record<string, any> = {
   'on hold': 'info',
 };
 
-const STATUS_LABEL: Record<string, string> = {
-  in_review: 'In Review',
-  approved: 'Approved',
-  rejected: 'Rejected',
-  cancelled: 'Cancelled',
-  'on hold': 'On Hold',
+const STATUS_LABEL_KEY: Record<string, string> = {
+  in_review: 'inReview',
+  approved: 'approved',
+  rejected: 'rejected',
+  cancelled: 'cancelled',
+  'on hold': 'onHold',
 };
 
 // Same small label/value tile the HR-side Summary tab uses — duplicated
@@ -103,6 +104,8 @@ const MyHrLoanRequestsListItem = ({
 }: {
   loanRequest: MyHrLoanRequestType;
 }) => {
+  const dictionary = useDictionary();
+  const t = dictionary.humanResources.myHr.loans.item;
   const { theme } = useJumboTheme();
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
   const { authUser, authOrganization } = useJumboAuth() as any;
@@ -126,9 +129,11 @@ const MyHrLoanRequestsListItem = ({
   // request sits at a pending level, same convention as Requisitions.
   const statusLabel =
     loanRequest.status_label ||
-    STATUS_LABEL[loanRequest.status] ||
+    (STATUS_LABEL_KEY[loanRequest.status]
+      ? t.statuses[STATUS_LABEL_KEY[loanRequest.status]]
+      : undefined) ||
     loanRequest.status ||
-    'Pending';
+    t.statuses.pending;
 
   const hasDecision =
     loanRequest.amount_approved != null ||
@@ -188,19 +193,19 @@ const MyHrLoanRequestsListItem = ({
           paddingRight={1}
         >
           <Grid size={{ xs: 12, md: 2.8 }}>
-            <Tooltip title='Requested Amount'>
+            <Tooltip title={dictionary.tooltips.requestedAmount}>
               <Typography>{formatCurrency(loanRequest.amount)}</Typography>
             </Tooltip>
           </Grid>
 
           <Grid size={{ xs: 12, md: 2.2 }}>
-            <Tooltip title='Requested Installments'>
+            <Tooltip title={dictionary.tooltips.requestedInstallments}>
               <Typography>{loanRequest.installments} months</Typography>
             </Tooltip>
           </Grid>
 
           <Grid size={{ xs: 12, md: 2.8 }}>
-            <Tooltip title='Approved Amount / Installments'>
+            <Tooltip title={dictionary.tooltips.approvedAmountInstallments}>
               <Typography>
                 {hasDecision
                   ? `${formatCurrency(loanRequest.amount_approved)} / ${loanRequest.installments_approved} mo`
@@ -210,7 +215,7 @@ const MyHrLoanRequestsListItem = ({
           </Grid>
 
           <Grid size={{ xs: 12, md: 1.9 }}>
-            <Tooltip title='Loan Request Date'>
+            <Tooltip title={dictionary.tooltips.loanRequestDate}>
               <Typography>
                 {readableDate(
                   loanRequest.requested_at || loanRequest.created_at,
@@ -237,7 +242,10 @@ const MyHrLoanRequestsListItem = ({
               />
               {loanRequest.disbursed_at && (
                 <Tooltip
-                  title={`Disbursed ${readableDate(loanRequest.disbursed_at, false)}`}
+                  title={t.disbursedOn.replace(
+                    '{date}',
+                    readableDate(loanRequest.disbursed_at, false)
+                  )}
                 >
                   <Verified color='success' fontSize='small' />
                 </Tooltip>
@@ -267,11 +275,11 @@ const MyHrLoanRequestsListItem = ({
           onClose={() => setOpenPreview(false)}
         >
           <DialogContent>
-            <LoanRequestPreview loanRequest={loanRequest} title='Your Loan Request' />
+            <LoanRequestPreview loanRequest={loanRequest} title={t.yourLoanRequest} />
           </DialogContent>
           <DialogActions>
             <Button size='small' onClick={() => setOpenPreview(false)}>
-              Close
+              {t.close}
             </Button>
           </DialogActions>
         </Dialog>
@@ -304,6 +312,7 @@ const MyHrLoanRequestsListItem = ({
                 document={
                   <LoanStatementPDF
                     data={statementData}
+                    dictionary={dictionary}
                     organization={organization}
                     userName={authUser?.user?.name || 'ProsERP'}
                   />
@@ -316,7 +325,7 @@ const MyHrLoanRequestsListItem = ({
           </DialogContent>
           <DialogActions>
             <Button size='small' onClick={() => setOpenStatement(false)}>
-              Close
+              {t.close}
             </Button>
           </DialogActions>
         </Dialog>
@@ -328,6 +337,7 @@ const MyHrLoanRequestsListItem = ({
                 document={
                   <LoanRequestPDF
                     data={loanRequest as any}
+                    dictionary={dictionary}
                     organization={organization}
                     userName={authUser?.user?.name || 'ProsERP'}
                     employeeName={authUser?.user?.name}
@@ -341,18 +351,18 @@ const MyHrLoanRequestsListItem = ({
 
         <Grid container spacing={1}>
           <Grid size={{ xs: 12 }} textAlign='end'>
-            <Tooltip title='Print Loan Application Form'>
+            <Tooltip title={dictionary.tooltips.printLoanApplicationForm}>
               <IconButton size='small' onClick={() => setOpenPrint(true)}>
                 <PrintOutlined color='primary' />
               </IconButton>
             </Tooltip>
-            <Tooltip title='Preview'>
+            <Tooltip title={dictionary.tooltips.preview}>
               <IconButton size='small' onClick={() => setOpenPreview(true)}>
                 <PreviewOutlined color='primary' />
               </IconButton>
             </Tooltip>
             {loanRequest.status === 'approved' && (
-              <Tooltip title='Statement'>
+              <Tooltip title={dictionary.tooltips.statement}>
                 <IconButton
                   size='small'
                   onClick={() => setOpenStatement(true)}
@@ -362,7 +372,7 @@ const MyHrLoanRequestsListItem = ({
               </Tooltip>
             )}
             {canEdit && (
-              <Tooltip title='Edit'>
+              <Tooltip title={dictionary.tooltips.edit}>
                 <IconButton
                   size='small'
                   onClick={() => setOpenEditDialog(true)}
@@ -381,8 +391,8 @@ const MyHrLoanRequestsListItem = ({
               allowScrollButtonsMobile
               sx={{ display: 'flex', justifyContent: 'center' }}
             >
-              <Tab label='Summary' />
-              <Tab label='Approvals' />
+              <Tab label={t.tabs.summary} />
+              <Tab label={t.tabs.approvals} />
             </Tabs>
           </Grid>
         </Grid>
@@ -394,21 +404,24 @@ const MyHrLoanRequestsListItem = ({
               <CardContent>
                 <Grid container spacing={2}>
                   <Grid size={12}>
-                    <SectionTitle>Loan Details</SectionTitle>
+                    <SectionTitle>{t.sections.loanDetails}</SectionTitle>
                   </Grid>
                   <Field
-                    label='Department'
+                    label={t.fields.department}
                     value={loanRequest.department?.name}
                   />
                   <Field
-                    label='Amount Requested'
+                    label={t.fields.amountRequested}
                     value={formatCurrency(loanRequest.amount)}
                   />
                   <Field
-                    label='Installments Requested'
-                    value={`${loanRequest.installments} months`}
+                    label={t.fields.installmentsRequested}
+                    value={t.monthsCount.replace(
+                      '{count}',
+                      String(loanRequest.installments)
+                    )}
                   />
-                  <Field label='Reason' value={loanRequest.reason} />
+                  <Field label={t.fields.reason} value={loanRequest.reason} />
                 </Grid>
               </CardContent>
             </Card>
@@ -416,10 +429,10 @@ const MyHrLoanRequestsListItem = ({
               <CardContent>
                 <Grid container spacing={2}>
                   <Grid size={12}>
-                    <SectionTitle>Approval Decision</SectionTitle>
+                    <SectionTitle>{t.sections.approvalDecision}</SectionTitle>
                   </Grid>
                   <Field
-                    label='Status'
+                    label={t.fields.status}
                     value={
                       <Chip
                         label={statusLabel}
@@ -431,23 +444,26 @@ const MyHrLoanRequestsListItem = ({
                     }
                   />
                   <Field
-                    label='Amount Approved'
+                    label={t.fields.amountApproved}
                     value={formatCurrency(loanRequest.amount_approved)}
                   />
                   <Field
-                    label='Installments Approved'
+                    label={t.fields.installmentsApproved}
                     value={
                       loanRequest.installments_approved != null
-                        ? `${loanRequest.installments_approved} months`
+                        ? t.monthsCount.replace(
+                            '{count}',
+                            String(loanRequest.installments_approved)
+                          )
                         : undefined
                     }
                   />
                   <Field
-                    label='Installment Amount'
+                    label={t.fields.installmentAmount}
                     value={formatCurrency(loanRequest.installment_amount)}
                   />
                   <Field
-                    label='Reviewed At'
+                    label={t.fields.reviewedAt}
                     value={
                       loanRequest.reviewed_at
                         ? readableDate(loanRequest.reviewed_at, false)
@@ -455,7 +471,7 @@ const MyHrLoanRequestsListItem = ({
                     }
                   />
                   <Field
-                    label='Review Remarks'
+                    label={t.fields.reviewRemarks}
                     value={loanRequest.review_remarks}
                   />
                 </Grid>
@@ -466,10 +482,10 @@ const MyHrLoanRequestsListItem = ({
               <CardContent>
                 <Grid container spacing={2}>
                   <Grid size={12}>
-                    <SectionTitle>Disbursement &amp; Payment</SectionTitle>
+                    <SectionTitle>{t.sections.disbursementPayment}</SectionTitle>
                   </Grid>
                   <Field
-                    label='Disbursed At'
+                    label={t.fields.disbursedAt}
                     value={
                       loanRequest.disbursed_at
                         ? readableDate(loanRequest.disbursed_at, false)
@@ -477,7 +493,7 @@ const MyHrLoanRequestsListItem = ({
                     }
                   />
                   <Field
-                    label='Disbursed By'
+                    label={t.fields.disbursedBy}
                     value={
                       loanRequest.disbursed_by
                         ? `${loanRequest.disbursed_by.name}`
@@ -485,11 +501,11 @@ const MyHrLoanRequestsListItem = ({
                     }
                   />
                   <Field
-                    label='Disbursement Reference'
+                    label={t.fields.disbursementReference}
                     value={loanRequest.disbursement_reference}
                   />
                   <Field
-                    label='Payment Voucher'
+                    label={t.fields.paymentVoucher}
                     value={loanRequest.payment?.voucherNo}
                   />
                   <Grid size={{ xs: 12, sm: 6, md: 8, lg: 9 }}>
@@ -508,7 +524,7 @@ const MyHrLoanRequestsListItem = ({
                         color='text.secondary'
                         display='block'
                       >
-                        Payment Narration
+                        {t.fields.paymentNarration}
                       </Typography>
                       <Typography variant='body2' fontWeight={500}>
                         {loanRequest.payment?.narration ?? '-'}
@@ -559,7 +575,7 @@ const MyHrLoanRequestsListItem = ({
                         alignItems='center'
                       >
                         <Grid size={{ xs: 12, md: 4, lg: 4 }}>
-                          <Tooltip title='Action Date'>
+                          <Tooltip title={dictionary.tooltips.actionDate}>
                             <Typography variant='h6'>
                               {approval.approval_date
                                 ? readableDate(approval.approval_date)
@@ -569,7 +585,7 @@ const MyHrLoanRequestsListItem = ({
                         </Grid>
 
                         <Grid size={{ xs: 12, md: 4, lg: 4 }}>
-                          <Tooltip title='Done By'>
+                          <Tooltip title={dictionary.tooltips.doneBy}>
                             <Typography variant='h6'>
                               {approval.creator?.name || ''}
                             </Typography>
@@ -579,7 +595,7 @@ const MyHrLoanRequestsListItem = ({
                         <Grid size={{ xs: 12, md: 4, lg: 4 }}>
                           <Chip
                             size='small'
-                            label={approval.status || 'Pending'}
+                            label={approval.status || t.statuses.pending}
                             color={chipColor as any}
                             sx={{ textTransform: 'capitalize' }}
                           />
@@ -590,7 +606,7 @@ const MyHrLoanRequestsListItem = ({
                 ) : (
                   <Grid size={{ xs: 12 }}>
                     <Alert variant='outlined' severity='info'>
-                      No Approvals Found
+                      {t.noApprovals}
                     </Alert>
                   </Grid>
                 )}

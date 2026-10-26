@@ -8,8 +8,10 @@ import { readableDate } from '@/app/helpers/input-sanitization-helpers';
 import AttachmentForm from '@/components/filesShelf/attachments/AttachmentForm';
 import SubContractMaterialIssuedTab from './tabs/materialIssued/SubContractMaterialIssuedTab';
 import CertificatesTab from './tabs/certificatesTab/CertificatesTab';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function SubcontractListItem({ subContract }) {
+    const dictionary = useDictionary();
     const [expanded, setExpanded] = useState({});
     const [activeTab, setActiveTab] = useState(0);
 
@@ -75,14 +77,14 @@ function SubcontractListItem({ subContract }) {
                     <Grid size={{xs: 12, md: 6, lg: 3}}>
                         <ListItemText
                             primary={
-                                <Tooltip title="Sub Contractor">
+                                <Tooltip title={dictionary.tooltips.subContractor}>
                                     <Typography component="span">
                                         {subContract.subcontractor?.name}
                                     </Typography>
                                 </Tooltip>
                             }
                             secondary={
-                                <Tooltip title="Contract No">
+                                <Tooltip title={dictionary.tooltips.contractNo}>
                                     <Typography component="span">
                                         {subContract.subcontractNo}
                                     </Typography>
@@ -91,7 +93,7 @@ function SubcontractListItem({ subContract }) {
                         />
                     </Grid>
                     <Grid size={{xs: 12, md: 6, lg: 3}}>
-                        <Tooltip title={`Contract Period`}>
+                        <Tooltip title={dictionary.tooltips.contractPeriod}>
                             <Typography component="span" fontSize={14} lineHeight={1.5} noWrap>
                                 {`${subContract.commencement_date ? readableDate(subContract.commencement_date,false) : ''} ${subContract.completion_date ? '→ ' + readableDate(subContract.completion_date,false) : ''}`}
                             </Typography>
@@ -100,14 +102,14 @@ function SubcontractListItem({ subContract }) {
                     <Grid size={{xs: 12, md: 6, lg: 3.5}}>
                         <ListItemText
                             primary={
-                                <Tooltip title="Reference">
+                                <Tooltip title={dictionary.tooltips.reference}>
                                     <Typography component="span">
                                         {subContract.reference}
                                     </Typography>
                                 </Tooltip>
                             }
                             secondary={
-                                <Tooltip title="Remarks">
+                                <Tooltip title={dictionary.tooltips.remarks}>
                                     <Typography component="span">
                                         {subContract.remarks}
                                     </Typography>
@@ -116,7 +118,7 @@ function SubcontractListItem({ subContract }) {
                         />
                     </Grid>
                     <Grid size={{xs: 6, md: 5, lg: 2}}>
-                        <Tooltip title="Amount">
+                        <Tooltip title={dictionary.tooltips.amount}>
                             <Typography variant="h6">
                                 {subContract?.contract_sum?.toLocaleString('en-US', {
                                     style: 'currency',
@@ -148,10 +150,10 @@ function SubcontractListItem({ subContract }) {
                             allowScrollButtonsMobile
                             sx={{ display: 'flex', justifyContent: 'center' }}
                         >
-                            <Tab label="Tasks" />
-                            <Tab label="Certificates" />
-                            <Tab label="material Used" />
-                            <Tab label="Attachments" />
+                            <Tab label={dictionary.projectManagement.subcontracts.tabs.tasks} />
+                            <Tab label={dictionary.projectManagement.subcontracts.tabs.certificates} />
+                            <Tab label={dictionary.projectManagement.subcontracts.tabs.materialUsed} />
+                            <Tab label={dictionary.projectManagement.common.attachments} />
                         </Tabs>
                     </Grid>
                 </Grid>

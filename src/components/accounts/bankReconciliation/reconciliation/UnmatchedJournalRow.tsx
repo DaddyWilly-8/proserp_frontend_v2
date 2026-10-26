@@ -1,4 +1,5 @@
 'use client';
+import RecurringTag from '@/components/accounts/recurringTransactions/RecurringTag';
 
 import React, { useState } from 'react';
 import { Autocomplete, Box, Chip, Grid, IconButton, TextField, Tooltip, Typography } from '@mui/material';
@@ -15,6 +16,7 @@ import { descriptionIncludesVoucher } from './journal-display';
 import { formatDate } from './date-format';
 import { quickActionsFor } from './transaction-quick-actions';
 import CancelTransactionDialog from './CancelTransactionDialog';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface StatementLine {
   id: number;
@@ -40,6 +42,7 @@ interface Journal {
   description: string;
   comparable_amount: number;
   voucher_no?: string | null;
+  is_scheduled?: boolean;
   counterparty?: string | null;
   credit_ledger?: { name: string };
   debit_ledger?: { name: string };
@@ -71,6 +74,7 @@ export default function UnmatchedJournalRow({
   remainingAmount,
   tolerance = 0.01,
 }: Props) {
+  const dictionary = useDictionary();
   const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
   const { showDialog, hideDialog } = useJumboDialog();
@@ -167,6 +171,7 @@ export default function UnmatchedJournalRow({
         <Typography variant='body2' color='text.secondary'>
           {formatDate(journal.journal_date)}
           {!descriptionIncludesVoucher(journal) && journal.voucher_no && ` — ${journal.voucher_no}`}
+          {journal.is_scheduled && <RecurringTag />}
         </Typography>
         <Typography variant='body2'>{journal.description}</Typography>
         {journal.counterparty && (
@@ -221,7 +226,7 @@ export default function UnmatchedJournalRow({
         )}
       </Grid>
       <Grid size={{ xs: 12, md: 2 }} textAlign='end'>
-        <Tooltip title='Match selected statement lines to this book entry'>
+        <Tooltip title={dictionary.tooltips.matchSelectedStatementLinesToThis}>
           <span>
             <LoadingButton
               size='small'
@@ -238,7 +243,7 @@ export default function UnmatchedJournalRow({
         </Tooltip>
         {hasAnyRowAction && (
           <>
-            <Tooltip title='More actions'>
+            <Tooltip title={dictionary.tooltips.moreActions}>
               <MuiIconButton size='small' onClick={(e) => setMenuAnchor(e.currentTarget)}>
                 <MoreVert fontSize='small' />
               </MuiIconButton>

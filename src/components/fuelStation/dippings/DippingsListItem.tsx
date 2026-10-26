@@ -3,12 +3,14 @@ import { Box, Grid, Tooltip, Typography } from '@mui/material';
 import DippingsItemAction from './DippingsItemAction';
 import { readableDate } from '@/app/helpers/input-sanitization-helpers';
 import { Dipping } from './DippingsTypes';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface DippingsListItemProps {
   dipping: Dipping;
 }
 
 const DippingsListItem: React.FC<DippingsListItemProps> = ({ dipping }) => {
+  const dictionary = useDictionary();
 
   return (
     <Grid 
@@ -26,21 +28,21 @@ const DippingsListItem: React.FC<DippingsListItemProps> = ({ dipping }) => {
     }}
     >
         <Grid size={{xs:7, md:4}}>
-            <Tooltip title='As At'>
+            <Tooltip title={dictionary.tooltips.asAt}>
                 <Typography>
                     {readableDate(dipping.as_at, true)}
                 </Typography>
             </Tooltip>
         </Grid>
         <Grid size={{xs:5, md:3}}>
-            <Tooltip title='Dipping No'>
+            <Tooltip title={dictionary.tooltips.dippingNo}>
                 <Typography fontWeight={'bold'}>
                     {dipping.dipping_no}
                 </Typography>
             </Tooltip>
         </Grid>
        <Grid size={{xs:11, md:4}}>
-            <Tooltip title='Remarks'>
+            <Tooltip title={dictionary.tooltips.remarks}>
                 <Typography>
                     {dipping.remarks}
                 </Typography>

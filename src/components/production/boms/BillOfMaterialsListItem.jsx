@@ -1,8 +1,10 @@
 import React from 'react';
 import {Grid, Tooltip, Typography } from '@mui/material';
 import BillOfMaterialItemAction from './BillOfMaterialItemAction';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const BillOfMaterialsListItem = ({ billOfMaterial }) => {
+  const dictionary = useDictionary();
   return (
     <React.Fragment>
       <Grid
@@ -22,19 +24,19 @@ const BillOfMaterialsListItem = ({ billOfMaterial }) => {
         alignItems={'center'}
       >
         <Grid size={{xs: 3, md: 2}}>
-          <Tooltip title='BomNo.'>
+          <Tooltip title={dictionary.tooltips.bomno}>
             <Typography variant="h5" fontSize={14} lineHeight={1.25} mb={0} noWrap>
               {billOfMaterial.bomNo}
             </Typography>
           </Tooltip>
         </Grid>
         <Grid size={{xs: 9, md: 5}}>
-          <Tooltip title='Material'>
+          <Tooltip title={dictionary.tooltips.material}>
             <Typography>{billOfMaterial.product?.name}</Typography>
           </Tooltip>
         </Grid>
         <Grid size={{xs: 6, md: 4}}>
-          <Tooltip title='Quantity'>
+          <Tooltip title={dictionary.tooltips.quantity}>
             <Typography>{billOfMaterial.quantity.toLocaleString()} {billOfMaterial.measurement_unit.symbol}</Typography>
           </Tooltip>
         </Grid>

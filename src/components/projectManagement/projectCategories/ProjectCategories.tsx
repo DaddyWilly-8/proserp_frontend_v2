@@ -17,8 +17,10 @@ import ProjectCategoryActionTail from './ProjectCategoryActionTail';
 import projectCategoryServices from './project-category-services';
 import { getSanitizedSearchKeyword } from '@/utilities/getSanitizedSearchKeyword';
 import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const ProjectCategories = () => {
+    const dictionary = useDictionary();
     const params = useParams<{ project?: string; id?: string; keyword?: string }>();
     const searchParams = useSearchParams();
     const listRef = useRef<any>(null);
@@ -63,7 +65,7 @@ const ProjectCategories = () => {
     if (!mounted) return <PageLoadingSkeleton />;
 
     if (!organizationHasSubscribed(MODULES.PROJECT_MANAGEMENT)) {
-        return <UnsubscribedAccess modules={'Project Management'} />;
+        return <UnsubscribedAccess modules={dictionary.projectManagement.projects.moduleName} />;
     }
 
     if (!checkOrganizationPermission([
@@ -77,7 +79,7 @@ const ProjectCategories = () => {
     return (
         <React.Fragment>
             <LedgerSelectProvider>
-                <Typography variant={'h4'} mb={2}>Project Categories</Typography>
+                <Typography variant={'h4'} mb={2}>{dictionary.projectManagement.projectCategories.title}</Typography>
                 <JumboRqList
                     ref={listRef}
                     wrapperComponent={Card}

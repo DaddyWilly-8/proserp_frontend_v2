@@ -1,5 +1,6 @@
 import { readableDate } from '@/app/helpers/input-sanitization-helpers';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import {
     Divider, Grid, Table, TableBody, TableCell, TableContainer,
     TableHead, TableRow, Typography
@@ -7,6 +8,7 @@ import {
 import { useTheme } from '@mui/material/styles';
 
 function PBSummary({ combinedInputsConsumptions, otherExpenses, by_products, outputs }) {
+    const dictionary = useDictionary();
     const theme = useTheme();
     const { authOrganization } = useJumboAuth();
 
@@ -50,20 +52,20 @@ function PBSummary({ combinedInputsConsumptions, otherExpenses, by_products, out
             {combinedInputsConsumptions.length > 0 && (
                 <Grid size={12}>
                     <Typography variant="h3" color={mainColor} align="center" marginTop={5}>
-                        Inventory Consumptions
+                        {dictionary.forms.batches.summary.inventoryConsumptions}
                     </Typography>
                     <TableContainer>
                         <Table>
                             <TableHead>
                                 <TableRow>
-                                    <TableCell sx={{ backgroundColor: mainColor, color: contrastText }}>S/N</TableCell>
-                                    <TableCell sx={{ backgroundColor: mainColor, color: contrastText }}>Date</TableCell>
-                                    <TableCell sx={{ backgroundColor: mainColor, color: contrastText }}>Consumption No</TableCell>
-                                    <TableCell sx={{ backgroundColor: mainColor, color: contrastText }}>Product</TableCell>
-                                    <TableCell sx={{ backgroundColor: mainColor, color: contrastText, textAlign: 'right' }}>Quantity</TableCell>
-                                    <TableCell sx={{ backgroundColor: mainColor, color: contrastText, textAlign: 'right' }}>Average Cost</TableCell>
-                                    <TableCell sx={{ backgroundColor: mainColor, color: contrastText, textAlign: 'right' }}>Amount</TableCell>
-                                    <TableCell sx={{ backgroundColor: mainColor, color: contrastText }}>Description</TableCell>
+                                    <TableCell sx={{ backgroundColor: mainColor, color: contrastText }}>{dictionary.forms.batches.summary.sn}</TableCell>
+                                    <TableCell sx={{ backgroundColor: mainColor, color: contrastText }}>{dictionary.forms.batches.summary.date}</TableCell>
+                                    <TableCell sx={{ backgroundColor: mainColor, color: contrastText }}>{dictionary.forms.batches.summary.consumptionNo}</TableCell>
+                                    <TableCell sx={{ backgroundColor: mainColor, color: contrastText }}>{dictionary.forms.batches.labels.product}</TableCell>
+                                    <TableCell sx={{ backgroundColor: mainColor, color: contrastText, textAlign: 'right' }}>{dictionary.forms.batches.labels.quantity}</TableCell>
+                                    <TableCell sx={{ backgroundColor: mainColor, color: contrastText, textAlign: 'right' }}>{dictionary.forms.batches.summary.averageCost}</TableCell>
+                                    <TableCell sx={{ backgroundColor: mainColor, color: contrastText, textAlign: 'right' }}>{dictionary.forms.batches.labels.amount}</TableCell>
+                                    <TableCell sx={{ backgroundColor: mainColor, color: contrastText }}>{dictionary.forms.batches.summary.description}</TableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
@@ -90,7 +92,7 @@ function PBSummary({ combinedInputsConsumptions, otherExpenses, by_products, out
                                 ))}
                                 <TableRow sx={{ backgroundColor: mainColor }}>
                                     <TableCell colSpan={6} align="center" sx={{ fontWeight: 'bold', color: contrastText }}>
-                                        Total Amount
+                                        {dictionary.forms.batches.summary.totalAmount}
                                     </TableCell>
                                     <TableCell sx={{ fontWeight: 'bold', color: contrastText, textAlign: 'right' }}>
                                         {totalCombinedInputs?.toLocaleString('en-US', { maximumFractionDigits: 2, minimumFractionDigits: 2 })}
@@ -107,17 +109,17 @@ function PBSummary({ combinedInputsConsumptions, otherExpenses, by_products, out
             {otherExpenses.length > 0 && (
                 <Grid size={12}>
                     <Typography variant="h3" color={mainColor} align="center" marginTop={5}>
-                        Other Expenses
+                        {dictionary.forms.batches.summary.otherExpenses}
                     </Typography>
                     <TableContainer>
                         <Table>
                             <TableHead>
                                 <TableRow>
-                                    <TableCell sx={{ backgroundColor: mainColor, color: contrastText }}>S/N</TableCell>
-                                    <TableCell sx={{ backgroundColor: mainColor, color: contrastText }}>Expense Name</TableCell>
-                                    <TableCell sx={{ backgroundColor: mainColor, color: contrastText, textAlign: 'right' }}>Quantity</TableCell>
-                                    <TableCell sx={{ backgroundColor: mainColor, color: contrastText, textAlign: 'right' }}>Rate</TableCell>
-                                    <TableCell sx={{ backgroundColor: mainColor, color: contrastText, textAlign: 'right' }}>Amount</TableCell>
+                                    <TableCell sx={{ backgroundColor: mainColor, color: contrastText }}>{dictionary.forms.batches.summary.sn}</TableCell>
+                                    <TableCell sx={{ backgroundColor: mainColor, color: contrastText }}>{dictionary.forms.batches.summary.expenseName}</TableCell>
+                                    <TableCell sx={{ backgroundColor: mainColor, color: contrastText, textAlign: 'right' }}>{dictionary.forms.batches.labels.quantity}</TableCell>
+                                    <TableCell sx={{ backgroundColor: mainColor, color: contrastText, textAlign: 'right' }}>{dictionary.forms.batches.labels.rate}</TableCell>
+                                    <TableCell sx={{ backgroundColor: mainColor, color: contrastText, textAlign: 'right' }}>{dictionary.forms.batches.labels.amount}</TableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
@@ -137,7 +139,7 @@ function PBSummary({ combinedInputsConsumptions, otherExpenses, by_products, out
                                 ))}
                                 <TableRow sx={{ backgroundColor: mainColor }}>
                                     <TableCell colSpan={4} align="center" sx={{ fontWeight: 'bold', color: contrastText }}>
-                                        Total Amount
+                                        {dictionary.forms.batches.summary.totalAmount}
                                     </TableCell>
                                     <TableCell sx={{ fontWeight: 'bold', color: contrastText, textAlign: 'right' }}>
                                         {totalOtherExpenses?.toLocaleString('en-US', { maximumFractionDigits: 2, minimumFractionDigits: 2 })}
@@ -153,20 +155,20 @@ function PBSummary({ combinedInputsConsumptions, otherExpenses, by_products, out
             {by_products.length > 0 && (
                 <Grid size={12}>
                     <Typography variant="h3" color={mainColor} align="center" marginTop={5}>
-                        By Products
+                        {dictionary.forms.batches.summary.byProducts}
                     </Typography>
 
                     <TableContainer>
                         <Table>
                             <TableHead>
                                 <TableRow>
-                                    <TableCell sx={{ backgroundColor: mainColor, color: contrastText }}>S/N</TableCell>
-                                    <TableCell sx={{ backgroundColor: mainColor, color: contrastText }}>Product</TableCell>
-                                    <TableCell sx={{ backgroundColor: mainColor, color: contrastText }}>Store</TableCell>
-                                    <TableCell sx={{ backgroundColor: mainColor, color: contrastText, textAlign: 'right' }}>Quantity</TableCell>
-                                    <TableCell sx={{ backgroundColor: mainColor, color: contrastText, textAlign: 'right' }}>Market Value</TableCell>
-                                    <TableCell sx={{ backgroundColor: mainColor, color: contrastText, textAlign: 'right' }}>Amount</TableCell>
-                                    <TableCell sx={{ backgroundColor: mainColor, color: contrastText }}>Remarks</TableCell>
+                                    <TableCell sx={{ backgroundColor: mainColor, color: contrastText }}>{dictionary.forms.batches.summary.sn}</TableCell>
+                                    <TableCell sx={{ backgroundColor: mainColor, color: contrastText }}>{dictionary.forms.batches.labels.product}</TableCell>
+                                    <TableCell sx={{ backgroundColor: mainColor, color: contrastText }}>{dictionary.forms.batches.labels.store}</TableCell>
+                                    <TableCell sx={{ backgroundColor: mainColor, color: contrastText, textAlign: 'right' }}>{dictionary.forms.batches.labels.quantity}</TableCell>
+                                    <TableCell sx={{ backgroundColor: mainColor, color: contrastText, textAlign: 'right' }}>{dictionary.forms.batches.labels.marketValue}</TableCell>
+                                    <TableCell sx={{ backgroundColor: mainColor, color: contrastText, textAlign: 'right' }}>{dictionary.forms.batches.labels.amount}</TableCell>
+                                    <TableCell sx={{ backgroundColor: mainColor, color: contrastText }}>{dictionary.forms.batches.labels.remarks}</TableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
@@ -192,7 +194,7 @@ function PBSummary({ combinedInputsConsumptions, otherExpenses, by_products, out
                                 ))}
                                 <TableRow sx={{ backgroundColor: mainColor }}>
                                     <TableCell colSpan={5} align="center" sx={{ fontWeight: 'bold', color: contrastText }}>
-                                        Total Amount
+                                        {dictionary.forms.batches.summary.totalAmount}
                                     </TableCell>
                                     <TableCell sx={{ fontWeight: 'bold', color: contrastText, textAlign: 'right' }}>
                                         {totalByProducts?.toLocaleString('en-US', { maximumFractionDigits: 2, minimumFractionDigits: 2 })}
@@ -209,19 +211,19 @@ function PBSummary({ combinedInputsConsumptions, otherExpenses, by_products, out
             {outputs.length > 0 && (
                 <Grid size={12}>
                     <Typography variant="h3" color={mainColor} align="center" marginTop={5}>
-                        Outputs
+                        {dictionary.forms.batches.summary.outputs}
                     </Typography>
                     <TableContainer>
                         <Table>
                             <TableHead>
                                 <TableRow>
-                                    <TableCell sx={{ backgroundColor: mainColor, color: contrastText }}>S/N</TableCell>
-                                    <TableCell sx={{ backgroundColor: mainColor, color: contrastText }}>Product</TableCell>
-                                    <TableCell sx={{ backgroundColor: mainColor, color: contrastText, textAlign: 'right' }}>Quantity</TableCell>
-                                    <TableCell sx={{ backgroundColor: mainColor, color: contrastText, textAlign: 'right' }}>Unit Cost</TableCell>
-                                    <TableCell sx={{ backgroundColor: mainColor, color: contrastText, textAlign: 'right' }}>Amount</TableCell>
-                                    <TableCell sx={{ backgroundColor: mainColor, color: contrastText, textAlign: 'right' }}>Value%</TableCell>
-                                    <TableCell sx={{ backgroundColor: mainColor, color: contrastText }}>Remarks</TableCell>
+                                    <TableCell sx={{ backgroundColor: mainColor, color: contrastText }}>{dictionary.forms.batches.summary.sn}</TableCell>
+                                    <TableCell sx={{ backgroundColor: mainColor, color: contrastText }}>{dictionary.forms.batches.labels.product}</TableCell>
+                                    <TableCell sx={{ backgroundColor: mainColor, color: contrastText, textAlign: 'right' }}>{dictionary.forms.batches.labels.quantity}</TableCell>
+                                    <TableCell sx={{ backgroundColor: mainColor, color: contrastText, textAlign: 'right' }}>{dictionary.forms.batches.summary.unitCost}</TableCell>
+                                    <TableCell sx={{ backgroundColor: mainColor, color: contrastText, textAlign: 'right' }}>{dictionary.forms.batches.labels.amount}</TableCell>
+                                    <TableCell sx={{ backgroundColor: mainColor, color: contrastText, textAlign: 'right' }}>{dictionary.forms.batches.summary.valuePercent}</TableCell>
+                                    <TableCell sx={{ backgroundColor: mainColor, color: contrastText }}>{dictionary.forms.batches.labels.remarks}</TableCell>
                                 </TableRow>
                             </TableHead>
 
@@ -249,7 +251,7 @@ function PBSummary({ combinedInputsConsumptions, otherExpenses, by_products, out
 
                                 <TableRow sx={{ backgroundColor: mainColor }}>
                                     <TableCell colSpan={4} align="center" sx={{ color: contrastText, fontWeight: 'bold' }}>
-                                        Total Amount
+                                        {dictionary.forms.batches.summary.totalAmount}
                                     </TableCell>
                                     <TableCell sx={{ fontWeight: 'bold', color: contrastText, textAlign: 'right' }}>
                                         {outputs?.reduce(

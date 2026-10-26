@@ -16,8 +16,10 @@ import InventoryConsumptionsActionTail from './InventoryConsumptionsActionTail';
 import { useParams } from 'next/navigation';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import LedgerSelectProvider from '@/components/accounts/ledgers/forms/LedgerSelectProvider';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const InventoryConsumptionsTab = () => {
+  const dictionary = useDictionary();
   const {activeStore:store} = useStoreProfile();
   const params = useParams();
   const listRef = React.useRef();
@@ -136,7 +138,7 @@ return (
                                                 />
                                             </Grid>
                                             <Grid size={{xs: 1.5, md: 1, lg: 0.5}} alignContent={'end'}>
-                                                <Tooltip title="Filter Dates">
+                                                <Tooltip title={dictionary.tooltips.filterDates}>
                                                     <IconButton onClick={() => {
                                                         setQueryOptions(state => ({
                                                             ...state,

@@ -18,6 +18,7 @@ import { useState } from 'react';
 import humanResourcesServices from '../../../humanResourcesServices';
 import LeaveAllocationForm from './LeaveAllocationForm';
 import { LeaveAllocationType } from './LeaveAllocationType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const EditLeaveAllocation = ({
   leaveAllocation,
@@ -55,6 +56,7 @@ const LeaveAllocationItemAction = ({
 }: {
   leaveAllocation: LeaveAllocationType;
 }) => {
+  const dictionary = useDictionary();
   const { checkOrganizationPermission } = useJumboAuth();
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const { showDialog, hideDialog } = useJumboDialog();
@@ -67,12 +69,12 @@ const LeaveAllocationItemAction = ({
     mutationFn: humanResourcesServices.deleteLeaveAllocation,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['leaveAllocations'] });
-      enqueueSnackbar('Leave Allocation Deleted Successfully', {
+      enqueueSnackbar(dictionary.humanResources.leaveAllocations.messages.deleted, {
         variant: 'success',
       });
     },
     onError: (error: any) => {
-      let message = 'Something went wrong';
+      let message = dictionary.humanResources.profileSectionsCommon.somethingWentWrong;
 
       if (
         typeof error === 'object' &&
@@ -93,7 +95,7 @@ const LeaveAllocationItemAction = ({
       ? [
           {
             icon: <EditOutlined />,
-            title: 'Edit',
+            title: dictionary.humanResources.profileSectionsCommon.edit,
             action: 'edit',
           },
         ]
@@ -102,7 +104,7 @@ const LeaveAllocationItemAction = ({
       ? [
           {
             icon: <DeleteOutlined color='error' />,
-            title: 'Delete',
+            title: dictionary.humanResources.profileSectionsCommon.delete,
             action: 'delete',
           },
         ]
@@ -116,8 +118,8 @@ const LeaveAllocationItemAction = ({
         break;
       case 'delete':
         showDialog({
-          title: 'Confirm Delete',
-          content: 'Are you sure you want to delete this Leave Allocation?',
+          title: dictionary.humanResources.profileSectionsCommon.confirmDelete,
+          content: dictionary.humanResources.leaveAllocations.messages.deleteConfirm,
           onYes: () => {
             hideDialog();
             deleteLeaveAllocation(leaveAllocation.id);
@@ -148,7 +150,7 @@ const LeaveAllocationItemAction = ({
       </Dialog>
       <JumboDdMenu
         icon={
-          <Tooltip title='Actions'>
+          <Tooltip title={dictionary.tooltips.actions}>
             <MoreHorizOutlined fontSize='small' />
           </Tooltip>
         }

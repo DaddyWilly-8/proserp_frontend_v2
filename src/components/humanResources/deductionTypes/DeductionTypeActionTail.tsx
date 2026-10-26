@@ -11,8 +11,10 @@ import {
 } from '@mui/material';
 import { useState } from 'react';
 import DeductionTypeForm from './DeductionTypeForm';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const DeductionTypeActionTail = () => {
+  const dictionary = useDictionary();
   const [openDialog, setOpenDialog] = useState(false);
 
   const { theme } = useJumboTheme();
@@ -29,7 +31,7 @@ const DeductionTypeActionTail = () => {
         disableElevation
         sx={{ '& .MuiButton-root': { px: 1 } }}
       >
-        <Tooltip title='Add Deduction Type'>
+        <Tooltip title={dictionary.tooltips.addDeductionType}>
           <IconButton onClick={() => setOpenDialog(true)}>
             <AddOutlined />
           </IconButton>

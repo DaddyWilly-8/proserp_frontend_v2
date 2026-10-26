@@ -2,8 +2,11 @@
 
 import { Chip, Divider, Grid, Tooltip, Typography } from '@mui/material';
 import { NextOfKinType } from '../../employees/profile/nextOfKins/NextOfKinType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const NextOfKinsListItem = ({ nextOfKin }: { nextOfKin: NextOfKinType }) => {
+  const dictionary = useDictionary();
+  const t = dictionary.humanResources.myHr.nextOfKin;
   return (
     <>
       <Divider />
@@ -23,19 +26,19 @@ const NextOfKinsListItem = ({ nextOfKin }: { nextOfKin: NextOfKinType }) => {
         container
       >
         <Grid size={{ xs: 12, md: 3.5 }}>
-          <Tooltip title='Name'>
+          <Tooltip title={dictionary.tooltips.name}>
             <Typography>{nextOfKin.name}</Typography>
           </Tooltip>
         </Grid>
 
         <Grid size={{ xs: 12, md: 3.0 }}>
-          <Tooltip title='Relationship'>
+          <Tooltip title={dictionary.tooltips.relationship}>
             <Typography>{nextOfKin.relationship}</Typography>
           </Tooltip>
         </Grid>
 
         <Grid size={{ xs: 12, md: 2.0 }}>
-          <Tooltip title='Phone'>
+          <Tooltip title={dictionary.tooltips.phone}>
             <Typography>{nextOfKin.phone || '-'}</Typography>
           </Tooltip>
         </Grid>
@@ -43,13 +46,13 @@ const NextOfKinsListItem = ({ nextOfKin }: { nextOfKin: NextOfKinType }) => {
         <Grid size={{ xs: 12, md: 3 }} textAlign={'right'}>
           {nextOfKin.is_primary ? (
             <Chip
-              label='Primary'
+              label={t.primary}
               size='small'
               color='success'
               variant='outlined'
             />
           ) : (
-            <Chip label='Secondary' size='small' variant='outlined' />
+            <Chip label={t.secondary} size='small' variant='outlined' />
           )}
         </Grid>
       </Grid>

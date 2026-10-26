@@ -26,12 +26,15 @@ import StakeholderSelector from '../../masters/stakeholders/StakeholderSelector'
 import StoreSelector from '../../procurement/stores/StoreSelector';
 import ProjectCategoriesSelector from '../projectCategories/ProjectCategoriesSelector';
 import projectsServices from './project-services';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function ProjectForm({
   setOpenDialog,
   project = null,
   reFetchProjectAfterEdit,
 }) {
+  const dictionary = useDictionary();
+  const t = dictionary.forms.projects.form;
   const queryClient = useQueryClient();
   const { enqueueSnackbar } = useSnackbar();
   const {
@@ -86,9 +89,9 @@ function ProjectForm({
 
   const validationSchema = yup.object({
     name: yup
-      .string('Enter your Project Name')
-      .required('Project Name is required'),
-    project_category_id: yup.number().required('Project Category is required'),
+      .string(t.errors.nameType)
+      .required(t.errors.nameRequired),
+    project_category_id: yup.number().required(t.errors.categoryRequired),
   });
 
   const {
@@ -122,14 +125,14 @@ function ProjectForm({
   return (
     <form autoComplete='off' onSubmit={handleSubmit(saveMutation)}>
       <DialogTitle textAlign={'center'}>
-        {project ? `Edit: ${project.name}` : 'New Project'}
+        {project ? t.titles.edit.replace('{name}', project.name) : t.titles.new}
       </DialogTitle>
       <DialogContent>
         <Grid container spacing={1}>
           <Grid size={{ xs: 12, md: 8, lg: 8 }}>
             <Div sx={{ mt: 1, mb: 1 }}>
               <TextField
-                label='Project Name'
+                label={t.labels.projectName}
                 size='small'
                 fullWidth
                 error={
@@ -169,7 +172,7 @@ function ProjectForm({
           <Grid size={{ xs: 12, md: 4, lg: 4 }}>
             <Div sx={{ mt: 1, mb: 1 }}>
               <ProjectCategoriesSelector
-                label='Project Category'
+                label={t.labels.projectCategory}
                 defaultValue={project && project.project_category_id}
                 frontError={errors?.project_category_id}
                 onChange={(newValue) => {
@@ -190,7 +193,7 @@ function ProjectForm({
             <Grid size={{ xs: 12, md: 8, lg: 8 }}>
               <Div sx={{ mt: 1, mb: 1 }}>
                 <StakeholderSelector
-                  label='Client'
+                  label={t.labels.client}
                   defaultValue={project && project.client_id}
                   frontError={errors?.client_id}
                   addedStakeholder={addedStakeholder}
@@ -209,7 +212,7 @@ function ProjectForm({
                     checkOrganizationPermission(
                       PERMISSIONS.STAKEHOLDERS_CREATE
                     ) && (
-                      <Tooltip title='Add Client'>
+                      <Tooltip title={dictionary.tooltips.addClient}>
                         <AddOutlined
                           onClick={() => setStakeholderQuickAddDisplay(true)}
                           sx={{ cursor: 'pointer' }}
@@ -234,7 +237,7 @@ function ProjectForm({
             <Grid size={{ xs: 12, md: 4, lg: 4 }}>
               <Div sx={{ mt: 1, mb: 1 }}>
                 <TextField
-                  label='Reference'
+                  label={t.labels.reference}
                   size='small'
                   fullWidth
                   defaultValue={project?.reference}
@@ -246,7 +249,7 @@ function ProjectForm({
           <Grid size={{ xs: 12, md: 6, lg: 6 }}>
             <Div sx={{ mt: 1, mb: 1 }}>
               <DateTimePicker
-                label='Commencement Date'
+                label={t.labels.commencementDate}
                 fullWidth
                 minDate={dayjs(organization.recording_start_date)}
                 defaultValue={project ? dayjs(project.commencement_date) : null}
@@ -273,7 +276,7 @@ function ProjectForm({
           <Grid size={{ xs: 12, md: 6, lg: 6 }}>
             <Div sx={{ mt: 1, mb: 1 }}>
               <DateTimePicker
-                label='Completion Date'
+                label={t.labels.completionDate}
                 fullWidth
                 minDate={dayjs(watch(`commencement_date`))}
                 defaultValue={project ? dayjs(project.completion_date) : null}
@@ -303,7 +306,7 @@ function ProjectForm({
                 multiple={true}
                 allowSubStores={true}
                 defaultValue={project?.stores}
-                label='Inventory Store(s)'
+                label={t.labels.inventoryStores}
                 onChange={(newValue) => {
                   setValue(
                     'store_ids',
@@ -320,7 +323,7 @@ function ProjectForm({
           <Grid size={{ xs: 12, md: 12, lg: 12 }}>
             <Div sx={{ mt: 1, mb: 1 }}>
               <TextField
-                label='Description'
+                label={t.labels.description}
                 size='small'
                 defaultValue={project?.description}
                 multiline={true}
@@ -334,7 +337,7 @@ function ProjectForm({
       </DialogContent>
       <DialogActions>
         <Button size='small' onClick={() => setOpenDialog(false)}>
-          Cancel
+          {t.buttons.cancel}
         </Button>
         <LoadingButton
           type='submit'
@@ -343,7 +346,7 @@ function ProjectForm({
           sx={{ display: 'flex' }}
           loading={isPending || updateIsPending}
         >
-          Submit
+          {t.buttons.submit}
         </LoadingButton>
       </DialogActions>
     </form>

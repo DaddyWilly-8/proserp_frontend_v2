@@ -7,23 +7,24 @@ import pdfStyles from '../../pdf/pdf-styles';
 // Sheet reports. Every node (ledger, group, total) carries
 // { opening, current, closing }, each { debit, credit, net: { amount, side } }.
 
+// Labels are looked up in the `labels` dictionary (reports.accountsReports.common).
 export const PERIODS = [
-  ['opening', 'Opening'],
-  ['current', 'Current'],
-  ['closing', 'Closing'],
+  ['opening', 'opening'],
+  ['current', 'current'],
+  ['closing', 'closing'],
 ];
 // With `closingOnly` just the Closing period is shown (no Opening / Current).
 const periodsFor = (closingOnly) => (closingOnly ? PERIODS.slice(-1) : PERIODS);
 
 // With `netOnly` each period collapses to its single Net column. flex only
 // matters for the PDF; Net is wider there because it carries the DR/CR suffix.
-const subColumns = (netOnly) =>
+const subColumns = (netOnly, labels) =>
   netOnly
-    ? [{ label: 'Net', flex: 1.6 }]
+    ? [{ label: labels?.net, flex: 1.6 }]
     : [
-        { label: 'Debit', flex: 1 },
-        { label: 'Credit', flex: 1 },
-        { label: 'Net', flex: 1.3 },
+        { label: labels?.debit, flex: 1 },
+        { label: labels?.credit, flex: 1 },
+        { label: labels?.net, flex: 1.3 },
       ];
 const groupFlex = (netOnly) =>
   subColumns(netOnly).reduce((sum, { flex }) => sum + flex, 0);
@@ -31,12 +32,14 @@ const groupFlex = (netOnly) =>
 const shortDate = (date) => dayjs(date).format('DD MMM YYYY');
 
 /** The date range each period covers, shown under its heading. */
-export const periodRanges = (filters) => ({
-  opening: filters?.from ? `before ${shortDate(filters.from)}` : '–',
+export const periodRanges = (filters, labels) => ({
+  opening: filters?.from
+    ? labels.before.replace('{date}', shortDate(filters.from))
+    : '–',
   current: filters?.from
     ? `${shortDate(filters.from)} – ${shortDate(filters.to)}`
-    : `up to ${shortDate(filters?.to)}`,
-  closing: `as at ${shortDate(filters?.to)}`,
+    : labels.upTo.replace('{date}', shortDate(filters?.to)),
+  closing: labels.asAt.replace('{date}', shortDate(filters?.to)),
 });
 
 export const formatAmount = (amount) =>
@@ -122,10 +125,11 @@ export const PeriodTableHead = ({
   backgroundColor,
   color,
   filters,
+  labels,
   netOnly = false,
   closingOnly = false,
 }) => {
-  const ranges = periodRanges(filters);
+  const ranges = periodRanges(filters, labels);
   const headerSx = { backgroundColor, color, fontWeight: 'bold' };
   return (
     <>
@@ -136,15 +140,15 @@ export const PeriodTableHead = ({
             rowSpan={netOnly ? 1 : 2}
             // The name column must not give way to the nine figure columns;
             // the table scrolls sideways instead of squeezing it.
-            sx={{ ...headerSx, minWidth: label === 'S/N' ? 50 : 300 }}
+            sx={{ ...headerSx, minWidth: label === labels.serialNumber ? 50 : 300 }}
           >
             {label}
           </TableCell>
         ))}
-        {periodsFor(closingOnly).map(([key, label]) => (
+        {periodsFor(closingOnly).map(([key]) => (
           <TableCell
             key={key}
-            colSpan={subColumns(netOnly).length}
+            colSpan={subColumns(netOnly, labels).length}
             align='center'
             sx={{
               ...headerSx,
@@ -152,7 +156,7 @@ export const PeriodTableHead = ({
             }}
           >
             {/* Closing-only: the "as at" date alone heads the column */}
-            {!closingOnly && label}
+            {!closingOnly && labels[key]}
             <Typography
               variant='caption'
               component='div'
@@ -167,7 +171,7 @@ export const PeriodTableHead = ({
       {!netOnly && (
       <TableRow>
         {periodsFor(closingOnly).flatMap(([key]) =>
-          subColumns(netOnly).map(({ label }, i) => (
+          subColumns(netOnly, labels).map(({ label }, i) => (
             <TableCell
               key={`${key}-${label}`}
               align='right'
@@ -253,10 +257,11 @@ export const PeriodPdfHeader = ({
   mainColor,
   contrastText,
   filters,
+  labels,
   netOnly = false,
   closingOnly = false,
 }) => {
-  const ranges = periodRanges(filters);
+  const ranges = periodRanges(filters, labels);
   const total = totalFlex(leading, netOnly, closingOnly);
   const groupWidth = groupFlex(netOnly);
   const text = {
@@ -273,20 +278,20 @@ export const PeriodPdfHeader = ({
           <Text style={text}>{label}</Text>
         </View>
       ))}
-      {periodsFor(closingOnly).map(([key, label]) => (
+      {periodsFor(closingOnly).map(([key]) => (
         <View
           key={key}
           style={{ width: pct(groupWidth, total), flexDirection: 'column' }}
         >
           <View style={box('100%', { alignItems: 'center' })}>
-            {!closingOnly && <Text style={text}>{label}</Text>}
+            {!closingOnly && <Text style={text}>{labels[key]}</Text>}
             <Text style={{ ...text, fontWeight: 'normal', fontSize: 5.5 }}>
               {ranges[key]}
             </Text>
           </View>
           {!netOnly && (
           <View style={{ flexDirection: 'row', width: '100%' }}>
-            {subColumns(netOnly).map(({ label: sub, flex }) => (
+            {subColumns(netOnly, labels).map(({ label: sub, flex }) => (
               <View
                 key={sub}
                 style={box(pct(flex, groupWidth), {
@@ -349,7 +354,9 @@ export const PeriodPdfRow = ({
 };
 
 /** "01 Jan 2026 – 23 Oct 2026" style subtitle used by the PDFs. */
-export const periodSubtitle = (filters, readableDate) =>
+export const periodSubtitle = (filters, readableDate, labels) =>
   filters?.from
-    ? `Period: ${readableDate(filters.from, true)} to ${readableDate(filters.to, true)}`
-    : `Up to: ${readableDate(filters?.to, true)}`;
+    ? labels.periodRange
+        .replace('{from}', readableDate(filters.from, true))
+        .replace('{to}', readableDate(filters.to, true))
+    : labels.upToDate.replace('{date}', readableDate(filters?.to, true));

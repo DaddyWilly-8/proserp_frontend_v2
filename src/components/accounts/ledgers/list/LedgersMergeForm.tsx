@@ -26,6 +26,7 @@ import ledgerServices from '../ledger-services';
 import LedgerSelect from '../forms/LedgerSelect';
 import { useLedgerSelect } from '../forms/LedgerSelectProvider';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface LedgerGroupNature {
   name: string;
@@ -63,6 +64,7 @@ interface LedgersMergeFormProps {
 }
 
 function LedgersMergeForm({ toggleOpen }: LedgersMergeFormProps) {
+  const dictionary = useDictionary();
   const { ungroupedLedgerOptions } = useLedgerSelect();
   const [selectedDissolveLedgers, setSelectedDissolveLedgers] = useState<Ledger[]>([]);
   const [selectedRemainLedger, setSelectedRemainLedger] = useState<Ledger | null>(null);
@@ -115,13 +117,13 @@ function LedgersMergeForm({ toggleOpen }: LedgersMergeFormProps) {
   const validationSchema = yup.object().shape({
     remaining_ledger_id: yup
       .number()
-      .required('Please select a ledger to remain')
-      .typeError('Please select a ledger to remain'),
+      .required(dictionary.forms.ledgers.merge.errors.validation.selectRemaining)
+      .typeError(dictionary.forms.ledgers.merge.errors.validation.selectRemaining),
     dissolved_ledgers_ids: yup
       .array()
       .of(yup.number().required())
-      .required('Please select ledgers to dissolve')
-      .min(1, 'Please select at least one ledger to dissolve')
+      .required(dictionary.forms.ledgers.merge.errors.validation.selectDissolve)
+      .min(1, dictionary.forms.ledgers.merge.errors.validation.selectAtLeastOne)
   });
 
   const {
@@ -148,13 +150,13 @@ function LedgersMergeForm({ toggleOpen }: LedgersMergeFormProps) {
   return (
     <form autoComplete='off' onSubmit={handleSubmit(onSubmit)}>
       <DialogTitle>
-        <Grid textAlign={'center'}>Ledgers Merge</Grid>
+        <Grid textAlign={'center'}>{dictionary.forms.ledgers.merge.title}</Grid>
       </DialogTitle>
       <DialogContent>
         <Grid container columnSpacing={2} rowSpacing={1} mt={1}>
           <Grid size={{xs: 12, md: 6}}>
             <LedgerSelect
-                label='Ledger To Remain'
+                label={dictionary.forms.ledgers.merge.labels.ledgerToRemain}
                 frontError={errors.remaining_ledger_id}
                 onChange={(value: Ledger | Ledger[] | null) => {
                     if (!value || Array.isArray(value)) return;
@@ -183,7 +185,7 @@ function LedgersMergeForm({ toggleOpen }: LedgersMergeFormProps) {
                   error={!!errors?.dissolved_ledgers_ids}
                   helperText={errors?.dissolved_ledgers_ids?.message}
                   size='small'
-                  label='Ledgers To Dissolve'
+                  label={dictionary.forms.ledgers.merge.labels.ledgersToDissolve}
                 />
               )}
                 renderTags={(tagValue, getTagProps) =>
@@ -237,8 +239,10 @@ function LedgersMergeForm({ toggleOpen }: LedgersMergeFormProps) {
           {confirming && (
             <Grid size={12}>
               <Alert severity='error' sx={{ mb: 2 }}>
-                <AlertTitle>This cannot be undone</AlertTitle>
-                {`${selectedDissolveLedgers.map((ledger) => ledger.name).join(', ')} will be merged into ${expectedConfirmText} and deleted.`}
+                <AlertTitle>{dictionary.forms.ledgers.merge.alert.cannotBeUndone}</AlertTitle>
+                {dictionary.forms.ledgers.merge.alert.willBeMerged
+                  .replace('{ledgers}', selectedDissolveLedgers.map((ledger) => ledger.name).join(', '))
+                  .replace('{target}', expectedConfirmText)}
                 {confirmation && <Typography variant='body2' mt={1}>{confirmation.message}</Typography>}
               </Alert>
               <TextField
@@ -247,7 +251,7 @@ function LedgersMergeForm({ toggleOpen }: LedgersMergeFormProps) {
                 color='error'
                 focused
                 size='small'
-                label={`Type "${expectedConfirmText}" to confirm`}
+                label={dictionary.forms.ledgers.merge.labels.typeToConfirm.replace('{name}', expectedConfirmText)}
                 value={confirmText}
                 onChange={(e) => setConfirmText(e.target.value)}
                 onPaste={(e) => e.preventDefault()}
@@ -259,7 +263,7 @@ function LedgersMergeForm({ toggleOpen }: LedgersMergeFormProps) {
         </Grid>
       </DialogContent>
       <DialogActions>
-        <Button onClick={() => toggleOpen(false)}>Cancel</Button>
+        <Button onClick={() => toggleOpen(false)}>{dictionary.forms.ledgers.merge.buttons.cancel}</Button>
         <LoadingButton
           type='submit'
           loading={mergeLedgers.isPending}
@@ -268,7 +272,7 @@ function LedgersMergeForm({ toggleOpen }: LedgersMergeFormProps) {
           variant='contained'
           size='small'
         >
-          {confirming ? 'Confirm & Merge' : 'Merge'}
+          {confirming ? dictionary.forms.ledgers.merge.buttons.confirmAndMerge : dictionary.forms.ledgers.merge.buttons.merge}
         </LoadingButton>
       </DialogActions>
     </form>

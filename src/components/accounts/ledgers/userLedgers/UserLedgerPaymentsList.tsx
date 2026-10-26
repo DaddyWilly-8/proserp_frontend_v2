@@ -12,6 +12,7 @@ import CostCenterSelector from '@/components/masters/costCenters/CostCenterSelec
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { CostCenter } from '@/components/masters/costCenters/CostCenterType';
 import userLedgerServices from '../user-ledger-services';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface UserLedgerPayment {
   id: number;
@@ -40,6 +41,7 @@ interface QueryOptions {
 }
 
 export default function UserLedgerPaymentsList() {
+  const dictionary = useDictionary();
   const { authOrganization } = useJumboAuth();
   const [selectedCostCenter, setSelectedCostCenter] = useState<CostCenter[]>([]);
 
@@ -140,7 +142,7 @@ export default function UserLedgerPaymentsList() {
             }}
           >
             <Grid size={{ xs: 12, md: 2.5 }}>
-              <Tooltip title="Voucher No">
+              <Tooltip title={dictionary.tooltips.voucherNo}>
                 <Typography noWrap>{item.voucherNo || '-'}</Typography>
               </Tooltip>
               <Typography variant="caption" noWrap>
@@ -148,7 +150,7 @@ export default function UserLedgerPaymentsList() {
               </Typography>
             </Grid>
             <Grid size={{ xs: 12, md: 3.5 }}>
-              <Tooltip title="Narration">
+              <Tooltip title={dictionary.tooltips.narration}>
                 <Typography noWrap>{item.narration || '-'}</Typography>
               </Tooltip>
               <Typography variant="caption" noWrap>
@@ -156,7 +158,7 @@ export default function UserLedgerPaymentsList() {
               </Typography>
             </Grid>
             <Grid size={{ xs: 12, md: 2.5 }}>
-              <Tooltip title="Paid To Ledger">
+              <Tooltip title={dictionary.tooltips.paidToLedger}>
                 <Typography noWrap>{item.credit_ledger?.name || '-'}</Typography>
               </Tooltip>
               <Typography variant="caption">By: {item.creator?.name || '-'}</Typography>

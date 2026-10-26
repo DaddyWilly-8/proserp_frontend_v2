@@ -15,6 +15,7 @@ import {
 } from '@mui/material';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
 import { MODULES } from '@/utilities/constants/modules';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const StockMovementOnScreen = ({
   movementsData,
@@ -23,6 +24,8 @@ const StockMovementOnScreen = ({
   checkOrganizationPermission,
 }) => {
   const theme = useTheme();
+  const dictionary = useDictionary();
+  const dict = dictionary.reports.storeReports.stockMovementReport;
   const mainColor = authOrganization.organization.settings?.main_color || "#2113AD";
   const headerColor = theme.type === 'dark' ? '#29f096' : (authOrganization.organization.settings?.main_color || "#2113AD");
   const contrastText = authOrganization.organization.settings?.contrast_text || "#FFFFFF";
@@ -55,7 +58,7 @@ const StockMovementOnScreen = ({
           }}
         >
           <Typography variant="subtitle2" sx={{ color: headerColor }} gutterBottom>
-            Estimated Closing Stock Value
+            {dict.estimatedClosingStockValue}
           </Typography>
           <Typography variant="h6" fontWeight="bold" fontFamily="monospace">
             {movementsData.movements.reduce((total, movement) => {
@@ -116,25 +119,25 @@ const StockMovementOnScreen = ({
       <Table stickyHeader aria-label="stock-movement-table">
         <TableHead>
           <TableRow>
-            <TableCell>S/N</TableCell>
-            <TableCell>Product</TableCell>
-            <TableCell>Unit</TableCell>
-            <TableCell align="right">Opening</TableCell>
-            <TableCell align="right">Purchased</TableCell>
+            <TableCell>{dict.sn}</TableCell>
+            <TableCell>{dict.product}</TableCell>
+            <TableCell>{dict.unit}</TableCell>
+            <TableCell align="right">{dict.opening}</TableCell>
+            <TableCell align="right">{dict.purchased}</TableCell>
             {organizationHasSubscribed(MODULES.MANUFACTURING_AND_PROCESSING) && (
-              <TableCell align="right">Produced</TableCell>
+              <TableCell align="right">{dict.produced}</TableCell>
             )}
-            <TableCell align="right">Trans In</TableCell>
-            <TableCell align="right">Trans Out</TableCell>
-            <TableCell align="right">Gain</TableCell>
-            <TableCell align="right">Loss</TableCell>
-            <TableCell align="right">Consumed</TableCell>
-            <TableCell align="right">Sold</TableCell>
-            <TableCell align="right">Closing</TableCell>
+            <TableCell align="right">{dict.transIn}</TableCell>
+            <TableCell align="right">{dict.transOut}</TableCell>
+            <TableCell align="right">{dict.gain}</TableCell>
+            <TableCell align="right">{dict.loss}</TableCell>
+            <TableCell align="right">{dict.consumed}</TableCell>
+            <TableCell align="right">{dict.sold}</TableCell>
+            <TableCell align="right">{dict.closing}</TableCell>
             {checkOrganizationPermission([PERMISSIONS.ACCOUNTS_REPORTS, PERMISSIONS.STORE_VALUES]) && (
               <>
-                <TableCell align="right">Rate</TableCell>
-                <TableCell align="right">Value</TableCell>
+                <TableCell align="right">{dict.rate}</TableCell>
+                <TableCell align="right">{dict.value}</TableCell>
               </>
             )}
           </TableRow>
@@ -222,7 +225,7 @@ const StockMovementOnScreen = ({
                 sx={{ textAlign: 'center', py: 4 }}
               >
                 <Typography variant="body1" color="text.secondary">
-                  No stock movement data found
+                  {dict.noData}
                 </Typography>
               </TableCell>
             </TableRow>

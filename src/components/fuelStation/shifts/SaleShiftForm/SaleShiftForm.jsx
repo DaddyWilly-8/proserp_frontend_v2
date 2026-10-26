@@ -41,8 +41,10 @@ import ShiftSummary from './ShiftSummary';
 import Dipping from './tabs/Dipping';
 import PaymentsReceived from './tabs/PaymentsReceived';
 import PaymentsReceivedItemRow from './tabs/PaymentsReceivedItemRow';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function SaleShiftForm({ SalesShift, setOpenDialog }) {
+  const dictionary = useDictionary();
   const [showWarning, setShowWarning] = useState(false);
   const [showHoldDialog, setShowHoldDialog] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
@@ -88,8 +90,8 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
       return error.message;
     }
 
-    return 'Error saving shift';
-  }, []);
+    return dictionary.forms.shifts.messages.errorSavingShift;
+  }, [dictionary]);
 
   const getApiSuccessMessage = useCallback((responseData) => {
     const responseMessage = responseData?.message;
@@ -97,8 +99,8 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
       return responseMessage;
     }
 
-    return 'Saved successfully';
-  }, []);
+    return dictionary.forms.shifts.messages.savedSuccessfully;
+  }, [dictionary]);
 
   const addMutation = useMutation({
     mutationFn: fuelStationServices.addSalesShifts,
@@ -121,19 +123,19 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
   const validationSchema = yup.object({
     sales_outlet_shift_id: yup
       .number()
-      .required('Sales Outlet Shift is required')
-      .typeError('Sales Outlet Shift must be a number'),
+      .required(dictionary.forms.shifts.validation.salesOutletShiftRequired)
+      .typeError(dictionary.forms.shifts.validation.salesOutletShiftNumber),
     shift_start: yup
       .string()
-      .required('Start Date is required')
-      .typeError('Start Date must be a valid string'),
+      .required(dictionary.forms.shifts.validation.startDateRequired)
+      .typeError(dictionary.forms.shifts.validation.startDateString),
     shift_end: yup
       .string()
-      .required('End Date is required')
-      .typeError('End Date must be a valid string')
+      .required(dictionary.forms.shifts.validation.endDateRequired)
+      .typeError(dictionary.forms.shifts.validation.endDateString)
       .test(
         'is-greater',
-        'Shift End Date must be greater than Start Date by at least 1 minute',
+        dictionary.forms.shifts.validation.endAfterStart,
         function (value) {
           const { shift_start } = this.parent;
           if (!value || !shift_start) return true;
@@ -149,24 +151,24 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
         yup.object().shape({
           id: yup
             .number()
-            .required('Cashier is required')
-            .typeError('Cashier is required'),
+            .required(dictionary.forms.shifts.validation.cashierRequired)
+            .typeError(dictionary.forms.shifts.validation.cashierRequired),
           name: yup.string(),
           selected_pumps: yup.array().of(yup.number()),
           pump_readings: yup.array().of(
             yup.object().shape({
               fuel_pump_id: yup
                 .number()
-                .required('Fuel Pump is required')
-                .typeError('Fuel Pump is required'),
+                .required(dictionary.forms.shifts.validation.fuelPumpRequired)
+                .typeError(dictionary.forms.shifts.validation.fuelPumpRequired),
               opening: yup
                 .number()
-                .required('Opening Reading is required')
-                .typeError('Opening Reading is required')
-                .min(0, 'Opening reading cannot be negative')
+                .required(dictionary.forms.shifts.validation.openingReadingRequired)
+                .typeError(dictionary.forms.shifts.validation.openingReadingRequired)
+                .min(0, dictionary.forms.shifts.validation.openingNotNegative)
                 .test(
                   'opening-less-than-closing',
-                  'Opening Reading should not exceed the Closing Reading',
+                  dictionary.forms.shifts.validation.openingNotExceedClosing,
                   function (value) {
                     const { closing } = this.parent;
                     if (value == null || closing == null) return true;
@@ -175,12 +177,12 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
                 ),
               closing: yup
                 .number()
-                .required('Closing Reading is required')
-                .typeError('Closing Reading is required')
-                .min(0, 'Closing reading cannot be negative')
+                .required(dictionary.forms.shifts.validation.closingReadingRequired)
+                .typeError(dictionary.forms.shifts.validation.closingReadingRequired)
+                .min(0, dictionary.forms.shifts.validation.closingNotNegative)
                 .test(
                   'closing-greater-than-or-equal-to-opening',
-                  'Closing Reading should be greater than or equal to the Opening Reading',
+                  dictionary.forms.shifts.validation.closingNotLessThanOpening,
                   function (value) {
                     const { opening } = this.parent;
                     if (value == null || opening == null) return true;
@@ -189,8 +191,8 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
                 ),
               product_id: yup
                 .number()
-                .required('Product is required')
-                .typeError('Product is required'),
+                .required(dictionary.forms.shifts.validation.productRequired)
+                .typeError(dictionary.forms.shifts.validation.productRequired),
             })
           ),
           fuel_vouchers: yup.array().of(
@@ -198,50 +200,50 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
               stakeholder_id: yup
                 .number()
                 .nullable()
-                .typeError('Stakeholder is Required'),
+                .typeError(dictionary.forms.shifts.validation.stakeholderRequired),
               quantity: yup
                 .number()
-                .required('Quantity is required')
-                .typeError('Quantity is Required')
-                .positive('Quantity must be positive'),
+                .required(dictionary.forms.shifts.validation.quantityRequired)
+                .typeError(dictionary.forms.shifts.validation.quantityRequired2)
+                .positive(dictionary.forms.shifts.validation.quantityPositive),
               product_id: yup
                 .number()
-                .required('Product is required')
-                .typeError('Product is Required'),
+                .required(dictionary.forms.shifts.validation.productRequired)
+                .typeError(dictionary.forms.shifts.validation.productRequired2),
               expense_ledger_id: yup
                 .number()
                 .nullable()
-                .typeError('Expense Ledger is Required'),
+                .typeError(dictionary.forms.shifts.validation.expenseLedgerRequired),
               reference: yup.string().nullable(),
               narration: yup.string().nullable(),
             })
           ),
           adjustments: yup.array().of(
             yup.object().shape({
-              tank_id: yup.number().nullable().typeError('Tank is Required'),
+              tank_id: yup.number().nullable().typeError(dictionary.forms.shifts.validation.tankRequired2),
               quantity: yup
                 .number()
-                .required('Quantity is required')
-                .typeError('Quantity is Required'),
-              operator: yup.string().required('Operator is required'),
+                .required(dictionary.forms.shifts.validation.quantityRequired)
+                .typeError(dictionary.forms.shifts.validation.quantityRequired2),
+              operator: yup.string().required(dictionary.forms.shifts.validation.operatorRequired),
               description: yup.string().nullable(),
               product_id: yup
                 .number()
-                .required('Product is required')
-                .typeError('Product is Required'),
+                .required(dictionary.forms.shifts.validation.productRequired)
+                .typeError(dictionary.forms.shifts.validation.productRequired2),
             })
           ),
           other_transactions: yup.array().of(
             yup.object().shape({
               ledger_id: yup
                 .number()
-                .required('Ledger is required')
-                .typeError('Ledger is Required'),
+                .required(dictionary.forms.shifts.validation.ledgerRequired)
+                .typeError(dictionary.forms.shifts.validation.ledgerRequired2),
               amount: yup
                 .number()
-                .required('Amount is required')
-                .typeError('Amount is Required')
-                .positive('Amount must be positive'),
+                .required(dictionary.forms.shifts.validation.amountRequired)
+                .typeError(dictionary.forms.shifts.validation.amountRequired2)
+                .positive(dictionary.forms.shifts.validation.amountPositive),
             })
           ),
           main_ledger: yup
@@ -249,54 +251,54 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
             .shape({
               id: yup
                 .number()
-                .required('Main Ledger is required')
-                .typeError('Main Ledger is Required'),
+                .required(dictionary.forms.shifts.validation.mainLedgerRequired)
+                .typeError(dictionary.forms.shifts.validation.mainLedgerRequired2),
               amount: yup
                 .number()
-                .typeError('Main Ledger Amount is required')
+                .typeError(dictionary.forms.shifts.validation.mainLedgerAmountRequired)
                 .test(
                   'not-null-or-empty',
-                  'Main Ledger Amount is required',
+                  dictionary.forms.shifts.validation.mainLedgerAmountRequired,
                   (v) => v !== null && v !== '' && !isNaN(Number(v))
                 ),
             })
             .nullable(),
         })
       )
-      .required('At least one cashier is required')
-      .min(1, 'At least one cashier is required'),
+      .required(dictionary.forms.shifts.validation.atLeastOneCashier)
+      .min(1, dictionary.forms.shifts.validation.atLeastOneCashier),
     dipping_before: yup.array().of(
       yup.object().shape({
         reading: yup
           .number()
-          .required('Reading is required')
-          .typeError('Reading must be a number')
-          .min(0, 'Reading cannot be negative'),
+          .required(dictionary.forms.shifts.validation.readingRequired)
+          .typeError(dictionary.forms.shifts.validation.readingNumber)
+          .min(0, dictionary.forms.shifts.validation.readingNotNegative),
         product_id: yup
           .number()
-          .required('Product is required')
-          .typeError('Product must be a number'),
+          .required(dictionary.forms.shifts.validation.productRequired)
+          .typeError(dictionary.forms.shifts.validation.productNumber),
         tank_id: yup
           .number()
-          .required('Tank is required')
-          .typeError('Tank must be a number'),
+          .required(dictionary.forms.shifts.validation.tankRequired)
+          .typeError(dictionary.forms.shifts.validation.tankNumber),
       })
     ),
     dipping_after: yup.array().of(
       yup.object().shape({
         reading: yup
           .number()
-          .required('Reading is required')
-          .typeError('Reading must be a number')
-          .min(0, 'Reading cannot be negative'),
+          .required(dictionary.forms.shifts.validation.readingRequired)
+          .typeError(dictionary.forms.shifts.validation.readingNumber)
+          .min(0, dictionary.forms.shifts.validation.readingNotNegative),
         product_id: yup
           .number()
-          .required('Product is required')
-          .typeError('Product must be a number'),
+          .required(dictionary.forms.shifts.validation.productRequired)
+          .typeError(dictionary.forms.shifts.validation.productNumber),
         tank_id: yup
           .number()
-          .required('Tank is required')
-          .typeError('Tank must be a number'),
+          .required(dictionary.forms.shifts.validation.tankRequired)
+          .typeError(dictionary.forms.shifts.validation.tankNumber),
       })
     ),
     submit_type: yup.string().oneOf(['suspend', 'close']).required(),
@@ -306,17 +308,17 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
         yup.object().shape({
           product_id: yup
             .number()
-            .required('Product is required')
-            .typeError('Product is required'),
+            .required(dictionary.forms.shifts.validation.productRequired)
+            .typeError(dictionary.forms.shifts.validation.productRequired),
           price: yup
             .number()
-            .required('Price is required')
-            .typeError('Price is required')
-            .positive('Price must be positive'),
+            .required(dictionary.forms.shifts.validation.priceRequired)
+            .typeError(dictionary.forms.shifts.validation.priceRequired)
+            .positive(dictionary.forms.shifts.validation.pricePositive),
         })
       )
-      .required('Product prices are required')
-      .min(1, 'At least one product price is required'),
+      .required(dictionary.forms.shifts.validation.productPricesRequired)
+      .min(1, dictionary.forms.shifts.validation.atLeastOnePrice),
   });
 
   const getDefaultValues = useCallback(() => {
@@ -511,7 +513,7 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
         const hasExisting = (result?.data ?? []).length > 0;
         setDuplicateShiftWarning(
           hasExisting
-            ? 'A shift already exists for this station and period. Saving will be rejected - open and edit the existing shift instead.'
+            ? dictionary.forms.shifts.messages.shiftAlreadyExists
             : null
         );
       } catch (error) {
@@ -520,7 +522,7 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
         }
       }
     },
-    [SalesShift, activeStation.id]
+    [SalesShift, activeStation.id, dictionary]
   );
 
   const getPumpOpeningValue = useCallback(
@@ -1062,13 +1064,13 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
         .map((p) => p.name)
         .join(', ');
       enqueueSnackbar(
-        `Cannot proceed: The following products are missing prices: ${missingNames}`,
+        dictionary.forms.shifts.messages.missingPrices.replace('{names}', missingNames),
         { variant: 'error' }
       );
       return;
     }
     if (data.cashiers.length === 0) {
-      enqueueSnackbar('Please add at least one cashier', { variant: 'error' });
+      enqueueSnackbar(dictionary.forms.shifts.messages.addAtLeastOneCashier, { variant: 'error' });
       return;
     }
 
@@ -1125,22 +1127,22 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
       const messageRows = [];
       if (missingCollected.length > 0) {
         messageRows.push(
-          `Please fill Collected Amount for: ${missingCollected.join(', ')}`
+          dictionary.forms.shifts.messages.fillCollectedAmount.replace('{names}', missingCollected.join(', '))
         );
       }
       if (missingLedger.length > 0) {
         messageRows.push(
-          `Please select Collection Ledger for: ${missingLedger.join(', ')}`
+          dictionary.forms.shifts.messages.selectCollectionLedger.replace('{names}', missingLedger.join(', '))
         );
       }
       if (missingMainLedger.length > 0) {
         messageRows.push(
-          `Please fill Main Ledger information for: ${missingMainLedger.join(', ')}`
+          dictionary.forms.shifts.messages.fillMainLedgerInfo.replace('{names}', missingMainLedger.join(', '))
         );
       }
       if (missingMainLedgerAmount.length > 0) {
         messageRows.push(
-          `Please fill Main Ledger Amount for: ${missingMainLedgerAmount.join(', ')}`
+          dictionary.forms.shifts.messages.fillMainLedgerAmount.replace('{names}', missingMainLedgerAmount.join(', '))
         );
       }
       enqueueSnackbar(
@@ -1159,7 +1161,7 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
     );
     if (cashiersWithoutPumps.length > 0) {
       enqueueSnackbar(
-        `Cashier(s) ${cashiersWithoutPumps.map((c) => c.name).join(', ')} must have at least one pump selected`,
+        dictionary.forms.shifts.messages.cashiersNeedPump.replace('{names}', cashiersWithoutPumps.map((c) => c.name).join(', ')),
         { variant: 'error' }
       );
       return;
@@ -1208,9 +1210,13 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
           const productName =
             (activeStation.products || []).find(
               (product) => Number(product?.id) === productId
-            )?.name || `Product #${productId}`;
-          const cashierName = cashier?.name || `Cashier #${cashier?.id || ''}`;
-          const message = `Total quantity (${voucherTotalQty}) for product ${productName} in vouchers for cashier ${cashierName} exceeds the pump readings quantity (${pumpTotalQty}).`;
+            )?.name || dictionary.forms.shifts.messages.product.replace('{id}', productId);
+          const cashierName = cashier?.name || dictionary.forms.shifts.messages.cashier.replace('{id}', cashier?.id || '');
+          const message = dictionary.forms.shifts.messages.voucherQtyExceeds
+            .replace('{voucherQty}', voucherTotalQty)
+            .replace('{product}', productName)
+            .replace('{cashier}', cashierName)
+            .replace('{pumpQty}', pumpTotalQty);
 
           if (options.silent) {
             autoSaveDebug(
@@ -1324,9 +1330,9 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
         ) {
           const pumpLabel =
             fuel_pumps?.find((pump) => pump.id === reading?.fuel_pump_id)
-              ?.name || `Pump #${reading?.fuel_pump_id}`;
+              ?.name || dictionary.forms.shifts.messages.pump.replace('{id}', reading?.fuel_pump_id);
           invalidPumpReadings.push(
-            `${cashier?.name || 'Cashier'} - ${pumpLabel}`
+            `${cashier?.name || dictionary.forms.shifts.messages.cashierDefault} - ${pumpLabel}`
           );
         }
       });
@@ -1336,11 +1342,13 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
       const examples = invalidPumpReadings.slice(0, 3).join(', ');
       const suffix =
         invalidPumpReadings.length > 3
-          ? ` and ${invalidPumpReadings.length - 3} more`
+          ? dictionary.forms.shifts.messages.andMore.replace('{count}', invalidPumpReadings.length - 3)
           : '';
       setActiveTab(0);
       enqueueSnackbar(
-        `Please check pump readings. Closing reading must be greater than or equal to opening reading (${examples}${suffix}).`,
+        dictionary.forms.shifts.messages.checkPumpReadings
+          .replace('{examples}', examples)
+          .replace('{suffix}', suffix),
         { variant: 'error' }
       );
       return;
@@ -1348,12 +1356,12 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
 
     setActiveTab(0);
     enqueueSnackbar(
-      'Please review required fields in Cashiers Records before submitting.',
+      dictionary.forms.shifts.messages.reviewRequiredFields,
       {
         variant: 'error',
       }
     );
-  }, [watch, fuel_pumps, enqueueSnackbar]);
+  }, [watch, fuel_pumps, enqueueSnackbar, dictionary]);
 
   const markAutoSaveChange = useCallback(() => {
     if (!hasMountedRef.current) return;
@@ -1584,8 +1592,8 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
             <Grid container spacing={1} marginTop={1}>
               <Grid size={12} textAlign={'center'} marginBottom={1}>
                 {SalesShift
-                  ? `Edit ${SalesShift.shiftNo}`
-                  : `New Fuel Sales Shift`}
+                  ? dictionary.forms.shifts.titles.edit.replace('{shiftNo}', SalesShift.shiftNo)
+                  : dictionary.forms.shifts.titles.new}
               </Grid>
               <Grid size={{ xs: 12, md: 4, lg: 4 }}>
                 <Div sx={{ mt: 0.3 }}>
@@ -1602,7 +1610,7 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
                     renderInput={(params) => (
                       <TextField
                         {...params}
-                        label='Sales Outlet Shift'
+                        label={dictionary.forms.shifts.labels.salesOutletShift}
                         error={!!errors?.sales_outlet_shift_id}
                         helperText={errors?.sales_outlet_shift_id?.message}
                       />
@@ -1626,7 +1634,7 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
               <Grid size={{ xs: 12, md: 4, lg: 4 }}>
                 <Div sx={{ mt: 0.3 }}>
                   <DateTimePicker
-                    label='Shift Start'
+                    label={dictionary.forms.shifts.labels.shiftStart}
                     fullWidth
                     value={
                       watch('shift_start') ? dayjs(watch('shift_start')) : null
@@ -1702,7 +1710,7 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
               <Grid size={{ xs: 12, md: 4, lg: 4 }}>
                 <Div sx={{ mt: 0.3 }}>
                   <DateTimePicker
-                    label='Shift End'
+                    label={dictionary.forms.shifts.labels.shiftEnd}
                     fullWidth
                     value={
                       watch('shift_end') ? dayjs(watch('shift_end')) : null
@@ -1736,7 +1744,7 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
               {!duplicateShiftWarning && pastShiftEditBlocked && (
                 <Grid size={12}>
                   <Typography color='error' variant='body2' sx={{ mt: 0.5 }}>
-                    This shift closed on {dayjs(SalesShift.shift_end).format('DD MMM YYYY')}, not today. You don't have permission to edit a shift that isn't closing today.
+                    {dictionary.forms.shifts.messages.pastShiftBlocked.replace('{date}', dayjs(SalesShift.shift_end).format('DD MMM YYYY'))}
                   </Typography>
                 </Grid>
               )}
@@ -1744,7 +1752,7 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
               {!duplicateShiftWarning && !pastShiftEditBlocked && !hasValidShiftPeriod && (
                 <Grid size={12}>
                   <Typography color='textSecondary' variant='body2' sx={{ mt: 0.5 }}>
-                    Select a sales outlet shift and start date to continue.
+                    {dictionary.forms.shifts.messages.selectShiftAndStart}
                   </Typography>
                 </Grid>
               )}
@@ -1752,7 +1760,7 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
               {showFormBody && (
               <>
               <Grid size={{ xs: 12, md: 4, lg: 4 }}>
-                <Typography sx={{ mt: 1, mb: 1 }}>Select Cashiers</Typography>
+                <Typography sx={{ mt: 1, mb: 1 }}>{dictionary.forms.shifts.titles.selectCashiers}</Typography>
                 <Autocomplete
                   multiple
                   size='small'
@@ -1771,8 +1779,8 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
                   renderInput={(params) => (
                     <TextField
                       {...params}
-                      label='Select Cashiers'
-                      placeholder='Choose Cashiers...'
+                      label={dictionary.forms.shifts.titles.selectCashiers}
+                      placeholder={dictionary.forms.shifts.labels.chooseCashiers}
                     />
                   )}
                   onChange={handleCashierChange}
@@ -1810,10 +1818,10 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
             allowScrollButtonsMobile
             sx={{ mt: 2 }}
           >
-            <Tab label='Cashiers Records' />
-            <Tab label='Payments Received' />
-            <Tab label='Dipping' />
-            <Tab label='Shift Summary' />
+            <Tab label={dictionary.forms.shifts.tabs.cashiersRecords} />
+            <Tab label={dictionary.forms.shifts.tabs.paymentsReceived} />
+            <Tab label={dictionary.forms.shifts.tabs.dipping} />
+            <Tab label={dictionary.forms.shifts.tabs.shiftSummary} />
           </Tabs>
           )}
         </DialogTitle>
@@ -1830,7 +1838,7 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
                     </Typography>
                   ) : (
                     <Typography textAlign='center' py={4}>
-                      Please select cashiers using the selector above
+                      {dictionary.forms.shifts.messages.selectCashiersAbove}
                     </Typography>
                   )}
                 </>
@@ -1876,7 +1884,7 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
               />
               {paymentItems.length === 0 ? (
                 <Typography color='textSecondary' textAlign='center' py={4}>
-                  No payments received yet.
+                  {dictionary.forms.shifts.messages.noPaymentsReceived}
                 </Typography>
               ) : (
                 paymentItems.map((paymentItem, idx) => (
@@ -1915,7 +1923,7 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
 
         <DialogActions>
           <Button size='small' onClick={() => setOpenDialog(false)}>
-            Cancel
+            {dictionary.forms.shifts.buttons.cancel}
           </Button>
           {showFormBody && activeTab > 0 && (
             <Button
@@ -1924,7 +1932,7 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
               onClick={() => setActiveTab(activeTab - 1)}
               startIcon={<KeyboardArrowLeftOutlined />}
             >
-              Previous
+              {dictionary.forms.shifts.buttons.previous}
             </Button>
           )}
           {showFormBody && activeTab < 3 && (
@@ -1934,7 +1942,7 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
               onClick={() => setActiveTab(activeTab + 1)}
               endIcon={<KeyboardArrowRightOutlined />}
             >
-              Next
+              {dictionary.forms.shifts.buttons.next}
             </Button>
           )}
           {showFormBody && (
@@ -1944,24 +1952,22 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
               variant='contained'
               onClick={() => setShowHoldDialog(true)}
             >
-              Hold
+              {dictionary.forms.shifts.buttons.hold}
             </LoadingButton>
           )}
           <Dialog
             open={showHoldDialog}
             onClose={() => setShowHoldDialog(false)}
           >
-            <DialogTitle>Confirm Hold Action</DialogTitle>
+            <DialogTitle>{dictionary.forms.shifts.dialogs.confirmHoldAction}</DialogTitle>
             <DialogContent>
               <DialogContentText>
-                Are you sure you want to put this shift on hold? This will save
-                your progress but will not close the shift. You can resume
-                editing later.
+                {dictionary.forms.shifts.dialogs.confirmHoldText}
               </DialogContentText>
             </DialogContent>
             <DialogActions>
               <Button onClick={() => setShowHoldDialog(false)} color='inherit'>
-                Cancel
+                {dictionary.forms.shifts.buttons.cancel}
               </Button>
               <LoadingButton
                 loading={addMutation.isPending || updateMutation.isPending}
@@ -1976,7 +1982,7 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
                   handleSubmit(handleSubmitForm, handleInvalidSubmit)(e);
                 }}
               >
-                Confirm Hold
+                {dictionary.forms.shifts.buttons.confirmHold}
               </LoadingButton>
             </DialogActions>
           </Dialog>
@@ -1997,7 +2003,7 @@ function SaleShiftForm({ SalesShift, setOpenDialog }) {
                     handleSubmit(handleSubmitForm, handleInvalidSubmit)(e);
                   }}
                 >
-                  Close Shift
+                  {dictionary.forms.shifts.buttons.closeShift}
                 </LoadingButton>
               )}
             </>

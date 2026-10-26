@@ -12,31 +12,33 @@ import {
   Tooltip,
 } from '@mui/material';
 import SubContractTaskItemAction from './SubContractTaskItemAction';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import { readableDate } from '@/app/helpers/input-sanitization-helpers';
 
 function LinearProgressWithLabel({ value, color, execPercent, timePercent, hasTimeDates }) {
+  const dictionary = useDictionary();
   const safeValue = Math.min(Number(value) || 0, 100);
   let tooltipMsg = !hasTimeDates
-    ? 'No start/end dates set — execution progress only.'
+    ? dictionary.projectManagement.subcontractTasks.noDates
     : color === 'success'
-    ? 'Execution is on track with time elapsed.'
+    ? dictionary.projectManagement.subcontractTasks.execOnTrack
     : color === 'warning'
-    ? 'Execution is lagging behind time elapsed. Monitor closely.'
+    ? dictionary.projectManagement.subcontractTasks.execLagging
     : color === 'error'
-    ? 'Execution is significantly behind schedule.'
-    : 'Progress status.';
+    ? dictionary.projectManagement.subcontractTasks.execBehind
+    : dictionary.projectManagement.subcontractTasks.progressStatus;
   return (
     <Box sx={{ width: '100%' }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.5 }}>
         <Typography variant="body2" color="text.secondary" fontWeight={500}>
-          Execution: {typeof execPercent === 'number' ? Math.min(100, Number(execPercent).toFixed(2)) : ''}%
+          {dictionary.projectManagement.subcontractTasks.execution} {typeof execPercent === 'number' ? Math.min(100, Number(execPercent).toFixed(2)) : ''}%
         </Typography>
         {hasTimeDates ? (
           <Typography variant="body2" color="text.secondary" fontWeight={500}>
-            Time Elapsed: {typeof timePercent === 'number' ? Math.min(100, Number(timePercent).toFixed(2)) : ''}%
+            {dictionary.projectManagement.subcontractTasks.timeElapsed} {typeof timePercent === 'number' ? Math.min(100, Number(timePercent).toFixed(2)) : ''}%
           </Typography>
         ) : (
-          <Chip size="small" label="Time: Not Set" variant="outlined" sx={{ fontSize: '0.7rem', height: 20 }} />
+          <Chip size="small" label={dictionary.projectManagement.subcontractTasks.timeNotSet} variant="outlined" sx={{ fontSize: '0.7rem', height: 20 }} />
         )}
       </Box>
       <Tooltip title={tooltipMsg}>
@@ -56,6 +58,7 @@ function SubContractTasksListItem({
   subContractTasks = [],
   isLoading,
 }) {
+  const dictionary = useDictionary();
   const baseCurrency = subContract?.currency?.code ?? 'USD';
 
   return (
@@ -126,28 +129,28 @@ function SubContractTasksListItem({
 
                   <Grid size={{ xs: 12, md: 6, lg: 5 }}>
                     <Typography variant="body2">
-                      Quantity: {qty.toLocaleString()}{' '}
+                      {dictionary.projectManagement.subcontractTasks.quantity} {qty.toLocaleString()}{' '}
                       {task.project_task?.measurement_unit?.symbol ?? ''}
                     </Typography>
                   </Grid>
 
                   <Grid size={{ xs: 12, md: 6, lg: 3.5 }}>
                     <Typography variant="body2">
-                      Executed: {execQty.toLocaleString()}{' '}
+                      {dictionary.projectManagement.subcontractTasks.executed} {execQty.toLocaleString()}{' '}
                       {task.project_task?.measurement_unit?.symbol ?? ''}
                     </Typography>
                   </Grid>
 
                   <Grid size={{ xs: 12, md: 6, lg: 3.5 }}>
                     <Typography variant="body2">
-                      Remaining: {remainingQty.toLocaleString()}{' '}
+                      {dictionary.projectManagement.subcontractTasks.remaining} {remainingQty.toLocaleString()}{' '}
                       {task.project_task?.measurement_unit?.symbol ?? ''}
                     </Typography>
                   </Grid>
 
                   <Grid size={{ xs: 12, md: 6, lg: 5 }}>
                     <Typography variant="body2">
-                      Rate:{' '}
+                      {dictionary.projectManagement.subcontractTasks.rate}{' '}
                       {rate.toLocaleString('en-US', {
                         style: 'currency',
                         currency: baseCurrency,
@@ -157,7 +160,7 @@ function SubContractTasksListItem({
 
                   <Grid size={{ xs: 12, md: 6, lg: 3.5 }}>
                     <Typography variant="body2">
-                      Amount:{' '}
+                      {dictionary.projectManagement.subcontractTasks.amount}{' '}
                       {amount.toLocaleString('en-US', {
                         style: 'currency',
                         currency: baseCurrency,
@@ -172,7 +175,7 @@ function SubContractTasksListItem({
                             task.end_date,
                             false
                           )}`
-                        : 'Not Set'}
+                        : dictionary.projectManagement.subcontractTasks.notSet}
                     </Typography>
                   </Grid>
                 </Grid>
@@ -199,7 +202,7 @@ function SubContractTasksListItem({
                 <Stack direction="row" spacing={1}>
                   <Chip
                     size="small"
-                    label={`${task.project_task?.weighted_percentage ?? 0}% Weight`}
+                    label={dictionary.projectManagement.subcontractTasks.weight.replace('{percent}', task.project_task?.weighted_percentage ?? 0)}
                   />
                   <SubContractTaskItemAction
                     subContract={subContract}
@@ -214,7 +217,7 @@ function SubContractTasksListItem({
       ) : (
         !isLoading && (
           <Alert variant="outlined" severity="info">
-            No Subcontract Tasks Found
+            {dictionary.projectManagement.subcontractTasks.noTasksFound}
           </Alert>
         )
       )}

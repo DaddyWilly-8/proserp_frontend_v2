@@ -12,6 +12,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { deviceType } from "@/utilities/helpers/user-agent-helpers";
 import { JumboDdMenu } from "@jumbo/components";
 import { MenuItemProps } from "@jumbo/types";
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 // ---- Types ----
 export interface Permission {
@@ -27,6 +28,7 @@ interface PermissionItemActionProps {
 }
 
 const PermissionItemAction: React.FC<PermissionItemActionProps> = ({ permission }) => {
+  const dictionary = useDictionary();
   const { showDialog, hideDialog } = useJumboDialog();
   const [openEditDialog, setOpenEditDialog] = useState<boolean>(false);
   const queryClient = useQueryClient();
@@ -87,7 +89,7 @@ const PermissionItemAction: React.FC<PermissionItemActionProps> = ({ permission 
 
       <JumboDdMenu
         icon={
-          <Tooltip title="Actions">
+          <Tooltip title={dictionary.tooltips.actions}>
             <MoreHorizOutlined />
           </Tooltip>
         }

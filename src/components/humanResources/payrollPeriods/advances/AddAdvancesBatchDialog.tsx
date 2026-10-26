@@ -1,5 +1,6 @@
 'use client';
 
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import { sanitizedNumber } from '@/app/helpers/input-sanitization-helpers';
 import CommaSeparatedField from '@/shared/Inputs/CommaSeparatedField';
 import { AddCircleOutline, DeleteOutline } from '@mui/icons-material';
@@ -57,14 +58,14 @@ const emptyRow = (key: number): Row => ({
   remarks: '',
 });
 
-const getErrorMessage = (error: any) => {
+const getErrorMessage = (error: any, fallback: string) => {
   const validationErrors = error?.response?.data?.validation_errors;
   if (validationErrors && typeof validationErrors === 'object') {
     const first = Object.values(validationErrors)[0] as any;
     return Array.isArray(first) ? first[0] : String(first);
   }
   return (
-    error?.response?.data?.message || error?.message || 'Something went wrong'
+    error?.response?.data?.message || error?.message || fallback
   );
 };
 
@@ -81,6 +82,8 @@ const AddAdvancesBatchDialog = ({
   payrollPeriodId,
   onSaved,
 }: AddAdvancesBatchDialogProps) => {
+  const dictionary = useDictionary();
+  const t = dictionary.humanResources.payrollPeriods;
   const theme = useTheme();
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
   const { enqueueSnackbar } = useSnackbar();
@@ -129,7 +132,9 @@ const AddAdvancesBatchDialog = ({
       }
     },
     onError: (error: any) => {
-      enqueueSnackbar(getErrorMessage(error), { variant: 'error' });
+      enqueueSnackbar(getErrorMessage(error, t.batchDialogs.somethingWentWrong), {
+        variant: 'error',
+      });
     },
   });
 
@@ -160,15 +165,11 @@ const AddAdvancesBatchDialog = ({
       fullScreen={belowLargeScreen}
       scroll={belowLargeScreen ? 'body' : 'paper'}
     >
-      <DialogTitle>Add Advances</DialogTitle>
+      <DialogTitle>{t.advances.add.title}</DialogTitle>
       <DialogContent>
         <Stack spacing={3} sx={{ pt: 1 }}>
           <Typography variant='body2' color='text.secondary'>
-            Add one row per employee, then save them all at once. Each row
-            automatically logs a matching deduction in this same period to
-            recover it — no separate step needed. A row with a problem (e.g.
-            an employee already paid an advance this period) is skipped and
-            reported — it won't block the others.
+            {t.advances.add.intro}
           </Typography>
 
           {result && (
@@ -181,7 +182,9 @@ const AddAdvancesBatchDialog = ({
               </Typography>
               {result.errors?.map((err, idx) => (
                 <Typography key={idx} variant='caption' display='block'>
-                  Row {err.row}: {err.error}
+                  {t.batchDialogs.rowError
+                    .replace('{row}', String(err.row))
+                    .replace('{error}', String(err.error))}
                 </Typography>
               ))}
             </Alert>
@@ -204,7 +207,7 @@ const AddAdvancesBatchDialog = ({
                       }}
                     >
                       <Typography variant='subtitle2' color='text.secondary'>
-                        Row {idx + 1}
+                        {t.batchDialogs.row.replace('{n}', String(idx + 1))}
                       </Typography>
                       <IconButton
                         color='error'
@@ -229,7 +232,7 @@ const AddAdvancesBatchDialog = ({
                       </Grid>
                       <Grid size={{ xs: 12, sm: 6 }}>
                         <TextField
-                          label='Amount'
+                          label={t.common.amount}
                           fullWidth
                           value={row.amount}
                           onChange={(e) => {
@@ -244,13 +247,13 @@ const AddAdvancesBatchDialog = ({
                     </Grid>
 
                     <TextField
-                      label='Remarks'
+                      label={t.common.remarks}
                       fullWidth
                       value={row.remarks}
                       onChange={(e) =>
                         updateRow(row.key, { remarks: e.target.value })
                       }
-                      placeholder='Optional'
+                      placeholder={t.common.optional}
                     />
                   </Stack>
                 </Paper>
@@ -269,19 +272,21 @@ const AddAdvancesBatchDialog = ({
               py: 1,
             }}
           >
-            Add Row
+            {t.batchDialogs.addRow}
           </Button>
         </Stack>
       </DialogContent>
       <DialogActions>
-        <Button onClick={handleClose}>Close</Button>
+        <Button onClick={handleClose}>{t.common.close}</Button>
         <LoadingButton
           onClick={handleSave}
           variant='contained'
           loading={saveMutation.isPending}
           disabled={!canSave}
         >
-          Save {rows.length > 1 ? `${rows.length} Rows` : 'Row'}
+          {rows.length > 1
+            ? t.batchDialogs.saveRows.replace('{count}', String(rows.length))
+            : t.batchDialogs.saveRow}
         </LoadingButton>
       </DialogActions>
     </Dialog>

@@ -1,4 +1,5 @@
 'use client';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import CostCenterSelector from '@/components/masters/costCenters/CostCenterSelector';
@@ -51,6 +52,8 @@ interface AppliedFilters {
 }
 
 const MyHrAccountStatement = () => {
+  const dictionary = useDictionary();
+  const t = dictionary.humanResources.myHr.accountStatement;
   const { authOrganization } = useJumboAuth();
   const [costCenters, setCostCenters] = useState<CostCenter[]>([]);
   const [fromDate, setFromDate] = useState<Dayjs | null>(null);
@@ -130,7 +133,7 @@ const MyHrAccountStatement = () => {
         <Grid size={{ xs: 12, md: 5 }}>
           <Div sx={{ mt: 1, mb: 1 }}>
             <CostCenterSelector
-              label='Cost Centers'
+              label={t.costCenters}
               multiple
               allowSameType
               defaultValue={costCenters}
@@ -145,7 +148,7 @@ const MyHrAccountStatement = () => {
         <Grid size={{ xs: 6, md: 3 }}>
           <Div sx={{ mt: 1, mb: 1 }}>
             <DateTimePicker
-              label='From'
+              label={t.from}
               sx={{ width: '100%' }}
               value={fromDate}
               slotProps={{ textField: { size: 'small', fullWidth: true } }}
@@ -156,7 +159,7 @@ const MyHrAccountStatement = () => {
         <Grid size={{ xs: 6, md: 3 }}>
           <Div sx={{ mt: 1, mb: 1 }}>
             <DateTimePicker
-              label='To'
+              label={t.to}
               sx={{ width: '100%' }}
               value={toDate}
               minDate={fromDate ?? undefined}
@@ -173,7 +176,7 @@ const MyHrAccountStatement = () => {
             size='small'
             fullWidth
           >
-            Filter
+            {t.filter}
           </LoadingButton>
         </Grid>
       </Grid>
@@ -209,12 +212,15 @@ const MyHrAccountStatement = () => {
           <Grid container spacing={2}>
             <Grid size={12}>
               <Typography variant='h3' color='primary' textAlign={'center'}>
-                {data?.filters?.ledger?.name} - Statement
+                {t.statementTitle.replace(
+                  '{name}',
+                  data?.filters?.ledger?.name ?? ''
+                )}
               </Typography>
             </Grid>
             <Grid size={6}>
               <Typography variant='subtitle2' color='primary'>
-                Total Debits
+                {t.totalDebits}
               </Typography>
               <Typography variant='body2'>
                 {formatBalance(totalDebits)}
@@ -222,7 +228,7 @@ const MyHrAccountStatement = () => {
             </Grid>
             <Grid size={6}>
               <Typography variant='subtitle2' color='primary'>
-                Total Credits
+                {t.totalCredits}
               </Typography>
               <Typography variant='body2'>
                 {formatBalance(totalCredits)}
@@ -232,7 +238,7 @@ const MyHrAccountStatement = () => {
 
           {rows.length === 0 ? (
             <Typography textAlign='center' color='text.secondary' py={4}>
-              No transactions found for this period.
+              {t.noTransactions}
             </Typography>
           ) : (
             <TableContainer sx={{ overflowX: 'auto' }}>
@@ -242,35 +248,35 @@ const MyHrAccountStatement = () => {
                     <TableCell
                       sx={{ backgroundColor: mainColor, color: contrastText }}
                     >
-                      Date
+                      {t.date}
                     </TableCell>
                     <TableCell
                       sx={{ backgroundColor: mainColor, color: contrastText }}
                     >
-                      Reference
+                      {t.reference}
                     </TableCell>
                     <TableCell
                       sx={{ backgroundColor: mainColor, color: contrastText }}
                     >
-                      Description
-                    </TableCell>
-                    <TableCell
-                      align='right'
-                      sx={{ backgroundColor: mainColor, color: contrastText }}
-                    >
-                      Debit
+                      {t.description}
                     </TableCell>
                     <TableCell
                       align='right'
                       sx={{ backgroundColor: mainColor, color: contrastText }}
                     >
-                      Credit
+                      {t.debit}
                     </TableCell>
                     <TableCell
                       align='right'
                       sx={{ backgroundColor: mainColor, color: contrastText }}
                     >
-                      Balance
+                      {t.credit}
+                    </TableCell>
+                    <TableCell
+                      align='right'
+                      sx={{ backgroundColor: mainColor, color: contrastText }}
+                    >
+                      {t.balance}
                     </TableCell>
                   </TableRow>
                 </TableHead>
@@ -291,7 +297,7 @@ const MyHrAccountStatement = () => {
                         borderBottom: 'none',
                       }}
                     >
-                      TOTAL
+                      {t.total}
                     </TableCell>
                     <TableCell
                       align='right'

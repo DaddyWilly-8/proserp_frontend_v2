@@ -18,6 +18,7 @@ import { PROS_CONTROL_PERMISSIONS } from '@/utilities/constants/prosControlPermi
 import SmsAccountTopUpForm from './SmsAccountTopUpForm';
 import SmsAccountEditForm from './SmsAccountEditForm';
 import SmsAccountTransactionsDialog from './SmsAccountTransactionsDialog';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface SmsAccount {
   id: number;
@@ -30,6 +31,7 @@ interface SmsAccount {
 }
 
 const SmsAccountListItem = ({ account }: { account: SmsAccount }) => {
+  const dictionary = useDictionary();
   const { checkPermission } = useJumboAuth();
   const { theme } = useJumboTheme();
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
@@ -75,19 +77,19 @@ const SmsAccountListItem = ({ account }: { account: SmsAccount }) => {
           <Chip size='small' label={account.is_active ? 'Active' : 'Inactive'} color={account.is_active ? 'success' : 'default'} />
         </Grid>
         <Grid size={{ xs: 6, md: 2 }} textAlign='end'>
-          <Tooltip title='Transaction history'>
+          <Tooltip title={dictionary.tooltips.transactionHistory}>
             <IconButton size='small' onClick={() => setOpenTransactions(true)}>
               <ReceiptLongOutlined fontSize='small' />
             </IconButton>
           </Tooltip>
           {canManage && (
             <>
-              <Tooltip title='Top up balance'>
+              <Tooltip title={dictionary.tooltips.topUpBalance}>
                 <IconButton size='small' onClick={() => setOpenTopUp(true)}>
                   <AddCardOutlined fontSize='small' />
                 </IconButton>
               </Tooltip>
-              <Tooltip title='Edit account'>
+              <Tooltip title={dictionary.tooltips.editAccount}>
                 <IconButton size='small' onClick={() => setOpenEdit(true)}>
                   <EditOutlined fontSize='small' />
                 </IconButton>

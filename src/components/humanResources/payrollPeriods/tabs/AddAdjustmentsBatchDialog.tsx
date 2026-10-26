@@ -1,5 +1,6 @@
 'use client';
 
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import { sanitizedNumber } from '@/app/helpers/input-sanitization-helpers';
 import CommaSeparatedField from '@/shared/Inputs/CommaSeparatedField';
 import { AddCircleOutline, DeleteOutline } from '@mui/icons-material';
@@ -66,14 +67,14 @@ const emptyRow = (key: number): Row => ({
   remarks: '',
 });
 
-const getErrorMessage = (error: any) => {
+const getErrorMessage = (error: any, fallback: string) => {
   const validationErrors = error?.response?.data?.validation_errors;
   if (validationErrors && typeof validationErrors === 'object') {
     const first = Object.values(validationErrors)[0] as any;
     return Array.isArray(first) ? first[0] : String(first);
   }
   return (
-    error?.response?.data?.message || error?.message || 'Something went wrong'
+    error?.response?.data?.message || error?.message || fallback
   );
 };
 
@@ -84,6 +85,8 @@ const AddAdjustmentsBatchDialog = ({
   kind,
   onSaved,
 }: AddAdjustmentsBatchDialogProps) => {
+  const dictionary = useDictionary();
+  const t = dictionary.humanResources.payrollPeriods;
   const theme = useTheme();
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
   const { enqueueSnackbar } = useSnackbar();
@@ -93,7 +96,9 @@ const AddAdjustmentsBatchDialog = ({
   const [result, setResult] = useState<BatchResult | null>(null);
 
   const isAllowance = kind === 'allowance';
-  const label = isAllowance ? 'Allowance' : 'Deduction';
+  const kindText = isAllowance
+    ? t.batchDialogs.allowance
+    : t.batchDialogs.deduction;
 
   const { data: typesResponse } = useQuery({
     queryKey: [isAllowance ? 'allowanceTypesForBatch' : 'deductionTypesForBatch'],
@@ -147,7 +152,9 @@ const AddAdjustmentsBatchDialog = ({
       }
     },
     onError: (error: any) => {
-      enqueueSnackbar(getErrorMessage(error), { variant: 'error' });
+      enqueueSnackbar(getErrorMessage(error, t.batchDialogs.somethingWentWrong), {
+        variant: 'error',
+      });
     },
   });
 
@@ -179,13 +186,11 @@ const AddAdjustmentsBatchDialog = ({
       fullScreen={belowLargeScreen}
       scroll={belowLargeScreen ? 'body' : 'paper'}
     >
-      <DialogTitle>Add {label}s</DialogTitle>
+      <DialogTitle>{kindText.title}</DialogTitle>
       <DialogContent>
         <Stack spacing={3} sx={{ pt: 1 }}>
           <Typography variant='body2' color='text.secondary'>
-            Add one row per employee/{kind}, then save them all at once. A
-            row with a problem (e.g. a duplicate) is skipped and reported —
-            it won't block the others.
+            {kindText.intro}
           </Typography>
 
           {result && (
@@ -198,7 +203,9 @@ const AddAdjustmentsBatchDialog = ({
               </Typography>
               {result.errors?.map((err, idx) => (
                 <Typography key={idx} variant='caption' display='block'>
-                  Row {err.row}: {err.error}
+                  {t.batchDialogs.rowError
+                    .replace('{row}', String(err.row))
+                    .replace('{error}', String(err.error))}
                 </Typography>
               ))}
             </Alert>
@@ -221,7 +228,7 @@ const AddAdjustmentsBatchDialog = ({
                       }}
                     >
                       <Typography variant='subtitle2' color='text.secondary'>
-                        Row {idx + 1}
+                        {t.batchDialogs.row.replace('{n}', String(idx + 1))}
                       </Typography>
                       <IconButton
                         color='error'
@@ -254,7 +261,7 @@ const AddAdjustmentsBatchDialog = ({
                             updateRow(row.key, { type: newValue })
                           }
                           renderInput={(params) => (
-                            <TextField {...params} label={`${label} Type`} />
+                            <TextField {...params} label={kindText.typeLabel} />
                           )}
                         />
                       </Grid>
@@ -263,7 +270,7 @@ const AddAdjustmentsBatchDialog = ({
                     <Grid container spacing={2.5}>
                       <Grid size={{ xs: 12, sm: 4 }}>
                         <TextField
-                          label='Amount'
+                          label={t.common.amount}
                           fullWidth
                           value={row.amount}
                           onChange={(e) => {
@@ -277,13 +284,13 @@ const AddAdjustmentsBatchDialog = ({
                       </Grid>
                       <Grid size={{ xs: 12, sm: 8 }}>
                         <TextField
-                          label='Remarks'
+                          label={t.common.remarks}
                           fullWidth
                           value={row.remarks}
                           onChange={(e) =>
                             updateRow(row.key, { remarks: e.target.value })
                           }
-                          placeholder='Optional'
+                          placeholder={t.common.optional}
                         />
                       </Grid>
                     </Grid>
@@ -304,19 +311,21 @@ const AddAdjustmentsBatchDialog = ({
               py: 1,
             }}
           >
-            Add Row
+            {t.batchDialogs.addRow}
           </Button>
         </Stack>
       </DialogContent>
       <DialogActions>
-        <Button onClick={handleClose}>Close</Button>
+        <Button onClick={handleClose}>{t.common.close}</Button>
         <LoadingButton
           onClick={handleSave}
           variant='contained'
           loading={saveMutation.isPending}
           disabled={!canSave}
         >
-          Save {rows.length > 1 ? `${rows.length} Rows` : 'Row'}
+          {rows.length > 1
+            ? t.batchDialogs.saveRows.replace('{count}', String(rows.length))
+            : t.batchDialogs.saveRow}
         </LoadingButton>
       </DialogActions>
     </Dialog>

@@ -5,6 +5,7 @@ import { DateTimePicker } from '@mui/x-date-pickers';
 import { useQuery } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import React, { useEffect, useState } from 'react';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import CommaSeparatedField from '@/shared/Inputs/CommaSeparatedField';
 import { sanitizedNumber } from '@/app/helpers/input-sanitization-helpers';
 import AssetDetailSelector from './AssetDetailSelector';
@@ -38,6 +39,8 @@ const AssetBookingQuickAddForm: React.FC<AssetBookingQuickAddFormProps> = ({
   onAttach,
   onCancel,
 }) => {
+  const dictionary = useDictionary();
+  const t = dictionary.forms.assetBookingQuickAdd;
   const [asset, setAsset] = useState<any>(null);
   const [startAt, setStartAt] = useState<any>(null);
   const [endAt, setEndAt] = useState<any>(null);
@@ -82,21 +85,21 @@ const AssetBookingQuickAddForm: React.FC<AssetBookingQuickAddFormProps> = ({
   return (
     <Grid container spacing={1} p={1} sx={{ border: '1px dashed', borderColor: 'divider', borderRadius: 1 }}>
       <Grid size={12}>
-        <Typography variant="subtitle2">Attach an Asset Booking</Typography>
+        <Typography variant="subtitle2">{t.titles.attachBooking}</Typography>
       </Grid>
       <Grid size={{ xs: 12, md: 4 }}>
-        <AssetDetailSelector label="Asset" costCenterId={costCenterId} onChange={setAsset} />
+        <AssetDetailSelector label={t.labels.asset} costCenterId={costCenterId} onChange={setAsset} />
       </Grid>
       <Grid size={{ xs: 12, md: 3 }}>
         <DateTimePicker
-          label="Start"
+          label={t.labels.start}
           slotProps={{ textField: { fullWidth: true, size: 'small' } }}
           onChange={(value: any) => setStartAt(value)}
         />
       </Grid>
       <Grid size={{ xs: 12, md: 3 }}>
         <DateTimePicker
-          label="End"
+          label={t.labels.end}
           slotProps={{ textField: { fullWidth: true, size: 'small' } }}
           onChange={(value: any) => setEndAt(value)}
         />
@@ -105,7 +108,7 @@ const AssetBookingQuickAddForm: React.FC<AssetBookingQuickAddFormProps> = ({
         <TextField
           fullWidth
           size="small"
-          label="Rate"
+          label={t.labels.rate}
           value={rate}
           InputProps={{ inputComponent: CommaSeparatedField as any }}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => setRate(sanitizedNumber(e.target.value))}
@@ -115,35 +118,40 @@ const AssetBookingQuickAddForm: React.FC<AssetBookingQuickAddFormProps> = ({
       {asset && !asset.billing_product_id && (
         <Grid size={12}>
           <Alert severity="info">
-            {asset.code} has no billing product mapped — you'll need to add the appropriate item to this sale manually.
+            {t.messages.noBillingProduct.replace('{code}', asset.code)}
           </Alert>
         </Grid>
       )}
       {needsRateForBilling && (
         <Grid size={12}>
           <Alert severity="warning">
-            Enter a rate to add {asset.billing_product?.item_name || 'the billing product'} as a line item on this sale — it won't be added automatically without one.
+            {t.messages.enterRate.replace('{item}', asset.billing_product?.item_name || t.messages.theBillingProduct)}
           </Alert>
         </Grid>
       )}
       {checkingAvailability && (
         <Grid size={12} display="flex" alignItems="center" gap={1}>
           <CircularProgress size={16} />
-          <Typography variant="caption" color="text.secondary">Checking availability…</Typography>
+          <Typography variant="caption" color="text.secondary">{t.messages.checkingAvailability}</Typography>
         </Grid>
       )}
       {isUnavailable && (
         <Grid size={12}>
           <Alert severity="error">
-            {asset?.code} is already booked for part of this period
-            {availability?.conflicting_booking?.code ? ` (${availability.conflicting_booking.code})` : ''}.
-            Pick a different time or asset.
+            {t.messages.alreadyBooked
+              .replace('{code}', asset?.code ?? '')
+              .replace(
+                '{conflict}',
+                availability?.conflicting_booking?.code
+                  ? ` (${availability.conflicting_booking.code})`
+                  : ''
+              )}
           </Alert>
         </Grid>
       )}
 
       <Grid size={12} display="flex" gap={1} justifyContent="flex-end">
-        <Button size="small" onClick={onCancel}>Cancel</Button>
+        <Button size="small" onClick={onCancel}>{t.buttons.cancel}</Button>
         <Button
           size="small"
           variant="contained"
@@ -158,7 +166,7 @@ const AssetBookingQuickAddForm: React.FC<AssetBookingQuickAddFormProps> = ({
             currency_id: rate ? (currencyId ?? 1) : null,
           }, asset)}
         >
-          Add
+          {t.buttons.add}
         </Button>
       </Grid>
     </Grid>

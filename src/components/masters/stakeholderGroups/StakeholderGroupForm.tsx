@@ -11,6 +11,7 @@ import { LoadingButton } from '@mui/lab';
 import { Div } from '@jumbo/shared';
 import stakeholderGroupServices from './stakeholderGroup-services';
 import { getErrorMessage } from '@/utilities/helpers/errorHandler';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface StakeholderGroup {
   id: number;
@@ -30,12 +31,13 @@ const StakeholderGroupForm = ({
   group?: StakeholderGroup | null;
   setOpenDialog: (open: boolean) => void;
 }) => {
+  const dictionary = useDictionary();
   const queryClient = useQueryClient();
   const { enqueueSnackbar } = useSnackbar();
   const isEdit = !!group;
 
   const validationSchema = yup.object({
-    name: yup.string().required('Name is required'),
+    name: yup.string().required(dictionary.forms.stakeholderGroups.form.errors.validation.nameRequired),
     description: yup.string().default(''),
   });
 
@@ -53,7 +55,7 @@ const StakeholderGroupForm = ({
       isEdit ? stakeholderGroupServices.update({ id: group!.id, ...data }) : stakeholderGroupServices.add(data),
     onSuccess: () => {
       setOpenDialog(false);
-      enqueueSnackbar(`Stakeholder group ${isEdit ? 'updated' : 'created'} successfully`, { variant: 'success' });
+      enqueueSnackbar(isEdit ? dictionary.forms.stakeholderGroups.form.messages.updateSuccess : dictionary.forms.stakeholderGroups.form.messages.createSuccess, { variant: 'success' });
       queryClient.invalidateQueries({ queryKey: ['stakeholder-groups'] });
     },
     onError: (error) => {
@@ -65,7 +67,7 @@ const StakeholderGroupForm = ({
 
   return (
     <>
-      <DialogTitle>{isEdit ? 'Edit' : 'New'} Stakeholder Group</DialogTitle>
+      <DialogTitle>{isEdit ? dictionary.forms.stakeholderGroups.form.title.edit : dictionary.forms.stakeholderGroups.form.title.new}</DialogTitle>
       <DialogContent>
         <form autoComplete='off' onSubmit={onSubmit}>
           <Grid container spacing={2} sx={{ mt: 0.5 }}>
@@ -77,7 +79,7 @@ const StakeholderGroupForm = ({
                   render={({ field }) => (
                     <TextField
                       {...field}
-                      label='Name'
+                      label={dictionary.forms.stakeholderGroups.form.labels.name}
                       fullWidth
                       size='small'
                       autoFocus
@@ -94,7 +96,7 @@ const StakeholderGroupForm = ({
                   name='description'
                   control={control}
                   render={({ field }) => (
-                    <TextField {...field} label='Description (optional)' fullWidth multiline minRows={2} size='small' />
+                    <TextField {...field} label={dictionary.forms.stakeholderGroups.form.labels.description} fullWidth multiline minRows={2} size='small' />
                   )}
                 />
               </Div>
@@ -102,10 +104,10 @@ const StakeholderGroupForm = ({
           </Grid>
           <DialogActions>
             <Button size='small' onClick={() => setOpenDialog(false)}>
-              Cancel
+              {dictionary.forms.stakeholderGroups.form.buttons.cancel}
             </Button>
             <LoadingButton type='submit' variant='contained' size='small' loading={isPending}>
-              Save
+              {dictionary.forms.stakeholderGroups.form.buttons.save}
             </LoadingButton>
           </DialogActions>
         </form>

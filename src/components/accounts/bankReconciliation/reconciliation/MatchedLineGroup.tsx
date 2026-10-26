@@ -1,4 +1,5 @@
 'use client';
+import RecurringTag from '@/components/accounts/recurringTransactions/RecurringTag';
 
 import React from 'react';
 import { Box, Button, Chip, Grid, IconButton, Tooltip, Typography } from '@mui/material';
@@ -10,12 +11,14 @@ import { useJumboDialog } from '@jumbo/components/JumboDialog/hooks/useJumboDial
 import bankReconciliationServices from '../bank-reconciliation-services';
 import { descriptionIncludesVoucher } from './journal-display';
 import { formatDate, daysBetween } from './date-format';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface Journal {
   id: number;
   journal_date: string;
   description: string;
   voucher_no?: string | null;
+  is_scheduled?: boolean;
   counterparty?: string | null;
   credit_ledger?: { name: string };
   debit_ledger?: { name: string };
@@ -50,6 +53,7 @@ const formatAmount = (amount: number) =>
   amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 export default function MatchedLineGroup({ bankAccountId, matchedLine, suggestionDayTolerance }: Props) {
+  const dictionary = useDictionary();
   const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
   const { showDialog, hideDialog } = useJumboDialog();
@@ -131,6 +135,7 @@ export default function MatchedLineGroup({ bankAccountId, matchedLine, suggestio
             <Grid size={{ xs: 12, md: 6 }}>
               <Typography variant='caption' color='text.secondary'>
                 Book Entry{!descriptionIncludesVoucher(match.journal) && match.journal?.voucher_no ? ` — ${match.journal.voucher_no}` : ''}
+                {match.journal?.is_scheduled && <RecurringTag />}
               </Typography>
               <Typography variant='body2'>
                 {formatDate(match.journal?.journal_date)} — {match.journal?.description}
@@ -165,7 +170,7 @@ export default function MatchedLineGroup({ bankAccountId, matchedLine, suggestio
                 </Tooltip>
               )}
               {match.created_transaction ? (
-                <Tooltip title='Undo — deletes this transaction, since it was created just for this match'>
+                <Tooltip title={dictionary.tooltips.undoDeletesThisTransactionSinceIt}>
                   <span>
                     <LoadingButton
                       size='small'
@@ -179,7 +184,7 @@ export default function MatchedLineGroup({ bankAccountId, matchedLine, suggestio
                   </span>
                 </Tooltip>
               ) : (
-                <Tooltip title='Remove this book entry from the match'>
+                <Tooltip title={dictionary.tooltips.removeThisBookEntryFromThe}>
                   <IconButton size='small' color='error' onClick={() => removeMatchMutation.mutate(match.id)} disabled={removeMatchMutation.isPending}>
                     <LinkOffOutlined fontSize='small' />
                   </IconButton>

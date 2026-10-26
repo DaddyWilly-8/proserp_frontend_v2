@@ -1,5 +1,6 @@
 'use client';
 
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import { AddCircleOutline, DeleteOutline } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
 import {
@@ -64,14 +65,14 @@ interface LogOvertimeBatchDialogProps {
   onSaved: () => void;
 }
 
-const getErrorMessage = (error: any) => {
+const getErrorMessage = (error: any, fallback: string) => {
   const validationErrors = error?.response?.data?.validation_errors;
   if (validationErrors && typeof validationErrors === 'object') {
     const first = Object.values(validationErrors)[0] as any;
     return Array.isArray(first) ? first[0] : String(first);
   }
   return (
-    error?.response?.data?.message || error?.message || 'Something went wrong'
+    error?.response?.data?.message || error?.message || fallback
   );
 };
 
@@ -86,6 +87,8 @@ const LogOvertimeBatchDialog = ({
   year,
   onSaved,
 }: LogOvertimeBatchDialogProps) => {
+  const dictionary = useDictionary();
+  const t = dictionary.humanResources.payrollPeriods;
   const theme = useTheme();
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
   const { enqueueSnackbar } = useSnackbar();
@@ -149,7 +152,9 @@ const LogOvertimeBatchDialog = ({
       }
     },
     onError: (error: any) => {
-      enqueueSnackbar(getErrorMessage(error), { variant: 'error' });
+      enqueueSnackbar(getErrorMessage(error, t.batchDialogs.somethingWentWrong), {
+        variant: 'error',
+      });
     },
   });
 
@@ -182,13 +187,13 @@ const LogOvertimeBatchDialog = ({
       fullScreen={belowLargeScreen}
       scroll={belowLargeScreen ? 'body' : 'paper'}
     >
-      <DialogTitle>Log Overtime Entries</DialogTitle>
+      <DialogTitle>{t.batchDialogs.logOvertimeTitle}</DialogTitle>
       <DialogContent>
         <Stack spacing={3} sx={{ pt: 1 }}>
           <Typography variant='body2' color='text.secondary'>
-            Add one row per employee/date, then save them all at once. Dates
-            must fall within {monthName} {year}. A row with a problem is
-            skipped and reported — it won't block the others.
+            {t.batchDialogs.intro
+              .replace('{month}', String(monthName))
+              .replace('{year}', String(year))}
           </Typography>
 
           {result && (
@@ -201,7 +206,9 @@ const LogOvertimeBatchDialog = ({
               </Typography>
               {result.errors?.map((err, idx) => (
                 <Typography key={idx} variant='caption' display='block'>
-                  Row {err.row}: {err.error}
+                  {t.batchDialogs.rowError
+                    .replace('{row}', String(err.row))
+                    .replace('{error}', String(err.error))}
                 </Typography>
               ))}
             </Alert>
@@ -224,7 +231,7 @@ const LogOvertimeBatchDialog = ({
                       }}
                     >
                       <Typography variant='subtitle2' color='text.secondary'>
-                        Row {idx + 1}
+                        {t.batchDialogs.row.replace('{n}', String(idx + 1))}
                       </Typography>
                       <IconButton
                         color='error'
@@ -259,7 +266,7 @@ const LogOvertimeBatchDialog = ({
                             updateRow(row.key, { overtimeType: newValue })
                           }
                           renderInput={(params) => (
-                            <TextField {...params} label='Overtime Type' />
+                            <TextField {...params} label={t.batchDialogs.overtimeType} />
                           )}
                         />
                       </Grid>
@@ -268,7 +275,7 @@ const LogOvertimeBatchDialog = ({
                     <Grid container spacing={2.5}>
                       <Grid size={{ xs: 12, sm: 5 }}>
                         <DatePicker
-                          label='Date'
+                          label={t.common.date}
                           value={row.date ? dayjs(row.date) : null}
                           onChange={(newValue) =>
                             updateRow(row.key, {
@@ -282,7 +289,7 @@ const LogOvertimeBatchDialog = ({
                       </Grid>
                       <Grid size={{ xs: 12, sm: 3 }}>
                         <TextField
-                          label='Hours'
+                          label={t.batchDialogs.hours}
                           fullWidth
                           type='number'
                           value={row.hours}
@@ -296,13 +303,13 @@ const LogOvertimeBatchDialog = ({
                       </Grid>
                       <Grid size={{ xs: 12, sm: 4 }}>
                         <TextField
-                          label='Remarks'
+                          label={t.common.remarks}
                           fullWidth
                           value={row.remarks}
                           onChange={(e) =>
                             updateRow(row.key, { remarks: e.target.value })
                           }
-                          placeholder='Optional'
+                          placeholder={t.common.optional}
                         />
                       </Grid>
                     </Grid>
@@ -323,19 +330,21 @@ const LogOvertimeBatchDialog = ({
               py: 1,
             }}
           >
-            Add Row
+            {t.batchDialogs.addRow}
           </Button>
         </Stack>
       </DialogContent>
       <DialogActions>
-        <Button onClick={handleClose}>Close</Button>
+        <Button onClick={handleClose}>{t.common.close}</Button>
         <LoadingButton
           onClick={handleSave}
           variant='contained'
           loading={saveMutation.isPending}
           disabled={!canSave}
         >
-          Save {rows.length > 1 ? `${rows.length} Rows` : 'Row'}
+          {rows.length > 1
+            ? t.batchDialogs.saveRows.replace('{count}', String(rows.length))
+            : t.batchDialogs.saveRow}
         </LoadingButton>
       </DialogActions>
     </Dialog>

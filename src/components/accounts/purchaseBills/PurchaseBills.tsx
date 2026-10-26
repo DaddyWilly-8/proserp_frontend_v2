@@ -21,6 +21,7 @@ import PurchaseBillListItem from './PurchaseBillListItem';
 import PurchaseBillPaymentStatusSelector from './PurchaseBillPaymentStatusSelector';
 import { PurchaseBill } from './PurchaseBillType';
 import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface FilterDate {
   from?: string | null;
@@ -42,6 +43,7 @@ interface QueryOptions {
 }
 
 const PurchaseBills = () => {
+  const dictionary = useDictionary();
   const params = useParams<{ id?: string }>();
   const searchParams = useSearchParams();
   const listRef = useRef<any>(null);
@@ -219,7 +221,7 @@ const PurchaseBills = () => {
                         />
                       </Grid>
                       <Grid size={{ xs: 1, md: 0.5 }} alignContent='end'>
-                        <Tooltip title='Filter Dates'>
+                        <Tooltip title={dictionary.tooltips.filterDates}>
                           <IconButton onClick={applyDateFilters}>
                             <EventAvailableOutlined />
                           </IconButton>

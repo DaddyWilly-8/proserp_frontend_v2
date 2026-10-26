@@ -20,6 +20,7 @@ import { useSnackbar } from 'notistack';
 import { useEffect, useState } from 'react';
 import humanResourcesServices from '../humanResourcesServices';
 import { LoanRequestType } from './LoanRequestType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 export type LoanDirectDecisionMode = 'approve' | 'reject';
 
@@ -38,6 +39,7 @@ const LoanDirectDecisionForm = ({
   loanRequest,
   onClose,
 }: LoanDirectDecisionFormProps) => {
+  const dictionary = useDictionary();
   const isApprove = mode === 'approve';
 
   const [amountApproved, setAmountApproved] = useState<number | ''>(
@@ -86,14 +88,16 @@ const LoanDirectDecisionForm = ({
       });
       queryClient.invalidateQueries({ queryKey: ['loanRequests'] });
       enqueueSnackbar(
-        isApprove ? 'Loan request approved' : 'Loan request rejected',
+        isApprove
+          ? dictionary.humanResources.loanRequests.directDecision.approvedMessage
+          : dictionary.humanResources.loanRequests.directDecision.rejectedMessage,
         { variant: 'success' }
       );
       onClose();
     },
     onError: (error: any) => {
       enqueueSnackbar(
-        error?.response?.data?.message || 'Something went wrong',
+        error?.response?.data?.message || dictionary.humanResources.loanRequests.common.somethingWentWrong,
         { variant: 'error' }
       );
     },
@@ -101,7 +105,7 @@ const LoanDirectDecisionForm = ({
 
   const handleSubmit = () => {
     if (!isApprove && !remarks.trim()) {
-      setRemarksError('Remarks are required');
+      setRemarksError(dictionary.humanResources.loanRequests.approvalForm.errors.remarksRequired);
       return;
     }
 
@@ -111,7 +115,10 @@ const LoanDirectDecisionForm = ({
       Number(amountApproved) > Number(loanRequest.amount)
     ) {
       setAmountError(
-        `Cannot exceed ${Number(loanRequest.amount).toLocaleString()}`
+        dictionary.humanResources.loanRequests.approvalForm.errors.cannotExceed.replace(
+          '{amount}',
+          Number(loanRequest.amount).toLocaleString()
+        )
       );
       return;
     }
@@ -152,23 +159,26 @@ const LoanDirectDecisionForm = ({
       scroll={belowLargeScreen ? 'body' : 'paper'}
     >
       <DialogTitle>
-        {isApprove ? 'Approve Loan Request' : 'Reject Loan Request'}
+        {isApprove
+          ? dictionary.humanResources.loanRequests.directDecision.titleApprove
+          : dictionary.humanResources.loanRequests.directDecision.titleReject}
       </DialogTitle>
       <DialogContent>
         <Stack spacing={2} sx={{ mt: 1 }}>
           {isApprove && (
             <>
               <TextField
-                label='Amount Approved'
+                label={dictionary.humanResources.loanRequests.approvalForm.labels.amountApproved}
                 size='small'
                 fullWidth
                 value={amountApproved}
                 error={!!amountError}
                 helperText={
                   amountError ||
-                  `Leave as-is to approve the full ${Number(
-                    loanRequest.amount
-                  ).toLocaleString()} requested`
+                  dictionary.humanResources.loanRequests.directDecision.amountHelper.replace(
+                    '{amount}',
+                    Number(loanRequest.amount).toLocaleString()
+                  )
                 }
                 InputProps={{ inputComponent: CommaSeparatedField as any }}
                 onChange={(e: any) => {
@@ -180,22 +190,26 @@ const LoanDirectDecisionForm = ({
               />
               <TextField
                 select
-                label='Recovery Mode'
+                label={dictionary.humanResources.loanRequests.approvalForm.labels.recoveryMode}
                 size='small'
                 fullWidth
                 value={recoveryMode}
                 onChange={(e: any) => setRecoveryMode(e.target.value)}
               >
-                <MenuItem value='installments'>By Installment Count</MenuItem>
-                <MenuItem value='fixed_amount'>By Fixed Amount</MenuItem>
+                <MenuItem value='installments'>
+                  {dictionary.humanResources.loanRequests.approvalForm.labels.byInstallmentCount}
+                </MenuItem>
+                <MenuItem value='fixed_amount'>
+                  {dictionary.humanResources.loanRequests.approvalForm.labels.byFixedAmount}
+                </MenuItem>
               </TextField>
               {recoveryMode === 'fixed_amount' ? (
                 <TextField
-                  label='Amount To Deduct Per Period'
+                  label={dictionary.humanResources.loanRequests.approvalForm.labels.amountToDeductPerPeriod}
                   size='small'
                   fullWidth
                   value={installmentAmountApproved}
-                  helperText='Installments are derived automatically from this'
+                  helperText={dictionary.humanResources.loanRequests.approvalForm.helpers.installmentsDerived}
                   InputProps={{ inputComponent: CommaSeparatedField as any }}
                   onChange={(e: any) =>
                     setInstallmentAmountApproved(
@@ -205,7 +219,7 @@ const LoanDirectDecisionForm = ({
                 />
               ) : (
                 <TextField
-                  label='Installments Approved'
+                  label={dictionary.humanResources.loanRequests.approvalForm.labels.installmentsApproved}
                   size='small'
                   fullWidth
                   value={installmentsApproved}
@@ -217,7 +231,7 @@ const LoanDirectDecisionForm = ({
                 />
               )}
               <DatePicker
-                label='Recovery Start (optional)'
+                label={dictionary.humanResources.loanRequests.approvalForm.labels.recoveryStartOptional}
                 views={['year', 'month']}
                 minDate={dayjs().startOf('month')}
                 value={recoveryStartDate ? dayjs(recoveryStartDate) : null}
@@ -230,7 +244,7 @@ const LoanDirectDecisionForm = ({
                   textField: {
                     size: 'small',
                     fullWidth: true,
-                    helperText: 'Leave blank to start as soon as payroll allows',
+                    helperText: dictionary.humanResources.loanRequests.approvalForm.helpers.recoveryStartBlank,
                   },
                   field: { clearable: true },
                 }}
@@ -238,7 +252,11 @@ const LoanDirectDecisionForm = ({
             </>
           )}
           <DateTimePicker
-            label={isApprove ? 'Approval Date & Time' : 'Rejection Date & Time'}
+            label={
+              isApprove
+                ? dictionary.humanResources.loanRequests.directDecision.approvalDateTime
+                : dictionary.humanResources.loanRequests.directDecision.rejectionDateTime
+            }
             value={reviewedAt ? dayjs(reviewedAt) : null}
             onChange={(val) => setReviewedAt(val?.toISOString() || '')}
             slotProps={{
@@ -246,7 +264,7 @@ const LoanDirectDecisionForm = ({
             }}
           />
           <TextField
-            label='Remarks'
+            label={dictionary.humanResources.loanRequests.approvalForm.labels.remarks}
             size='small'
             fullWidth
             multiline
@@ -264,7 +282,7 @@ const LoanDirectDecisionForm = ({
       </DialogContent>
       <DialogActions sx={{ flexWrap: 'wrap', gap: 1, rowGap: 1 }}>
         <Button onClick={onClose} disabled={isPending}>
-          Cancel
+          {dictionary.humanResources.loanRequests.common.cancel}
         </Button>
         <LoadingButton
           loading={isPending}
@@ -273,7 +291,9 @@ const LoanDirectDecisionForm = ({
           size='small'
           onClick={handleSubmit}
         >
-          {isApprove ? 'Approve' : 'Reject'}
+          {isApprove
+            ? dictionary.humanResources.loanRequests.approvalForm.buttons.approve
+            : dictionary.humanResources.loanRequests.approvalForm.buttons.reject}
         </LoadingButton>
       </DialogActions>
     </Dialog>

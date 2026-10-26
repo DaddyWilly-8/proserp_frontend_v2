@@ -16,6 +16,7 @@ import { useState } from 'react';
 import humanResourcesServices from '../humanResourcesServices';
 import EmployeeDeductionForm from './EmployeeDeductionForm';
 import { EmployeeDeductionType } from './EmployeeDeductionType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const EditEmployeeDeduction = ({
   employeeDeduction,
@@ -52,6 +53,7 @@ const EmployeeDeductionItemAction = ({
 }: {
   employeeDeduction: EmployeeDeductionType;
 }) => {
+  const dictionary = useDictionary();
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const { showDialog, hideDialog } = useJumboDialog();
   const { enqueueSnackbar } = useSnackbar();
@@ -63,12 +65,12 @@ const EmployeeDeductionItemAction = ({
     mutationFn: humanResourcesServices.deleteEmployeeDeduction,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['employeeDeductions'] });
-      enqueueSnackbar('Employee Deduction Deleted Successfully', {
+      enqueueSnackbar(dictionary.humanResources.employeeDeductions.messages.deleted, {
         variant: 'success',
       });
     },
     onError: (error: any) => {
-      enqueueSnackbar('Error Deleting Employee Deduction', {
+      enqueueSnackbar(dictionary.humanResources.employeeDeductions.messages.deleteError, {
         variant: 'error',
       });
       console.log('error deleting employee deduction: ', error);
@@ -78,12 +80,12 @@ const EmployeeDeductionItemAction = ({
   const menuItems = [
     {
       icon: <EditOutlined />,
-      title: 'Edit',
+      title: dictionary.humanResources.employeeDeductions.menu.edit,
       action: 'edit',
     },
     {
       icon: <DeleteOutlined color='error' />,
-      title: 'Delete',
+      title: dictionary.humanResources.employeeDeductions.menu.delete,
       action: 'delete',
     },
   ];
@@ -95,8 +97,8 @@ const EmployeeDeductionItemAction = ({
         break;
       case 'delete':
         showDialog({
-          title: 'Confirm Delete',
-          content: 'Are you sure you want to delete this Employee Deduction?',
+          title: dictionary.humanResources.employeeDeductions.dialog.confirmDeleteTitle,
+          content: dictionary.humanResources.employeeDeductions.dialog.confirmDeleteContent,
           onYes: () => {
             hideDialog();
             deleteEmployeeDeduction(employeeDeduction.id);
@@ -127,7 +129,7 @@ const EmployeeDeductionItemAction = ({
       </Dialog>
       <JumboDdMenu
         icon={
-          <Tooltip title='Actions'>
+          <Tooltip title={dictionary.tooltips.actions}>
             <MoreHorizOutlined fontSize='small' />
           </Tooltip>
         }

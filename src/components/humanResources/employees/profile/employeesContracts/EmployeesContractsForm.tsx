@@ -26,6 +26,7 @@ import { useDesignations } from '../../../designations/DesignationsProvider';
 import { Designation } from '../../../designations/DesignationsType';
 import humanResourcesServices from '../../../humanResourcesServices';
 import { ContractType } from './ContractType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface EmployeesContractsFormProps {
   setOpenDialog: (open: boolean) => void;
@@ -45,17 +46,17 @@ interface ApiResponse {
   };
 }
 
-const PAY_BASIS_OPTIONS = [
-  { label: 'Monthly', value: 'monthly' },
-  { label: 'Daily', value: 'daily' },
-  { label: 'Hourly', value: 'hourly' },
-];
-
 const EmployeesContractsForm = ({
   setOpenDialog,
   contract,
   employeeId,
 }: EmployeesContractsFormProps) => {
+  const dictionary = useDictionary();
+  const PAY_BASIS_OPTIONS = [
+    { label: dictionary.humanResources.employeesContracts.payBasis.monthly, value: 'monthly' },
+    { label: dictionary.humanResources.employeesContracts.payBasis.daily, value: 'daily' },
+    { label: dictionary.humanResources.employeesContracts.payBasis.hourly, value: 'hourly' },
+  ];
   const queryClient = useQueryClient();
   const { enqueueSnackbar } = useSnackbar();
   const { designations, isFetching: fetchingDesignations } = useDesignations();
@@ -64,16 +65,16 @@ const EmployeesContractsForm = ({
     contract
       ? () => PAY_BASIS_OPTIONS.find((opt) => opt.value === contract.pay_basis)
       : {
-          label: 'Monthly',
+          label: dictionary.humanResources.employeesContracts.payBasis.monthly,
           value: 'monthly',
         }
   );
 
   const contractOptions = [
-    { label: 'Permanent', value: 'permanent' },
-    { label: 'Fixed', value: 'fixed_term' },
-    { label: 'Specific', value: 'specific_task' },
-    { label: 'Probation', value: 'probation' },
+    { label: dictionary.humanResources.employeesContracts.contractTypes.permanent, value: 'permanent' },
+    { label: dictionary.humanResources.employeesContracts.contractTypes.fixed_term, value: 'fixed_term' },
+    { label: dictionary.humanResources.employeesContracts.contractTypes.specific_task, value: 'specific_task' },
+    { label: dictionary.humanResources.employeesContracts.contractTypes.probation, value: 'probation' },
   ];
 
   const formatCommaSeparatedValue = (
@@ -97,13 +98,13 @@ const EmployeesContractsForm = ({
     },
     onSuccess: (data) => {
       setOpenDialog(false);
-      enqueueSnackbar('Success Adding Employee Contract', {
+      enqueueSnackbar(dictionary.humanResources.employeesContracts.messages.added, {
         variant: 'success',
       });
       queryClient.invalidateQueries({ queryKey: ['employeesContracts'] });
     },
     onError: (error) => {
-      let message = 'Something went wrong';
+      let message = dictionary.humanResources.profileSectionsCommon.somethingWentWrong;
 
       if (
         typeof error === 'object' &&
@@ -130,13 +131,13 @@ const EmployeesContractsForm = ({
     },
     onSuccess: (data) => {
       setOpenDialog(false);
-      enqueueSnackbar('Employee Contract update success', {
+      enqueueSnackbar(dictionary.humanResources.employeesContracts.messages.updated, {
         variant: 'success',
       });
       queryClient.invalidateQueries({ queryKey: ['employeesContracts'] });
     },
     onError: (error) => {
-      let message = 'Something went wrong';
+      let message = dictionary.humanResources.profileSectionsCommon.somethingWentWrong;
 
       if (
         typeof error === 'object' &&
@@ -153,10 +154,10 @@ const EmployeesContractsForm = ({
   });
 
   const validationSchema = yup.object({
-    employee_id: yup.number().required('Employee is required'),
-    designation_id: yup.number().required('Designation is required'),
-    contract_type: yup.string().required('Contract type is required'),
-    start_date: yup.string().required('Start date is required'),
+    employee_id: yup.number().required(dictionary.humanResources.employeesContracts.form.validation.employeeRequired),
+    designation_id: yup.number().required(dictionary.humanResources.employeesContracts.form.validation.designationRequired),
+    contract_type: yup.string().required(dictionary.humanResources.employeesContracts.form.validation.contractTypeRequired),
+    start_date: yup.string().required(dictionary.humanResources.employeesContracts.form.validation.startDateRequired),
     end_date: yup
       .string()
       .nullable()
@@ -164,10 +165,10 @@ const EmployeesContractsForm = ({
         is: 'fixed_term',
         then: (schema) =>
           schema
-            .required('End date is required')
+            .required(dictionary.humanResources.employeesContracts.form.validation.endDateRequired)
             .test(
               'is-after-start-date',
-              'End date must be after start date',
+              dictionary.humanResources.employeesContracts.form.validation.endAfterStart,
               function (value) {
                 const { start_date } = this.parent;
 
@@ -185,7 +186,7 @@ const EmployeesContractsForm = ({
       .transform((value) => (value === undefined ? null : value))
       .test(
         'is-after-start-date',
-        'Probation End Date must be after start date',
+        dictionary.humanResources.employeesContracts.form.validation.probationAfterStart,
         function (value) {
           const { start_date } = this.parent;
 
@@ -196,29 +197,29 @@ const EmployeesContractsForm = ({
       ),
     basic_salary: yup
       .number()
-      .required('Basic salary is required')
-      .min(0, 'Basic salary cannot be less than 0'),
+      .required(dictionary.humanResources.employeesContracts.form.validation.basicSalaryRequired)
+      .min(0, dictionary.humanResources.employeesContracts.form.validation.basicSalaryMin),
     pay_basis: yup.string().nullable(),
     standard_hours_per_day: yup
       .number()
       .nullable()
-      .typeError('This value should be a number'),
+      .typeError(dictionary.humanResources.employeesContracts.form.validation.number),
     standard_hours_per_month: yup
       .number()
       .nullable()
-      .typeError('This value should be a number'),
+      .typeError(dictionary.humanResources.employeesContracts.form.validation.number),
     overtime_multiplier: yup
       .number()
       .nullable()
-      .typeError('This value should be a number'),
+      .typeError(dictionary.humanResources.employeesContracts.form.validation.number),
     holiday_work_multiplier: yup
       .number()
       .nullable()
-      .typeError('This value should be a number'),
+      .typeError(dictionary.humanResources.employeesContracts.form.validation.number),
     is_paye_exempt: yup.boolean().nullable(),
     remarks: yup
       .string()
-      .max(1000, 'Remarks should not exceed 1000 characters'),
+      .max(1000, dictionary.humanResources.employeesContracts.form.validation.remarksMax),
   });
 
   const {
@@ -302,7 +303,7 @@ const EmployeesContractsForm = ({
     <>
       <DialogTitle>
         <Grid size={12} textAlign={'center'}>
-          {!contract?.id ? 'Add Contract' : `Edit Contract`}
+          {!contract?.id ? dictionary.humanResources.employeesContracts.form.addTitle : dictionary.humanResources.employeesContracts.form.editTitle}
         </Grid>
       </DialogTitle>
       <DialogContent>
@@ -316,7 +317,7 @@ const EmployeesContractsForm = ({
                   <Controller
                     name='designation_id'
                     control={control}
-                    rules={{ required: 'Designation is required' }}
+                    rules={{ required: dictionary.humanResources.employeesContracts.form.validation.designationRequired }}
                     render={({ field, fieldState }) => (
                       <Autocomplete
                         size='small'
@@ -335,7 +336,7 @@ const EmployeesContractsForm = ({
                         renderInput={(params) => (
                           <TextField
                             {...params}
-                            label='Designation'
+                            label={dictionary.humanResources.employeesContracts.form.labels.designation}
                             error={!!fieldState.error}
                             helperText={fieldState.error?.message}
                           />
@@ -371,7 +372,7 @@ const EmployeesContractsForm = ({
                       renderInput={(params) => (
                         <TextField
                           {...params}
-                          label='Contract Type'
+                          label={dictionary.humanResources.employeesContracts.form.labels.contractType}
                           error={!!fieldState.error}
                           helperText={fieldState.error?.message}
                         />
@@ -390,10 +391,10 @@ const EmployeesContractsForm = ({
                     <TextField
                       label={
                         watchSelectedPayBasis === 'daily'
-                          ? 'Daily Rate'
+                          ? dictionary.humanResources.employeesContracts.form.labels.dailyRate
                           : watchSelectedPayBasis === 'hourly'
-                            ? 'Hourly Rate'
-                            : 'Basic Salary'
+                            ? dictionary.humanResources.employeesContracts.form.labels.hourlyRate
+                            : dictionary.humanResources.employeesContracts.form.labels.basicSalary
                       }
                       size='small'
                       fullWidth
@@ -436,7 +437,7 @@ const EmployeesContractsForm = ({
                     setValue('pay_basis', newValue.value);
                   }}
                   renderInput={(inputParams) => (
-                    <TextField {...inputParams} label='Pay Basis' fullWidth />
+                    <TextField {...inputParams} label={dictionary.humanResources.employeesContracts.form.labels.payBasis} fullWidth />
                   )}
                 />
               </Div>
@@ -450,7 +451,7 @@ const EmployeesContractsForm = ({
                     control={control}
                     render={({ field }) => (
                       <TextField
-                        label='Standard Hours/Month'
+                        label={dictionary.humanResources.employeesContracts.form.labels.standardHoursMonth}
                         size='small'
                         fullWidth
                         value={field.value ?? ''}
@@ -471,7 +472,7 @@ const EmployeesContractsForm = ({
                             ?.standard_hours_per_month ||
                           updateError?.response?.data?.validation_errors
                             ?.standard_hours_per_month ||
-                          'Leave blank to use the organization default'
+                          dictionary.humanResources.employeesContracts.form.helper.orgDefault
                         }
                       />
                     )}
@@ -482,7 +483,7 @@ const EmployeesContractsForm = ({
 
             <Grid size={{ xs: 12, md: 4 }}>
               <Div sx={{ mt: 1, mb: 1 }}>
-                <Tooltip title="For a statutory exemption already approved by the tax authority — PAYE is zeroed on every payslip regardless of income, not merely skipped for now.">
+                <Tooltip title={dictionary.tooltips.forAStatutoryExemptionAlreadyApproved}>
                   <FormControlLabel
                     control={
                       <Controller
@@ -498,7 +499,7 @@ const EmployeesContractsForm = ({
                         )}
                       />
                     }
-                    label='PAYE Exempt'
+                    label={dictionary.humanResources.employeesContracts.form.labels.payeExempt}
                   />
                 </Tooltip>
               </Div>
@@ -513,7 +514,7 @@ const EmployeesContractsForm = ({
                       control={control}
                       render={({ field }) => (
                         <TextField
-                          label='Standard Hours/Day'
+                          label={dictionary.humanResources.employeesContracts.form.labels.standardHoursDay}
                           size='small'
                           fullWidth
                           value={formatCommaSeparatedValue(field.value)}
@@ -548,7 +549,7 @@ const EmployeesContractsForm = ({
                       control={control}
                       render={({ field }) => (
                         <TextField
-                          label='Overtime Multiplier'
+                          label={dictionary.humanResources.employeesContracts.form.labels.overtimeMultiplier}
                           size='small'
                           fullWidth
                           // value={formatCommaSeparatedValue(field.value)}
@@ -587,7 +588,7 @@ const EmployeesContractsForm = ({
                       control={control}
                       render={({ field }) => (
                         <TextField
-                          label='Holiday Work Multiplier'
+                          label={dictionary.humanResources.employeesContracts.form.labels.holidayWorkMultiplier}
                           size='small'
                           fullWidth
                           // value={formatCommaSeparatedValue(field.value)}
@@ -629,7 +630,7 @@ const EmployeesContractsForm = ({
                   rules={{ required: true }}
                   render={({ field, fieldState }) => (
                     <DatePicker
-                      label='Start Date'
+                      label={dictionary.humanResources.employeesContracts.form.labels.startDate}
                       value={field.value ? dayjs(field.value) : null}
                       onChange={(value: Dayjs | null) => {
                         field.onChange(value ? value.format('YYYY-MM-DD') : '');
@@ -655,7 +656,7 @@ const EmployeesContractsForm = ({
                   rules={{ required: true }}
                   render={({ field, fieldState }) => (
                     <DatePicker
-                      label='End Date'
+                      label={dictionary.humanResources.employeesContracts.form.labels.endDate}
                       value={field.value ? dayjs(field.value) : null}
                       onChange={(value: Dayjs | null) => {
                         field.onChange(value ? value.format('YYYY-MM-DD') : '');
@@ -680,7 +681,7 @@ const EmployeesContractsForm = ({
                   control={control}
                   render={({ field, fieldState }) => (
                     <DatePicker
-                      label='Probation End Date'
+                      label={dictionary.humanResources.employeesContracts.form.labels.probationEndDate}
                       value={field.value ? dayjs(field.value) : null}
                       onChange={(value: Dayjs | null) => {
                         field.onChange(value ? value.format('YYYY-MM-DD') : '');
@@ -701,7 +702,7 @@ const EmployeesContractsForm = ({
             <Grid size={{ xs: 12, md: 8 }}>
               <Div sx={{ mt: 1, mb: 1 }}>
                 <TextField
-                  label='Remarks'
+                  label={dictionary.humanResources.employeesContracts.form.labels.remarks}
                   size='small'
                   multiline
                   minRows={2}
@@ -723,7 +724,7 @@ const EmployeesContractsForm = ({
           </Grid>
           <DialogActions>
             <Button size='small' onClick={() => setOpenDialog(false)}>
-              Cancel
+              {dictionary.humanResources.profileSectionsCommon.cancel}
             </Button>
             <LoadingButton
               type='submit'
@@ -732,7 +733,7 @@ const EmployeesContractsForm = ({
               sx={{ display: 'flex' }}
               loading={isPending || updateIsLoading}
             >
-              Submit
+              {dictionary.humanResources.profileSectionsCommon.submit}
             </LoadingButton>
           </DialogActions>
         </form>

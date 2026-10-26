@@ -3,6 +3,7 @@ import { Divider, Grid, IconButton, ListItemText, Tooltip, Typography } from '@m
 import React, { useState } from 'react'
 import LedgerItemsTab from './LedgerItemsTab';
 import { useLedgerSelect } from '@/components/accounts/ledgers/forms/LedgerSelectProvider';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function LedgerItemsRow({
   ledgerItem,
@@ -16,6 +17,7 @@ function LedgerItemsRow({
   allTasks,
   selectedCostCenter
 }) {
+  const dictionary = useDictionary();
   const [showForm, setShowForm] = useState(false);
   const { ungroupedLedgerOptions } = useLedgerSelect();
 
@@ -68,11 +70,11 @@ function LedgerItemsRow({
               <ListItemText
                 primary={
                   <>
-                    <Tooltip title="Expense name">
+                    <Tooltip title={dictionary.tooltips.expenseName2}>
                       <Typography component="span">{ledger?.name}</Typography>
                     </Tooltip>
                     <br />
-                    <Tooltip title="Bound To Task">
+                    <Tooltip title={dictionary.tooltips.boundToTask}>
                       <Typography component="span">
                         {formatTaskLabel(boundTask)}
                       </Typography>
@@ -80,19 +82,19 @@ function LedgerItemsRow({
                   </>
                 }
                 secondary={
-                  <Tooltip title="Description">
+                  <Tooltip title={dictionary.tooltips.description}>
                     <Typography component="span">{ledgerItem.description}</Typography>
                   </Tooltip>
                 }
               />
             </Grid>
             <Grid size={{xs: 4, md: 2}} textAlign={{md: 'right'}}>
-              <Tooltip title="Quantity">
+              <Tooltip title={dictionary.tooltips.quantity}>
                 <Typography>{Number(ledgerItem.quantity || 0).toLocaleString()} {ledgerItem.measurement_unit?.symbol || ''}</Typography>
               </Tooltip>
             </Grid>
             <Grid size={{xs: 6, md: 2}} textAlign={{md: 'right'}}>
-              <Tooltip title="Rate">
+              <Tooltip title={dictionary.tooltips.rate}>
                 <span>
                   <Typography>{Number(ledgerItem.rate || 0).toLocaleString('en-US', 
                     {
@@ -109,7 +111,7 @@ function LedgerItemsRow({
               </Tooltip>
             </Grid>
             <Grid size={{xs: 6, md: 2}} textAlign={{md: 'right'}}>
-              <Tooltip title="Amount">
+              <Tooltip title={dictionary.tooltips.amount}>
                 <Typography>{(Number(ledgerItem.quantity || 0) * Number(ledgerItem.rate || 0)).toLocaleString('en-US', 
                   {
                     style: 'currency',
@@ -119,12 +121,12 @@ function LedgerItemsRow({
               </Tooltip>
             </Grid>
             <Grid size={{xs: 12, md: 1}} textAlign={'end'}>
-              <Tooltip title='Edit Expense Item'>
+              <Tooltip title={dictionary.tooltips.editExpenseItem}>
                 <IconButton size='small' onClick={() => setShowForm(true)}>
                   <EditOutlined fontSize='small' />
                 </IconButton>
               </Tooltip>
-              <Tooltip title='Remove Expense Item'>
+              <Tooltip title={dictionary.tooltips.removeExpenseItem}>
                 <IconButton size='small' 
                   onClick={() => {
                     handleDelete();

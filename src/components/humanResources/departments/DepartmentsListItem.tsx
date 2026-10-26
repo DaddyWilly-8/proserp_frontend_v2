@@ -3,8 +3,10 @@
 import { Divider, Grid, Tooltip, Typography } from '@mui/material';
 import DepartmentItemAction from './DepartmentItemAction';
 import { Department } from './DepartmentsType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const DepartmentsListItem = ({ department }: { department: Department }) => {
+  const dictionary = useDictionary();
   return (
     <>
       <Divider />
@@ -24,7 +26,7 @@ const DepartmentsListItem = ({ department }: { department: Department }) => {
         container
       >
         <Grid size={{ xs: 12, md: 5 }}>
-          <Tooltip title='Department Name'>
+          <Tooltip title={dictionary.tooltips.departmentName}>
             <Typography
               variant='h5'
               fontSize={14}
@@ -37,12 +39,12 @@ const DepartmentsListItem = ({ department }: { department: Department }) => {
           </Tooltip>
         </Grid>
         <Grid size={{ xs: 12, md: 3 }}>
-          <Tooltip title='Department Code'>
+          <Tooltip title={dictionary.tooltips.departmentCode}>
             <Typography>{department.code}</Typography>
           </Tooltip>
         </Grid>
         <Grid size={{ xs: 12, md: 3 }}>
-          <Tooltip title='Department Description'>
+          <Tooltip title={dictionary.tooltips.departmentDescription}>
             <Typography>{department.description}</Typography>
           </Tooltip>
         </Grid>

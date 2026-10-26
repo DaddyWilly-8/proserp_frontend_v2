@@ -1,5 +1,6 @@
 'use client';
 
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { Grid, Typography } from '@mui/material';
@@ -22,6 +23,8 @@ const EmployeeOrgChartTree = dynamic(() => import('./EmployeeOrgChartTree'), {
 });
 
 export default function EmployeeOrgChart() {
+  const dictionary = useDictionary();
+  const t = dictionary.humanResources.orgChart;
   const { checkOrganizationPermission, organizationHasSubscribed, authOrganization } =
     useJumboAuth() as any;
   const organizationName = authOrganization?.organization?.name;
@@ -45,8 +48,8 @@ export default function EmployeeOrgChart() {
     <EmployeeOrgChartProvider>
       <Typography variant='h4' sx={{ mb: 2 }}>
         {organizationName
-          ? `${organizationName} Organization Chart`
-          : 'Organization Chart'}
+          ? t.titleWithOrganization.replace('{name}', organizationName)
+          : t.title}
       </Typography>
       <Grid container spacing={2}>
         {/* minWidth:0 overrides Grid's flex-item default of min-width:auto —

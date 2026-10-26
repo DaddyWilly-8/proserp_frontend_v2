@@ -49,6 +49,7 @@ import ProductionCostReportPdf from './ProductionCostReportPdf';
 import productionReportsServices, {
   CostReportResponse,
 } from './productionReportsServices';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const formatCurrency = (value: number | string): string =>
   Number(value || 0).toLocaleString(undefined, {
@@ -148,21 +149,23 @@ interface CostBreakdownChartProps {
 }
 
 function CostBreakdownChart({ summary }: CostBreakdownChartProps): JSX.Element {
+  const dictionary = useDictionary();
+  const dict = dictionary.reports.productionReports;
   const theme = useTheme();
   const material = Number(summary?.total_material_cost || 0);
   const expense = Number(summary?.total_ledger_expense_cost || 0);
   const offset = Number(summary?.total_by_product_offset || 0);
 
   const data = [
-    { name: 'Materials', value: material },
-    { name: 'Ledger Expenses', value: expense },
-    { name: 'By-Product Offset', value: offset },
+    { name: dict.materials, value: material },
+    { name: dict.ledgerExpenses, value: expense },
+    { name: dict.byProductOffset, value: offset },
   ].filter((d) => d.value > 0);
 
   if (!data.length) {
     return (
       <Typography variant='body2' color='text.secondary' align='center'>
-        No cost data available.
+        {dict.noCostData}
       </Typography>
     );
   }
@@ -216,6 +219,8 @@ interface MaterialItemAccordionProps {
 function MaterialItemAccordion({
   item,
 }: MaterialItemAccordionProps): JSX.Element {
+  const dictionary = useDictionary();
+  const dict = dictionary.reports.productionReports;
   const [expanded, setExpanded] = useState<boolean>(false);
   return (
     <Accordion
@@ -259,13 +264,13 @@ function MaterialItemAccordion({
           <Grid size={{ xs: 12, md: 4 }}>
             <HelpTooltipText
               label={<Typography>{item.product?.name}</Typography>}
-              description='Material used in production. Expand to see which batches consumed this material.'
+              description={dict.help.materialProduct}
             />
           </Grid>
           <Grid size={{ xs: 6, md: 2 }}>
             <HelpTooltipText
               label={<Typography>{item.measurement_unit?.symbol}</Typography>}
-              description='Measurement unit used to quantify the consumed material.'
+              description={dict.help.materialUnit}
             />
           </Grid>
           <Grid size={{ xs: 6, md: 2 }}>
@@ -275,7 +280,7 @@ function MaterialItemAccordion({
                   {formatQuantity(item.total_quantity)}
                 </Typography>
               }
-              description='Total quantity of this material consumed across the selected period.'
+              description={dict.help.materialTotalQty}
             />
           </Grid>
           <Grid size={{ xs: 6, md: 2 }}>
@@ -285,7 +290,7 @@ function MaterialItemAccordion({
                   {formatUnitCost(item.average_unit_cost)}
                 </Typography>
               }
-              description='Average unit cost applied to this material across all included batches.'
+              description={dict.help.materialAvgUnitCost}
             />
           </Grid>
           <Grid size={{ xs: 6, md: 2 }}>
@@ -295,7 +300,7 @@ function MaterialItemAccordion({
                   {formatCurrency(item.total_cost)}
                 </Typography>
               }
-              description='Total production cost contributed by this material in the selected period.'
+              description={dict.help.materialTotalCost}
             />
           </Grid>
         </Grid>
@@ -307,32 +312,32 @@ function MaterialItemAccordion({
               <TableRow>
                 <TableCell>
                   <HelpTooltipText
-                    label='Batch'
-                    description='Production batch that consumed the material.'
+                    label={dict.batch}
+                    description={dict.help.materialBatch}
                   />
                 </TableCell>
                 <TableCell>
                   <HelpTooltipText
-                    label='Date'
-                    description='Batch closing date used for the report.'
+                    label={dict.date}
+                    description={dict.help.materialBatchDate}
                   />
                 </TableCell>
                 <TableCell align='right'>
                   <HelpTooltipText
-                    label='Qty'
-                    description='Material quantity consumed by the batch.'
+                    label={dict.qty}
+                    description={dict.help.materialBatchQty}
                   />
                 </TableCell>
                 <TableCell align='right'>
                   <HelpTooltipText
-                    label='Unit Cost'
-                    description='Cost per unit of material applied to the batch.'
+                    label={dict.unitCost}
+                    description={dict.help.materialBatchUnitCost}
                   />
                 </TableCell>
                 <TableCell align='right'>
                   <HelpTooltipText
-                    label='Total'
-                    description='Total material cost charged to the batch.'
+                    label={dict.total}
+                    description={dict.help.materialBatchTotal}
                   />
                 </TableCell>
               </TableRow>
@@ -366,6 +371,8 @@ interface LedgerItemAccordionProps {
 }
 
 function LedgerItemAccordion({ item }: LedgerItemAccordionProps): JSX.Element {
+  const dictionary = useDictionary();
+  const dict = dictionary.reports.productionReports;
   const [expanded, setExpanded] = useState<boolean>(false);
   const showExchangeRate = (item.batches || []).some(
     (batch: any) => Number(batch.exchange_rate || 1) !== 1
@@ -413,13 +420,13 @@ function LedgerItemAccordion({ item }: LedgerItemAccordionProps): JSX.Element {
           <Grid size={{ xs: 12, md: 5 }}>
             <HelpTooltipText
               label={<Typography>{item.ledger?.name}</Typography>}
-              description='Expense ledger allocated to production. Expand to inspect batch-level postings.'
+              description={dict.help.ledgerName}
             />
           </Grid>
           <Grid size={{ xs: 6, md: 3 }}>
             <HelpTooltipText
               label={<Typography>{item.currency?.name}</Typography>}
-              description='Currency used for this ledger expense.'
+              description={dict.help.ledgerCurrency}
             />
           </Grid>
           <Grid size={{ xs: 6, md: 4 }}>
@@ -429,7 +436,7 @@ function LedgerItemAccordion({ item }: LedgerItemAccordionProps): JSX.Element {
                   {formatCurrency(item.total_amount)}
                 </Typography>
               }
-              description='Total ledger expense allocated to production in the selected period.'
+              description={dict.help.ledgerTotal}
             />
           </Grid>
         </Grid>
@@ -441,46 +448,46 @@ function LedgerItemAccordion({ item }: LedgerItemAccordionProps): JSX.Element {
               <TableRow>
                 <TableCell>
                   <HelpTooltipText
-                    label='Batch'
-                    description='Production batch receiving this expense allocation.'
+                    label={dict.batch}
+                    description={dict.help.ledgerBatch}
                   />
                 </TableCell>
                 <TableCell>
                   <HelpTooltipText
-                    label='Date'
-                    description='Batch closing date used for the allocation.'
+                    label={dict.date}
+                    description={dict.help.ledgerDate}
                   />
                 </TableCell>
                 <TableCell align='right'>
                   <HelpTooltipText
-                    label='Qty'
-                    description='Allocation quantity or usage basis tied to the expense.'
+                    label={dict.qty}
+                    description={dict.help.ledgerQty}
                   />
                 </TableCell>
                 <TableCell align='right'>
                   <HelpTooltipText
-                    label='Rate'
-                    description='Expense rate applied before currency conversion.'
+                    label={dict.rate}
+                    description={dict.help.ledgerRate}
                   />
                 </TableCell>
                 {showExchangeRate && (
                   <TableCell align='right'>
                     <HelpTooltipText
-                      label='Exchange Rate'
-                      description='Conversion rate used when the ledger expense currency differs from the base currency.'
+                      label={dict.exchangeRate}
+                      description={dict.help.ledgerExchangeRate}
                     />
                   </TableCell>
                 )}
                 <TableCell align='right'>
                   <HelpTooltipText
-                    label='Total'
-                    description='Total expense amount allocated to the batch.'
+                    label={dict.total}
+                    description={dict.help.ledgerBatchTotal}
                   />
                 </TableCell>
                 <TableCell>
                   <HelpTooltipText
-                    label='Remarks'
-                    description='Additional note captured on the expense allocation.'
+                    label={dict.remarks}
+                    description={dict.help.ledgerRemarks}
                   />
                 </TableCell>
               </TableRow>
@@ -542,6 +549,8 @@ function CostReportDialog({
   authOrganization,
   user,
 }: CostReportDialogProps): JSX.Element {
+  const dictionary = useDictionary();
+  const dict = dictionary.reports.productionReports;
   const [isExporting, setIsExporting] = useState(false);
 
   const exportedData = {
@@ -576,7 +585,7 @@ function CostReportDialog({
   return (
     <Dialog maxWidth='md' fullWidth open={open}>
       <DialogTitle>
-        <Typography variant='body2'>Production Cost Report</Typography>
+        <Typography variant='body2'>{dict.productionCostReport}</Typography>
       </DialogTitle>
       <DialogContent>{document}</DialogContent>
       <DialogActions>
@@ -591,7 +600,7 @@ function CostReportDialog({
           <FontAwesomeIcon icon={faFileExcel} color='green' /> Excel
         </LoadingButton>
         <Button size='small' variant='outlined' onClick={() => setOpen(false)}>
-          Close
+          {dict.close}
         </Button>
       </DialogActions>
     </Dialog>
@@ -605,6 +614,8 @@ const CostReport: FC<CostReportProps> = ({
   headerColor,
   comparisonOutputValue,
 }): JSX.Element => {
+  const dictionary = useDictionary();
+  const dict = dictionary.reports.productionReports;
   const { authOrganization, authUser } = useJumboAuth();
   const user = authUser?.user;
 
@@ -615,7 +626,7 @@ const CostReport: FC<CostReportProps> = ({
   if (isLoading) {
     return (
       <Box sx={{ py: 6 }}>
-        <Typography align='center'>Loading cost report...</Typography>
+        <Typography align='center'>{dict.loadingCostReport}</Typography>
       </Box>
     );
   }
@@ -630,7 +641,7 @@ const CostReport: FC<CostReportProps> = ({
 
   if (!report?.summary?.total_batches) {
     return (
-      <Alert severity='info'>No closed batches found for this period.</Alert>
+      <Alert severity='info'>{dict.noClosedBatches}</Alert>
     );
   }
 
@@ -649,7 +660,7 @@ const CostReport: FC<CostReportProps> = ({
       >
         <Box></Box>
         <Stack direction='row' spacing={1}>
-          <Tooltip title='Preview cost report PDF' arrow>
+          <Tooltip title={dictionary.tooltips.previewCostReportPdf} arrow>
             <IconButton size='small' onClick={() => setOpenCostPdf(true)}>
               <VisibilityOutlined />
             </IconButton>
@@ -660,36 +671,36 @@ const CostReport: FC<CostReportProps> = ({
       <Grid container spacing={2}>
         <Grid size={{ xs: 12, md: 3 }}>
           <SummaryCard
-            label='Total Material Cost'
+            label={dict.totalMaterialCost}
             value={formatCurrency(report.summary?.total_material_cost)}
             accentColor={headerColor}
-            tooltip='Combined cost of all raw and packaging materials consumed by the selected production batches.'
+            tooltip={dict.help.totalMaterialCost}
           />
         </Grid>
         <Grid size={{ xs: 12, md: 3 }}>
           <SummaryCard
-            label='Total Expense Cost'
+            label={dict.totalExpenseCost}
             value={formatCurrency(report.summary?.total_ledger_expense_cost)}
             accentColor={headerColor}
-            tooltip='Total overhead and other ledger expenses allocated to the selected production batches.'
+            tooltip={dict.help.totalExpenseCost}
           />
         </Grid>
         <Grid size={{ xs: 12, md: 3 }}>
           <SummaryCard
-            label='By-Product Offset'
+            label={dict.byProductOffset}
             value={formatCurrency(report.summary?.total_by_product_offset)}
             accentColor={headerColor}
             valueColor='success.main'
-            tooltip='Estimated value recovered from by-products, used to reduce the net production cost.'
+            tooltip={dict.help.byProductOffset}
           />
         </Grid>
         <Grid size={{ xs: 12, md: 3 }}>
           <SummaryCard
-            label='Net Production Cost'
+            label={dict.netProductionCost}
             value={formatCurrency(report.summary?.net_production_cost)}
             accentColor={headerColor}
             valueColor={headerColor}
-            tooltip='Final production cost after adding materials and ledger expenses, then subtracting by-product offset.'
+            tooltip={dict.help.netProductionCost}
           />
         </Grid>
       </Grid>
@@ -702,10 +713,10 @@ const CostReport: FC<CostReportProps> = ({
                 variant='subtitle1'
                 sx={{ color: headerColor, mb: 2 }}
               >
-                Cost Breakdown
+                {dict.costBreakdown}
               </Typography>
             }
-            description='Visual split of the total production cost between materials, ledger expenses, and by-product offset.'
+            description={dict.help.costBreakdown}
           />
           <CostBreakdownChart summary={report.summary} />
         </CardContent>
@@ -754,16 +765,16 @@ const CostReport: FC<CostReportProps> = ({
           >
             <HelpTooltipText
               label={
-                <Typography fontWeight={600}>Material Consumptions</Typography>
+                <Typography fontWeight={600}>{dict.materialConsumptions}</Typography>
               }
-              description='Grouped material usage totals. Expand the section or a row to inspect batch-level material consumption.'
+              description={dict.help.materialConsumptions}
             />
             <Tooltip
-              title='Number of material products contributing cost in this report.'
+              title={dictionary.tooltips.numberOfMaterialProductsContributingCost}
               arrow
             >
               <Chip
-                label={`${report.material_consumptions?.length || 0} products`}
+                label={dict.productsCount.replace('{count}', String(report.material_consumptions?.length || 0))}
                 size='small'
               />
             </Tooltip>
@@ -781,7 +792,7 @@ const CostReport: FC<CostReportProps> = ({
             </Stack>
           ) : (
             <Alert severity='info'>
-              No material consumptions found for this period.
+              {dict.noMaterialConsumptions}
             </Alert>
           )}
         </AccordionDetails>
@@ -826,15 +837,15 @@ const CostReport: FC<CostReportProps> = ({
             justifyContent='space-between'
           >
             <HelpTooltipText
-              label={<Typography fontWeight={600}>Ledger Expenses</Typography>}
-              description='Grouped non-material costs allocated from ledgers. Expand the section or a row to inspect batch-level expense allocations.'
+              label={<Typography fontWeight={600}>{dict.ledgerExpenses}</Typography>}
+              description={dict.help.ledgerExpenses}
             />
             <Tooltip
-              title='Number of ledger accounts contributing cost in this report.'
+              title={dictionary.tooltips.numberOfLedgerAccountsContributingCost}
               arrow
             >
               <Chip
-                label={`${report.ledger_expenses?.length || 0} ledgers`}
+                label={dict.ledgersCount.replace('{count}', String(report.ledger_expenses?.length || 0))}
                 size='small'
               />
             </Tooltip>
@@ -852,7 +863,7 @@ const CostReport: FC<CostReportProps> = ({
             </Stack>
           ) : (
             <Alert severity='info'>
-              No ledger expenses found for this period.
+              {dict.noLedgerExpenses}
             </Alert>
           )}
         </AccordionDetails>
@@ -866,10 +877,10 @@ const CostReport: FC<CostReportProps> = ({
                 variant='subtitle1'
                 sx={{ color: headerColor, mb: 2 }}
               >
-                By-Products Offset
+                {dict.byProductsOffset}
               </Typography>
             }
-            description='Value recovered from secondary outputs that offsets the overall production cost.'
+            description={dict.help.byProductsOffset}
           />
           {(report.by_products || []).length ? (
             <TableContainer component={Paper} variant='outlined'>
@@ -878,26 +889,26 @@ const CostReport: FC<CostReportProps> = ({
                   <TableRow>
                     <TableCell>
                       <HelpTooltipText
-                        label='Product'
-                        description='By-product generated during production.'
+                        label={dict.product}
+                        description={dict.help.byProductProduct}
                       />
                     </TableCell>
                     <TableCell>
                       <HelpTooltipText
-                        label='Unit'
-                        description='Measurement unit used for the by-product quantity.'
+                        label={dict.unit}
+                        description={dict.help.byProductUnit}
                       />
                     </TableCell>
                     <TableCell align='right'>
                       <HelpTooltipText
-                        label='Total Qty'
-                        description='Total by-product quantity generated in the selected period.'
+                        label={dict.totalQty}
+                        description={dict.help.byProductTotalQty}
                       />
                     </TableCell>
                     <TableCell align='right'>
                       <HelpTooltipText
-                        label='Cost Reduction'
-                        description='Market value credited back against production cost because of the by-product output.'
+                        label={dict.costReduction}
+                        description={dict.help.byProductCostReduction}
                       />
                     </TableCell>
                   </TableRow>
@@ -920,7 +931,7 @@ const CostReport: FC<CostReportProps> = ({
             </TableContainer>
           ) : (
             <Alert severity='info'>
-              No by-products offset found for this period.
+              {dict.noByProductsOffset}
             </Alert>
           )}
         </CardContent>
@@ -939,6 +950,7 @@ const CostReport: FC<CostReportProps> = ({
                 reportData={report}
                 organization={authOrganization?.organization || undefined}
                 user={user}
+                dictionary={dictionary}
               />
             }
             fileName='production-cost-report'

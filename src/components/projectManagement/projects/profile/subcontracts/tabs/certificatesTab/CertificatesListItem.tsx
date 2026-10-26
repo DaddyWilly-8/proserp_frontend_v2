@@ -14,6 +14,7 @@ import CertificateItemAction from './CertificateItemAction';
 import CertificateApprovalsActionTail from './CertificateApprovalsActionTail';
 import { Certificate } from './CertificateType';
 import InvoiceLinkChip from '../../../../../InvoiceLinkChip';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface CertificatesListItemProps {
   certificate: Certificate;
@@ -28,6 +29,7 @@ const STATUS_CHIP_COLOR: Record<string, 'default' | 'warning' | 'info' | 'succes
 };
 
 const CertificatesListItem: React.FC<CertificatesListItemProps> = ({ certificate }) => {
+  const dictionary = useDictionary();
   const formattedAmount = React.useMemo(() => {
     if (!certificate.total_amount) return '—';
 
@@ -60,7 +62,7 @@ const CertificatesListItem: React.FC<CertificatesListItemProps> = ({ certificate
       <Grid size={{ xs: 12, md: 4, lg: 3.5 }}>
         <ListItemText
           primary={
-            <Tooltip title="Certificate Date">
+            <Tooltip title={dictionary.tooltips.certificateDate}>
               <Typography variant="body1" fontWeight={600} noWrap>
                 {certificate.certificate_date
                   ? readableDate(certificate.certificate_date, false)
@@ -69,14 +71,14 @@ const CertificatesListItem: React.FC<CertificatesListItemProps> = ({ certificate
             </Tooltip>
           }
           secondary={
-            <Tooltip title="Certificate Number">
+            <Tooltip title={dictionary.tooltips.certificateNumber}>
               <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                {certificate.certificateNo || 'Draft / Pending'}
+                {certificate.certificateNo || dictionary.projectManagement.certificates.draftPending}
                 {certificate.status === 'invoiced' ? (
                   <InvoiceLinkChip
                     kind="supplier"
                     documentNo={certificate.supplier_invoice?.invoiceNo}
-                    tooltip="Invoiced"
+                    tooltip={dictionary.projectManagement.certificates.invoiced}
                   />
                 ) : certificate.approval_chain && certificate.status_label ? (
                   <Chip
@@ -87,7 +89,7 @@ const CertificatesListItem: React.FC<CertificatesListItemProps> = ({ certificate
                   />
                 ) : (
                   certificate.status === 'draft' && (
-                    <Chip label="Draft" size="small" color="warning" variant="outlined" />
+                    <Chip label={dictionary.projectManagement.certificates.draft} size="small" color="warning" variant="outlined" />
                   )
                 )}
               </span>
@@ -119,7 +121,7 @@ const CertificatesListItem: React.FC<CertificatesListItemProps> = ({ certificate
         textAlign={{ xs: 'left', md: 'right' }}
         sx={{ pr: { md: 2 } }}
       >
-        <Tooltip title="Certified Total Amount">
+        <Tooltip title={dictionary.tooltips.certifiedTotalAmount}>
           <Typography
             variant="h6"
           >

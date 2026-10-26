@@ -15,8 +15,10 @@ import PDFContent from '@/components/pdf/PDFContent';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
 import { JumboDdMenu } from '@jumbo/components';
 import dynamic from 'next/dynamic';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const ActionDialogContent = ({ stockAdjustment, toggleOpen, action = 'open' }) => {
+  const dictionary = useDictionary();
   const { data, isFetching } = useQuery({
     queryKey: ['stockAdjustment', { id: stockAdjustment.id }],
     queryFn: () => stockAdjustmentServices.show(stockAdjustment.id),
@@ -53,7 +55,7 @@ const ActionDialogContent = ({ stockAdjustment, toggleOpen, action = 'open' }) =
               </Tabs>
             </Grid>
             <Grid size={1} textAlign="right">
-              <Tooltip title="Cancel">
+              <Tooltip title={dictionary.tooltips.cancel}>
                 <IconButton size="small" onClick={toggleOpen}>
                   <HighlightOffOutlined color="primary" />
                 </IconButton>
@@ -87,6 +89,7 @@ const ActionDialogContent = ({ stockAdjustment, toggleOpen, action = 'open' }) =
 };
 
 function StockAdjustmentListItemAction({stockAdjustment}) {
+    const dictionary = useDictionary();
     const {showDialog,hideDialog} = useJumboDialog();
     const [openEditDialog, setOpenEditDialog] = useState(false);
     const {checkOrganizationPermission} = useJumboAuth();
@@ -159,7 +162,7 @@ function StockAdjustmentListItemAction({stockAdjustment}) {
       </Dialog>
       <JumboDdMenu
         icon={
-          <Tooltip title='Actions'>
+          <Tooltip title={dictionary.tooltips.actions}>
             <MoreHorizOutlined/>
           </Tooltip>
         }

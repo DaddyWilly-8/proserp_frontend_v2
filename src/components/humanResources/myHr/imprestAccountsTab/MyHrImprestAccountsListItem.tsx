@@ -3,6 +3,7 @@
 import { Chip, Divider, Grid, Tooltip, Typography } from '@mui/material';
 import MyHrImprestAccountItemAction from './MyHrImprestAccountItemAction';
 import { MyHrImprestLedgerLink } from './imprestAccountsType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const formatLabel = (value?: string | null) => {
   if (!value) return '—';
@@ -14,6 +15,7 @@ const MyHrImprestAccountsListItem = ({
 }: {
   link: MyHrImprestLedgerLink;
 }) => {
+  const dictionary = useDictionary();
   return (
     <>
       <Divider />
@@ -32,7 +34,7 @@ const MyHrImprestAccountsListItem = ({
         container
       >
         <Grid size={{ xs: 12, md: 7 }}>
-          <Tooltip title='Ledger'>
+          <Tooltip title={dictionary.tooltips.ledger}>
             <Typography
               variant='h5'
               fontSize={14}

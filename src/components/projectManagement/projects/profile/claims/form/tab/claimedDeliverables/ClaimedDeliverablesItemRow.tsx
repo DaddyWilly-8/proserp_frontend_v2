@@ -9,6 +9,7 @@ import {
 import React, { useState } from 'react';
 import ClaimedDeliverablesItemForm from './ClaimedDeliverablesItemForm';
 import { useLedgerSelect } from '@/components/accounts/ledgers/forms/LedgerSelectProvider';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface ClaimedDeliverablesItemRowProps {
   setClearFormKey: React.Dispatch<React.SetStateAction<number>>;
@@ -41,6 +42,8 @@ const ClaimedDeliverablesItemRow: React.FC<ClaimedDeliverablesItemRowProps> = ({
   setDeliverablesItems,
   vat_percentage = 0
 }) => {
+  const dictionary = useDictionary();
+  const t = dictionary.forms.projects.claimedDeliverables;
   const [showForm, setShowForm] = useState<boolean>(false);
   const { ungroupedLedgerOptions } = useLedgerSelect();
   const vat_factor = vat_percentage * 0.01;
@@ -101,7 +104,7 @@ const ClaimedDeliverablesItemRow: React.FC<ClaimedDeliverablesItemRowProps> = ({
           </Grid>
 
           <Grid size={{ xs: 11, md: vat_factor ? 5 : 6.5 }}>
-            <Tooltip title="Project Deliverable" arrow placement="top-start">
+            <Tooltip title={dictionary.tooltips.projectDeliverable} arrow placement="top-start">
               <Typography
                 variant="body2"
                 sx={{ whiteSpace: 'normal', wordBreak: 'break-word' }}
@@ -110,7 +113,7 @@ const ClaimedDeliverablesItemRow: React.FC<ClaimedDeliverablesItemRowProps> = ({
               </Typography>
             </Tooltip>
 
-            <Tooltip title="Revenue Ledger">
+            <Tooltip title={dictionary.tooltips.revenueLedger}>
               <Typography variant="caption" color="text.secondary">
                 {revenueLedger?.name || '-'}
               </Typography>
@@ -128,7 +131,10 @@ const ClaimedDeliverablesItemRow: React.FC<ClaimedDeliverablesItemRowProps> = ({
           </Grid>
 
           <Grid size={{ xs: 6, md: 2 }} textAlign={'end'} paddingLeft={{ xs: 3, md: 0 }}>
-            <Tooltip title={`Quantity: ${formatQuantity(quantity)} ${unitSymbol}\nRate: ${formatCurrency(rate)}`} arrow>
+            <Tooltip title={t.tooltips.quantityRate
+              .replace('{quantity}', formatQuantity(quantity))
+              .replace('{unit}', unitSymbol)
+              .replace('{rate}', formatCurrency(rate))} arrow>
               <Typography variant="body2">
                 <span >
                   {formatQuantity(quantity)} {unitSymbol}
@@ -148,7 +154,7 @@ const ClaimedDeliverablesItemRow: React.FC<ClaimedDeliverablesItemRowProps> = ({
           {
             !!vat_factor &&
             <Grid textAlign={'end'} size={{xs: 6, md: vat_factor ? 1.5 : 2}}>
-              <Tooltip title="VAT Amount">
+              <Tooltip title={dictionary.tooltips.vatAmount}>
                 <Typography>
                   {formatCurrency(rate * vat_factor)}
                 </Typography>
@@ -157,7 +163,10 @@ const ClaimedDeliverablesItemRow: React.FC<ClaimedDeliverablesItemRowProps> = ({
           }
           
           <Grid textAlign={'end'} size={{xs: 6, md: 2, lg: 2}}>
-            <Tooltip title={`Line Total (${formatQuantity(quantity)} × ${formatCurrency(rate)}${vat_factor ? ` × ${vat_percentage}% VAT` : ''})`}>
+            <Tooltip title={t.tooltips.lineTotal
+              .replace('{quantity}', formatQuantity(quantity))
+              .replace('{rate}', formatCurrency(rate))
+              .replace('{vat}', vat_factor ? t.tooltips.vatSuffix.replace('{percentage}', String(vat_percentage)) : '')}>
               <Typography>
                 {formatCurrency(quantity * rate * (1 + vat_factor))}
               </Typography>
@@ -165,13 +174,13 @@ const ClaimedDeliverablesItemRow: React.FC<ClaimedDeliverablesItemRowProps> = ({
           </Grid>
 
           <Grid textAlign="end" size={{ xs: vat_factor ? 12 : 6, md: 1 }}>
-            <Tooltip title="Edit Task" arrow>
+            <Tooltip title={dictionary.tooltips.editTask} arrow>
               <IconButton size="small" onClick={() => setShowForm(true)}>
                 <EditOutlined fontSize="small" />
               </IconButton>
             </Tooltip>
 
-            <Tooltip title="Remove Task" arrow>
+            <Tooltip title={dictionary.tooltips.removeTask} arrow>
               <IconButton size="small" onClick={handleRemoveItem}>
                 <DisabledByDefault fontSize="small" color="error" />
               </IconButton>

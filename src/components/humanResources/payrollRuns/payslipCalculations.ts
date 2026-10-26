@@ -112,7 +112,10 @@ const asArray = <T>(value: unknown): T[] => (Array.isArray(value) ? (value as T[
 
 const isTaxCategory = (category?: string) => (category || '').toLowerCase() === 'tax';
 
-export const getPayslipCalculations = (run?: PayrollRunLike | null): PayslipComputed => {
+export const getPayslipCalculations = (
+  run?: PayrollRunLike | null,
+  labels?: { basicSalary?: string; employerContribution?: string }
+): PayslipComputed => {
   const basicSalary = toNumber(run?.basic_salary);
   const fullBasicSalary =
     run?.full_basic_salary !== null && run?.full_basic_salary !== undefined
@@ -128,7 +131,7 @@ export const getPayslipCalculations = (run?: PayrollRunLike | null): PayslipComp
 
   const earningsRows: PayslipEarningRow[] = [
     {
-      label: 'Basic Salary',
+      label: labels?.basicSalary ?? 'Basic Salary',
       amount: basicSalary,
       taxable: true,
     },
@@ -219,7 +222,10 @@ export const getPayslipCalculations = (run?: PayrollRunLike | null): PayslipComp
         contribution.label ||
         contribution.contribution_type?.name ||
         contribution.name ||
-        `Employer Contribution ${index + 1}`,
+        (labels?.employerContribution ?? 'Employer Contribution {n}').replace(
+          '{n}',
+          String(index + 1)
+        ),
       category: (contribution.category || contribution.contribution_type?.category || 'other').toLowerCase(),
       amount,
     });

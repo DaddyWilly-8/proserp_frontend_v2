@@ -9,6 +9,7 @@ import exportingModule from 'highcharts/modules/exporting';
 import { useEffect, useState } from 'react';
 import financialReportsServices from '../../accounts/reports/financial-reports-services';
 import { useDashboardSettings } from '../Dashboard';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface ExpenseData {
   ledger_name: string;
@@ -20,6 +21,7 @@ interface ChartDataPoint {
 }
 
 function ExpenseDistributionCard() {
+  const dictionary = useDictionary();
   const {
     chartFilters: { from, to, cost_center_ids },
   } = useDashboardSettings();
@@ -128,7 +130,7 @@ function ExpenseDistributionCard() {
     series: [
       {
         type: 'pie',
-        name: 'Expenses',
+        name: dictionary.dashboardCards.expenses,
         colorByPoint: true,
         data: expenseDistribution || [],
       } as Highcharts.SeriesPieOptions,
@@ -159,7 +161,7 @@ function ExpenseDistributionCard() {
             fontFamily: 'NoirPro, Arial',
           }}
         >
-          Operating Expenses
+          {dictionary.dashboardCards.operatingExpenses}
         </Typography>
       </Box>
 

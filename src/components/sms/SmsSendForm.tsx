@@ -24,6 +24,7 @@ import { getErrorMessage } from '@/utilities/helpers/errorHandler';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
 import UnauthorizedAccess from '@/shared/Information/UnauthorizedAccess';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const MAX_BODY_LENGTH = 918;
 
@@ -60,6 +61,7 @@ const countSegments = (body: string) => {
 };
 
 const SmsSendForm = () => {
+  const dictionary = useDictionary();
   const queryClient = useQueryClient();
   const { enqueueSnackbar } = useSnackbar();
   const { checkOrganizationPermission } = useJumboAuth();
@@ -68,12 +70,12 @@ const SmsSendForm = () => {
   const validationSchema = yup.object({
     recipients: yup
       .string()
-      .required('At least one recipient is required')
-      .test('has-recipient', 'At least one recipient is required', (value) => parseRecipients(value || '').length > 0),
+      .required(dictionary.forms.sms.send.errors.recipientsRequired)
+      .test('has-recipient', dictionary.forms.sms.send.errors.recipientsRequired, (value) => parseRecipients(value || '').length > 0),
     body: yup
       .string()
-      .required('Message is required')
-      .max(MAX_BODY_LENGTH, `Message must be at most ${MAX_BODY_LENGTH} characters`),
+      .required(dictionary.forms.sms.send.errors.messageRequired)
+      .max(MAX_BODY_LENGTH, dictionary.forms.sms.send.errors.messageMax.replace('{max}', String(MAX_BODY_LENGTH))),
   });
 
   const {
@@ -126,14 +128,14 @@ const SmsSendForm = () => {
               render={({ field }) => (
                 <TextField
                   {...field}
-                  label='Recipients'
-                  placeholder='One phone number per line or comma-separated, e.g. 255700000000'
+                  label={dictionary.forms.sms.send.labels.recipients}
+                  placeholder={dictionary.forms.sms.send.placeholders.recipients}
                   fullWidth
                   multiline
                   minRows={3}
                   size='small'
                   error={!!errors.recipients}
-                  helperText={errors.recipients?.message || `${recipientCount} recipient(s)`}
+                  helperText={errors.recipients?.message || dictionary.forms.sms.send.helper.recipientCount.replace('{count}', String(recipientCount))}
                 />
               )}
             />
@@ -147,14 +149,14 @@ const SmsSendForm = () => {
               render={({ field }) => (
                 <TextField
                   {...field}
-                  label='Message'
+                  label={dictionary.forms.sms.send.labels.message}
                   fullWidth
                   multiline
                   minRows={4}
                   size='small'
                   error={!!errors.body}
                   helperText={
-                    errors.body?.message || `${body.length}/${MAX_BODY_LENGTH} characters, ~${segments} SMS segment(s) each`
+                    errors.body?.message || dictionary.forms.sms.send.helper.characters.replace('{length}', String(body.length)).replace('{max}', String(MAX_BODY_LENGTH)).replace('{segments}', String(segments))
                   }
                 />
               )}
@@ -163,7 +165,7 @@ const SmsSendForm = () => {
         </Grid>
         <Grid size={12}>
           <LoadingButton type='submit' variant='contained' size='small' loading={isPending}>
-            Send SMS
+            {dictionary.forms.sms.send.buttons.send}
           </LoadingButton>
         </Grid>
         {lastResult && (

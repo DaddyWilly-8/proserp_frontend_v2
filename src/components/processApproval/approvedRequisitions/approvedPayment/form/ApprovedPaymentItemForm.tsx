@@ -4,6 +4,7 @@ import { Div } from '@jumbo/shared';
 import CommaSeparatedField from '@/shared/Inputs/CommaSeparatedField';
 import { sanitizedNumber } from '@/app/helpers/input-sanitization-helpers';
 import { DisabledByDefault } from '@mui/icons-material';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface PaymentItem {
   id?: number;
@@ -53,6 +54,7 @@ const ApprovedPaymentItemForm: React.FC<ApprovedPaymentItemFormProps> = ({
   payFromLedgerName,
   serverError,
 }) => {
+  const dictionary = useDictionary();
   const filteredItems = approvedDetails
     ? items.filter(item => {
         if (isMaterialPayment) {
@@ -94,7 +96,7 @@ const ApprovedPaymentItemForm: React.FC<ApprovedPaymentItemFormProps> = ({
         const shouldValidateUnpaid = !isMaterialPayment;
         const isAmountError = shouldValidateUnpaid && item.amount > item.unpaid_amount;
         const amountHelperText = isAmountError
-          ? `Debit Amount cannot exceed Unpaid Amount`
+          ? dictionary.forms.approvedRequisitions.approvedPayment.debitExceedsUnpaid
           : '';
 
         // Check if credit ledger exists
@@ -125,7 +127,7 @@ const ApprovedPaymentItemForm: React.FC<ApprovedPaymentItemFormProps> = ({
             <Grid size={{ xs: 11.5, md: 4, lg: 4 }}>
               <Div sx={{ mt: 1, mb: 0.5 }}>
                 <Box>
-                  <Tooltip title="Debit Ledger">
+                  <Tooltip title={dictionary.tooltips.debitLedger}>
                     <Typography variant="body2" fontWeight="medium">
                       {resolveDebitLabel(item)}
                     </Typography>
@@ -133,7 +135,7 @@ const ApprovedPaymentItemForm: React.FC<ApprovedPaymentItemFormProps> = ({
                   
                   {/* Show Credit Ledger as secondary if it exists */}
                   {hasCreditLedger && (
-                    <Tooltip title="Credit Ledger">
+                    <Tooltip title={dictionary.tooltips.creditLedger}>
                       <Typography 
                         variant="caption" 
                         color="text.secondary"
@@ -151,7 +153,7 @@ const ApprovedPaymentItemForm: React.FC<ApprovedPaymentItemFormProps> = ({
             {showUnpaidAmount && (
               <Grid size={{ xs: 6, md: 2.5, lg: 2.5 }}>
                 <Div sx={{ mt: 2, mb: 1.7 }}>
-                  <Tooltip title="Unpaid Amount">
+                  <Tooltip title={dictionary.tooltips.unpaidAmount}>
                     <Typography>{item.unpaid_amount?.toLocaleString()}</Typography>
                   </Tooltip>
                 </Div>
@@ -161,7 +163,7 @@ const ApprovedPaymentItemForm: React.FC<ApprovedPaymentItemFormProps> = ({
             <Grid size={{ xs: 6, md: showUnpaidAmount ? 2 : 4, lg: showUnpaidAmount ? 2 : 4 }}>
               <Div sx={{ mt: 1, mb: 0.5 }}>
                 <TextField
-                  label="Amount"
+                  label={dictionary.forms.approvedRequisitions.common.amount}
                   fullWidth
                   size="small"
                   defaultValue={approvedDetails
@@ -184,7 +186,7 @@ const ApprovedPaymentItemForm: React.FC<ApprovedPaymentItemFormProps> = ({
             <Grid size={{ xs: 11, md: showUnpaidAmount ? 2.5 : 3.5, lg: showUnpaidAmount ? 2.5 : 3 }}>
               <Div sx={{ mt: 1, mb: 0.5 }}>
                 <TextField
-                  label="Description"
+                  label={dictionary.forms.approvedRequisitions.common.description}
                   fullWidth
                   size="small"
                   value={item.description || item.remarks || ''}
@@ -200,7 +202,7 @@ const ApprovedPaymentItemForm: React.FC<ApprovedPaymentItemFormProps> = ({
             {filteredItems.length > 1 && (
               <Grid size={{ xs: 1, md: 0.5 }} textAlign={'end'}>
                 <Div sx={{ mt: 1, mb: 1.7 }}>
-                  <Tooltip title="Remove Item">
+                  <Tooltip title={dictionary.tooltips.removeItem}>
                     <IconButton
                       size="small"
                       onClick={() => handleItemChange(itemIndex, 'delete', true)}

@@ -11,8 +11,10 @@ import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const DeliverablesItemAction = ({ deliverable}) => {
+    const dictionary = useDictionary();
     const [openEditDialog,setOpenEditDialog] = useState(false);
     const {showDialog,hideDialog} = useJumboDialog();
     const { enqueueSnackbar } = useSnackbar();
@@ -38,8 +40,8 @@ const DeliverablesItemAction = ({ deliverable}) => {
     });
 
     const menuItems = [
-        checkOrganizationPermission(PERMISSIONS.PROJECTS_EDIT) && {icon: <EditOutlined/>, title: 'Edit', action: 'edit'},
-        checkOrganizationPermission(PERMISSIONS.PROJECTS_DELETE) && {icon: <DeleteOutlined color='error'/>, title: 'Delete', action: 'delete'}
+        checkOrganizationPermission(PERMISSIONS.PROJECTS_EDIT) && {icon: <EditOutlined/>, title: dictionary.projectManagement.deliverables.edit, action: 'edit'},
+        checkOrganizationPermission(PERMISSIONS.PROJECTS_DELETE) && {icon: <DeleteOutlined color='error'/>, title: dictionary.projectManagement.deliverables.delete, action: 'delete'}
     ].filter(Boolean);
 
   const handleItemAction = (menuItem) => {
@@ -49,8 +51,8 @@ const DeliverablesItemAction = ({ deliverable}) => {
         break;
       case 'delete':
         showDialog({
-            title: 'Confirm Delete',
-            content: 'Are you sure you want to delete this Deliverable?',
+            title: dictionary.projectManagement.deliverables.confirmDelete,
+            content: dictionary.projectManagement.deliverables.confirmDeleteText,
             onYes: () =>{ 
                 hideDialog();
                 deleteDeliverable(deliverable.id)
@@ -77,7 +79,7 @@ const DeliverablesItemAction = ({ deliverable}) => {
         </Dialog>
         <JumboDdMenu
             icon={
-                <Tooltip title='Actions'>
+                <Tooltip title={dictionary.tooltips.actions}>
                     <MoreHorizOutlined/>
                 </Tooltip>
             }

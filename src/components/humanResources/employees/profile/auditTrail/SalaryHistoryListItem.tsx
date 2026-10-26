@@ -5,6 +5,7 @@ import { readableDate } from '@/app/helpers/input-sanitization-helpers';
 import { ArrowForward, Person } from '@mui/icons-material';
 import { Grid, Tooltip, Typography, Paper } from '@mui/material';
 import { SalaryChange } from './AuditTrailType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const formatMoney = (value: number) => {
   return value.toLocaleString('en-US', {
@@ -16,6 +17,7 @@ const formatMoney = (value: number) => {
 };
 
 const SalaryHistoryListItem = ({ change }: { change: SalaryChange }) => {
+  const dictionary = useDictionary();
 
   return (
     <Paper
@@ -35,7 +37,7 @@ const SalaryHistoryListItem = ({ change }: { change: SalaryChange }) => {
       >
         {/* Effective Date */}
         <Grid size={{ xs: 12, md: 6 }}>
-          <Tooltip title="Effective Date">
+          <Tooltip title={dictionary.tooltips.effectiveDate}>
             <Typography variant="body2">
               {change.effective_date ? readableDate(change.effective_date, false) : '-'}
             </Typography>
@@ -44,7 +46,7 @@ const SalaryHistoryListItem = ({ change }: { change: SalaryChange }) => {
 
         {/* Salary Change: From → To */}
         <Grid size={{ xs: 12, md: 6 }}>
-          <Tooltip title={`From → To`}>
+          <Tooltip title={dictionary.tooltips.fromTo}>
             <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
               {formatMoney(Number(change.from_basic_salary))}
               <ArrowForward fontSize="small" sx={{ mx: 0.5 }} />

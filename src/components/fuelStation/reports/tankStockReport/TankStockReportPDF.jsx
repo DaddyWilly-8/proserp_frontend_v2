@@ -57,7 +57,8 @@ const totalsOf = (tanks) =>
     { opening: 0, stock_in: 0, stock_out: 0, closing: 0 }
   );
 
-function TankStockReportPDF({ reportData, organization, filters, activeStation }) {
+function TankStockReportPDF({ reportData, organization, filters, activeStation, dictionary }) {
+  const t = dictionary.reports.fuelStationReports.tankStock;
   const mainColor = organization.settings?.main_color || '#2113AD';
   const contrastText = organization.settings?.contrast_text || '#FFFFFF';
 
@@ -83,12 +84,12 @@ function TankStockReportPDF({ reportData, organization, filters, activeStation }
   const renderHeader = (firstLabel) => (
     <View style={pdfStyles.tableRow}>
       <Text style={{ ...headerCell, width: '16%' }}>{firstLabel}</Text>
-      <Text style={{ ...headerCell, width: '16%' }}>Product</Text>
-      <Text style={{ ...headerCell, width: '16%' }}>Tank</Text>
-      <Text style={{ ...headerCell, width: '13%' }}>Opening</Text>
-      <Text style={{ ...headerCell, width: '13%' }}>Stock In</Text>
-      <Text style={{ ...headerCell, width: '13%' }}>Stock Out</Text>
-      <Text style={{ ...headerCell, width: '13%' }}>Closing</Text>
+      <Text style={{ ...headerCell, width: '16%' }}>{t.product}</Text>
+      <Text style={{ ...headerCell, width: '16%' }}>{t.tank}</Text>
+      <Text style={{ ...headerCell, width: '13%' }}>{t.opening}</Text>
+      <Text style={{ ...headerCell, width: '13%' }}>{t.stockIn}</Text>
+      <Text style={{ ...headerCell, width: '13%' }}>{t.stockOut}</Text>
+      <Text style={{ ...headerCell, width: '13%' }}>{t.closing}</Text>
     </View>
   );
 
@@ -146,9 +147,7 @@ function TankStockReportPDF({ reportData, organization, filters, activeStation }
                 <View style={pdfStyles.tableRow}>
                   <Text
                     style={{ ...totalCell, width: '23.5%', textAlign: 'left' }}
-                  >
-                    TOTAL
-                  </Text>
+                  >{t.totalCaps}</Text>
                   <Text style={{ ...totalCell, width: '19.1%' }}>
                     {fmt(totals.opening)}
                   </Text>
@@ -172,8 +171,8 @@ function TankStockReportPDF({ reportData, organization, filters, activeStation }
 
   return (
     <Document
-      title={`Tank Stock Report | ${organization.name}`}
-      subject='Tank Stock Report'
+      title={`${t.title} | ${organization.name}`}
+      subject={t.title}
       creator='Powered By ProsERP'
       producer='ProsERP'
     >
@@ -188,9 +187,7 @@ function TankStockReportPDF({ reportData, organization, filters, activeStation }
             <Text style={{ ...pdfStyles.majorInfo, color: mainColor }}>
               {activeStation.name}
             </Text>
-            <Text style={{ ...pdfStyles.midInfo, color: mainColor }}>
-              Tank Stock Report
-            </Text>
+            <Text style={{ ...pdfStyles.midInfo, color: mainColor }}>{t.title}</Text>
             <Text style={pdfStyles.midInfo}>
               {`${readableDate(filters.from, true)} - ${readableDate(filters.to, true)}`}
             </Text>
@@ -199,7 +196,7 @@ function TankStockReportPDF({ reportData, organization, filters, activeStation }
 
         {reportData.map((day) => (
           <View key={day.date} style={{ border: '0.5', marginTop: 15 }}>
-            {renderHeader('Date')}
+            {renderHeader(t.date)}
             {renderProducts(
               readableDate(day.date),
               day.readings.map((product) => ({
@@ -217,11 +214,9 @@ function TankStockReportPDF({ reportData, organization, filters, activeStation }
               width: '100%',
               textAlign: 'center',
             }}
-          >
-            Summary
-          </Text>
-          {renderHeader('Period')}
-          {renderProducts('SUMMARY', summarizeTankStock(reportData))}
+          >{t.summary}</Text>
+          {renderHeader(t.period)}
+          {renderProducts(t.summaryCaps, summarizeTankStock(reportData))}
         </View>
       </Page>
     </Document>

@@ -21,6 +21,7 @@ import { Controller, useForm } from 'react-hook-form';
 import * as yup from 'yup';
 import humanResourcesServices from '../humanResourcesServices';
 import { OvertimeType } from './OvertimeType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface OvertimeTypeFormProps {
   setOpenDialog: (open: boolean) => void;
@@ -49,6 +50,7 @@ const OvertimeTypeForm = ({
   setOpenDialog,
   overtimeType = null,
 }: OvertimeTypeFormProps) => {
+  const dictionary = useDictionary();
   const queryClient = useQueryClient();
   const { enqueueSnackbar } = useSnackbar();
 
@@ -60,7 +62,7 @@ const OvertimeTypeForm = ({
     mutationFn: humanResourcesServices.addOvertimeType,
     onSuccess: () => {
       setOpenDialog(false);
-      enqueueSnackbar('Overtime Type Added Successfully', {
+      enqueueSnackbar(dictionary.humanResources.overtimeTypes.form.messages.addSuccess, {
         variant: 'success',
       });
       queryClient.invalidateQueries({ queryKey: ['overtimeTypes'] });
@@ -78,7 +80,7 @@ const OvertimeTypeForm = ({
     mutationFn: humanResourcesServices.updateOvertimeType,
     onSuccess: () => {
       setOpenDialog(false);
-      enqueueSnackbar('Overtime Type Updated Successfully', {
+      enqueueSnackbar(dictionary.humanResources.overtimeTypes.form.messages.updateSuccess, {
         variant: 'success',
       });
       queryClient.invalidateQueries({ queryKey: ['overtimeTypes'] });
@@ -92,18 +94,18 @@ const OvertimeTypeForm = ({
     id: yup.number().optional(),
     name: yup
       .string()
-      .required('Name is required')
-      .max(255, 'Name cannot exceed 255 characters'),
-    code: yup.string().max(50, 'Code cannot exceed 50 characters'),
+      .required(dictionary.humanResources.overtimeTypes.form.validation.nameRequired)
+      .max(255, dictionary.humanResources.overtimeTypes.form.validation.nameMax),
+    code: yup.string().max(50, dictionary.humanResources.overtimeTypes.form.validation.codeMax),
     multiplier: yup
       .number()
-      .typeError('Multiplier must be a number')
-      .required('Multiplier is required')
-      .min(1, 'Multiplier must be at least 1'),
+      .typeError(dictionary.humanResources.overtimeTypes.form.validation.multiplierNumber)
+      .required(dictionary.humanResources.overtimeTypes.form.validation.multiplierRequired)
+      .min(1, dictionary.humanResources.overtimeTypes.form.validation.multiplierMin),
     is_taxable: yup.boolean().required(),
     description: yup
       .string()
-      .max(500, 'Description cannot exceed 500 characters'),
+      .max(500, dictionary.humanResources.overtimeTypes.form.validation.descriptionMax),
   });
 
   const {
@@ -151,7 +153,7 @@ const OvertimeTypeForm = ({
     <>
       <DialogTitle>
         <Grid size={12} textAlign={'center'}>
-          {!overtimeType?.id ? 'Add Overtime Type' : 'Edit Overtime Type'}
+          {!overtimeType?.id ? dictionary.humanResources.overtimeTypes.form.titles.add : dictionary.humanResources.overtimeTypes.form.titles.edit}
         </Grid>
       </DialogTitle>
       <DialogContent>
@@ -160,7 +162,7 @@ const OvertimeTypeForm = ({
             <Grid size={{ xs: 12, md: 6 }}>
               <Div sx={{ mt: 1, mb: 1 }}>
                 <TextField
-                  label='Name'
+                  label={dictionary.humanResources.overtimeTypes.form.labels.name}
                   size='small'
                   fullWidth
                   error={
@@ -179,7 +181,7 @@ const OvertimeTypeForm = ({
             <Grid size={{ xs: 12, md: 3 }}>
               <Div sx={{ mt: 1, mb: 1 }}>
                 <TextField
-                  label='Code'
+                  label={dictionary.humanResources.overtimeTypes.form.labels.code}
                   size='small'
                   fullWidth
                   error={
@@ -198,13 +200,13 @@ const OvertimeTypeForm = ({
             <Grid size={{ xs: 12, md: 3 }}>
               <Div sx={{ mt: 1, mb: 1 }}>
                 <TextField
-                  label='Multiplier'
+                  label={dictionary.humanResources.overtimeTypes.form.labels.multiplier}
                   size='small'
                   fullWidth
                   helperText={
                     errors.multiplier?.message ||
                     getValidationMessage(validationErrors, 'multiplier') ||
-                    'e.g. 1.5 for time-and-a-half'
+                    dictionary.humanResources.overtimeTypes.form.helpers.multiplier
                   }
                   error={
                     !!errors?.multiplier ||
@@ -218,7 +220,7 @@ const OvertimeTypeForm = ({
             <Grid size={{ xs: 12 }}>
               <Div sx={{ mt: 1, mb: 1 }}>
                 <TextField
-                  label='Description'
+                  label={dictionary.humanResources.overtimeTypes.form.labels.description}
                   size='small'
                   fullWidth
                   multiline
@@ -251,7 +253,7 @@ const OvertimeTypeForm = ({
                           }
                         />
                       }
-                      label='Is Taxable'
+                      label={dictionary.humanResources.overtimeTypes.form.labels.isTaxable}
                     />
                   )}
                 />
@@ -261,7 +263,7 @@ const OvertimeTypeForm = ({
 
           <DialogActions>
             <Button size='small' onClick={() => setOpenDialog(false)}>
-              Cancel
+              {dictionary.humanResources.overtimeTypes.form.buttons.cancel}
             </Button>
             <LoadingButton
               type='submit'
@@ -270,7 +272,7 @@ const OvertimeTypeForm = ({
               sx={{ display: 'flex' }}
               loading={isPending || updateIsPending}
             >
-              Submit
+              {dictionary.humanResources.overtimeTypes.form.buttons.submit}
             </LoadingButton>
           </DialogActions>
         </form>

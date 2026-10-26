@@ -34,6 +34,7 @@ import { useForm } from 'react-hook-form';
 import * as yup from 'yup';
 import { ApprovalRequisition } from '../../ApprovalRequisitionType';
 import ApprovedPaymentItemForm from './ApprovedPaymentItemForm';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface PaymentItem {
   id?: number;
@@ -97,6 +98,7 @@ const ApprovedPaymentForm: React.FC<ApprovedPaymentFormProps> = ({
   approvedRequisition,
   prevApprovedDetails,
 }) => {
+  const dictionary = useDictionary();
   const { authOrganization, checkOrganizationPermission } = useJumboAuth();
   const queryClient = useQueryClient();
   const [serverError, setServerError] = useState<Record<
@@ -350,28 +352,28 @@ const ApprovedPaymentForm: React.FC<ApprovedPaymentFormProps> = ({
   const validationSchema = yup.object({
     narration: yup
       .string()
-      .required('Narration is required')
-      .typeError('Narration is required'),
+      .required(dictionary.forms.approvedRequisitions.approvedPayment.validation.narration)
+      .typeError(dictionary.forms.approvedRequisitions.approvedPayment.validation.narration),
     credit_ledger_id: yup
       .number()
-      .required('Paying (credit) account is required')
-      .positive('Paying (credit) account as Required')
-      .typeError('Paying (credit) account as Required'),
+      .required(dictionary.forms.approvedRequisitions.approvedPayment.validation.creditLedger)
+      .positive(dictionary.forms.approvedRequisitions.approvedPayment.validation.creditLedger)
+      .typeError(dictionary.forms.approvedRequisitions.approvedPayment.validation.creditLedger),
     currency_id: yup
       .number()
-      .positive('Currency is required')
-      .required('Currency is required')
-      .typeError('Currency is required'),
+      .positive(dictionary.forms.approvedRequisitions.approvedPayment.validation.currency)
+      .required(dictionary.forms.approvedRequisitions.approvedPayment.validation.currency)
+      .typeError(dictionary.forms.approvedRequisitions.approvedPayment.validation.currency),
     exchange_rate: yup
       .number()
-      .positive('Exchange rate is required')
-      .required('Exchange rate is required')
-      .typeError('Exchange rate is required'),
-    transactionDate: yup.mixed().required('Payment Date is required'),
+      .positive(dictionary.forms.approvedRequisitions.approvedPayment.validation.exchangeRate)
+      .required(dictionary.forms.approvedRequisitions.approvedPayment.validation.exchangeRate)
+      .typeError(dictionary.forms.approvedRequisitions.approvedPayment.validation.exchangeRate),
+    transactionDate: yup.mixed().required(dictionary.forms.approvedRequisitions.approvedPayment.validation.paymentDate),
     items: yup
       .array()
-      .min(1, 'You must add at least one item')
-      .required('You must add at least one item'),
+      .min(1, dictionary.forms.approvedRequisitions.approvedPayment.validation.atLeastOneItem)
+      .required(dictionary.forms.approvedRequisitions.approvedPayment.validation.atLeastOneItem),
   });
 
   const {
@@ -446,11 +448,11 @@ const ApprovedPaymentForm: React.FC<ApprovedPaymentFormProps> = ({
 
   const formTitle = payment
     ? isImprestPayment
-      ? 'Edit Approved Imprest Payment Form'
-      : 'Edit Payment'
+      ? dictionary.forms.approvedRequisitions.approvedPayment.titleEditImprest
+      : dictionary.forms.approvedRequisitions.approvedPayment.titleEdit
     : isImprestPayment
-      ? 'New Approved Imprest Payment Form'
-      : 'New Approved Payment Form';
+      ? dictionary.forms.approvedRequisitions.approvedPayment.titleNewImprest
+      : dictionary.forms.approvedRequisitions.approvedPayment.titleNew;
 
   const handleSubmitForm = async (data: FormValues) => {
     const updatedData = {
@@ -492,7 +494,7 @@ const ApprovedPaymentForm: React.FC<ApprovedPaymentFormProps> = ({
             <Grid size={{ xs: 12, md: 4 }}>
               <Div sx={{ mt: 1, mb: 1 }}>
                 <DateTimePicker
-                  label='Payment Date (MM/DD/YYYY)'
+                  label={dictionary.forms.approvedRequisitions.approvedPayment.paymentDate}
                   minDate={
                     checkOrganizationPermission(
                       PERMISSIONS.ACCOUNTS_TRANSACTIONS_BACKDATE
@@ -565,7 +567,7 @@ const ApprovedPaymentForm: React.FC<ApprovedPaymentFormProps> = ({
                       shouldDirty: true,
                     });
                   }}
-                  label='Pay From (Credit)'
+                  label={dictionary.forms.approvedRequisitions.approvedPayment.payFromCredit}
                 />
               </Div>
             </Grid>
@@ -573,7 +575,7 @@ const ApprovedPaymentForm: React.FC<ApprovedPaymentFormProps> = ({
               <Div sx={{ mt: 1, mb: 1 }}>
                 <TextField
                   size='small'
-                  label='Reference'
+                  label={dictionary.forms.approvedRequisitions.common.reference}
                   fullWidth
                   {...register('reference')}
                   onChange={() => {
@@ -599,7 +601,7 @@ const ApprovedPaymentForm: React.FC<ApprovedPaymentFormProps> = ({
               <Grid size={{ xs: 12, md: 4 }}>
                 <Div sx={{ mt: 1, mb: 1 }}>
                   <TextField
-                    label='Exchange Rate'
+                    label={dictionary.forms.approvedRequisitions.common.exchangeRate}
                     fullWidth
                     defaultValue={watch(`exchange_rate`)}
                     size='small'
@@ -645,16 +647,19 @@ const ApprovedPaymentForm: React.FC<ApprovedPaymentFormProps> = ({
                   }}
                 >
                   <Typography variant='caption' color='text.secondary'>
-                    Imprest Ledger ({resolvedImprestCreditLedgerName})
+                    {dictionary.forms.approvedRequisitions.common.imprestLedgerWithName.replace(
+                      '{name}',
+                      String(resolvedImprestCreditLedgerName)
+                    )}
                   </Typography>
                   <Typography variant='body2'>
                     {imprestLedgerBalance
-                      ? `Balance: ${imprestLedgerBalance.amount.toLocaleString(
-                          'en-US',
-                          {
+                      ? `${dictionary.forms.approvedRequisitions.common.balance.replace(
+                          '{balance}',
+                          imprestLedgerBalance.amount.toLocaleString('en-US', {
                             minimumFractionDigits: 2,
                             maximumFractionDigits: 2,
-                          }
+                          })
                         )} ${imprestLedgerBalance.side}`
                       : '-'}
                   </Typography>
@@ -689,7 +694,7 @@ const ApprovedPaymentForm: React.FC<ApprovedPaymentFormProps> = ({
                 justifyContent: 'flex-end',
               }}
             >
-              <Tooltip title={'Total Amount'}>
+              <Tooltip title={dictionary.tooltips.totalAmount}>
                 <Typography variant={'h5'}>
                   {totalAmount?.toLocaleString()}
                 </Typography>
@@ -698,7 +703,7 @@ const ApprovedPaymentForm: React.FC<ApprovedPaymentFormProps> = ({
             <Grid size={{ xs: 12 }}>
               <Div sx={{ mt: 1, mb: 1 }}>
                 <TextField
-                  label='Narration'
+                  label={dictionary.forms.approvedRequisitions.common.narration}
                   multiline={true}
                   rows={2}
                   fullWidth
@@ -714,7 +719,7 @@ const ApprovedPaymentForm: React.FC<ApprovedPaymentFormProps> = ({
       </DialogContent>
       <DialogActions>
         <Button size='small' onClick={() => toggleOpen(false)}>
-          Cancel
+          {dictionary.forms.approvedRequisitions.common.cancel}
         </Button>
         {items.length > 0 && (
           <LoadingButton
@@ -724,7 +729,7 @@ const ApprovedPaymentForm: React.FC<ApprovedPaymentFormProps> = ({
             size='small'
             variant='contained'
           >
-            Submit
+            {dictionary.forms.approvedRequisitions.common.submit}
           </LoadingButton>
         )}
       </DialogActions>

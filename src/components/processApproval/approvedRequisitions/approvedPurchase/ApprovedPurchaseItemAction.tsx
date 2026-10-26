@@ -43,6 +43,7 @@ import React, { useState } from 'react';
 import requisitionsServices from '../../requisitionsServices';
 import { PurchaseApprovalRequisition } from '../ApprovalRequisitionType';
 import dynamic from 'next/dynamic';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 const ApprovedPurchaseForm = dynamic(() => import('./form/ApprovedPurchaseForm'), { ssr: false });
 
 dayjs.extend(isSameOrAfter);
@@ -197,6 +198,7 @@ const ApprovedPurchaseItemAction: React.FC<ApprovedPurchaseItemActionProps> = ({
   approvedRequisition,
   order,
 }) => {
+  const dictionary = useDictionary();
   const { showDialog, hideDialog } = useJumboDialog();
   const queryClient = useQueryClient();
   const { enqueueSnackbar } = useSnackbar();
@@ -328,7 +330,7 @@ const ApprovedPurchaseItemAction: React.FC<ApprovedPurchaseItemActionProps> = ({
 
       <JumboDdMenu
         icon={
-          <Tooltip title='Actions'>
+          <Tooltip title={dictionary.tooltips.actions}>
             <MoreHorizOutlined fontSize='small' />
           </Tooltip>
         }

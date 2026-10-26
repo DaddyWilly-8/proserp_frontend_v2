@@ -1,3 +1,4 @@
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import { readableDate } from '@/app/helpers/input-sanitization-helpers';
 import {
   Divider,
@@ -22,6 +23,8 @@ import {
 
 const TrialBalanceOnScreen = ({ reportData, authOrganization, netOnly, closingOnly }) => {
   const theme = useTheme();
+  const dictionary = useDictionary();
+  const t = dictionary.reports.accountsReports;
 
   if (!reportData) return null;
 
@@ -44,7 +47,7 @@ const TrialBalanceOnScreen = ({ reportData, authOrganization, netOnly, closingOn
       <Grid container spacing={1}>
         <Grid size={12}>
           <Typography variant="subtitle1" style={{ color: headerColor }}>
-            Printed On
+            {t.common.printedOn}
           </Typography>
           <Typography variant="body2">
             {readableDate(undefined, true)}
@@ -56,7 +59,8 @@ const TrialBalanceOnScreen = ({ reportData, authOrganization, netOnly, closingOn
         <Table size="small">
           <TableHead>
             <PeriodTableHead netOnly={netOnly} closingOnly={closingOnly}
-              leadingLabels={['S/N', 'Ledger Name']}
+              leadingLabels={[t.common.serialNumber, t.trialBalance.ledgerName]}
+              labels={t.common}
               backgroundColor={mainColor}
               color={contrastText}
               filters={reportData.filters}
@@ -79,7 +83,9 @@ const TrialBalanceOnScreen = ({ reportData, authOrganization, netOnly, closingOn
             ))}
 
             <TableRow>
-              <TableCell colSpan={2} sx={totalSx}>TOTAL</TableCell>
+              <TableCell colSpan={2} sx={totalSx}>
+                {t.common.total.toUpperCase()}
+              </TableCell>
               <PeriodCells netOnly={netOnly} closingOnly={closingOnly} node={reportData.totals} sx={totalSx} />
             </TableRow>
           </TableBody>

@@ -35,13 +35,15 @@ import CostCenterSelector from '../../masters/costCenters/CostCenterSelector';
 import ProductCategoryFormDialogContent from '../productCategories/ProductCategoryFormDialogContent';
 import productServices from './productServices';
 import { useProductApp } from './ProductsProvider';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const ProductFormDialogContent = ({
-  title = 'New Product/Service',
+  title,
   product = null,
   toggleOpen,
 }) => {
   const DefaultContent = () => {
+    const dictionary = useDictionary();
     const {
       productCategories,
       item_names,
@@ -86,16 +88,16 @@ const ProductFormDialogContent = ({
     }, [newUnit]);
 
     const validationObject = {
-      item_name: yup.string().required('Item name is required'),
+      item_name: yup.string().required(dictionary.forms.products.form.errors.validation.itemName.required),
       product_category_id: yup
         .number()
-        .min(1, 'Product category is required')
-        .required('Product category is required'),
+        .min(1, dictionary.forms.products.form.errors.validation.productCategory.required)
+        .required(dictionary.forms.products.form.errors.validation.productCategory.required),
       measurement_unit_id: yup
         .number()
-        .min(1, 'Measurement unit is required')
-        .required('Measurement unit is required'),
-      type: yup.string().required('Item type is required'),
+        .min(1, dictionary.forms.products.form.errors.validation.measurementUnit.required)
+        .required(dictionary.forms.products.form.errors.validation.measurementUnit.required),
+      type: yup.string().required(dictionary.forms.products.form.errors.validation.type.required),
     };
 
     if (!product) {
@@ -108,9 +110,9 @@ const ProductFormDialogContent = ({
           is: (store_id) => Boolean(store_id),
           then: (schema) =>
             schema
-              .typeError('Cost center is required')
-              .required('Cost center is required')
-              .min(1, 'Cost center is required'),
+              .typeError(dictionary.forms.products.form.errors.validation.costCenter.required)
+              .required(dictionary.forms.products.form.errors.validation.costCenter.required)
+              .min(1, dictionary.forms.products.form.errors.validation.costCenter.required),
           otherwise: (schema) => schema.nullable(),
         });
 
@@ -121,9 +123,9 @@ const ProductFormDialogContent = ({
           is: (store_id) => Boolean(store_id),
           then: (schema) =>
             schema
-              .typeError('Stock Complement Ledger is required')
-              .required('Stock Complement Ledger is required')
-              .min(1, 'Stock Complement Ledger is required'),
+              .typeError(dictionary.forms.products.form.errors.validation.stockComplementLedger.required)
+              .required(dictionary.forms.products.form.errors.validation.stockComplementLedger.required)
+              .min(1, dictionary.forms.products.form.errors.validation.stockComplementLedger.required),
           otherwise: (schema) => schema.nullable(),
         });
 
@@ -134,9 +136,9 @@ const ProductFormDialogContent = ({
           is: (store_id) => Boolean(store_id),
           then: (schema) =>
             schema
-              .typeError('Unit cost is required')
-              .required('Unit cost is required')
-              .positive('Unit cost must be positive'),
+              .typeError(dictionary.forms.products.form.errors.validation.unitCost.required)
+              .required(dictionary.forms.products.form.errors.validation.unitCost.required)
+              .positive(dictionary.forms.products.form.errors.validation.unitCost.positive),
           otherwise: (schema) => schema.nullable(),
         });
 
@@ -147,8 +149,8 @@ const ProductFormDialogContent = ({
           is: (store_id) => Boolean(store_id),
           then: (schema) =>
             schema
-              .typeError('Opening balance date is required')
-              .required('Opening balance date is required'),
+              .typeError(dictionary.forms.products.form.errors.validation.openingBalanceDate.required)
+              .required(dictionary.forms.products.form.errors.validation.openingBalanceDate.required),
           otherwise: (schema) => schema.nullable(),
         });
     }
@@ -219,7 +221,7 @@ const ProductFormDialogContent = ({
 
         // Show general error message
         enqueueSnackbar(
-          errorData.message || 'Please check the information you submitted',
+          errorData.message || dictionary.forms.products.form.messages.checkInformation,
           {
             variant: 'error',
           }
@@ -266,7 +268,7 @@ const ProductFormDialogContent = ({
     return (
       <>
         <form autoComplete='false' onSubmit={handleSubmit(saveMutation)}>
-          <DialogTitle sx={{ textAlign: 'center' }}>{title}</DialogTitle>
+          <DialogTitle sx={{ textAlign: 'center' }}>{title ?? dictionary.forms.products.form.title}</DialogTitle>
           <DialogContent>
             <Grid container spacing={1}>
               <Grid size={{ xs: 12, md: 6 }}>
@@ -288,11 +290,11 @@ const ProductFormDialogContent = ({
                     renderInput={(params) => (
                       <TextField
                         {...params}
-                        label='Category'
+                        label={dictionary.forms.products.form.labels.category}
                         InputProps={{
                           ...params.InputProps,
                           startAdornment: (
-                            <Tooltip title={'Quick Add Category'}>
+                            <Tooltip title={dictionary.tooltips.quickAddCategory}>
                               <AddOutlined
                                 sx={{ cursor: 'pointer' }}
                                 onClick={() => {
@@ -334,7 +336,9 @@ const ProductFormDialogContent = ({
                 <Div sx={{ mt: 1, mb: 1 }}>
                   <Autocomplete
                     size='small'
-                    getOptionLabel={(option) => option.name}
+                    getOptionLabel={(option) =>
+                      dictionary.forms.products.form.types[option.name] || option.name
+                    }
                     isOptionEqualToValue={(option, value) =>
                       option.name === value.name
                     }
@@ -349,7 +353,7 @@ const ProductFormDialogContent = ({
                     renderInput={(params) => (
                       <TextField
                         {...params}
-                        label='Type'
+                        label={dictionary.forms.products.form.labels.type}
                         error={!!errors.type}
                         helperText={errors.type?.message}
                       />
@@ -384,7 +388,7 @@ const ProductFormDialogContent = ({
                     renderInput={(params) => (
                       <TextField
                         {...params}
-                        label='Item Name'
+                        label={dictionary.forms.products.form.labels.itemName}
                         error={!!errors.item_name}
                         helperText={errors.item_name?.message}
                       />
@@ -422,7 +426,7 @@ const ProductFormDialogContent = ({
                     options={brands}
                     defaultValue={product?.id && product.brand}
                     renderInput={(params) => (
-                      <TextField {...params} label='Brand (Optional)' />
+                      <TextField {...params} label={dictionary.forms.products.form.labels.brandOptional} />
                     )}
                     onChange={(event, newValue) => {
                       setValue('brand', newValue, {
@@ -449,7 +453,7 @@ const ProductFormDialogContent = ({
                     options={models}
                     defaultValue={product?.id && product.model}
                     renderInput={(params) => (
-                      <TextField {...params} label='Model (Optional)' />
+                      <TextField {...params} label={dictionary.forms.products.form.labels.modelOptional} />
                     )}
                     onChange={(event, newValue) => {
                       setValue('model', newValue, {
@@ -472,7 +476,7 @@ const ProductFormDialogContent = ({
                     size='small'
                     fullWidth
                     autoComplete='off'
-                    label='SKU (Optional)'
+                    label={dictionary.forms.products.form.labels.skuOptional}
                     defaultValue={product?.id && product.sku}
                     {...register('sku')}
                     error={!!errors.sku}
@@ -499,7 +503,7 @@ const ProductFormDialogContent = ({
                       <TextField
                         {...params}
                         rows={2}
-                        label='Specifications (Optional)'
+                        label={dictionary.forms.products.form.labels.specificationsOptional}
                       />
                     )}
                     onChange={(event, newValue) => {
@@ -540,11 +544,11 @@ const ProductFormDialogContent = ({
                     renderInput={(params) => (
                       <TextField
                         {...params}
-                        label='Primary Measurement Unit'
+                        label={dictionary.forms.products.form.labels.primaryMeasurementUnit}
                         InputProps={{
                           ...params.InputProps,
                           startAdornment: (
-                            <Tooltip title={'Quick Add Measurement Unit'}>
+                            <Tooltip title={dictionary.tooltips.quickAddMeasurementUnit}>
                               <AddOutlined
                                 sx={{ cursor: 'pointer' }}
                                 onClick={() => {
@@ -589,7 +593,7 @@ const ProductFormDialogContent = ({
                       });
                     }}
                   />
-                  VAT Exempted
+                  {dictionary.forms.products.form.labels.vatExempted}
                 </Div>
               </Grid>
               <Grid size={12}>
@@ -599,7 +603,7 @@ const ProductFormDialogContent = ({
                     fullWidth
                     multiline={true}
                     rows={2}
-                    label='Description (Optional)'
+                    label={dictionary.forms.products.form.labels.descriptionOptional}
                     defaultValue={product?.id && product.description}
                     {...register('description')}
                   />
@@ -609,12 +613,12 @@ const ProductFormDialogContent = ({
             {!product && isInventory && (
               <Grid container spacing={1}>
                 <Grid size={12} mt={1}>
-                  <Typography variant='h5'>Opening Balance Details</Typography>
+                  <Typography variant='h5'>{dictionary.forms.products.form.labels.openingBalanceDetails}</Typography>
                 </Grid>
                 <Grid size={{ xs: 12, md: 6 }}>
                   <Div sx={{ mt: 1, mb: 1 }}>
                     <CostCenterSelector
-                      label='Cost Center'
+                      label={dictionary.forms.products.form.labels.costCenter}
                       multiple={false}
                       defaultValue={
                         costCenters.length === 1 ? costCenters[0] : null
@@ -636,7 +640,7 @@ const ProductFormDialogContent = ({
                 <Grid size={{ xs: 12, md: 6 }}>
                   <Div sx={{ mt: 1, mb: 1 }}>
                     <LedgerSelect
-                      label={'Stock Complement Ledger'}
+                      label={dictionary.forms.products.form.labels.stockComplementLedger}
                       allowedGroups={[
                         'Capital',
                         'Expenses',
@@ -663,7 +667,7 @@ const ProductFormDialogContent = ({
                 <Grid size={{ xs: 12, md: 6 }}>
                   <Div sx={{ mt: 1, mb: 1 }}>
                     <DateTimePicker
-                      label='As of'
+                      label={dictionary.forms.products.form.labels.asOf}
                       fullWidth
                       minDate={dayjs(
                         authOrganization.organization.recording_start_date
@@ -703,7 +707,7 @@ const ProductFormDialogContent = ({
                       renderInput={(params) => (
                         <TextField
                           {...params}
-                          label='Store'
+                          label={dictionary.forms.products.form.labels.store}
                           error={!!errors?.store_id}
                           helperText={errors?.store_id?.message}
                         />
@@ -726,7 +730,7 @@ const ProductFormDialogContent = ({
                 <Grid size={{ xs: 12, md: 6 }}>
                   <Div sx={{ mt: 1, mb: 1 }}>
                     <TextField
-                      label='Opening Balance'
+                      label={dictionary.forms.products.form.labels.openingBalance}
                       fullWidth
                       size='small'
                       error={!!errors?.opening_balance}
@@ -744,7 +748,7 @@ const ProductFormDialogContent = ({
                 <Grid size={{ xs: 12, md: 6 }}>
                   <Div sx={{ mt: 1, mb: 1 }}>
                     <TextField
-                      label='Unit Cost'
+                      label={dictionary.forms.products.form.labels.unitCost}
                       fullWidth
                       size='small'
                       InputProps={{
@@ -773,14 +777,14 @@ const ProductFormDialogContent = ({
             )}
           </DialogContent>
           <DialogActions>
-            <Button onClick={() => toggleOpen(false)}>Cancel</Button>
+            <Button onClick={() => toggleOpen(false)}>{dictionary.forms.products.form.buttons.cancel}</Button>
             <LoadingButton
               type='submit'
               loading={addProduct.isPending || updateProduct.isPending}
               variant='contained'
               size='small'
             >
-              Save
+              {dictionary.forms.products.form.buttons.save}
             </LoadingButton>
           </DialogActions>
         </form>

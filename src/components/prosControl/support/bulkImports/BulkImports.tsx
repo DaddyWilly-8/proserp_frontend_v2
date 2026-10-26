@@ -10,6 +10,7 @@ import StakeholdersBulkImportsContent from './StakeholdersBulkImports';
 import TransactionsBulkImportsContent from './TransactionsBulkImports';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
 import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface SelectedTabContextType {
   activeTab: number;
@@ -19,6 +20,7 @@ interface SelectedTabContextType {
 export const SelectedTab = createContext<SelectedTabContextType>({ activeTab: 0 });
 
 function BulkImports() {
+  const dictionary = useDictionary();
   const { checkOrganizationPermission } = useJumboAuth();
   const [activeTab, setActiveTab] = useState(0);
   const [mounted, setMounted] = useState(false);
@@ -34,25 +36,25 @@ function BulkImports() {
 
   const tabs = [
     {
-      label: 'Stakeholders',
+      label: dictionary.forms.support.tabs.stakeholders,
       component: hasStakeholderPermission ? (
         <StakeholdersBulkImportsContent />
       ) : (
         <Box sx={{ p: 3 }}>
           <Alert severity="info">
-            You need the <strong>Stakeholders:Create</strong> permission to import stakeholders.
+            {dictionary.forms.support.bulkImports.needPrefix}<strong>Stakeholders:Create</strong>{dictionary.forms.support.bulkImports.permissionStakeholders}
           </Alert>
         </Box>
       )
     },
     { 
-      label: 'Transactions', 
+      label: dictionary.forms.support.tabs.transactions, 
       component: hasTransactionPermission ? (
         <TransactionsBulkImportsContent />
       ) : (
         <Box sx={{ p: 3 }}>
           <Alert severity="info">
-            You need the <strong>AccountsTransactions:Create</strong> permission to import transactions.
+            {dictionary.forms.support.bulkImports.needPrefix}<strong>AccountsTransactions:Create</strong>{dictionary.forms.support.bulkImports.permissionTransactions}
           </Alert>
         </Box>
       )

@@ -12,8 +12,10 @@ import StoreSelector from '../../../StoreSelector';
 import { useStoreProfile } from '../../StoreProfileProvider';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Div } from '@jumbo/shared';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function InventoryTransferReceiveForm({ toggleOpen, transfer }) {
+  const dictionary = useDictionary();
   const { mainStore } = useStoreProfile();
   const { items } = transfer;
   const [date_received] = useState(dayjs());
@@ -22,16 +24,16 @@ function InventoryTransferReceiveForm({ toggleOpen, transfer }) {
   const queryClient = useQueryClient();
 
   const validationSchema = yup.object({
-    date_received: yup.string().required('Receive Date is required'),
-    store_id: yup.number().required('Destination Store is Required').typeError('Destination Store is required'),
-    remarks: yup.string().required('Remark is required'),
+    date_received: yup.string().required(dictionary.forms.stores.inventoryTransfer.errors.validation.receiveDate.required),
+    store_id: yup.number().required(dictionary.forms.stores.inventoryTransfer.errors.validation.destinationStore.required).typeError(dictionary.forms.stores.inventoryTransfer.errors.validation.destinationStore.required),
+    remarks: yup.string().required(dictionary.forms.stores.inventoryTransfer.errors.validation.remarks.required),
     items: yup.array().of(
       yup.object().shape({
         quantity: yup
           .number()
-          .required('Quantity is Required')
-          .typeError('Quantity is required')
-          .test('maxQuantity', 'Quantity cannot exceed unreceived quantity', function (
+          .required(dictionary.forms.stores.inventoryTransfer.errors.validation.quantity.required)
+          .typeError(dictionary.forms.stores.inventoryTransfer.errors.validation.quantity.required)
+          .test('maxQuantity', dictionary.forms.stores.inventoryTransfer.errors.validation.quantity.max, function (
             value
           ) {
             const unreceivedQuantity = this.parent.unreceived_quantity;
@@ -39,7 +41,7 @@ function InventoryTransferReceiveForm({ toggleOpen, transfer }) {
           })
           .test(
             'whole-unit',
-            'This product is sold in whole units — quantity cannot be a fraction',
+            dictionary.forms.stores.inventoryTransfer.errors.validation.quantity.wholeUnit,
             function (value) {
               const transferItem = items?.find(
                 (item) => item.id === this.parent.inventory_transfer_item_id
@@ -108,13 +110,13 @@ function InventoryTransferReceiveForm({ toggleOpen, transfer }) {
         <form autoComplete='off'>
           <Grid container spacing={1}>
             <Grid size={{xs: 12}} textAlign={"center"} mb={1}> 
-            {`Receive ${transfer.transferNo}`}
+            {dictionary.forms.stores.inventoryTransfer.titles.receive.replace('{transferNo}', transfer.transferNo)}
             </Grid>
             <Grid size={{xs: 12, md: 4, lg: 6}}>
               <Div sx={{ mt: 1 }}>
                 <DateTimePicker
                   fullWidth
-                  label="Receive Date"
+                  label={dictionary.forms.stores.inventoryTransfer.labels.receiveDate}
                   defaultValue={date_received}
                   minDate={dayjs(transfer?.transfer_date)}
                   slotProps={{
@@ -138,7 +140,7 @@ function InventoryTransferReceiveForm({ toggleOpen, transfer }) {
                 <StoreSelector
                   allowSubStores={true}
                   proposedOptions={[mainStore]}
-                  label="Destination Store"
+                  label={dictionary.forms.stores.inventoryTransfer.labels.destinationStore}
                   frontError={errors.store_id}
                   onChange={(newValue) => {
                     setValue(`store_id`, newValue ? newValue.id : '', {
@@ -160,7 +162,7 @@ function InventoryTransferReceiveForm({ toggleOpen, transfer }) {
       </DialogTitle>  
       <DialogContent>
         <Tabs value={0}>
-          <Tab label="ITEMS" />
+          <Tab label={dictionary.forms.stores.inventoryTransfer.tabs.items} />
         </Tabs>
 
         {items.filter(item => item.unreceived_quantity !== 0).map((item, index) => (
@@ -180,7 +182,7 @@ function InventoryTransferReceiveForm({ toggleOpen, transfer }) {
               </Grid>
               <Grid size={{xs: 10, md: 5}}>
                 <Box sx={{ mt: 1.7, mb: 1.7 }}>
-                  <Tooltip title="Product">
+                  <Tooltip title={dictionary.tooltips.product}>
                     <Typography>
                       {item.product.name}
                     </Typography>
@@ -189,7 +191,7 @@ function InventoryTransferReceiveForm({ toggleOpen, transfer }) {
               </Grid>
               <Grid textAlign={'center'} size={{xs: 1.5, md: 3}}>
                 <Box sx={{ mt: 1.7, mb: 1.7 }}>
-                  <Tooltip title="Quantity">
+                  <Tooltip title={dictionary.tooltips.quantity}>
                     <Typography textAlign="center">
                       {item.unreceived_quantity} {item.measurement_unit?.symbol}
                     </Typography>
@@ -199,7 +201,7 @@ function InventoryTransferReceiveForm({ toggleOpen, transfer }) {
               <Grid size={{xs: 12, md: 3.5}}>
                 <Box sx={{ mt: 0.7, mb: 0.5 }}>
                   <TextField
-                    label="Receive"
+                    label={dictionary.forms.stores.inventoryTransfer.labels.receive}
                     fullWidth
                     size="small"
                     error={!!errors?.items && !!errors.items[index] && !!errors.items[index].quantity}
@@ -217,7 +219,7 @@ function InventoryTransferReceiveForm({ toggleOpen, transfer }) {
         <Grid size={{xs: 12, md: 4, lg: 6}}>
           <Div sx={{ mt: 1, mb: 1 }}>
             <TextField
-              label='Remarks'
+              label={dictionary.forms.stores.inventoryTransfer.labels.remarks}
               fullWidth
               multiline={true}
               minRows={2}
@@ -230,7 +232,7 @@ function InventoryTransferReceiveForm({ toggleOpen, transfer }) {
       </DialogContent>
       <DialogActions>
         <Button size='small' onClick={() => toggleOpen(false)}>
-          Cancel
+          {dictionary.forms.stores.inventoryTransfer.buttons.cancel}
         </Button>
         <LoadingButton
           loading={receiveInventoryTransfer.isPending}
@@ -238,7 +240,7 @@ function InventoryTransferReceiveForm({ toggleOpen, transfer }) {
           size='small'
           onClick={handleSubmit(() => handleSubmitForm(getValues()))} //calling lastest values
         >
-          Submit
+          {dictionary.forms.stores.inventoryTransfer.buttons.submit}
         </LoadingButton>
       </DialogActions>
     </React.Fragment>

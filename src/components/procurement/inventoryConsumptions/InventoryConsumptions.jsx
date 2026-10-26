@@ -20,8 +20,10 @@ import UnsubscribedAccess from '@/shared/Information/UnsubscribedAccess';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
 import UnauthorizedAccess from '@/shared/Information/UnauthorizedAccess';
 import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const InventoryConsumptions = () => {
+    const dictionary = useDictionary();
     const params = useParams();
     const listRef = React.useRef();
     const [openFilters, setOpenFilters] = useState(false);
@@ -135,7 +137,7 @@ return (
                                                 />
                                             </Grid>
                                             <Grid size={{xs: 1.5, md: 1, lg: 0.5}} alignContent={'end'}>
-                                                <Tooltip title="Filter Dates">
+                                                <Tooltip title={dictionary.tooltips.filterDates}>
                                                     <IconButton onClick={() => {
                                                         setQueryOptions(state => ({
                                                             ...state,

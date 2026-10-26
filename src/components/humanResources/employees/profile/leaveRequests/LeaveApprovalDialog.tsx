@@ -20,6 +20,7 @@ import { useEffect, useState } from 'react';
 import humanResourcesServices from '../../../humanResourcesServices';
 import { computeLeaveDays } from '../../../leaveTypes/leaveDayCount';
 import { LeaveRequestType } from './LeaveRequestType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 export type LeaveApprovalDecision = 'approved' | 'rejected' | 'on hold';
 
@@ -106,6 +107,12 @@ const LeaveApprovalDialog = ({
   approval,
   onClose,
 }: LeaveApprovalDialogProps) => {
+  const dictionary = useDictionary();
+  const formatDays = (n: number | null | undefined) =>
+    (Number(n) === 1
+      ? dictionary.humanResources.leaveRequests.dayCountOne
+      : dictionary.humanResources.leaveRequests.dayCountMany
+    ).replace('{n}', String(n ?? 0));
   // An approver may reschedule the leave to whatever dates suit operations
   // best — the dates aren't confined to the request's own range. What IS
   // still bounded, same idea as loans' ceilingAmount: the day COUNT may only
@@ -186,12 +193,15 @@ const LeaveApprovalDialog = ({
         queryKey: ['showLeaveRequest', leaveRequest.id],
       });
       queryClient.invalidateQueries({ queryKey: ['leaveRequests'] });
-      enqueueSnackbar('Leave approval recorded', { variant: 'success' });
+      enqueueSnackbar(dictionary.humanResources.leaveRequests.messages.approvalRecorded, {
+        variant: 'success',
+      });
       onClose();
     },
     onError: (error: any) => {
       enqueueSnackbar(
-        error?.response?.data?.message || 'Something went wrong',
+        error?.response?.data?.message ||
+          dictionary.humanResources.profileSectionsCommon.somethingWentWrong,
         { variant: 'error' }
       );
     },
@@ -205,12 +215,15 @@ const LeaveApprovalDialog = ({
         queryKey: ['showLeaveRequest', leaveRequest.id],
       });
       queryClient.invalidateQueries({ queryKey: ['leaveRequests'] });
-      enqueueSnackbar('Leave approval updated', { variant: 'success' });
+      enqueueSnackbar(dictionary.humanResources.leaveRequests.messages.approvalUpdated, {
+        variant: 'success',
+      });
       onClose();
     },
     onError: (error: any) => {
       enqueueSnackbar(
-        error?.response?.data?.message || 'Something went wrong',
+        error?.response?.data?.message ||
+          dictionary.humanResources.profileSectionsCommon.somethingWentWrong,
         { variant: 'error' }
       );
     },
@@ -220,25 +233,27 @@ const LeaveApprovalDialog = ({
 
   const handleDecision = (status: LeaveApprovalDecision) => {
     if (status === 'rejected' && !remarks.trim()) {
-      setRemarksError('Remarks are required');
+      setRemarksError(dictionary.humanResources.leaveRequests.decision.remarksRequired);
       return;
     }
 
     if (status === 'approved') {
       if (!startDate || !endDate) {
-        setDatesError('Start and end date are required');
+        setDatesError(dictionary.humanResources.leaveRequests.approvalDialog.datesRequired);
         return;
       }
       if (dayjs(endDate).isBefore(dayjs(startDate))) {
-        setDatesError('End date cannot be before start date');
+        setDatesError(dictionary.humanResources.leaveRequests.approvalDialog.endBeforeStart);
         return;
       }
       if (!daysApproved || daysApproved <= 0) {
-        setDatesError('Selected dates grant no leave days');
+        setDatesError(dictionary.humanResources.leaveRequests.approvalDialog.noDaysGranted);
         return;
       }
       if (daysApproved > Number(ceilingDays)) {
-        setDatesError(`Days approved cannot exceed ${ceilingDays}`);
+        setDatesError(
+          dictionary.humanResources.leaveRequests.approvalDialog.exceedsMax.replace('{max}', String(ceilingDays))
+        );
         return;
       }
     }
@@ -248,7 +263,9 @@ const LeaveApprovalDialog = ({
 
     if (isEditMode) {
       if (!approval?.id) {
-        enqueueSnackbar('Approval not found', { variant: 'error' });
+        enqueueSnackbar(dictionary.humanResources.leaveRequests.messages.approvalNotFound, {
+          variant: 'error',
+        });
         return;
       }
 
@@ -267,7 +284,9 @@ const LeaveApprovalDialog = ({
     const chainLevelId = Number(pendingLevel?.id);
 
     if (!chainLevelId) {
-      enqueueSnackbar('Pending approval level not found', { variant: 'error' });
+      enqueueSnackbar(dictionary.humanResources.leaveRequests.messages.pendingLevelNotFound, {
+        variant: 'error',
+      });
       return;
     }
 
@@ -292,46 +311,66 @@ const LeaveApprovalDialog = ({
       fullScreen={belowLargeScreen}
       scroll={belowLargeScreen ? 'body' : 'paper'}
     >
-      <DialogTitle>{isEditMode ? 'Edit' : ''} Leave Approval</DialogTitle>
+      <DialogTitle>
+        {isEditMode ? dictionary.humanResources.leaveRequests.decision.editTitle : dictionary.humanResources.leaveRequests.decision.title}
+      </DialogTitle>
       <DialogContent>
         <Stack spacing={2} sx={{ mt: 1 }}>
           {balance && (
             <Alert severity={balance.has_allocation ? 'info' : 'warning'}>
               {balance.has_allocation ? (
                 <>
-                  Balance for {formatBalancePeriod(balance)}:{' '}
-                  <strong>{balance.remaining_days}</strong> day
-                  {balance.remaining_days === 1 ? '' : 's'} remaining (
-                  {balance.used_days} used of {balance.allocated_days}{' '}
-                  allocated), before this request.
+                  {
+                    dictionary.humanResources.leaveRequests.approvalDialog.balance
+                      .replace('{period}', formatBalancePeriod(balance))
+                      .replace('{used}', String(balance.used_days))
+                      .replace('{allocated}', String(balance.allocated_days))
+                      .split('{remaining}')[0]
+                  }
+                  <strong>{formatDays(balance.remaining_days)}</strong>
+                  {
+                    dictionary.humanResources.leaveRequests.approvalDialog.balance
+                      .replace('{period}', formatBalancePeriod(balance))
+                      .replace('{used}', String(balance.used_days))
+                      .replace('{allocated}', String(balance.allocated_days))
+                      .split('{remaining}')[1]
+                  }
                   {balance.carried_forward_days > 0 && (
                     <>
                       {' '}
-                      Includes {balance.carried_forward_days} carried-forward
-                      day{balance.carried_forward_days === 1 ? '' : 's'}
+                      {dictionary.humanResources.leaveRequests.approvalDialog.carryIncludes.replace(
+                        '{days}',
+                        formatDays(balance.carried_forward_days)
+                      )}
                       {balance.carry_forward_expires_at
-                        ? `, usable until ${balance.carry_forward_expires_at}`
+                        ? dictionary.humanResources.leaveRequests.approvalDialog.carryUntil.replace(
+                            '{date}',
+                            balance.carry_forward_expires_at
+                          )
                         : ''}
-                      .
                     </>
                   )}
                 </>
               ) : (
                 <>
-                  No leave allocation found covering{' '}
-                  {leaveRequest.start_date} — nothing to grant against.
+                  {dictionary.humanResources.leaveRequests.approvalDialog.noAllocation.replace(
+                    '{date}',
+                    String(leaveRequest.start_date)
+                  )}
                 </>
               )}
             </Alert>
           )}
           {wouldExceedBalance && (
             <Alert severity='error'>
-              {`Approving ${daysApproved} day${daysApproved === 1 ? '' : 's'} exceeds the requester's remaining balance of ${remainingDays}.`}
+              {dictionary.humanResources.leaveRequests.approvalDialog.exceedsBalance
+                .replace('{days}', formatDays(daysApproved))
+                .replace('{remaining}', String(remainingDays))}
             </Alert>
           )}
           <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
             <DatePicker
-              label='Approved Start Date'
+              label={dictionary.humanResources.leaveRequests.approvalDialog.approvedStartDate}
               value={startDate ? dayjs(startDate) : null}
               onChange={(val: Dayjs | null) => {
                 setDatesError('');
@@ -346,7 +385,7 @@ const LeaveApprovalDialog = ({
               }}
             />
             <DatePicker
-              label='Approved End Date'
+              label={dictionary.humanResources.leaveRequests.approvalDialog.approvedEndDate}
               value={endDate ? dayjs(endDate) : null}
               onChange={(val: Dayjs | null) => {
                 setDatesError('');
@@ -366,10 +405,12 @@ const LeaveApprovalDialog = ({
             color={datesError ? 'error' : 'text.secondary'}
           >
             {datesError ||
-              `${daysApproved ?? 0} day${daysApproved === 1 ? '' : 's'} — max ${ceilingDays} days`}
+              dictionary.humanResources.leaveRequests.approvalDialog.daysHint
+                .replace('{days}', formatDays(daysApproved ?? 0))
+                .replace('{max}', formatDays(ceilingDays))}
           </Typography>
           <DateTimePicker
-            label='Approval Date & Time'
+            label={dictionary.humanResources.leaveRequests.decision.approvalDateTime}
             value={approvalDate ? dayjs(approvalDate) : null}
             onChange={(val) => setApprovalDate(val?.toISOString() || '')}
             slotProps={{
@@ -377,7 +418,7 @@ const LeaveApprovalDialog = ({
             }}
           />
           <TextField
-            label='Remarks'
+            label={dictionary.humanResources.leaveRequests.decision.remarks}
             size='small'
             fullWidth
             multiline
@@ -394,7 +435,7 @@ const LeaveApprovalDialog = ({
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose} disabled={isSubmitting}>
-          Cancel
+          {dictionary.humanResources.leaveRequests.decision.cancel}
         </Button>
         <LoadingButton
           loading={isSubmitting}
@@ -403,7 +444,7 @@ const LeaveApprovalDialog = ({
           size='small'
           onClick={() => handleDecision('rejected')}
         >
-          Reject
+          {dictionary.humanResources.leaveRequests.decision.reject}
         </LoadingButton>
         <LoadingButton
           loading={isSubmitting}
@@ -413,7 +454,7 @@ const LeaveApprovalDialog = ({
           size='small'
           onClick={() => handleDecision('approved')}
         >
-          Approve
+          {dictionary.humanResources.leaveRequests.decision.approve}
         </LoadingButton>
       </DialogActions>
     </Dialog>

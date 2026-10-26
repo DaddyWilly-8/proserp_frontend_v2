@@ -23,6 +23,7 @@ import * as yup from 'yup';
 import EmployeeSelector from '../employees/EmployeeSelector';
 import { Employee } from '../employees/EmployeesType';
 import humanResourcesServices from '../humanResourcesServices';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface LoanRequstFormProps {
   setOpenDialog: (open: boolean) => void;
@@ -53,6 +54,7 @@ const LoanRequestsForm = ({
   setOpenDialog,
   loan = null,
 }: LoanRequstFormProps) => {
+  const dictionary = useDictionary();
   const queryClient = useQueryClient();
   const { enqueueSnackbar } = useSnackbar();
   //   const { employees } = useEmployees();
@@ -88,8 +90,8 @@ const LoanRequestsForm = ({
       setOpenDialog(false);
       enqueueSnackbar(
         isEditing
-          ? 'Loan request updated successfully'
-          : 'Loan request added successfully',
+          ? dictionary.humanResources.loanRequests.form.messages.updated
+          : dictionary.humanResources.loanRequests.form.messages.added,
         { variant: 'success' }
       );
       queryClient.invalidateQueries({ queryKey: ['loanRequests'] });
@@ -108,23 +110,23 @@ const LoanRequestsForm = ({
   const validationSchema = yup.object({
     employee_id: yup
       .number()
-      .required('Please select an employee')
-      .typeError('Please select an employee'),
+      .required(dictionary.humanResources.loanRequests.form.errors.selectEmployee)
+      .typeError(dictionary.humanResources.loanRequests.form.errors.selectEmployee),
     amount: yup
       .number()
-      .required('Please enter an amount')
+      .required(dictionary.humanResources.loanRequests.form.errors.enterAmount)
       .transform((_, val) =>
         val === '' || val === undefined || val === null ? null : Number(val)
       )
-      .min(0, 'Basic salary must be >= 0')
-      .typeError('Basic salary must be a number'),
+      .min(0, dictionary.humanResources.loanRequests.form.errors.amountMin)
+      .typeError(dictionary.humanResources.loanRequests.form.errors.amountNumber),
     recovery_mode: yup
       .string()
       .oneOf(['installments', 'fixed_amount'])
       .required(),
     installments: yup.string().when('recovery_mode', {
       is: 'installments',
-      then: (schema) => schema.required('Please enter an installments count'),
+      then: (schema) => schema.required(dictionary.humanResources.loanRequests.form.errors.enterInstallments),
       otherwise: (schema) => schema.nullable(),
     }),
     installment_amount_requested: yup
@@ -137,10 +139,10 @@ const LoanRequestsForm = ({
         is: 'fixed_amount',
         then: (schema) =>
           schema
-            .required('Please enter the flat amount to deduct per period')
+            .required(dictionary.humanResources.loanRequests.form.errors.enterFlatAmount)
             .max(
               yup.ref('amount'),
-              'Cannot exceed the requested loan amount'
+              dictionary.humanResources.loanRequests.form.errors.cannotExceedRequested
             ),
         otherwise: (schema) => schema.nullable(),
       }),
@@ -184,7 +186,9 @@ const LoanRequestsForm = ({
     <>
       <DialogTitle>
         <Grid size={12} textAlign='center'>
-          {loan?.id ? `Edit Loan` : 'Create Loan Request'}
+          {loan?.id
+            ? dictionary.humanResources.loanRequests.form.title.edit
+            : dictionary.humanResources.loanRequests.form.title.create}
         </Grid>
       </DialogTitle>
       <DialogContent>
@@ -226,7 +230,7 @@ const LoanRequestsForm = ({
             </Grid>
             <Grid size={{ xs: 12, md: 6 }}>
               <TextField
-                label='Amount'
+                label={dictionary.humanResources.loanRequests.common.amount}
                 size='small'
                 fullWidth
                 value={watch('amount') ?? ''}
@@ -245,7 +249,7 @@ const LoanRequestsForm = ({
             <Grid size={{ xs: 12, md: 6 }}>
               <TextField
                 select
-                label='Recovery Mode'
+                label={dictionary.humanResources.loanRequests.approvalForm.labels.recoveryMode}
                 size='small'
                 fullWidth
                 value={recoveryMode}
@@ -257,14 +261,18 @@ const LoanRequestsForm = ({
                   )
                 }
               >
-                <MenuItem value='installments'>By Installment Count</MenuItem>
-                <MenuItem value='fixed_amount'>By Fixed Amount</MenuItem>
+                <MenuItem value='installments'>
+                  {dictionary.humanResources.loanRequests.approvalForm.labels.byInstallmentCount}
+                </MenuItem>
+                <MenuItem value='fixed_amount'>
+                  {dictionary.humanResources.loanRequests.approvalForm.labels.byFixedAmount}
+                </MenuItem>
               </TextField>
             </Grid>
             {recoveryMode === 'fixed_amount' ? (
               <Grid size={{ xs: 12, md: 6 }}>
                 <TextField
-                  label='Amount To Deduct Per Period'
+                  label={dictionary.humanResources.loanRequests.approvalForm.labels.amountToDeductPerPeriod}
                   size='small'
                   fullWidth
                   value={watch('installment_amount_requested') ?? ''}
@@ -280,14 +288,14 @@ const LoanRequestsForm = ({
                   error={!!errors.installment_amount_requested}
                   helperText={
                     errors.installment_amount_requested?.message ||
-                    'Installments are derived automatically from this'
+                    dictionary.humanResources.loanRequests.approvalForm.helpers.installmentsDerived
                   }
                 />
               </Grid>
             ) : (
               <Grid size={{ xs: 12, md: 6 }}>
                 <TextField
-                  label='Installments'
+                  label={dictionary.humanResources.loanRequests.form.labels.installments}
                   size='small'
                   fullWidth
                   value={watch('installments')}
@@ -305,7 +313,7 @@ const LoanRequestsForm = ({
             )}
             <Grid size={{ xs: 12, md: 6 }}>
               <DatePicker
-                label='Request Date'
+                label={dictionary.humanResources.loanRequests.form.labels.requestDate}
                 value={
                   watch('requested_at') ? dayjs(watch('requested_at')) : null
                 }
@@ -326,7 +334,7 @@ const LoanRequestsForm = ({
             </Grid>
             <Grid size={{ xs: 12, md: 6 }}>
               <DatePicker
-                label='Recovery Start (optional)'
+                label={dictionary.humanResources.loanRequests.approvalForm.labels.recoveryStartOptional}
                 views={['year', 'month']}
                 minDate={dayjs().startOf('month')}
                 value={
@@ -348,7 +356,7 @@ const LoanRequestsForm = ({
                     error: !!errors.recovery_start_date,
                     helperText:
                       errors.recovery_start_date?.message ||
-                      'Leave blank to start as soon as payroll allows',
+                      dictionary.humanResources.loanRequests.approvalForm.helpers.recoveryStartBlank,
                   },
                   field: { clearable: true },
                 }}
@@ -356,7 +364,7 @@ const LoanRequestsForm = ({
             </Grid>
             <Grid size={{ xs: 12 }}>
               <TextField
-                label='Reason'
+                label={dictionary.humanResources.loanRequests.form.labels.reason}
                 size='small'
                 fullWidth
                 multiline
@@ -374,7 +382,7 @@ const LoanRequestsForm = ({
 
           <DialogActions>
             <Button size='small' onClick={() => setOpenDialog(false)}>
-              Cancel
+              {dictionary.humanResources.loanRequests.common.cancel}
             </Button>
             <LoadingButton
               type='submit'
@@ -382,7 +390,9 @@ const LoanRequestsForm = ({
               size='small'
               loading={isPending}
             >
-              {loan?.id ? 'Update' : 'Create'}
+              {loan?.id
+                ? dictionary.humanResources.loanRequests.form.buttons.update
+                : dictionary.humanResources.loanRequests.form.buttons.create}
             </LoadingButton>
           </DialogActions>
         </form>

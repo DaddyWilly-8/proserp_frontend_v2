@@ -1,4 +1,7 @@
 import { sanitizedNumber } from '@/app/helpers/input-sanitization-helpers';
+import ScheduleModeSection from '@/components/accounts/recurringTransactions/ScheduleModeSection';
+import recurringTransactionServices from '@/components/accounts/recurringTransactions/recurringTransactions-services';
+import { buildScheduleBody, emptyScheduleForm, isScheduleFormComplete, ScheduleForm } from '@/components/accounts/recurringTransactions/recurring-utils';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import CostCenterSelector from '@/components/masters/costCenters/CostCenterSelector';
 import { CostCenter } from '@/components/masters/costCenters/CostCenterType';
@@ -40,6 +43,7 @@ import TransactionItemForm from '../TransactionItemForm';
 import TransactionItemRow from '../TransactionItemRow';
 import ReconciledCostCentersForm from '../ReconciledCostCentersForm';
 import receiptServices from './receipt-services';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface ReceiptItem {
   credit_ledger_id?: number;
@@ -111,6 +115,7 @@ function ReceiptFormDialogContent({
   setOpen,
   receipt = null,
 }: ReceiptFormDialogContentProps) {
+  const dictionary = useDictionary();
   const { authOrganization, checkOrganizationPermission } = useJumboAuth();
   const [transactionDate] = useState<Dayjs>(
     receipt ? dayjs(receipt.transactionDate) : dayjs()
@@ -131,6 +136,8 @@ function ReceiptFormDialogContent({
   const [isDirty, setIsDirty] = useState(false);
   const [clearFormKey, setClearFormKey] = useState(0);
   const [submitItemForm, setSubmitItemForm] = useState(false);
+  const [scheduleMode, setScheduleMode] = useState(false);
+  const [scheduleForm, setScheduleForm] = useState<ScheduleForm>(() => emptyScheduleForm(''));
 
   const [ledgerType, setLedgerType] = useState<'debit' | 'credit'>('debit');
   const [openLedgerQuickAdd, setOpenLedgerQuickAdd] = useState(false);
@@ -189,7 +196,11 @@ function ReceiptFormDialogContent({
   const [items, setItems] = useState<ReceiptItem[]>(getInitialItems());
 
   const addReceipt = useMutation<ReceiptResponse, Error, ReceiptFormValues>({
-    mutationFn: receiptServices.add,
+    // In schedule mode the same form saves a schedule instead of posting now.
+    mutationFn: (values: any) =>
+      scheduleMode
+        ? recurringTransactionServices.create(buildScheduleBody('receipt', values, scheduleForm))
+        : receiptServices.add(values),
     onSuccess: (data) => {
       data?.message && enqueueSnackbar(data.message, { variant: 'success' });
       setOpen(false);
@@ -225,44 +236,44 @@ function ReceiptFormDialogContent({
   const validationSchema = yup.object({
     narration: yup
       .string()
-      .typeError('Narration is required')
-      .required('Narration is required'),
+      .typeError(dictionary.forms.receipts.form.errors.validation.narrationRequired)
+      .required(dictionary.forms.receipts.form.errors.validation.narrationRequired),
     debit_ledger_id: yup
       .number()
-      .required('Receiving Account is required')
-      .positive('Receiving Account Is Required')
-      .typeError('Receiving Account Is Required'),
+      .required(dictionary.forms.receipts.form.errors.validation.receivingAccountRequired)
+      .positive(dictionary.forms.receipts.form.errors.validation.receivingAccountRequired)
+      .typeError(dictionary.forms.receipts.form.errors.validation.receivingAccountRequired),
     currency_id: yup
       .number()
-      .positive('Currency is required')
-      .required('Currency is required')
-      .typeError('Currency is required'),
+      .positive(dictionary.forms.receipts.form.errors.validation.currencyRequired)
+      .required(dictionary.forms.receipts.form.errors.validation.currencyRequired)
+      .typeError(dictionary.forms.receipts.form.errors.validation.currencyRequired),
     exchange_rate: yup
       .number()
-      .positive('Exchange rate is required')
-      .required('Exchange rate is required')
-      .typeError('Exchange rate is required'),
+      .positive(dictionary.forms.receipts.form.errors.validation.exchangeRateRequired)
+      .required(dictionary.forms.receipts.form.errors.validation.exchangeRateRequired)
+      .typeError(dictionary.forms.receipts.form.errors.validation.exchangeRateRequired),
     transactionDate: yup
       .string()
-      .required('Receipt Date is required')
-      .typeError('Receipt Date is required'),
+      .required(dictionary.forms.receipts.form.errors.validation.dateRequired)
+      .typeError(dictionary.forms.receipts.form.errors.validation.dateRequired),
     items: yup.array().of(
       yup.object().shape({
         credit_ledger_id: yup
           .number()
-          .required('Receive From (Credit) account is required'),
-        description: yup.string().required('Description is required'),
+          .required(dictionary.forms.receipts.form.errors.validation.receiveFromRequired),
+        description: yup.string().required(dictionary.forms.receipts.form.errors.validation.descriptionRequired),
         amount: yup
           .number()
-          .required('Amount is required')
-          .positive('Amount must be greater than 0'),
+          .required(dictionary.forms.receipts.form.errors.validation.amountRequired)
+          .positive(dictionary.forms.receipts.form.errors.validation.amountPositive),
       })
     ),
     cost_centers: yup
       .array()
       .test(
         'cost-center-required',
-        'At least one cost center is required',
+        dictionary.forms.receipts.form.errors.validation.costCenterRequired,
         (value) => haveAllCostCenters || (value && value.length > 0)
       ),
   });
@@ -329,7 +340,7 @@ function ReceiptFormDialogContent({
       clearErrors('items');
       setError('items', {
         type: 'manual',
-        message: 'You must add at least one item',
+        message: dictionary.forms.receipts.form.errors.validation.itemsRequired,
       });
       return;
     }
@@ -379,7 +390,7 @@ function ReceiptFormDialogContent({
   return (
     <>
       <DialogTitle textAlign={'center'}>
-        {receipt ? `Edit ${receipt.voucherNo}` : `New Receipt Form`}
+        {receipt ? dictionary.forms.receipts.form.title.edit.replace('{voucherNo}', receipt.voucherNo ?? '') : dictionary.forms.receipts.form.title.new}
       </DialogTitle>
       <DialogContent>
         <Grid container columnSpacing={1} marginBottom={2}>
@@ -388,7 +399,8 @@ function ReceiptFormDialogContent({
               <Grid size={{ xs: 12, md: 4 }}>
                 <Div sx={{ mt: 1, mb: 1 }}>
                   <DateTimePicker
-                    label='Receipt Date (MM/DD/YYYY)'
+                    label={dictionary.forms.receipts.form.labels.date}
+                disabled={scheduleMode}
                     minDate={
                       checkOrganizationPermission([
                         PERMISSIONS.ACCOUNTS_TRANSACTIONS_BACKDATE,
@@ -449,9 +461,9 @@ function ReceiptFormDialogContent({
                         shouldDirty: true,
                       });
                     }}
-                    label='Receiving Account (Debit)'
+                    label={dictionary.forms.receipts.form.labels.receivingAccountDebit}
                     startAdornment={
-                      <Tooltip title={'Add New Debit'}>
+                      <Tooltip title={dictionary.tooltips.addNewDebit}>
                         <AddOutlined
                           onClick={() => {
                             setOpenLedgerQuickAdd(true);
@@ -468,7 +480,7 @@ function ReceiptFormDialogContent({
                 <Div sx={{ mt: 1, mb: 1 }}>
                   <TextField
                     size='small'
-                    label='Reference'
+                    label={dictionary.forms.receipts.form.labels.reference}
                     fullWidth
                     defaultValue={receipt?.reference}
                     {...register('reference')}
@@ -520,7 +532,7 @@ function ReceiptFormDialogContent({
             <Grid size={{ xs: 12, md: 4 }}>
               <Div sx={{ mt: 1, mb: 1 }}>
                 <TextField
-                  label='Exchange Rate'
+                  label={dictionary.forms.receipts.form.labels.exchangeRate}
                   fullWidth
                   size='small'
                   error={!!errors?.exchange_rate}
@@ -547,7 +559,7 @@ function ReceiptFormDialogContent({
           <Grid size={{ xs: 12, md: watch('currency_id') !== 1 ? 4 : 8 }}>
             <Div sx={{ mt: 1, mb: 1 }}>
               <CostCenterSelector
-                label='Cost Centers'
+                label={dictionary.forms.receipts.form.labels.costCenters}
                 frontError={errors.cost_centers}
                 defaultValue={
                   receipt?.cost_centers ||
@@ -624,7 +636,7 @@ function ReceiptFormDialogContent({
           <Grid size={12}>
             <Div sx={{ mt: 1, mb: 1 }}>
               <TextField
-                label='Narration'
+                label={dictionary.forms.receipts.form.labels.narration}
                 multiline={true}
                 rows={2}
                 fullWidth
@@ -637,12 +649,21 @@ function ReceiptFormDialogContent({
           </Grid>
         </Grid>
 
+        <ScheduleModeSection
+          hidden={!!receipt}
+          enabled={scheduleMode}
+          onEnabledChange={setScheduleMode}
+          form={scheduleForm}
+          setForm={setScheduleForm}
+          narration={watch('narration')}
+        />
+
         <Dialog open={showWarning} onClose={() => setShowWarning(false)}>
           <DialogTitle>
             <Grid container alignItems='center' justifyContent='space-between'>
-              <Grid size={11}>Unsaved Changes</Grid>
+              <Grid size={11}>{dictionary.forms.receipts.form.dialogs.unsavedChanges.title}</Grid>
               <Grid size={1} textAlign='right'>
-                <Tooltip title='Close'>
+                <Tooltip title={dictionary.tooltips.close}>
                   <IconButton
                     size='small'
                     onClick={() => setShowWarning(false)}
@@ -653,7 +674,7 @@ function ReceiptFormDialogContent({
               </Grid>
             </Grid>
           </DialogTitle>
-          <DialogContent>Last item was not added to the list</DialogContent>
+          <DialogContent>{dictionary.forms.receipts.form.dialogs.unsavedChanges.message}</DialogContent>
           <DialogActions>
             <Button
               size='small'
@@ -662,30 +683,31 @@ function ReceiptFormDialogContent({
                 setShowWarning(false);
               }}
             >
-              Add and Submit
+              {dictionary.forms.receipts.form.dialogs.unsavedChanges.addAndSubmit}
             </Button>
             <Button
               size='small'
               onClick={() => handleConfirmSubmitWithoutAdd(watch())}
               color='secondary'
             >
-              Submit without add
+              {dictionary.forms.receipts.form.dialogs.unsavedChanges.submitWithoutAdd}
             </Button>
           </DialogActions>
         </Dialog>
       </DialogContent>
       <DialogActions>
         <Button size='small' onClick={() => setOpen(false)}>
-          Cancel
+          {dictionary.forms.receipts.form.buttons.cancel}
         </Button>
         <LoadingButton
           type='submit'
           onClick={handleSubmit(onSubmit)}
           loading={addReceipt.isPending || updateReceipt.isPending}
+          disabled={scheduleMode && !isScheduleFormComplete(scheduleForm)}
           size='small'
           variant='contained'
         >
-          Submit
+          {scheduleMode ? dictionary.forms.receipts.form.buttons.createSchedule : dictionary.forms.receipts.form.buttons.submit}
         </LoadingButton>
       </DialogActions>
     </>

@@ -14,6 +14,7 @@ import LeaveBalancesReport from './leaveBalances/LeaveBalancesReport';
 import LeaveRenewalsReport from './leaveRenewals/LeaveRenewalsReport';
 import StaffLoanReport from './staffLoans/StaffLoanReport';
 import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 type ReportCardItem = {
   key: string;
@@ -28,38 +29,38 @@ type ReportCardItem = {
   permission: string;
 };
 
-const buildReportCards = (): ReportCardItem[] => [
+const buildReportCards = (dictionary: any): ReportCardItem[] => [
   {
     key: 'salary-components-summary',
-    title: 'Salary Components Summary',
+    title: dictionary.humanResources.reports.cards.salaryComponentsSummary,
     icon: <AssessmentOutlined sx={{ fontSize: '40px' }} />,
     component: <PayrollSalaryComponentsDashboard />,
     permission: PERMISSIONS.PAYROLL_READ,
   },
   {
     key: 'payroll-comparison',
-    title: 'Payroll Comparison',
+    title: dictionary.humanResources.reports.cards.payrollComparison,
     icon: <CompareArrowsOutlined sx={{ fontSize: '40px' }} />,
     component: <PayrollComparisonDashboard />,
     permission: PERMISSIONS.PAYROLL_READ,
   },
   {
     key: 'leave-balances',
-    title: 'Leave Balances',
+    title: dictionary.humanResources.reports.cards.leaveBalances,
     icon: <BeachAccessOutlined sx={{ fontSize: '40px' }} />,
     component: <LeaveBalancesReport />,
     permission: PERMISSIONS.LEAVE_ALLOCATIONS_READ,
   },
   {
     key: 'leave-renewals',
-    title: 'Leave Renewals',
+    title: dictionary.humanResources.reports.cards.leaveRenewals,
     icon: <EventRepeatOutlined sx={{ fontSize: '40px' }} />,
     component: <LeaveRenewalsReport />,
     permission: PERMISSIONS.LEAVE_ALLOCATIONS_READ,
   },
   {
     key: 'staff-loans',
-    title: 'Staff Loans',
+    title: dictionary.humanResources.reports.cards.staffLoans,
     icon: <RequestQuoteOutlined sx={{ fontSize: '40px' }} />,
     component: <StaffLoanReport />,
     permission: PERMISSIONS.LOANS_READ,
@@ -67,6 +68,7 @@ const buildReportCards = (): ReportCardItem[] => [
 ];
 
 export default function HumanResourcesReports() {
+  const dictionary = useDictionary();
   const searchParams = useSearchParams();
   const { theme } = useJumboTheme();
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
@@ -74,10 +76,10 @@ export default function HumanResourcesReports() {
 
   const reportCards = useMemo(
     () =>
-      buildReportCards().filter((item) =>
+      buildReportCards(dictionary).filter((item) =>
         checkOrganizationPermission(item.permission)
       ),
-    [checkOrganizationPermission]
+    [checkOrganizationPermission, dictionary]
   );
 
   const [mounted, setMounted] = useState(false);
@@ -123,19 +125,19 @@ export default function HumanResourcesReports() {
               setReport(null);
             }}
           >
-            Close
+            {dictionary.humanResources.reports.page.close}
           </Button>
         </DialogActions>
       </Dialog>
 
       <Typography variant='h4' mb={2}>
-        Human Resources Reports
+        {dictionary.humanResources.reports.page.title}
       </Typography>
 
       <JumboCardQuick sx={{ height: '100%' }}>
         {reportCards.length === 0 ? (
           <Typography color='text.secondary' textAlign='center' p={2}>
-            You don&apos;t have permission to view any HR reports yet.
+            {dictionary.humanResources.reports.page.noPermission}
           </Typography>
         ) : (
         <Grid container textAlign='center' columnSpacing={2} rowSpacing={2}>

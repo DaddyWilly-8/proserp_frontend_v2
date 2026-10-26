@@ -11,8 +11,10 @@ import {
 } from '@mui/material';
 import { useState } from 'react';
 import EmployeeAllowanceForm from './EmployeeAllowanceForm';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const EmployeeAllowanceActionTail = ({ employeeId }: { employeeId?: number }) => {
+  const dictionary = useDictionary();
   const [openDialog, setOpenDialog] = useState(false);
 
   const { theme } = useJumboTheme();
@@ -29,7 +31,7 @@ const EmployeeAllowanceActionTail = ({ employeeId }: { employeeId?: number }) =>
         disableElevation
         sx={{ '& .MuiButton-root': { px: 1 } }}
       >
-        <Tooltip title='Add Employee Allowance'>
+        <Tooltip title={dictionary.tooltips.addEmployeeAllowance}>
           <IconButton onClick={() => setOpenDialog(true)}>
             <AddOutlined />
           </IconButton>

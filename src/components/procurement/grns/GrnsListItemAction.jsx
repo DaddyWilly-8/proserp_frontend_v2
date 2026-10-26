@@ -29,6 +29,7 @@ import grnServices from './grn-services';
 const GrnOnScreenPreview = dynamic(() => import('./GrnOnScreenPreview'), { ssr: false });
 import GrnPDF from './GrnPDF';
 import dynamic from 'next/dynamic';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const DocumentDialog = ({
   grn_id,
@@ -150,6 +151,7 @@ const AttachDialog = ({ grn, setAttachDialog }) => {
 };
 
 const GrnsListItemAction = ({ grn }) => {
+  const dictionary = useDictionary();
   const [openDocumentDialog, setOpenDocumentDialog] = useState(false);
   const [attachDialog, setAttachDialog] = useState(false);
   const {
@@ -205,7 +207,7 @@ const GrnsListItemAction = ({ grn }) => {
       </Dialog>
       <JumboDdMenu
         icon={
-          <Tooltip title='Actions'>
+          <Tooltip title={dictionary.tooltips.actions}>
             <MoreHorizOutlined fontSize='small' />
           </Tooltip>
         }

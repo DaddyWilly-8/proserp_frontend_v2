@@ -28,6 +28,7 @@ import posServices from '../pos-services';
 import { Counter, useCounter } from './CounterProvider';
 import CounterSalesStatusSelector from './CounterSalesStatusSelector';
 import CounterSalesListItem from './salesListItem/CounterSalesListItem';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface QueryOptions {
   queryKey: string;
@@ -59,6 +60,7 @@ const ProductSalesReportDialog = React.lazy(
 );
 
 const RqList: React.FC<RqListProps> = ({ activeCounter }) => {
+  const dictionary = useDictionary();
   const [openFilters, setOpenFilters] = useState(false);
   const listRef = React.useRef<any>(null);
   const { authOrganization, checkOrganizationPermission } = useJumboAuth();
@@ -198,7 +200,7 @@ const RqList: React.FC<RqListProps> = ({ activeCounter }) => {
                           textAlign={{ xs: 'right', md: 'left' }}
                           alignContent={'end'}
                         >
-                          <Tooltip title='Filter Dates'>
+                          <Tooltip title={dictionary.tooltips.filterDates}>
                             <IconButton
                               onClick={() => {
                                 setQueryOptions((state) => ({

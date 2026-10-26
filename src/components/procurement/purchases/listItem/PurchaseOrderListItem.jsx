@@ -23,6 +23,7 @@ import { useQuery } from '@tanstack/react-query';
 import React, { createContext, lazy, useState } from 'react';
 import purchaseServices from '../purchase-services';
 import PurchaseOrderListItemAction from './PurchaseOrderListItemAction';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 export const listItemContext = createContext({});
 
@@ -32,6 +33,7 @@ const PurchaseOrderGrnsItemAction = lazy(
 );
 
 const PurchaseOrderListItem = ({ order }) => {
+  const dictionary = useDictionary();
   const { checkOrganizationPermission } = useJumboAuth();
   const [expanded, setExpanded] = useState(false);
   const [selectedOrderGrn, setSelectedOrderGrn] = useState(null);
@@ -121,11 +123,11 @@ const PurchaseOrderListItem = ({ order }) => {
                   primary={
                     <>
                       <Stack direction={'row'}>
-                        <Tooltip title='Order No.'>
+                        <Tooltip title={dictionary.tooltips.orderNo}>
                           <Typography>{order.orderNo}</Typography>
                         </Tooltip>
                         {!!order?.requisitionNo && (
-                          <Tooltip title='Requisition No.'>
+                          <Tooltip title={dictionary.tooltips.requisitionNo}>
                             <Typography variant='caption' color={'gray'}>
                               {' '}
                               &nbsp;{` - ${order.requisitionNo}`}
@@ -134,13 +136,13 @@ const PurchaseOrderListItem = ({ order }) => {
                         )}
                       </Stack>
                       <Stack direction={'column'}>
-                        <Tooltip title='Date'>
+                        <Tooltip title={dictionary.tooltips.date}>
                           <Typography variant='caption'>
                             {readableDate(order.order_date)}
                           </Typography>
                         </Tooltip>
                         {order?.reference && (
-                          <Tooltip title={'Reference'}>
+                          <Tooltip title={dictionary.tooltips.reference}>
                             <Typography variant='caption' mt={1}>
                               {order?.reference}
                             </Typography>
@@ -190,7 +192,7 @@ const PurchaseOrderListItem = ({ order }) => {
                 justifyContent={'space-between'}
               >
                 <Stack direction='row' spacing={0.5} alignItems='center'>
-                  <Tooltip title={'Status'}>
+                  <Tooltip title={dictionary.tooltips.status}>
                     <Chip
                       size='small'
                       label={order.status}
@@ -208,18 +210,18 @@ const PurchaseOrderListItem = ({ order }) => {
                     />
                   </Tooltip>
                   {order.billed && (
-                    <Tooltip title='A Purchase Bill has been created for this order'>
+                    <Tooltip title={dictionary.tooltips.aPurchaseBillHasBeenCreated2}>
                       <Chip size='small' variant='outlined' color='success' label='Billed' />
                     </Tooltip>
                   )}
                   {order.billed === false && order.unbilled_amount > 0 && (
-                    <Tooltip title='Not yet billed to the supplier'>
+                    <Tooltip title={dictionary.tooltips.notYetBilledToTheSupplier}>
                       <Chip size='small' variant='outlined' color='warning' label='Unbilled' />
                     </Tooltip>
                   )}
                 </Stack>
                 {checkOrganizationPermission(PERMISSIONS.PURCHASES_CREATE) && (
-                  <Tooltip title={'Amount'}>
+                  <Tooltip title={dictionary.tooltips.amount}>
                     <Typography>
                       {(order.amount + order.vat_amount).toLocaleString(
                         'en-US',
@@ -234,7 +236,7 @@ const PurchaseOrderListItem = ({ order }) => {
               </Grid>
 
               <Grid size={{ xs: 1, md: 1 }} textAlign={'right'}>
-                <Tooltip title='Attachments'>
+                <Tooltip title={dictionary.tooltips.attachments}>
                   <IconButton
                     component='span'
                     size='small'

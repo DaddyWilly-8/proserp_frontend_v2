@@ -1,3 +1,4 @@
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import { LeaveAllocationType } from '@/components/humanResources/employees/profile/leaveAllocations/LeaveAllocationType';
 import humanResourcesServices from '@/components/humanResources/humanResourcesServices';
 import JumboRqList from '@jumbo/components/JumboReactQuery/JumboRqList';
@@ -14,7 +15,10 @@ const YEAR_OPTIONS: Array<any> = [];
 let nextYear = dayjs().year() + 1;
 [1, 2, 3, 4].map(() => YEAR_OPTIONS.push(String(nextYear--)));
 
-const MyHrLeaveBalancesHeader = () => (
+const MyHrLeaveBalancesHeader = () => {
+  const dictionary = useDictionary();
+  const t = dictionary.humanResources.myHr.leaves.balances;
+  return (
   <Box sx={{ display: { xs: 'none', md: 'block' } }}>
     <Grid
       container
@@ -27,34 +31,37 @@ const MyHrLeaveBalancesHeader = () => (
     >
       <Grid size={MY_HR_LEAVE_BALANCE_COLUMN_WIDTHS.leaveType}>
         <Typography variant='caption' fontWeight={600} color='text.secondary'>
-          Leave Type
+          {t.leaveType}
         </Typography>
       </Grid>
       <Grid size={MY_HR_LEAVE_BALANCE_COLUMN_WIDTHS.period}>
         <Typography variant='caption' fontWeight={600} color='text.secondary'>
-          Period
+          {t.period}
         </Typography>
       </Grid>
       <Grid size={MY_HR_LEAVE_BALANCE_COLUMN_WIDTHS.allocated}>
         <Typography variant='caption' fontWeight={600} color='text.secondary'>
-          Allocated
+          {t.allocated}
         </Typography>
       </Grid>
       <Grid size={MY_HR_LEAVE_BALANCE_COLUMN_WIDTHS.used}>
         <Typography variant='caption' fontWeight={600} color='text.secondary'>
-          Used
+          {t.used}
         </Typography>
       </Grid>
       <Grid size={MY_HR_LEAVE_BALANCE_COLUMN_WIDTHS.remaining}>
         <Typography variant='caption' fontWeight={600} color='text.secondary'>
-          Remaining
+          {t.remaining}
         </Typography>
       </Grid>
     </Grid>
   </Box>
-);
+  );
+};
 
 const MyHrLeaveBalances = () => {
+  const dictionary = useDictionary();
+  const t = dictionary.humanResources.myHr.leaves.balances;
   const searchParams = useSearchParams();
   const listRef = useRef<any>(null);
   const [mounted, setMounted] = useState(false);
@@ -120,7 +127,7 @@ const MyHrLeaveBalances = () => {
               }));
             }}
             renderInput={(inputParams) => (
-              <TextField {...inputParams} label='Select Year' fullWidth />
+              <TextField {...inputParams} label={t.selectYear} fullWidth />
             )}
           />
         </Grid>

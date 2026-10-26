@@ -24,6 +24,7 @@ import ProductSelect from '@/components/productAndServices/products/ProductSelec
 import assetsServices from '@/components/assets/register/assets-services';
 import { getErrorMessage } from '@/utilities/helpers/errorHandler';
 import { useStoreProfile } from '../StoreProfileProvider';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const fmt = (amount) =>
   Number(amount ?? 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -34,6 +35,7 @@ const fmt = (amount) =>
 const MAX_IDENTIFICATION_FIELDS = 50;
 
 function ConvertToAssetDialogContent({ productStock, toggleOpen }) {
+  const dictionary = useDictionary();
   const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
   const { activeStore } = useStoreProfile();
@@ -53,14 +55,14 @@ function ConvertToAssetDialogContent({ productStock, toggleOpen }) {
   const validationSchema = yup.object({
     quantity: yup
       .number()
-      .typeError('Quantity is required')
-      .required('Quantity is required')
-      .integer('Quantity must be a whole number')
-      .positive('Quantity must be greater than 0')
-      .max(productStock.balance, `Only ${productStock.balance} unit(s) are available`),
-    asset_product_id: yup.number().required('Select the asset product to receive this stock').positive(),
+      .typeError(dictionary.forms.stores.convertToAsset.errors.validation.quantity.required)
+      .required(dictionary.forms.stores.convertToAsset.errors.validation.quantity.required)
+      .integer(dictionary.forms.stores.convertToAsset.errors.validation.quantity.integer)
+      .positive(dictionary.forms.stores.convertToAsset.errors.validation.quantity.positive)
+      .max(productStock.balance, dictionary.forms.stores.convertToAsset.errors.validation.quantity.max.replace('{count}', productStock.balance)),
+    asset_product_id: yup.number().required(dictionary.forms.stores.convertToAsset.errors.validation.assetProduct.required).positive(),
     cost_center_id: yup.number().nullable(),
-    conversion_date: yup.string().required('Conversion date is required'),
+    conversion_date: yup.string().required(dictionary.forms.stores.convertToAsset.errors.validation.conversionDate.required),
     remarks: yup.string().nullable(),
   });
 
@@ -96,14 +98,17 @@ function ConvertToAssetDialogContent({ productStock, toggleOpen }) {
 
   return (
     <form autoComplete="off" onSubmit={handleSubmit(onSubmit)}>
-      <DialogTitle>Convert to Asset</DialogTitle>
+      <DialogTitle>{dictionary.forms.stores.convertToAsset.title}</DialogTitle>
       <DialogContent>
         <Grid container p={1} spacing={1} rowGap={1}>
           <Grid size={12}>
             <Alert severity="info">
-              {productStock.name} — {productStock.balance} {productStock.measurement_unit?.symbol} available
+              {dictionary.forms.stores.convertToAsset.messages.availableUnits
+                .replace('{name}', productStock.name)
+                .replace('{balance}', productStock.balance)
+                .replace('{symbol}', productStock.measurement_unit?.symbol ?? '')}
               {productStock.latest_rate
-                ? ` at an average cost of ${fmt(productStock.latest_rate)} per unit`
+                ? dictionary.forms.stores.convertToAsset.messages.atAverageCost.replace('{cost}', fmt(productStock.latest_rate))
                 : ''}
             </Alert>
           </Grid>
@@ -112,7 +117,7 @@ function ConvertToAssetDialogContent({ productStock, toggleOpen }) {
               fullWidth
               size="small"
               type="number"
-              label="Quantity to Convert"
+              label={dictionary.forms.stores.convertToAsset.labels.quantityToConvert}
               error={Boolean(errors.quantity)}
               helperText={errors.quantity?.message}
               inputProps={{ min: 1, max: productStock.balance }}
@@ -121,7 +126,7 @@ function ConvertToAssetDialogContent({ productStock, toggleOpen }) {
           </Grid>
           <Grid size={{ xs: 12, md: 6 }}>
             <DateTimePicker
-              label="Conversion Date"
+              label={dictionary.forms.stores.convertToAsset.labels.conversionDate}
               defaultValue={dayjs()}
               slotProps={{
                 textField: {
@@ -136,7 +141,7 @@ function ConvertToAssetDialogContent({ productStock, toggleOpen }) {
           </Grid>
           <Grid size={{ xs: 12, md: multiCostCenters ? 6 : 12 }}>
             <ProductSelect
-              label="Receiving Asset Product"
+              label={dictionary.forms.stores.convertToAsset.labels.receivingAssetProduct}
               allowedTypes={['Asset']}
               showType={false}
               onChange={(newValue) => setValue('asset_product_id', newValue ? newValue.id : null, { shouldValidate: true })}
@@ -146,7 +151,7 @@ function ConvertToAssetDialogContent({ productStock, toggleOpen }) {
           {multiCostCenters && (
             <Grid size={{ xs: 12, md: 6 }}>
               <CostCenterSelector
-                label="Cost Center"
+                label={dictionary.forms.stores.convertToAsset.labels.costCenter}
                 multiple={false}
                 onChange={(newValue) => setValue('cost_center_id', newValue && !Array.isArray(newValue) ? newValue.id : null)}
               />
@@ -156,7 +161,7 @@ function ConvertToAssetDialogContent({ productStock, toggleOpen }) {
             <>
               <Grid size={12}>
                 <Typography variant="subtitle2" color="text.secondary">
-                  Identification / Serial Numbers (optional)
+                  {dictionary.forms.stores.convertToAsset.labels.identificationSerialNumbers}
                 </Typography>
               </Grid>
               {Array.from({ length: quantity }).map((_, index) => (
@@ -164,7 +169,7 @@ function ConvertToAssetDialogContent({ productStock, toggleOpen }) {
                   <TextField
                     fullWidth
                     size="small"
-                    label={`Unit ${index + 1}`}
+                    label={dictionary.forms.stores.convertToAsset.labels.unitN.replace('{n}', index + 1)}
                     value={identifications[index] || ''}
                     onChange={(e) => {
                       const next = [...identifications];
@@ -182,21 +187,21 @@ function ConvertToAssetDialogContent({ productStock, toggleOpen }) {
               multiline
               rows={2}
               size="small"
-              label="Remarks"
+              label={dictionary.forms.stores.convertToAsset.labels.remarks}
               {...register('remarks')}
             />
           </Grid>
         </Grid>
       </DialogContent>
       <DialogActions>
-        <Button size="small" onClick={() => toggleOpen(false)}>Cancel</Button>
+        <Button size="small" onClick={() => toggleOpen(false)}>{dictionary.forms.stores.convertToAsset.buttons.cancel}</Button>
         <LoadingButton
           variant="contained"
           type="submit"
           loading={convertMutation.isPending}
           size="small"
         >
-          Convert
+          {dictionary.forms.stores.convertToAsset.buttons.convert}
         </LoadingButton>
       </DialogActions>
     </form>

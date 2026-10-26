@@ -14,6 +14,7 @@ import { useQuery } from '@tanstack/react-query';
 import React, { useEffect, useState } from 'react';
 import costCenterservices from './cost-center-services';
 import { CostCenter } from './CostCenterType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface CostCenterSelectorProps {
   frontError?: { message?: string } | null;
@@ -31,6 +32,7 @@ interface CostCenterSelectorProps {
 }
 
 function CostCenterSelector(props: CostCenterSelectorProps) {
+  const dictionary = useDictionary();
   const { authOrganization } = useJumboAuth();
   const {
     frontError = null,
@@ -39,7 +41,7 @@ function CostCenterSelector(props: CostCenterSelectorProps) {
     disabled = false,
     readOnly = false,
     allowSameType = false,
-    label = 'Cost Center',
+    label = dictionary.forms.costCenters.form.selector.label,
     helperText = null,
     multiple = true,
     withNotSpecified = false,
@@ -68,7 +70,7 @@ function CostCenterSelector(props: CostCenterSelectorProps) {
   // Helper function to create a "Not Specified" option
   const createNotSpecifiedOption = (): CostCenter => ({
     id: -1,
-    name: 'Not Specified',
+    name: dictionary.forms.costCenters.form.selector.notSpecified,
     code: null,
     description: null,
     status: 'active',
@@ -124,8 +126,16 @@ function CostCenterSelector(props: CostCenterSelectorProps) {
   };
   const groupRank = (type: string) =>
     groupOrder[type] ?? Object.keys(groupOrder).length;
+  const groupTypeLabels: Record<string, string> = {
+    'Work Center': dictionary.forms.costCenters.form.selector.types.workCenter,
+    'Sales Outlet': dictionary.forms.costCenters.form.selector.types.salesOutlet,
+    'Fuel Station': dictionary.forms.costCenters.form.selector.types.fuelStation,
+    Project: dictionary.forms.costCenters.form.selector.types.project,
+  };
   const groupLabel = (type: string) =>
-    !type || type === 'Unassigned' ? 'Unspecified' : type;
+    !type || type === 'Unassigned'
+      ? dictionary.forms.costCenters.form.selector.unspecified
+      : groupTypeLabels[type] ?? type;
 
   const sortByGroup = (costCenters: CostCenter[]) =>
     [...costCenters].sort((a, b) => groupRank(a.type) - groupRank(b.type));

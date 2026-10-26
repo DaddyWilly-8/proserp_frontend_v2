@@ -22,6 +22,7 @@ import { Vendor } from '../../RequisitionType';
 import ProductBudgetCheckDetails from '../listItem/tabs/form/ProductBudgetCheckDetails';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface RequisitionProductItemRowProps {
   currencyDetails?: Currency;
@@ -42,6 +43,7 @@ function RequisitionProductItemRow({
   index,
   showVendors = true,
 }: RequisitionProductItemRowProps) {
+  const dictionary = useDictionary();
   const [expanded, setExpanded] = useState<number | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [vendors, setVendors] = useState(
@@ -167,7 +169,7 @@ function RequisitionProductItemRow({
                       overflowWrap: 'anywhere',
                     }}
                   >
-                    <Tooltip title={'Product'}>
+                    <Tooltip title={dictionary.tooltips.product}>
                       <span>{product_item.product?.name}</span>
                     </Tooltip>
                     {product_item.product && canSeeBudget && (
@@ -208,7 +210,7 @@ function RequisitionProductItemRow({
                   </Typography>
                 }
                 secondary={
-                  <Tooltip title={'Remarks'}>
+                  <Tooltip title={dictionary.tooltips.remarks}>
                     <Typography component="span" fontSize={14} lineHeight={1.25} mb={0}>
                       {product_item.remarks}
                     </Typography>
@@ -217,7 +219,7 @@ function RequisitionProductItemRow({
               />
             </Grid>
             <Grid textAlign={{md: 'end'}} size={{xs: 6, md: 2}}>
-              <Tooltip title="Quantity">
+              <Tooltip title={dictionary.tooltips.quantity}>
                 <Typography>
                   {product_item.quantity?.toLocaleString() ?? '0'} {''}
                   {product_item?.unit_symbol ?? 
@@ -227,18 +229,18 @@ function RequisitionProductItemRow({
               </Tooltip>
             </Grid>
             <Grid textAlign={'end'} size={{xs: 6, md: 2}}>
-              <Tooltip title="Rate">
+              <Tooltip title={dictionary.tooltips.rate}>
                 <Typography>{product_item.rate?.toLocaleString() ?? '0'}</Typography>
               </Tooltip>
             </Grid>
             <Grid textAlign={{md: 'end'}} size={{xs: 6, md: 1.5}}>
-              <Tooltip title="VAT">
+              <Tooltip title={dictionary.tooltips.vat}>
                 <Typography>{lineVat.toLocaleString()}</Typography>
               </Tooltip>
             </Grid>
             <Grid textAlign={'end'} size={{xs: 6, md: 2}}>
               {product_item.rate && product_item.quantity && (
-                <Tooltip title="Amount">
+                <Tooltip title={dictionary.tooltips.amount}>
                   <Typography>
                     {linetotalAmount?.toLocaleString('en-US', {
                       style: 'currency',
@@ -249,7 +251,7 @@ function RequisitionProductItemRow({
               )}
             </Grid>
             <Grid textAlign={'end'} size={{xs: 12, md: 1}}>
-              <Tooltip title='Edit Item'>
+              <Tooltip title={dictionary.tooltips.editItem}>
                 <Box 
                   component="span" 
                   onClick={handleEditClick}
@@ -269,7 +271,7 @@ function RequisitionProductItemRow({
                   <EditOutlined fontSize='small'/>
                 </Box>
               </Tooltip>
-              <Tooltip title='Remove Item'>
+              <Tooltip title={dictionary.tooltips.removeItem}>
                 <Box 
                   component="span" 
                   onClick={handleRemoveClick}

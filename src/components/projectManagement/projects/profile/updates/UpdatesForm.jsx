@@ -27,6 +27,7 @@ import { useProjectProfile } from '../ProjectProfileProvider';
 import DescriptionTab from './tab/DescriptionTab';
 import TaskProgress from './tab/taskProgress/TaskProgress';
 import TaskProgressRow from './tab/taskProgress/TaskProgressRow';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const UpdateFormContext = createContext();
 export const useUpdateFormContext = () => useContext(UpdateFormContext);
@@ -36,6 +37,8 @@ function UpdatesForm({
   update,
   setIsUpdateFormOpen = () => {},
 }) {
+  const dictionary = useDictionary();
+  const t = dictionary.forms.projects.updates;
   const { enqueueSnackbar } = useSnackbar();
   const { project } = useProjectProfile();
   const queryClient = useQueryClient();
@@ -95,7 +98,7 @@ function UpdatesForm({
   });
 
   const validationSchema = yup.object({
-    update_date: yup.date().required('Update date is required'),
+    update_date: yup.date().required(t.errors.updateDateRequired),
   });
 
   const { handleSubmit } = useForm({
@@ -183,13 +186,13 @@ function UpdatesForm({
       }}
     >
       <Typography textAlign='center' variant='h4' paddingTop={1}>
-        {update ? 'Edit Project Update' : 'New Project Update'}
+        {update ? t.titles.edit : t.titles.new}
       </Typography>
 
       <DialogTitle>
         <Tabs value={activeTab} onChange={(e, v) => setActiveTab(v)}>
-          <Tab label='Description' />
-          <Tab label='Tasks Progress' />
+          <Tab label={t.tabs.description} />
+          <Tab label={t.tabs.tasksProgress} />
         </Tabs>
       </DialogTitle>
 
@@ -218,7 +221,7 @@ function UpdatesForm({
 
       <DialogActions>
         <Button size='small' onClick={() => setOpenDialog(false)}>
-          Cancel
+          {t.buttons.cancel}
         </Button>
 
         {activeTab === 0 ? (
@@ -228,7 +231,7 @@ function UpdatesForm({
             onClick={() => setActiveTab((prev) => Math.min(prev + 1, 1))}
             disabled={activeTab >= 1}
           >
-            Next &gt;
+            {t.buttons.next}
           </Button>
         ) : (
           <LoadingButton
@@ -239,7 +242,7 @@ function UpdatesForm({
             size='small'
             loading={addMutation.isPending || updateMutation.isPending}
           >
-            Submit
+            {t.buttons.submit}
           </LoadingButton>
         )}
       </DialogActions>
@@ -247,9 +250,9 @@ function UpdatesForm({
       <Dialog open={showWarning} onClose={() => setShowWarning(false)}>
         <DialogTitle>
           <Grid container alignItems='center' justifyContent='space-between'>
-            <Grid size={{ xs: 11 }}>Unsaved Changes</Grid>
+            <Grid size={{ xs: 11 }}>{t.dialogs.unsavedChanges}</Grid>
             <Grid size={{ xs: 1 }} textAlign='right'>
-              <Tooltip title='Close'>
+              <Tooltip title={dictionary.tooltips.close}>
                 <IconButton size='small' onClick={() => setShowWarning(false)}>
                   <HighlightOff color='primary' />
                 </IconButton>
@@ -257,7 +260,7 @@ function UpdatesForm({
             </Grid>
           </Grid>
         </DialogTitle>
-        <DialogContent>Last item was not added to the list</DialogContent>
+        <DialogContent>{t.dialogs.lastItemNotAdded}</DialogContent>
         <DialogActions>
           <Button
             size='small'
@@ -265,7 +268,7 @@ function UpdatesForm({
               setShowWarning(false);
             }}
           >
-            Return and Add
+            {t.buttons.returnAndAdd}
           </Button>
           <Button
             size='small'
@@ -275,7 +278,7 @@ function UpdatesForm({
             }}
             color='secondary'
           >
-            Submit without add
+            {t.buttons.submitWithoutAdd}
           </Button>
         </DialogActions>
       </Dialog>

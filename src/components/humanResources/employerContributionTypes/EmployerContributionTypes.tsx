@@ -12,8 +12,10 @@ import { EmployerContributionType } from './EmployerContributionType';
 import EmployerContributionTypeActionTail from './EmployerContributionTypeActionTail';
 import EmployerContributionTypesListItem from './EmployerContributionTypesListItem';
 import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const EmployerContributionTypes = () => {
+  const dictionary = useDictionary();
   const params = useParams<{ keyword?: string }>();
   const searchParams = useSearchParams();
   const listRef = useRef<any>(null);
@@ -64,7 +66,7 @@ const EmployerContributionTypes = () => {
     <>
       <LedgerSelectProvider>
         <Typography variant={'h4'} mb={2}>
-          Employer Contribution Types
+          {dictionary.humanResources.employerContributionTypes.list.title}
         </Typography>
         <JumboRqList
           ref={listRef}

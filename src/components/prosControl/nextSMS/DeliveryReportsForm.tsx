@@ -19,6 +19,7 @@ import React, { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import smsServices from './smsServices';
 import { useSnackbar } from 'notistack';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface DeliveryReport {
   messageId: string;
@@ -48,17 +49,18 @@ interface DeliveryReportResponse {
 }
 
 export default function DeliveryReportsForm() {
+  const dictionary = useDictionary();
   const { enqueueSnackbar } = useSnackbar();
   const [reports, setReports] = useState<DeliveryReport[]>([]);
 
   const mutation = useMutation({
     mutationFn: smsServices.getDeliveryReport,
     onSuccess: (data: DeliveryReportResponse) => {
-      enqueueSnackbar('Delivery reports fetched successfully!', { variant: 'success' });
+      enqueueSnackbar(dictionary.forms.nextSms.deliveryReports.success, { variant: 'success' });
       setReports(data.results || []);
     },
     onError: (err: any) => {
-      enqueueSnackbar(err?.response?.data?.message || 'Failed to fetch delivery reports', { variant: 'error' });
+      enqueueSnackbar(err?.response?.data?.message || dictionary.forms.nextSms.deliveryReports.failed, { variant: 'error' });
       setReports([]);
     }
   });
@@ -100,7 +102,7 @@ export default function DeliveryReportsForm() {
 
   return (
     <Box sx={{ mt: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
-      <Typography variant="h6">Get Delivery Reports</Typography>
+      <Typography variant="h6">{dictionary.forms.nextSms.deliveryReports.title}</Typography>
 
       <LoadingButton 
         onClick={handleGetReports}
@@ -108,27 +110,27 @@ export default function DeliveryReportsForm() {
         loading={mutation.isPending}
         sx={{ mb: 2, alignSelf: 'flex-start' }}
       >
-        Get Delivery Reports
+        {dictionary.forms.nextSms.deliveryReports.button}
       </LoadingButton>
 
       {reports.length > 0 && (
         <Card variant="outlined">
           <CardContent>
             <Typography variant="h6" gutterBottom>
-              Delivery Reports ({reports.length} records)
+              {dictionary.forms.nextSms.deliveryReports.recordsTitle.replace('{count}', String(reports.length))}
             </Typography>
             
             <TableContainer component={Paper} sx={{ maxHeight: 400 }}>
               <Table stickyHeader size="small">
                 <TableHead>
                   <TableRow>
-                    <TableCell>To</TableCell>
-                    <TableCell>Status</TableCell>
-                    <TableCell>Description</TableCell>
-                    <TableCell>SMS Count</TableCell>
-                    <TableCell>Sent At</TableCell>
-                    <TableCell>Completed At</TableCell>
-                    <TableCell>Error</TableCell>
+                    <TableCell>{dictionary.forms.nextSms.common.to}</TableCell>
+                    <TableCell>{dictionary.forms.nextSms.common.status}</TableCell>
+                    <TableCell>{dictionary.forms.nextSms.common.description}</TableCell>
+                    <TableCell>{dictionary.forms.nextSms.common.smsCount}</TableCell>
+                    <TableCell>{dictionary.forms.nextSms.common.sentAt}</TableCell>
+                    <TableCell>{dictionary.forms.nextSms.common.completedAt}</TableCell>
+                    <TableCell>{dictionary.forms.nextSms.common.error}</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -143,15 +145,15 @@ export default function DeliveryReportsForm() {
                             size="small"
                           />
                         ) : (
-                          <Chip label="UNKNOWN" color="default" size="small" />
+                          <Chip label={dictionary.forms.nextSms.common.unknown} color="default" size="small" />
                         )}
                       </TableCell>
                       <TableCell>
-                        {report.status?.description || 'No status available'}
+                        {report.status?.description || dictionary.forms.nextSms.deliveryReports.noStatus}
                       </TableCell>
                       <TableCell>{report.smsCount}</TableCell>
                       <TableCell>{formatDate(report.sentAt)}</TableCell>
-                      <TableCell>{report.doneAt ? formatDate(report.doneAt) : 'N/A'}</TableCell>
+                      <TableCell>{report.doneAt ? formatDate(report.doneAt) : dictionary.forms.nextSms.common.notAvailable}</TableCell>
                       <TableCell>
                         {report.error ? (
                           <Chip 
@@ -172,19 +174,19 @@ export default function DeliveryReportsForm() {
             {/* Summary Statistics */}
             <Box sx={{ mt: 2, p: 2, bgcolor: 'grey.50', borderRadius: 1 }}>
               <Typography variant="subtitle2" gutterBottom>
-                Summary
+                {dictionary.forms.nextSms.common.summary}
               </Typography>
               <Typography variant="body2">
-                Total Messages: {reports.length}
+                {dictionary.forms.nextSms.common.totalMessages.replace('{count}', String(reports.length))}
               </Typography>
               <Typography variant="body2">
-                Delivered: {reports.filter(r => r.status?.name === 'DELIVERED_TO_HANDSET').length}
+                {dictionary.forms.nextSms.common.delivered.replace('{count}', String(reports.filter(r => r.status?.name === 'DELIVERED_TO_HANDSET').length))}
               </Typography>
               <Typography variant="body2">
-                Pending: {reports.filter(r => r.status === null).length}
+                {dictionary.forms.nextSms.common.pending.replace('{count}', String(reports.filter(r => r.status === null).length))}
               </Typography>
               <Typography variant="body2">
-                Total SMS: {reports.reduce((total, report) => total + report.smsCount, 0)}
+                {dictionary.forms.nextSms.common.totalSms.replace('{count}', String(reports.reduce((total, report) => total + report.smsCount, 0)))}
               </Typography>
             </Box>
           </CardContent>
@@ -193,7 +195,7 @@ export default function DeliveryReportsForm() {
 
       {mutation.isSuccess && reports.length === 0 && (
         <Typography variant="body2" color="text.secondary">
-          No delivery reports found.
+          {dictionary.forms.nextSms.deliveryReports.empty}
         </Typography>
       )}
     </Box>

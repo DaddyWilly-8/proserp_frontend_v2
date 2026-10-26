@@ -13,8 +13,10 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import ProductSelect from '@/components/productAndServices/products/ProductSelect';
 import { Div } from '@jumbo/shared';
 import CostCenterSelector from '@/components/masters/costCenters/CostCenterSelector';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function LowStockThresholdDialogContent({setOpenDialog, lowStockAlert}) {
+  const dictionary = useDictionary();
   const {activeStore} = useStoreProfile();
   const [openEdit, setOpenEdit] = React.useState(false);
   const {productOptions} = useProductsSelect();
@@ -24,8 +26,8 @@ function LowStockThresholdDialogContent({setOpenDialog, lowStockAlert}) {
   const queryClient = useQueryClient()
 
   const validationSchema = yup.object({
-    product_ids: yup.array().required("Product is required").typeError('Product is required'),
-    threshold: yup.number().positive('Quantity is required').required('Quantity is required').typeError('Quantity is required'),
+    product_ids: yup.array().required(dictionary.forms.stores.lowStockThreshold.errors.validation.product.required).typeError(dictionary.forms.stores.lowStockThreshold.errors.validation.product.required),
+    threshold: yup.number().positive(dictionary.forms.stores.lowStockThreshold.errors.validation.quantity.required).required(dictionary.forms.stores.lowStockThreshold.errors.validation.quantity.required).typeError(dictionary.forms.stores.lowStockThreshold.errors.validation.quantity.required),
     cost_center_ids: yup.array(),
   });
 
@@ -70,7 +72,7 @@ function LowStockThresholdDialogContent({setOpenDialog, lowStockAlert}) {
                 <Div sx={{ mt: 1, mb: 1 }}>
                   <ProductSelect
                     multiple={true}
-                    label='Product'
+                    label={dictionary.forms.stores.lowStockThreshold.labels.product}
                     defaultValue={lowStockAlert && lowStockAlert.product_id}
                     frontError={errors.product_ids}
                     excludeIds={productOptions.filter(product => product.type !== 'Inventory').map(product => product.id)}
@@ -90,7 +92,7 @@ function LowStockThresholdDialogContent({setOpenDialog, lowStockAlert}) {
                     defaultValue={lowStockAlert && lowStockAlert.threshold}
                     error={!!errors?.threshold}
                     helperText={errors?.threshold?.message || ''}
-                    label='Threshold'
+                    label={dictionary.forms.stores.lowStockThreshold.labels.threshold}
                     fullWidth
                     onChange={(newValue) => {
                       setValue(`threshold`, newValue, {
@@ -126,7 +128,7 @@ function LowStockThresholdDialogContent({setOpenDialog, lowStockAlert}) {
                       variant='contained'
                       type='submit'
                     >
-                      Submit
+                      {dictionary.forms.stores.lowStockThreshold.buttons.submit}
                     </LoadingButton>
                   </Div>
               </Grid>
@@ -139,7 +141,7 @@ function LowStockThresholdDialogContent({setOpenDialog, lowStockAlert}) {
       </DialogContent>
       <DialogActions>
         <Button size='small' variant='outlined' onClick={() => setOpenDialog(false)}>
-          Close
+          {dictionary.forms.stores.lowStockThreshold.buttons.close}
         </Button>
       </DialogActions>
     </React.Fragment>

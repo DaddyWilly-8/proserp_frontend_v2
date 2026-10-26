@@ -213,7 +213,7 @@ const ProductCategoryFormDialogContent: React.FC<
                   if (productCategory && productCategory?.id === newValue?.id) {
                     setValue('parent_id', null);
                     setError('parent_id', {
-                      message: 'Cannot be a parent of its own',
+                      message: dictionary.forms.productCategories.form.errors.cannotBeOwnParent,
                     });
                   } else {
                     setValue('parent_id', newValue ? newValue.id : null, {
@@ -249,7 +249,7 @@ const ProductCategoryFormDialogContent: React.FC<
                 }}
                 startAdornment={
                   <Tooltip
-                    title={'Quick Add Ledger'}
+                    title={dictionary.tooltips.quickAddLedger}
                     onClick={() => {
                       setLedgertType('credit');
                       setOpenQuickAddLedger(true);
@@ -285,7 +285,7 @@ const ProductCategoryFormDialogContent: React.FC<
                 }}
                 startAdornment={
                   <Tooltip
-                    title={'Quick Add Ledger'}
+                    title={dictionary.tooltips.quickAddLedger}
                     onClick={() => {
                       setLedgertType('debit');
                       setOpenQuickAddLedger(true);
@@ -330,7 +330,7 @@ const ProductCategoryFormDialogContent: React.FC<
           <QuickAddLedger
             ledgerType={ledgertType}
             toggleOpen={setOpenQuickAddLedger}
-            heading='Quick Add Ledger'
+            heading={dictionary.tooltips.quickAddLedger}
             setAddedLedger={(v) => {
               if (ledgertType === 'credit') {
                 setRecentlyAddedIncomeLedger(v);

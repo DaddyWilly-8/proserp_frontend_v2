@@ -24,23 +24,27 @@ import {
 import { DateTimePicker } from '@mui/x-date-pickers';
 import { useQuery } from '@tanstack/react-query';
 import dayjs from 'dayjs';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as yup from 'yup';
 import PDFContent from '../../../pdf/PDFContent';
 import fuelStationServices from '../../fuelStationServices';
 import TankStockReportPDF from './TankStockReportPDF';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
-const validationSchema = yup.object({
+const buildValidationSchema = (t) => yup.object({
   fuel_station_id: yup
     .number()
-    .required('Station is required')
-    .typeError('Station is required'),
-  from: yup.string().required('Start Date is required'),
-  to: yup.string().required('End Date is required'),
+    .required(t.stationRequired)
+    .typeError(t.stationRequired),
+  from: yup.string().required(t.startDateRequired),
+  to: yup.string().required(t.endDateRequired),
 });
 
 function TankStockReport({ closeDialog }) {
+  const dictionary = useDictionary();
+  const t = dictionary.reports.fuelStationReports.tankStock;
+  const validationSchema = useMemo(() => buildValidationSchema(t), [t]);
   const { authUser, authOrganization } = useJumboAuth();
   const organization = authOrganization.organization;
   const css = useProsERPStyles();
@@ -58,7 +62,7 @@ function TankStockReport({ closeDialog }) {
   const [isFetching, setIsFetching] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
 
-  document.title = 'Tank Stock Report';
+  document.title = t.title;
   const downloadFileName = filters
     ? `Tank Stock Report ${readableDate(filters.from)}-${readableDate(filters.to)}`
     : 'Tank Stock Report';
@@ -131,11 +135,9 @@ function TankStockReport({ closeDialog }) {
           alignItems='center'
           position='relative'
         >
-          <Typography variant='h3' textAlign='center'>
-            Tank Stock Report
-          </Typography>
+          <Typography variant='h3' textAlign='center'>{t.title}</Typography>
           {belowLargeScreen && (
-            <Tooltip title='Close'>
+            <Tooltip title={dictionary.tooltips.close}>
               <IconButton
                 size='small'
                 sx={{ position: 'absolute', right: 20, top: 0 }}
@@ -168,7 +170,7 @@ function TankStockReport({ closeDialog }) {
                   renderInput={(params) => (
                     <TextField
                       {...params}
-                      label='Station'
+                      label={t.station}
                       error={!!errors?.fuel_station_id}
                       helperText={errors?.fuel_station_id?.message}
                     />
@@ -179,7 +181,7 @@ function TankStockReport({ closeDialog }) {
               <Grid size={{ xs: 12, md: 4 }}>
                 <Div sx={{ mt: 1, mb: 1 }}>
                   <DateTimePicker
-                    label='From (MM/DD/YYYY)'
+                    label={t.fromDate}
                     defaultValue={dayjs().startOf('day')}
                     minDate={dayjs(organization.recording_start_date)}
                     ampm={false}
@@ -196,7 +198,7 @@ function TankStockReport({ closeDialog }) {
               <Grid size={{ xs: 12, md: 4 }}>
                 <Div sx={{ mt: 1, mb: 1 }}>
                   <DateTimePicker
-                    label='To (MM/DD/YYYY)'
+                    label={t.toDate}
                     defaultValue={dayjs().endOf('day')}
                     minDate={dayjs(organization.recording_start_date)}
                     ampm={false}
@@ -230,9 +232,7 @@ function TankStockReport({ closeDialog }) {
                   type='submit'
                   size='small'
                   variant='contained'
-                >
-                  Filter
-                </LoadingButton>
+                >{t.filter}</LoadingButton>
               </Grid>
             </Grid>
           </form>
@@ -252,6 +252,7 @@ function TankStockReport({ closeDialog }) {
                 activeStation={activeStation}
                 filters={filters}
                 organization={organization}
+                dictionary={dictionary}
               />
             }
             fileName={downloadFileName}
@@ -259,8 +260,8 @@ function TankStockReport({ closeDialog }) {
         ) : (
           <Alert variant='outlined' severity='info'>
             {filters
-              ? 'No tanks found for the selected station'
-              : 'Please select filters and click "Filter" to generate the report'}
+              ? t.noTanks
+              : t.selectFilters}
           </Alert>
         )}
       </DialogContent>

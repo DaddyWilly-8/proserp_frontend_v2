@@ -5,6 +5,7 @@ import { readableDate } from '@/app/helpers/input-sanitization-helpers';
 import requisitionsServices from '../../requisitionsServices';
 import { MaterialApprovalRequisition } from '../ApprovalRequisitionType';
 import ApprovedIssueItemAction from './ApprovedIssueItemAction';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface ApprovedIssueListItemProps {
   approvedRequisition: MaterialApprovalRequisition;
@@ -26,6 +27,7 @@ function ApprovedIssueListItem({
   approvedRequisition,
   isExpanded,
 }: ApprovedIssueListItemProps) {
+  const dictionary = useDictionary();
   const { data: approvedIssues, isFetching, error } = useQuery({
     queryKey: ['approvedIssues', { id: approvedRequisition.id }],
     queryFn: async () => requisitionsServices.getApprovedIssues(approvedRequisition.id),
@@ -79,12 +81,12 @@ function ApprovedIssueListItem({
             }}
           >
             <Grid size={{ xs: 6, md: 4 }}>
-              <Tooltip title='Issue No.'>
+              <Tooltip title={dictionary.tooltips.issueNo}>
                 <Typography variant='body2' fontWeight='medium'>
                   {issueNo}
                 </Typography>
               </Tooltip>
-              <Tooltip title='Issue Date'>
+              <Tooltip title={dictionary.tooltips.issueDate}>
                 <Typography variant='caption' color='text.secondary' display='block'>
                   {readableDate(issue?.date)}
                 </Typography>
@@ -98,7 +100,7 @@ function ApprovedIssueListItem({
                 </Typography>
               </Tooltip>
               {isTransfer && (
-                <Tooltip title='Receipt Status'>
+                <Tooltip title={dictionary.tooltips.receiptStatus}>
                   <Chip
                     size='small'
                     label={issue.status}
@@ -110,7 +112,7 @@ function ApprovedIssueListItem({
             </Grid>
 
             <Grid size={{ xs: 10, md: 4 }}>
-              <Tooltip title='Narration'>
+              <Tooltip title={dictionary.tooltips.narration}>
                 <Typography variant='body2'>
                   {narration}
                 </Typography>

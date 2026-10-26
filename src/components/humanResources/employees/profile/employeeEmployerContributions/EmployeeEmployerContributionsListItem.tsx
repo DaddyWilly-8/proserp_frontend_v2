@@ -4,12 +4,14 @@ import { Divider, Grid, Tooltip, Typography } from '@mui/material';
 import dayjs from 'dayjs';
 import EmployeeEmployerContributionItemAction from './EmployeeEmployerContributionItemAction';
 import { EmployeeEmployerContributionType } from './EmployeeEmployerContributionType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const EmployeeEmployerContributionsListItem = ({
   employeeEmployerContribution,
 }: {
   employeeEmployerContribution: EmployeeEmployerContributionType;
 }) => {
+  const dictionary = useDictionary();
   return (
     <>
       <Divider />
@@ -29,27 +31,35 @@ const EmployeeEmployerContributionsListItem = ({
         container
       >
         <Grid size={{ xs: 6, md: 3.0 }}>
-          <Tooltip title='Contribution Type'>
+          <Tooltip title={dictionary.tooltips.contributionType}>
             <Typography>
               {employeeEmployerContribution.contribution_type?.name ||
-                `Type #${employeeEmployerContribution.employer_contribution_type_id}`}
+                dictionary.humanResources.employeeEmployerContributions.list.typeFallback.replace(
+                  '{id}',
+                  String(
+                    employeeEmployerContribution.employer_contribution_type_id
+                  )
+                )}
             </Typography>
           </Tooltip>
           {employeeEmployerContribution.member_no && (
-            <Tooltip title='Member No.'>
+            <Tooltip title={dictionary.tooltips.memberNo}>
               <Typography
                 variant='caption'
                 color='text.secondary'
                 display='block'
               >
-                No: {employeeEmployerContribution.member_no}
+                {dictionary.humanResources.employeeEmployerContributions.list.memberNo.replace(
+                  '{no}',
+                  employeeEmployerContribution.member_no
+                )}
               </Typography>
             </Tooltip>
           )}
         </Grid>
 
         <Grid size={{ xs: 6, md: 2.0 }}>
-          <Tooltip title='Value'>
+          <Tooltip title={dictionary.tooltips.value}>
             <Typography>
               {Number(employeeEmployerContribution.value || 0).toLocaleString(
                 'en-US'
@@ -59,7 +69,7 @@ const EmployeeEmployerContributionsListItem = ({
         </Grid>
 
         <Grid size={{ xs: 6, md: 2.5 }}>
-          <Tooltip title='Effective From'>
+          <Tooltip title={dictionary.tooltips.effectiveFrom}>
             <Typography>
               {employeeEmployerContribution.effective_from
                 ? dayjs(employeeEmployerContribution.effective_from).format(
@@ -71,13 +81,13 @@ const EmployeeEmployerContributionsListItem = ({
         </Grid>
 
         <Grid size={{ xs: 6, md: 3.5 }}>
-          <Tooltip title='Effective To'>
+          <Tooltip title={dictionary.tooltips.effectiveTo}>
             <Typography>
               {employeeEmployerContribution.effective_to
                 ? dayjs(employeeEmployerContribution.effective_to).format(
                     'YYYY-MM-DD'
                   )
-                : 'Open-ended'}
+                : dictionary.humanResources.employeeEmployerContributions.list.openEnded}
             </Typography>
           </Tooltip>
         </Grid>

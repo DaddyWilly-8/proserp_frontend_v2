@@ -40,6 +40,7 @@ import PDFContent from '../../pdf/PDFContent';
 import posServices from '../../pos/pos-services';
 import { useDashboardSettings } from '../Dashboard';
 import ProductSalesCardPDF from './ProductSalesCardPDF';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface TopOption {
   name: string;
@@ -93,6 +94,7 @@ const topOptions: TopOption[] = [
 ];
 
 function ProductSalesCard() {
+  const dictionary = useDictionary();
   const [openDocumentDialog, setOpenDocumentDialog] = useState(false);
   const { authUser } = useJumboAuth();
   const { authOrganization } = useJumboAuth();
@@ -242,6 +244,7 @@ function ProductSalesCard() {
 
   // ===== actions header ===== //
   const Actions = () => {
+    const dictionary = useDictionary();
     return (
       <Grid container columnSpacing={1} sx={{ alignItems: 'center' }}>
         <Grid size={{ xs: 3.5, md: 3 }}>
@@ -322,7 +325,7 @@ function ProductSalesCard() {
           <Grid size={{ xs: 1, md: 2 }} textAlign='right'>
             <JumboDdMenu
               icon={
-                <Tooltip title='Share'>
+                <Tooltip title={dictionary.tooltips.share}>
                   <Share />
                 </Tooltip>
               }
@@ -540,21 +543,21 @@ function ProductSalesCard() {
                       >
                         <Grid container width={'100%'}>
                           <Grid size={{ xs: 12, md: 6, lg: 3.5 }}>
-                            <Tooltip title={'Product Name'}>
+                            <Tooltip title={dictionary.tooltips.productName}>
                               <Typography sx={{ color: COLORS.default }}>
                                 {product.name}
                               </Typography>
                             </Tooltip>
                           </Grid>
                           <Grid size={{ xs: 6, lg: 1.5 }} textAlign={'end'}>
-                            <Tooltip title={'Quantity Sold'}>
+                            <Tooltip title={dictionary.tooltips.quantitySold}>
                               <Typography sx={{ color: COLORS.quantity }}>
                                 {`${product.unit_symbol} ${product.quantity.toLocaleString()}`}
                               </Typography>
                             </Tooltip>
                           </Grid>
                           <Grid size={{ xs: 6, lg: 2 }} textAlign={'end'}>
-                            <Tooltip title={'Sales'}>
+                            <Tooltip title={dictionary.tooltips.sales}>
                               <Typography sx={{ color: COLORS.revenue }}>
                                 {product.revenue.toLocaleString('en-US', {
                                   maximumFractionDigits: 2,
@@ -564,7 +567,7 @@ function ProductSalesCard() {
                             </Tooltip>
                           </Grid>
                           <Grid size={{ xs: 6, lg: 2 }} textAlign={'end'}>
-                            <Tooltip title={'CoGS'}>
+                            <Tooltip title={dictionary.tooltips.cogs}>
                               <Typography sx={{ color: COLORS.cogs }}>
                                 {product.cogs.toLocaleString('en-US', {
                                   maximumFractionDigits: 2,
@@ -574,7 +577,7 @@ function ProductSalesCard() {
                             </Tooltip>
                           </Grid>
                           <Grid size={{ xs: 6, lg: 2 }} textAlign={'end'}>
-                            <Tooltip title={'Profit'}>
+                            <Tooltip title={dictionary.tooltips.profit}>
                               <Typography sx={{ color: COLORS.profit }}>
                                 {product.profit.toLocaleString('en-US', {
                                   maximumFractionDigits: 2,
@@ -584,7 +587,7 @@ function ProductSalesCard() {
                             </Tooltip>
                           </Grid>
                           <Grid size={{ xs: 6, lg: 1 }} textAlign={'end'}>
-                            <Tooltip title={'Margin'}>
+                            <Tooltip title={dictionary.tooltips.margin}>
                               <Typography sx={{ color: COLORS.margin }}>
                                 {`${((product.profit * 100) / product.revenue).toLocaleString('en-US', { maximumFractionDigits: 2, minimumFractionDigits: 2 })}%`}
                               </Typography>
@@ -681,21 +684,21 @@ function ProductSalesCard() {
                         }}
                       >
                         <TableCell>
-                          <Tooltip title={'Product Name'}>
+                          <Tooltip title={dictionary.tooltips.productName}>
                             <Typography sx={{ color: COLORS.default }}>
                               {product.name}
                             </Typography>
                           </Tooltip>
                         </TableCell>
                         <TableCell>
-                          <Tooltip title={'Quantity Sold'}>
+                          <Tooltip title={dictionary.tooltips.quantitySold}>
                             <Typography sx={{ color: COLORS.quantity }}>
                               {`${product.unit_symbol} ${product.quantity.toLocaleString()}`}
                             </Typography>
                           </Tooltip>
                         </TableCell>
                         <TableCell>
-                          <Tooltip title={'Sales'}>
+                          <Tooltip title={dictionary.tooltips.sales}>
                             <Typography sx={{ color: COLORS.revenue }}>
                               {product.revenue.toLocaleString('en-US', {
                                 maximumFractionDigits: 2,
@@ -705,7 +708,7 @@ function ProductSalesCard() {
                           </Tooltip>
                         </TableCell>
                         <TableCell>
-                          <Tooltip title={'CoGS'}>
+                          <Tooltip title={dictionary.tooltips.cogs}>
                             <Typography sx={{ color: COLORS.cogs }}>
                               {product.cogs.toLocaleString('en-US', {
                                 maximumFractionDigits: 2,
@@ -715,7 +718,7 @@ function ProductSalesCard() {
                           </Tooltip>
                         </TableCell>
                         <TableCell>
-                          <Tooltip title={'Profit'}>
+                          <Tooltip title={dictionary.tooltips.profit}>
                             <Typography sx={{ color: COLORS.profit }}>
                               {product.profit.toLocaleString('en-US', {
                                 maximumFractionDigits: 2,
@@ -725,7 +728,7 @@ function ProductSalesCard() {
                           </Tooltip>
                         </TableCell>
                         <TableCell>
-                          <Tooltip title={'Margin'}>
+                          <Tooltip title={dictionary.tooltips.margin}>
                             <Typography sx={{ color: COLORS.margin }}>
                               {`${((product.profit * 100) / product.revenue).toLocaleString('en-US', { maximumFractionDigits: 2, minimumFractionDigits: 2 })}%`}
                             </Typography>

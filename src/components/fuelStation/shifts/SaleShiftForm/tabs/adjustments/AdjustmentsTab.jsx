@@ -6,6 +6,7 @@ import {
 } from '@mui/material';
 import Adjustments from './Adjustments';
 import AdjustmentsRow from './AdjustmentsRow';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function AdjustmentsTab({  
   cashierIndex, 
@@ -13,6 +14,7 @@ function AdjustmentsTab({
   setLocalAdjustments,
   cashierPumpProducts
 }) {
+  const dictionary = useDictionary();
 
   return (
     <Box>
@@ -35,7 +37,7 @@ function AdjustmentsTab({
       
       {localAdjustments.length === 0 && (
         <Typography color="textSecondary" textAlign="center" py={4}>
-          No Adjustments added for this cashier yet. Add one using the form above.
+          {dictionary.forms.shifts.messages.noAdjustments}
         </Typography>
       )}
     </Box>

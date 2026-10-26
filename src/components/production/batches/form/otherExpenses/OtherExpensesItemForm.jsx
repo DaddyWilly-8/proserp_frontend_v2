@@ -10,19 +10,21 @@ import LedgerSelect from '@/components/accounts/ledgers/forms/LedgerSelect';
 import CurrencySelector from '@/components/masters/Currencies/CurrencySelector';
 import CommaSeparatedField from '@/shared/Inputs/CommaSeparatedField';
 import { sanitizedNumber } from '@/app/helpers/input-sanitization-helpers';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function OtherExpensesItemForm({setClearFormKey, submitMainForm, submitItemForm, setSubmitItemForm, setIsDirty, otherExpenses, setOtherExpenses, item = null,index = -1, setShowForm = null}) {
+  const dictionary = useDictionary();
   const [isAdding, setIsAdding] = useState(false);
   const [calculatedAmount, setCalculatedAmount] = useState(0);
   const { currencies } = useCurrencySelect();
   const baseCurrency = currencies.find(c => c.is_base === 1);
 
   const validationSchema = yup.object({
-    currency_id: yup.number().positive('Currency is required').required('Currency is required').typeError('Currency is required'),
-    exchange_rate: yup.number().positive('Exchange rate is required').required('Exchange rate is required').typeError('Exchange rate is required'),
-    ledger_id: yup.number().required("Expense name is required").typeError('Expense name is required'),
-    quantity: yup.number().positive('Quantity is required').required("Quantity is required").positive("Quantity is required").typeError('Quantity is required'),
-    rate: yup.number().positive('Rate is required').required("Rate is required").positive("Rate is required").typeError('Rate is required'),
+    currency_id: yup.number().positive(dictionary.forms.batches.validation.currencyRequired).required(dictionary.forms.batches.validation.currencyRequired).typeError(dictionary.forms.batches.validation.currencyRequired),
+    exchange_rate: yup.number().positive(dictionary.forms.batches.validation.exchangeRateRequired).required(dictionary.forms.batches.validation.exchangeRateRequired).typeError(dictionary.forms.batches.validation.exchangeRateRequired),
+    ledger_id: yup.number().required(dictionary.forms.batches.validation.expenseNameRequired).typeError(dictionary.forms.batches.validation.expenseNameRequired),
+    quantity: yup.number().positive(dictionary.forms.batches.validation.quantityRequired).required(dictionary.forms.batches.validation.quantityRequired).positive(dictionary.forms.batches.validation.quantityRequired).typeError(dictionary.forms.batches.validation.quantityRequired),
+    rate: yup.number().positive(dictionary.forms.batches.validation.rateRequired).required(dictionary.forms.batches.validation.rateRequired).positive(dictionary.forms.batches.validation.rateRequired).typeError(dictionary.forms.batches.validation.rateRequired),
   });
 
   const {setValue, handleSubmit, watch, clearErrors, register, reset, formState: {errors, dirtyFields}} = useForm({
@@ -104,7 +106,7 @@ function OtherExpensesItemForm({setClearFormKey, submitMainForm, submitItemForm,
           <Div sx={{ mt: 0.3 }}>
             <LedgerSelect
               multiple={false}
-              label="Expense"
+              label={dictionary.forms.batches.labels.expense}
               allowedGroups={['Expenses']}
               defaultValue={item && item.ledger}
               frontError={errors?.ledger_id}
@@ -143,7 +145,7 @@ function OtherExpensesItemForm({setClearFormKey, submitMainForm, submitItemForm,
           <Grid size={{xs: 12, md: 3}}>
             <Div sx={{ mt: 0.3}}>
               <TextField
-                label="Exchange Rate"
+                label={dictionary.forms.batches.labels.exchangeRate}
                 fullWidth
                 size='small'
                 error={!!errors?.exchange_rate}
@@ -165,7 +167,7 @@ function OtherExpensesItemForm({setClearFormKey, submitMainForm, submitItemForm,
         <Grid size={{xs: 12, md: 3}}>
           <Div sx={{mt: 0.3}}>
             <TextField
-              label="Quantity"
+              label={dictionary.forms.batches.labels.quantity}
               fullWidth
               size="small"
               defaultValue={item && item.quantity}
@@ -186,7 +188,7 @@ function OtherExpensesItemForm({setClearFormKey, submitMainForm, submitItemForm,
         <Grid size={{xs: 12, md: 3}}>
           <Div sx={{mt: 0.3}}>
             <TextField
-              label="Rate"
+              label={dictionary.forms.batches.labels.rate}
               fullWidth
               size="small"
               defaultValue={item && item.rate}
@@ -207,7 +209,7 @@ function OtherExpensesItemForm({setClearFormKey, submitMainForm, submitItemForm,
         <Grid size={{xs: 12, md: 3}}>
           <Div sx={{mt: 0.3}}>
             <TextField
-              label="Amount"
+              label={dictionary.forms.batches.labels.amount}
               fullWidth
               size='small'
               value={calculatedAmount}
@@ -221,7 +223,7 @@ function OtherExpensesItemForm({setClearFormKey, submitMainForm, submitItemForm,
         <Grid size={{xs: 12, md: 6}}>
           <Div sx={{mt: 0.3}}>
             <TextField
-              label="Remarks"
+              label={dictionary.forms.batches.labels.remarks}
               fullWidth
               size="small"
               {...register('remarks')}
@@ -237,15 +239,15 @@ function OtherExpensesItemForm({setClearFormKey, submitMainForm, submitItemForm,
           >
             {
               item ? (
-                <><CheckOutlined fontSize='small' /> Done</>
+                <><CheckOutlined fontSize='small' /> {dictionary.forms.batches.buttons.done}</>
               ) : (
-                <><AddOutlined fontSize='small' /> Add</>
+                <><AddOutlined fontSize='small' /> {dictionary.forms.batches.buttons.add}</>
               )
             }
           </Button>
           {
             item && 
-            <Tooltip title='Close Edit'>
+            <Tooltip title={dictionary.tooltips.closeEdit}>
               <IconButton size='small' 
                 onClick={() => {
                   setShowForm(false);

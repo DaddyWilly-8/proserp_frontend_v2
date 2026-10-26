@@ -8,6 +8,7 @@ import { useQuery } from '@tanstack/react-query';
 import requisitionsServices from '../../requisitionsServices';
 import { PaymentApprovalRequisition } from '../ApprovalRequisitionType';
 import ImprestRetirementForm from './form/ImprestRetirementForm';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface ImprestRetirementActionTailProps {
   approvedRequisition: PaymentApprovalRequisition;
@@ -18,6 +19,7 @@ const ImprestRetirementActionTail: React.FC<ImprestRetirementActionTailProps> = 
   approvedRequisition,
   isExpanded,
 }) => {
+  const dictionary = useDictionary();
   const { theme } = useJumboTheme();
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
   const [openDialog, setOpenDialog] = useState(false);
@@ -56,7 +58,7 @@ const ImprestRetirementActionTail: React.FC<ImprestRetirementActionTailProps> = 
         disableElevation
         sx={{ '& .MuiButton-root': { px: 1 } }}
       >
-        <Tooltip title="Retire Imprest">
+        <Tooltip title={dictionary.tooltips.retireImprest}>
           <IconButton onClick={() => setOpenDialog(true)}>
             <AssignmentTurnedInOutlined />
           </IconButton>

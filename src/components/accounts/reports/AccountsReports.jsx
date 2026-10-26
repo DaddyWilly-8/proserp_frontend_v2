@@ -37,8 +37,10 @@ import IncomeStatement from './incomeStatement/IncomeStatement';
 import TrialBalance from './trial balance/TrialBalance';
 import XReport from './zReport/ZReport';
 import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function AccountsReports() {
+  const dictionary = useDictionary();
   const searchParams = useSearchParams();
   const css = useProsERPStyles();
   const [openDialog, setOpenDialog] = useState(false);
@@ -150,14 +152,14 @@ function AccountsReports() {
                     setOpenIncomeStatement(false);
                   }}
                 >
-                  Close
+                  {dictionary.reports.accountsReports.common.close}
                 </Button>
               )}
             </DialogActions>
           }
         </Dialog>
         <Typography variant={'h4'} mb={2}>
-          Financial Reports
+          {dictionary.reports.accountsReports.main.financialReports}
         </Typography>
         <JumboCardQuick sx={{ height: '100%' }}>
           <Grid container textAlign={'center'} columnSpacing={2} rowSpacing={2}>
@@ -183,7 +185,9 @@ function AccountsReports() {
                 icon={faMoneyBill1}
                 style={{ fontSize: '48px' }}
               />
-              <Typography>Cashier Report</Typography>
+              <Typography>
+                {dictionary.reports.accountsReports.cashierReport.title}
+              </Typography>
             </Grid>
             <Grid
               sx={{
@@ -205,7 +209,9 @@ function AccountsReports() {
               }}
             >
               <ViewTimelineOutlined sx={{ fontSize: '40px' }} />
-              <Typography>Income Statement</Typography>
+              <Typography>
+                {dictionary.reports.accountsReports.incomeStatement.title}
+              </Typography>
             </Grid>
             <Grid
               sx={{
@@ -227,7 +233,9 @@ function AccountsReports() {
               }}
             >
               <DeckOutlined sx={{ fontSize: '40px' }} />
-              <Typography>Trial Balance</Typography>
+              <Typography>
+                {dictionary.reports.accountsReports.trialBalance.title}
+              </Typography>
             </Grid>
             <Grid
               sx={{
@@ -249,7 +257,9 @@ function AccountsReports() {
               }}
             >
               <BalanceOutlined sx={{ fontSize: '40px' }} />
-              <Typography>Balance Sheet</Typography>
+              <Typography>
+                {dictionary.reports.accountsReports.balanceSheet.title}
+              </Typography>
             </Grid>
             {authOrganization?.organization?.tra_serial_number && (
               <React.Fragment>
@@ -269,7 +279,9 @@ function AccountsReports() {
                   }}
                 >
                   <ReceiptLongOutlined sx={{ fontSize: '40px' }} />
-                  <Typography>Z Report</Typography>
+                  <Typography>
+                    {dictionary.reports.accountsReports.zReport.title}
+                  </Typography>
                 </Grid>
               </React.Fragment>
             )}
@@ -293,7 +305,9 @@ function AccountsReports() {
               }}
             >
               <Money sx={{ fontSize: '40px' }} />
-              <Typography>Debtors & Creditors</Typography>
+              <Typography>
+                {dictionary.reports.accountsReports.debtorCreditor.title}
+              </Typography>
             </Grid>
             <Grid
               sx={{
@@ -311,7 +325,9 @@ function AccountsReports() {
               }}
             >
               <QueryStatsOutlined sx={{ fontSize: '40px' }} />
-              <Typography>A/P &amp; A/R Aging</Typography>
+              <Typography>
+                {dictionary.reports.accountsReports.agingReport.title}
+              </Typography>
             </Grid>
           </Grid>
         </JumboCardQuick>

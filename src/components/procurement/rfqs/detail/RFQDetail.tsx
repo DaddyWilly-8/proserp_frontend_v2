@@ -73,12 +73,14 @@ import LedgerSelectProvider from '@/components/accounts/ledgers/forms/LedgerSele
 import RFQPDF from '../RFQPDF';
 import PDFContent from '@/components/pdf/PDFContent';
 import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface RFQDetailProps {
   rfqId?: string;
 }
 
 function RFQDetail({ rfqId: rfqIdProp }: RFQDetailProps) {
+  const dictionary = useDictionary();
   const params = useParams();
   const [mounted, setMounted] = useState(false);
   const { checkOrganizationPermission, organizationHasSubscribed, authOrganization } = useJumboAuth();
@@ -335,7 +337,7 @@ function RFQDetail({ rfqId: rfqIdProp }: RFQDetailProps) {
             <Grid container alignItems="center" justifyContent="space-between">
               <Grid size={{ xs: 12, md: 6 }}>
                 <Stack direction="row" spacing={1} alignItems="center">
-                  <Tooltip title="Back to RFQs">
+                  <Tooltip title={dictionary.tooltips.backToRfqs}>
                     <IconButton onClick={() => router.push(`/${lang}/procurement/rfqs`)}>
                       <ArrowBackOutlined />
                     </IconButton>
@@ -638,20 +640,20 @@ function RFQDetail({ rfqId: rfqIdProp }: RFQDetailProps) {
                           </Typography>
                         </Grid>
                         <Grid size={{ xs: 12, md: 3 }} textAlign="right">
-                          <Tooltip title="View Response">
+                          <Tooltip title={dictionary.tooltips.viewResponse}>
                             <IconButton size="small" onClick={() => setViewResponseId(response.id)}>
                               <VisibilityOutlined fontSize="small" />
                             </IconButton>
                           </Tooltip>
                           {!response.has_purchase_orders && (
-                            <Tooltip title="Edit Response">
+                            <Tooltip title={dictionary.tooltips.editResponse}>
                               <IconButton size="small" onClick={() => setEditResponseId(response.id)}>
                                 <EditOutlined fontSize="small" />
                               </IconButton>
                             </Tooltip>
                           )}
                           {!response.has_purchase_orders && (
-                            <Tooltip title="Delete Response">
+                            <Tooltip title={dictionary.tooltips.deleteResponse}>
                               <IconButton
                                 size="small"
                                 color="error"
@@ -663,7 +665,7 @@ function RFQDetail({ rfqId: rfqIdProp }: RFQDetailProps) {
                             </Tooltip>
                           )}
                           {response.has_purchase_orders && (
-                            <Tooltip title="This response has already been used to create a Purchase Order">
+                            <Tooltip title={dictionary.tooltips.thisResponseHasAlreadyBeenUsed}>
                               <Chip label="Ordered" size="small" color="success" variant="outlined" />
                             </Tooltip>
                           )}

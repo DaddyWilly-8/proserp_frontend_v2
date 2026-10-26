@@ -1,6 +1,7 @@
 // payrollPeriods/PayrollPeriods.tsx
 'use client';
 
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import { useLanguage } from '@/app/[lang]/contexts/LanguageContext';
 import JumboListToolbar from '@jumbo/components/JumboList/components/JumboListToolbar';
 import JumboRqList from '@jumbo/components/JumboReactQuery/JumboRqList';
@@ -18,6 +19,8 @@ import LedgerSelectProvider from '@/components/accounts/ledgers/forms/LedgerSele
 import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
 
 const PayrollPeriods = () => {
+  const dictionary = useDictionary();
+  const t = dictionary.humanResources.payrollPeriods;
   const params = useParams<{ keyword?: string }>();
   const searchParams = useSearchParams();
   const listRef = useRef<any>(null);
@@ -60,7 +63,7 @@ const PayrollPeriods = () => {
     <LedgerSelectProvider>
       <LedgerGroupProvider>
         <Typography variant={'h4'} mb={2}>
-          Payroll Periods
+          {t.list.title}
         </Typography>
         <JumboRqList
           ref={listRef}

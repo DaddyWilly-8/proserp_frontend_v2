@@ -5,8 +5,10 @@ import ApprovalChainForm from './form/ApprovalChainForm';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const ApprovalChainsActionTail = () => {
+  const dictionary = useDictionary();
   const { checkOrganizationPermission } = useJumboAuth();
   const [openDialog, setOpenDialog] = useState(false);
 
@@ -20,7 +22,7 @@ const ApprovalChainsActionTail = () => {
       </Dialog>
       <ButtonGroup variant="outlined" size="small" disableElevation sx={{ '& .MuiButton-root': { px: 1 } }}>
         {checkOrganizationPermission(PERMISSIONS.APPROVAL_CHAINS_CREATE) && (
-          <Tooltip title={'New Approval Chain'}>
+          <Tooltip title={dictionary.tooltips.newApprovalChain}>
             <IconButton onClick={() => setOpenDialog(true)}>
               <AddOutlined />
             </IconButton>

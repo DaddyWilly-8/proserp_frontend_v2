@@ -12,6 +12,7 @@ import LeaveApprovalDialog, {
   getNextPendingLeaveLevel,
 } from './LeaveApprovalDialog';
 import { LeaveRequestType } from './LeaveRequestType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface LeaveApprovalItemActionProps {
   leaveRequest: LeaveRequestType;
@@ -24,6 +25,7 @@ const LeaveApprovalItemAction = ({
   approval,
   approvals,
 }: LeaveApprovalItemActionProps) => {
+  const dictionary = useDictionary();
   const [openDialog, setOpenDialog] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [openApproveDialog, setOpenApproveDialog] = useState(false);
@@ -66,8 +68,8 @@ const LeaveApprovalItemAction = ({
 
   const handleDelete = () => {
     showDialog({
-      title: 'Confirm Delete?',
-      content: 'If you click yes, this Approval will be deleted',
+      title: dictionary.humanResources.leaveRequests.messages.approvalDeleteTitle,
+      content: dictionary.humanResources.leaveRequests.messages.approvalDeleteContent,
       onYes: () => {
         hideDialog();
         deleteApproval(approval.id!);
@@ -100,7 +102,7 @@ const LeaveApprovalItemAction = ({
       />
 
       {canNextApprove && (
-        <Tooltip title='Approve'>
+        <Tooltip title={dictionary.tooltips.approve}>
           <IconButton onClick={() => setOpenApproveDialog(true)}>
             <FactCheckOutlined />
           </IconButton>
@@ -108,7 +110,7 @@ const LeaveApprovalItemAction = ({
       )}
 
       {canEdit && (
-        <Tooltip title='Edit'>
+        <Tooltip title={dictionary.tooltips.edit}>
           <IconButton
             onClick={() => {
               setIsEditMode(true);

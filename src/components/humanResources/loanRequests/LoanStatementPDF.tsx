@@ -35,6 +35,9 @@ interface LoanStatementPDFProps {
   data: LoanStatementData;
   organization: any;
   userName: string;
+  // react-pdf renders outside the React tree, so context isn't available —
+  // the caller passes the dictionary down.
+  dictionary: any;
 }
 
 function money(value?: number | null) {
@@ -48,14 +51,20 @@ export default function LoanStatementPDF({
   data,
   organization,
   userName,
+  dictionary,
 }: LoanStatementPDFProps) {
+  const t = dictionary.humanResources.loanRequests.pdf;
   const mainColor = organization?.settings?.main_color || '#2113AD';
   const lightColor = organization?.settings?.light_color || '#bec5da';
   const contrastText = organization?.settings?.contrast_text || '#FFFFFF';
 
   const { loan, history, projection, summary } = data;
   const employeeName =
-    loan.employee_name || `Employee #${loan.employee_id}`;
+    loan.employee_name ||
+    dictionary.humanResources.loanRequests.common.employeeFallback.replace(
+      '{id}',
+      String(loan.employee_id)
+    );
 
   const headerCellStyle = {
     ...pdfStyles.tableHeader,
@@ -65,20 +74,20 @@ export default function LoanStatementPDF({
   };
 
   const summaryTiles: { label: string; value: string }[] = [
-    { label: 'Amount Approved', value: money(summary.amount_approved) },
-    { label: 'Recovered So Far', value: money(summary.amount_recovered) },
-    { label: 'Outstanding Balance', value: money(summary.outstanding_balance) },
+    { label: t.amountApproved, value: money(summary.amount_approved) },
+    { label: t.recoveredSoFar, value: money(summary.amount_recovered) },
+    { label: t.outstandingBalance, value: money(summary.outstanding_balance) },
     {
-      label: 'Projected Payoff',
+      label: t.projectedPayoff,
       value: summary.fully_recovered
-        ? 'Fully Recovered'
+        ? t.fullyRecovered
         : summary.projected_payoff || '—',
     },
   ];
 
   return (
     <Document
-      title={`Loan Statement - ${employeeName}`}
+      title={t.statementTitle.replace('{name}', employeeName)}
       creator={`${userName} | Powered By ProsERP`}
       producer='ProsERP'
     >
@@ -89,7 +98,7 @@ export default function LoanStatementPDF({
           </View>
           <View style={{ flex: 1, textAlign: 'right' }}>
             <Text style={{ ...pdfStyles.majorInfo, color: mainColor }}>
-              Loan Statement
+              {t.statement}
             </Text>
           </View>
         </View>
@@ -97,7 +106,7 @@ export default function LoanStatementPDF({
         <View style={{ ...pdfStyles.tableRow, marginBottom: 14 }}>
           <View style={{ flex: 1.5 }}>
             <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>
-              Employee
+              {t.employee}
             </Text>
             <Text style={{ ...pdfStyles.minInfo }}>
               {loan.employee_number ? `${loan.employee_number} — ` : ''}
@@ -109,7 +118,7 @@ export default function LoanStatementPDF({
           </View>
           <View style={{ flex: 1 }}>
             <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>
-              Status
+              {t.status}
             </Text>
             <Text style={{ ...pdfStyles.minInfo }}>
               {loan.status_label || '—'}
@@ -117,17 +126,20 @@ export default function LoanStatementPDF({
           </View>
           <View style={{ flex: 1 }}>
             <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>
-              Recovery
+              {t.recovery}
             </Text>
             <Text style={{ ...pdfStyles.minInfo }}>
               {loan.recovery_mode === 'fixed_amount'
-                ? `${money(loan.installment_amount)}/period`
-                : `${money(loan.installment_amount)}/period (installments)`}
+                ? t.perPeriod.replace('{amount}', money(loan.installment_amount))
+                : t.perPeriodInstallments.replace(
+                    '{amount}',
+                    money(loan.installment_amount)
+                  )}
             </Text>
           </View>
           <View style={{ flex: 1 }}>
             <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>
-              Printed On
+              {t.printedOn}
             </Text>
             <Text style={{ ...pdfStyles.minInfo }}>
               {readableDate(undefined, true)}
@@ -159,22 +171,22 @@ export default function LoanStatementPDF({
 
         <View style={{ ...pdfStyles.tableRow, marginBottom: 6 }}>
           <Text style={{ fontSize: 12, fontWeight: 'bold' }}>
-            Repayment History
+            {t.repaymentHistory}
           </Text>
         </View>
         {history.length === 0 ? (
           <Text style={{ fontSize: 9, color: '#666666', marginBottom: 14 }}>
-            No repayments recovered through payroll yet.
+            {t.noPayrollRepayments}
           </Text>
         ) : (
           <View style={{ ...pdfStyles.table, marginBottom: 14 }}>
             <View style={pdfStyles.tableRow}>
-              <Text style={headerCellStyle}>Period</Text>
+              <Text style={headerCellStyle}>{t.period}</Text>
               <Text style={{ ...headerCellStyle, textAlign: 'right' }}>
-                Amount Recovered
+                {t.amountRecovered}
               </Text>
               <Text style={{ ...headerCellStyle, textAlign: 'right' }}>
-                Balance After
+                {t.balanceAfter}
               </Text>
             </View>
             {history.map((row, index) => (
@@ -215,33 +227,30 @@ export default function LoanStatementPDF({
 
         <View style={{ ...pdfStyles.tableRow, marginBottom: 6 }}>
           <Text style={{ fontSize: 12, fontWeight: 'bold' }}>
-            Recovery Projection
+            {t.recoveryProjection}
           </Text>
         </View>
         {summary.fully_recovered ? (
           <Text style={{ fontSize: 9, color: '#15803D' }}>
-            This loan has been fully recovered.
+            {t.loanFullyRecovered}
           </Text>
         ) : projection.length === 0 ? (
           <Text style={{ fontSize: 9, color: '#666666' }}>
-            No per-period recovery amount is set on this loan yet — a
-            projection isn&apos;t available until it&apos;s approved with an
-            installment amount.
+            {t.projectionUnavailable}
           </Text>
         ) : (
           <>
             <Text style={{ fontSize: 8, color: '#666666', marginBottom: 6 }}>
-              Estimate only — assumes the current deduction keeps running
-              unchanged every future period.
+              {t.estimateOnly}
             </Text>
             <View style={pdfStyles.table}>
               <View style={pdfStyles.tableRow}>
-                <Text style={headerCellStyle}>Period (Projected)</Text>
+                <Text style={headerCellStyle}>{t.periodProjected}</Text>
                 <Text style={{ ...headerCellStyle, textAlign: 'right' }}>
-                  Expected Deduction
+                  {t.expectedDeduction}
                 </Text>
                 <Text style={{ ...headerCellStyle, textAlign: 'right' }}>
-                  Balance After
+                  {t.balanceAfter}
                 </Text>
               </View>
               {projection.map((row, index) => (

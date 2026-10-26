@@ -20,8 +20,10 @@ import ProductSelect from '@/components/productAndServices/products/ProductSelec
 import StakeholderQuickAdd from '@/components/masters/stakeholders/StakeholderQuickAdd';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function FuelVouchers({ cashierPumpProducts, index = -1, setShowForm = null, fuelVoucher, productPrices, fuelVouchers=[], setFuelVouchers }) {
+  const dictionary = useDictionary();
   const iu = {id: null, name: 'Calibration/Internal use'};
   const {checkOrganizationPermission} = useJumboAuth();
   const [isAdding, setIsAdding] = useState(false);
@@ -36,17 +38,17 @@ function FuelVouchers({ cashierPumpProducts, index = -1, setShowForm = null, fue
 
   // Define validation schema
   const validationSchema = yup.object({
-    product_id: yup.number().required("Product is required").typeError('Product is required'),
-    quantity: yup.number().required("Quantity is required").positive("Quantity is required").typeError('Quantity is required'),
+    product_id: yup.number().required(dictionary.forms.shifts.validation.productRequired).typeError(dictionary.forms.shifts.validation.productRequired),
+    quantity: yup.number().required(dictionary.forms.shifts.validation.quantityRequired).positive(dictionary.forms.shifts.validation.quantityRequired).typeError(dictionary.forms.shifts.validation.quantityRequired),
     stakeholder_id: yup.mixed().nullable(),
     expense_ledger_id: yup.mixed().nullable(),
   }).test(
     'stakeholder-or-expense-required',
-    'Either of stakeholder or expense ledger required',
+    dictionary.forms.shifts.validation.stakeholderOrExpense,
     function (value, ctx) {
       if (value.stakeholder && value.stakeholder.name === 'Calibration/Internal use') return true;
       if (!!value.stakeholder_id || !!value.expense_ledger_id) return true;
-      return ctx.createError({ path: 'stakeholder-or-expense-required', message: 'Either of stakeholder or expense ledger required' });
+      return ctx.createError({ path: 'stakeholder-or-expense-required', message: dictionary.forms.shifts.validation.stakeholderOrExpense });
     }
   );
 
@@ -137,7 +139,7 @@ function FuelVouchers({ cashierPumpProducts, index = -1, setShowForm = null, fue
           <Grid size={{xs:12, md:4, lg: !watch(`stakeholder_id`) ? 4 : 5}}>
             <Div sx={{ mt: 1}}>
               <StakeholderSelector
-                label='Client'
+                label={dictionary.forms.shifts.labels.client}
                 initialOptions={[iu]}
                 defaultValue={fuelVoucher && fuelVoucher.stakeholder?.id}
                 frontError={errors.stakeholder_id}
@@ -151,7 +153,7 @@ function FuelVouchers({ cashierPumpProducts, index = -1, setShowForm = null, fue
                 }}
                 startAdornment= {
                   checkOrganizationPermission(PERMISSIONS.STAKEHOLDERS_CREATE) && (
-                    <Tooltip title="Add Client">
+                    <Tooltip title={dictionary.tooltips.addClient}>
                       <AddOutlined
                         onClick={() => setStakeholderQuickAddDisplay(true)}
                         sx={{ cursor: 'pointer' }}
@@ -170,7 +172,7 @@ function FuelVouchers({ cashierPumpProducts, index = -1, setShowForm = null, fue
           <Grid size={{xs: 12, md: 4, lg: 4}}>
             <Div sx={{ mt: 1}}>
               <LedgerSelect
-                label={'Expense Ledger'}
+                label={dictionary.forms.shifts.labels.expenseLedger}
                 frontError={errors.expense_ledger_id}
                 defaultValue={ungroupedLedgerOptions.find(ledger => ledger.id === watch(`expense_ledger`)?.id)}
                 allowedGroups={['Expenses']}
@@ -188,7 +190,7 @@ function FuelVouchers({ cashierPumpProducts, index = -1, setShowForm = null, fue
         <Grid size={{xs:12, md:4, lg: !watch(`stakeholder_id`) ? 4 : 3}}>
           <Div sx={{ mt: 1}}>
             <ProductSelect
-              label='Fuel'
+              label={dictionary.forms.shifts.labels.fuel}
               frontError={errors.product_id}
               defaultValue={fuelVoucher && productOptions.find(product => product.id === fuelVoucher.product_id)}
               requiredProducts={cashierPumpProducts}
@@ -212,7 +214,7 @@ function FuelVouchers({ cashierPumpProducts, index = -1, setShowForm = null, fue
               defaultValue={fuelVoucher && fuelVoucher.quantity}
               error={errors && !!errors?.quantity}
               helperText={errors && errors.quantity?.message}
-              label="Quantity"
+              label={dictionary.forms.shifts.labels.quantity}
               value={watch(`quantity`)?.toLocaleString()}
               InputProps={{
                 inputComponent: CommaSeparatedField
@@ -243,7 +245,7 @@ function FuelVouchers({ cashierPumpProducts, index = -1, setShowForm = null, fue
         <Grid size={{xs:12, md:4, lg: !watch(`stakeholder_id`) ? 2 : 2}}>
           <Div sx={{ mt: 1, display: 'flex', alignItems: 'center', gap: 0.5 }}>
             <TextField
-              label="Amount (TZS)"
+              label={dictionary.forms.shifts.labels.amountTzs}
               fullWidth
               key={amountFieldKey}
               size='small'
@@ -258,7 +260,7 @@ function FuelVouchers({ cashierPumpProducts, index = -1, setShowForm = null, fue
               }}
             />
             {watch('expense_ledger_id') && (
-              <Tooltip title="Open discount calculator">
+              <Tooltip title={dictionary.tooltips.openDiscountCalculator}>
                 <IconButton
                   size='small'
                   color='primary'
@@ -276,7 +278,7 @@ function FuelVouchers({ cashierPumpProducts, index = -1, setShowForm = null, fue
               size="small"
               fullWidth
               defaultValue={fuelVoucher && fuelVoucher.reference}
-              label="Reference"
+              label={dictionary.forms.shifts.labels.reference}
               onChange={(e) => {
                 setValue(`reference`,e.target.value ? e.target.value : null,{
                   shouldValidate: true,
@@ -294,7 +296,7 @@ function FuelVouchers({ cashierPumpProducts, index = -1, setShowForm = null, fue
               multiline={true}
               rows={2}
               defaultValue={watch(`narration`)}
-              label="Narration"
+              label={dictionary.forms.shifts.labels.narration}
               onChange={(e) => {
                 setValue(`narration`,e.target.value ? e.target.value : null,{
                   shouldValidate: true,
@@ -314,15 +316,15 @@ function FuelVouchers({ cashierPumpProducts, index = -1, setShowForm = null, fue
           >
             {
               fuelVoucher ? (
-                <><CheckOutlined fontSize='small' /> Done</>
+                <><CheckOutlined fontSize='small' /> {dictionary.forms.shifts.buttons.done}</>
               ) : (
-                <><AddOutlined fontSize='small' /> Add</>
+                <><AddOutlined fontSize='small' /> {dictionary.forms.shifts.buttons.add}</>
               )
             }
           </LoadingButton>
           {
             fuelVoucher && 
-             <Tooltip title='Close Edit'>
+             <Tooltip title={dictionary.tooltips.closeEdit}>
               <IconButton size='small' 
                 onClick={() => {
                   setShowForm?.(false);

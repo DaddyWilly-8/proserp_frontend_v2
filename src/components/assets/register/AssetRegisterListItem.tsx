@@ -39,6 +39,7 @@ const Field = ({ label, value }: { label: string; value?: React.ReactNode }) => 
 );
 
 const AssetAttachmentButton = ({ asset }: { asset: any }) => {
+  const dictionary = useDictionary();
   const [open, setOpen] = useState(false);
   const theme = useTheme();
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
@@ -47,7 +48,7 @@ const AssetAttachmentButton = ({ asset }: { asset: any }) => {
 
   return (
     <>
-      <Tooltip title="Attachments">
+      <Tooltip title={dictionary.tooltips.attachments}>
         <IconButton size="small" onClick={(event) => { event.stopPropagation(); setOpen(true); }}>
           <Badge badgeContent={asset.attachments_count} color="info">
             <AttachmentOutlined fontSize="small" />

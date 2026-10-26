@@ -16,6 +16,7 @@ import { useState } from 'react';
 import humanResourcesServices from '../humanResourcesServices';
 import DesignationForm from './DesignationForm';
 import { Designation } from './DesignationsType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const EditDesignation = ({
   designation,
@@ -52,6 +53,7 @@ const DesignationItemAction = ({
 }: {
   designation: Designation;
 }) => {
+  const dictionary = useDictionary();
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const { showDialog, hideDialog } = useJumboDialog();
   const { enqueueSnackbar } = useSnackbar();
@@ -64,12 +66,12 @@ const DesignationItemAction = ({
     mutationFn: humanResourcesServices.deleteDesignation,
     onSuccess: (data: { message: string }) => {
       queryClient.invalidateQueries({ queryKey: ['designations'] });
-      enqueueSnackbar('Designation Deleted Successfully', {
+      enqueueSnackbar(dictionary.humanResources.designations.actions.deleteSuccess, {
         variant: 'success',
       });
     },
     onError: (error: any) => {
-      let message = 'Something went wrong';
+      let message = dictionary.humanResources.designations.actions.somethingWrong;
 
       if (
         typeof error === 'object' &&
@@ -88,12 +90,12 @@ const DesignationItemAction = ({
   const menuItems = [
     {
       icon: <EditOutlined />,
-      title: 'Edit',
+      title: dictionary.humanResources.designations.actions.edit,
       action: 'edit',
     },
     {
       icon: <DeleteOutlined color='error' />,
-      title: 'Delete',
+      title: dictionary.humanResources.designations.actions.delete,
       action: 'delete',
     },
   ];
@@ -105,8 +107,8 @@ const DesignationItemAction = ({
         break;
       case 'delete':
         showDialog({
-          title: 'Confirm Delete',
-          content: 'Are you sure you want to delete this Designation?',
+          title: dictionary.humanResources.designations.actions.confirmDeleteTitle,
+          content: dictionary.humanResources.designations.actions.confirmDeleteContent,
           onYes: () => {
             hideDialog();
             deleteDesignation(designation.id);
@@ -136,7 +138,7 @@ const DesignationItemAction = ({
       </Dialog>
       <JumboDdMenu
         icon={
-          <Tooltip title='Actions'>
+          <Tooltip title={dictionary.tooltips.actions}>
             <MoreHorizOutlined fontSize='small' />
           </Tooltip>
         }

@@ -6,8 +6,10 @@ import { useStoreProfile } from './StoreProfileProvider';
 import SubStoreTreeItemLabel from './SubStoreTreeItemLabel';
 import { Div } from '@jumbo/shared';
 import { SimpleTreeView, TreeItem } from '@mui/x-tree-view';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function StoreProfileSidebar() {
+  const dictionary = useDictionary();
   const { mainStore, storeArrays: { storeIds, selectOptions } } = useStoreProfile();
   const storeTree = [mainStore];
   const [openDialog, setOpenDialog] = useState(false);
@@ -58,7 +60,7 @@ function StoreProfileSidebar() {
                 <Dialog maxWidth="xs" open={openDialog} onClose={() => setOpenDialog(false)}>
                     <StoreForm setOpenDialog={setOpenDialog} parentOptions={selectOptions} />
                 </Dialog>
-                <Tooltip title="Add Sub-store">
+                <Tooltip title={dictionary.tooltips.addSubStore}>
                     <Button
                         variant="outlined"
                         size="small"

@@ -67,8 +67,8 @@
         "update": "Update",
         "cancel": "Cancel"
       },
-      "pageTitle": "Hariri: {currencyName}",
-      "heading": "Inahaririwa: {currencyName}",
+      "pageTitle": "Edit: {currencyName}",
+      "heading": "Editing: {currencyName}",
       "labels": {
         "asAt": "as_at",
         "rate": "Rate"

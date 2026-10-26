@@ -6,6 +6,7 @@ import { Box, Tab, Tabs } from '@mui/material';
 import { useEffect, useState } from 'react';
 import LeaveAllocations from './leaveAllocations/LeaveAllocations';
 import LeaveRequests from './leaveRequests/LeaveRequests';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 type LeaveSubTab = 'allocations' | 'requests';
 
@@ -14,6 +15,7 @@ export default function EmployeeLeaveTab({
 }: {
   employeeId: number;
 }) {
+  const dictionary = useDictionary();
   const { checkOrganizationPermission } = useJumboAuth();
   const [subTab, setSubTab] = useState<LeaveSubTab>('requests');
   const [canViewAllocations, setCanViewAllocations] = useState(false);
@@ -37,8 +39,8 @@ export default function EmployeeLeaveTab({
         scrollButtons='auto'
         sx={{ mb: 2 }}
       >
-        <Tab label='Leave Allocations' value='allocations' />
-        <Tab label='Leave Requests' value='requests' />
+        <Tab label={dictionary.humanResources.employees.profile.tabs.leaveAllocations} value='allocations' />
+        <Tab label={dictionary.humanResources.employees.profile.tabs.leaveRequests} value='requests' />
       </Tabs>
 
       {subTab === 'allocations' && canViewAllocations && (

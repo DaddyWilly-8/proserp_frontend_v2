@@ -2,8 +2,10 @@ import { ButtonGroup, Dialog, IconButton, Tooltip } from "@mui/material";
 import React, { useState } from "react";
 import { AccountTreeOutlined } from "@mui/icons-material";
 import TasksTreeView from "./TasksTreeView";
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const TasksTreeViewActionTail = () => {
+    const dictionary = useDictionary();
     const [openTasksTreeView, setOpenTasksTreeView] = useState(false);
   
     return (
@@ -13,7 +15,7 @@ const TasksTreeViewActionTail = () => {
             </Dialog>
     
             <ButtonGroup variant="outlined" size="small" disableElevation sx={{ '& .MuiButton-root': { px: 1 } }}>
-                <Tooltip title={"Tasks Tree View"}>
+                <Tooltip title={dictionary.tooltips.tasksTreeView}>
                     <IconButton onClick={() => setOpenTasksTreeView(true)}>
                        <AccountTreeOutlined />
                     </IconButton>

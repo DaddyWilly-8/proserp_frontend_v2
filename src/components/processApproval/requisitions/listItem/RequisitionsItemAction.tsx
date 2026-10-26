@@ -34,6 +34,7 @@ import RequisitionPDF from '../../RequisitionPDF';
 import { requisitionContext } from '../../Requisitions';
 import requisitionsServices from '../../requisitionsServices';
 import { Requisition } from '../../RequisitionType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 // This component is instantiated once per row in the requisitions list, so
 // the edit form, on-screen preview, and Excel export are all loaded on
@@ -222,6 +223,7 @@ const DocumentDialog: React.FC<DocumentDialogProps> = ({
 const RequisitionsItemAction: React.FC<RequisitionsItemActionProps> = ({
   requisition,
 }) => {
+  const dictionary = useDictionary();
   const { showDialog, hideDialog } = useJumboDialog();
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const { setIsEditAction } = useContext(requisitionContext);
@@ -307,13 +309,13 @@ const RequisitionsItemAction: React.FC<RequisitionsItemActionProps> = ({
         )}
       </Dialog>
 
-      <Tooltip title='View'>
+      <Tooltip title={dictionary.tooltips.view}>
         <IconButton onClick={() => setOpenDocumentDialog(true)}>
           <VisibilityOutlined />
         </IconButton>
       </Tooltip>
 
-      <Tooltip title='Duplicate'>
+      <Tooltip title={dictionary.tooltips.duplicate}>
         <IconButton
           size='small'
           onClick={(e) => {
@@ -327,7 +329,7 @@ const RequisitionsItemAction: React.FC<RequisitionsItemActionProps> = ({
       </Tooltip>
 
       {canEdit && (
-        <Tooltip title='Edit'>
+        <Tooltip title={dictionary.tooltips.edit}>
           <IconButton
             onClick={() => {
               setIsDuplicate(false);
@@ -341,7 +343,7 @@ const RequisitionsItemAction: React.FC<RequisitionsItemActionProps> = ({
       )}
 
       {canDelete && (
-        <Tooltip title='Delete'>
+        <Tooltip title={dictionary.tooltips.delete}>
           <IconButton onClick={handleDelete}>
             <DeleteOutlined color='error' />
           </IconButton>

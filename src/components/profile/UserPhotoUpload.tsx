@@ -16,6 +16,7 @@ import { useMutation } from '@tanstack/react-query';
 import axios from 'axios';
 import { useSnackbar } from 'notistack';
 import { useRef, useState } from 'react';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface UserPhotoUploadProps {
   photoPath?: string | null;
@@ -48,6 +49,7 @@ const UserPhotoUpload = ({
   editable = true,
   onChanged,
 }: UserPhotoUploadProps) => {
+  const dictionary = useDictionary();
   const { refreshAuth } = useJumboAuth();
   const { enqueueSnackbar } = useSnackbar();
   const { showDialog, hideDialog } = useJumboDialog();
@@ -143,7 +145,7 @@ const UserPhotoUpload = ({
           <CircularProgress size={size / 3} sx={{ color: 'white' }} />
         </Box>
       )}
-      <Tooltip title='Change photo'>
+      <Tooltip title={dictionary.tooltips.changePhoto}>
         <IconButton
           size='small'
           onClick={(e) => setMenuAnchor(e.currentTarget)}

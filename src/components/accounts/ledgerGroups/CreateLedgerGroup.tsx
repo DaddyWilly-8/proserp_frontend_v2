@@ -20,6 +20,7 @@ import { useForm } from 'react-hook-form';
 import * as yup from 'yup';
 import ledgerServices from '../ledgers/ledger-services';
 import { useLedgerGroup } from './LedgerGroupProvider';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface LedgerGroupFormData {
   id?: number | null;
@@ -54,6 +55,7 @@ export default function CreateLedgerGroup({
     string,
     string[]
   > | null>(null);
+  const dictionary = useDictionary();
   const { enqueueSnackbar } = useSnackbar();
 
   const storeLedgerGroup = useMutation({
@@ -90,14 +92,14 @@ export default function CreateLedgerGroup({
   });
 
   const validationSchema = yup.object({
-    name: yup.string().required('Ledger Group Name is required'),
+    name: yup.string().required(dictionary.forms.ledgerGroups.form.errors.validation.nameRequired),
     parentGroupId: yup
       .mixed()
       .oneOf(
         ledgerGroupOptionIds,
-        'Please select a value from the given options'
+        dictionary.forms.ledgerGroups.form.errors.validation.selectFromOptions
       )
-      .required('Parent Group is required'),
+      .required(dictionary.forms.ledgerGroups.form.errors.validation.parentRequired),
   });
 
   const {
@@ -163,7 +165,7 @@ export default function CreateLedgerGroup({
 
   return (
     <JumboCardQuick
-      title={ledgerGroup ? 'Edit Ledger Group' : 'Create Ledger Group'}
+      title={ledgerGroup ? dictionary.forms.ledgerGroups.form.title.edit : dictionary.forms.ledgerGroups.form.title.create}
       sx={{ borderRadius: 2 }}
     >
       {isLoading ? (
@@ -179,7 +181,7 @@ export default function CreateLedgerGroup({
             <Grid size={{ xs: 12, sm: 6 }}>
               <TextField
                 fullWidth
-                label='Ledger Group Name'
+                label={dictionary.forms.ledgerGroups.form.labels.name}
                 size='small'
                 error={!!errors.name || !!serverError?.name}
                 helperText={errors.name?.message || serverError?.name?.[0]}
@@ -190,7 +192,7 @@ export default function CreateLedgerGroup({
             <Grid size={{ xs: 12, sm: 6 }}>
               <TextField
                 fullWidth
-                label='Alias (optional)'
+                label={dictionary.forms.ledgerGroups.form.labels.alias}
                 size='small'
                 {...register('alias')}
                 onChange={(e) => handleFieldChange('alias', e.target.value)}
@@ -223,7 +225,7 @@ export default function CreateLedgerGroup({
                 renderInput={(params) => (
                   <TextField
                     {...params}
-                    label='Parent Group'
+                    label={dictionary.forms.ledgerGroups.form.labels.parentGroup}
                     error={
                       !!errors.parentGroupId || !!serverError?.parentGroupId
                     }
@@ -238,7 +240,7 @@ export default function CreateLedgerGroup({
             <Grid size={{ xs: 12, sm: 6 }}>
               <TextField
                 fullWidth
-                label='Code (optional)'
+                label={dictionary.forms.ledgerGroups.form.labels.code}
                 size='small'
                 {...register('code')}
                 onChange={(e) => handleFieldChange('code', e.target.value)}
@@ -252,7 +254,7 @@ export default function CreateLedgerGroup({
             <Grid size={12}>
               <TextField
                 fullWidth
-                label='Description (optional)'
+                label={dictionary.forms.ledgerGroups.form.labels.description}
                 size='small'
                 multiline={true}
                 minRows={2}
@@ -274,7 +276,7 @@ export default function CreateLedgerGroup({
                     variant='outlined'
                     onClick={() => setOpenEdit?.(false)}
                   >
-                    Cancel
+                    {dictionary.forms.ledgerGroups.form.buttons.cancel}
                   </Button>
                 )}
                 <LoadingButton
@@ -283,7 +285,7 @@ export default function CreateLedgerGroup({
                   size='small'
                   loading={saveMutation.isPending}
                 >
-                  Submit
+                  {dictionary.forms.ledgerGroups.form.buttons.submit}
                 </LoadingButton>
               </Box>
             </Grid>

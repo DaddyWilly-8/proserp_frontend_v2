@@ -35,6 +35,7 @@ import fuelStationServices from '../../fuelStationServices';
 import PDFContent from '../../../pdf/PDFContent';
 import ShiftsSummaryReportOnScreen from './ShiftsSummaryReportOnScreen';
 import ShiftsSummaryReportPDF from './ShiftsSummaryReportPDF';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 dayjs.extend(isSameOrAfter);
 
 interface QueryParams {
@@ -49,18 +50,18 @@ interface FilterFormValues {
   stations: Station[];
 }
 
-const filterSchema = yup.object({
+const buildFilterSchema = (t: any) => yup.object({
   from: yup
     .mixed<Dayjs>()
-    .required('From date is required')
-    .test('is-dayjs', 'Invalid date', dayjs.isDayjs),
+    .required(t.fromDateRequired)
+    .test('is-dayjs', t.invalidDate, dayjs.isDayjs),
   to: yup
     .mixed<Dayjs>()
-    .required('To date is required')
-    .test('is-dayjs', 'Invalid date', dayjs.isDayjs)
+    .required(t.toDateRequired)
+    .test('is-dayjs', t.invalidDate, dayjs.isDayjs)
     .test(
       'after-or-same',
-      'To date must be after or same as From date',
+      t.toDateAfterFrom,
       function (value) {
         const { from } = this.parent;
         return !from || !value || dayjs(value).isSameOrAfter(dayjs(from));
@@ -76,6 +77,9 @@ interface ShiftsSummaryReportProps {
 const ShiftsSummaryReport: React.FC<ShiftsSummaryReportProps> = ({
   closeDialog,
 }) => {
+  const dictionary = useDictionary();
+  const t = dictionary.reports.fuelStationReports.shiftsSummary;
+  const filterSchema = React.useMemo(() => buildFilterSchema(t), [t]);
   const css = useProsERPStyles();
   const { authOrganization, authUser } = useJumboAuth();
   const organization = authOrganization?.organization;
@@ -161,10 +165,10 @@ const ShiftsSummaryReport: React.FC<ShiftsSummaryReportProps> = ({
           position='relative'
         >
           <Typography variant='h4' fontWeight={600}>
-            Shifts Summary Report
+            {t.title}
           </Typography>
           {belowLargeScreen && (
-            <Tooltip title='Close'>
+            <Tooltip title={dictionary.tooltips.close}>
               <IconButton
                 size='small'
                 sx={{ position: 'absolute', right: 20, top: 0 }}
@@ -192,7 +196,7 @@ const ShiftsSummaryReport: React.FC<ShiftsSummaryReportProps> = ({
                   render={({ field, fieldState: { error } }) => (
                     <StationSelector
                       multiple
-                      label='Stations (leave empty for all)'
+                      label={t.stationsLabel}
                       defaultValue={[]}
                       frontError={error}
                       onChange={(newValue) =>
@@ -212,7 +216,7 @@ const ShiftsSummaryReport: React.FC<ShiftsSummaryReportProps> = ({
                   render={({ field, fieldState: { error } }) => (
                     <Div sx={{ mt: 1, mb: 1 }}>
                       <DateTimePicker
-                        label='From'
+                        label={t.from}
                         value={field.value}
                         minDate={dayjs(organization?.recording_start_date)}
                         ampm={false}
@@ -238,7 +242,7 @@ const ShiftsSummaryReport: React.FC<ShiftsSummaryReportProps> = ({
                   render={({ field, fieldState: { error } }) => (
                     <Div sx={{ mt: 1, mb: 1 }}>
                       <DateTimePicker
-                        label='To'
+                        label={t.to}
                         value={field.value}
                         minDate={dayjs(organization?.recording_start_date)}
                         ampm={false}
@@ -282,7 +286,7 @@ const ShiftsSummaryReport: React.FC<ShiftsSummaryReportProps> = ({
                   loading={isFetchingReport}
                   variant='contained'
                 >
-                  Filter
+                  {t.filter}
                 </LoadingButton>
               </Grid>
             </Grid>
@@ -326,6 +330,7 @@ const ShiftsSummaryReport: React.FC<ShiftsSummaryReportProps> = ({
                   reportData={reportData}
                   organization={organization}
                   user={user}
+                  dictionary={dictionary}
                   from={reportFilters!.from}
                   to={reportFilters!.to}
                 />
@@ -336,8 +341,8 @@ const ShiftsSummaryReport: React.FC<ShiftsSummaryReportProps> = ({
         ) : (
           <Alert variant='outlined' severity='info'>
             {queryParams
-              ? 'No data present for the selected filters'
-              : 'Please select filters and click "Filter" to generate the report'}
+              ? t.noData
+              : t.selectFilters}
           </Alert>
         )}
       </DialogContent>

@@ -1,0 +1,718 @@
+{
+  "transactions": {
+    "itemForm": {
+      "labels": {
+        "payDebit": "Lipa (Debit)",
+        "toDebit": "Kwenda (Debit)",
+        "debit": "Deni (Debit)",
+        "fromCredit": "Kutoka (Credit)",
+        "credit": "Mkopo (Credit)",
+        "linkTo": "Unganisha Na (si lazima)",
+        "description": "Maelezo",
+        "amount": "Kiasi",
+        "purchaseOrder": "Agizo la Ununuzi",
+        "bill": "Ankara ya Ununuzi",
+        "invoice": "Ankara"
+      },
+      "buttons": {
+        "done": "Imekamilika",
+        "add": "Ongeza"
+      },
+      "errors": {
+        "validation": {
+          "debitRequired": "Akaunti ya Debit inahitajika",
+          "creditRequired": "Akaunti ya Credit inahitajika",
+          "sameAccounts": "Akaunti za Debit na Credit haziwezi kuwa moja",
+          "descriptionRequired": "Maelezo yanahitajika",
+          "amountRequired": "Kiasi kinahitajika",
+          "amountPositive": "Kiasi lazima kiwe kikubwa kuliko 0",
+          "amountExceedsRelatable": "Kiasi hakipaswi kuzidi kiasi ambacho hakijaidhinishwa cha kipengee kilichochaguliwa",
+          "amountExceedsCapped": "Kiasi hakipaswi kuzidi kiasi ambacho hakijaidhinishwa ({max}) — kimewekewa kikomo dhidi ya {purchaseOrderNo}, si Ankara hii yenyewe",
+          "amountExceedsMax": "Kiasi hakipaswi kuzidi kiasi ambacho hakijaidhinishwa ({max}) cha kipengee kilichochaguliwa",
+          "currencyMismatch": "Sarafu ya leja hailingani na sarafu iliyochaguliwa.",
+          "currencyMustMatch": "Sarafu ya leja lazima ilingane na sarafu iliyochaguliwa."
+        }
+      }
+    },
+    "itemRow": {
+      "labels": {
+        "bill": "Ankara ya Ununuzi",
+        "invoice": "Ankara",
+        "purchaseOrder": "LPO"
+      }
+    },
+    "reconciled": {
+      "title": "Muamala",
+      "alert": "Muamala huu umelinganishwa katika upatanisho wa benki, hivyo sehemu nyingi zimefungwa ili kulinda ulinganisho huo. Ni vituo vyake vya gharama pekee vinavyoweza kubadilishwa hapa.",
+      "labels": {
+        "date": "Tarehe",
+        "narration": "Maelezo ya Muamala",
+        "costCenters": "Vituo vya Gharama"
+      },
+      "buttons": {
+        "cancel": "Ghairi",
+        "save": "Hifadhi"
+      },
+      "messages": {
+        "updateSuccess": "Vituo vya gharama vimesasishwa kwa mafanikio"
+      }
+    }
+  },
+  "payments": {
+    "form": {
+      "title": {
+        "new": "Fomu Mpya ya Malipo",
+        "edit": "Hariri: {voucherNo}",
+        "duplicate": "Nakili: {voucherNo}"
+      },
+      "labels": {
+        "paymentDate": "Tarehe ya Malipo (MM/DD/YYYY)",
+        "payFromCredit": "Lipa Kutoka (Credit)",
+        "reference": "Rejea",
+        "exchangeRate": "Kiwango cha Ubadilishaji",
+        "costCenters": "Vituo vya Gharama",
+        "narration": "Maelezo ya Muamala"
+      },
+      "tooltips": {
+        "currencyLocked": "Sarafu imefungwa kwa sababu kipengee kimeongezwa. Ondoa vipengee vyote kwanza ili kubadilisha sarafu."
+      },
+      "dialogs": {
+        "unsavedChanges": {
+          "title": "Mabadiliko Hayajahifadhiwa",
+          "message": "Kipengee cha mwisho hakijaongezwa kwenye orodha",
+          "addAndSubmit": "Ongeza na Wasilisha",
+          "submitWithoutAdd": "Wasilisha bila kuongeza"
+        }
+      },
+      "buttons": {
+        "cancel": "Ghairi",
+        "submit": "Wasilisha",
+        "createSchedule": "Unda Ratiba"
+      },
+      "errors": {
+        "validation": {
+          "narrationRequired": "Maelezo ya muamala yanahitajika",
+          "creditLedgerRequired": "Akaunti ya kulipia (credit) inahitajika",
+          "currencyRequired": "Sarafu inahitajika",
+          "exchangeRateRequired": "Kiwango cha ubadilishaji kinahitajika",
+          "paymentDateRequired": "Tarehe ya Malipo inahitajika",
+          "itemsRequired": "Lazima uongeze angalau kipengee kimoja",
+          "costCenterRequired": "Angalau kituo kimoja cha gharama kinahitajika"
+        }
+      }
+    }
+  },
+  "receipts": {
+    "form": {
+      "labels": {
+        "reference": "Rejea",
+        "exchangeRate": "Kiwango cha Ubadilishaji",
+        "costCenters": "Vituo vya Gharama",
+        "narration": "Maelezo ya Muamala",
+        "date": "Tarehe ya Risiti (MM/DD/YYYY)",
+        "receivingAccountDebit": "Akaunti ya Kupokelea (Debit)"
+      },
+      "dialogs": {
+        "unsavedChanges": {
+          "title": "Mabadiliko Hayajahifadhiwa",
+          "message": "Kipengee cha mwisho hakijaongezwa kwenye orodha",
+          "addAndSubmit": "Ongeza na Wasilisha",
+          "submitWithoutAdd": "Wasilisha bila kuongeza"
+        }
+      },
+      "buttons": {
+        "cancel": "Ghairi",
+        "submit": "Wasilisha",
+        "createSchedule": "Unda Ratiba"
+      },
+      "errors": {
+        "validation": {
+          "narrationRequired": "Maelezo ya muamala yanahitajika",
+          "currencyRequired": "Sarafu inahitajika",
+          "exchangeRateRequired": "Kiwango cha ubadilishaji kinahitajika",
+          "itemsRequired": "Lazima uongeze angalau kipengee kimoja",
+          "costCenterRequired": "Angalau kituo kimoja cha gharama kinahitajika",
+          "descriptionRequired": "Maelezo yanahitajika",
+          "amountRequired": "Kiasi kinahitajika",
+          "amountPositive": "Kiasi lazima kiwe kikubwa kuliko 0",
+          "dateRequired": "Tarehe ya Risiti inahitajika",
+          "receivingAccountRequired": "Akaunti ya Kupokelea inahitajika",
+          "receiveFromRequired": "Akaunti ya Kupokea Kutoka (Credit) inahitajika"
+        }
+      },
+      "title": {
+        "new": "Fomu Mpya ya Risiti",
+        "edit": "Hariri {voucherNo}"
+      }
+    }
+  },
+  "transfers": {
+    "form": {
+      "labels": {
+        "reference": "Rejea",
+        "exchangeRate": "Kiwango cha Ubadilishaji",
+        "costCenters": "Vituo vya Gharama",
+        "narration": "Maelezo ya Muamala",
+        "date": "Tarehe ya Uhamisho (MM/DD/YYYY)",
+        "transferFromCredit": "Hamisha Kutoka (Credit)"
+      },
+      "dialogs": {
+        "unsavedChanges": {
+          "title": "Mabadiliko Hayajahifadhiwa",
+          "message": "Kipengee cha mwisho hakijaongezwa kwenye orodha",
+          "addAndSubmit": "Ongeza na Wasilisha",
+          "submitWithoutAdd": "Wasilisha bila kuongeza"
+        }
+      },
+      "buttons": {
+        "cancel": "Ghairi",
+        "submit": "Wasilisha",
+        "createSchedule": "Unda Ratiba"
+      },
+      "errors": {
+        "validation": {
+          "narrationRequired": "Maelezo ya muamala yanahitajika",
+          "currencyRequired": "Sarafu inahitajika",
+          "exchangeRateRequired": "Kiwango cha ubadilishaji kinahitajika",
+          "itemsRequired": "Lazima uongeze angalau kipengee kimoja",
+          "costCenterRequired": "Angalau kituo kimoja cha gharama kinahitajika",
+          "descriptionRequired": "Maelezo yanahitajika",
+          "amountRequired": "Kiasi kinahitajika",
+          "amountPositive": "Kiasi lazima kiwe kikubwa kuliko 0",
+          "dateRequired": "Tarehe ya Uhamisho inahitajika",
+          "fromLedgerRequired": "Leja ya kuhamisha kutoka (credit) inahitajika",
+          "toAccountRequired": "Akaunti ya kuhamishia (Debit) inahitajika",
+          "foreignCurrencies": "Uhamisho kati ya sarafu mbili tofauti za kigeni hauruhusiwi moja kwa moja. Tumia ingizo la kati la sarafu kuu badala yake."
+        }
+      },
+      "title": {
+        "new": "Fomu Mpya ya Uhamisho",
+        "edit": "Hariri {voucherNo}"
+      }
+    }
+  },
+  "journals": {
+    "form": {
+      "labels": {
+        "reference": "Rejea",
+        "exchangeRate": "Kiwango cha Ubadilishaji",
+        "costCenters": "Vituo vya Gharama",
+        "narration": "Maelezo ya Muamala",
+        "date": "Tarehe ya Jarida (MM/DD/YYYY)"
+      },
+      "dialogs": {
+        "unsavedChanges": {
+          "title": "Mabadiliko Hayajahifadhiwa",
+          "message": "Kipengee cha mwisho hakijaongezwa kwenye orodha",
+          "addAndSubmit": "Ongeza na Wasilisha",
+          "submitWithoutAdd": "Wasilisha bila kuongeza"
+        }
+      },
+      "buttons": {
+        "cancel": "Ghairi",
+        "submit": "Wasilisha",
+        "createSchedule": "Unda Ratiba"
+      },
+      "errors": {
+        "validation": {
+          "narrationRequired": "Maelezo ya muamala yanahitajika",
+          "currencyRequired": "Sarafu inahitajika",
+          "exchangeRateRequired": "Kiwango cha ubadilishaji kinahitajika",
+          "itemsRequired": "Lazima uongeze angalau kipengee kimoja",
+          "costCenterRequired": "Angalau kituo kimoja cha gharama kinahitajika",
+          "dateRequired": "Tarehe ya Jarida inahitajika",
+          "foreignCurrencies": "Maingizo kati ya sarafu mbili tofauti za kigeni hayaruhusiwi moja kwa moja. Tumia ingizo la kati la sarafu kuu badala yake."
+        }
+      },
+      "title": {
+        "new": "Fomu Mpya ya Jarida",
+        "edit": "Hariri: {voucherNo}",
+        "duplicate": "Nakili: {voucherNo}"
+      }
+    },
+    "itemForm": {
+      "labels": {
+        "debit": "Deni (Debit)",
+        "credit": "Mkopo (Credit)",
+        "description": "Maelezo",
+        "amount": "Kiasi",
+        "diffOpeningBalances": "Tofauti ya Salio la Mwanzo"
+      },
+      "buttons": {
+        "done": "Imekamilika",
+        "add": "Ongeza"
+      },
+      "errors": {
+        "validation": {
+          "debitRequired": "Akaunti ya Debit inahitajika",
+          "debitPositive": "Akaunti ya Debit lazima iwe nambari chanya",
+          "creditRequired": "Akaunti ya Credit inahitajika",
+          "creditPositive": "Akaunti ya Credit lazima iwe nambari chanya",
+          "sameAccounts": "Akaunti za Debit na Credit haziwezi kuwa moja",
+          "descriptionRequired": "Maelezo yanahitajika",
+          "amountRequired": "Kiasi kinahitajika",
+          "amountPositive": "Kiasi lazima kiwe kikubwa kuliko 0",
+          "amountNumber": "Kiasi lazima kiwe nambari",
+          "debitCurrencyMustMatch": "Sarafu ya leja ya Debit lazima ilingane na sarafu iliyochaguliwa.",
+          "creditCurrencyMustMatch": "Sarafu ya leja ya Credit lazima ilingane na sarafu iliyochaguliwa."
+        }
+      }
+    }
+  },
+  "ledgers": {
+    "form": {
+      "title": {
+        "create": "Unda Leja Mpya",
+        "edit": "Hariri {name}",
+        "quickAddCredit": "Ongeza Leja ya Credit Haraka",
+        "quickAddDebit": "Ongeza Leja ya Debit Haraka"
+      },
+      "sections": {
+        "openingBalanceDetails": "Maelezo ya Salio la Mwanzo"
+      },
+      "labels": {
+        "ledgerName": "Jina la Leja",
+        "ledgerGroup": "Kundi la Leja",
+        "alias": "Jina Mbadala (Si lazima)",
+        "code": "Msimbo (Si lazima)",
+        "currency": "Sarafu (Si lazima)",
+        "description": "Maelezo (Si lazima)",
+        "openingBalance": "Salio la Mwanzo (Si lazima)",
+        "credit": "Mkopo (Credit)",
+        "debit": "Deni (Debit)",
+        "asAt": "Kufikia (MM/DD/YYYY)",
+        "costCenters": "Vituo vya Gharama"
+      },
+      "buttons": {
+        "cancel": "Ghairi",
+        "submit": "Wasilisha",
+        "add": "Ongeza"
+      },
+      "messages": {
+        "createSuccess": "Leja imeundwa kwa mafanikio",
+        "updateSuccess": "Leja imesasishwa kwa mafanikio",
+        "somethingWentWrong": "Kuna hitilafu imetokea"
+      },
+      "errors": {
+        "validation": {
+          "nameRequired": "Jina la Leja linahitajika",
+          "groupRequired": "Kundi la Leja linahitajika",
+          "balanceSideRequired": "Je, salio ni Credit au Debit",
+          "balanceDateRequired": "Chagua tarehe ya salio ulilolingiza"
+        }
+      }
+    },
+    "quickGroup": {
+      "title": "Ongeza Kundi la Leja Haraka",
+      "labels": {
+        "name": "Jina la Kundi la Leja",
+        "alias": "Jina Mbadala (si lazima)",
+        "parentGroup": "Kundi Kuu",
+        "description": "Maelezo (si lazima)"
+      },
+      "buttons": {
+        "cancel": "Ghairi",
+        "add": "Ongeza"
+      },
+      "errors": {
+        "validation": {
+          "nameRequired": "Jina la Kundi la Leja linahitajika",
+          "selectFromOptions": "Tafadhali chagua kundi kutoka kwenye chaguo zilizotolewa",
+          "parentRequired": "Kundi Kuu linahitajika"
+        }
+      }
+    },
+    "userLedgerAction": {
+      "title": {
+        "link": "Unganisha Mtumiaji na Leja ya Imprest",
+        "unlink": "Tenganisha Mtumiaji na Leja ya Imprest"
+      },
+      "buttons": {
+        "link": "Unganisha Mtumiaji",
+        "unlink": "Tenganisha Mtumiaji",
+        "cancel": "Ghairi"
+      },
+      "labels": {
+        "selectUser": "Chagua Mtumiaji"
+      },
+      "confirm": {
+        "link": "Una uhakika unataka kumunganisha {user} na {ledger}?",
+        "unlink": "Una uhakika unataka kumtenganisha {user} na {ledger}?"
+      },
+      "messages": {
+        "linkSuccess": "Leja imeunganishwa kwa mafanikio",
+        "unlinkSuccess": "Leja imetenganishwa kwa mafanikio",
+        "linkFailed": "Imeshindwa kumunganisha mtumiaji na leja",
+        "unlinkFailed": "Imeshindwa kumtenganisha mtumiaji na leja",
+        "userNotLinked": "Mtumiaji aliyechaguliwa hajaunganishwa na leja hii ya imprest"
+      },
+      "errors": {
+        "validation": {
+          "userRequired": "Mtumiaji anahitajika"
+        }
+      }
+    },
+    "merge": {
+      "title": "Unganisha Leja",
+      "labels": {
+        "ledgerToRemain": "Leja Itakayobaki",
+        "ledgersToDissolve": "Leja Zitakazovunjwa",
+        "typeToConfirm": "Andika \"{name}\" ili kuthibitisha"
+      },
+      "alert": {
+        "cannotBeUndone": "Hii haiwezi kutenduliwa",
+        "willBeMerged": "{ledgers} zitaunganishwa kwenye {target} na kufutwa."
+      },
+      "buttons": {
+        "cancel": "Ghairi",
+        "merge": "Unganisha",
+        "confirmAndMerge": "Thibitisha na Unganisha"
+      },
+      "errors": {
+        "validation": {
+          "selectRemaining": "Tafadhali chagua leja itakayobaki",
+          "selectDissolve": "Tafadhali chagua leja za kuvunja",
+          "selectAtLeastOne": "Tafadhali chagua angalau leja moja ya kuvunja"
+        }
+      }
+    },
+    "select": {
+      "label": "Chagua Leja",
+      "loading": "Inapakia leja..."
+    },
+    "statementFilter": {
+      "labels": {
+        "costCenters": "Vituo vya Gharama",
+        "from": "Kuanzia (MM/DD/YYYY)",
+        "to": "Hadi (MM/DD/YYYY)",
+        "detailed": "Kwa Undani",
+        "showCancellations": "Onyesha Zilizoghairiwa"
+      },
+      "buttons": {
+        "filter": "Chuja",
+        "close": "Funga"
+      }
+    }
+  },
+  "bankReconciliation": {
+    "accountForm": {
+      "title": {
+        "create": "Unda Akaunti ya Benki",
+        "edit": "Hariri {name}",
+        "defaultName": "Akaunti ya Benki"
+      },
+      "labels": {
+        "ledger": "Leja ya Benki / Fedha Taslimu",
+        "bank": "Benki (Si lazima)",
+        "iban": "IBAN (Si lazima)",
+        "swiftCode": "Msimbo wa SWIFT (Si lazima)",
+        "autoMatchTolerance": "Uvumilivu wa Siku wa Ulinganishaji Otomatiki",
+        "accountNumber": "Namba ya Akaunti (Si lazima)"
+      },
+      "helperText": {
+        "autoMatchTolerance": "Idadi ya siku kabla/baada ya tarehe ya mstari wa taarifa za benki za kutafuta ingizo la vitabu linalolingana wakati wa ulinganishaji otomatiki wakati wa kuingiza. 0 = siku hiyo hiyo pekee. Ongeza hii ikiwa benki hii huchelewesha muamala kwa siku moja au mbili."
+      },
+      "buttons": {
+        "cancel": "Ghairi",
+        "submit": "Wasilisha"
+      },
+      "messages": {
+        "createSuccess": "Akaunti ya benki imeundwa kwa mafanikio",
+        "updateSuccess": "Akaunti ya benki imesasishwa kwa mafanikio"
+      },
+      "errors": {
+        "validation": {
+          "ledgerRequired": "Leja inahitajika"
+        }
+      }
+    },
+    "quickAddBank": {
+      "title": "Ongeza Benki Haraka",
+      "labels": {
+        "name": "Jina la Benki",
+        "shortName": "Jina Fupi (Si lazima)",
+        "swiftCode": "Msimbo wa SWIFT (Si lazima)"
+      },
+      "buttons": {
+        "cancel": "Ghairi",
+        "add": "Ongeza"
+      },
+      "messages": {
+        "createSuccess": "Benki imeongezwa kwa mafanikio",
+        "createFailed": "Imeshindwa kuongeza benki"
+      },
+      "errors": {
+        "validation": {
+          "nameRequired": "Jina la Benki linahitajika"
+        }
+      }
+    },
+    "cancelTransaction": {
+      "title": "Ghairi muamala huu?",
+      "labels": {
+        "reason": "Sababu ya kughairi"
+      },
+      "buttons": {
+        "back": "Rudi",
+        "cancelTransaction": "Ghairi Muamala"
+      }
+    },
+    "postTransaction": {
+      "title": "Peleka Muamala",
+      "types": {
+        "payment": "Malipo",
+        "receipt": "Risiti",
+        "fund_transfer": "Uhamisho wa Fedha",
+        "journal_voucher": "Hati ya Jarida"
+      },
+      "labels": {
+        "costCenters": "Vituo vya Gharama (si lazima)",
+        "paidToExpense": "Aliyelipwa / Leja ya Gharama",
+        "receivedFromIncome": "Aliyepokelewa kutoka / Leja ya Mapato",
+        "otherLedger": "Leja Nyingine",
+        "narration": "Maelezo ya Muamala",
+        "reference": "Rejea (si lazima)"
+      },
+      "alerts": {
+        "noPermission": "Huna ruhusa ya kupeleka aina yoyote ya muamala dhidi ya mstari huu wa taarifa."
+      },
+      "buttons": {
+        "cancel": "Ghairi",
+        "postAndMatch": "Peleka na Linganisha"
+      },
+      "messages": {
+        "success": "Imepelekwa na kulinganishwa kwa mafanikio",
+        "failed": "Imeshindwa kupeleka muamala"
+      }
+    },
+    "importStatement": {
+      "title": {
+        "import": "Ingiza Taarifa ya Benki",
+        "complete": "Uingizaji Umekamilika"
+      },
+      "steps": {
+        "details": "Maelezo ya Taarifa",
+        "mapColumns": "Oanisha Safu Wima"
+      },
+      "labels": {
+        "selectFile": "Chagua Faili la CSV au Excel",
+        "statementFrom": "Taarifa Kuanzia",
+        "statementTo": "Taarifa Hadi",
+        "openingBalance": "Salio la Mwanzo",
+        "closingBalance": "Salio la Mwisho",
+        "notInFile": "— Haipo kwenye faili —",
+        "column": "Safu Wima {number}",
+        "row": "Safu {row}: {error}"
+      },
+      "fieldLabels": {
+        "date": "Tarehe",
+        "description": "Maelezo",
+        "reference": "Rejea (si lazima)",
+        "amount": "Kiasi (chenye alama, si lazima ukitumia Debit/Credit)",
+        "debit": "Debit (si lazima ukitumia Kiasi)",
+        "credit": "Credit (si lazima ukitumia Kiasi)",
+        "balance": "Salio Endelevu (si lazima)"
+      },
+      "help": {
+        "mapColumns": "Tuambie ni safu wima ipi kwenye faili lako inayoshikilia kila taarifa.",
+        "prefilled": " Imejazwa awali kutoka uingizaji wako wa mwisho wa akaunti hii ya benki — rekebisha ikiwa muundo umebadilika."
+      },
+      "buttons": {
+        "cancel": "Ghairi",
+        "back": "Rudi",
+        "next": "Endelea",
+        "import": "Ingiza",
+        "close": "Funga"
+      },
+      "messages": {
+        "success": "Taarifa imeingizwa kwa mafanikio"
+      }
+    }
+  },
+  "approvalChains": {
+    "chainForm": {
+      "title": {
+        "new": "Mnyororo Mpya wa Idhini",
+        "edit": "Hariri Mnyororo wa Idhini"
+      },
+      "labels": {
+        "processType": "Aina ya Mchakato",
+        "costCenter": "Kituo cha Gharama",
+        "department": "Idara",
+        "remarks": "Maoni"
+      },
+      "dialogs": {
+        "unsavedChanges": {
+          "title": "Mabadiliko Hayajahifadhiwa",
+          "message": "Kipengee cha mwisho hakijaongezwa kwenye orodha",
+          "addAndSubmit": "Ongeza na Wasilisha",
+          "submitWithoutAdd": "Wasilisha bila kuongeza"
+        }
+      },
+      "buttons": {
+        "cancel": "Ghairi",
+        "submit": "Wasilisha"
+      },
+      "errors": {
+        "validation": {
+          "processTypeRequired": "Aina ya Mchakato inahitajika",
+          "itemsRequired": "Lazima uongeze angalau kipengee kimoja"
+        }
+      }
+    },
+    "levelDialog": {
+      "title": {
+        "add": "Ongeza Ngazi Mpya ya Mnyororo",
+        "edit": "Hariri Ngazi"
+      },
+      "labels": {
+        "role": "Wadhifa",
+        "label": "Lebo",
+        "remarks": "Maoni",
+        "canFinalize": "Anaweza Kukamilisha",
+        "canOverride": "Anaweza Kubatilisha",
+        "atTheBeginning": "Mwanzoni",
+        "after": "Baada ya {role} {label}",
+        "position": "Nafasi"
+      },
+      "buttons": {
+        "cancel": "Ghairi",
+        "submit": "Wasilisha"
+      },
+      "messages": {
+        "addFailed": "Imeshindwa kuongeza ngazi",
+        "updateFailed": "Imeshindwa kusasisha ngazi"
+      },
+      "errors": {
+        "validation": {
+          "labelRequired": "Lebo inahitajika",
+          "roleRequired": "Wadhifa unahitajika",
+          "chainRequired": "Mnyororo wa idhini unahitajika"
+        }
+      }
+    },
+    "itemForm": {
+      "title": "Ongeza Ngazi",
+      "labels": {
+        "role": "Wadhifa",
+        "label": "Lebo",
+        "remarks": "Maoni",
+        "canFinalize": "Anaweza Kukamilisha",
+        "canOverride": "Anaweza Kubatilisha"
+      },
+      "buttons": {
+        "done": "Imekamilika",
+        "add": "Ongeza"
+      },
+      "errors": {
+        "validation": {
+          "labelRequired": "Lebo inahitajika",
+          "roleRequired": "Wadhifa unahitajika"
+        }
+      }
+    }
+  },
+  "stakeholderGroups": {
+    "form": {
+      "title": {
+        "new": "Kundi Jipya la Wadau",
+        "edit": "Hariri Kundi la Wadau"
+      },
+      "labels": {
+        "name": "Jina",
+        "description": "Maelezo (si lazima)"
+      },
+      "buttons": {
+        "cancel": "Ghairi",
+        "save": "Hifadhi"
+      },
+      "messages": {
+        "createSuccess": "Kundi la wadau limeundwa kwa mafanikio",
+        "updateSuccess": "Kundi la wadau limesasishwa kwa mafanikio"
+      },
+      "errors": {
+        "validation": {
+          "nameRequired": "Jina linahitajika"
+        }
+      }
+    },
+    "members": {
+      "title": "{name} — Wanachama ({total})",
+      "empty": "Hakuna wanachama bado.",
+      "noPhone": "Hakuna namba ya simu",
+      "buttons": {
+        "close": "Funga"
+      },
+      "messages": {
+        "removed": "Mdau ameondolewa kwenye kundi",
+        "added": "Mdau ameongezwa kwenye kundi"
+      },
+      "search": {
+        "label": "Tafuta wadau wa kuongeza",
+        "typeMore": "Andika angalau herufi 2 kutafuta",
+        "noResults": "Hakuna wadau waliopatikana"
+      }
+    }
+  },
+  "costCenters": {
+    "form": {
+      "title": {
+        "create": "Unda Kituo Kipya cha Gharama",
+        "edit": "Hariri {name}"
+      },
+      "labels": {
+        "name": "Jina la Kituo cha Gharama",
+        "users": "Watumiaji wa Kituo cha Gharama",
+        "description": "Maelezo"
+      },
+      "buttons": {
+        "cancel": "Ghairi",
+        "update": "Sasisha",
+        "create": "Unda"
+      },
+      "errors": {
+        "validation": {
+          "nameRequired": "Jina la Kituo cha Gharama linahitajika",
+          "usersRequired": "Angalau mtumiaji mmoja anahitajika"
+        }
+      },
+      "selector": {
+        "label": "Kituo cha Gharama",
+        "notSpecified": "Haijabainishwa",
+        "unspecified": "Haijabainishwa",
+        "types": {
+          "workCenter": "Kituo cha Kazi",
+          "salesOutlet": "Duka la Mauzo",
+          "fuelStation": "Kituo cha Mafuta",
+          "project": "Mradi"
+        }
+      }
+    }
+  },
+  "ledgerGroups": {
+    "form": {
+      "title": {
+        "create": "Unda Kundi la Leja",
+        "edit": "Hariri Kundi la Leja"
+      },
+      "labels": {
+        "name": "Jina la Kundi la Leja",
+        "alias": "Jina Mbadala (si lazima)",
+        "parentGroup": "Kundi Kuu",
+        "code": "Msimbo (si lazima)",
+        "description": "Maelezo (si lazima)"
+      },
+      "buttons": {
+        "cancel": "Ghairi",
+        "submit": "Wasilisha"
+      },
+      "errors": {
+        "validation": {
+          "nameRequired": "Jina la Kundi la Leja linahitajika",
+          "selectFromOptions": "Tafadhali chagua thamani kutoka kwenye chaguo zilizotolewa",
+          "parentRequired": "Kundi Kuu linahitajika"
+        }
+      }
+    }
+  }
+}

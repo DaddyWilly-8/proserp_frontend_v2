@@ -27,6 +27,7 @@ import EmployeeSelector from '../../EmployeeSelector';
 import { useEmployees } from '../../EmployeesProvider';
 import { Employee } from '../../EmployeesType';
 import { LeaveRequestType } from './LeaveRequestType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface LeaveRequestFormProps {
   setOpenDialog: (open: boolean) => void;
@@ -63,6 +64,7 @@ const LeaveRequestForm = ({
   leaveRequest = null,
   employeeId,
 }: LeaveRequestFormProps) => {
+  const dictionary = useDictionary();
   const queryClient = useQueryClient();
   const { enqueueSnackbar } = useSnackbar();
   const { employees } = useEmployees();
@@ -104,13 +106,13 @@ const LeaveRequestForm = ({
     mutationFn: humanResourcesServices.addLeaveRequest,
     onSuccess: () => {
       setOpenDialog(false);
-      enqueueSnackbar('Leave Request Added Successfully', {
+      enqueueSnackbar(dictionary.humanResources.leaveRequests.messages.added, {
         variant: 'success',
       });
       queryClient.invalidateQueries({ queryKey: ['leaveRequests'] });
     },
     onError: (mutationError) => {
-      let message = 'Something went wrong';
+      let message = dictionary.humanResources.profileSectionsCommon.somethingWentWrong;
 
       if (
         typeof mutationError === 'object' &&
@@ -134,13 +136,13 @@ const LeaveRequestForm = ({
     mutationFn: humanResourcesServices.updateLeaveRequest,
     onSuccess: () => {
       setOpenDialog(false);
-      enqueueSnackbar('Leave Request Updated Successfully', {
+      enqueueSnackbar(dictionary.humanResources.leaveRequests.messages.updated, {
         variant: 'success',
       });
       queryClient.invalidateQueries({ queryKey: ['leaveRequests'] });
     },
     onError: (mutationError) => {
-      let message = 'Something went wrong';
+      let message = dictionary.humanResources.profileSectionsCommon.somethingWentWrong;
 
       if (
         typeof mutationError === 'object' &&
@@ -158,16 +160,16 @@ const LeaveRequestForm = ({
 
   const validationSchema = yup.object({
     id: yup.number().optional(),
-    employee_id: yup.number().required('Employee is required'),
-    leave_type_id: yup.number().required('Leave type is required'),
-    start_date: yup.string().required('Start date is required'),
-    end_date: yup.string().required('End date is required'),
+    employee_id: yup.number().required(dictionary.humanResources.leaveRequests.form.validation.employeeRequired),
+    leave_type_id: yup.number().required(dictionary.humanResources.leaveRequests.form.validation.leaveTypeRequired),
+    start_date: yup.string().required(dictionary.humanResources.leaveRequests.form.validation.startDateRequired),
+    end_date: yup.string().required(dictionary.humanResources.leaveRequests.form.validation.endDateRequired),
     days_requested: yup
       .number()
-      .typeError('Days requested must be a number')
-      .required('Days requested is required')
-      .min(0.5, 'Days requested must be at least 0.5'),
-    reason: yup.string().max(1000, 'Reason cannot exceed 1000 characters'),
+      .typeError(dictionary.humanResources.leaveRequests.form.validation.daysNumber)
+      .required(dictionary.humanResources.leaveRequests.form.validation.daysRequired)
+      .min(0.5, dictionary.humanResources.leaveRequests.form.validation.daysMin),
+    reason: yup.string().max(1000, dictionary.humanResources.leaveRequests.form.validation.reasonMax),
   });
 
   const {
@@ -264,22 +266,35 @@ const LeaveRequestForm = ({
   }, [computedDays, setValue]);
 
   const excludedDaysLabel = [
-    selectedLeaveType?.excludes_saturday && 'Saturdays',
-    selectedLeaveType?.excludes_sunday && 'Sundays',
+    selectedLeaveType?.excludes_saturday && dictionary.humanResources.leaveRequests.form.hint.saturdays,
+    selectedLeaveType?.excludes_sunday && dictionary.humanResources.leaveRequests.form.hint.sundays,
   ]
     .filter(Boolean)
-    .join(' and ');
+    .join(dictionary.humanResources.leaveRequests.form.hint.and);
 
   const daysRequestedHint =
     computedDays === null
       ? undefined
-      : `${computedDays} day${computedDays === 1 ? '' : 's'}${
-          excludedDaysLabel ? ` (${excludedDaysLabel} excluded)` : ''
-        } between selected dates${
-          Number(watchedDaysRequested) !== computedDays
-            ? ' — differs from days requested'
-            : ' — matches days requested'
-        }`;
+      : dictionary.humanResources.leaveRequests.form.hint.summary
+          .replace(
+            '{days}',
+            (computedDays === 1
+              ? dictionary.humanResources.leaveRequests.dayCountOne
+              : dictionary.humanResources.leaveRequests.dayCountMany
+            ).replace('{n}', String(computedDays))
+          )
+          .replace(
+            '{excluded}',
+            excludedDaysLabel
+              ? dictionary.humanResources.leaveRequests.form.hint.excluded.replace('{excluded}', excludedDaysLabel)
+              : ''
+          )
+          .replace(
+            '{match}',
+            Number(watchedDaysRequested) !== computedDays
+              ? dictionary.humanResources.leaveRequests.form.hint.differs
+              : dictionary.humanResources.leaveRequests.form.hint.matches
+          );
 
   const validationErrors =
     error?.response?.data?.validation_errors ||
@@ -293,7 +308,7 @@ const LeaveRequestForm = ({
     <>
       <DialogTitle>
         <Grid size={12} textAlign={'center'}>
-          {!leaveRequest?.id ? 'Add Leave Request' : 'Edit Leave Request'}
+          {!leaveRequest?.id ? dictionary.humanResources.leaveRequests.form.addTitle : dictionary.humanResources.leaveRequests.form.editTitle}
         </Grid>
       </DialogTitle>
       <DialogContent>
@@ -340,7 +355,7 @@ const LeaveRequestForm = ({
                   <Controller
                     name='leave_type_id'
                     control={control}
-                    rules={{ required: 'Leave type is required' }}
+                    rules={{ required: dictionary.humanResources.leaveRequests.form.validation.leaveTypeRequired }}
                     render={({ field, fieldState }) => (
                       <Autocomplete
                         size='small'
@@ -359,7 +374,7 @@ const LeaveRequestForm = ({
                         renderInput={(params) => (
                           <TextField
                             {...params}
-                            label='Leave Type'
+                            label={dictionary.humanResources.leaveRequests.form.labels.leaveType}
                             error={
                               !!fieldState.error ||
                               !!getValidationMessage(
@@ -386,7 +401,7 @@ const LeaveRequestForm = ({
             <Grid size={{ xs: 12, md: 6 }}>
               <Div sx={{ mt: 1, mb: 1 }}>
                 <TextField
-                  label='Days Requested'
+                  label={dictionary.humanResources.leaveRequests.form.labels.daysRequested}
                   size='small'
                   fullWidth
                   error={
@@ -422,7 +437,7 @@ const LeaveRequestForm = ({
                   control={control}
                   render={({ field }) => (
                     <DateTimePicker
-                      label='Start Date'
+                      label={dictionary.humanResources.leaveRequests.form.labels.startDate}
                       value={field.value ? dayjs(field.value) : null}
                       onChange={(newValue) => {
                         field.onChange(newValue ? newValue.toISOString() : '');
@@ -458,7 +473,7 @@ const LeaveRequestForm = ({
                   control={control}
                   render={({ field }) => (
                     <DateTimePicker
-                      label='End Date'
+                      label={dictionary.humanResources.leaveRequests.form.labels.endDate}
                       value={field.value ? dayjs(field.value) : null}
                       onChange={(newValue) => {
                         field.onChange(newValue ? newValue.toISOString() : '');
@@ -487,7 +502,7 @@ const LeaveRequestForm = ({
             <Grid size={{ xs: 12 }}>
               <Div sx={{ mt: 1, mb: 1 }}>
                 <TextField
-                  label='Reason'
+                  label={dictionary.humanResources.leaveRequests.form.labels.reason}
                   size='small'
                   fullWidth
                   multiline
@@ -508,7 +523,7 @@ const LeaveRequestForm = ({
 
           <DialogActions>
             <Button size='small' onClick={() => setOpenDialog(false)}>
-              Cancel
+              {dictionary.humanResources.profileSectionsCommon.cancel}
             </Button>
             <LoadingButton
               type='submit'
@@ -517,7 +532,7 @@ const LeaveRequestForm = ({
               sx={{ display: 'flex' }}
               loading={isPending || updateIsPending}
             >
-              Submit
+              {dictionary.humanResources.profileSectionsCommon.submit}
             </LoadingButton>
           </DialogActions>
         </form>

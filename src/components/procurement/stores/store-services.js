@@ -66,6 +66,18 @@ storeServices.getStockMovement = async (params, dormantStock = false) => {
     return data;
 };
 
+storeServices.getStockByCostCenter = async (filters) => {
+    const { data } = await axios.post('/api/stores/stockByCostCenter', filters);
+    return data;
+};
+
+storeServices.getStockByCostCenterExcel = async (filters) => {
+    const { data } = await axios.post('/api/stores/stockByCostCenterExcel', filters, {
+        responseType: 'blob',
+    });
+    return data;
+};
+
 storeServices.getStock = async (params) => {
     const { data } = await axios.get(`/api/stores/${params.store_id}/getStock`, {
         params

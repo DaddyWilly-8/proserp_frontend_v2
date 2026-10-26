@@ -17,6 +17,7 @@ import {
   useTheme,
 } from '@mui/material';
 import React, { useMemo } from 'react';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 export interface PurchaseManifestItem {
   order_date: string;
@@ -87,6 +88,8 @@ const PurchasesManifestOnScreen: React.FC<PurchasesManifestOnScreenProps> = ({
   organization,
   accessibleCostCenters,
 }) => {
+  const dictionary = useDictionary();
+  const dict = dictionary.reports.procurementReports.purchasesManifest;
   const theme = useTheme();
   const costCentersToShow = reportCostCentersToShow(
     reportData?.filters?.cost_centers,
@@ -173,7 +176,7 @@ const PurchasesManifestOnScreen: React.FC<PurchasesManifestOnScreenProps> = ({
               variant='h4'
               sx={{ color: headerColor, fontWeight: 500 }}
             >
-              PURCHASES MANIFEST REPORT
+              {dict.onScreenTitle}
             </Typography>
           </Box>
         </Grid>
@@ -189,7 +192,7 @@ const PurchasesManifestOnScreen: React.FC<PurchasesManifestOnScreenProps> = ({
           <Grid size={{ xs: 12, sm: 6, md: 6 }}>
             <Box>
               <Typography variant='subtitle2' sx={{ color: headerColor }}>
-                Reporting Period
+                {dict.reportingPeriod}
               </Typography>
               <Typography variant='body1'>
                 {readableDate(reportData?.filters.from)} —{' '}
@@ -200,10 +203,10 @@ const PurchasesManifestOnScreen: React.FC<PurchasesManifestOnScreenProps> = ({
           <Grid size={{ xs: 12, sm: 6, md: 6 }}>
             <Box>
               <Typography variant='subtitle2' sx={{ color: headerColor }}>
-                Filter Status
+                {dict.filterStatus}
               </Typography>
               <Typography variant='body1'>
-                {reportData?.filters.status}
+                {dict.statusOptions[reportData?.filters.status] ?? reportData?.filters.status}
               </Typography>
             </Box>
           </Grid>
@@ -211,7 +214,7 @@ const PurchasesManifestOnScreen: React.FC<PurchasesManifestOnScreenProps> = ({
             <Grid size={{ xs: 12, sm: 6, md: 6 }}>
               <Box>
                 <Typography variant='subtitle2' sx={{ color: headerColor }}>
-                  Cost Centers
+                  {dict.costCenters}
                 </Typography>
                 <Typography variant='body1' sx={{ wordBreak: 'break-word' }}>
                   {costCentersToShow.map((cc) => cc.name).join(', ')}
@@ -224,7 +227,7 @@ const PurchasesManifestOnScreen: React.FC<PurchasesManifestOnScreenProps> = ({
               <Grid size={{ xs: 12, sm: 6, md: 6 }}>
                 <Box>
                   <Typography variant='subtitle2' sx={{ color: headerColor }}>
-                    Stakeholders
+                    {dict.stakeholders}
                   </Typography>
                   <Typography variant='body1' sx={{ wordBreak: 'break-word' }}>
                     {reportData?.filters.suppliers
@@ -257,7 +260,7 @@ const PurchasesManifestOnScreen: React.FC<PurchasesManifestOnScreenProps> = ({
                       fontSize: '0.875rem',
                     }}
                   >
-                    S/N
+                    {dict.sn}
                   </TableCell>
                   <TableCell
                     sx={{
@@ -266,7 +269,7 @@ const PurchasesManifestOnScreen: React.FC<PurchasesManifestOnScreenProps> = ({
                       fontSize: '0.875rem',
                     }}
                   >
-                    Order No.
+                    {dict.orderNo}
                   </TableCell>
                   <TableCell
                     sx={{
@@ -275,7 +278,7 @@ const PurchasesManifestOnScreen: React.FC<PurchasesManifestOnScreenProps> = ({
                       fontSize: '0.875rem',
                     }}
                   >
-                    Dates
+                    {dict.dates}
                   </TableCell>
                   <TableCell
                     sx={{
@@ -284,7 +287,7 @@ const PurchasesManifestOnScreen: React.FC<PurchasesManifestOnScreenProps> = ({
                       fontSize: '0.875rem',
                     }}
                   >
-                    Product Details
+                    {dict.productDetails}
                   </TableCell>
                   <TableCell
                     sx={{
@@ -293,7 +296,7 @@ const PurchasesManifestOnScreen: React.FC<PurchasesManifestOnScreenProps> = ({
                       fontSize: '0.875rem',
                     }}
                   >
-                    Status
+                    {dict.status}
                   </TableCell>
                   <TableCell
                     sx={{
@@ -302,17 +305,7 @@ const PurchasesManifestOnScreen: React.FC<PurchasesManifestOnScreenProps> = ({
                       fontSize: '0.875rem',
                     }}
                   >
-                    Supplier / Vendor
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      backgroundColor: mainColor,
-                      color: contrastText,
-                      fontSize: '0.875rem',
-                    }}
-                    align='right'
-                  >
-                    Qty Ordered
+                    {dict.supplierVendor}
                   </TableCell>
                   <TableCell
                     sx={{
@@ -322,7 +315,17 @@ const PurchasesManifestOnScreen: React.FC<PurchasesManifestOnScreenProps> = ({
                     }}
                     align='right'
                   >
-                    Qty Received
+                    {dict.qtyOrdered}
+                  </TableCell>
+                  <TableCell
+                    sx={{
+                      backgroundColor: mainColor,
+                      color: contrastText,
+                      fontSize: '0.875rem',
+                    }}
+                    align='right'
+                  >
+                    {dict.qtyReceived}
                   </TableCell>
 
                   <TableCell
@@ -333,7 +336,7 @@ const PurchasesManifestOnScreen: React.FC<PurchasesManifestOnScreenProps> = ({
                     }}
                     align='right'
                   >
-                    Qty Pending
+                    {dict.qtyPending}
                   </TableCell>
                   <TableCell
                     sx={{
@@ -343,7 +346,7 @@ const PurchasesManifestOnScreen: React.FC<PurchasesManifestOnScreenProps> = ({
                     }}
                     align='right'
                   >
-                    Rate
+                    {dict.rate}
                   </TableCell>
                   <TableCell
                     sx={{
@@ -353,7 +356,7 @@ const PurchasesManifestOnScreen: React.FC<PurchasesManifestOnScreenProps> = ({
                     }}
                     align='right'
                   >
-                    Ordered Amount
+                    {dict.orderedAmount}
                   </TableCell>
                   <TableCell
                     sx={{
@@ -363,7 +366,7 @@ const PurchasesManifestOnScreen: React.FC<PurchasesManifestOnScreenProps> = ({
                     }}
                     align='right'
                   >
-                    Received Amount
+                    {dict.receivedAmount}
                   </TableCell>
                   <TableCell
                     sx={{
@@ -373,7 +376,7 @@ const PurchasesManifestOnScreen: React.FC<PurchasesManifestOnScreenProps> = ({
                     }}
                     align='right'
                   >
-                    Pending Amount
+                    {dict.pendingAmount}
                   </TableCell>
                 </TableRow>
               </TableHead>
@@ -415,7 +418,7 @@ const PurchasesManifestOnScreen: React.FC<PurchasesManifestOnScreenProps> = ({
                       </TableCell>
                       <TableCell sx={{ textWrap: 'nowrap' }}>
                         <Typography variant='body2'>
-                          Ordered: {readableDate(item.order_date)}
+                          {dict.ordered}: {readableDate(item.order_date)}
                         </Typography>
                         {item.date_required && (
                           <Typography
@@ -424,7 +427,7 @@ const PurchasesManifestOnScreen: React.FC<PurchasesManifestOnScreenProps> = ({
                             display='block'
                             sx={{ mt: 0.5 }}
                           >
-                            Required: {readableDate(item.date_required)}
+                            {dict.required}: {readableDate(item.date_required)}
                           </Typography>
                         )}
                       </TableCell>
@@ -434,7 +437,7 @@ const PurchasesManifestOnScreen: React.FC<PurchasesManifestOnScreenProps> = ({
                         </Typography>
                         {item.product?.type && (
                           <Typography variant='caption' color='text.secondary'>
-                            Type: {item.product.type}
+                            {dict.type}: {dict.productTypes[item.product.type] ?? item.product.type}
                           </Typography>
                         )}
                       </TableCell>
@@ -448,7 +451,7 @@ const PurchasesManifestOnScreen: React.FC<PurchasesManifestOnScreenProps> = ({
                               : theme.palette.warning.main,
                           }}
                         >
-                          {item.status}
+                          {dict.statusOptions[item.status] ?? item.status}
                         </Typography>
                       </TableCell>
                       <TableCell>
@@ -509,7 +512,7 @@ const PurchasesManifestOnScreen: React.FC<PurchasesManifestOnScreenProps> = ({
             <Grid container spacing={1} alignItems='center'>
               <Grid size={7}>
                 <Typography variant='h6' color={headerColor}>
-                  Total Ordered Amount
+                  {dict.totalOrderedAmount}
                 </Typography>
               </Grid>
               <Grid size={5} sx={{ textAlign: 'right' }}>
@@ -534,7 +537,7 @@ const PurchasesManifestOnScreen: React.FC<PurchasesManifestOnScreenProps> = ({
             <Grid container spacing={1} alignItems='center' mt={2}>
               <Grid size={7}>
                 <Typography variant='h6' color={headerColor}>
-                  Total Received Amount
+                  {dict.totalReceivedAmount}
                 </Typography>
               </Grid>
               <Grid size={5} sx={{ textAlign: 'right' }}>
@@ -559,7 +562,7 @@ const PurchasesManifestOnScreen: React.FC<PurchasesManifestOnScreenProps> = ({
             <Grid container spacing={1} alignItems='center' mt={2}>
               <Grid size={7}>
                 <Typography variant='h6' color={headerColor}>
-                  Total Pending Amount
+                  {dict.totalPendingAmount}
                 </Typography>
               </Grid>
               <Grid size={5} sx={{ textAlign: 'right' }}>

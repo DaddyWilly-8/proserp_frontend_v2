@@ -13,8 +13,11 @@ import ProductSelect from '@/components/productAndServices/products/ProductSelec
 import StoreSelector from '@/components/procurement/stores/StoreSelector';
 import { sanitizedNumber } from '@/app/helpers/input-sanitization-helpers';
 import { wholeUnitQuantityTest } from '@/app/helpers/measurement-unit-helpers';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function MaterialIssuedForm({projectTaskIndex, taskProgressItem, material = null, index = -1, setShowForm = null, MaterialIssued=[], setMaterialIssued}) {
+  const dictionary = useDictionary();
+  const t = dictionary.forms.projects.materialIssued;
   const { project} = useProjectProfile();
   const [isRetrieving, setIsRetrieving] = useState(false);
   const [selectedUnit, setSelectedUnit] = useState(material?.measurement_unit_id);
@@ -25,17 +28,17 @@ function MaterialIssuedForm({projectTaskIndex, taskProgressItem, material = null
   const validationSchema = yup.object({
     product: yup
       .object()
-      .required('Product is required')
-      .typeError('Product is required'),
+      .required(t.errors.productRequired)
+      .typeError(t.errors.productRequired),
 
       quantity: yup.number()
-        .required("Quantity is required")
-        .positive("Quantity must be positive")
-        .typeError('Quantity is required')
+        .required(t.errors.quantityRequired)
+        .positive(t.errors.quantityPositive)
+        .typeError(t.errors.quantityRequired)
         .test(wholeUnitQuantityTest)
         .test(
           'balance-check',
-          'Quantity exceeds available balance',
+          t.errors.exceedsBalance,
           function (value) {
             const availableBalance = this.parent.available_balance;
             return availableBalance === 'N/A' || !value || value <= availableBalance;
@@ -48,7 +51,7 @@ function MaterialIssuedForm({projectTaskIndex, taskProgressItem, material = null
             const availableBalance = parseFloat(this.parent.available_balance || 0);
             if (currentBalance >= availableBalance) return true;
             return !value || value <= currentBalance || this.createError({
-              message: `This quantity will lead to negative balance. Current balance today is ${currentBalance.toLocaleString()}`
+              message: t.errors.negativeBalance.replace('{balance}', currentBalance.toLocaleString())
             });
           }
         )
@@ -276,7 +279,7 @@ function MaterialIssuedForm({projectTaskIndex, taskProgressItem, material = null
             {
               isRetrieving ? <LinearProgress/> :
                 <TextField
-                  label="Available Balance"
+                  label={t.labels.availableBalance}
                   fullWidth
                   size='small'
                   value={watch('available_balance')}
@@ -290,7 +293,7 @@ function MaterialIssuedForm({projectTaskIndex, taskProgressItem, material = null
         }
         <Grid size={{xs: 12, md: 2}}>
           <TextField
-            label="Quantity"
+            label={t.labels.quantity}
             fullWidth
             size='small'
             error={!!errors?.quantity}
@@ -346,7 +349,7 @@ function MaterialIssuedForm({projectTaskIndex, taskProgressItem, material = null
         </Grid>
         <Grid size={{xs: 12, md: 3}}>
           <TextField
-            label="Remarks"
+            label={t.labels.remarks}
             size="small"
             multiline={true}
             minRows={2}
@@ -363,15 +366,15 @@ function MaterialIssuedForm({projectTaskIndex, taskProgressItem, material = null
           >
             {
               material ? (
-                <><CheckOutlined fontSize='small' /> Done</>
+                <><CheckOutlined fontSize='small' /> {t.buttons.done}</>
               ) : (
-                <><AddOutlined fontSize='small' /> Add</>
+                <><AddOutlined fontSize='small' /> {t.buttons.add}</>
               )
             }
           </LoadingButton>
           {
             material && 
-            <Tooltip title='Close Edit'>
+            <Tooltip title={dictionary.tooltips.closeEdit}>
               <IconButton size='small' 
                 onClick={() => {
                   setShowForm(false);

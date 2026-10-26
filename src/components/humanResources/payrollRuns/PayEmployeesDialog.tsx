@@ -37,6 +37,7 @@ import dayjs from 'dayjs';
 import { useSnackbar } from 'notistack';
 import { useEffect, useMemo, useState } from 'react';
 import humanResourcesServices from '../humanResourcesServices';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 type PayBalanceRow = {
   payslip_id: number;
@@ -68,6 +69,8 @@ const PayEmployeesDialog = ({
   payrollRunId: number;
   onSuccess?: () => void;
 }) => {
+  const dictionary = useDictionary();
+  const t = dictionary.humanResources.payrollRuns.payEmployees;
   const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
   const { theme } = useJumboTheme();
@@ -138,7 +141,7 @@ const PayEmployeesDialog = ({
       });
     },
     onSuccess: (response: any) => {
-      enqueueSnackbar(response?.message || 'Payment recorded', {
+      enqueueSnackbar(response?.message || t.recorded, {
         variant: 'success',
       });
       queryClient.invalidateQueries({ queryKey: ['payrollRuns'] });
@@ -193,7 +196,7 @@ const PayEmployeesDialog = ({
     >
       <DialogTitle>
         <Typography variant='h6' component='div' fontWeight={600}>
-          Pay Employees
+          {t.title}
         </Typography>
       </DialogTitle>
       <DialogContent>
@@ -204,17 +207,17 @@ const PayEmployeesDialog = ({
             size='small'
             onChange={(_e, value) => value && setMode(value)}
           >
-            <ToggleButton value='full'>Pay Everyone in Full</ToggleButton>
-            <ToggleButton value='partial'>Pay Selected Amounts</ToggleButton>
+            <ToggleButton value='full'>{t.payInFull}</ToggleButton>
+            <ToggleButton value='partial'>{t.paySelected}</ToggleButton>
           </ToggleButtonGroup>
 
           <LedgerSelect
-            label='Bank or Cash Account'
+            label={t.bankOrCash}
             onChange={(ledger: any) => setCreditLedgerId(ledger?.id || 0)}
           />
 
           <DateTimePicker
-            label='Payment Date & Time'
+            label={t.paymentDate}
             value={transactionDate ? dayjs(transactionDate) : null}
             onChange={(val) =>
               setTransactionDate(val?.toISOString() || '')
@@ -230,17 +233,24 @@ const PayEmployeesDialog = ({
             </Box>
           ) : payableRows.length === 0 ? (
             <Alert severity='success'>
-              Everyone on this run has already been paid in full.
+              {t.allPaid}
             </Alert>
           ) : mode === 'full' ? (
             <Alert severity='info'>
-              Pays every employee&apos;s full remaining balance —{' '}
-              {payableRows.length} employee
-              {payableRows.length > 1 ? 's' : ''}, totaling{' '}
-              {payableRows
-                .reduce((sum, row) => sum + row.balance_remaining, 0)
-                .toLocaleString()}
-              .
+              {t.fullInfo
+                .replace('{count}', String(payableRows.length))
+                .replace(
+                  '{employees}',
+                  payableRows.length > 1
+                    ? t.employeePlural
+                    : t.employeeSingular
+                )
+                .replace(
+                  '{total}',
+                  payableRows
+                    .reduce((sum, row) => sum + row.balance_remaining, 0)
+                    .toLocaleString()
+                )}
             </Alert>
           ) : (
             <>
@@ -250,14 +260,14 @@ const PayEmployeesDialog = ({
                   onClick={() => handleToggleSelectAll(true)}
                   disabled={allSelected}
                 >
-                  Select All
+                  {t.selectAll}
                 </Button>
                 <Button
                   size='small'
                   onClick={() => handleToggleSelectAll(false)}
                   disabled={!someSelected}
                 >
-                  Select None
+                  {t.selectNone}
                 </Button>
               </Stack>
               <TableContainer sx={{ overflowX: 'auto' }}>
@@ -272,10 +282,10 @@ const PayEmployeesDialog = ({
                         onChange={(e) => handleToggleSelectAll(e.target.checked)}
                       />
                     </TableCell>
-                    <TableCell>Employee</TableCell>
-                    <TableCell align='right'>Remaining</TableCell>
+                    <TableCell>{t.employee}</TableCell>
+                    <TableCell align='right'>{t.remaining}</TableCell>
                     <TableCell align='right' width={140}>
-                      Amount to Pay
+                      {t.amountToPay}
                     </TableCell>
                   </TableRow>
                 </TableHead>
@@ -302,7 +312,10 @@ const PayEmployeesDialog = ({
                           {row.employee_number}
                           {row.paid_amount > 0 && (
                             <Chip
-                              label={`${row.paid_amount.toLocaleString()} already paid`}
+                              label={t.alreadyPaid.replace(
+                                '{amount}',
+                                row.paid_amount.toLocaleString()
+                              )}
                               size='small'
                               variant='outlined'
                               color='info'
@@ -351,7 +364,10 @@ const PayEmployeesDialog = ({
               <Divider />
               <Stack direction='row' justifyContent='flex-end'>
                 <Typography variant='body2' fontWeight={600}>
-                  Total this payment: {partialTotal.toLocaleString()}
+                  {t.totalThisPayment.replace(
+                    '{amount}',
+                    partialTotal.toLocaleString()
+                  )}
                 </Typography>
               </Stack>
             </>
@@ -360,7 +376,7 @@ const PayEmployeesDialog = ({
       </DialogContent>
       <DialogActions sx={{ px: 3, pb: 2 }}>
         <Button onClick={onClose} variant='outlined' size='small' disabled={isPending}>
-          Cancel
+          {t.cancel}
         </Button>
         <Button
           variant='contained'
@@ -369,7 +385,7 @@ const PayEmployeesDialog = ({
           onClick={() => pay()}
           disabled={isPending || !isValid || payableRows.length === 0}
         >
-          {isPending ? <CircularProgress size={18} /> : 'Pay'}
+          {isPending ? <CircularProgress size={18} /> : t.pay}
         </Button>
       </DialogActions>
     </Dialog>

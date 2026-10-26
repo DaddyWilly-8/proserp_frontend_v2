@@ -15,6 +15,7 @@ import { useState } from 'react';
 import humanResourcesServices from '../humanResourcesServices';
 import LeaveTypeForm from './LeaveTypeForm';
 import { LeaveType } from './LeaveTypesType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const EditLeaveType = ({
   leaveType,
@@ -47,6 +48,7 @@ const EditLeaveType = ({
 };
 
 const LeaveTypeItemAction = ({ leaveType }: { leaveType: LeaveType }) => {
+  const dictionary = useDictionary();
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const { showDialog, hideDialog } = useJumboDialog();
   const { enqueueSnackbar } = useSnackbar();
@@ -59,12 +61,12 @@ const LeaveTypeItemAction = ({ leaveType }: { leaveType: LeaveType }) => {
     mutationFn: humanResourcesServices.deleteLeaveType,
     onSuccess: (data: { message: string }) => {
       queryClient.invalidateQueries({ queryKey: ['leaveTypes'] });
-      enqueueSnackbar('Leave Type Deleted Successfully', {
+      enqueueSnackbar(dictionary.humanResources.leaveTypes.actions.deleteSuccess, {
         variant: 'success',
       });
     },
     onError: (error: any) => {
-      let message = 'Something went wrong';
+      let message = dictionary.humanResources.leaveTypes.actions.somethingWrong;
 
       if (
         typeof error === 'object' &&
@@ -83,12 +85,12 @@ const LeaveTypeItemAction = ({ leaveType }: { leaveType: LeaveType }) => {
   const menuItems = [
     {
       icon: <EditOutlined />,
-      title: 'Edit',
+      title: dictionary.humanResources.leaveTypes.actions.edit,
       action: 'edit',
     },
     {
       icon: <DeleteOutlined color='error' />,
-      title: 'Delete',
+      title: dictionary.humanResources.leaveTypes.actions.delete,
       action: 'delete',
     },
   ];
@@ -100,8 +102,8 @@ const LeaveTypeItemAction = ({ leaveType }: { leaveType: LeaveType }) => {
         break;
       case 'delete':
         showDialog({
-          title: 'Confirm Delete',
-          content: 'Are you sure you want to delete this Leave Type?',
+          title: dictionary.humanResources.leaveTypes.actions.confirmDeleteTitle,
+          content: dictionary.humanResources.leaveTypes.actions.confirmDeleteContent,
           onYes: () => {
             hideDialog();
             deleteLeaveType(leaveType.id);
@@ -132,7 +134,7 @@ const LeaveTypeItemAction = ({ leaveType }: { leaveType: LeaveType }) => {
       </Dialog>
       <JumboDdMenu
         icon={
-          <Tooltip title='Actions'>
+          <Tooltip title={dictionary.tooltips.actions}>
             <MoreHorizOutlined fontSize='small' />
           </Tooltip>
         }

@@ -46,6 +46,7 @@ import React, { useState } from 'react';
 import OutletSelector from '../../outlet/OutletSelector';
 import posServices from '../../pos-services';
 import SalesPerformancePDF from './SalesPerformancePDF';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface SalesPerformanceProductRow {
   product_id: number;
@@ -82,6 +83,7 @@ function SalesPerformance({
 }: {
   setOpenSalesPerformance: (open: boolean) => void;
 }) {
+  const dictionary = useDictionary();
   const [from, setFrom] = useState<Dayjs | null>(
     dayjs().startOf('month')
   );
@@ -187,7 +189,7 @@ function SalesPerformance({
       a.click();
       window.URL.revokeObjectURL(url);
     } catch (error: any) {
-      enqueueSnackbar('Could not export the Excel file', {
+      enqueueSnackbar(dictionary.forms.reports.salesPerformance.messages.exportFailed, {
         variant: 'error',
       });
     } finally {
@@ -195,18 +197,21 @@ function SalesPerformance({
     }
   };
 
-  const labelColumn = groupBy === 'sales_person' ? 'Sales Person' : 'Customer';
+  const labelColumn =
+    groupBy === 'sales_person'
+      ? dictionary.forms.reports.salesPerformance.labels.salesPerson
+      : dictionary.forms.reports.salesPerformance.labels.customer;
 
   return (
     <>
       <DialogTitle textAlign='center'>
         <Grid container>
           <Grid size={belowLargeScreen ? 11 : 12}>
-            <Typography variant='h3'>Sales Performance</Typography>
+            <Typography variant='h3'>{dictionary.forms.reports.salesPerformance.title}</Typography>
           </Grid>
           {belowLargeScreen && (
             <Grid size={1}>
-              <Tooltip title='Close'>
+              <Tooltip title={dictionary.tooltips.close}>
                 <IconButton
                   sx={{ mb: 1 }}
                   size='small'
@@ -228,7 +233,7 @@ function SalesPerformance({
         <Grid container spacing={1} sx={{ mb: 2 }}>
           <Grid size={{ xs: 12, md: 3 }}>
             <DateTimePicker
-              label='From'
+              label={dictionary.forms.reports.salesPerformance.labels.from}
               value={from}
               slotProps={{ textField: { size: 'small', fullWidth: true } }}
               onChange={(value) => setFrom(value)}
@@ -236,7 +241,7 @@ function SalesPerformance({
           </Grid>
           <Grid size={{ xs: 12, md: 3 }}>
             <DateTimePicker
-              label='To'
+              label={dictionary.forms.reports.salesPerformance.labels.to}
               value={to}
               slotProps={{ textField: { size: 'small', fullWidth: true } }}
               onChange={(value) => setTo(value)}
@@ -245,29 +250,29 @@ function SalesPerformance({
           <Grid size={{ xs: 12, md: 2 }}>
             <FormControl fullWidth size='small'>
               <InputLabel id='sales-performance-group-by-label'>
-                Group By
+                {dictionary.forms.reports.salesPerformance.labels.groupBy}
               </InputLabel>
               <Select
                 labelId='sales-performance-group-by-label'
-                label='Group By'
+                label={dictionary.forms.reports.salesPerformance.labels.groupBy}
                 value={groupBy}
                 onChange={(e) =>
                   setGroupBy(e.target.value as 'customer' | 'sales_person')
                 }
               >
-                <MenuItem value='customer'>Customer</MenuItem>
-                <MenuItem value='sales_person'>Sales Person</MenuItem>
+                <MenuItem value='customer'>{dictionary.forms.reports.salesPerformance.labels.customer}</MenuItem>
+                <MenuItem value='sales_person'>{dictionary.forms.reports.salesPerformance.labels.salesPerson}</MenuItem>
               </Select>
             </FormControl>
           </Grid>
           <Grid size={{ xs: 12, md: 2 }}>
             <FormControl fullWidth size='small'>
               <InputLabel id='sales-performance-order-by-label'>
-                Rank By
+                {dictionary.forms.reports.salesPerformance.labels.rankBy}
               </InputLabel>
               <Select
                 labelId='sales-performance-order-by-label'
-                label='Rank By'
+                label={dictionary.forms.reports.salesPerformance.labels.rankBy}
                 value={orderBy}
                 onChange={(e) =>
                   setOrderBy(
@@ -275,14 +280,14 @@ function SalesPerformance({
                   )
                 }
               >
-                <MenuItem value='amount_ordered'>Amount Ordered</MenuItem>
-                <MenuItem value='amount_collected'>Amount Collected</MenuItem>
+                <MenuItem value='amount_ordered'>{dictionary.forms.reports.salesPerformance.labels.amountOrdered}</MenuItem>
+                <MenuItem value='amount_collected'>{dictionary.forms.reports.salesPerformance.labels.amountCollected}</MenuItem>
               </Select>
             </FormControl>
           </Grid>
           <Grid size={{ xs: 12, md: 2 }}>
             <TextField
-              label='Top N'
+              label={dictionary.forms.reports.salesPerformance.labels.topN}
               type='number'
               size='small'
               fullWidth
@@ -298,7 +303,7 @@ function SalesPerformance({
           </Grid>
           <Grid size={{ xs: 12, md: 4 }}>
             <StakeholderSelector
-              label='Clients (all if empty)'
+              label={dictionary.forms.reports.salesPerformance.labels.clientsAll}
               multiple
               onChange={(newValue) =>
                 setSelectedStakeholders(
@@ -317,7 +322,7 @@ function SalesPerformance({
               }
               getOptionLabel={(option: string) => option}
               renderInput={(params) => (
-                <TextField {...params} label='Sales People (all if empty)' />
+                <TextField {...params} label={dictionary.forms.reports.salesPerformance.labels.salesPeopleAll} />
               )}
               renderTags={(tagValue: string[], getTagProps) =>
                 tagValue.map((option, index) => (
@@ -354,7 +359,7 @@ function SalesPerformance({
                 disabled={!from || !to || generateReport.isPending}
                 onClick={handleGenerate}
               >
-                Generate
+                {dictionary.forms.reports.salesPerformance.labels.generate}
               </Button>
             </Stack>
           </Grid>
@@ -370,7 +375,7 @@ function SalesPerformance({
               textAlign='center'
               sx={{ py: 3 }}
             >
-              No sales found for this period.
+              {dictionary.forms.reports.salesPerformance.messages.noSales}
             </Typography>
           ) : showPdfPreview ? (
             <PDFContent
@@ -384,6 +389,7 @@ function SalesPerformance({
                   to={to?.toISOString() || ''}
                   baseCurrencyCode={baseCurrencyCode}
                   printedBy={authUser?.user?.name}
+                  dictionary={dictionary}
                 />
               }
             />
@@ -424,7 +430,7 @@ function SalesPerformance({
                       <Grid container rowSpacing={0.5}>
                         <Grid size={6}>
                           <Typography variant='caption' color='text.secondary'>
-                            Transactions
+                            {dictionary.forms.reports.salesPerformance.labels.transactions}
                           </Typography>
                         </Grid>
                         <Grid size={6} textAlign='right'>
@@ -434,7 +440,7 @@ function SalesPerformance({
                         </Grid>
                         <Grid size={6}>
                           <Typography variant='caption' color='text.secondary'>
-                            Amount Ordered
+                            {dictionary.forms.reports.salesPerformance.labels.amountOrdered}
                           </Typography>
                         </Grid>
                         <Grid size={6} textAlign='right'>
@@ -444,7 +450,7 @@ function SalesPerformance({
                         </Grid>
                         <Grid size={6}>
                           <Typography variant='caption' color='text.secondary'>
-                            Amount Collected
+                            {dictionary.forms.reports.salesPerformance.labels.amountCollected}
                           </Typography>
                         </Grid>
                         <Grid size={6} textAlign='right'>
@@ -457,7 +463,7 @@ function SalesPerformance({
                         <Collapse in={isExpanded} timeout='auto' unmountOnExit>
                           <Divider sx={{ my: 1 }} />
                           <Typography variant='caption' color='text.secondary' gutterBottom display='block'>
-                            Products sold
+                            {dictionary.forms.reports.salesPerformance.labels.productsSold}
                           </Typography>
                           {row.products.map((product) => (
                             <Box
@@ -475,7 +481,7 @@ function SalesPerformance({
                               <Grid container rowSpacing={0.25}>
                                 <Grid size={6}>
                                   <Typography variant='caption' color='text.secondary'>
-                                    Quantity
+                                    {dictionary.forms.reports.salesPerformance.labels.quantity}
                                   </Typography>
                                 </Grid>
                                 <Grid size={6} textAlign='right'>
@@ -485,7 +491,7 @@ function SalesPerformance({
                                 </Grid>
                                 <Grid size={6}>
                                   <Typography variant='caption' color='text.secondary'>
-                                    Amount Ordered
+                                    {dictionary.forms.reports.salesPerformance.labels.amountOrdered}
                                   </Typography>
                                 </Grid>
                                 <Grid size={6} textAlign='right'>
@@ -495,7 +501,7 @@ function SalesPerformance({
                                 </Grid>
                                 <Grid size={6}>
                                   <Typography variant='caption' color='text.secondary'>
-                                    Amount Dispatched
+                                    {dictionary.forms.reports.salesPerformance.labels.amountDispatched}
                                   </Typography>
                                 </Grid>
                                 <Grid size={6} textAlign='right'>
@@ -513,12 +519,12 @@ function SalesPerformance({
                 })}
                 <Paper variant='outlined' sx={{ p: 1.5, bgcolor: 'action.hover' }}>
                   <Typography variant='subtitle2' gutterBottom>
-                    Total
+                    {dictionary.forms.reports.salesPerformance.labels.total}
                   </Typography>
                   <Grid container rowSpacing={0.5}>
                     <Grid size={6}>
                       <Typography variant='caption' color='text.secondary'>
-                        Transactions
+                        {dictionary.forms.reports.salesPerformance.labels.transactions}
                       </Typography>
                     </Grid>
                     <Grid size={6} textAlign='right'>
@@ -533,7 +539,7 @@ function SalesPerformance({
                     </Grid>
                     <Grid size={6}>
                       <Typography variant='caption' color='text.secondary'>
-                        Amount Ordered
+                        {dictionary.forms.reports.salesPerformance.labels.amountOrdered}
                       </Typography>
                     </Grid>
                     <Grid size={6} textAlign='right'>
@@ -550,7 +556,7 @@ function SalesPerformance({
                     </Grid>
                     <Grid size={6}>
                       <Typography variant='caption' color='text.secondary'>
-                        Amount Collected
+                        {dictionary.forms.reports.salesPerformance.labels.amountCollected}
                       </Typography>
                     </Grid>
                     <Grid size={6} textAlign='right'>
@@ -576,11 +582,11 @@ function SalesPerformance({
                 <TableHead>
                   <TableRow>
                     <TableCell />
-                    <TableCell>Rank</TableCell>
+                    <TableCell>{dictionary.forms.reports.salesPerformance.labels.rank}</TableCell>
                     <TableCell>{labelColumn}</TableCell>
-                    <TableCell align='right'>Transactions</TableCell>
-                    <TableCell align='right'>Amount Ordered</TableCell>
-                    <TableCell align='right'>Amount Collected</TableCell>
+                    <TableCell align='right'>{dictionary.forms.reports.salesPerformance.labels.transactions}</TableCell>
+                    <TableCell align='right'>{dictionary.forms.reports.salesPerformance.labels.amountOrdered}</TableCell>
+                    <TableCell align='right'>{dictionary.forms.reports.salesPerformance.labels.amountCollected}</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -625,15 +631,15 @@ function SalesPerformance({
                               <Collapse in={isExpanded} timeout='auto' unmountOnExit>
                                 <Box sx={{ my: 1, ml: 5 }}>
                                   <Typography variant='subtitle2' gutterBottom>
-                                    Products sold by {row.label}
+                                    {dictionary.forms.reports.salesPerformance.labels.productsSoldBy.replace('{name}', row.label)}
                                   </Typography>
                                   <Table size='small'>
                                     <TableHead>
                                       <TableRow>
-                                        <TableCell>Product</TableCell>
-                                        <TableCell align='right'>Quantity</TableCell>
-                                        <TableCell align='right'>Amount Ordered</TableCell>
-                                        <TableCell align='right'>Amount Dispatched</TableCell>
+                                        <TableCell>{dictionary.forms.reports.salesPerformance.labels.product}</TableCell>
+                                        <TableCell align='right'>{dictionary.forms.reports.salesPerformance.labels.quantity}</TableCell>
+                                        <TableCell align='right'>{dictionary.forms.reports.salesPerformance.labels.amountOrdered}</TableCell>
+                                        <TableCell align='right'>{dictionary.forms.reports.salesPerformance.labels.amountDispatched}</TableCell>
                                       </TableRow>
                                     </TableHead>
                                     <TableBody>
@@ -668,7 +674,7 @@ function SalesPerformance({
                     <TableCell />
                     <TableCell />
                     <TableCell>
-                      <strong>Total</strong>
+                      <strong>{dictionary.forms.reports.salesPerformance.labels.total}</strong>
                     </TableCell>
                     <TableCell align='right'>
                       <strong>
@@ -708,7 +714,7 @@ function SalesPerformance({
       </DialogContent>
       <DialogActions>
         <Button size='small' onClick={() => setOpenSalesPerformance(false)}>
-          Close
+          {dictionary.forms.reports.salesPerformance.labels.close}
         </Button>
       </DialogActions>
     </>

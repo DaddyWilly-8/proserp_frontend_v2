@@ -11,8 +11,10 @@ import { OvertimeType } from './OvertimeType';
 import OvertimeTypeActionTail from './OvertimeTypeActionTail';
 import OvertimeTypesListItem from './OvertimeTypesListItem';
 import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const OvertimeTypes = () => {
+  const dictionary = useDictionary();
   const params = useParams<{ keyword?: string }>();
   const searchParams = useSearchParams();
   const listRef = useRef<any>(null);
@@ -58,7 +60,7 @@ const OvertimeTypes = () => {
   return (
     <>
       <Typography variant={'h4'} mb={2}>
-        Overtime Types
+        {dictionary.humanResources.overtimeTypes.list.title}
       </Typography>
       <JumboRqList
         ref={listRef}

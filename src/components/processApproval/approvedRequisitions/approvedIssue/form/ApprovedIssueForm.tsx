@@ -19,6 +19,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import dayjs, { Dayjs } from 'dayjs';
 import { useSnackbar } from 'notistack';
 import React from 'react';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import requisitionsServices from '../../../requisitionsServices';
 import { MaterialApprovalRequisition } from '../../ApprovalRequisitionType';
 
@@ -33,6 +34,7 @@ function ApprovedIssueForm({
   approvedDetails,
   approvedRequisition,
 }: ApprovedIssueFormProps) {
+  const dictionary = useDictionary();
   const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
   const [issueDate, setIssueDate] = React.useState<Dayjs | null>(dayjs());
@@ -75,7 +77,7 @@ function ApprovedIssueForm({
     mutationFn: (payload: any) =>
       requisitionsServices.issueApprovedItems(approvedRequisition.id, payload),
     onSuccess: (response: any) => {
-      enqueueSnackbar(response?.message || 'Items issued successfully', {
+      enqueueSnackbar(response?.message || dictionary.forms.approvedRequisitions.approvedIssue.messages.issuedSuccess, {
         variant: 'success',
       });
       queryClient.invalidateQueries({
@@ -89,7 +91,7 @@ function ApprovedIssueForm({
     },
     onError: (error: any) => {
       enqueueSnackbar(
-        error?.response?.data?.message || 'Failed to issue approved items',
+        error?.response?.data?.message || dictionary.forms.approvedRequisitions.approvedIssue.messages.issueFailed,
         { variant: 'error' }
       );
     },
@@ -101,7 +103,7 @@ function ApprovedIssueForm({
     );
 
     if (itemsToIssue.length === 0) {
-      enqueueSnackbar('Enter at least one issue quantity greater than 0', {
+      enqueueSnackbar(dictionary.forms.approvedRequisitions.approvedIssue.messages.enterQuantity, {
         variant: 'warning',
       });
       return;
@@ -114,7 +116,10 @@ function ApprovedIssueForm({
 
     if (invalidItem) {
       enqueueSnackbar(
-        `Issue quantity for ${invalidItem?.product?.name || 'selected item'} exceeds unissued quantity`,
+        dictionary.forms.approvedRequisitions.approvedIssue.messages.exceedsUnissued.replace(
+          '{product}',
+          invalidItem?.product?.name || dictionary.forms.approvedRequisitions.approvedIssue.messages.selectedItem
+        ),
         { variant: 'error' }
       );
       return;
@@ -126,7 +131,10 @@ function ApprovedIssueForm({
 
     if (missingDestination) {
       enqueueSnackbar(
-        `Select a destination store for ${missingDestination?.product?.name || 'the selected item'}`,
+        dictionary.forms.approvedRequisitions.approvedIssue.messages.selectDestination.replace(
+          '{product}',
+          missingDestination?.product?.name || dictionary.forms.approvedRequisitions.approvedIssue.messages.theSelectedItem
+        ),
         { variant: 'error' }
       );
       return;
@@ -140,7 +148,10 @@ function ApprovedIssueForm({
 
     if (fractionalWhereNotAllowed) {
       enqueueSnackbar(
-        `${fractionalWhereNotAllowed?.product?.name || 'This product'} is sold in whole units — quantity cannot be a fraction`,
+        dictionary.forms.approvedRequisitions.approvedIssue.messages.wholeUnits.replace(
+          '{product}',
+          fractionalWhereNotAllowed?.product?.name || dictionary.forms.approvedRequisitions.approvedIssue.messages.thisProduct
+        ),
         { variant: 'error' }
       );
       return;
@@ -164,17 +175,17 @@ function ApprovedIssueForm({
 
   return (
     <>
-      <DialogTitle textAlign={'center'}>Issue Stock Items</DialogTitle>
+      <DialogTitle textAlign={'center'}>{dictionary.forms.approvedRequisitions.approvedIssue.title}</DialogTitle>
       <DialogContent>
         {items.length === 0 ? (
           <Alert variant='outlined' severity='info'>
-            No stock lines with remaining unissued quantity.
+            {dictionary.forms.approvedRequisitions.approvedIssue.noLines}
           </Alert>
         ) : (
           <Grid container spacing={1} sx={{ mt: 1 }}>
             <Grid size={{ xs: 12, md: 4 }}>
               <DateTimePicker
-                label='Issue Date'
+                label={dictionary.forms.approvedRequisitions.approvedIssue.issueDate}
                 value={issueDate}
                 slotProps={{
                   textField: {
@@ -187,7 +198,7 @@ function ApprovedIssueForm({
             </Grid>
             <Grid size={{ xs: 12, md: 4 }}>
               <TextField
-                label='Reference'
+                label={dictionary.forms.approvedRequisitions.common.reference}
                 size='small'
                 fullWidth
                 value={reference}
@@ -196,7 +207,7 @@ function ApprovedIssueForm({
             </Grid>
             <Grid size={{ xs: 12, md: 4 }}>
               <TextField
-                label='Narration'
+                label={dictionary.forms.approvedRequisitions.common.narration}
                 size='small'
                 fullWidth
                 value={narration}
@@ -217,14 +228,14 @@ function ApprovedIssueForm({
                 </Grid>
                 <Grid size={{ xs: 12, md: 4 }}>
                   <Typography variant='caption'>
-                    Unissued:{' '}
+                    {dictionary.forms.approvedRequisitions.approvedIssue.unissued}{' '}
                     {Number(item?.unissued_quantity || 0).toLocaleString()}{' '}
                     {item?.measurement_unit?.symbol || ''}
                   </Typography>
                 </Grid>
                 <Grid size={{ xs: 12, md: 4 }}>
                   <TextField
-                    label='Issue Quantity'
+                    label={dictionary.forms.approvedRequisitions.approvedIssue.issueQuantity}
                     fullWidth
                     size='small'
                     value={Number(item?.issue_quantity || 0).toLocaleString()}
@@ -247,7 +258,7 @@ function ApprovedIssueForm({
                 <Grid size={{ xs: 12, md: 4 }}>
                   <TextField
                     select
-                    label='Issue As'
+                    label={dictionary.forms.approvedRequisitions.approvedIssue.issueAs}
                     fullWidth
                     size='small'
                     value={item.issue_type}
@@ -268,17 +279,17 @@ function ApprovedIssueForm({
                     }}
                   >
                     <MenuItem value='consume'>
-                      Consume (expense to requester)
+                      {dictionary.forms.approvedRequisitions.approvedIssue.consume}
                     </MenuItem>
                     <MenuItem value='transfer'>
-                      Transfer to another store
+                      {dictionary.forms.approvedRequisitions.approvedIssue.transfer}
                     </MenuItem>
                   </TextField>
                 </Grid>
                 {item.issue_type === 'transfer' && (
                   <Grid size={{ xs: 12, md: 4 }}>
                     <StoreSelector
-                      label='Destination Store'
+                      label={dictionary.forms.approvedRequisitions.approvedIssue.destinationStore}
                       multiple={false}
                       defaultValue={item.destination_store}
                       excludeStores={
@@ -304,7 +315,7 @@ function ApprovedIssueForm({
       </DialogContent>
       <DialogActions>
         <Button size='small' onClick={() => toggleOpen(false)}>
-          Cancel
+          {dictionary.forms.approvedRequisitions.common.cancel}
         </Button>
         <LoadingButton
           loading={issueMutation.isPending}
@@ -314,7 +325,7 @@ function ApprovedIssueForm({
           onClick={handleSubmit}
           disabled={items.length === 0}
         >
-          Issue
+          {dictionary.forms.approvedRequisitions.approvedIssue.issue}
         </LoadingButton>
       </DialogActions>
     </>

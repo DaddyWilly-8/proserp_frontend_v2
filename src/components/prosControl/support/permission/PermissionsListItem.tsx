@@ -4,6 +4,7 @@ import React, { useContext } from "react";
 import { Box, Chip, Divider, Grid, Tooltip, Typography } from "@mui/material";
 import PermissionItemAction from "./PermissionItemAction";
 import { SelectedTab } from "../troubleshooting/Troubleshooting";
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 // ---- Types ----
 interface Module {
@@ -24,6 +25,7 @@ interface PermissionsListItemProps {
 }
 
 function PermissionsListItem({ permission }: PermissionsListItemProps) {
+  const dictionary = useDictionary();
   const { activeTab } = useContext(SelectedTab);
   const isOrganizationPermission = activeTab === 1;
 
@@ -43,7 +45,7 @@ function PermissionsListItem({ permission }: PermissionsListItemProps) {
       >
         {/* Permission Name */}
         <Grid size={{ xs: 12, md: isOrganizationPermission ? 3 : 6 }}>
-          <Tooltip title="Name">
+          <Tooltip title={dictionary.tooltips.name}>
             <Typography>{permission.name}</Typography>
           </Tooltip>
         </Grid>
@@ -51,7 +53,7 @@ function PermissionsListItem({ permission }: PermissionsListItemProps) {
         {/* Modules if Organization Permission */}
         {isOrganizationPermission && (
           <Grid size={{ xs: 12, md: 3 }}>
-            <Tooltip title="Modules">
+            <Tooltip title={dictionary.tooltips.modules}>
               {!permission.is_core ? (
                 <div>
                   {permission.modules.map((module) => (
@@ -72,7 +74,7 @@ function PermissionsListItem({ permission }: PermissionsListItemProps) {
 
         {/* Description */}
         <Grid size={{ xs: isOrganizationPermission ? 12 : 6, md: 5 }}>
-          <Tooltip title="Description">
+          <Tooltip title={dictionary.tooltips.description}>
             <Typography>{permission.description}</Typography>
           </Tooltip>
         </Grid>

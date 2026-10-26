@@ -1,5 +1,6 @@
 'use client';
 
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import { useLanguage } from '@/app/[lang]/contexts/LanguageContext';
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 import JumboCardQuick from '@jumbo/components/JumboCardQuick';
@@ -145,6 +146,8 @@ const MobileRowCard = ({
 const HrDashboard = () => {
   const router = useRouter();
   const lang = useLanguage();
+  const dictionary = useDictionary();
+  const t = dictionary.humanResources.hrDashboard;
   const { theme } = useJumboTheme();
   const smallScreen = useMediaQuery(theme.breakpoints.down('sm'));
 
@@ -187,12 +190,16 @@ const HrDashboard = () => {
     <Div>
       {payroll && !payroll.has_any_run && (
         <Alert severity='warning' sx={{ mb: 2 }}>
-          No payroll run has been started yet for <strong>{payroll.period_label}</strong>.
+          {t.alerts.noPayrollRun.split('{period}')[0]}
+          <strong>{payroll.period_label}</strong>
+          {t.alerts.noPayrollRun.split('{period}')[1]}
         </Alert>
       )}
       {payroll && payroll.has_any_run && !payrollHasApprovedOrLater && (
         <Alert severity='info' sx={{ mb: 2 }}>
-          Payroll for <strong>{payroll.period_label}</strong> is still in draft/awaiting approval.
+          {t.alerts.payrollInDraft.split('{period}')[0]}
+          <strong>{payroll.period_label}</strong>
+          {t.alerts.payrollInDraft.split('{period}')[1]}
         </Alert>
       )}
 
@@ -200,11 +207,14 @@ const HrDashboard = () => {
         <Grid size={{ xs: 12, sm: 6, md: 4, lg: 2 }}>
           <StatTile
             icon={<GroupsOutlined />}
-            label='Active Employees'
+            label={t.tiles.activeEmployees}
             value={headcount.total_employees}
             sub={
               headcount.new_hires_this_month > 0
-                ? `${headcount.new_hires_this_month} new this month`
+                ? t.tiles.newThisMonth.replace(
+                    '{count}',
+                    String(headcount.new_hires_this_month)
+                  )
                 : undefined
             }
             color='primary'
@@ -214,7 +224,7 @@ const HrDashboard = () => {
         <Grid size={{ xs: 12, sm: 6, md: 4, lg: 2 }}>
           <StatTile
             icon={<BeachAccessOutlined />}
-            label='On Leave Today'
+            label={t.tiles.onLeaveToday}
             value={onLeave.length}
             color='info'
             onClick={() => scrollToRef(leaveRef)}
@@ -223,9 +233,12 @@ const HrDashboard = () => {
         <Grid size={{ xs: 12, sm: 6, md: 4, lg: 2 }}>
           <StatTile
             icon={<RequestQuoteOutlined />}
-            label='Active Loans'
+            label={t.tiles.activeLoans}
             value={loans.count}
-            sub={loans.count > 0 ? formatMoney(loans.total_outstanding) + ' owed' : undefined}
+            sub={loans.count > 0 ? t.tiles.owed.replace(
+                    '{amount}',
+                    formatMoney(loans.total_outstanding)
+                  ) : undefined}
             color='warning'
             onClick={() => scrollToRef(loansRef)}
           />
@@ -233,7 +246,7 @@ const HrDashboard = () => {
         <Grid size={{ xs: 12, sm: 6, md: 4, lg: 2 }}>
           <StatTile
             icon={<DescriptionOutlined />}
-            label='Contracts Expiring (30d)'
+            label={t.tiles.contractsExpiring}
             value={expiringContracts.length}
             color={expiringContracts.length > 0 ? 'error' : 'success'}
             onClick={() => scrollToRef(contractsRef)}
@@ -242,7 +255,7 @@ const HrDashboard = () => {
         <Grid size={{ xs: 12, sm: 6, md: 4, lg: 2 }}>
           <StatTile
             icon={<CakeOutlined />}
-            label='Birthdays (30d)'
+            label={t.tiles.birthdays}
             value={birthdays.length}
             color='secondary'
             onClick={() => scrollToRef(birthdaysRef)}
@@ -251,9 +264,11 @@ const HrDashboard = () => {
         <Grid size={{ xs: 12, sm: 6, md: 4, lg: 2 }}>
           <StatTile
             icon={<PendingActionsOutlined />}
-            label='Pending Approvals'
+            label={t.tiles.pendingApprovals}
             value={pending.loan_requests + pending.leave_requests}
-            sub={`${pending.leave_requests} leave, ${pending.loan_requests} loan`}
+            sub={t.tiles.pendingSub
+              .replace('{leave}', String(pending.leave_requests))
+              .replace('{loan}', String(pending.loan_requests))}
             color={
               pending.loan_requests + pending.leave_requests > 0
                 ? 'error'
@@ -266,13 +281,13 @@ const HrDashboard = () => {
       <Grid container spacing={2}>
         <Grid size={{ xs: 12, md: 6 }} ref={leaveRef}>
           <JumboCardQuick
-            title='Employees On Leave Today'
+            title={t.cards.onLeaveTitle}
             sx={{ height: DETAIL_CARD_HEIGHT, display: 'flex', flexDirection: 'column' }}
             wrapperSx={{ overflow: 'auto', flex: 1 }}
           >
             {smallScreen ? (
               onLeave.length === 0 ? (
-                <EmptyState text='No one is on leave today' />
+                <EmptyState text={t.empty.noOneOnLeave} />
               ) : (
                 onLeave.map((row) => (
                   <MobileRowCard
@@ -296,8 +311,11 @@ const HrDashboard = () => {
                         size='small'
                         label={
                           row.returns_in_days <= 1
-                            ? 'Today'
-                            : `In ${row.returns_in_days}d`
+                            ? t.today
+                            : t.inDaysShort.replace(
+                                '{count}',
+                                String(row.returns_in_days)
+                              )
                         }
                       />
                     </Stack>
@@ -316,14 +334,14 @@ const HrDashboard = () => {
               <Table size='small'>
                 <TableHead>
                   <TableRow>
-                    <TableCell>Employee</TableCell>
-                    <TableCell>Leave Type</TableCell>
-                    <TableCell>Returns</TableCell>
+                    <TableCell>{t.columns.employee}</TableCell>
+                    <TableCell>{t.columns.leaveType}</TableCell>
+                    <TableCell>{t.columns.returns}</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {onLeave.length === 0 ? (
-                    <EmptyRow colSpan={3} text='No one is on leave today' />
+                    <EmptyRow colSpan={3} text={t.empty.noOneOnLeave} />
                   ) : (
                     onLeave.map((row) => (
                       <TableRow
@@ -341,8 +359,11 @@ const HrDashboard = () => {
                         <TableCell>{row.leave_type}</TableCell>
                         <TableCell>
                           {row.returns_in_days <= 1
-                            ? 'Today'
-                            : `In ${row.returns_in_days} days`}
+                            ? t.today
+                            : t.inDays.replace(
+                                '{count}',
+                                String(row.returns_in_days)
+                              )}
                         </TableCell>
                       </TableRow>
                     ))
@@ -355,13 +376,13 @@ const HrDashboard = () => {
 
         <Grid size={{ xs: 12, md: 6 }} ref={loansRef}>
           <JumboCardQuick
-            title='Employees With Active Loans'
+            title={t.cards.activeLoansTitle}
             sx={{ height: DETAIL_CARD_HEIGHT, display: 'flex', flexDirection: 'column' }}
             wrapperSx={{ overflow: 'auto', flex: 1 }}
           >
             {smallScreen ? (
               loans.rows.length === 0 ? (
-                <EmptyState text='No employees currently repaying a loan' />
+                <EmptyState text={t.empty.noLoans} />
               ) : (
                 loans.rows.map((row) => (
                   <MobileRowCard
@@ -381,10 +402,10 @@ const HrDashboard = () => {
                     </Typography>
                     <Stack direction='row' justifyContent='space-between'>
                       <Typography variant='caption' color='text.secondary'>
-                        Outstanding: {formatMoney(row.outstanding_balance)}
+                        {t.outstandingLabel}: {formatMoney(row.outstanding_balance)}
                       </Typography>
                       <Typography variant='caption' color='text.secondary'>
-                        Installment: {formatMoney(row.installment_amount)}
+                        {t.installmentLabel}: {formatMoney(row.installment_amount)}
                       </Typography>
                     </Stack>
                   </MobileRowCard>
@@ -394,14 +415,14 @@ const HrDashboard = () => {
               <Table size='small'>
                 <TableHead>
                   <TableRow>
-                    <TableCell>Employee</TableCell>
-                    <TableCell align='right'>Outstanding</TableCell>
-                    <TableCell align='right'>Installment</TableCell>
+                    <TableCell>{t.columns.employee}</TableCell>
+                    <TableCell align='right'>{t.columns.outstanding}</TableCell>
+                    <TableCell align='right'>{t.columns.installment}</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {loans.rows.length === 0 ? (
-                    <EmptyRow colSpan={3} text='No employees currently repaying a loan' />
+                    <EmptyRow colSpan={3} text={t.empty.noLoans} />
                   ) : (
                     loans.rows.map((row) => (
                       <TableRow
@@ -433,13 +454,13 @@ const HrDashboard = () => {
 
         <Grid size={{ xs: 12, md: 6 }} ref={contractsRef}>
           <JumboCardQuick
-            title='Contracts Expiring Within 30 Days'
+            title={t.cards.contractsTitle}
             sx={{ height: DETAIL_CARD_HEIGHT, display: 'flex', flexDirection: 'column' }}
             wrapperSx={{ overflow: 'auto', flex: 1 }}
           >
             {smallScreen ? (
               expiringContracts.length === 0 ? (
-                <EmptyState text='No contracts expiring soon' />
+                <EmptyState text={t.empty.noContracts} />
               ) : (
                 expiringContracts.map((row) => (
                   <MobileRowCard
@@ -463,8 +484,11 @@ const HrDashboard = () => {
                         size='small'
                         label={
                           row.days_remaining <= 1
-                            ? 'Tomorrow'
-                            : `${row.days_remaining}d`
+                            ? t.tomorrow
+                            : t.daysShort.replace(
+                                '{count}',
+                                String(row.days_remaining)
+                              )
                         }
                         color={row.days_remaining <= 7 ? 'error' : 'warning'}
                       />
@@ -475,7 +499,7 @@ const HrDashboard = () => {
                       display='block'
                       mt={0.5}
                     >
-                      {row.designation || '-'} · Ends {row.end_date}
+                      {row.designation || '-'} · {t.ends} {row.end_date}
                     </Typography>
                   </MobileRowCard>
                 ))
@@ -484,14 +508,14 @@ const HrDashboard = () => {
               <Table size='small'>
                 <TableHead>
                   <TableRow>
-                    <TableCell>Employee</TableCell>
-                    <TableCell>Designation</TableCell>
-                    <TableCell>Ends</TableCell>
+                    <TableCell>{t.columns.employee}</TableCell>
+                    <TableCell>{t.columns.designation}</TableCell>
+                    <TableCell>{t.columns.ends}</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {expiringContracts.length === 0 ? (
-                    <EmptyRow colSpan={3} text='No contracts expiring soon' />
+                    <EmptyRow colSpan={3} text={t.empty.noContracts} />
                   ) : (
                     expiringContracts.map((row) => (
                       <TableRow
@@ -514,8 +538,11 @@ const HrDashboard = () => {
                               size='small'
                               label={
                                 row.days_remaining <= 1
-                                  ? 'Tomorrow'
-                                  : `${row.days_remaining}d`
+                                  ? t.tomorrow
+                                  : t.daysShort.replace(
+                                      '{count}',
+                                      String(row.days_remaining)
+                                    )
                               }
                               color={row.days_remaining <= 7 ? 'error' : 'warning'}
                             />
@@ -532,13 +559,13 @@ const HrDashboard = () => {
 
         <Grid size={{ xs: 12, md: 6 }} ref={birthdaysRef}>
           <JumboCardQuick
-            title='Upcoming Birthdays (30 Days)'
+            title={t.cards.birthdaysTitle}
             sx={{ height: DETAIL_CARD_HEIGHT, display: 'flex', flexDirection: 'column' }}
             wrapperSx={{ overflow: 'auto', flex: 1 }}
           >
             {smallScreen ? (
               birthdays.length === 0 ? (
-                <EmptyState text='No upcoming birthdays' />
+                <EmptyState text={t.empty.noBirthdays} />
               ) : (
                 birthdays.map((row) => (
                   <MobileRowCard
@@ -560,7 +587,7 @@ const HrDashboard = () => {
                       </Box>
                       <Chip
                         size='small'
-                        label={row.days_away === 0 ? 'Today' : row.next_birthday}
+                        label={row.days_away === 0 ? t.today : row.next_birthday}
                       />
                     </Stack>
                   </MobileRowCard>
@@ -570,13 +597,13 @@ const HrDashboard = () => {
               <Table size='small'>
                 <TableHead>
                   <TableRow>
-                    <TableCell>Employee</TableCell>
-                    <TableCell>Date</TableCell>
+                    <TableCell>{t.columns.employee}</TableCell>
+                    <TableCell>{t.columns.date}</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {birthdays.length === 0 ? (
-                    <EmptyRow colSpan={2} text='No upcoming birthdays' />
+                    <EmptyRow colSpan={2} text={t.empty.noBirthdays} />
                   ) : (
                     birthdays.map((row) => (
                       <TableRow
@@ -592,7 +619,7 @@ const HrDashboard = () => {
                           </Typography>
                         </TableCell>
                         <TableCell>
-                          {row.days_away === 0 ? 'Today' : row.next_birthday}
+                          {row.days_away === 0 ? t.today : row.next_birthday}
                         </TableCell>
                       </TableRow>
                     ))

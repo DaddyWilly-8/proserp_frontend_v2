@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import {
   Box,
   Typography,
@@ -84,6 +85,7 @@ interface ClaimOnscreenProps {
 }
 
 const ClaimOnscreen: React.FC<ClaimOnscreenProps> = ({ claim, organization }) => {
+  const dictionary = useDictionary();
   const theme = useTheme();
 
   const mainColor = organization.settings?.main_color || '#2113AD';
@@ -99,7 +101,7 @@ const ClaimOnscreen: React.FC<ClaimOnscreenProps> = ({ claim, organization }) =>
   const summaryItems = [
     {
       id: 'gross',
-      particular: 'Gross Amount Certified',
+      particular: dictionary.projectManagement.claims.doc.grossAmountCertified,
       amount: grossAmount,
       complement_ledger: null,
       type: null as 'addition' | 'deduction' | null,
@@ -114,7 +116,7 @@ const ClaimOnscreen: React.FC<ClaimOnscreenProps> = ({ claim, organization }) =>
     ...(vatPercentage > 0
       ? [{
           id: 'vat',
-          particular: `VAT (${vatPercentage}%)`,
+          particular: dictionary.projectManagement.claims.doc.vatPercent.replace('{percent}', String(vatPercentage)),
           amount: vatAmount,
           complement_ledger: null,
           type: null,
@@ -170,19 +172,19 @@ const ClaimOnscreen: React.FC<ClaimOnscreenProps> = ({ claim, organization }) =>
       <Grid container spacing={3} sx={{ mb: 6, alignItems: 'center' }}>
         <Grid size={{ xs: 12, md: 8 }} textAlign={{ xs: 'center', md: 'right' }}>
           <Typography variant="h4" sx={{ color: headerColor, fontWeight: 'bold' }}>
-            PAYMENT CLAIM
+            {dictionary.projectManagement.claims.doc.paymentClaim.toUpperCase()}
           </Typography>
           <Typography variant="h5" fontWeight="bold" sx={{ mt: 1 }}>
             {claim.claimNo}
           </Typography>
           {claim.customer_invoice?.invoiceNo && (
             <Typography variant="subtitle1" color="text.secondary">
-              Invoice: {claim.customer_invoice.invoiceNo}
+              {dictionary.projectManagement.claims.doc.invoice}: {claim.customer_invoice.invoiceNo}
             </Typography>
           )}
           {claim.project?.name && (
             <Typography variant="subtitle1" color="text.secondary">
-              Project: {claim.project.name}
+              {dictionary.projectManagement.claims.doc.project}: {claim.project.name}
             </Typography>
           )}
         </Grid>
@@ -192,7 +194,7 @@ const ClaimOnscreen: React.FC<ClaimOnscreenProps> = ({ claim, organization }) =>
       <Grid container spacing={4} sx={{ mb: 6 }}>
         <Grid size={{ xs: 12, md: 6 }}>
           <Typography variant="subtitle2" color="text.secondary">
-            Claim Date
+            {dictionary.projectManagement.claims.doc.claimDate}
           </Typography>
           <Typography variant="body1" fontWeight="medium">
             {readableDate(claim.claim_date, false)}
@@ -202,7 +204,7 @@ const ClaimOnscreen: React.FC<ClaimOnscreenProps> = ({ claim, organization }) =>
         {claim.remarks && (
           <Grid size={{ xs: 12, md: 6 }}>
             <Typography variant="subtitle2" color="text.secondary">
-              Remarks
+              {dictionary.projectManagement.claims.doc.remarks}
             </Typography>
             <Typography variant="body1">{claim.remarks}</Typography>
           </Grid>
@@ -212,17 +214,17 @@ const ClaimOnscreen: React.FC<ClaimOnscreenProps> = ({ claim, organization }) =>
       {/* ==================== Summary Table ==================== */}
       <Box sx={{ mb: 8 }}>
         <Typography variant="h6" align="center" gutterBottom sx={{ color: headerColor }}>
-          Summary
+          {dictionary.projectManagement.claims.doc.summary}
         </Typography>
 
         <TableContainer component={Paper} elevation={4}>
           <Table size="small">
             <TableHead>
               <TableRow sx={{ bgcolor: mainColor }}>
-                <TableCell sx={{ border: `1px solid ${contrastText}`, color: contrastText, fontWeight: 'bold' }}>S/N</TableCell>
-                <TableCell sx={{ border: `1px solid ${contrastText}`, color: contrastText, fontWeight: 'bold' }}>Particulars</TableCell>
+                <TableCell sx={{ border: `1px solid ${contrastText}`, color: contrastText, fontWeight: 'bold' }}>{dictionary.projectManagement.claims.doc.sn}</TableCell>
+                <TableCell sx={{ border: `1px solid ${contrastText}`, color: contrastText, fontWeight: 'bold' }}>{dictionary.projectManagement.claims.doc.particulars}</TableCell>
                 <TableCell align="right" sx={{ border: `1px solid ${contrastText}`, color: contrastText, fontWeight: 'bold' }}>
-                  Amount ({currencyCode})
+                  {dictionary.projectManagement.claims.doc.amountWithCurrency.replace('{currency}', currencyCode)}
                 </TableCell>
               </TableRow>
             </TableHead>
@@ -250,7 +252,7 @@ const ClaimOnscreen: React.FC<ClaimOnscreenProps> = ({ claim, organization }) =>
 
               <TableRow sx={{ bgcolor: mainColor }}>
                 <TableCell colSpan={2} align="center" sx={{ border: `1px solid ${contrastText}`, color: contrastText, fontWeight: 'bold' }}>
-                  Grand Total ({currencyCode})
+                  {dictionary.projectManagement.claims.doc.grandTotalWithCurrency.replace('{currency}', currencyCode)}
                 </TableCell>
                 <TableCell align="right" sx={{ border: `1px solid ${contrastText}`, color: contrastText, fontWeight: 'bold' }}>
                   {grandTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
@@ -263,7 +265,7 @@ const ClaimOnscreen: React.FC<ClaimOnscreenProps> = ({ claim, organization }) =>
 
       {/* ==================== Claim Derivations Table ==================== */}
       <Typography variant="h6" align="center" gutterBottom sx={{ mb: 3, color: headerColor }}>
-        Claim Derivations
+        {dictionary.projectManagement.claims.doc.claimDerivations}
       </Typography>
 
       <TableContainer component={Paper} elevation={4} sx={{ mb: 8, overflowX: 'auto' }}>
@@ -272,30 +274,30 @@ const ClaimOnscreen: React.FC<ClaimOnscreenProps> = ({ claim, organization }) =>
             <TableRow sx={{ bgcolor: mainColor }}>
               <TableCell colSpan={3} sx={{ border: `1px solid ${contrastText}`, color: contrastText, fontWeight: 'bold', textAlign: 'center' }}></TableCell>
               <TableCell colSpan={3} align="center" sx={{ border: `1px solid ${contrastText}`, color: contrastText, fontWeight: 'bold' }}>
-                Price Schedule
+                {dictionary.projectManagement.claims.doc.priceSchedule}
               </TableCell>
               <TableCell colSpan={3} align="center" sx={{ border: `1px solid ${contrastText}`, color: contrastText, fontWeight: 'bold' }}>
-                Quantity
+                {dictionary.projectManagement.claims.doc.quantity}
               </TableCell>
               <TableCell colSpan={3} align="center" sx={{ border: `1px solid ${contrastText}`, color: contrastText, fontWeight: 'bold' }}>
-                Amount ({currencyCode})
+                {dictionary.projectManagement.claims.doc.amountWithCurrency.replace('{currency}', currencyCode)}
               </TableCell>
             </TableRow>
 
             <TableRow sx={{ bgcolor: mainColor + 'dd' }}>
               {[
-                'S/N',
-                'Description',
-                'Unit',
-                'Qty',
-                'Rate',
-                'Amount',
-                'Prev. Qty',
-                'Pres. Qty',
-                'Cum. Qty',
-                'Prev. Amt',
-                'Pres. Amt',
-                'Cum. Amt',
+                dictionary.projectManagement.claims.doc.sn,
+                dictionary.projectManagement.claims.doc.description,
+                dictionary.projectManagement.claims.doc.unit,
+                dictionary.projectManagement.claims.doc.qty,
+                dictionary.projectManagement.claims.doc.rate,
+                dictionary.projectManagement.claims.doc.amount,
+                dictionary.projectManagement.claims.doc.prevQty,
+                dictionary.projectManagement.claims.doc.presQty,
+                dictionary.projectManagement.claims.doc.cumQty,
+                dictionary.projectManagement.claims.doc.prevAmt,
+                dictionary.projectManagement.claims.doc.presAmt,
+                dictionary.projectManagement.claims.doc.cumAmt,
               ].map((header, idx) => (
                 <TableCell
                   key={idx}
@@ -380,7 +382,7 @@ const ClaimOnscreen: React.FC<ClaimOnscreenProps> = ({ claim, organization }) =>
                   py: 2,
                 }}
               >
-                GRAND TOTAL ({currencyCode})
+                {dictionary.projectManagement.claims.doc.grandTotalUpper.replace('{currency}', currencyCode)}
               </TableCell>
               <TableCell
                 align="right"
@@ -425,7 +427,7 @@ const ClaimOnscreen: React.FC<ClaimOnscreenProps> = ({ claim, organization }) =>
       <Box sx={{ mt: 12, display: 'flex', justifyContent: 'flex-end' }}>
         <Box sx={{ width: { xs: '100%', sm: 320 }, textAlign: 'center' }}>
           <Typography variant="subtitle1" sx={{ color: headerColor, fontWeight: 'bold' }}>
-            Prepared By:
+            {dictionary.projectManagement.claims.doc.preparedBy}:
           </Typography>
           <Typography variant="body1" fontWeight="medium">
             {claim.creator?.name}

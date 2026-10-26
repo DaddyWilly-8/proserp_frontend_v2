@@ -10,6 +10,7 @@ import BalanceForm from './BalanceForm';
 import DeliveryReportsForm from './DeliveryReportsForm';
 import LogsForm from './LogsForm';
 import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface SelectedTabContextType {
   activeTab: number;
@@ -19,6 +20,7 @@ interface SelectedTabContextType {
 export const SelectedTab = createContext<SelectedTabContextType>({ activeTab: 0 });
 
 function NextSMS() {
+  const dictionary = useDictionary();
   const [activeTab, setActiveTab] = useState(0);
   const [mounted, setMounted] = useState(false);
 
@@ -27,12 +29,12 @@ function NextSMS() {
   }, []);
 
   const tabs = [
-    { label: 'Single User Text', component: <SingleUserForm/> },
-    { label: 'Single Text → Multiple Users', component: <SingleTextMultiUsersForm/> },
-    { label: 'Multiple Texts → Multiple Users', component: <MultiTextMultiUsersForm/> },
-    { label: 'Delivery Reports', component: <DeliveryReportsForm/> },
-    { label: 'Sent Logs', component: <LogsForm/> },
-    { label: 'Check Balance', component: <BalanceForm/> }
+    { label: dictionary.forms.nextSms.tabs.singleUser, component: <SingleUserForm/> },
+    { label: dictionary.forms.nextSms.tabs.singleTextMulti, component: <SingleTextMultiUsersForm/> },
+    { label: dictionary.forms.nextSms.tabs.multiTextMulti, component: <MultiTextMultiUsersForm/> },
+    { label: dictionary.forms.nextSms.tabs.deliveryReports, component: <DeliveryReportsForm/> },
+    { label: dictionary.forms.nextSms.tabs.sentLogs, component: <LogsForm/> },
+    { label: dictionary.forms.nextSms.tabs.checkBalance, component: <BalanceForm/> }
   ];
 
   if (!mounted) return <PageLoadingSkeleton />;

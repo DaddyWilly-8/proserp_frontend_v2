@@ -3,8 +3,10 @@ import { Divider, Grid, IconButton, Tooltip, Typography } from '@mui/material'
 import React, { useContext, useEffect, useState } from 'react'
 import Adjustments from './Adjustments';
 import { StationFormContext } from '../../../SalesShifts';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function AdjustmentsRow({ cashierPumpProducts, adjustment, index, adjustments, setAdjustments}) {
+    const dictionary = useDictionary();
     const [showForm, setShowForm] = useState(false);
     const [rowKey, setRowKey] = useState(0);
     const {activeStation} = useContext(StationFormContext);
@@ -33,37 +35,37 @@ function AdjustmentsRow({ cashierPumpProducts, adjustment, index, adjustments, s
                             {index+1}.
                         </Grid>
                         <Grid size={{xs: 5.5, md: 2.5, lg: 2.5}}>
-                            <Tooltip title="Product">
+                            <Tooltip title={dictionary.tooltips.product}>
                                 <Typography>{product?.name}</Typography>
                             </Tooltip>
                         </Grid>
                         <Grid size={{xs: 5.5, md: 2.5}}>
-                            <Tooltip title="Tank">
+                            <Tooltip title={dictionary.tooltips.tank}>
                                 <Typography>{tank.name}</Typography>
                             </Tooltip>
                         </Grid>
                        <Grid size={{xs: 6, md: 1.5}}>
-                            <Tooltip title="Operator">
-                                <Typography>{adjustment.operator === '-' ? 'Subtract (-)' : 'Add (+)'}</Typography>
+                            <Tooltip title={dictionary.tooltips.operator}>
+                                <Typography>{adjustment.operator === '-' ? dictionary.forms.shifts.labels.subtractMinus : dictionary.forms.shifts.labels.addPlus}</Typography>
                             </Tooltip>
                         </Grid>
                         <Grid size={{xs: 6, md: 2}}>
-                            <Tooltip title="Quantity">
+                            <Tooltip title={dictionary.tooltips.quantity}>
                                 <Typography>{adjustment.quantity.toLocaleString()}</Typography>
                             </Tooltip>
                         </Grid>
                         <Grid size={{xs: 6, md: 2, lg: 2}}>
-                            <Tooltip title="Description">
+                            <Tooltip title={dictionary.tooltips.description}>
                                 <Typography>{adjustment.description}</Typography>
                             </Tooltip>
                         </Grid>
                         <Grid size={{xs: 6, md: 1, lg: 1}} textAlign={'end'}>
-                            <Tooltip title='Edit Adjustment'>
+                            <Tooltip title={dictionary.tooltips.editAdjustment}>
                                 <IconButton size='small' onClick={() => {setShowForm(true)}}>
                                     <EditOutlined fontSize='small'/>
                                 </IconButton>
                             </Tooltip>
-                            <Tooltip title='Remove Adjustment'>
+                            <Tooltip title={dictionary.tooltips.removeAdjustment}>
                                 <IconButton size='small' 
                                     onClick={() => setAdjustments(adjustments => {
                                         const newItems = [...adjustments];

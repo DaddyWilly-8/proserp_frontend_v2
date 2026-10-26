@@ -3,6 +3,7 @@ import { Divider, Grid, IconButton, Tooltip, Typography } from '@mui/material';
 import React, { useState } from 'react';
 import { useLedgerSelect } from '@/components/accounts/ledgers/forms/LedgerSelectProvider';
 import ProjectClaimsAdjustments from './ProjectClaimsAdjustments';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface ProjectClaimsAdjustmentsRowProps {
   adjustment: any;
@@ -27,6 +28,8 @@ const ProjectClaimsAdjustmentsRow: React.FC<ProjectClaimsAdjustmentsRowProps> = 
   submitItemForm,
   setIsDirty,
 }) => {
+  const dictionary = useDictionary();
+  const sh = dictionary.forms.projects.shared;
   const [showForm, setShowForm] = useState<boolean>(false);
   const { ungroupedLedgerOptions } = useLedgerSelect();
 
@@ -62,15 +65,15 @@ const ProjectClaimsAdjustmentsRow: React.FC<ProjectClaimsAdjustmentsRowProps> = 
           </Grid>
 
           <Grid size={{ xs: 6, md: 3.5 }}>
-            <Tooltip title="Type">
+            <Tooltip title={dictionary.tooltips.type}>
               <Typography variant="body2">
-                {(adjustment?.type === '-' || adjustment?.type === 'deduction') ? 'Deduction (-)' : 'Addition (+)'}
+                {(adjustment?.type === '-' || adjustment?.type === 'deduction') ? sh.deductionSign : sh.additionSign}
               </Typography>
             </Tooltip>
           </Grid>
 
           <Grid size={{ xs: 12, md: 4.5 }}>
-            <Tooltip title="Description">
+            <Tooltip title={dictionary.tooltips.description}>
               <Typography
                 variant="body2"
                 sx={{ whiteSpace: 'normal', wordBreak: 'break-word' }}
@@ -78,7 +81,7 @@ const ProjectClaimsAdjustmentsRow: React.FC<ProjectClaimsAdjustmentsRowProps> = 
                 {adjustment?.description || '-'}
               </Typography>
             </Tooltip>
-            <Tooltip title="Complement Ledger">
+            <Tooltip title={dictionary.tooltips.complementLedger}>
               <Typography variant="caption" color="text.secondary">
                 {complementLedger?.name || '-'}
               </Typography>
@@ -90,7 +93,7 @@ const ProjectClaimsAdjustmentsRow: React.FC<ProjectClaimsAdjustmentsRowProps> = 
             textAlign="end"
             paddingRight={1}
           >
-            <Tooltip title="Amount">
+            <Tooltip title={dictionary.tooltips.amount}>
               <Typography variant="body2">
                 {adjustment?.amount?.toLocaleString() || '0'}
               </Typography>
@@ -98,13 +101,13 @@ const ProjectClaimsAdjustmentsRow: React.FC<ProjectClaimsAdjustmentsRowProps> = 
           </Grid>
 
           <Grid textAlign="end" size={{ xs: 12, md: 1.5 }}>
-            <Tooltip title="Edit Adjustment">
+            <Tooltip title={dictionary.tooltips.editAdjustment}>
               <IconButton size="small" onClick={() => setShowForm(true)}>
                 <EditOutlined fontSize="small" />
               </IconButton>
             </Tooltip>
 
-            <Tooltip title="Remove Adjustment">
+            <Tooltip title={dictionary.tooltips.removeAdjustment}>
               <IconButton size="small" onClick={handleRemoveItem}>
                 <DisabledByDefault fontSize="small" color="error" />
               </IconButton>

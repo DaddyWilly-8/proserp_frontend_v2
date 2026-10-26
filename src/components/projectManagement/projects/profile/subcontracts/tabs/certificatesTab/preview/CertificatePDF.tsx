@@ -63,6 +63,7 @@ interface CertificatePDFProps {
   certificate: Certificate;
   organization: Organization;
   openDetails: boolean;
+  dictionary: any;
 }
 
 type SummaryItem = {
@@ -77,6 +78,7 @@ const CertificatePDF: React.FC<CertificatePDFProps> = ({
   certificate,
   organization,
   openDetails,
+  dictionary,
 }) => {
   const mainColor = organization.settings?.main_color || '#2113AD';
   const lightColor = organization.settings?.light_color || '#bec5da';
@@ -89,7 +91,7 @@ const CertificatePDF: React.FC<CertificatePDFProps> = ({
 
   const grossItem: SummaryItem = {
     id: 'gross',
-    particular: 'Gross Amount Certified',
+    particular: dictionary.projectManagement.certificatePreview.grossAmountCertified,
     amount: grossAmount,
   };
 
@@ -160,7 +162,7 @@ const CertificatePDF: React.FC<CertificatePDFProps> = ({
   return (
     <Document
       title={certificate.certificateNo}
-      author={certificate.creator?.name || 'System'}
+      author={certificate.creator?.name || dictionary.projectManagement.certificatePreview.system}
     >
       <Page
         size='A4'
@@ -181,11 +183,11 @@ const CertificatePDF: React.FC<CertificatePDFProps> = ({
 
           <View style={{ textAlign: 'right' }}>
             <Text style={{ ...pdfStyles.majorInfo, color: mainColor }}>
-              Certificate
+              {dictionary.projectManagement.certificatePreview.certificate}
             </Text>
             <Text style={pdfStyles.minInfo}>{certificate.certificateNo}</Text>
             {certificate.supplier_invoice?.invoiceNo && (
-              <Text style={pdfStyles.minInfo}>Bill: {certificate.supplier_invoice.invoiceNo}</Text>
+              <Text style={pdfStyles.minInfo}>{dictionary.projectManagement.certificatePreview.bill.replace('{billNo}', certificate.supplier_invoice.invoiceNo)}</Text>
             )}
           </View>
         </View>
@@ -194,7 +196,7 @@ const CertificatePDF: React.FC<CertificatePDFProps> = ({
         <View style={{ ...pdfStyles.tableRow, marginBottom: 20, gap: 20 }}>
           <View style={{ flex: 1 }}>
             <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>
-              Certificate Date
+              {dictionary.projectManagement.certificatePreview.certificateDate}
             </Text>
             <Text style={pdfStyles.minInfo}>
               {readableDate(certificate.certificate_date, false)}
@@ -203,7 +205,7 @@ const CertificatePDF: React.FC<CertificatePDFProps> = ({
 
           <View style={{ flex: 1 }}>
             <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>
-              SubContractor
+              {dictionary.projectManagement.certificatePreview.subcontractor}
             </Text>
             <Text style={pdfStyles.minInfo}>
               {certificate?.subcontractor?.name}
@@ -213,7 +215,7 @@ const CertificatePDF: React.FC<CertificatePDFProps> = ({
           {certificate.remarks && (
             <View style={{ flex: 1 }}>
               <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>
-                Remarks
+                {dictionary.projectManagement.certificatePreview.remarks}
               </Text>
               <Text style={pdfStyles.minInfo}>{certificate.remarks}</Text>
             </View>
@@ -230,7 +232,7 @@ const CertificatePDF: React.FC<CertificatePDFProps> = ({
               fontWeight: 'bold',
             }}
           >
-            Summary
+            {dictionary.projectManagement.certificatePreview.summary}
           </Text>
 
           <View style={{ width: '100%', minWidth: 380 }}>
@@ -244,7 +246,7 @@ const CertificatePDF: React.FC<CertificatePDFProps> = ({
                     width: '10%',
                   }}
                 >
-                  S/N
+                  {dictionary.projectManagement.certificatePreview.sn}
                 </Text>
                 <Text
                   style={{
@@ -254,7 +256,7 @@ const CertificatePDF: React.FC<CertificatePDFProps> = ({
                     width: '70%',
                   }}
                 >
-                  Particulars
+                  {dictionary.projectManagement.certificatePreview.particulars}
                 </Text>
                 <Text
                   style={{
@@ -265,7 +267,7 @@ const CertificatePDF: React.FC<CertificatePDFProps> = ({
                     textAlign: 'right',
                   }}
                 >
-                  Amount ({currencyCode})
+                  {dictionary.projectManagement.certificatePreview.amountCurrency.replace('{currency}', currencyCode)}
                 </Text>
               </View>
 
@@ -329,7 +331,7 @@ const CertificatePDF: React.FC<CertificatePDFProps> = ({
                     textAlign: 'center',
                   }}
                 >
-                  Grand Total ({currencyCode})
+                  {dictionary.projectManagement.certificatePreview.grandTotalCurrency.replace('{currency}', currencyCode)}
                 </Text>
                 <Text
                   style={{
@@ -360,7 +362,7 @@ const CertificatePDF: React.FC<CertificatePDFProps> = ({
                 marginBottom: 10,
               }}
             >
-              Certified Items
+              {dictionary.projectManagement.certificatePreview.certifiedItems}
             </Text>
 
             <View style={pdfStyles.table}>
@@ -383,7 +385,7 @@ const CertificatePDF: React.FC<CertificatePDFProps> = ({
                     textAlign: 'center',
                   }}
                 >
-                  Price Schedule
+                  {dictionary.projectManagement.certificatePreview.priceSchedule}
                 </Text>
                 <Text
                   style={{
@@ -394,7 +396,7 @@ const CertificatePDF: React.FC<CertificatePDFProps> = ({
                     textAlign: 'center',
                   }}
                 >
-                  Quantity
+                  {dictionary.projectManagement.certificatePreview.quantity}
                 </Text>
                 <Text
                   style={{
@@ -405,7 +407,7 @@ const CertificatePDF: React.FC<CertificatePDFProps> = ({
                     textAlign: 'center',
                   }}
                 >
-                  Amount ({currencyCode})
+                  {dictionary.projectManagement.certificatePreview.amountCurrency.replace('{currency}', currencyCode)}
                 </Text>
               </View>
 
@@ -419,7 +421,7 @@ const CertificatePDF: React.FC<CertificatePDFProps> = ({
                     flex: 0.5,
                   }}
                 >
-                  S/N
+                  {dictionary.projectManagement.certificatePreview.sn}
                 </Text>
                 <Text
                   style={{
@@ -429,7 +431,7 @@ const CertificatePDF: React.FC<CertificatePDFProps> = ({
                     flex: 2,
                   }}
                 >
-                  Description
+                  {dictionary.projectManagement.certificatePreview.description}
                 </Text>
                 <Text
                   style={{
@@ -439,7 +441,7 @@ const CertificatePDF: React.FC<CertificatePDFProps> = ({
                     flex: 0.7,
                   }}
                 >
-                  Unit
+                  {dictionary.projectManagement.certificatePreview.unit}
                 </Text>
                 <Text
                   style={{
@@ -449,7 +451,7 @@ const CertificatePDF: React.FC<CertificatePDFProps> = ({
                     flex: 1,
                   }}
                 >
-                  Qty
+                  {dictionary.projectManagement.certificatePreview.qty}
                 </Text>
                 <Text
                   style={{
@@ -459,7 +461,7 @@ const CertificatePDF: React.FC<CertificatePDFProps> = ({
                     flex: 1,
                   }}
                 >
-                  Unit Rate ({currencyCode})
+                  {dictionary.projectManagement.certificatePreview.unitRateCurrency.replace('{currency}', currencyCode)}
                 </Text>
                 <Text
                   style={{
@@ -469,7 +471,7 @@ const CertificatePDF: React.FC<CertificatePDFProps> = ({
                     flex: 1,
                   }}
                 >
-                  Amount ({currencyCode})
+                  {dictionary.projectManagement.certificatePreview.amountCurrency.replace('{currency}', currencyCode)}
                 </Text>
                 <Text
                   style={{
@@ -479,7 +481,7 @@ const CertificatePDF: React.FC<CertificatePDFProps> = ({
                     flex: 1.2,
                   }}
                 >
-                  Previous
+                  {dictionary.projectManagement.certificatePreview.previous}
                 </Text>
                 <Text
                   style={{
@@ -489,7 +491,7 @@ const CertificatePDF: React.FC<CertificatePDFProps> = ({
                     flex: 1.2,
                   }}
                 >
-                  Present
+                  {dictionary.projectManagement.certificatePreview.present}
                 </Text>
                 <Text
                   style={{
@@ -499,7 +501,7 @@ const CertificatePDF: React.FC<CertificatePDFProps> = ({
                     flex: 1.2,
                   }}
                 >
-                  Cumulative
+                  {dictionary.projectManagement.certificatePreview.cumulative}
                 </Text>
                 <Text
                   style={{
@@ -509,7 +511,7 @@ const CertificatePDF: React.FC<CertificatePDFProps> = ({
                     flex: 1.2,
                   }}
                 >
-                  Previous
+                  {dictionary.projectManagement.certificatePreview.previous}
                 </Text>
                 <Text
                   style={{
@@ -519,7 +521,7 @@ const CertificatePDF: React.FC<CertificatePDFProps> = ({
                     flex: 1.2,
                   }}
                 >
-                  Present
+                  {dictionary.projectManagement.certificatePreview.present}
                 </Text>
                 <Text
                   style={{
@@ -529,7 +531,7 @@ const CertificatePDF: React.FC<CertificatePDFProps> = ({
                     flex: 1.2,
                   }}
                 >
-                  Cumulative
+                  {dictionary.projectManagement.certificatePreview.cumulative}
                 </Text>
               </View>
 
@@ -675,7 +677,7 @@ const CertificatePDF: React.FC<CertificatePDFProps> = ({
                     fontWeight: 'bold',
                   }}
                 >
-                  GRAND TOTAL {currencyCode}
+                  {dictionary.projectManagement.certificatePreview.grandTotalUpperPlain.replace('{currency}', currencyCode)}
                 </Text>
                 <Text
                   style={{
@@ -766,7 +768,7 @@ const CertificatePDF: React.FC<CertificatePDFProps> = ({
                 marginBottom: 10,
               }}
             >
-              Prepared By:
+              {dictionary.projectManagement.certificatePreview.preparedBy}
             </Text>
             <Text
               style={{

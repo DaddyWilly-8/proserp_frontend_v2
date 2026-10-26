@@ -34,6 +34,7 @@ import purchaseBillServices from '../../procurement/grns/purchaseBill-services';
 import PurchaseBillDetailsDialog from './PurchaseBillDetailsDialog';
 import { PurchaseBill } from './PurchaseBillType';
 import LedgerSelectProvider from '../ledgers/forms/LedgerSelectProvider';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const PurchaseBillFormDialog = lazy(
   () => import('../../procurement/grns/PurchaseBillFormDialog')
@@ -136,6 +137,7 @@ const CancelBillDialog = ({
 };
 
 const PurchaseBillItemAction = ({ purchaseBill }: { purchaseBill: PurchaseBill }) => {
+  const dictionary = useDictionary();
   const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
   const { showDialog, hideDialog } = useJumboDialog();
@@ -297,7 +299,7 @@ const PurchaseBillItemAction = ({ purchaseBill }: { purchaseBill: PurchaseBill }
 
       <JumboDdMenu
         icon={
-          <Tooltip title='Actions'>
+          <Tooltip title={dictionary.tooltips.actions}>
             <MoreHorizOutlined />
           </Tooltip>
         }

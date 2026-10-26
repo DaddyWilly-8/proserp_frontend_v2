@@ -1,8 +1,10 @@
 import { Box, Chip, Grid, Tooltip, Typography } from '@mui/material'
 import React from 'react'
 import LowStockThresholdItemAction from './LowStockThresholdItemAction'
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function LowStockThresholdListItem({lowStockAlert}) {
+  const dictionary = useDictionary();
   return (
     <React.Fragment>
       <Grid
@@ -22,12 +24,12 @@ function LowStockThresholdListItem({lowStockAlert}) {
       >
           
         <Grid size={{xs: 12, md: 6}}>
-          <Tooltip title='Product Name'>
+          <Tooltip title={dictionary.tooltips.productName}>
             <Typography>{lowStockAlert.product.name}</Typography>
           </Tooltip>
         </Grid>
         <Grid size={{xs: 6, md: 3}}>
-          <Tooltip title="Cost Center Name">
+          <Tooltip title={dictionary.tooltips.costCenterName}>
             {lowStockAlert.cost_centers && lowStockAlert.cost_centers.length > 0 ? (
               <div>
                 {lowStockAlert.cost_centers.map((costCenter) => (
@@ -42,7 +44,7 @@ function LowStockThresholdListItem({lowStockAlert}) {
           </Tooltip>
         </Grid>
         <Grid size={{xs: 6, md: 2}} textAlign='center'>
-          <Tooltip title='Threshold'>
+          <Tooltip title={dictionary.tooltips.threshold}>
             <Chip label={lowStockAlert.threshold} size="small" style={{ marginRight: 4 }} color='warning'/>
           </Tooltip>
         </Grid>

@@ -20,8 +20,10 @@ import {
   useTheme,
 } from '@mui/material';
 import React, { useRef } from 'react';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function PurchaseOrderOnScreenPreview({ order }) {
+  const dictionary = useDictionary();
   const theme = useTheme();
   const attachmentsRef = useRef(null);
   const totalAttachmentsCount =
@@ -96,7 +98,7 @@ function PurchaseOrderOnScreenPreview({ order }) {
               {order.orderNo}
             </Typography>
             {totalAttachmentsCount > 0 && (
-              <Tooltip title='Jump to attachments'>
+              <Tooltip title={dictionary.tooltips.jumpToAttachments}>
                 <Chip
                   size='small'
                   variant='outlined'

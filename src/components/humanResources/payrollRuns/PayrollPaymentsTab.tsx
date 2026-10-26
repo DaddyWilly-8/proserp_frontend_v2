@@ -22,6 +22,7 @@ import { useState } from 'react';
 import humanResourcesServices from '../humanResourcesServices';
 import PayrollPaymentViewEditDialog from './PayrollPaymentViewEditDialog';
 import { formatMoney } from './payrollUtils';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 export type PayrollPaymentRow = {
   id: number;
@@ -53,6 +54,8 @@ const PayrollPaymentsTab = ({
   canReverse: boolean;
   canEdit: boolean;
 }) => {
+  const dictionary = useDictionary();
+  const t = dictionary.humanResources.payrollRuns.payments;
   const { showDialog, hideDialog } = useJumboDialog();
   const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
@@ -71,7 +74,7 @@ const PayrollPaymentsTab = ({
         payment_id: paymentId,
       }),
     onSuccess: (response: any) => {
-      enqueueSnackbar(response?.message || 'Payment reversed', {
+      enqueueSnackbar(response?.message || t.paymentReversed, {
         variant: 'success',
       });
       queryClient.invalidateQueries({ queryKey: ['payrollRuns'] });
@@ -94,8 +97,10 @@ const PayrollPaymentsTab = ({
 
   const handleReverse = (payment: PayrollPaymentRow) => {
     showDialog({
-      title: 'Reverse Payment',
-      content: `This deletes ${payment.voucher_no} (${formatMoney(payment.amount)}) and its journals, and adjusts the run's paid status accordingly. Continue?`,
+      title: t.reverseTitle,
+      content: t.reverseContent
+        .replace('{voucher}', payment.voucher_no)
+        .replace('{amount}', formatMoney(payment.amount)),
       onYes: () => {
         hideDialog();
         reverse(payment.id);
@@ -125,14 +130,14 @@ const PayrollPaymentsTab = ({
           <Table size='small'>
             <TableHead>
               <TableRow>
-                <TableCell sx={{ fontWeight: 700 }}>Voucher</TableCell>
-                <TableCell sx={{ fontWeight: 700 }}>Date</TableCell>
-                <TableCell sx={{ fontWeight: 700 }}>Narration</TableCell>
+                <TableCell sx={{ fontWeight: 700 }}>{t.voucher}</TableCell>
+                <TableCell sx={{ fontWeight: 700 }}>{t.date}</TableCell>
+                <TableCell sx={{ fontWeight: 700 }}>{t.narration}</TableCell>
                 <TableCell align='right' sx={{ fontWeight: 700 }}>
-                  Amount
+                  {t.amount}
                 </TableCell>
                 <TableCell align='center' sx={{ fontWeight: 700 }}>
-                  Actions
+                  {t.actions}
                 </TableCell>
               </TableRow>
             </TableHead>
@@ -148,7 +153,7 @@ const PayrollPaymentsTab = ({
                     {formatMoney(payment.amount)}
                   </TableCell>
                   <TableCell align='center'>
-                    <Tooltip title='View'>
+                    <Tooltip title={dictionary.tooltips.view}>
                       <IconButton
                         size='small'
                         onClick={() => setViewingPaymentId(payment.id)}
@@ -157,7 +162,7 @@ const PayrollPaymentsTab = ({
                       </IconButton>
                     </Tooltip>
                     {canReverse && (
-                      <Tooltip title='Reverse'>
+                      <Tooltip title={dictionary.tooltips.reverse}>
                         <IconButton
                           size='small'
                           disabled={

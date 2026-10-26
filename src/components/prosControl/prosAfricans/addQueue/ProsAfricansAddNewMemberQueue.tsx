@@ -6,6 +6,7 @@ import { useSnackbar } from 'notistack';
 import { ProsAfricansAddNewMemberQueueItem } from './ProsAfricansAddNewMemberQueueItem';
 import prosAfricansServices from '../prosAfricansServices';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface Role {
   id: number;
@@ -30,6 +31,7 @@ export const ProsAfricansAddNewMemberQueue: React.FC<ProsAfricansAddNewMemberQue
   addNewProsAfrican,
   setAddNewProsAfrican,
 }) => {
+  const dictionary = useDictionary();
   const { hideDialog } = useJumboDialog();
   const queryClient = useQueryClient();
   const { enqueueSnackbar } = useSnackbar();
@@ -42,12 +44,12 @@ export const ProsAfricansAddNewMemberQueue: React.FC<ProsAfricansAddNewMemberQue
   const addMember = useMutation({
     mutationFn: () => prosAfricansServices.addMember(addMemberData),
     onSuccess: () => {
-      enqueueSnackbar('Invitations sent successfully', { variant: 'success' });
+      enqueueSnackbar(dictionary.forms.prosAfricans.form.messages.invitationsSent, { variant: 'success' });
       queryClient.invalidateQueries({ queryKey: ['prosAfricans'] });
       hideDialog();
     },
     onError: () => {
-      enqueueSnackbar('Invitations sent with errors', { variant: 'warning' });
+      enqueueSnackbar(dictionary.forms.prosAfricans.form.messages.invitationsErrors, { variant: 'warning' });
     },
   });
 
@@ -80,7 +82,7 @@ export const ProsAfricansAddNewMemberQueue: React.FC<ProsAfricansAddNewMemberQue
               onClick={() => addMember.mutate()}
               loading={addMember.isPending}
             >
-              Add Member
+              {dictionary.forms.prosAfricans.form.buttons.addMember}
             </LoadingButton>
           </Box>
         </>

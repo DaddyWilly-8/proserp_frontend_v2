@@ -23,6 +23,7 @@ import {
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as yup from 'yup';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function PurchaseOrderAdditionalCostsTab({
   index = -1,
@@ -32,6 +33,7 @@ function PurchaseOrderAdditionalCostsTab({
   additionalCosts = [],
   setAdditionalCosts,
 }) {
+  const dictionary = useDictionary();
   const { ungroupedLedgerOptions } = useLedgerSelect();
   const [isAdding, setIsAdding] = useState(false);
 
@@ -39,13 +41,13 @@ function PurchaseOrderAdditionalCostsTab({
     ledger_name: yup.string(),
     ledger_id: yup
       .number()
-      .required('Cost name is required')
-      .typeError('Cost name is required'),
+      .required(dictionary.forms.purchases.orderForm.errors.validation.costName.required)
+      .typeError(dictionary.forms.purchases.orderForm.errors.validation.costName.required),
     amount: yup
       .number()
-      .required('Amount is required')
-      .positive('Amount is required')
-      .typeError('Amount is required'),
+      .required(dictionary.forms.purchases.orderForm.errors.validation.amount.required)
+      .positive(dictionary.forms.purchases.orderForm.errors.validation.amount.required)
+      .typeError(dictionary.forms.purchases.orderForm.errors.validation.amount.required),
     vat_exempted: yup.boolean(),
   });
 
@@ -105,7 +107,7 @@ function PurchaseOrderAdditionalCostsTab({
             <LedgerSelect
               multiple={false}
               allowedGroups={['Expenses']}
-              label='Cost name'
+              label={dictionary.forms.purchases.orderForm.labels.costName}
               defaultValue={ungroupedLedgerOptions.find(
                 (ledger) => ledger.id === additionalCost?.ledger_id
               )}
@@ -125,7 +127,7 @@ function PurchaseOrderAdditionalCostsTab({
         <Grid size={{ xs: 12, md: 3, lg: 3 }}>
           <Div sx={{ mt: 1 }}>
             <TextField
-              label='Amount'
+              label={dictionary.forms.purchases.orderForm.labels.amount}
               fullWidth
               size='small'
               InputProps={{
@@ -148,7 +150,7 @@ function PurchaseOrderAdditionalCostsTab({
           </Div>
         </Grid>
         <Grid size={{ xs: 12, md: 3, lg: 3 }} mt={1}>
-          <Tooltip title='This cost will not attract VAT when billed, e.g. a statutory levy like CESS'>
+          <Tooltip title={dictionary.tooltips.thisCostWillNotAttractVat}>
             <FormControlLabel
               control={
                 <Checkbox
@@ -162,7 +164,7 @@ function PurchaseOrderAdditionalCostsTab({
                   }}
                 />
               }
-              label='VAT Exempted'
+              label={dictionary.forms.purchases.orderForm.labels.vatExempted}
             />
           </Tooltip>
         </Grid>
@@ -176,16 +178,16 @@ function PurchaseOrderAdditionalCostsTab({
           >
             {additionalCost ? (
               <>
-                <CheckOutlined fontSize='small' /> Done
+                <CheckOutlined fontSize='small' /> {dictionary.forms.purchases.orderForm.buttons.done}
               </>
             ) : (
               <>
-                <AddOutlined fontSize='small' /> Add
+                <AddOutlined fontSize='small' /> {dictionary.forms.purchases.orderForm.buttons.add}
               </>
             )}
           </LoadingButton>
           {additionalCost && (
-            <Tooltip title='Close Edit'>
+            <Tooltip title={dictionary.tooltips.closeEdit}>
               <IconButton
                 size='small'
                 onClick={() => {

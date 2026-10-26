@@ -17,9 +17,11 @@ import {
   useMediaQuery,
 } from '@mui/material';
 import React, { useState } from 'react';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import LedgerStatementDialogContent from '../../ledgers/list/ledgerStatement/LedgerStatementDialogContent';
 
 const IncomeStatementOnScreen = ({ reportData }) => {
+  const dictionary = useDictionary();
   const [openRows, setOpenRows] = useState({
     revenue: false,
     costOfRevenue: false,
@@ -210,7 +212,9 @@ const IncomeStatementOnScreen = ({ reportData }) => {
               amountItem && amountItem.start_datetime && amountItem.end_datetime
                 ? `\n${formatDateTime(amountItem.start_datetime)} - ${formatDateTime(amountItem.end_datetime)}`
                 : '';
-            const amountTooltipTitle = `${node.name} - Period: ${periodItem.period}${timeframe}`;
+            const amountTooltipTitle = `${dictionary.reports.accountsReports.incomeStatement.nodePeriodTooltip
+              .replace('{name}', node.name)
+              .replace('{period}', periodItem.period)}${timeframe}`;
             const clickable = !isGroup && !!amountItem;
 
             return (
@@ -227,7 +231,9 @@ const IncomeStatementOnScreen = ({ reportData }) => {
                     title={
                       <span style={{ whiteSpace: 'pre-line' }}>
                         {amountTooltipTitle}
-                        {clickable ? '\nClick to view statement' : ''}
+                        {clickable
+                          ? `\n${dictionary.reports.accountsReports.incomeStatement.clickToViewStatement}`
+                          : ''}
                       </span>
                     }
                     placement='top'
@@ -320,7 +326,7 @@ const IncomeStatementOnScreen = ({ reportData }) => {
           <TableHead>
             <TableRow>
               <TableCell sx={{ ...categoryCellSx, fontWeight: 'bold', top: 0 }}>
-                CATEGORY
+                {dictionary.reports.accountsReports.incomeStatement.category.toUpperCase()}
               </TableCell>
               {periods.map((periodItem) => (
                 <TableCell
@@ -336,7 +342,7 @@ const IncomeStatementOnScreen = ({ reportData }) => {
                   align='right'
                   sx={{ fontWeight: 'bold', minWidth: 120 }}
                 >
-                  TOTAL
+                  {dictionary.reports.accountsReports.common.total.toUpperCase()}
                 </TableCell>
               )}
             </TableRow>
@@ -370,7 +376,7 @@ const IncomeStatementOnScreen = ({ reportData }) => {
                     <KeyboardArrowRight />
                   )}
                 </IconButton>
-                Revenue
+                {dictionary.reports.accountsReports.incomeStatement.revenue}
               </TableCell>
               {periods.map((periodItem) => {
                 const tooltipTitle =
@@ -447,7 +453,7 @@ const IncomeStatementOnScreen = ({ reportData }) => {
                     <KeyboardArrowRight />
                   )}
                 </IconButton>
-                Cost of Revenue
+                {dictionary.reports.accountsReports.incomeStatement.costOfRevenue}
               </TableCell>
               {periods.map((periodItem) => {
                 const tooltipTitle =
@@ -500,9 +506,11 @@ const IncomeStatementOnScreen = ({ reportData }) => {
             <TableRow
               sx={{ cursor: 'pointer', '&:hover': { bgcolor: 'action.hover' } }}
             >
-              <TableCell sx={categoryCellSx}>Gross Profit</TableCell>
+              <TableCell sx={categoryCellSx}>
+                {dictionary.reports.accountsReports.incomeStatement.grossProfit}
+              </TableCell>
               {periods.map((periodItem) => {
-                const tooltipTitle = `Gross Profit\n${periodItem.start_datetime && periodItem.end_datetime ? `${formatDateTime(periodItem.start_datetime)} - ${formatDateTime(periodItem.end_datetime)}` : ''}`;
+                const tooltipTitle = `${dictionary.reports.accountsReports.incomeStatement.grossProfit}\n${periodItem.start_datetime && periodItem.end_datetime ? `${formatDateTime(periodItem.start_datetime)} - ${formatDateTime(periodItem.end_datetime)}` : ''}`;
                 return (
                   <TableCell
                     key={`gross-period-${periodItem.period}`}
@@ -574,10 +582,13 @@ const IncomeStatementOnScreen = ({ reportData }) => {
                     <KeyboardArrowRight />
                   )}
                 </IconButton>
-                Operating Expenses
+                {
+                  dictionary.reports.accountsReports.incomeStatement
+                    .operatingExpenses
+                }
               </TableCell>
               {periods.map((periodItem) => {
-                const tooltipTitle = `Operating Expenses\n${periodItem.start_datetime && periodItem.end_datetime ? `${formatDateTime(periodItem.start_datetime)} - ${formatDateTime(periodItem.end_datetime)}` : ''}`;
+                const tooltipTitle = `${dictionary.reports.accountsReports.incomeStatement.operatingExpenses}\n${periodItem.start_datetime && periodItem.end_datetime ? `${formatDateTime(periodItem.start_datetime)} - ${formatDateTime(periodItem.end_datetime)}` : ''}`;
                 return (
                   <TableCell
                     key={`operating-total-${periodItem.period}`}
@@ -634,9 +645,11 @@ const IncomeStatementOnScreen = ({ reportData }) => {
             <TableRow
               sx={{ cursor: 'pointer', '&:hover': { bgcolor: 'action.hover' } }}
             >
-              <TableCell sx={categoryCellSx}>Net Income</TableCell>
+              <TableCell sx={categoryCellSx}>
+                {dictionary.reports.accountsReports.incomeStatement.netIncome}
+              </TableCell>
               {periods.map((periodItem) => {
-                const tooltipTitle = `Net Income\n${periodItem.start_datetime && periodItem.end_datetime ? `${formatDateTime(periodItem.start_datetime)} - ${formatDateTime(periodItem.end_datetime)}` : ''}`;
+                const tooltipTitle = `${dictionary.reports.accountsReports.incomeStatement.netIncome}\n${periodItem.start_datetime && periodItem.end_datetime ? `${formatDateTime(periodItem.start_datetime)} - ${formatDateTime(periodItem.end_datetime)}` : ''}`;
                 return (
                   <TableCell
                     key={`net-period-${periodItem.period}`}

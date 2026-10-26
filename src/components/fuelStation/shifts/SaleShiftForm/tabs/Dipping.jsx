@@ -3,8 +3,10 @@ import { Box, Card, CardContent, Grid, TextField, Switch, Typography } from '@mu
 import CommaSeparatedField from '@/shared/Inputs/CommaSeparatedField';
 import { sanitizedNumber } from '@/app/helpers/input-sanitization-helpers';
 import { StationFormContext } from '../../SalesShifts';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function Dipping({SalesShift, lastClosingDipping, setValue, watch}) {
+    const dictionary = useDictionary();
     const [openSwitch, setOpenSwitch] = useState(!!SalesShift?.opening_dipping);
     const [closingSwitch, setClosingSwitch] = useState(!!SalesShift?.closing_dipping);
     const {activeStation} = useContext(StationFormContext);
@@ -44,7 +46,7 @@ function Dipping({SalesShift, lastClosingDipping, setValue, watch}) {
         return Object.values(fuel_pumps.reduce((acc, item) => {
             if (!acc[item.tank_id]) {
                 acc[item.tank_id] = {
-                    name: tanks.find(t => t.id === item.tank_id)?.name || `Tank ${item.tank_id}`,
+                    name: tanks.find(t => t.id === item.tank_id)?.name || dictionary.forms.shifts.labels.tankId.replace('{id}', item.tank_id),
                     id: item.tank_id,
                 };
             }
@@ -113,7 +115,7 @@ function Dipping({SalesShift, lastClosingDipping, setValue, watch}) {
                         }}
                     />
                     <Typography variant="body1" style={{ marginLeft: 8 }}>
-                        Closing Dipping
+                        {dictionary.forms.shifts.labels.closingDipping}
                     </Typography>
                 </Box>
             </Grid>
@@ -135,7 +137,7 @@ function Dipping({SalesShift, lastClosingDipping, setValue, watch}) {
                         }}
                     />
                     <Typography variant="body1" style={{ marginLeft: 8 }}>
-                        Opening Dipping
+                        {dictionary.forms.shifts.labels.openingDipping}
                     </Typography>
                 </Box>
             </Grid>

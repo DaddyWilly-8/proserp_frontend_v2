@@ -9,8 +9,10 @@ import { JumboDdMenu } from '@jumbo/components';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { MODULES } from '@/utilities/constants/modules';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function StockListItemAction({productStock}) {
+   const dictionary = useDictionary();
    const [openMovementDialog, setOpenMovementDialog] = useState(false);
    const [openConvertDialog, setOpenConvertDialog] = useState(false);
    const { organizationHasSubscribed, checkOrganizationPermission } = useJumboAuth();
@@ -65,7 +67,7 @@ function StockListItemAction({productStock}) {
       )}
       <JumboDdMenu
         icon={
-          <Tooltip title='Actions'>
+          <Tooltip title={dictionary.tooltips.actions}>
             <MoreHorizOutlined/>
           </Tooltip>
         }

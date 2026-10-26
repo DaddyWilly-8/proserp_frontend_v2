@@ -29,8 +29,10 @@ import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import CommaSeparatedField from '@/shared/Inputs/CommaSeparatedField';
 import { sanitizedNumber } from '@/app/helpers/input-sanitization-helpers';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const DippingsForm = ({ setOpenDialog, dippingData }) => {
+  const dictionary = useDictionary();
   const queryClient = useQueryClient();
   const { enqueueSnackbar } = useSnackbar();
   const { productOptions } = useProductsSelect();
@@ -39,12 +41,12 @@ const DippingsForm = ({ setOpenDialog, dippingData }) => {
   const { tanks, products } = activeStation;
 
   const validationSchema = yup.object({
-    as_at: yup.string().required('Dipping Date is required').typeError('Dipping Date is required'),
+    as_at: yup.string().required(dictionary.forms.dippings.validation.dippingDateRequired).typeError(dictionary.forms.dippings.validation.dippingDateRequired),
     readings: yup.array().of(
       yup.object().shape({
-        reading: yup.number().required("Tank reading is required").typeError('Tank reading is required'),
-        product_id: yup.number().required("Fuel Name is required").typeError('Fuel Name is required'),
-        tank_id: yup.number().required("Tank Name is required").typeError('Tank Name is required'),
+        reading: yup.number().required(dictionary.forms.dippings.validation.tankReadingRequired).typeError(dictionary.forms.dippings.validation.tankReadingRequired),
+        product_id: yup.number().required(dictionary.forms.dippings.validation.fuelNameRequired).typeError(dictionary.forms.dippings.validation.fuelNameRequired),
+        tank_id: yup.number().required(dictionary.forms.dippings.validation.tankNameRequired).typeError(dictionary.forms.dippings.validation.tankNameRequired),
       })
     ),
   });
@@ -105,14 +107,14 @@ const DippingsForm = ({ setOpenDialog, dippingData }) => {
 
   return (
     <>
-        <DialogTitle textAlign={'center'}>{dippingData ? `Edit Dipping` : `New Dipping`}</DialogTitle>
+        <DialogTitle textAlign={'center'}>{dippingData ? dictionary.forms.dippings.titles.edit : dictionary.forms.dippings.titles.new}</DialogTitle>
         <DialogContent>
             <form autoComplete="off" onSubmit={handleSubmit(onSubmit)}>
                 <Grid container columnSpacing={1}>
                     <Grid size={{xs:12, md:4}}>
                         <Div sx={{mt: 1 }}>
                             <DateTimePicker
-                                label='As At'
+                                label={dictionary.forms.dippings.labels.asAt}
                                 fullWidth
                                 defaultValue={dippingData ? dayjs(dippingData?.as_at) : null}
                                 minDate={dayjs(organization.recording_start_date)}
@@ -143,7 +145,7 @@ const DippingsForm = ({ setOpenDialog, dippingData }) => {
                                 rows={2}
                                 error={!!errors?.remarks}
                                 helperText={errors?.remarks?.message}
-                                label="Remarks"
+                                label={dictionary.forms.dippings.labels.remarks}
                                 {...register('remarks')}
                             />
                         </Div>
@@ -160,7 +162,7 @@ const DippingsForm = ({ setOpenDialog, dippingData }) => {
                                                 <StoreSelector
                                                     id={`readings-${index}-tank_id`}
                                                     allowSubStores={true}
-                                                    label='Tank'
+                                                    label={dictionary.forms.dippings.labels.tank}
                                                     proposedOptions={tanks}
                                                     defaultValue={tanks.find(tank => tank.id === field.tank_id)}
                                                     frontError={errors?.readings?.[index]?.tank_id}
@@ -177,7 +179,7 @@ const DippingsForm = ({ setOpenDialog, dippingData }) => {
                                             <Div sx={{ mt: 1 }}>
                                                 <ProductSelect
                                                     id={`readings-${index}-product_id`}
-                                                    label='Fuel'
+                                                    label={dictionary.forms.dippings.labels.fuel}
                                                     requiredProducts={products}
                                                     frontError={errors?.readings?.[index]?.product_id}
                                                     defaultValue={productOptions.find(product => product.id === field.product_id)}
@@ -200,7 +202,7 @@ const DippingsForm = ({ setOpenDialog, dippingData }) => {
                                                     error={!!errors?.readings?.[index]?.reading}
                                                     defaultValue={field.reading}
                                                     helperText={errors?.readings?.[index]?.reading?.message}
-                                                    label="Reading"
+                                                    label={dictionary.forms.dippings.labels.reading}
                                                     InputProps={{
                                                     inputComponent: CommaSeparatedField,
                                                     }}
@@ -218,7 +220,7 @@ const DippingsForm = ({ setOpenDialog, dippingData }) => {
                                 {fields.length > 1 && (
                                     <Grid size={1}>
                                         <Div sx={{ mt: 1 }}>
-                                            <Tooltip title="Remove reading">
+                                            <Tooltip title={dictionary.tooltips.removeReading}>
                                                 <IconButton size="small" onClick={() => remove(index)}>
                                                     <DisabledByDefault fontSize="small" color="error" />
                                                 </IconButton>
@@ -230,9 +232,9 @@ const DippingsForm = ({ setOpenDialog, dippingData }) => {
                         ))}
                         <Grid size={12} sx={{ display: 'flex', justifyContent: 'flex-end' }}>
                             <Div sx={{ mt: 1 }}>
-                                <Tooltip title="Add reading">
+                                <Tooltip title={dictionary.tooltips.addReading}>
                                     <Button size="small" variant="outlined" onClick={() => append({ reading: '', tank_id: '', product_id: '' })}>
-                                        <AddOutlined fontSize="10" /> Add
+                                        <AddOutlined fontSize="10" /> {dictionary.forms.dippings.buttons.add}
                                     </Button>
                                 </Tooltip>
                             </Div>
@@ -244,7 +246,7 @@ const DippingsForm = ({ setOpenDialog, dippingData }) => {
         <DialogActions>
             <Stack spacing={1} direction={'row'} justifyContent={'end'} sx={{ mt: 1, mb: 1 }}>
                 <Button size='small' onClick={() => setOpenDialog(false)}>
-                    Cancel
+                    {dictionary.forms.dippings.buttons.cancel}
                 </Button>
                 <LoadingButton
                     type="submit"
@@ -253,7 +255,7 @@ const DippingsForm = ({ setOpenDialog, dippingData }) => {
                     size="small"
                     sx={{ display: 'flex' }}
                 >
-                    Submit
+                    {dictionary.forms.dippings.buttons.submit}
                 </LoadingButton>
             </Stack>
         </DialogActions>

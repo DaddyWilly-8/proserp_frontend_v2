@@ -4,8 +4,10 @@ import React from 'react';
 import { Box, Chip, Grid, ListItemText, Tooltip, Typography } from '@mui/material';
 import CostCenterItemAction from './CostCenterAction';
 import { CostCenter } from './CostCenterType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const CostCenterListItem = ({ costCenter }: {costCenter: CostCenter}) => {
+  const dictionary = useDictionary();
   return (
     <React.Fragment>
       <Grid
@@ -25,7 +27,7 @@ const CostCenterListItem = ({ costCenter }: {costCenter: CostCenter}) => {
         <Grid size={{xs: 12, md: 4}}>
           <ListItemText
             primary={
-              <Tooltip title="Name">
+              <Tooltip title={dictionary.tooltips.name}>
                 <Typography variant="h5" fontSize={14} lineHeight={1.25} mb={0} noWrap>
                   {costCenter.name}
                 </Typography>
@@ -36,7 +38,7 @@ const CostCenterListItem = ({ costCenter }: {costCenter: CostCenter}) => {
         <Grid size={{xs: 6, md: 4}}>
           <ListItemText
             primary={
-              <Tooltip title="Type">
+              <Tooltip title={dictionary.tooltips.type}>
                 <Typography variant="h5" fontSize={14} lineHeight={1.25} mb={0} noWrap>
                   {costCenter.type}
                 </Typography>
@@ -49,7 +51,7 @@ const CostCenterListItem = ({ costCenter }: {costCenter: CostCenter}) => {
           >
             <ListItemText
               primary={
-                <Tooltip title="Status">
+                <Tooltip title={dictionary.tooltips.status}>
                   <Typography variant="h5" fontSize={14} lineHeight={1.25} mb={0} noWrap>
                     <Chip
                       label={costCenter.status}

@@ -18,6 +18,7 @@ import { SalesOrder } from '../SalesOrderType';
 import { Currency } from '@/components/masters/Currencies/CurrencyType';
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 import { BackdropSpinner } from '@/shared/ProgressIndicators/BackdropSpinner';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface SaleAdjustmentsProps {
   expanded: boolean;
@@ -37,6 +38,7 @@ interface Adjustment {
 }
 
 const SaleAdjustments: React.FC<SaleAdjustmentsProps> = ({ expanded, sale, activeTab }) => {
+  const dictionary = useDictionary();
   const [selectedAdjustment, setSelectedAdjustment] = useState<Adjustment | null>(null);
   const [openAdjustmentDeleteDialog, setOpenAdjustmentDeleteDialog] = useState(false);
   const [openAdjustmentEditDialog, setOpenAdjustmentEditDialog] = useState(false);
@@ -77,30 +79,30 @@ const SaleAdjustments: React.FC<SaleAdjustmentsProps> = ({ expanded, sale, activ
             mb={1}
           >
             <Grid size={{ xs: 6, md: 3, lg: 3 }}>
-              <Tooltip title="Transaction Date">
+              <Tooltip title={dictionary.tooltips.transactionDate}>
                 <Typography>{readableDate(adjustment.transaction_date)}</Typography>
               </Tooltip>
             </Grid>
 
             <Grid size={{ xs: 6, md: 2, lg: 2 }}>
-              <Tooltip title="Type">
+              <Tooltip title={dictionary.tooltips.type}>
                 <Typography>
                   {adjustment.type === 'debit' ? 'Debit Note' : 'Credit Note'}
                 </Typography>
               </Tooltip>
-              <Tooltip title="Adjustment No.">
+              <Tooltip title={dictionary.tooltips.adjustmentNo}>
                 <Typography>{adjustment.adjustmentableNo}</Typography>
               </Tooltip>
             </Grid>
 
             <Grid size={{ xs: 6, md: 2, lg: 2 }}>
-              <Tooltip title="Narration">
+              <Tooltip title={dictionary.tooltips.narration}>
                 <Typography>{adjustment.narration}</Typography>
               </Tooltip>
             </Grid>
 
             <Grid size={{ xs: 6, md: 3, lg: 3 }} textAlign="end">
-              <Tooltip title="Amount">
+              <Tooltip title={dictionary.tooltips.amount}>
                 <Typography>
                   {adjustment.amount?.toLocaleString('en-US', {
                     style: 'currency',

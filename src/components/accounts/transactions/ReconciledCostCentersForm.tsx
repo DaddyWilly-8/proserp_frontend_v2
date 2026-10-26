@@ -8,6 +8,7 @@ import { useSnackbar } from 'notistack';
 import CostCenterSelector from '@/components/masters/costCenters/CostCenterSelector';
 import { CostCenter } from '@/components/masters/costCenters/CostCenterType';
 import { getErrorMessage } from '@/utilities/helpers/errorHandler';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface Props {
   voucherNo?: string;
@@ -37,6 +38,7 @@ export default function ReconciledCostCentersForm({
   setOpen,
   updateCostCenters,
 }: Props) {
+  const dictionary = useDictionary();
   const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
   const [costCenters, setCostCenters] = useState<CostCenter[]>(currentCostCenters);
@@ -44,7 +46,7 @@ export default function ReconciledCostCentersForm({
   const mutation = useMutation({
     mutationFn: () => updateCostCenters(costCenters.map((c) => ({ id: c.id }))),
     onSuccess: (data) => {
-      enqueueSnackbar(data?.message || 'Cost centers updated successfully', { variant: 'success' });
+      enqueueSnackbar(data?.message || dictionary.forms.transactions.reconciled.messages.updateSuccess, { variant: 'success' });
       queryClient.invalidateQueries({ queryKey: ['transactions'] });
       setOpen(false);
     },
@@ -53,37 +55,36 @@ export default function ReconciledCostCentersForm({
 
   return (
     <>
-      <DialogTitle textAlign='center'>{voucherNo || 'Transaction'}</DialogTitle>
+      <DialogTitle textAlign='center'>{voucherNo || dictionary.forms.transactions.reconciled.title}</DialogTitle>
       <DialogContent>
         <Alert severity='info' sx={{ mb: 2 }}>
-          This transaction is matched in a bank reconciliation, so most fields are locked to protect that match.
-          Only its cost centers can still be changed here.
+          {dictionary.forms.transactions.reconciled.alert}
         </Alert>
         <Grid container spacing={1} sx={{ mb: 2 }}>
           <Grid size={12}>
-            <Typography variant='caption' color='text.secondary'>Date</Typography>
+            <Typography variant='caption' color='text.secondary'>{dictionary.forms.transactions.reconciled.labels.date}</Typography>
             <Typography variant='body2'>{formatDate(transactionDate)}</Typography>
           </Grid>
           <Grid size={12}>
-            <Typography variant='caption' color='text.secondary'>Narration</Typography>
+            <Typography variant='caption' color='text.secondary'>{dictionary.forms.transactions.reconciled.labels.narration}</Typography>
             <Typography variant='body2'>{narration}</Typography>
           </Grid>
         </Grid>
         <CostCenterSelector
-          label='Cost Centers'
+          label={dictionary.forms.transactions.reconciled.labels.costCenters}
           defaultValue={costCenters}
           onChange={(value) => setCostCenters((Array.isArray(value) ? value : value ? [value] : []) as CostCenter[])}
         />
       </DialogContent>
       <DialogActions>
-        <Button size='small' onClick={() => setOpen(false)}>Cancel</Button>
+        <Button size='small' onClick={() => setOpen(false)}>{dictionary.forms.transactions.reconciled.buttons.cancel}</Button>
         <LoadingButton
           size='small'
           variant='contained'
           loading={mutation.isPending}
           onClick={() => mutation.mutate()}
         >
-          Save
+          {dictionary.forms.transactions.reconciled.buttons.save}
         </LoadingButton>
       </DialogActions>
     </>

@@ -19,8 +19,10 @@ import LedgerSelectProvider from '@/components/accounts/ledgers/forms/LedgerSele
 import ProductsSelectProvider from '@/components/productAndServices/products/ProductsSelectProvider';
 import ProductsProvider from '@/components/productAndServices/products/ProductsProvider';
 import { readableDate } from '@/app/helpers/input-sanitization-helpers';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function BudgetsListItem() {
+  const dictionary = useDictionary();
   const { projectBudgets } = useProjectProfile();
   const [expanded, setExpanded] = useState({});
   const [searchQuery, setSearchQuery] = useState('');
@@ -102,21 +104,21 @@ function BudgetsListItem() {
                 >
                   <Grid container width={'100%'} columnSpacing={2} alignItems="center">
                     <Grid size={{ xs: 12, md: 5 }}>
-                      <Tooltip title="Name">
+                      <Tooltip title={dictionary.tooltips.name}>
                         <Typography variant="h5" fontSize={14} lineHeight={1.25} mb={0} noWrap>
                           {budget.name}
                         </Typography>
                       </Tooltip>
                     </Grid>
                     <Grid size={{ xs: 6, md: 3.5 }}>
-                      <Tooltip title="Start Date">
+                      <Tooltip title={dictionary.tooltips.startDate}>
                         <Typography variant="h5" fontSize={14} lineHeight={1.25} mb={0} noWrap>
                           {readableDate(budget.start_date, false)}
                         </Typography>
                       </Tooltip>
                     </Grid>
                     <Grid size={{ xs: 6, md: 3.5 }}>
-                      <Tooltip title="End Date">
+                      <Tooltip title={dictionary.tooltips.endDate}>
                         <Typography variant="h5" fontSize={14} lineHeight={1.25} mb={0} noWrap>
                           {readableDate(budget.end_date, false)}
                         </Typography>
@@ -142,7 +144,7 @@ function BudgetsListItem() {
               </Accordion>
             ))
           ) : (
-            <Alert variant='outlined' severity='info'>No budgets found.</Alert>
+            <Alert variant='outlined' severity='info'>{dictionary.projectManagement.budgets.noBudgets}</Alert>
           )}
         </ProductsProvider>
       </ProductsSelectProvider>

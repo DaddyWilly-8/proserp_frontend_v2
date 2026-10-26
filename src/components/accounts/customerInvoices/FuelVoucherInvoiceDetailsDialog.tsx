@@ -1,5 +1,6 @@
 'use client';
 
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import FuelVoucherInvoicePDF from '@/components/fuelStation/reports/fuelVoucherInvoices/FuelVoucherInvoicePDF';
 import FuelVoucherInvoicePaymentsPanel from '@/components/fuelStation/reports/fuelVoucherInvoices/FuelVoucherInvoicePaymentsPanel';
@@ -21,6 +22,7 @@ const FuelVoucherInvoiceDetailsDialog = ({
   id: number;
   setOpenDialog: (open: boolean) => void;
 }) => {
+  const dictionary = useDictionary();
   const { authOrganization } = useJumboAuth();
   const organization = authOrganization?.organization;
   const { theme } = useJumboTheme();
@@ -78,7 +80,7 @@ const FuelVoucherInvoiceDetailsDialog = ({
         key={String(openDetails)}
         documentKey={String(openDetails)}
         fileName={`Invoice ${invoice.invoice_no.replace('/', '-')}${openDetails ? ' Detailed' : ' Summary'}`}
-        document={<FuelVoucherInvoicePDF invoice={invoice} organization={organization} summarize={!openDetails} />}
+        document={<FuelVoucherInvoicePDF invoice={invoice} organization={organization} dictionary={dictionary} summarize={!openDetails} />}
       />
       {belowLargeScreen && (
         <Box textAlign='right' mt={5}>

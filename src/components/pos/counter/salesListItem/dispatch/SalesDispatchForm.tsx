@@ -26,6 +26,7 @@ import { useCounter } from '../../CounterProvider';
 import { SalesOrder } from '../../SalesOrderType';
 import SalesDispatchItemForm from './SalesDispatchItemForm';
 import SalesEditDispatchItemForm from './SalesEditDispatchItemForm';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface DispatchItem {
   id?: number;
@@ -83,6 +84,7 @@ const SalesDispatchForm: React.FC<SalesDispatchFormProps> = ({
   sale = null,
   deliveryData = null,
 }) => {
+  const dictionary = useDictionary();
   const { outlet } = useCounter();
   const { stores, cost_center } = outlet || {};
   const { enqueueSnackbar } = useSnackbar();
@@ -137,25 +139,25 @@ const SalesDispatchForm: React.FC<SalesDispatchFormProps> = ({
   const validationSchema = yup.object({
     dispatch_date: yup
       .string()
-      .required('Dispatch Date is required')
-      .typeError('Delivery Date is required'),
+      .required(dictionary.forms.counter.dispatch.validation.dispatchDateRequired)
+      .typeError(dictionary.forms.counter.dispatch.validation.deliveryDateRequired),
     dispatch_from: yup
       .string()
-      .required('Dispatch From is required')
-      .typeError('Dispatch From is required'),
+      .required(dictionary.forms.counter.dispatch.validation.dispatchFromRequired)
+      .typeError(dictionary.forms.counter.dispatch.validation.dispatchFromRequired),
     destination: yup
       .string()
-      .required('Dispatch Destination is required')
-      .typeError('Destination is required'),
+      .required(dictionary.forms.counter.dispatch.validation.dispatchDestinationRequired)
+      .typeError(dictionary.forms.counter.dispatch.validation.destinationRequired),
     items: yup.array().of(
       yup.object().shape({
         quantity: yup
           .number()
-          .required('Quantity is Required')
-          .typeError('Quantity is required')
+          .required(dictionary.forms.counter.dispatch.validation.quantityRequired)
+          .typeError(dictionary.forms.counter.dispatch.validation.quantityRequired)
           .test(
             'maxQuantity',
-            'Quantity cannot exceed Available Balance',
+            dictionary.forms.counter.dispatch.validation.quantityExceedsBalance,
             function (value) {
               const availableBalance = this.parent.available_balance;
               const currentBalance = this.parent.current_balance;
@@ -175,14 +177,17 @@ const SalesDispatchForm: React.FC<SalesDispatchFormProps> = ({
             const currentBalance = parseFloat(this.parent.current_balance || 0);
             if (availableBalance > currentBalance && value > currentBalance) {
               return this.createError({
-                message: `This quantity will lead to negative balance. Current balance today is ${currentBalance.toLocaleString()}`,
+                message: dictionary.forms.counter.dispatch.validation.negativeBalance.replace(
+                  '{balance}',
+                  currentBalance.toLocaleString()
+                ),
               });
             }
             return true;
           })
           .test(
             'OverQuantityRequired',
-            'Quantity cannot exceed Quantity Required to Dispatch',
+            dictionary.forms.counter.dispatch.validation.quantityExceedsRequired,
             function (value) {
               const requiredDispatchQuantity =
                 this.parent.undispatched_quantity;
@@ -195,7 +200,9 @@ const SalesDispatchForm: React.FC<SalesDispatchFormProps> = ({
         store_id: yup.number().when('quantity', {
           is: (quantity: number) => quantity > 0,
           then: (schema) =>
-            schema.required('Store is Required').typeError('Store is Required'),
+            schema
+              .required(dictionary.forms.counter.dispatch.validation.storeRequired)
+              .typeError(dictionary.forms.counter.dispatch.validation.storeRequired),
           otherwise: (schema) => schema.nullable(),
         }),
       })
@@ -293,13 +300,16 @@ const SalesDispatchForm: React.FC<SalesDispatchFormProps> = ({
           <Grid container spacing={1}>
             <Grid size={12} textAlign={'center'} mb={2}>
               {deliveryData
-                ? `Edit Dispatch for ${deliveryData?.deliveryNo}`
-                : `Dispatch for ${sale?.saleNo}`}
+                ? dictionary.forms.counter.dispatch.title.edit.replace(
+                    '{deliveryNo}',
+                    deliveryData?.deliveryNo
+                  )
+                : dictionary.forms.counter.dispatch.title.new.replace('{saleNo}', sale?.saleNo)}
             </Grid>
             <Grid size={{ xs: 12, md: 4 }}>
               <Div sx={{ mt: 1, mb: 1 }}>
                 <DateTimePicker
-                  label='Dispatch Date'
+                  label={dictionary.forms.counter.dispatch.labels.dispatchDate}
                   minDate={
                     checkOrganizationPermission(
                       PERMISSIONS.SALES_DISPATCH_BACKDATE
@@ -349,7 +359,7 @@ const SalesDispatchForm: React.FC<SalesDispatchFormProps> = ({
                   renderInput={(params) => (
                     <TextField
                       {...params}
-                      label='Dispatch From'
+                      label={dictionary.forms.counter.dispatch.labels.dispatchFrom}
                       size='small'
                       fullWidth
                       error={!!errors.dispatch_from}
@@ -387,7 +397,7 @@ const SalesDispatchForm: React.FC<SalesDispatchFormProps> = ({
                   renderInput={(params) => (
                     <TextField
                       {...params}
-                      label='Destination'
+                      label={dictionary.forms.counter.dispatch.labels.destination}
                       size='small'
                       fullWidth
                       error={!!errors.destination}
@@ -421,7 +431,7 @@ const SalesDispatchForm: React.FC<SalesDispatchFormProps> = ({
                   renderInput={(params) => (
                     <TextField
                       {...params}
-                      label='Vehicle Information'
+                      label={dictionary.forms.counter.dispatch.labels.vehicleInformation}
                       size='small'
                       fullWidth
                     />
@@ -453,7 +463,7 @@ const SalesDispatchForm: React.FC<SalesDispatchFormProps> = ({
                   renderInput={(params) => (
                     <TextField
                       {...params}
-                      label='Driver Information'
+                      label={dictionary.forms.counter.dispatch.labels.driverInformation}
                       size='small'
                       fullWidth
                     />
@@ -480,7 +490,7 @@ const SalesDispatchForm: React.FC<SalesDispatchFormProps> = ({
                 rows={2}
                 defaultValue={deliveryData?.remarks}
                 fullWidth
-                label={'Remarks'}
+                label={dictionary.forms.counter.dispatch.labels.remarks}
                 {...register('remarks')}
               />
             </Grid>
@@ -514,7 +524,7 @@ const SalesDispatchForm: React.FC<SalesDispatchFormProps> = ({
       </DialogContent>
       <DialogActions>
         <Button size='small' onClick={() => toggleOpen(false)}>
-          Cancel
+          {dictionary.forms.counter.dispatch.buttons.cancel}
         </Button>
         <LoadingButton
           loading={newDispatchSale.isPending || updateDeliveryNote.isPending}
@@ -524,7 +534,7 @@ const SalesDispatchForm: React.FC<SalesDispatchFormProps> = ({
           variant='contained'
           onClick={handleSubmit(handleSubmitForm)}
         >
-          Dispatch
+          {dictionary.forms.counter.dispatch.buttons.dispatch}
         </LoadingButton>
       </DialogActions>
     </FormProvider>

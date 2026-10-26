@@ -38,6 +38,7 @@ import { Approval, Requisition } from '../../../RequisitionType';
 const ApprovalOnScreen = dynamic(() => import('./ApprovalOnScreen'), { ssr: false });
 import ApprovalPDF from './ApprovalPDF';
 import dynamic from 'next/dynamic';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 const ApprovalForm = dynamic(() => import('./form/ApprovalForm'), { ssr: false });
 dayjs.extend(isSameOrAfter);
 
@@ -230,6 +231,7 @@ const ApprovalItemAction: React.FC<ApprovalItemActionProps> = ({
   approval,
   approvals,
 }) => {
+  const dictionary = useDictionary();
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const [openApproveDialog, setOpenApproveDialog] = useState(false);
   const { showDialog, hideDialog } = useJumboDialog();
@@ -333,14 +335,14 @@ const ApprovalItemAction: React.FC<ApprovalItemActionProps> = ({
         )}
       </Dialog>
 
-      <Tooltip title='View'>
+      <Tooltip title={dictionary.tooltips.view}>
         <IconButton onClick={() => setOpenDocumentDialog(true)}>
           <VisibilityOutlined />
         </IconButton>
       </Tooltip>
 
       {requisitionId && (
-        <Tooltip title='Attachments'>
+        <Tooltip title={dictionary.tooltips.attachments}>
           <IconButton onClick={() => setAttachDialog(true)}>
             <Badge badgeContent={requisitionAttachmentsCount} color='info'>
               <AttachmentOutlined />
@@ -355,7 +357,7 @@ const ApprovalItemAction: React.FC<ApprovalItemActionProps> = ({
         (approvals && approvals[approvals.length - 1]?.id) === approval?.id &&
         approval?.creator?.id === authUser?.user?.id &&
         !(approval.has_orders || approval.has_payments) && (
-          <Tooltip title='Edit'>
+          <Tooltip title={dictionary.tooltips.edit}>
             <IconButton onClick={() => setOpenEditDialog(true)}>
               <EditOutlined />
             </IconButton>
@@ -373,7 +375,7 @@ const ApprovalItemAction: React.FC<ApprovalItemActionProps> = ({
         ) &&
         approval.is_final === 0 &&
         (approvals && approvals[approvals.length - 1]?.id) === approval?.id && (
-          <Tooltip title='Approve'>
+          <Tooltip title={dictionary.tooltips.approve}>
             <IconButton onClick={() => setOpenApproveDialog(true)}>
               <FactCheckOutlined />
             </IconButton>
@@ -389,7 +391,7 @@ const ApprovalItemAction: React.FC<ApprovalItemActionProps> = ({
             PERMISSIONS.REQUISITIONS_APPROVALS_DELETE_ANY
           )) &&
         !(approval.has_orders || approval.has_payments) && (
-          <Tooltip title='Delete'>
+          <Tooltip title={dictionary.tooltips.delete}>
             <IconButton onClick={handleDelete}>
               <DeleteOutlined color='error' />
             </IconButton>

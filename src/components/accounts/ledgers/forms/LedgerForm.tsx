@@ -34,6 +34,7 @@ import * as yup from 'yup';
 import { useLedgerGroup } from '../../ledgerGroups/LedgerGroupProvider';
 import ledgerServices from '../ledger-services';
 import AddQuickLedgerGroup from './AddQuickLedgerGroup';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface Ledger {
   id?: number;
@@ -97,6 +98,7 @@ export default function LedgerForm({
   isQuickAdd = false,
   setNewLedger,
 }: LedgerFormProps) {
+  const dictionary = useDictionary();
   const { enqueueSnackbar } = useSnackbar();
   const { ledgerGroupOptions } = useLedgerGroup();
   const queryClient = useQueryClient();
@@ -116,7 +118,7 @@ export default function LedgerForm({
       queryClient.invalidateQueries({ queryKey: ['ledgers-list'] });
       queryClient.invalidateQueries({ queryKey: ['ledgerOptions'] });
       if (isQuickAdd && setNewLedger) setNewLedger(data.ledger);
-      enqueueSnackbar('Ledger created successfully', {
+      enqueueSnackbar(dictionary.forms.ledgers.form.messages.createSuccess, {
         variant: 'success',
         autoHideDuration: 2000,
       });
@@ -135,7 +137,7 @@ export default function LedgerForm({
     mutationFn: (data: FormValues) => ledgerServices.update(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['ledgers-list'] });
-      enqueueSnackbar('Ledger updated successfully', {
+      enqueueSnackbar(dictionary.forms.ledgers.form.messages.updateSuccess, {
         variant: 'success',
         autoHideDuration: 2000,
       });
@@ -155,14 +157,14 @@ export default function LedgerForm({
   }, [ledger, updateLedgerMutation, addLedgerMutation]);
 
   const validationSchema = yup.object({
-    name: yup.string().required('Ledger Name is required'),
-    ledger_group_id: yup.mixed().required('Ledger Group is required'),
+    name: yup.string().required(dictionary.forms.ledgers.form.errors.validation.nameRequired),
+    ledger_group_id: yup.mixed().required(dictionary.forms.ledgers.form.errors.validation.groupRequired),
     opening_balance: yup.number().min(0),
     opening_balance_side: yup
       .string()
       .when('opening_balance', (opening_balance, schema) => {
         if (typeof opening_balance === 'number' && opening_balance > 0) {
-          return schema.required('Is the balance Credit or Debit');
+          return schema.required(dictionary.forms.ledgers.form.errors.validation.balanceSideRequired);
         }
         return schema;
       }),
@@ -171,7 +173,7 @@ export default function LedgerForm({
       .nullable()
       .when('opening_balance', (opening_balance, schema) => {
         if (typeof opening_balance === 'number' && opening_balance > 0) {
-          return schema.required('Select the date of the balance you entered');
+          return schema.required(dictionary.forms.ledgers.form.errors.validation.balanceDateRequired);
         }
         return schema;
       }),
@@ -279,7 +281,7 @@ export default function LedgerForm({
   return (
     <>
       <Typography textAlign={'center'} variant='h4' marginTop={2}>
-        {ledger ? `Edit ${ledger.name}` : `Create New Ledger`}
+        {ledger ? dictionary.forms.ledgers.form.title.edit.replace('{name}', ledger.name) : dictionary.forms.ledgers.form.title.create}
       </Typography>
       <DialogContent>
         <form autoComplete='off'>
@@ -288,7 +290,7 @@ export default function LedgerForm({
               <Div sx={{ mt: 1 }}>
                 <TextField
                   fullWidth
-                  label='Ledger Name'
+                  label={dictionary.forms.ledgers.form.labels.ledgerName}
                   size='small'
                   error={!!errors.name || !!serverError?.name}
                   helperText={errors.name?.message || serverError?.name?.[0]}
@@ -330,11 +332,11 @@ export default function LedgerForm({
                         renderInput={(params) => (
                           <TextField
                             {...params}
-                            label='Ledger Group'
+                            label={dictionary.forms.ledgers.form.labels.ledgerGroup}
                             InputProps={{
                               ...params.InputProps,
                               startAdornment: ledger?.ledger_group_id ? null : (
-                                <Tooltip title={'Quick Add Group'}>
+                                <Tooltip title={dictionary.tooltips.quickAddGroup}>
                                   <AddOutlined
                                     onClick={() =>
                                       setOpenQuickAddLedgerGroup(true)
@@ -386,7 +388,7 @@ export default function LedgerForm({
                   <Div sx={{ mt: 1 }}>
                     <TextField
                       fullWidth
-                      label='Alias (Optional)'
+                      label={dictionary.forms.ledgers.form.labels.alias}
                       size='small'
                       {...register('alias')}
                     />
@@ -401,7 +403,7 @@ export default function LedgerForm({
                   <Div sx={{ mt: 1 }}>
                     <TextField
                       fullWidth
-                      label='Code (Optional)'
+                      label={dictionary.forms.ledgers.form.labels.code}
                       size='small'
                       {...register('code')}
                     />
@@ -416,7 +418,7 @@ export default function LedgerForm({
                 <Grid size={{ xs: 12, md: 6 }}>
                   <Div sx={{ mt: 1 }}>
                     <CurrencySelector
-                      label='Currency (Optional)'
+                      label={dictionary.forms.ledgers.form.labels.currency}
                       required={false}
                       frontError={
                         errors?.currency_id?.message ||
@@ -455,7 +457,7 @@ export default function LedgerForm({
                       fullWidth
                       multiline
                       rows={2}
-                      label='Description (Optional)'
+                      label={dictionary.forms.ledgers.form.labels.description}
                       size='small'
                       {...register('description')}
                     />
@@ -465,7 +467,7 @@ export default function LedgerForm({
             )}
             <Grid size={12} marginTop={2}>
               <Typography variant='h5' textAlign={'center'}>
-                Opening Balance Details
+                {dictionary.forms.ledgers.form.sections.openingBalanceDetails}
               </Typography>
             </Grid>
             <Grid size={{ xs: 12, md: 6 }}>
@@ -475,7 +477,7 @@ export default function LedgerForm({
                   control={control}
                   render={({ field: { onChange, value } }) => (
                     <TextField
-                      label='Opening Balance (Optional)'
+                      label={dictionary.forms.ledgers.form.labels.openingBalance}
                       fullWidth
                       size='small'
                       value={value}
@@ -509,12 +511,12 @@ export default function LedgerForm({
                         <FormControlLabel
                           value='credit'
                           control={<Radio />}
-                          label='Credit'
+                          label={dictionary.forms.ledgers.form.labels.credit}
                         />
                         <FormControlLabel
                           value='debit'
                           control={<Radio />}
-                          label='Debit'
+                          label={dictionary.forms.ledgers.form.labels.debit}
                         />
                       </RadioGroup>
                       <FormHelperText>
@@ -528,7 +530,7 @@ export default function LedgerForm({
             <Grid size={{ xs: 12, md: 6 }}>
               <Div sx={{ mt: 1 }}>
                 <DateTimePicker
-                  label='As at (MM/DD/YYYY)'
+                  label={dictionary.forms.ledgers.form.labels.asAt}
                   value={dayjs(
                     authOrganization?.organization?.recording_start_date
                   )}
@@ -544,7 +546,7 @@ export default function LedgerForm({
             <Grid size={{ xs: 12, md: 6 }}>
               <Div sx={{ mt: 1 }}>
                 <CostCenterSelector
-                  label='Cost Centers'
+                  label={dictionary.forms.ledgers.form.labels.costCenters}
                   multiple={false}
                   defaultValue={openingBalanceCostCenter}
                   onChange={(newValue: any) => {
@@ -562,7 +564,7 @@ export default function LedgerForm({
           variant='outlined'
           onClick={() => toggleOpen(false)}
         >
-          Cancel
+          {dictionary.forms.ledgers.form.buttons.cancel}
         </Button>
         <LoadingButton
           type='submit'
@@ -572,7 +574,7 @@ export default function LedgerForm({
           sx={{ display: 'flex' }}
           loading={isSubmitting || saveMutation.isPending}
         >
-          Submit
+          {dictionary.forms.ledgers.form.buttons.submit}
         </LoadingButton>
       </DialogActions>
     </>

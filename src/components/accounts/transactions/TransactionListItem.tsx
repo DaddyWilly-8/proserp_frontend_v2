@@ -1,4 +1,5 @@
 import { readableDate } from '@/app/helpers/input-sanitization-helpers';
+import RecurringTag, { RECURRING_SOURCE } from '@/components/accounts/recurringTransactions/RecurringTag';
 import AttachmentForm from '@/components/filesShelf/attachments/AttachmentForm';
 import SaleInvoiceAdjustmentItemAction from '@/components/pos/counter/salesListItem/invoice/saleAdjustment/SaleInvoiceAdjustmentItemAction';
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
@@ -23,6 +24,7 @@ import PaymentItemAction from './payments/PaymentItemAction';
 import ReceiptItemAction from './receipts/ReceiptItemAction';
 import TransferItemAction from './tranfers/TransferItemAction';
 import { Transaction, TransactionTypes } from './TransactionTypes';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 // Backend attachmentable_type values (see AttachmentController::
 // getAttachmentableClass()) are singular and don't match this component's
@@ -51,6 +53,7 @@ function TransactionListItem({
   transaction: Transaction;
   type: TransactionTypes;
 }) {
+  const dictionary = useDictionary();
   const [attachDialog, setAttachDialog] = useState(false);
   const { theme } = useJumboTheme();
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
@@ -92,7 +95,7 @@ function TransactionListItem({
       <Grid size={{ xs: 6, md: 3, lg: 2 }}>
         <ListItemText
           primary={
-            <Tooltip title={'Date'}>
+            <Tooltip title={dictionary.tooltips.date}>
               <Typography
                 variant={'h5'}
                 lineHeight={1.25}
@@ -111,7 +114,7 @@ function TransactionListItem({
         <ListItemText
           primary={
             <Stack direction='row'>
-              <Tooltip title='Voucher Number'>
+              <Tooltip title={dictionary.tooltips.voucherNumber}>
                 <Typography
                   variant='h5'
                   fontSize={14}
@@ -124,12 +127,13 @@ function TransactionListItem({
                 </Typography>
               </Tooltip>
               {!!transaction?.requisitionNo && (
-                <Tooltip title='Requisition No.'>
+                <Tooltip title={dictionary.tooltips.requisitionNo}>
                   <Typography variant='caption' color='gray' component='span'>
                     &nbsp;{` - ${transaction.requisitionNo}`}
                   </Typography>
                 </Tooltip>
               )}
+              {transaction.system_source === RECURRING_SOURCE && <RecurringTag />}
               {!!transaction.cancelled_at && (
                 <Tooltip title={transaction.cancel_reason || 'Cancelled'}>
                   <Chip
@@ -144,7 +148,7 @@ function TransactionListItem({
             </Stack>
           }
           secondary={
-            <Tooltip title='Reference'>
+            <Tooltip title={dictionary.tooltips.reference}>
               <Typography
                 variant='h5'
                 fontSize={14}
@@ -181,7 +185,7 @@ function TransactionListItem({
       >
         <ListItemText
           secondary={
-            <Tooltip title={'Narration'}>
+            <Tooltip title={dictionary.tooltips.narration}>
               <Typography component={'span'} lineHeight={1.25} mb={0}>
                 {transaction.narration}
               </Typography>
@@ -199,7 +203,7 @@ function TransactionListItem({
           justifyContent: 'flex-end',
         }}
       >
-        <Tooltip title={'Amount'}>
+        <Tooltip title={dictionary.tooltips.amount}>
           <Box sx={{ marginRight: 1 }}>
             <Typography
               variant={'h5'}
@@ -222,7 +226,7 @@ function TransactionListItem({
           type === 'receipts' ||
           type === 'transfers' ||
           type === 'journal_vouchers') && (
-          <Tooltip title='Attachments'>
+          <Tooltip title={dictionary.tooltips.attachments}>
             <IconButton
               size='small'
               onClick={(event) => {

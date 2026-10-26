@@ -14,6 +14,7 @@ import QuickAddLedger from '@/components/accounts/ledgers/forms/QuickAddLedger';
 import LedgerGroupProvider from '@/components/accounts/ledgerGroups/LedgerGroupProvider';
 import { Ledger } from '@/components/accounts/ledgers/LedgerType';
 import { StationFormContext } from '../../SalesShifts';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface LedgerOption {
   id: number;
@@ -66,6 +67,7 @@ function PaymentsReceived({
   paymentItems = [], 
   setPaymentItems 
 }: PaymentsReceivedProps) {
+  const dictionary = useDictionary();
   const [isAdding, setIsAdding] = useState(false);
   const [openLedgerQuickAdd, setOpenLedgerQuickAdd] = useState(false);
   const [addedLedger, setAddedLedger] = useState<Ledger | null>(null);
@@ -77,22 +79,22 @@ function PaymentsReceived({
   const validationSchema = yup.object().shape({
     debit_ledger_id: yup
       .number()
-      .required("Debit account is required")
-      .positive("Debit account must be a positive number")
-      .typeError("Debit account is required")
-      .test('unique-ledgers', 'Debit and credit accounts cannot be the same', function (value) {
+      .required(dictionary.forms.shifts.validation.debitAccountRequired)
+      .positive(dictionary.forms.shifts.validation.debitAccountPositive)
+      .typeError(dictionary.forms.shifts.validation.debitAccountRequired)
+      .test('unique-ledgers', dictionary.forms.shifts.validation.accountsSame, function (value) {
           return value !== this.parent.credit_ledger_id;
       }),
     credit_ledger_id: yup
       .number()
-      .required("Credit account is required")
-      .positive("Credit account must be a positive number")
-      .typeError("Credit account is required")
-      .test('unique-ledgers', 'Debit and credit accounts cannot be the same', function (value) {
+      .required(dictionary.forms.shifts.validation.creditAccountRequired)
+      .positive(dictionary.forms.shifts.validation.creditAccountPositive)
+      .typeError(dictionary.forms.shifts.validation.creditAccountRequired)
+      .test('unique-ledgers', dictionary.forms.shifts.validation.accountsSame, function (value) {
         return value !== this.parent.debit_ledger_id;
       }),
-    narration: yup.string().required('narration is required').typeError('narration is required'),
-    amount: yup.number().required("Amount is required").positive("Amount must be greater than 0").typeError('Amount must be a number'),
+    narration: yup.string().required(dictionary.forms.shifts.validation.narrationRequired).typeError(dictionary.forms.shifts.validation.narrationRequired),
+    amount: yup.number().required(dictionary.forms.shifts.validation.amountRequired).positive(dictionary.forms.shifts.validation.amountGreaterThanZero).typeError(dictionary.forms.shifts.validation.amountNumber),
   });
 
   const { 
@@ -189,7 +191,7 @@ function PaymentsReceived({
       <Grid size={{xs: 12, md: 3}}>
         <Div sx={{ mt: 1 }}>
           <LedgerSelect
-            label="Paid By"
+            label={dictionary.forms.shifts.labels.paidBy}
             allowedGroups={['Accounts Receivable', 'Accounts Payable']}
             addedLedger={addedLedger}
             value={ungroupedLedgerOptions.find(option => option.id === watch('credit_ledger_id')) || null}
@@ -231,7 +233,7 @@ function PaymentsReceived({
             renderInput={(params) => (
               <TextField
                 {...params}
-                label="Paid to"
+                label={dictionary.forms.shifts.labels.paidTo}
                 error={!!errors.debit_ledger_id}
                 helperText={errors.debit_ledger_id?.message}
               />
@@ -247,7 +249,7 @@ function PaymentsReceived({
             size="small"
             fullWidth
             defaultValue={watch('narration')}
-            label="Narration"
+            label={dictionary.forms.shifts.labels.narration}
             error={!!errors.narration}
             helperText={errors.narration?.message}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
@@ -263,7 +265,7 @@ function PaymentsReceived({
       <Grid size={{xs: 12, md: 3}}>
         <Div sx={{ mt: 1 }}>
           <TextField
-            label="Amount"
+            label={dictionary.forms.shifts.labels.amount}
             fullWidth
             size='small'
             value={watch('amount')}
@@ -289,13 +291,13 @@ function PaymentsReceived({
           sx={{ marginBottom: 0.5 }}
         >
           {item ? (
-            <><CheckOutlined fontSize='small' /> Done</>
+            <><CheckOutlined fontSize='small' /> {dictionary.forms.shifts.buttons.done}</>
           ) : (
-            <><AddOutlined fontSize='small' /> Add</>
+            <><AddOutlined fontSize='small' /> {dictionary.forms.shifts.buttons.add}</>
           )}
         </LoadingButton>
         {item && setShowForm && (
-          <Tooltip title='Close Edit'>
+          <Tooltip title={dictionary.tooltips.closeEdit}>
             <IconButton size='small' onClick={() => setShowForm(false)}>
               <DisabledByDefault fontSize='small' color='success' />
             </IconButton>

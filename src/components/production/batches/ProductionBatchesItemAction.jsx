@@ -32,6 +32,7 @@ import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { JumboDdMenu } from '@jumbo/components';
 import PDFContent from '@/components/pdf/PDFContent';
 import dynamic from 'next/dynamic';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const EditBatch = ({ batch, setOpenEditDialog }) => {
   const [isConsumptionDeletedInside, setIsConsumptionDeletedInside] = useState(false);
@@ -56,6 +57,7 @@ const EditBatch = ({ batch, setOpenEditDialog }) => {
 };
 
 const DocumentDialog = ({ organization, batch, setOpenDocumentDialog }) => {
+  const dictionary = useDictionary();
   const { data: batchData, isPending: isFetching } = useQuery({
     queryKey: ['showBatchDetails', batch.id],
     queryFn: () => productionBatchesServices.showBatchDetails(batch.id),
@@ -85,7 +87,7 @@ const DocumentDialog = ({ organization, batch, setOpenDocumentDialog }) => {
             </Tabs>
           </Grid>
           <Grid item xs={1} textAlign="right">
-            <Tooltip title="Close">
+            <Tooltip title={dictionary.tooltips.close}>
               <IconButton size="small" onClick={() => setOpenDocumentDialog(false)}>
                 <HighlightOff color="primary" />
               </IconButton>
@@ -111,6 +113,7 @@ const DocumentDialog = ({ organization, batch, setOpenDocumentDialog }) => {
 };
 
 const ProductionBatchesItemAction = ({ batch }) => {
+  const dictionary = useDictionary();
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const [openDocumentDialog, setOpenDocumentDialog] = useState(false);
   const {
@@ -191,7 +194,7 @@ const ProductionBatchesItemAction = ({ batch }) => {
       </Dialog>
       <JumboDdMenu
         icon={
-          <Tooltip title="Actions">
+          <Tooltip title={dictionary.tooltips.actions}>
             <MoreHorizOutlined />
           </Tooltip>
         }

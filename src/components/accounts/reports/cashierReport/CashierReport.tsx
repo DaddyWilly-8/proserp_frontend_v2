@@ -36,6 +36,7 @@ import PdfLogo from '../../../pdf/PdfLogo';
 import LedgerSelect from '../../ledgers/forms/LedgerSelect';
 import financialReportsServices from '../financial-reports-services';
 import CashierReportOnScreen from './CashierReportOnScreen';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface Transaction {
   transactionDate: string;
@@ -60,6 +61,7 @@ interface ReportDocumentProps {
   user: User;
   from: string;
   to: string;
+  dictionary: any;
 }
 
 const ReportDocument: React.FC<ReportDocumentProps> = ({
@@ -68,8 +70,12 @@ const ReportDocument: React.FC<ReportDocumentProps> = ({
   user,
   from,
   to,
+  dictionary,
 }) => {
-  const reportPeriod = `${readableDate(from, true)} to ${readableDate(to, true)}`;
+  const t = dictionary.reports.accountsReports;
+  const reportPeriod = t.cashierReport.periodRange
+    .replace('{from}', readableDate(from, true))
+    .replace('{to}', readableDate(to, true));
   const mainColor =
     authOrganization.organization.settings?.main_color || '#2113AD';
   const lightColor =
@@ -98,7 +104,7 @@ const ReportDocument: React.FC<ReportDocumentProps> = ({
     <Document
       creator={` ${user.name} | Powered By ProsERP`}
       producer='ProsERP'
-      title={`Cashier Report ${reportPeriod}`}
+      title={`${t.cashierReport.title} ${reportPeriod}`}
     >
       <Page size='A4' style={pdfStyles.page}>
         <View style={pdfStyles.table}>
@@ -108,7 +114,7 @@ const ReportDocument: React.FC<ReportDocumentProps> = ({
             </View>
             <View style={{ flex: 1, textAlign: 'right' }}>
               <Text style={{ ...pdfStyles.majorInfo, color: mainColor }}>
-                Cashier Report
+                {t.cashierReport.title}
               </Text>
               <Text style={{ ...pdfStyles.minInfo }}>{reportPeriod}</Text>
             </View>
@@ -118,13 +124,13 @@ const ReportDocument: React.FC<ReportDocumentProps> = ({
         <View style={{ ...pdfStyles.tableRow, marginTop: 10 }}>
           <View style={{ flex: 1, padding: 2 }}>
             <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>
-              Printed By
+              {t.common.printedBy}
             </Text>
             <Text style={{ ...pdfStyles.minInfo }}>{user.name}</Text>
           </View>
           <View style={{ flex: 1, padding: 2 }}>
             <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>
-              Printed On
+              {t.common.printedOn}
             </Text>
             <Text style={{ ...pdfStyles.minInfo }}>
               {readableDate(undefined, true)}
@@ -155,7 +161,7 @@ const ReportDocument: React.FC<ReportDocumentProps> = ({
             <View style={{ ...pdfStyles.tableRow, marginBottom: 5 }}>
               <View style={{ flex: 1, padding: 2 }}>
                 <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>
-                  Opening Balance
+                  {t.cashierReport.openingBalance}
                 </Text>
                 <Text style={{ ...pdfStyles.minInfo }}>
                   {formatCurrency(item.opening_balance)}
@@ -163,7 +169,7 @@ const ReportDocument: React.FC<ReportDocumentProps> = ({
               </View>
               <View style={{ flex: 1, padding: 2 }}>
                 <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>
-                  Incoming Total
+                  {t.cashierReport.incomingTotal}
                 </Text>
                 <Text style={{ ...pdfStyles.minInfo, color: 'green' }}>
                   {formatCurrency(item.incoming_total)}
@@ -171,7 +177,7 @@ const ReportDocument: React.FC<ReportDocumentProps> = ({
               </View>
               <View style={{ flex: 1, padding: 2 }}>
                 <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>
-                  Outgoing Total
+                  {t.cashierReport.outgoingTotal}
                 </Text>
                 <Text style={{ ...pdfStyles.minInfo, color: 'red' }}>
                   {formatCurrency(item.outgoing_total)}
@@ -179,7 +185,7 @@ const ReportDocument: React.FC<ReportDocumentProps> = ({
               </View>
               <View style={{ flex: 1, padding: 2 }}>
                 <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>
-                  Closing Balance
+                  {t.cashierReport.closingBalance}
                 </Text>
                 <Text style={{ ...pdfStyles.minInfo, color: 'blue' }}>
                   {formatCurrency(item.closing_balance)}
@@ -203,7 +209,7 @@ const ReportDocument: React.FC<ReportDocumentProps> = ({
                         textAlign: 'center',
                       }}
                     >
-                      Incoming Transactions
+                      {t.cashierReport.incomingTransactions}
                     </Text>
                   </View>
 
@@ -217,7 +223,7 @@ const ReportDocument: React.FC<ReportDocumentProps> = ({
                         flex: 1,
                       }}
                     >
-                      Date
+                      {t.cashierReport.date}
                     </Text>
                     <Text
                       style={{
@@ -228,7 +234,7 @@ const ReportDocument: React.FC<ReportDocumentProps> = ({
                         flex: 1.5,
                       }}
                     >
-                      Reference
+                      {t.cashierReport.reference}
                     </Text>
                     <Text
                       style={{
@@ -239,7 +245,7 @@ const ReportDocument: React.FC<ReportDocumentProps> = ({
                         flex: 2,
                       }}
                     >
-                      Description
+                      {t.cashierReport.description}
                     </Text>
                     <Text
                       style={{
@@ -250,7 +256,7 @@ const ReportDocument: React.FC<ReportDocumentProps> = ({
                         flex: 1,
                       }}
                     >
-                      Amount
+                      {t.cashierReport.amount}
                     </Text>
                   </View>
 
@@ -313,7 +319,7 @@ const ReportDocument: React.FC<ReportDocumentProps> = ({
                         textAlign: 'center',
                       }}
                     >
-                      TOTAL
+                      {t.common.total.toUpperCase()}
                     </Text>
                     <Text
                       style={{
@@ -350,7 +356,7 @@ const ReportDocument: React.FC<ReportDocumentProps> = ({
                         textAlign: 'center',
                       }}
                     >
-                      Outgoing Transactions
+                      {t.cashierReport.outgoingTransactions}
                     </Text>
                   </View>
 
@@ -364,7 +370,7 @@ const ReportDocument: React.FC<ReportDocumentProps> = ({
                         flex: 1,
                       }}
                     >
-                      Date
+                      {t.cashierReport.date}
                     </Text>
                     <Text
                       style={{
@@ -375,7 +381,7 @@ const ReportDocument: React.FC<ReportDocumentProps> = ({
                         flex: 1.5,
                       }}
                     >
-                      Reference
+                      {t.cashierReport.reference}
                     </Text>
                     <Text
                       style={{
@@ -386,7 +392,7 @@ const ReportDocument: React.FC<ReportDocumentProps> = ({
                         flex: 2,
                       }}
                     >
-                      Description
+                      {t.cashierReport.description}
                     </Text>
                     <Text
                       style={{
@@ -397,7 +403,7 @@ const ReportDocument: React.FC<ReportDocumentProps> = ({
                         flex: 1,
                       }}
                     >
-                      Amount
+                      {t.cashierReport.amount}
                     </Text>
                   </View>
 
@@ -460,7 +466,7 @@ const ReportDocument: React.FC<ReportDocumentProps> = ({
                         textAlign: 'center',
                       }}
                     >
-                      TOTAL
+                      {t.common.total.toUpperCase()}
                     </Text>
                     <Text
                       style={{
@@ -506,7 +512,8 @@ const CashierReport: React.FC<CashierReportProps> = ({
   as_at,
   setOpenCashierReport,
 }) => {
-  document.title = 'Cashier Report';
+  const dictionary = useDictionary();
+  document.title = dictionary.reports.accountsReports.cashierReport.title;
   const css = useProsERPStyles();
   const [showOnScreen, setShowOnScreen] = useState(true);
   const { authOrganization, authUser, checkOrganizationPermission } =
@@ -524,16 +531,22 @@ const CashierReport: React.FC<CashierReportProps> = ({
   const validationSchema = yup.object({
     from: yup
       .string()
-      .required('From date is required')
-      .typeError('From date is required'),
+      .required(dictionary.reports.accountsReports.common.fromDateRequired)
+      .typeError(dictionary.reports.accountsReports.common.fromDateRequired),
     to: yup
       .string()
-      .required('To date is required')
-      .typeError('To date is required'),
+      .required(dictionary.reports.accountsReports.common.toDateRequired)
+      .typeError(dictionary.reports.accountsReports.common.toDateRequired),
     ledger_ids: yup
       .array()
-      .of(yup.string().required('Ledger is required'))
-      .required('At least one ledger is required'),
+      .of(
+        yup
+          .string()
+          .required(dictionary.reports.accountsReports.cashierReport.ledgerRequired)
+      )
+      .required(
+        dictionary.reports.accountsReports.cashierReport.atLeastOneLedger
+      ),
   });
 
   const {
@@ -600,11 +613,13 @@ const CashierReport: React.FC<CashierReportProps> = ({
       <DialogTitle textAlign={'center'}>
         <Grid container>
           <Grid size={belowLargeScreen ? 11 : 12}>
-            <Typography variant='h3'>Cashier Report</Typography>
+            <Typography variant='h3'>
+              {dictionary.reports.accountsReports.cashierReport.title}
+            </Typography>
           </Grid>
           {belowLargeScreen && (
             <Grid size={1}>
-              <Tooltip title='Close'>
+              <Tooltip title={dictionary.tooltips.close}>
                 <IconButton
                   sx={{ mb: 1 }}
                   size='small'
@@ -627,7 +642,7 @@ const CashierReport: React.FC<CashierReportProps> = ({
             >
               <Grid size={{ xs: 12, md: 6 }}>
                 <LedgerSelect
-                  label='Ledger(s)'
+                  label={dictionary.reports.accountsReports.cashierReport.ledgers}
                   multiple={true}
                   frontError={errors?.ledger_ids}
                   allowedGroups={['Cash and cash equivalents']}
@@ -645,7 +660,10 @@ const CashierReport: React.FC<CashierReportProps> = ({
               </Grid>
               <Grid size={{ xs: 12, md: 6 }}>
                 <CostCenterSelector
-                  label='Cost Center(s) (leave empty for all)'
+                  label={
+                    dictionary.reports.accountsReports.cashierReport
+                      .costCenterLabel
+                  }
                   multiple={true}
                   allowSameType={true}
                   onChange={(cost_centers: any) => {
@@ -674,7 +692,7 @@ const CashierReport: React.FC<CashierReportProps> = ({
               <Grid size={{ xs: 12, md: 6, lg: 3 }}>
                 <div style={{ marginTop: 8, marginBottom: 8 }}>
                   <DateTimePicker
-                    label='From (MM/DD/YYYY)'
+                    label={dictionary.reports.accountsReports.common.from}
                     value={dayjs(watch('from'))}
                     minDate={dayjs(
                       authOrganization?.organization.recording_start_date
@@ -699,7 +717,7 @@ const CashierReport: React.FC<CashierReportProps> = ({
               <Grid size={{ xs: 12, md: 6, lg: 3 }}>
                 <div style={{ marginTop: 8, marginBottom: 8 }}>
                   <DateTimePicker
-                    label='To (MM/DD/YYYY)'
+                    label={dictionary.reports.accountsReports.common.to}
                     value={dayjs(watch('to'))}
                     minDate={dayjs(watch('from'))}
                     slotProps={{
@@ -731,7 +749,7 @@ const CashierReport: React.FC<CashierReportProps> = ({
                     });
                   }}
                 />
-                Detailed
+                {dictionary.reports.accountsReports.cashierReport.detailed}
               </Grid>
               <Grid size={{ xs: 10, md: 4, lg: 3 }} textAlign='right'>
                 {reportData && (
@@ -753,7 +771,7 @@ const CashierReport: React.FC<CashierReportProps> = ({
                   size='small'
                   variant='contained'
                 >
-                  Filter
+                  {dictionary.reports.accountsReports.common.filter}
                 </LoadingButton>
               </Grid>
             </Grid>
@@ -774,6 +792,7 @@ const CashierReport: React.FC<CashierReportProps> = ({
                   from={watch('from')}
                   to={watch('to')}
                   user={user as User}
+                  dictionary={dictionary}
                 />
               }
               fileName={`Cashier Report from ${readableDate(watch('from'), true)} to ${readableDate(watch('to'), true)}`}
@@ -793,7 +812,7 @@ const CashierReport: React.FC<CashierReportProps> = ({
           variant='outlined'
           onClick={() => setOpenCashierReport(false)}
         >
-          Close
+          {dictionary.reports.accountsReports.common.close}
         </Button>
       </DialogActions>
     </>

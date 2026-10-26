@@ -20,6 +20,7 @@ import { useJumboDialog } from '@jumbo/components/JumboDialog/hooks/useJumboDial
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { readableDate } from '@/app/helpers/input-sanitization-helpers';
 import inventoryConsumptionsServices from '@/components/procurement/inventoryConsumptions/inventoryConsumptionsServices';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function InventoryInputsItemRow({
   setClearFormKey,
@@ -34,6 +35,7 @@ function InventoryInputsItemRow({
   index,
   setIsConsumptionDeletedInside
 }) {
+  const dictionary = useDictionary();
   const product = item.product;
   const isInventory = product?.type === 'Inventory';
   const [showForm, setShowForm] = useState(false);
@@ -56,8 +58,8 @@ function InventoryInputsItemRow({
 
   const handleDelete = () => {
     showDialog({
-      title: 'Confirm Delete?',
-      content: 'If you click yes, this Consumption Item will be deleted',
+      title: dictionary.forms.batches.dialogs.confirmDelete,
+      content: dictionary.forms.batches.dialogs.deleteConsumptionItem,
       onYes: () => {
         hideDialog();
         deleteInventoryConsumption.mutate(item);
@@ -125,24 +127,24 @@ function InventoryInputsItemRow({
                   {index + 1}.
                 </Grid>
                 <Grid size={{xs: 5.5, md: 2.5}}>
-                  <Tooltip title="Consumption No">
+                  <Tooltip title={dictionary.tooltips.consumptionNo}>
                     <Typography>{item.consumptionNo}</Typography>
                   </Tooltip>
                 </Grid>
                 <Grid size={{xs: 6, md: 3}}>
-                  <Tooltip title="Consumption Date">
+                  <Tooltip title={dictionary.tooltips.consumptionDate}>
                     <Typography>{readableDate(item.consumption_date)}</Typography>
                   </Tooltip>
                 </Grid>
                 <Grid size={{xs: 6, md: 5}}>
-                  <Tooltip title="Store">
+                  <Tooltip title={dictionary.tooltips.store}>
                     <Typography>{item.store?.name}</Typography>
                   </Tooltip>
                 </Grid>
               </Grid>
             </AccordionSummary>
 
-            <Tooltip title="Remove Item">
+            <Tooltip title={dictionary.tooltips.removeItem}>
               <IconButton size="small" onClick={handleDelete}>
                 <DisabledByDefault fontSize="small" color="error" />
               </IconButton>
@@ -155,7 +157,7 @@ function InventoryInputsItemRow({
               marginBottom: 3,
             }}
           >
-            <Typography fontWeight="bold">Items</Typography>
+            <Typography fontWeight="bold">{dictionary.forms.batches.items}</Typography>
             {item.items?.map((it, idx) => (
               <React.Fragment key={idx}>
                 <Divider />
@@ -175,7 +177,7 @@ function InventoryInputsItemRow({
                   <Grid size={{xs: 9, md: 5}}>
                     <ListItemText
                       primary={
-                        <Tooltip title={'Product'}>
+                        <Tooltip title={dictionary.tooltips.product}>
                           <Typography
                             variant={'h5'}
                             fontSize={14}
@@ -190,7 +192,7 @@ function InventoryInputsItemRow({
                     />
                   </Grid>
                   <Grid size={{xs: 2, md: 3}} textAlign={'end'}>
-                    <Tooltip title="Quantity">
+                    <Tooltip title={dictionary.tooltips.quantity}>
                       <Typography>
                         {it?.quantity}{' '}
                         {it?.unit_symbol ||
@@ -200,7 +202,7 @@ function InventoryInputsItemRow({
                     </Tooltip>
                   </Grid>
                   <Grid size={{xs: 6, md: 3}}>
-                    <Tooltip title={'Remarks'}>
+                    <Tooltip title={dictionary.tooltips.remarks}>
                       <Typography fontSize={14} lineHeight={1.25} mb={0}>
                         {it.description}
                       </Typography>
@@ -227,14 +229,14 @@ function InventoryInputsItemRow({
                 {index + 1}.
               </Grid>
               <Grid size={{xs: 4, md: 2}}>
-                <Tooltip title="Consumption Date">
+                <Tooltip title={dictionary.tooltips.consumptionDate}>
                   <Typography>{readableDate(item.consumption_date)}</Typography>
                 </Tooltip>
               </Grid>
               <Grid size={{xs: 11, md: 3.5}}>
                 <ListItemText
                   primary={
-                    <Tooltip title={'Product'}>
+                    <Tooltip title={dictionary.tooltips.product}>
                       <Typography
                         variant={'h5'}
                         fontSize={14}
@@ -247,7 +249,7 @@ function InventoryInputsItemRow({
                     </Tooltip>
                   }
                   secondary={
-                    <Tooltip title={'Remarks'}>
+                    <Tooltip title={dictionary.tooltips.remarks}>
                       <Typography
                         variant={'span'}
                         fontSize={14}
@@ -261,7 +263,7 @@ function InventoryInputsItemRow({
                 />
               </Grid>
               <Grid size={{xs: 6, md: 3}}>
-                <Tooltip title="Store">
+                <Tooltip title={dictionary.tooltips.store}>
                   <Typography>{item.store?.name}</Typography>
                 </Tooltip>
               </Grid>
@@ -269,7 +271,7 @@ function InventoryInputsItemRow({
                 size={{xs: isInventory ? 6 : 3, md: isInventory ? 2 : 1}}
                 textAlign={'end'}
               >
-                <Tooltip title="Quantity">
+                <Tooltip title={dictionary.tooltips.quantity}>
                   <Typography>
                     {item?.quantity}{' '}
                     {item?.unit_symbol ||
@@ -280,14 +282,14 @@ function InventoryInputsItemRow({
               </Grid>
               {!isInventory && (
                 <Grid item xs={3} md={1}>
-                  <Tooltip title="Rate">
+                  <Tooltip title={dictionary.tooltips.rate}>
                     <Typography>{item.rate?.toLocaleString()}</Typography>
                   </Tooltip>
                 </Grid>
               )}
               <Grid size={{xs: 12, md: 1}} textAlign={'end'}>
                 {!item.id && (
-                  <Tooltip title="Edit Item">
+                  <Tooltip title={dictionary.tooltips.editItem}>
                     <IconButton
                       size="small"
                       onClick={() => {
@@ -298,7 +300,7 @@ function InventoryInputsItemRow({
                     </IconButton>
                   </Tooltip>
                 )}
-                <Tooltip title="Remove Item">
+                <Tooltip title={dictionary.tooltips.removeItem}>
                   <IconButton
                     size="small"
                     onClick={() => {

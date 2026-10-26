@@ -11,8 +11,10 @@ import BankActionTail from './BankActionTail';
 import BanksListItem from './BanksListItem';
 import { BankType } from './BankType';
 import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const Banks = () => {
+  const dictionary = useDictionary();
   const params = useParams<{ keyword?: string }>();
   const searchParams = useSearchParams();
   const listRef = useRef<any>(null);
@@ -52,7 +54,7 @@ const Banks = () => {
   return (
     <>
       <Typography variant={'h4'} mb={2}>
-        Banks
+        {dictionary.humanResources.banks.labels.pageTitle}
       </Typography>
       <JumboRqList
         ref={listRef}

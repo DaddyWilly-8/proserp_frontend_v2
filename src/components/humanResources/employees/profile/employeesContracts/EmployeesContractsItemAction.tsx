@@ -18,6 +18,7 @@ import { EmployeesProvider } from '../../EmployeesProvider';
 import { ContractType } from './ContractType';
 import EmployeesContractsForm from './EmployeesContractsForm';
 import EmployeesContractsTerminateForm from './EmployeesContractsTerminateForm';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const EditEmployeesContract = ({
   contract,
@@ -60,6 +61,7 @@ const EmployeesContractsItemAction = ({
 }: {
   contract: ContractType;
 }) => {
+  const dictionary = useDictionary();
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const [openTerminateDialog, setOpenTerminateDialog] = useState(false);
   const { showDialog, hideDialog } = useJumboDialog();
@@ -72,12 +74,12 @@ const EmployeesContractsItemAction = ({
     mutationFn: humanResourcesServices.deleteEmployeeContract,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['employeesContracts'] });
-      enqueueSnackbar('Employee Contract Deleted Successfully', {
+      enqueueSnackbar(dictionary.humanResources.employeesContracts.messages.deleted, {
         variant: 'success',
       });
     },
     onError: (error: any) => {
-      let message = 'Something went wrong';
+      let message = dictionary.humanResources.profileSectionsCommon.somethingWentWrong;
 
       if (
         typeof error === 'object' &&
@@ -98,21 +100,21 @@ const EmployeesContractsItemAction = ({
   const menuItems = [
     {
       icon: <EditOutlined />,
-      title: 'Edit',
+      title: dictionary.humanResources.profileSectionsCommon.edit,
       action: 'edit',
     },
     ...(!isTerminated
       ? [
           {
             icon: <InsertPageBreak />,
-            title: 'Terminate',
+            title: dictionary.humanResources.employeesContracts.actions.terminate,
             action: 'terminate',
           },
         ]
       : []),
     {
       icon: <DeleteOutlined color='error' />,
-      title: 'Delete',
+      title: dictionary.humanResources.profileSectionsCommon.delete,
       action: 'delete',
     },
   ];
@@ -122,7 +124,7 @@ const EmployeesContractsItemAction = ({
       case 'edit':
         if (isTerminated) {
           enqueueSnackbar(
-            'This contract has been terminated and cannot be edited.',
+            dictionary.humanResources.employeesContracts.messages.cannotEditTerminated,
             { variant: 'warning' }
           );
           return;
@@ -134,8 +136,8 @@ const EmployeesContractsItemAction = ({
         break;
       case 'delete':
         showDialog({
-          title: 'Confirm Delete',
-          content: 'Are you sure you want to delete this Contract?',
+          title: dictionary.humanResources.profileSectionsCommon.confirmDelete,
+          content: dictionary.humanResources.employeesContracts.messages.deleteConfirm,
           onYes: () => {
             hideDialog();
             deleteEmployeeContract(contract.id);
@@ -181,7 +183,7 @@ const EmployeesContractsItemAction = ({
 
       <JumboDdMenu
         icon={
-          <Tooltip title='Actions'>
+          <Tooltip title={dictionary.tooltips.actions}>
             <MoreHorizOutlined fontSize='small' />
           </Tooltip>
         }

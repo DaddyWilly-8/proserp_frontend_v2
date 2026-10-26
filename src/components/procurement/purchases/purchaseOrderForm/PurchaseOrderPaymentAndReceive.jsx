@@ -5,6 +5,7 @@ import { PERMISSIONS } from '@/utilities/constants/permissions';
 import { Checkbox, FormControlLabel, Grid, TextField } from '@mui/material';
 import React, { useState } from 'react';
 import StoreSelector from '../../stores/StoreSelector';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import storeServices from '../../stores/store-services';
 
 function PurchaseOrderPaymentAndReceive({
@@ -19,6 +20,7 @@ function PurchaseOrderPaymentAndReceive({
   watch,
   register,
 }) {
+  const dictionary = useDictionary();
   const [storeOptions, setStoreOptions] = useState([]);
   const { productOptions } = useProductsSelect();
   const { checkOrganizationPermission } = useJumboAuth();
@@ -117,7 +119,7 @@ function PurchaseOrderPaymentAndReceive({
               multiline
               rows={3}
               fullWidth
-              label={'Payment Terms'}
+              label={dictionary.forms.purchases.orderPayment.labels.paymentTerms}
               {...register('terms_of_payment')}
             />
           </Grid>
@@ -127,7 +129,7 @@ function PurchaseOrderPaymentAndReceive({
               multiline
               rows={3}
               fullWidth
-              label={'Remarks'}
+              label={dictionary.forms.purchases.orderPayment.labels.remarks}
               {...register('remarks')}
             />
           </Grid>
@@ -152,12 +154,12 @@ function PurchaseOrderPaymentAndReceive({
                     name='instant_pay'
                   />
                 }
-                label='Instant Payment'
+                label={dictionary.forms.purchases.orderPayment.labels.instantPayment}
               />
             )}
             {instant_pay && (
               <LedgerSelect
-                label='Pay from'
+                label={dictionary.forms.purchases.orderPayment.labels.payFrom}
                 defaultValue={order?.credit_ledger}
                 frontError={errors?.credit_ledger_id} // Added optional chaining
                 allowedGroups={['Cash and cash equivalents']}
@@ -187,7 +189,7 @@ function PurchaseOrderPaymentAndReceive({
                     name='instant_receive'
                   />
                 }
-                label='Instant Receive'
+                label={dictionary.forms.purchases.orderPayment.labels.instantReceive}
               />
               {displayStoreSelector && instant_receive && (
                 <StoreSelector

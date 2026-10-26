@@ -4,12 +4,14 @@ import { Divider, Grid, Tooltip, Typography } from '@mui/material';
 import dayjs from 'dayjs';
 import EmployeeDeductionItemAction from './EmployeeDeductionItemAction';
 import { EmployeeDeductionType } from './EmployeeDeductionType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const EmployeeDeductionsListItem = ({
   employeeDeduction,
 }: {
   employeeDeduction: EmployeeDeductionType;
 }) => {
+  const dictionary = useDictionary();
   return (
     <>
       <Divider />
@@ -29,27 +31,33 @@ const EmployeeDeductionsListItem = ({
         container
       >
         <Grid size={{ xs: 6, md: 3.0 }}>
-          <Tooltip title='Deduction Type'>
+          <Tooltip title={dictionary.tooltips.deductionType}>
             <Typography>
               {employeeDeduction.deduction_type?.name ||
-                `Type #${employeeDeduction.deduction_type_id}`}
+                dictionary.humanResources.employeeDeductions.list.typeFallback.replace(
+                  '{id}',
+                  String(employeeDeduction.deduction_type_id)
+                )}
             </Typography>
           </Tooltip>
           {employeeDeduction.member_no && (
-            <Tooltip title='Member No.'>
+            <Tooltip title={dictionary.tooltips.memberNo}>
               <Typography
                 variant='caption'
                 color='text.secondary'
                 display='block'
               >
-                No: {employeeDeduction.member_no}
+                {dictionary.humanResources.employeeDeductions.list.memberNo.replace(
+                  '{no}',
+                  employeeDeduction.member_no
+                )}
               </Typography>
             </Tooltip>
           )}
         </Grid>
 
         <Grid size={{ xs: 6, md: 2.0 }}>
-          <Tooltip title='Value'>
+          <Tooltip title={dictionary.tooltips.value}>
             <Typography>
               {Number(employeeDeduction.value || 0).toLocaleString('en-US')}
             </Typography>
@@ -57,7 +65,7 @@ const EmployeeDeductionsListItem = ({
         </Grid>
 
         <Grid size={{ xs: 6, md: 2.5 }}>
-          <Tooltip title='Effective From'>
+          <Tooltip title={dictionary.tooltips.effectiveFrom}>
             <Typography>
               {employeeDeduction.effective_from
                 ? dayjs(employeeDeduction.effective_from).format('YYYY-MM-DD')
@@ -67,11 +75,11 @@ const EmployeeDeductionsListItem = ({
         </Grid>
 
         <Grid size={{ xs: 6, md: 3.5 }}>
-          <Tooltip title='Effective To'>
+          <Tooltip title={dictionary.tooltips.effectiveTo}>
             <Typography>
               {employeeDeduction.effective_to
                 ? dayjs(employeeDeduction.effective_to).format('YYYY-MM-DD')
-                : 'Open-ended'}
+                : dictionary.humanResources.employeeDeductions.list.openEnded}
             </Typography>
           </Tooltip>
         </Grid>

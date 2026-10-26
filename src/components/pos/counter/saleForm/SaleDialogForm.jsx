@@ -39,8 +39,10 @@ import ProductsSaleSummary from './ProductsSaleSummary';
 import SaleItemForm from './SaleItemForm';
 import SaleItemRow from './SaleItemRow';
 import SaleTopInformation from './SaleTopInformation';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function SaleDialogForm({ toggleOpen, sale = null }) {
+  const dictionary = useDictionary();
   const [items, setItems] = useState([]);
   const { activeCounter, outlet } = useCounter();
   const [transaction_date] = useState(
@@ -97,25 +99,22 @@ function SaleDialogForm({ toggleOpen, sale = null }) {
   const validationSchema = yup.object({
     sales_outlet_counter_id: yup
       .number()
-      .required('Sales Outlet is required')
-      .typeError('Sales Outlet is required'),
+      .required(dictionary.forms.counter.saleDialog.validation.salesOutletRequired)
+      .typeError(dictionary.forms.counter.saleDialog.validation.salesOutletRequired),
     currency_id: yup
       .number()
-      .positive('Currency is required')
-      .required('Currency is required')
-      .typeError('Currency is required'),
+      .positive(dictionary.forms.counter.saleDialog.validation.currencyRequired)
+      .required(dictionary.forms.counter.saleDialog.validation.currencyRequired)
+      .typeError(dictionary.forms.counter.saleDialog.validation.currencyRequired),
     transaction_date: yup
       .string()
-      .required('Sales Date is required')
-      .typeError('Sales Date is required'),
-    payment_method: yup.string().required('Payment method is required'),
+      .required(dictionary.forms.counter.saleDialog.validation.salesDateRequired)
+      .typeError(dictionary.forms.counter.saleDialog.validation.salesDateRequired),
+    payment_method: yup.string().required(dictionary.forms.counter.saleDialog.validation.paymentMethodRequired),
     submitType: yup
       .string()
-      .required('Submit type is required')
-      .oneOf(
-        ['complete', 'pending'],
-        'Submit type must be either "complete" or "pending"'
-      ),
+      .required(dictionary.forms.counter.saleDialog.validation.submitTypeRequired)
+      .oneOf(['complete', 'pending'], dictionary.forms.counter.saleDialog.validation.submitTypeInvalid),
     debit_ledger_id: yup
       .number()
       .nullable()
@@ -123,30 +122,30 @@ function SaleDialogForm({ toggleOpen, sale = null }) {
         is: (val) => val === 'complete',
         then: (schema) =>
           schema
-            .required('Debit account is required')
-            .typeError('Debit account is required'),
+            .required(dictionary.forms.counter.saleDialog.validation.debitAccountRequired)
+            .typeError(dictionary.forms.counter.saleDialog.validation.debitAccountRequired),
         otherwise: (schema) => schema.nullable(),
       }),
     items: yup
       .array()
-      .min(1, 'You must add at least one item')
+      .min(1, dictionary.forms.counter.saleDialog.validation.itemMin)
       .of(
         yup.object().shape({
           product_id: yup
             .number()
-            .required('Product is required')
-            .positive('Product is required'),
+            .required(dictionary.forms.counter.saleDialog.validation.productRequired)
+            .positive(dictionary.forms.counter.saleDialog.validation.productRequired),
           quantity: yup
             .number()
-            .required('Quantity is required')
-            .positive('Quantity is required'),
+            .required(dictionary.forms.counter.saleDialog.validation.quantityRequired)
+            .positive(dictionary.forms.counter.saleDialog.validation.quantityRequired),
           rate: yup
             .number()
-            .required('Price is required')
-            .positive('Price is required'),
+            .required(dictionary.forms.counter.saleDialog.validation.priceRequired)
+            .positive(dictionary.forms.counter.saleDialog.validation.priceRequired),
         })
       )
-      .required('You must add at least one item'),
+      .required(dictionary.forms.counter.saleDialog.validation.itemMin),
   });
 
   const {
@@ -301,7 +300,7 @@ function SaleDialogForm({ toggleOpen, sale = null }) {
           queryClient.invalidateQueries({ queryKey: ['assetBookingsCalendar'] });
         } catch (bookingError) {
           enqueueSnackbar(
-            getErrorMessage(bookingError) || 'Sale saved, but the attached booking could not be created/linked — add it manually from the Bookings calendar.',
+            getErrorMessage(bookingError) || dictionary.forms.counter.saleDialog.messages.bookingFailed,
             { variant: 'warning' }
           );
         } finally {
@@ -350,7 +349,7 @@ function SaleDialogForm({ toggleOpen, sale = null }) {
     if (items.length === 0) {
       setError('items', {
         type: 'manual',
-        message: 'You must add at least one item',
+        message: dictionary.forms.counter.saleDialog.validation.itemMin,
       });
       return;
     }
@@ -389,7 +388,9 @@ function SaleDialogForm({ toggleOpen, sale = null }) {
       <DialogTitle>
         <Grid container columnSpacing={2}>
           <Grid textAlign={'center'} size={12} mb={3}>
-            {!sale ? 'New Sale' : `Edit: ${sale.saleNo} `}
+            {!sale
+              ? dictionary.forms.counter.saleDialog.title.new
+              : dictionary.forms.counter.saleDialog.title.edit.replace('{saleNo}', sale.saleNo)}
           </Grid>
 
           <Grid size={{ xs: 12, md: 9 }} mb={2}>
@@ -434,7 +435,10 @@ function SaleDialogForm({ toggleOpen, sale = null }) {
               {pendingBooking ? (
                 <Chip
                   icon={<CalendarMonthOutlined fontSize="small" />}
-                  label={`${pendingBooking.asset.code} booking will be created & linked when this sale is saved`}
+                  label={dictionary.forms.counter.saleDialog.messages.bookingPending.replace(
+                    '{code}',
+                    pendingBooking.asset.code
+                  )}
                   onDelete={() => setPendingBooking(null)}
                   deleteIcon={<CloseOutlined fontSize="small" />}
                 />
@@ -471,7 +475,7 @@ function SaleDialogForm({ toggleOpen, sale = null }) {
                 />
               ) : (
                 <Button size="small" startIcon={<CalendarMonthOutlined />} onClick={() => setShowBookingQuickAdd(true)}>
-                  Attach Asset Booking
+                  {dictionary.forms.counter.saleDialog.buttons.attachAssetBooking}
                 </Button>
               )}
             </Grid>
@@ -539,9 +543,11 @@ function SaleDialogForm({ toggleOpen, sale = null }) {
                 alignItems='center'
                 justifyContent='space-between'
               >
-                <Grid size={11}>Unsaved Changes</Grid>
+                <Grid size={11}>
+                  {dictionary.forms.counter.saleDialog.dialog.unsavedChanges}
+                </Grid>
                 <Grid size={1} textAlign='right'>
-                  <Tooltip title='Close'>
+                  <Tooltip title={dictionary.tooltips.close}>
                     <IconButton
                       size='small'
                       onClick={() => setShowWarning(false)}
@@ -552,7 +558,7 @@ function SaleDialogForm({ toggleOpen, sale = null }) {
                 </Grid>
               </Grid>
             </DialogTitle>
-            <DialogContent>Last item was not added to the list</DialogContent>
+            <DialogContent>{dictionary.forms.counter.saleDialog.dialog.lastItemNotAdded}</DialogContent>
             <DialogActions>
               <Button
                 size='small'
@@ -561,14 +567,14 @@ function SaleDialogForm({ toggleOpen, sale = null }) {
                   setShowWarning(false);
                 }}
               >
-                Add and Submit
+                {dictionary.forms.counter.saleDialog.buttons.addAndSubmit}
               </Button>
               <Button
                 size='small'
                 onClick={handleConfirmSubmitWithoutAdd}
                 color='secondary'
               >
-                Submit without add
+                {dictionary.forms.counter.saleDialog.buttons.submitWithoutAdd}
               </Button>
             </DialogActions>
           </Dialog>
@@ -588,8 +594,8 @@ function SaleDialogForm({ toggleOpen, sale = null }) {
             <Tooltip
               title={
                 connected
-                  ? 'Connected - Click to disconnect'
-                  : 'Serial Display Not Connected - Click to connect'
+                  ? dictionary.forms.counter.saleDialog.messages.displayConnected
+                  : dictionary.forms.counter.saleDialog.messages.displayNotConnected
               }
             >
               {connected ? (
@@ -608,7 +614,7 @@ function SaleDialogForm({ toggleOpen, sale = null }) {
         </Box>
         <Box sx={{ display: 'flex', gap: 1, marginLeft: 'auto' }}>
           <Button size='small' onClick={() => toggleOpen(false)}>
-            Cancel
+            {dictionary.forms.counter.saleDialog.buttons.cancel}
           </Button>
 
           {!stakeholderQuickAddDisplay && (
@@ -623,7 +629,7 @@ function SaleDialogForm({ toggleOpen, sale = null }) {
                     handleSubmit(onSubmit)(e);
                   }}
                 >
-                  Suspend
+                  {dictionary.forms.counter.saleDialog.buttons.suspend}
                 </Button>
               )}
 
@@ -636,7 +642,7 @@ function SaleDialogForm({ toggleOpen, sale = null }) {
                   variant='contained'
                   onClick={handleSubmit(onSubmit)}
                 >
-                  Checkout
+                  {dictionary.forms.counter.saleDialog.buttons.checkout}
                 </Button>
               )}
             </>

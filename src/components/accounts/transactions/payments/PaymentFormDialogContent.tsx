@@ -1,4 +1,7 @@
 import { sanitizedNumber } from '@/app/helpers/input-sanitization-helpers';
+import ScheduleModeSection from '@/components/accounts/recurringTransactions/ScheduleModeSection';
+import recurringTransactionServices from '@/components/accounts/recurringTransactions/recurringTransactions-services';
+import { buildScheduleBody, emptyScheduleForm, isScheduleFormComplete, ScheduleForm } from '@/components/accounts/recurringTransactions/recurring-utils';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import CostCenterSelector from '@/components/masters/costCenters/CostCenterSelector';
 import { CostCenter } from '@/components/masters/costCenters/CostCenterType';
@@ -40,6 +43,7 @@ import TransactionItemForm from '../TransactionItemForm';
 import TransactionItemRow from '../TransactionItemRow';
 import ReconciledCostCentersForm from '../ReconciledCostCentersForm';
 import paymentServices from './payment-services';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface Ledger {
   id: number;
@@ -105,6 +109,7 @@ const PaymentFormDialogContent: React.FC<PaymentFormDialogContentProps> = ({
   payment,
   isDuplicate = false,
 }) => {
+  const dictionary = useDictionary();
   const { authOrganization, checkOrganizationPermission } = useJumboAuth();
   const costCenters = authOrganization?.costCenters;
   const queryClient = useQueryClient();
@@ -120,6 +125,8 @@ const PaymentFormDialogContent: React.FC<PaymentFormDialogContentProps> = ({
   const [clearFormKey, setClearFormKey] = useState(0);
   const [prevKey, setPrevKey] = useState(0);
   const [submitItemForm, setSubmitItemForm] = useState(false);
+  const [scheduleMode, setScheduleMode] = useState(false);
+  const [scheduleForm, setScheduleForm] = useState<ScheduleForm>(() => emptyScheduleForm(''));
   const [addedLedger, setAddedLedger] = useState<Ledger | null>(null);
   const { currencies = [] } = useCurrencySelect();
 
@@ -198,7 +205,11 @@ const PaymentFormDialogContent: React.FC<PaymentFormDialogContentProps> = ({
   );
 
   const addPayment = useMutation<PaymentResponse, Error, PaymentData>({
-    mutationFn: paymentServices.add,
+    // In schedule mode the same form saves a schedule instead of posting now.
+    mutationFn: (values: any) =>
+      scheduleMode
+        ? recurringTransactionServices.create(buildScheduleBody('payment', values, scheduleForm))
+        : paymentServices.add(values),
     onSuccess: (data) => {
       data?.message && enqueueSnackbar(data.message, { variant: 'success' });
       queryClient.invalidateQueries({ queryKey: ['transactions'] });
@@ -234,33 +245,33 @@ const PaymentFormDialogContent: React.FC<PaymentFormDialogContentProps> = ({
   const validationSchema = yup.object({
     narration: yup
       .string()
-      .required('Narration is required')
-      .typeError('Narration is required'),
+      .required(dictionary.forms.payments.form.errors.validation.narrationRequired)
+      .typeError(dictionary.forms.payments.form.errors.validation.narrationRequired),
     credit_ledger_id: yup
       .number()
-      .required('Paying (credit) account is required')
-      .positive('Paying (credit) account is Required')
-      .typeError('Paying (credit) account is Required'),
+      .required(dictionary.forms.payments.form.errors.validation.creditLedgerRequired)
+      .positive(dictionary.forms.payments.form.errors.validation.creditLedgerRequired)
+      .typeError(dictionary.forms.payments.form.errors.validation.creditLedgerRequired),
     currency_id: yup
       .number()
-      .positive('Currency is required')
-      .required('Currency is required')
-      .typeError('Currency is required'),
+      .positive(dictionary.forms.payments.form.errors.validation.currencyRequired)
+      .required(dictionary.forms.payments.form.errors.validation.currencyRequired)
+      .typeError(dictionary.forms.payments.form.errors.validation.currencyRequired),
     exchange_rate: yup
       .number()
-      .positive('Exchange rate is required')
-      .required('Exchange rate is required')
-      .typeError('Exchange rate is required'),
-    transactionDate: yup.mixed().required('Payment Date is required'),
+      .positive(dictionary.forms.payments.form.errors.validation.exchangeRateRequired)
+      .required(dictionary.forms.payments.form.errors.validation.exchangeRateRequired)
+      .typeError(dictionary.forms.payments.form.errors.validation.exchangeRateRequired),
+    transactionDate: yup.mixed().required(dictionary.forms.payments.form.errors.validation.paymentDateRequired),
     items: yup
       .array()
-      .min(1, 'You must add at least one item')
-      .required('You must add at least one item'),
+      .min(1, dictionary.forms.payments.form.errors.validation.itemsRequired)
+      .required(dictionary.forms.payments.form.errors.validation.itemsRequired),
     cost_centers: yup
       .array()
       .test(
         'cost-center-required',
-        'At least one cost center is required',
+        dictionary.forms.payments.form.errors.validation.costCenterRequired,
         (value) => haveAllCostCenters || (value && value.length > 0)
       ),
   });
@@ -322,7 +333,7 @@ const PaymentFormDialogContent: React.FC<PaymentFormDialogContentProps> = ({
       clearErrors('items');
       setError('items', {
         type: 'manual',
-        message: 'You must add at least one item',
+        message: dictionary.forms.payments.form.errors.validation.itemsRequired,
       });
       return;
     }
@@ -372,10 +383,10 @@ const PaymentFormDialogContent: React.FC<PaymentFormDialogContentProps> = ({
     <>
       <DialogTitle textAlign={'center'}>
         {isDuplicate
-          ? `Duplicate: ${payment?.voucherNo}`
+          ? dictionary.forms.payments.form.title.duplicate.replace('{voucherNo}', payment?.voucherNo ?? '')
           : payment
-            ? `Edit: ${payment.voucherNo}`
-            : `New Payment Form`}
+            ? dictionary.forms.payments.form.title.edit.replace('{voucherNo}', payment.voucherNo ?? '')
+            : dictionary.forms.payments.form.title.new}
       </DialogTitle>
       <DialogContent>
         {/* <form autoComplete='false' onSubmit={handleSubmit(onSubmit)}> */}
@@ -385,7 +396,8 @@ const PaymentFormDialogContent: React.FC<PaymentFormDialogContentProps> = ({
               <Grid size={{ xs: 12, md: 4 }}>
                 <Div sx={{ mt: 1, mb: 1 }}>
                   <DateTimePicker
-                    label='Payment Date (MM/DD/YYYY)'
+                    label={dictionary.forms.payments.form.labels.paymentDate}
+                disabled={scheduleMode}
                     minDate={
                       checkOrganizationPermission([
                         PERMISSIONS.ACCOUNTS_TRANSACTIONS_BACKDATE,
@@ -457,9 +469,9 @@ const PaymentFormDialogContent: React.FC<PaymentFormDialogContentProps> = ({
                         shouldDirty: true,
                       });
                     }}
-                    label='Pay From (Credit)'
+                    label={dictionary.forms.payments.form.labels.payFromCredit}
                     startAdornment={
-                      <Tooltip title={'Add New Credit'}>
+                      <Tooltip title={dictionary.tooltips.addNewCredit}>
                         <AddOutlined
                           onClick={() => {
                             setOpenLedgerQuickAdd(true);
@@ -476,7 +488,7 @@ const PaymentFormDialogContent: React.FC<PaymentFormDialogContentProps> = ({
                 <Div sx={{ mt: 1, mb: 1 }}>
                   <TextField
                     size='small'
-                    label='Reference'
+                    label={dictionary.forms.payments.form.labels.reference}
                     fullWidth
                     defaultValue={payment && payment.reference}
                     {...register('reference')}
@@ -505,7 +517,7 @@ const PaymentFormDialogContent: React.FC<PaymentFormDialogContentProps> = ({
               <Tooltip
                 title={
                   hasItems
-                    ? 'Currency is locked because an item has been added. Remove all items first to change currency.'
+                    ? dictionary.forms.payments.form.tooltips.currencyLocked
                     : ''
                 }
               >
@@ -540,7 +552,7 @@ const PaymentFormDialogContent: React.FC<PaymentFormDialogContentProps> = ({
             <Grid size={{ xs: 12, md: 4 }}>
               <Div sx={{ mt: 1, mb: 1 }}>
                 <TextField
-                  label='Exchange Rate'
+                  label={dictionary.forms.payments.form.labels.exchangeRate}
                   fullWidth
                   size='small'
                   error={!!errors?.exchange_rate}
@@ -567,7 +579,7 @@ const PaymentFormDialogContent: React.FC<PaymentFormDialogContentProps> = ({
           <Grid size={{ xs: 12, md: watch('currency_id') !== 1 ? 4 : 8 }}>
             <Div sx={{ mt: 1, mb: 1 }}>
               <CostCenterSelector
-                label='Cost Centers'
+                label={dictionary.forms.payments.form.labels.costCenters}
                 frontError={errors.cost_centers}
                 defaultValue={watch('cost_centers') || []}
                 onChange={(newValue) => {
@@ -641,7 +653,7 @@ const PaymentFormDialogContent: React.FC<PaymentFormDialogContentProps> = ({
           <Grid size={12}>
             <Div sx={{ mt: 1, mb: 1 }}>
               <TextField
-                label='Narration'
+                label={dictionary.forms.payments.form.labels.narration}
                 multiline={true}
                 rows={2}
                 fullWidth
@@ -655,12 +667,21 @@ const PaymentFormDialogContent: React.FC<PaymentFormDialogContentProps> = ({
         </Grid>
         {/* </form> */}
 
+        <ScheduleModeSection
+          hidden={!!(payment && !isDuplicate)}
+          enabled={scheduleMode}
+          onEnabledChange={setScheduleMode}
+          form={scheduleForm}
+          setForm={setScheduleForm}
+          narration={watch('narration')}
+        />
+
         <Dialog open={showWarning} onClose={() => setShowWarning(false)}>
           <DialogTitle>
             <Grid container alignItems='center' justifyContent='space-between'>
-              <Grid size={11}>Unsaved Changes</Grid>
+              <Grid size={11}>{dictionary.forms.payments.form.dialogs.unsavedChanges.title}</Grid>
               <Grid size={1} textAlign='right'>
-                <Tooltip title='Close'>
+                <Tooltip title={dictionary.tooltips.close}>
                   <IconButton
                     size='small'
                     onClick={() => setShowWarning(false)}
@@ -671,7 +692,7 @@ const PaymentFormDialogContent: React.FC<PaymentFormDialogContentProps> = ({
               </Grid>
             </Grid>
           </DialogTitle>
-          <DialogContent>Last item was not added to the list</DialogContent>
+          <DialogContent>{dictionary.forms.payments.form.dialogs.unsavedChanges.message}</DialogContent>
           <DialogActions>
             <Button
               size='small'
@@ -680,30 +701,31 @@ const PaymentFormDialogContent: React.FC<PaymentFormDialogContentProps> = ({
                 setShowWarning(false);
               }}
             >
-              Add and Submit
+              {dictionary.forms.payments.form.dialogs.unsavedChanges.addAndSubmit}
             </Button>
             <Button
               size='small'
               onClick={() => handleConfirmSubmitWithoutAdd(watch())}
               color='secondary'
             >
-              Submit without add
+              {dictionary.forms.payments.form.dialogs.unsavedChanges.submitWithoutAdd}
             </Button>
           </DialogActions>
         </Dialog>
       </DialogContent>
       <DialogActions>
         <Button size='small' onClick={() => setOpen(false)}>
-          Cancel
+          {dictionary.forms.payments.form.buttons.cancel}
         </Button>
         <LoadingButton
           type='submit'
           loading={addPayment.isPending || updatePayment.isPending}
+          disabled={scheduleMode && !isScheduleFormComplete(scheduleForm)}
           size='small'
           variant='contained'
           onClick={handleSubmit(onSubmit)}
         >
-          Submit
+          {scheduleMode ? dictionary.forms.payments.form.buttons.createSchedule : dictionary.forms.payments.form.buttons.submit}
         </LoadingButton>
       </DialogActions>
     </>

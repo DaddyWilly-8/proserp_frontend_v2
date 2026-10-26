@@ -12,6 +12,7 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 import organizationServices from '@/components/organizations/organizationServices';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { PROS_CONTROL_PERMISSIONS } from '@/utilities/constants/prosControlPermissions';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface OrganizationOption {
   id: string;
@@ -41,6 +42,7 @@ const actionLabels: Record<string, string> = {
 const getActionLabel = (action?: string) => (action && actionLabels[action]) || 'Unknown Action';
 
 function DatabaseActions() {
+    const dictionary = useDictionary();
     const { data: organizations = [], isLoading } = useQuery<OrganizationOption[]>({
       queryKey: ['organizationOptions'],
       queryFn: organizationServices.getOptions
@@ -58,16 +60,16 @@ function DatabaseActions() {
     const validationSchema = yup.object({
         databases: yup
             .array()
-            .required('Please select at least one database')
-            .test('notEmpty', 'Please select at least one database', (value) => {
+            .required(dictionary.forms.support.database.errors.selectDatabase)
+            .test('notEmpty', dictionary.forms.support.database.errors.selectDatabase, (value) => {
                 return value && value.length > 0;
-            }).typeError('Please select at least one database'),
+            }).typeError(dictionary.forms.support.database.errors.selectDatabase),
         action: yup
             .string()
-            .required('Database action is required'),
+            .required(dictionary.forms.support.database.errors.actionRequired),
         password: yup
             .string()
-            .test('required-if-dialog-open', 'Please enter your password to confirm action', function (value) {
+            .test('required-if-dialog-open', dictionary.forms.support.database.errors.passwordRequired, function (value) {
                 if (openDialog && !value) {
                     return false;
                 }
@@ -81,7 +83,7 @@ function DatabaseActions() {
                 }
                 const expected = getActionLabel(this.parent.action);
                 if (value !== expected) {
-                    return this.createError({ message: `Please type "${expected}" exactly to confirm` });
+                    return this.createError({ message: dictionary.forms.support.database.errors.typeExactly.replace('{action}', String(expected)) });
                 }
                 return true;
         }),
@@ -115,7 +117,7 @@ function DatabaseActions() {
           setIsLoadingSubmit(false);
       },
       onError: (error: any) => {
-          setMigrationResponse(error?.response?.data?.message || 'Something went wrong');
+          setMigrationResponse(error?.response?.data?.message || dictionary.forms.support.database.messages.somethingWrong);
           setMigrationDetails(null);
           setAlertOpen(true);
           setAlertSeverity('error');
@@ -192,7 +194,7 @@ function DatabaseActions() {
                                     {...params}
                                     size="small"
                                     fullWidth
-                                    label="Select Database"
+                                    label={dictionary.forms.support.database.labels.selectDatabase}
                                     error={!!errors.databases}
                                     helperText={errors.databases?.message}
                                 />
@@ -253,7 +255,7 @@ function DatabaseActions() {
                           loading={runMigration.isPending || isLoadingSubmit} 
                           size="small"
                         >
-                            Execute
+                            {dictionary.forms.support.database.buttons.execute}
                         </LoadingButton>
                     </Grid>
                 </Grid>
@@ -282,7 +284,7 @@ function DatabaseActions() {
                     <Collapse in={alertOpen}>
                         <Accordion sx={{ mb: 2 }}>
                             <AccordionSummary expandIcon={<ExpandMoreOutlined />}>
-                                <Typography variant="body2">View details</Typography>
+                                <Typography variant="body2">{dictionary.forms.support.database.viewDetails}</Typography>
                             </AccordionSummary>
                             <AccordionDetails>
                                 <ReportDetails data={migrationDetails} />
@@ -303,13 +305,13 @@ function DatabaseActions() {
                     </Typography>
 
                     <Typography variant="body1" mt={1}>
-                       Please confirm the action below and enter your password
+                       {dictionary.forms.support.database.confirmPrompt}
                     </Typography>
                 </DialogTitle>
                 <DialogContent>
                     <TextField
                         fullWidth
-                        label={`Type "${selectedActionLabel}" to confirm`}
+                        label={dictionary.forms.support.database.labels.typeToConfirm.replace('{action}', String(selectedActionLabel))}
                         value={currentConfirmText}
                         onChange={(e) => {
                             setValue('confirmText', e.target.value, { shouldValidate: true, shouldDirty: true });
@@ -326,7 +328,7 @@ function DatabaseActions() {
                     <TextField
                         fullWidth
                         type="password"
-                        label="Enter Password"
+                        label={dictionary.forms.support.database.labels.enterPassword}
                         value={currentPassword}
                         onChange={(e) => {
                             setValue('password', e.target.value, { shouldValidate: true, shouldDirty: true });
@@ -338,13 +340,13 @@ function DatabaseActions() {
                     />
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={handleCloseDialog}>Cancel</Button>
+                    <Button onClick={handleCloseDialog}>{dictionary.forms.support.database.buttons.cancel}</Button>
                     <Button
                         onClick={handleConfirm}
                         variant="contained"
                         disabled={currentConfirmText !== selectedActionLabel}
                     >
-                        Confirm
+                        {dictionary.forms.support.database.buttons.confirm}
                     </Button>
                 </DialogActions>
             </Dialog>

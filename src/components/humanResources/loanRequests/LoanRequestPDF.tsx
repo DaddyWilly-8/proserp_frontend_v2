@@ -8,6 +8,9 @@ interface LoanRequestPDFProps {
   data: LoanRequestType;
   organization: any;
   userName: string;
+  // react-pdf renders outside the React tree, so context isn't available —
+  // the caller passes the dictionary down.
+  dictionary: any;
   // My HR's list response doesn't eager-load `employee` (it's always the
   // caller's own record) — the caller supplies the name directly in that
   // case; HR's `details.employee` is used otherwise. Mirrors LeaveRequestPDF.
@@ -21,6 +24,7 @@ export default function LoanRequestPDF({
   data,
   organization,
   userName,
+  dictionary,
   employeeName,
 }: LoanRequestPDFProps) {
   const mainColor = organization?.settings?.main_color || '#2113AD';
@@ -30,7 +34,13 @@ export default function LoanRequestPDF({
   const resolvedEmployeeName =
     employeeName ||
     `${data.employee?.first_name ?? ''} ${data.employee?.middle_name ?? ''} ${data.employee?.last_name ?? ''}`.trim() ||
-    `Employee #${data.employee_id}`;
+    dictionary.humanResources.loanRequests.common.employeeFallback.replace(
+      '{id}',
+      String(data.employee_id)
+    );
+  const t = dictionary.humanResources.loanRequests.pdf;
+  const formatMonths = (count: number | string) =>
+    t.months.replace('{count}', String(count));
 
   const approvals = data.approvals || [];
   const hasDecision =
@@ -43,8 +53,13 @@ export default function LoanRequestPDF({
     (a: any, b: any) => Number(a.position_index ?? 0) - Number(b.position_index ?? 0)
   );
   const signatories = levels.length > 0
-    ? levels.map((level: any) => `${level.role?.name || level.label || 'Approver'} Signature`)
-    : ['Approver Signature'];
+    ? levels.map((level: any) =>
+        t.roleSignature.replace(
+          '{role}',
+          level.role?.name || level.label || t.approver
+        )
+      )
+    : [t.approverSignature];
 
   const headerCellStyle = {
     ...pdfStyles.tableHeader,
@@ -55,7 +70,7 @@ export default function LoanRequestPDF({
 
   return (
     <Document
-      title={`Loan Application - ${resolvedEmployeeName}`}
+      title={t.applicationTitle.replace('{name}', resolvedEmployeeName)}
       creator={`${userName} | Powered By ProsERP`}
       producer='ProsERP'
     >
@@ -66,44 +81,44 @@ export default function LoanRequestPDF({
           </View>
           <View style={{ flex: 1, textAlign: 'right' }}>
             <Text style={{ ...pdfStyles.majorInfo, color: mainColor }}>
-              Loan Application Form
+              {t.applicationForm}
             </Text>
           </View>
         </View>
 
         <View style={{ ...pdfStyles.tableRow, marginBottom: 14 }}>
           <View style={{ flex: 1.5 }}>
-            <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>Employee</Text>
+            <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>{t.employee}</Text>
             <Text style={pdfStyles.minInfo}>
               {data.employee?.employee_number ? `${data.employee.employee_number} — ` : ''}
               {resolvedEmployeeName}
             </Text>
           </View>
           <View style={{ flex: 1 }}>
-            <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>Department</Text>
+            <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>{t.department}</Text>
             <Text style={pdfStyles.minInfo}>{data.department?.name || '—'}</Text>
           </View>
           <View style={{ flex: 1 }}>
-            <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>Status</Text>
+            <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>{t.status}</Text>
             <Text style={pdfStyles.minInfo}>{data.status_label || data.status}</Text>
           </View>
           <View style={{ flex: 1 }}>
-            <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>Printed On</Text>
+            <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>{t.printedOn}</Text>
             <Text style={pdfStyles.minInfo}>{readableDate(undefined, true)}</Text>
           </View>
         </View>
 
         <View style={{ ...pdfStyles.tableRow, marginBottom: 14 }}>
           <View style={{ flex: 1 }}>
-            <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>Amount Requested</Text>
+            <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>{t.amountRequested}</Text>
             <Text style={pdfStyles.minInfo}>{formatCurrency(data.amount)}</Text>
           </View>
           <View style={{ flex: 1 }}>
-            <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>Installments Requested</Text>
-            <Text style={pdfStyles.minInfo}>{data.installments} months</Text>
+            <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>{t.installmentsRequested}</Text>
+            <Text style={pdfStyles.minInfo}>{formatMonths(data.installments)}</Text>
           </View>
           <View style={{ flex: 1 }}>
-            <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>Requested On</Text>
+            <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>{t.requestedOn}</Text>
             <Text style={pdfStyles.minInfo}>{readableDate(data.requested_at)}</Text>
           </View>
         </View>
@@ -111,12 +126,12 @@ export default function LoanRequestPDF({
         {hasDecision && (
           <View style={{ ...pdfStyles.tableRow, marginBottom: 16 }}>
             {[
-              { label: 'Amount Approved', value: formatCurrency(data.amount_approved) },
+              { label: t.amountApproved, value: formatCurrency(data.amount_approved) },
               {
-                label: 'Installments Approved',
-                value: data.installments_approved != null ? `${data.installments_approved} months` : '—',
+                label: t.installmentsApproved,
+                value: data.installments_approved != null ? formatMonths(data.installments_approved) : '—',
               },
-              { label: 'Installment Amount', value: formatCurrency(data.installment_amount) },
+              { label: t.installmentAmount, value: formatCurrency(data.installment_amount) },
             ].map((tile) => (
               <View
                 key={tile.label}
@@ -139,25 +154,25 @@ export default function LoanRequestPDF({
 
         {data.reason && (
           <View style={{ marginBottom: 14 }}>
-            <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>Reason</Text>
+            <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>{t.reason}</Text>
             <Text style={pdfStyles.minInfo}>{data.reason}</Text>
           </View>
         )}
 
         <View style={{ ...pdfStyles.tableRow, marginBottom: 6 }}>
-          <Text style={{ fontSize: 12, fontWeight: 'bold' }}>Approval History</Text>
+          <Text style={{ fontSize: 12, fontWeight: 'bold' }}>{t.approvalHistory}</Text>
         </View>
         {approvals.length === 0 ? (
           <Text style={{ fontSize: 9, color: '#666666', marginBottom: 20 }}>
-            No approval action recorded yet.
+            {t.noApprovalAction}
           </Text>
         ) : (
           <View style={{ ...pdfStyles.table, marginBottom: 20 }}>
             <View style={pdfStyles.tableRow}>
-              <Text style={headerCellStyle}>Date</Text>
-              <Text style={headerCellStyle}>By</Text>
-              <Text style={headerCellStyle}>Status</Text>
-              <Text style={{ ...headerCellStyle, flex: 2 }}>Remarks</Text>
+              <Text style={headerCellStyle}>{t.date}</Text>
+              <Text style={headerCellStyle}>{t.by}</Text>
+              <Text style={headerCellStyle}>{t.status}</Text>
+              <Text style={{ ...headerCellStyle, flex: 2 }}>{t.remarks}</Text>
             </View>
             {approvals.map((approval, index) => (
               <View key={approval.id || index} style={pdfStyles.tableRow}>
@@ -212,15 +227,15 @@ export default function LoanRequestPDF({
           <View style={{ width: '48%', marginRight: '4%', marginBottom: 24 }}>
             <View style={{ height: 28 }} />
             <View style={{ ...pdfStyles.blackLine, marginBottom: 4 }} />
-            <Text style={pdfStyles.minInfo}>Employee Signature</Text>
-            <Text style={{ ...pdfStyles.minInfo, marginTop: 16 }}>Date: ______________</Text>
+            <Text style={pdfStyles.minInfo}>{t.employeeSignature}</Text>
+            <Text style={{ ...pdfStyles.minInfo, marginTop: 16 }}>{t.dateLine}</Text>
           </View>
           {signatories.map((label, index) => (
             <View key={index} style={{ width: '48%', marginRight: '4%', marginBottom: 24 }}>
               <View style={{ height: 28 }} />
               <View style={{ ...pdfStyles.blackLine, marginBottom: 4 }} />
               <Text style={pdfStyles.minInfo}>{label}</Text>
-              <Text style={{ ...pdfStyles.minInfo, marginTop: 16 }}>Date: ______________</Text>
+              <Text style={{ ...pdfStyles.minInfo, marginTop: 16 }}>{t.dateLine}</Text>
             </View>
           ))}
         </View>

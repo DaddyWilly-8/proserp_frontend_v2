@@ -6,8 +6,10 @@ import InventoryConsumptionsForm from './form/InventoryConsumptionForm';
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const InventoryConsumptionsActionTail = ({consumptionTab = false}) => {
+  const dictionary = useDictionary();
   const { checkOrganizationPermission } = useJumboAuth();
   const [openDialog, setOpenDialog] = useState(false);
 
@@ -22,7 +24,7 @@ const InventoryConsumptionsActionTail = ({consumptionTab = false}) => {
       </Dialog>
       <ButtonGroup variant="outlined" size="small" disableElevation sx={{ '& .MuiButton-root': { px: 1 } }}>
         {checkOrganizationPermission(PERMISSIONS.INVENTORY_CONSUMPTIONS_CREATE) && (
-          <Tooltip title={"New Inventory Consumptions"}>
+          <Tooltip title={dictionary.tooltips.newInventoryConsumptions}>
             <IconButton onClick={() => setOpenDialog(true)}>
               <AddOutlined />
             </IconButton>

@@ -16,6 +16,7 @@ import { useSnackbar } from 'notistack';
 import { useState } from 'react';
 import humanResourcesServices from '../humanResourcesServices';
 import { OvertimeType } from './OvertimeType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const EditOvertimeType = ({
   overtimeType,
@@ -52,6 +53,7 @@ const OvertimeTypeItemAction = ({
 }: {
   overtimeType: OvertimeType;
 }) => {
+  const dictionary = useDictionary();
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const { showDialog, hideDialog } = useJumboDialog();
   const { enqueueSnackbar } = useSnackbar();
@@ -63,12 +65,12 @@ const OvertimeTypeItemAction = ({
     mutationFn: humanResourcesServices.deleteOvertimeType,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['overtimeTypes'] });
-      enqueueSnackbar('Overtime Type Deleted Successfully', {
+      enqueueSnackbar(dictionary.humanResources.overtimeTypes.actions.deleteSuccess, {
         variant: 'success',
       });
     },
     onError: (error: any) => {
-      let message = 'Something went wrong';
+      let message = dictionary.humanResources.overtimeTypes.actions.somethingWrong;
 
       if (
         typeof error === 'object' &&
@@ -87,12 +89,12 @@ const OvertimeTypeItemAction = ({
   const menuItems = [
     {
       icon: <EditOutlined />,
-      title: 'Edit',
+      title: dictionary.humanResources.overtimeTypes.actions.edit,
       action: 'edit',
     },
     {
       icon: <DeleteOutlined color='error' />,
-      title: 'Delete',
+      title: dictionary.humanResources.overtimeTypes.actions.delete,
       action: 'delete',
     },
   ];
@@ -104,8 +106,8 @@ const OvertimeTypeItemAction = ({
         break;
       case 'delete':
         showDialog({
-          title: 'Confirm Delete',
-          content: 'Are you sure you want to delete this Overtime Type?',
+          title: dictionary.humanResources.overtimeTypes.actions.confirmDeleteTitle,
+          content: dictionary.humanResources.overtimeTypes.actions.confirmDeleteContent,
           onYes: () => {
             hideDialog();
             deleteOvertimeType(overtimeType.id);
@@ -136,7 +138,7 @@ const OvertimeTypeItemAction = ({
       </Dialog>
       <JumboDdMenu
         icon={
-          <Tooltip title='Actions'>
+          <Tooltip title={dictionary.tooltips.actions}>
             <MoreHorizOutlined fontSize='small' />
           </Tooltip>
         }

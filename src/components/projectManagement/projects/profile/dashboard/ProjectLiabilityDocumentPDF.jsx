@@ -10,6 +10,7 @@ const ProjectLiabilityDocumentPDF = ({
   ledger,
   ledgerName,
   increasesWith,
+  dictionary,
 }) => {
   const [openingBalanceTx, ...restTransactions] = transactionsData.transactions;
 
@@ -73,7 +74,7 @@ const ProjectLiabilityDocumentPDF = ({
     <Document
       creator={`${user?.name} | Powered by ProsERP`}
       producer='ProsERP'
-      title={`${ledger?.name || ledgerName} Statement ${readableDate(transactionsData.filters.from)} to ${readableDate(transactionsData.filters.to)}`}
+      title={dictionary.projectManagement.dashboard.statementTitle.replace('{name}', ledger?.name || ledgerName).replace('{from}', readableDate(transactionsData.filters.from)).replace('{to}', readableDate(transactionsData.filters.to))}
     >
       <Page size='A4' style={pdfStyles.page}>
         <View style={pdfStyles.table}>
@@ -84,7 +85,7 @@ const ProjectLiabilityDocumentPDF = ({
             <View style={{ flex: 1, textAlign: 'right' }}>
               <Text
                 style={{ ...pdfStyles.majorInfo, color: mainColor }}
-              >{`Ledger Statement`}</Text>
+              >{dictionary.projectManagement.dashboard.ledgerStatement}</Text>
               <Text
                 style={{ ...pdfStyles.midInfo }}
               >{`${ledger?.name || ledgerName}`}</Text>
@@ -96,7 +97,7 @@ const ProjectLiabilityDocumentPDF = ({
           <View style={{ ...pdfStyles.tableRow, marginTop: 10 }}>
             <View style={{ flex: 1, padding: 2 }}>
               <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>
-                Total Credits
+                {dictionary.projectManagement.dashboard.totalCredits}
               </Text>
               <Text style={{ ...pdfStyles.minInfo }}>
                 {totalCredits.toLocaleString('en-US', {
@@ -107,7 +108,7 @@ const ProjectLiabilityDocumentPDF = ({
             </View>
             <View style={{ flex: 1, padding: 2 }}>
               <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>
-                Total Debits
+                {dictionary.projectManagement.dashboard.totalDebits}
               </Text>
               <Text style={{ ...pdfStyles.minInfo }}>
                 {totalDebits.toLocaleString('en-US', {
@@ -118,13 +119,13 @@ const ProjectLiabilityDocumentPDF = ({
             </View>
             <View style={{ flex: 1, padding: 2 }}>
               <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>
-                Printed By
+                {dictionary.projectManagement.dashboard.printedBy}
               </Text>
               <Text style={{ ...pdfStyles.minInfo }}>{user.name}</Text>
             </View>
             <View style={{ flex: 1, padding: 2 }}>
               <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>
-                Printed On
+                {dictionary.projectManagement.dashboard.printedOn}
               </Text>
               <Text style={{ ...pdfStyles.minInfo }}>
                 {readableDate(undefined, true)}
@@ -135,7 +136,7 @@ const ProjectLiabilityDocumentPDF = ({
             {Array.isArray(costCenters) && costCenters.length > 0 && (
               <View style={{ flex: 2, padding: 2 }}>
                 <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>
-                  Cost Centers
+                  {dictionary.projectManagement.dashboard.costCenters}
                 </Text>
                 <Text style={{ ...pdfStyles.minInfo }}>
                   {costCenters
@@ -154,7 +155,7 @@ const ProjectLiabilityDocumentPDF = ({
                 flex: 1.5,
               }}
             >
-              Date
+              {dictionary.projectManagement.dashboard.date}
             </Text>
             <Text
               style={{
@@ -164,7 +165,7 @@ const ProjectLiabilityDocumentPDF = ({
                 flex: 1,
               }}
             >
-              Reference
+              {dictionary.projectManagement.dashboard.reference}
             </Text>
             <Text
               style={{
@@ -174,7 +175,7 @@ const ProjectLiabilityDocumentPDF = ({
                 flex: 2,
               }}
             >
-              Description
+              {dictionary.projectManagement.dashboard.description}
             </Text>
             <Text
               style={{
@@ -184,7 +185,7 @@ const ProjectLiabilityDocumentPDF = ({
                 flex: 1,
               }}
             >
-              Debit
+              {dictionary.projectManagement.dashboard.debit}
             </Text>
             <Text
               style={{
@@ -194,7 +195,7 @@ const ProjectLiabilityDocumentPDF = ({
                 flex: 1,
               }}
             >
-              Credit
+              {dictionary.projectManagement.dashboard.credit}
             </Text>
             <Text
               style={{
@@ -204,7 +205,7 @@ const ProjectLiabilityDocumentPDF = ({
                 flex: 1.5,
               }}
             >
-              Balance
+              {dictionary.projectManagement.dashboard.balance}
             </Text>
           </View>
           {tableRows.map((row, index) => (

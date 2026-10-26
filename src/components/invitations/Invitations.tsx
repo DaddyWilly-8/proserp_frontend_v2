@@ -22,6 +22,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import InvitationListItem from './InvitationListItem';
 import invitationsServices from './invitationsServices';
 import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface QueryOptions {
   queryKey: string;
@@ -34,6 +35,7 @@ interface QueryOptions {
 }
 
 function OrganizationInvitations() {
+  const dictionary = useDictionary();
   const params = useParams<{ id: string }>();
   const listRef = useRef<any>(null);
   const [view, setView] = useState<'list' | 'grid'>('list');
@@ -127,7 +129,7 @@ function OrganizationInvitations() {
                 disableElevation
                 sx={{ '& .MuiButton-root': { px: 1 } }}
               >
-                <Tooltip title={'List View'}>
+                <Tooltip title={dictionary.tooltips.listView}>
                   <Button
                     variant={view === 'list' ? 'contained' : 'outlined'}
                     onClick={() => setView('list')}
@@ -135,7 +137,7 @@ function OrganizationInvitations() {
                     <ListOutlined />
                   </Button>
                 </Tooltip>
-                <Tooltip title={'Grid View'}>
+                <Tooltip title={dictionary.tooltips.gridView}>
                   <Button
                     variant={view === 'grid' ? 'contained' : 'outlined'}
                     onClick={() => setView('grid')}

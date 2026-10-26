@@ -1,5 +1,6 @@
 'use client';
 
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import { LoadingButton } from '@mui/lab';
 import {
   Alert,
@@ -86,6 +87,7 @@ const ProjectClaimApprovalDialog = ({
   approval,
   onClose,
 }: ProjectClaimApprovalDialogProps) => {
+  const dictionary = useDictionary();
   const [remarks, setRemarks] = useState('');
   const [remarksError, setRemarksError] = useState('');
   const [approvalDate, setApprovalDate] = useState(DEFAULT_APPROVAL_DATE());
@@ -129,12 +131,12 @@ const ProjectClaimApprovalDialog = ({
         queryKey: ['claim-details', claim.id],
       });
       queryClient.invalidateQueries({ queryKey: ['projectProjectClaims'] });
-      enqueueSnackbar(data?.message || 'Claim approval recorded', { variant: 'success' });
+      enqueueSnackbar(data?.message || dictionary.projectManagement.claims.approval.recorded, { variant: 'success' });
       onClose();
     },
     onError: (error: any) => {
       enqueueSnackbar(
-        error?.response?.data?.message || 'Something went wrong',
+        error?.response?.data?.message || dictionary.projectManagement.claims.common.somethingWentWrong,
         { variant: 'error' }
       );
     },
@@ -146,7 +148,7 @@ const ProjectClaimApprovalDialog = ({
     if (approval && status === 'returned') return;
 
     if (status !== 'approved' && !remarks.trim()) {
-      setRemarksError('Remarks are required');
+      setRemarksError(dictionary.projectManagement.claims.approval.remarksRequired);
       return;
     }
 
@@ -154,7 +156,7 @@ const ProjectClaimApprovalDialog = ({
 
     if (approval) {
       if (status !== 'approved' && !remarks.trim()) {
-        setRemarksError('Remarks are required');
+        setRemarksError(dictionary.projectManagement.claims.approval.remarksRequired);
         return;
       }
 
@@ -180,7 +182,7 @@ const ProjectClaimApprovalDialog = ({
         : Number(pendingLevel?.id);
 
     if (!chainLevelId) {
-      enqueueSnackbar('Pending approval level not found', { variant: 'error' });
+      enqueueSnackbar(dictionary.projectManagement.claims.approval.levelNotFound, { variant: 'error' });
       return;
     }
 
@@ -202,23 +204,21 @@ const ProjectClaimApprovalDialog = ({
       fullScreen={belowLargeScreen}
       scroll={belowLargeScreen ? 'body' : 'paper'}
     >
-      <DialogTitle>{approval ? 'Change My Decision' : 'Claim Approval'}</DialogTitle>
+      <DialogTitle>{approval ? dictionary.projectManagement.claims.approval.changeMyDecision : dictionary.projectManagement.claims.approval.claimApproval}</DialogTitle>
       <DialogContent>
         <Stack spacing={2} sx={{ mt: 1 }}>
           {!!decisionLevel && !canDecide && (
             <Alert severity='warning'>
-              Only a {pendingRoleName} can approve or hold this claim at this stage. You can still
-              send it back to the requester for correction.
+              {dictionary.projectManagement.claims.approval.onlyRoleCanApprove.replace('{role}', pendingRoleName)}
             </Alert>
           )}
           {!approval && !pendingLevel && (
             <Alert severity='info'>
-              This claim isn't open for a new Approve/Hold/Reject decision right now - the only
-              action available is sending it back to the requester for correction.
+              {dictionary.projectManagement.claims.approval.notOpen}
             </Alert>
           )}
           <DateTimePicker
-            label='Approval Date & Time'
+            label={dictionary.projectManagement.claims.approval.dateTime}
             value={approvalDate ? dayjs(approvalDate) : null}
             onChange={(val) => setApprovalDate(val?.toISOString() || '')}
             slotProps={{
@@ -226,7 +226,7 @@ const ProjectClaimApprovalDialog = ({
             }}
           />
           <TextField
-            label='Remarks'
+            label={dictionary.projectManagement.claims.approval.remarks}
             size='small'
             fullWidth
             multiline
@@ -243,7 +243,7 @@ const ProjectClaimApprovalDialog = ({
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose} disabled={isSubmitting}>
-          Cancel
+          {dictionary.projectManagement.claims.common.cancel}
         </Button>
         {!approval && (
           <LoadingButton
@@ -253,7 +253,7 @@ const ProjectClaimApprovalDialog = ({
             size='small'
             onClick={() => handleDecision('returned')}
           >
-            Return
+            {dictionary.projectManagement.claims.approval.return}
           </LoadingButton>
         )}
         {canDecide && (
@@ -264,7 +264,7 @@ const ProjectClaimApprovalDialog = ({
             size='small'
             onClick={() => handleDecision('on hold')}
           >
-            Hold
+            {dictionary.projectManagement.claims.approval.hold}
           </LoadingButton>
         )}
         {canDecide && (
@@ -275,7 +275,7 @@ const ProjectClaimApprovalDialog = ({
             size='small'
             onClick={() => handleDecision('approved')}
           >
-            Approve
+            {dictionary.projectManagement.claims.approval.approve}
           </LoadingButton>
         )}
       </DialogActions>

@@ -30,6 +30,7 @@ interface ProductionCostReportPdfProps {
   reportData: CostReportPdfData;
   organization?: Organization | null;
   user?: UserLike | null;
+  dictionary: any;
 }
 
 const styles = StyleSheet.create({
@@ -174,7 +175,9 @@ const ProductionCostReportPdf = ({
   reportData,
   organization,
   user,
+  dictionary,
 }: ProductionCostReportPdfProps) => {
+  const dict = dictionary.reports.productionReports;
   const mainColor = organization?.settings?.main_color || "#2113AD";
   const lightColor = organization?.settings?.light_color || "#bec5da";
   const contrastText = organization?.settings?.contrast_text || "#FFFFFF";
@@ -185,9 +188,9 @@ const ProductionCostReportPdf = ({
   const breakdownTotal = materialCost + expenseCost + byProductOffset;
 
   const costBreakdownRows = [
-    { label: 'Materials', value: materialCost, color: '#1976d2' },
-    { label: 'Ledger Expenses', value: expenseCost, color: '#ed6c02' },
-    { label: 'By-Product Offset', value: byProductOffset, color: '#2e7d32' },
+    { label: dict.materials, value: materialCost, color: '#1976d2' },
+    { label: dict.ledgerExpenses, value: expenseCost, color: '#ed6c02' },
+    { label: dict.byProductOffset, value: byProductOffset, color: '#2e7d32' },
   ];
 
   const periodLabel = `${readableDate(reportData?.period?.from, true)} - ${readableDate(reportData?.period?.to, true)}`;
@@ -195,7 +198,7 @@ const ProductionCostReportPdf = ({
 
   return (
     <Document
-      title={`Production Cost Report ${periodLabel}`}
+      title={`${dict.productionCostReport} ${periodLabel}`}
       author={user?.name || ''}
       creator='ERP System'
     >
@@ -206,51 +209,51 @@ const ProductionCostReportPdf = ({
           </View>
           <View style={{ flex: 1, textAlign: 'right' }}>
             <Text style={{ ...pdfStyles.majorInfo, color: mainColor }}>
-              Production Cost Report
+              {dict.productionCostReport}
             </Text>
-            <Text style={pdfStyles.minInfo}>Period: {periodLabel}</Text>
+            <Text style={pdfStyles.minInfo}>{dict.period}: {periodLabel}</Text>
           </View>
         </View>
 
         <View style={{ ...pdfStyles.tableRow, marginBottom: 8 }}>
           <View style={{ flex: 1 }}>
-            <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>Printed By</Text>
+            <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>{dict.printedBy}</Text>
             <Text style={pdfStyles.minInfo}>{user?.name || ''}</Text>
           </View>
           <View style={{ flex: 1 }}>
-            <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>Printed On</Text>
+            <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>{dict.printedOn}</Text>
             <Text style={pdfStyles.minInfo}>{printedOn}</Text>
           </View>
         </View>
 
         <View style={styles.kpiRow}>
           <View style={[styles.kpiCard]}> 
-            <Text style={[styles.kpiLabel, { color: mainColor }]}>Total Material Cost</Text>
+            <Text style={[styles.kpiLabel, { color: mainColor }]}>{dict.totalMaterialCost}</Text>
             <Text style={pdfStyles.minInfo}>
               {formatCurrency(reportData?.summary?.total_material_cost)}
             </Text>
           </View>
           <View style={[styles.kpiCard]}> 
-            <Text style={[styles.kpiLabel, { color: mainColor }]}>Total Expense Cost</Text>
+            <Text style={[styles.kpiLabel, { color: mainColor }]}>{dict.totalExpenseCost}</Text>
             <Text style={pdfStyles.minInfo}>
               {formatCurrency(reportData?.summary?.total_ledger_expense_cost)}
             </Text>
           </View>
           <View style={[styles.kpiCard]}> 
-            <Text style={[styles.kpiLabel, { color: mainColor }]}>By-Product Offset</Text>
+            <Text style={[styles.kpiLabel, { color: mainColor }]}>{dict.byProductOffset}</Text>
             <Text style={pdfStyles.minInfo}>
               {formatCurrency(reportData?.summary?.total_by_product_offset)}
             </Text>
           </View>
           <View style={[styles.kpiCard]}> 
-            <Text style={[styles.kpiLabel, { color: mainColor }]}>Net Production Cost</Text>
+            <Text style={[styles.kpiLabel, { color: mainColor }]}>{dict.netProductionCost}</Text>
             <Text style={pdfStyles.minInfo}>
               {formatCurrency(reportData?.summary?.net_production_cost)}
             </Text>
           </View>
         </View>
 
-        <Text style={[styles.sectionHeading, { color: mainColor }]}>Cost Breakdown</Text>
+        <Text style={[styles.sectionHeading, { color: mainColor }]}>{dict.costBreakdown}</Text>
         <View style={styles.breakdownCard}>
           {costBreakdownRows.map((row) => {
             const share = breakdownTotal > 0 ? (row.value / breakdownTotal) * 100 : 0;
@@ -273,9 +276,9 @@ const ProductionCostReportPdf = ({
           })}
         </View>
 
-        <Text style={[styles.sectionHeading, { color: mainColor }]}>Material Consumptions</Text>
+        <Text style={[styles.sectionHeading, { color: mainColor }]}>{dict.materialConsumptions}</Text>
         {sectionHeader(
-          ['S/N', 'Product', 'Unit', 'Total Qty', 'Avg Unit Cost', 'Total Cost'],
+          [dict.sn, dict.product, dict.unit, dict.totalQty, dict.avgUnitCost, dict.totalCost],
           mainColor,
           contrastText,
           ['8%', '24%', '10%', '18%', '18%', '22%']
@@ -305,9 +308,9 @@ const ProductionCostReportPdf = ({
 
             {!!item?.batches?.length && (
               <View style={{ marginBottom: 3, marginTop: 1 }}>
-                <Text style={styles.subSectionHeading}>Batches that consumed this material</Text>
+                <Text style={styles.subSectionHeading}>{dict.batchesConsumedMaterial}</Text>
                 {sectionHeader(
-                  ['Batch', 'Date', 'Qty', 'Unit Cost', 'Total'],
+                  [dict.batch, dict.date, dict.qty, dict.unitCost, dict.total],
                   mainColor,
                   contrastText,
                   ['24%', '24%', '16%', '18%', '18%']
@@ -336,9 +339,9 @@ const ProductionCostReportPdf = ({
           </View>
         ))}
 
-        <Text style={[styles.sectionHeading, { color: mainColor }]}>Ledger Expenses</Text>
+        <Text style={[styles.sectionHeading, { color: mainColor }]}>{dict.ledgerExpenses}</Text>
         {sectionHeader(
-          ['S/N', 'Ledger', 'Currency', 'Total Amount'],
+          [dict.sn, dict.ledger, dict.currency, dict.totalAmount],
           mainColor,
           contrastText,
           ['10%', '40%', '20%', '30%']
@@ -350,8 +353,8 @@ const ProductionCostReportPdf = ({
                 (batch) => Number(batch.exchange_rate || 1) !== 1
               );
               const nestedLabels = showExchangeRate
-                ? ['Batch', 'Date', 'Qty', 'Rate', 'Exchange Rate', 'Total', 'Remarks']
-                : ['Batch', 'Date', 'Qty', 'Rate', 'Total', 'Remarks'];
+                ? [dict.batch, dict.date, dict.qty, dict.rate, dict.exchangeRate, dict.total, dict.remarks]
+                : [dict.batch, dict.date, dict.qty, dict.rate, dict.total, dict.remarks];
               const nestedWidths = showExchangeRate
                 ? ['14%', '18%', '10%', '12%', '14%', '14%', '18%']
                 : ['16%', '20%', '12%', '14%', '16%', '22%'];
@@ -376,7 +379,7 @@ const ProductionCostReportPdf = ({
                   {!!item?.batches?.length && (
                     <View style={{ marginBottom: 3, marginTop: 1 }}>
                       <Text style={styles.subSectionHeading}>
-                        Production batches receiving this expense allocation
+                        {dict.batchesReceivingExpense}
                       </Text>
                       {sectionHeader(
                         nestedLabels,
@@ -421,9 +424,9 @@ const ProductionCostReportPdf = ({
 
         {(reportData?.by_products || []).length > 0 && (
           <>
-            <Text style={[styles.sectionHeading, { color: mainColor }]}>By-Products Offset</Text>
+            <Text style={[styles.sectionHeading, { color: mainColor }]}>{dict.byProductsOffset}</Text>
             {sectionHeader(
-              ['S/N', 'Product', 'Unit', 'Total Qty', 'Cost Reduction'],
+              [dict.sn, dict.product, dict.unit, dict.totalQty, dict.costReduction],
               mainColor,
               contrastText,
               ['10%', '20%', '15%', '25%', '30%']
@@ -451,10 +454,10 @@ const ProductionCostReportPdf = ({
                 {!!item?.batches?.length && (
                   <View style={{ marginBottom: 3, marginTop: 1 }}>
                     <Text style={styles.subSectionHeading}>
-                      Production batches producing this by-product offset
+                      {dict.batchesProducingByProduct}
                     </Text>
                     {sectionHeader(
-                      ['Batch', 'Date', 'Qty', 'Market Value / Unit', 'Total Market Value'],
+                      [dict.batch, dict.date, dict.qty, dict.marketValuePerUnit, dict.totalMarketValue],
                       mainColor,
                       contrastText,
                       ['20%', '22%', '16%', '21%', '21%']
@@ -486,14 +489,14 @@ const ProductionCostReportPdf = ({
         )}
 
         <View style={styles.footer} fixed>
-          <Text style={styles.footerText}>Production Cost Report</Text>
+          <Text style={styles.footerText}>{dict.productionCostReport}</Text>
           <Text
             style={styles.footerText}
             render={({ pageNumber, totalPages }) =>
-              `Page ${pageNumber} of ${totalPages}`
+              dict.pageXofY.replace('{page}', String(pageNumber)).replace('{total}', String(totalPages))
             }
           />
-          <Text style={styles.footerText}>Period: {periodLabel}</Text>
+          <Text style={styles.footerText}>{dict.period}: {periodLabel}</Text>
         </View>
       </Page>
     </Document>

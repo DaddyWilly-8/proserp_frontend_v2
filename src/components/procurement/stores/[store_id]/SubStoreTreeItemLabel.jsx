@@ -9,8 +9,10 @@ import { useStoreProfile } from './StoreProfileProvider';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { JumboDdMenu } from '@jumbo/components';
 import { Div } from '@jumbo/shared';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function SubStoreTreeItemLabel({store}) {
+    const dictionary = useDictionary();
     const {showDialog,hideDialog} = useJumboDialog();
     const queryClient = useQueryClient();
     const {storeArrays: {storeIds,selectOptions},setActiveStore} = useStoreProfile();
@@ -74,7 +76,7 @@ function SubStoreTreeItemLabel({store}) {
         </Tooltip>
         <JumboDdMenu
             icon={
-                    <Tooltip title='Actions'>
+                    <Tooltip title={dictionary.tooltips.actions}>
                         <MoreVertOutlined/>
                     </Tooltip>
                 }

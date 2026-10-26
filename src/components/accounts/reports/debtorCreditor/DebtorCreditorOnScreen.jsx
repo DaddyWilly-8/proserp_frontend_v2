@@ -1,3 +1,4 @@
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import { useCurrencySelect } from '@/components/masters/Currencies/CurrencySelectProvider';
 import ProjectLiabilityDocumentDialog from '@/components/projectManagement/projects/profile/dashboard/ProjectLiabilityDocumentDialog';
 import { KeyboardArrowDown, KeyboardArrowRight } from '@mui/icons-material';
@@ -17,6 +18,8 @@ import React, { useState } from 'react';
 import { PeriodCells, PeriodTableHead, pruneZeroNetTree } from '../periodColumns';
 
 const DebtorCreditorOnScreen = ({ reportData, authOrganization, user, netOnly, closingOnly }) => {
+  const dictionary = useDictionary();
+  const t = dictionary.reports.accountsReports;
   const { currencies } = useCurrencySelect();
   const baseCurrency = currencies?.find((c) => c.is_base === 1);
   const organization = authOrganization?.organization;
@@ -125,7 +128,8 @@ const DebtorCreditorOnScreen = ({ reportData, authOrganization, user, netOnly, c
           <Table>
             <TableHead>
               <PeriodTableHead netOnly={netOnly} closingOnly={closingOnly}
-                leadingLabels={['Name']}
+                leadingLabels={[t.debtorCreditor.name]}
+                labels={t.common}
                 backgroundColor={mainColor}
                 color={contrastText}
                 filters={reportData.filters}
@@ -135,7 +139,7 @@ const DebtorCreditorOnScreen = ({ reportData, authOrganization, user, netOnly, c
               {renderGroup(rootGroup, 0)}
               <TableRow>
                 <TableCell sx={{ backgroundColor: mainColor, color: contrastText, borderBottom: 'none' }}>
-                  Total
+                  {t.common.total}
                 </TableCell>
                 <PeriodCells netOnly={netOnly} closingOnly={closingOnly}
                   node={reportData.total}

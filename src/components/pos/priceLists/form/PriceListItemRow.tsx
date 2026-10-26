@@ -11,6 +11,7 @@ import {
 import React, { useState } from 'react';
 import { PriceListItem } from '../PriceListType';
 import PriceListItemForm from './PriceListItemForm';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface PriceListItemRowProps {
   setClearFormKey: React.Dispatch<React.SetStateAction<number>>;
@@ -36,6 +37,7 @@ const PriceListItemRow: React.FC<
   item,
   index,
 }) => {
+  const dictionary = useDictionary();
   const product = item.product;
   const [showForm, setShowForm] = useState(false);
 
@@ -55,7 +57,7 @@ const PriceListItemRow: React.FC<
         >
           <Grid size={{ xs: 1, md: 0.5 }}>{index + 1}.</Grid>
           <Grid size={{ xs: 10, md: fuelPriceLists ? 5 : 4 }}>
-            <Tooltip title={'Product Name'}>
+            <Tooltip title={dictionary.tooltips.productName}>
               <Stack direction={'row'} gap={1} alignItems={'center'}>
                 <PhotoThumbnail
                   photo={product?.main_photo}
@@ -67,14 +69,14 @@ const PriceListItemRow: React.FC<
             </Tooltip>
           </Grid>
           <Grid size={{ xs: 1, md: 1.5 }}>
-            <Tooltip title={'Unit'}>
+            <Tooltip title={dictionary.tooltips.unit}>
               <Typography>
                 {item?.unit_symbol || item.measurement_unit?.symbol}
               </Typography>
             </Tooltip>
           </Grid>
           <Grid size={{ xs: 6, md: fuelPriceLists ? 3 : 2.5 }}>
-            <Tooltip title={'Price'}>
+            <Tooltip title={dictionary.tooltips.price}>
               <Typography>{item.price.toLocaleString()}</Typography>
             </Tooltip>
           </Grid>
@@ -83,7 +85,7 @@ const PriceListItemRow: React.FC<
               size={{ xs: 6, md: 2.5 }}
               textAlign={{ xs: 'end', md: 'start' }}
             >
-              <Tooltip title={'Bottom Cap'}>
+              <Tooltip title={dictionary.tooltips.bottomCap}>
                 <Typography>{item.bottom_cap.toLocaleString()}</Typography>
               </Tooltip>
             </Grid>
@@ -92,7 +94,7 @@ const PriceListItemRow: React.FC<
             textAlign={'end'}
             size={{ xs: fuelPriceLists ? 6 : 12, md: fuelPriceLists ? 2 : 1 }}
           >
-            <Tooltip title='Edit Item'>
+            <Tooltip title={dictionary.tooltips.editItem}>
               <IconButton
                 size='small'
                 onClick={() => setShowForm(true)}
@@ -101,7 +103,7 @@ const PriceListItemRow: React.FC<
                 <EditOutlined fontSize='small' />
               </IconButton>
             </Tooltip>
-            <Tooltip title='Remove Item'>
+            <Tooltip title={dictionary.tooltips.removeItem}>
               <IconButton
                 size='small'
                 onClick={() =>

@@ -21,8 +21,10 @@ import InventoryInputsItemForm2 from './InventoryInputsItemForm2';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Div } from '@jumbo/shared';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function ProductionBatchesForm2({ toggleOpen, production }) {
+    const dictionary = useDictionary();
     const { activeWorkCenter } = useContext(ProductionBatchesContext);
     const [activeTab, setActiveTab] = useState(0);
     const {enqueueSnackbar} =  useSnackbar();
@@ -53,12 +55,12 @@ function ProductionBatchesForm2({ toggleOpen, production }) {
     const validationSchema = yup.object({
         start_date: yup
             .string()
-            .required('Start Date is required')
-            .typeError('Start Date is required'),
+            .required(dictionary.forms.batches.validation.startDateRequired)
+            .typeError(dictionary.forms.batches.validation.startDateRequired),
         end_date: yup
             .string()
-            .required('End Date is required')
-            .typeError('End Date is required'),
+            .required(dictionary.forms.batches.validation.endDateRequired)
+            .typeError(dictionary.forms.batches.validation.endDateRequired),
         // end_date: yup
         //     .string()
         //     .when('submit_type', {
@@ -74,12 +76,12 @@ function ProductionBatchesForm2({ toggleOpen, production }) {
                 yup.object({
                     store_id: yup
                         .number()
-                        .required('Store is required')
-                        .typeError(`Store is required`),
+                        .required(dictionary.forms.batches.validation.storeRequired)
+                        .typeError(dictionary.forms.batches.validation.storeRequired),
                     quantity: yup
                         .number()
-                        .required('Quantity is required')
-                        .min(0, 'Quantity must be greater than or equal to 0'),
+                        .required(dictionary.forms.batches.validation.quantityRequired)
+                        .min(0, dictionary.forms.batches.validation.quantityMinZero),
                 })
             )
     });
@@ -240,7 +242,9 @@ function ProductionBatchesForm2({ toggleOpen, production }) {
             <DialogTitle>
                 <Grid container spacing={2}>
                     <Grid size={12} textAlign="center" mb={2}>
-                        {production ? `Edit ${production.batchNo}` : 'New Production Batch'}
+                        {production
+              ? dictionary.forms.batches.titles.edit.replace('{batchNo}', production.batchNo)
+              : dictionary.forms.batches.titles.new}
                     </Grid>
                     <Grid size={12} mb={2}>
                         <form autoComplete="off">
@@ -249,7 +253,7 @@ function ProductionBatchesForm2({ toggleOpen, production }) {
                                     <Div sx={{ mt: 0.3 }}>
                                         <DateTimePicker
                                             fullWidth
-                                            label="Start Date (MM/DD/YYYY)"  
+                                            label={dictionary.forms.batches.labels.startDate}  
                                             minDate={dayjs(authOrganization.organization.recording_start_date)}    
                                             defaultValue={dayjs(watch(`start_date`))}        
                                             slotProps={{
@@ -274,7 +278,7 @@ function ProductionBatchesForm2({ toggleOpen, production }) {
                                     <Div sx={{ mt: 0.3 }}>
                                         <DateTimePicker
                                             fullWidth
-                                            label="End Date (MM/DD/YYYY)" 
+                                            label={dictionary.forms.batches.labels.endDate} 
                                             defaultValue={production?.end_date && dayjs(watch(`end_date`))}        
                                             minDate={dayjs(watch('start_date'))}           
                                             slotProps={{
@@ -331,7 +335,7 @@ function ProductionBatchesForm2({ toggleOpen, production }) {
                                 <Grid size={{xs: 12, md: 3}}>
                                     <Div sx={{ mt: 0.3 }}>
                                         <TextField
-                                            label="Remarks"
+                                            label={dictionary.forms.batches.labels.remarks}
                                             size="small"
                                             fullWidth
                                             {...register('remarks')}
@@ -360,10 +364,10 @@ function ProductionBatchesForm2({ toggleOpen, production }) {
                     scrollButtons='auto'
                     allowScrollButtonsMobile
                 >
-                    <Tab label="INVENTORY INPUTS"/>
-                    <Tab label="OTHER EXPENSES"/>
-                    <Tab label="BY PRODUCTS"/>
-                    <Tab label="SUMMARY"/>
+                    <Tab label={dictionary.forms.batches.tabs.inventoryInputs}/>
+                    <Tab label={dictionary.forms.batches.tabs.otherExpenses}/>
+                    <Tab label={dictionary.forms.batches.tabs.byProducts}/>
+                    <Tab label={dictionary.forms.batches.tabs.summary}/>
                 </Tabs>
 
                 <Box hidden={activeTab !== 0} sx={{ mt: 2 }}>
@@ -404,10 +408,10 @@ function ProductionBatchesForm2({ toggleOpen, production }) {
                     <DialogTitle>            
                         <Grid container alignItems="center" justifyContent="space-between">
                             <Grid size={11}>
-                                Unsaved Changes
+                                {dictionary.forms.batches.dialogs.unsavedChanges}
                             </Grid>
                             <Grid size={1} textAlign="right">
-                                <Tooltip title="Close">
+                                <Tooltip title={dictionary.tooltips.close}>
                                     <IconButton
                                         size="small" 
                                         onClick={() => setShowWarning(false)}
@@ -419,32 +423,32 @@ function ProductionBatchesForm2({ toggleOpen, production }) {
                         </Grid>
                     </DialogTitle>
                     <DialogContent>
-                        Last item was not added to the list
+                        {dictionary.forms.batches.dialogs.lastItemNotAdded}
                     </DialogContent>
                     <DialogActions>
                         <Button size="small" onClick={() => {setSubmitItemForm(true); setShowWarning(false);}}>
-                            Add and Submit
+                            {dictionary.forms.batches.buttons.addAndSubmit}
                         </Button>
                         <Button size="small" onClick={handleConfirmSubmitWithoutAdd} color="secondary">
-                            Submit without add
+                            {dictionary.forms.batches.buttons.submitWithoutAdd}
                         </Button>
                     </DialogActions>
                 </Dialog>
             </DialogContent>
 
             <DialogActions>
-                <Button size="small" onClick={() => toggleOpen(false)}>Cancel</Button>
+                <Button size="small" onClick={() => toggleOpen(false)}>{dictionary.forms.batches.buttons.cancel}</Button>
                 {
                 activeTab > 0 &&
                 <Button size='small' variant='outlined' onClick={() => setActiveTab(activeTab => (activeTab-1))}>
                     <KeyboardArrowLeftOutlined/>
-                    Previous
+                    {dictionary.forms.batches.buttons.previous}
                 </Button>
                 }
                 {
                 activeTab < 3 &&
                 <Button size='small' variant='outlined' onClick={() => setActiveTab(activeTab => activeTab+1)}>
-                    Next
+                    {dictionary.forms.batches.buttons.next}
                     <KeyboardArrowRightOutlined/>
                 </Button>
                 }
@@ -457,7 +461,7 @@ function ProductionBatchesForm2({ toggleOpen, production }) {
                         handleSubmit(onSubmit)();
                     }}
                 >
-                    Initiate
+                    {dictionary.forms.batches.buttons.initiate}
                 </LoadingButton>
                 <LoadingButton
                     loading={addProduction.isPending || updateProduction.isPending}
@@ -469,7 +473,7 @@ function ProductionBatchesForm2({ toggleOpen, production }) {
                         handleSubmit(onSubmit)();
                     }}
                 >
-                    Close
+                    {dictionary.forms.batches.buttons.close}
                 </LoadingButton>
             </DialogActions>
         </FormProvider>

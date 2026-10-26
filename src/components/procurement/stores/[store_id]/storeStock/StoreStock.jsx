@@ -21,8 +21,10 @@ import { useStoreProfile } from '../StoreProfileProvider';
 import StockListItem from './StockListItem';
 import StockReport from './StockReport';
 import LowStockThresholds from './lowStockThresholds/LowStockThresholds';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function StoreStock() {
+  const dictionary = useDictionary();
   const [openDialog, setOpenDialog] = useState(false);
   const params = useParams();
   const listRef = React.useRef();
@@ -99,7 +101,7 @@ function StoreStock() {
                   </Grid>
                   <Grid size={{ xs: 1, md: 1 }} textAlign={'right'}>
                     <React.Fragment>
-                      <Tooltip title='Stock Report'>
+                      <Tooltip title={dictionary.tooltips.stockReport}>
                         <IconButton onClick={() => setOpenDialog(true)}>
                           <PrintOutlined />
                         </IconButton>
@@ -147,7 +149,7 @@ function StoreStock() {
                   </Grid>
                   <Grid size={{ xs: 4, md: 1 }} textAlign={'right'}>
                     <React.Fragment>
-                      <Tooltip title='Stock Report'>
+                      <Tooltip title={dictionary.tooltips.stockReport}>
                         <IconButton onClick={() => setOpenDialog(true)}>
                           <PrintOutlined />
                         </IconButton>

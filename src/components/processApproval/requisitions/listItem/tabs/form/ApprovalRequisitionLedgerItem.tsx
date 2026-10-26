@@ -40,6 +40,7 @@ import purchaseServices from '@/components/procurement/purchases/purchase-servic
 import purchaseBillServices from '@/components/procurement/grns/purchaseBill-services';
 import PurchaseBillOnScreenPreview from '@/components/accounts/purchaseBills/PurchaseBillOnScreenPreview';
 import { useQuery } from '@tanstack/react-query';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface SplitItem {
   credit_ledger_id: number | null;
@@ -67,6 +68,7 @@ interface FetchRelatableDetailsProps {
 }
 
 const FetchRelatableDetails = ({ relatable, toggleOpen }: FetchRelatableDetailsProps) => {
+  const dictionary = useDictionary();
   const { authOrganization } = useJumboAuth();
   if (!relatable) return null;
 
@@ -95,7 +97,7 @@ const FetchRelatableDetails = ({ relatable, toggleOpen }: FetchRelatableDetailsP
       <CertificateOnScreen isFromProcessApproval={true} certificate={certificateDetails} organization={authOrganization?.organization as Organization} />
       <DialogActions sx={{ pb: 2 }}>
         <Button variant="outlined" color="primary" onClick={() => toggleOpen(false)}>
-          Close
+          {dictionary.forms.requisitions.common.close}
         </Button>
       </DialogActions>
     </>;
@@ -118,7 +120,7 @@ const FetchRelatableDetails = ({ relatable, toggleOpen }: FetchRelatableDetailsP
         />
         <DialogActions sx={{ pb: 2 }}>
           <Button variant="outlined" color="primary" onClick={() => toggleOpen(false)}>
-            Close
+            {dictionary.forms.requisitions.common.close}
           </Button>
         </DialogActions>
       </>
@@ -137,6 +139,7 @@ function ApprovalRequisitionLedgerItem({
   requisitionLedgerItem,
   setRequisitionLedgerItem,
 }: ApprovalRequisitionLedgerItemProps) {
+  const dictionary = useDictionary();
   const { checkOrganizationPermission } = useJumboAuth();
   const canSeeBudget = checkOrganizationPermission([
     PERMISSIONS.BUDGETS_CREATE,
@@ -305,7 +308,7 @@ function ApprovalRequisitionLedgerItem({
               <Div sx={{ mt: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
                 <ListItemText
                   primary={
-                    <Tooltip title={'Ledger'}>
+                    <Tooltip title={dictionary.tooltips.ledger}>
                       <Typography variant="h5" fontSize={14} lineHeight={1.25} mb={0} noWrap>
                         {item.ledger?.name}
                         {item.ledger && canSeeBudget && (
@@ -333,17 +336,17 @@ function ApprovalRequisitionLedgerItem({
                   secondary={
                     item.relatable && (
                       <>
-                        <Tooltip title={'Relatable To'}>
+                        <Tooltip title={dictionary.tooltips.relatableTo}>
                           <Typography variant="caption" fontSize={14} lineHeight={1.25} mb={0}>
                             {`${item?.relatable?.orderNo || item?.relatable?.certificateNo || (item?.relatable as any)?.invoiceNo || ''} (${readableDate(item.relatable?.order_date || item.relatable?.certificate_date || (item?.relatable as any)?.transaction_date, false)})`}
                           </Typography>
                         </Tooltip>
                         <Tooltip title={
                           item?.relatable_type === 'purchase'
-                            ? 'View Order'
+                            ? dictionary.forms.requisitions.approvalItem.viewOrder
                             : item?.relatable_type === 'bill'
-                              ? 'View Bill'
-                              : 'View Certificate'
+                              ? dictionary.forms.requisitions.approvalItem.viewBill
+                              : dictionary.forms.requisitions.approvalItem.viewCertificate
                         }>
                           <IconButton onClick={() => {
                             setSelectedRelated(item?.relatable);
@@ -362,7 +365,7 @@ function ApprovalRequisitionLedgerItem({
             <Grid size={{ xs: 6, md: 2, lg: 2 }}>
               <Div sx={{ mt: 1 }}>
                 <TextField
-                  label="Quantity"
+                  label={dictionary.forms.requisitions.common.quantity}
                   fullWidth
                   size="small"
                   value={item.quantity ?? 0}
@@ -402,7 +405,7 @@ function ApprovalRequisitionLedgerItem({
             <Grid size={{ xs: 6, md: 2.5, lg: 2.5 }}>
               <Div sx={{ mt: 1 }}>
                 <TextField
-                  label="Rate"
+                  label={dictionary.forms.requisitions.common.rate}
                   fullWidth
                   size="small"
                   value={rate.toLocaleString()}
@@ -437,7 +440,7 @@ function ApprovalRequisitionLedgerItem({
             <Grid size={{ xs: 12, md: 3, lg: 3 }}>
               <Div sx={{ mt: 1 }}>
                 <TextField
-                  label="Amount"
+                  label={dictionary.forms.requisitions.common.amount}
                   fullWidth
                   size="small"
                   value={(item as any).amount !== undefined 
@@ -477,7 +480,7 @@ function ApprovalRequisitionLedgerItem({
             >
               <Div sx={{ mt: 1 }}>
                 <TextField
-                  label="Remarks"
+                  label={dictionary.forms.requisitions.common.remarks}
                   fullWidth
                   size="small"
                   multiline
@@ -504,7 +507,7 @@ function ApprovalRequisitionLedgerItem({
                 }}
               >
                 <Div sx={{ mt: 1.5, mb: 0.5 }}>
-                  <Tooltip title="Add split allocation under this item">
+                  <Tooltip title={dictionary.tooltips.addSplitAllocationUnderThisItem}>
                     <IconButton
                       size="small"
                       color="primary"
@@ -514,7 +517,7 @@ function ApprovalRequisitionLedgerItem({
                     </IconButton>
                   </Tooltip>
                   {requisitionLedgerItem.length > 1 && (
-                    <Tooltip title="Delete item">
+                    <Tooltip title={dictionary.tooltips.deleteItem}>
                       <IconButton
                         size="small"
                         color="error"
@@ -542,7 +545,7 @@ function ApprovalRequisitionLedgerItem({
                     mb: 1
                   }}
                 >
-                  Split allocations
+                  {dictionary.forms.requisitions.approvalItem.splitAllocations}
                 </Typography>
                 {splits.map((split, splitIndex) => {
                   const splitAmount = Number(split.amount || 0);
@@ -572,7 +575,7 @@ function ApprovalRequisitionLedgerItem({
                       <Grid size={{ xs: 12, md: 3 }}>
                         <Div sx={{ mt: 1, mb: 1 }}>
                           <LedgerSelect
-                            label="Credit Ledger"
+                            label={dictionary.forms.requisitions.approvalItem.creditLedger}
                             frontError={splitErrors?.credit_ledger_id}
                             defaultValue={
                               split.credit_ledger_id
@@ -593,7 +596,7 @@ function ApprovalRequisitionLedgerItem({
                       <Grid size={{ xs: 6, md: 1.5 }}>
                         <Div sx={{ mt: 1, mb: 1 }}>
                           <TextField
-                            label="Qty"
+                            label={dictionary.forms.requisitions.common.qty}
                             fullWidth
                             size="small"
                             value={split.quantity ?? ''}
@@ -613,7 +616,7 @@ function ApprovalRequisitionLedgerItem({
                       <Grid size={{ xs: 6, md: 2 }}>
                         <Div sx={{ mt: 1, mb: 1 }}>
                           <TextField
-                            label="Rate"
+                            label={dictionary.forms.requisitions.common.rate}
                             fullWidth
                             size="small"
                             value={split.rate ?? ''}
@@ -633,7 +636,7 @@ function ApprovalRequisitionLedgerItem({
                       <Grid size={{ xs: 12, md: 2 }}>
                         <Div sx={{ mt: 1, mb: 1 }}>
                           <TextField
-                            label="Amount"
+                            label={dictionary.forms.requisitions.common.amount}
                             fullWidth
                             size="small"
                             value={displayAmount > 0 ? displayAmount.toLocaleString() : ''}
@@ -653,7 +656,7 @@ function ApprovalRequisitionLedgerItem({
                       <Grid size={{ xs: 11, md: 2.5 }}>
                         <Div sx={{ mt: 1, mb: 1 }}>
                           <TextField
-                            label="Remarks"
+                            label={dictionary.forms.requisitions.common.remarks}
                             fullWidth
                             multiline
                             rows={2}
@@ -670,7 +673,7 @@ function ApprovalRequisitionLedgerItem({
 
                       <Grid size={{ xs: 1, md: 0.5 }} textAlign="end">
                         <Div sx={{ mt: 1 }}>
-                          <Tooltip title="Remove split">
+                          <Tooltip title={dictionary.tooltips.removeSplit}>
                             <IconButton
                               size="small"
                               color="error"
@@ -695,7 +698,7 @@ function ApprovalRequisitionLedgerItem({
           <Box
             sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2, mb: 2 }}
           >
-            <Tooltip title="Restore all deleted items" arrow placement="top">
+            <Tooltip title={dictionary.tooltips.restoreAllDeletedItems} arrow placement="top">
               <Button
                 variant="outlined"
                 color="secondary"
@@ -703,7 +706,7 @@ function ApprovalRequisitionLedgerItem({
                 startIcon={<Restore />}
                 onClick={handleResetItems}
               >
-                Reset
+                {dictionary.forms.requisitions.common.reset}
               </Button>
             </Tooltip>
           </Box>

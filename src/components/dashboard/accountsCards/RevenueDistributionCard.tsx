@@ -9,6 +9,7 @@ import exportingModule from 'highcharts/modules/exporting';
 import { useEffect, useState } from 'react';
 import financialReportsServices from '../../accounts/reports/financial-reports-services';
 import { useDashboardSettings } from '../Dashboard';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface RevenueData {
   ledger_name: string;
@@ -21,6 +22,7 @@ interface ChartDataPoint {
 }
 
 function RevenueDistributionCard() {
+  const dictionary = useDictionary();
   const {
     chartFilters: { from, to, cost_center_ids },
   } = useDashboardSettings();
@@ -128,7 +130,7 @@ function RevenueDistributionCard() {
     series: [
       {
         type: 'pie',
-        name: 'Revenue',
+        name: dictionary.dashboardCards.revenue,
         colorByPoint: true,
         data: revenueDistribution || [],
       } as Highcharts.SeriesPieOptions,
@@ -160,7 +162,7 @@ function RevenueDistributionCard() {
             fontFamily: 'NoirPro, Arial',
           }}
         >
-          Revenue Composition
+          {dictionary.dashboardCards.revenueComposition}
         </Typography>
       </Box>
 

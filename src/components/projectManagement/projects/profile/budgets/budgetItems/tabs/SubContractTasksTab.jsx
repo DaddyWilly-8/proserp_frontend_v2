@@ -14,6 +14,7 @@ import { sanitizedNumber } from '@/app/helpers/input-sanitization-helpers';
 import { AddOutlined, CheckOutlined, DisabledByDefault } from '@mui/icons-material';
 import { useCurrencySelect } from '@/components/masters/Currencies/CurrencySelectProvider';
 import { useLedgerSelect } from '@/components/accounts/ledgers/forms/LedgerSelectProvider';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function SubContractTasksTab({ 
   index = -1,
@@ -27,6 +28,8 @@ function SubContractTasksTab({
   setIsDirty,
   allTasks = [],
 }) {
+  const dictionary = useDictionary();
+  const t = dictionary.forms.projects.budgetItems;
   const [isAdding, setIsAdding] = useState(false);
   const [triggerKey, setTriggerKey] = useState(0);
   const { ungroupedLedgerOptions } = useLedgerSelect();
@@ -48,20 +51,20 @@ function SubContractTasksTab({
   };
 
   const validationSchema = yup.object({
-    bound_to: yup.string().required('Bound to is required'),
+    bound_to: yup.string().required(t.errors.boundToRequired),
     project_task_id: yup
       .number()
       .nullable()
       .when('bound_to', {
         is: (value) => value === 'Task',
-        then: (schema) => schema.required('Select Task is required').typeError('Select Task is required'),
+        then: (schema) => schema.required(t.errors.selectTaskRequired).typeError(t.errors.selectTaskRequired),
         otherwise: (schema) => schema.nullable(),
       }),
-    expense_ledger_id: yup.number().required("Expense name is required").typeError('Expense name is required'),
-    currency_id: yup.number().positive().required().typeError('Currency is required'),
-    exchange_rate: yup.number().positive().required().typeError('Exchange rate is required'),
-    rate: yup.number().positive().required().typeError('Rate is required'),
-    quantity: yup.number().positive().required().typeError('Quantity is required')
+    expense_ledger_id: yup.number().required(t.errors.expenseRequired).typeError(t.errors.expenseRequired),
+    currency_id: yup.number().positive().required().typeError(t.errors.currencyRequired),
+    exchange_rate: yup.number().positive().required().typeError(t.errors.exchangeRateRequired),
+    rate: yup.number().positive().required().typeError(t.errors.rateRequired),
+    quantity: yup.number().positive().required().typeError(t.errors.quantityRequired)
   });
 
   const formDefaultValues = {
@@ -165,11 +168,11 @@ function SubContractTasksTab({
       <Grid size={{ xs: 12, md: 4 }} display="flex" flexDirection="column" alignItems="center" justifyContent="center">
         <Div sx={{ mt: 1, width: '100%' }}>
           <FormControl fullWidth>
-            <InputLabel id="bound-to-label" sx={{ width: '100%'}}>Bound To</InputLabel>
+            <InputLabel id="bound-to-label" sx={{ width: '100%'}}>{t.labels.boundTo}</InputLabel>
             <Select
               labelId="bound-to-label"
               value={boundToOption}
-              label="Bound To"
+              label={t.labels.boundTo}
               size='small'
               fullWidth
               error={!!errors?.bound_to}
@@ -181,7 +184,7 @@ function SubContractTasksTab({
                 setValue('project_task_id', null, { shouldValidate: true, shouldDirty: true });
               }}
             >
-              <MenuItem value="Task">Task</MenuItem>
+              <MenuItem value="Task">{t.labels.task}</MenuItem>
             </Select>
             <FormHelperText error>{errors?.bound_to?.message}</FormHelperText>
           </FormControl>
@@ -197,7 +200,7 @@ function SubContractTasksTab({
             renderInput={(params) => (
               <TextField
                 {...params}
-                label={`Select ${boundToOption || 'Task'}`}
+                label={t.labels.selectTask}
                 size="small"
                 fullWidth
                 error={!!errors?.project_task_id}
@@ -222,7 +225,7 @@ function SubContractTasksTab({
         <Div sx={{ mt: 1 }}>
           <LedgerSelect
             multiple={false}
-            label="Expense Name"
+            label={t.labels.expenseName}
             allowedGroups={['Expenses']}
             value={ungroupedLedgerOptions.find(option => option.id === watch('expense_ledger_id')) || null}
             frontError={errors?.expense_ledger_id}
@@ -255,7 +258,7 @@ function SubContractTasksTab({
         <Grid size={{ xs: 6, md: 2, lg: 2 }}>
           <Div sx={{ mt: 1 }}>
             <TextField
-              label="Exchange Rate"
+              label={t.labels.exchangeRate}
               fullWidth
               size="small"
               value={watchedExchangeRate || ''}
@@ -274,7 +277,7 @@ function SubContractTasksTab({
       <Grid size={{ xs: watchedCurrencyId > 1 ? 6 : 12, md: watchedCurrencyId > 1 ? 4 : 4 }}>
         <Div sx={{ mt: 1 }}>
           <TextField
-            label="Quantity"
+            label={t.labels.quantity}
             fullWidth
             size="small"
             value={watchedQuantity || ''}
@@ -295,7 +298,7 @@ function SubContractTasksTab({
       <Grid size={{ xs: watchedCurrencyId > 1 ? 6 : 12, md: watchedCurrencyId > 1 ? 4 : 4 }}>
         <Div sx={{ mt: 1 }}>
           <TextField
-            label="Rate"
+            label={t.labels.rate}
             fullWidth
             size="small"
             value={watchedRate || ''}
@@ -316,7 +319,7 @@ function SubContractTasksTab({
       <Grid size={{ xs: 12, md: 12, lg: 12 }}>
         <Div sx={{ mt: 0.3 }}>
           <TextField
-            label="Description"
+            label={t.labels.description}
             fullWidth
             multiline
             defaultValue={subContractItem?.description}
@@ -338,15 +341,15 @@ function SubContractTasksTab({
         >
           {
             subContractItem ? (
-              <><CheckOutlined fontSize='small' /> Done</>
+              <><CheckOutlined fontSize='small' /> {t.buttons.done}</>
             ) : (
-              <><AddOutlined fontSize='small' /> Add</>
+              <><AddOutlined fontSize='small' /> {t.buttons.add}</>
             )
           }
         </LoadingButton>
         {
           subContractItem && 
-          <Tooltip title='Close Edit'>
+          <Tooltip title={dictionary.tooltips.closeEdit}>
             <IconButton size='small' 
               onClick={() => {
                 setShowForm(false);

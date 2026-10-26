@@ -3,8 +3,10 @@ import { AddOutlined } from '@mui/icons-material';
 import { ButtonGroup, Dialog, IconButton, Tooltip, useMediaQuery } from '@mui/material';
 import React, { useState } from 'react'
 import LoanRequstForm from './LoanRequstForm';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const MyHrLoansActionTail = () => {
+    const dictionary = useDictionary();
     const {theme} = useJumboTheme()
     const belowMediumScreen = useMediaQuery(theme.breakpoints.down('md'));
     const [openDialog, setOpenDialog] = useState(false)
@@ -26,7 +28,7 @@ const MyHrLoansActionTail = () => {
         disableElevation
         sx={{ '& .MuiButton-root': { px: 1 } }}
       >
-        <Tooltip title='Add Loan Request'>
+        <Tooltip title={dictionary.tooltips.addLoanRequest}>
           <IconButton onClick={() => setOpenDialog(true)}>
             <AddOutlined />
           </IconButton>

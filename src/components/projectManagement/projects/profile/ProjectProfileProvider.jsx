@@ -7,12 +7,14 @@ import projectsServices from '../project-services';
 import { Skeleton } from '@mui/material';
 import { Div } from '@jumbo/shared';
 import { Stack } from '@mui/system';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const ProjectProfileContext = createContext({});
 
 export const useProjectProfile = () => useContext(ProjectProfileContext);
 
 function ProjectProfileProvider({ children }) {
+  const dictionary = useDictionary();
   const params = useParams();
   const [isDashboardTab, setIsDashboardTab] = useState(false);
   const [extraValues, setExtraValues] = useState({});
@@ -50,7 +52,7 @@ function ProjectProfileProvider({ children }) {
   }
 
   // Optional chaining to prevent errors if project is undefined
-  document.title = project?.name || 'Project';
+  document.title = project?.name || dictionary.projectManagement.profile.project;
 
   const contextValue = {
     project,

@@ -6,8 +6,10 @@ import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 import { PROS_CONTROL_PERMISSIONS } from '@/utilities/constants/prosControlPermissions';
 import SubscriptionsForm from '@/components/organizations/profile/subscriptions/SubscriptionsForm';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const SubscriptionActionTail = () => {
+  const dictionary = useDictionary();
   const { checkPermission } = useJumboAuth();
   const [openDialog, setOpenDialog] = useState(false);
 
@@ -24,7 +26,7 @@ const SubscriptionActionTail = () => {
 
         <ButtonGroup variant="outlined" size="small" disableElevation sx={{ '& .MuiButton-root': { px: 1 } }}>
             {checkPermission(PROS_CONTROL_PERMISSIONS.SUBSCRIPTIONS_MANAGE) && (
-                <Tooltip title={"Add Subscriptions"}>
+                <Tooltip title={dictionary.tooltips.addSubscriptions}>
                     <IconButton onClick={() => setOpenDialog(true)}>
                         <AddOutlined />
                     </IconButton>

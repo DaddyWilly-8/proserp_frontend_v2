@@ -26,12 +26,14 @@ import {
 } from '../../utils/requisition';
 import RequisitionsItemAction from './RequisitionsItemAction';
 import ApprovalsTab from './tabs/ApprovalsTab';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface RequisitionsListItemProps {
   requisition: Requisition;
 }
 
 const RequisitionsListItem = ({ requisition }: RequisitionsListItemProps) => {
+  const dictionary = useDictionary();
   const [expanded, setExpanded] = useState<Record<number, boolean>>({});
   const [attachDialog, setAttachDialog] = useState(false);
   const { theme } = useJumboTheme();
@@ -105,17 +107,17 @@ const RequisitionsListItem = ({ requisition }: RequisitionsListItemProps) => {
           sx={{ minWidth: 0 }}
         >
           <Grid size={{ xs: 12, md: 2 }}>
-            <Tooltip title='Requistion No.'>
+            <Tooltip title={dictionary.tooltips.requisitionNo2}>
               <Typography>{requisition.requisitionNo}</Typography>
             </Tooltip>
-            <Tooltip title='Requistion Date'>
+            <Tooltip title={dictionary.tooltips.requisitionDate}>
               <Typography variant='caption'>
                 {readableDate(requisition.requisition_date)}
               </Typography>
             </Tooltip>
           </Grid>
           <Grid size={{ xs: 12, md: 3 }} sx={{ minWidth: 0 }}>
-            <Tooltip title='Process'>
+            <Tooltip title={dictionary.tooltips.process}>
               <Typography variant='body2'>{processConfig.label}</Typography>
             </Tooltip>
             {requisition.cost_center?.name && (
@@ -137,7 +139,7 @@ const RequisitionsListItem = ({ requisition }: RequisitionsListItemProps) => {
             )}
           </Grid>
           <Grid size={{ xs: 12, md: 4, lg: 4 }}>
-            <Tooltip title={'Remarks'}>
+            <Tooltip title={dictionary.tooltips.remarks}>
               <Typography
                 component='span'
                 variant='body2'
@@ -150,7 +152,7 @@ const RequisitionsListItem = ({ requisition }: RequisitionsListItemProps) => {
             </Tooltip>
           </Grid>
           <Grid size={{ xs: 8, md: 2.5, lg: 2 }}>
-            <Tooltip title='Amount'>
+            <Tooltip title={dictionary.tooltips.amount}>
               <Typography>
                 {requisitionAmountDisplay(
                   requisition,
@@ -158,7 +160,7 @@ const RequisitionsListItem = ({ requisition }: RequisitionsListItemProps) => {
                 )}
               </Typography>
             </Tooltip>
-            <Tooltip title='Status'>
+            <Tooltip title={dictionary.tooltips.status}>
               <Chip
                 size='small'
                 label={requisition.status_label}
@@ -188,7 +190,7 @@ const RequisitionsListItem = ({ requisition }: RequisitionsListItemProps) => {
               justifyContent='flex-end'
               alignItems='center'
             >
-              <Tooltip title='Attachments'>
+              <Tooltip title={dictionary.tooltips.attachments}>
                 <IconButton
                   component='span'
                   size='small'

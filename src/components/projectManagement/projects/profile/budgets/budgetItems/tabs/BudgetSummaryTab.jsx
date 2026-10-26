@@ -1,4 +1,5 @@
 import React from 'react';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import {
   Paper,
   Typography,
@@ -18,6 +19,7 @@ function BudgetSummaryTab({
   subContractItems = [],
   hasSubcontractTab = false,
 }) {
+  const dictionary = useDictionary();
   const itemAmount = (item) =>
     (Number(item?.quantity) || 0) *
     (Number(item?.rate) || 0) *
@@ -47,17 +49,17 @@ function BudgetSummaryTab({
 
   const expenseGroups = buildGroupedSummary(
     ledgerItems,
-    (item) => item?.ledger?.name || item?.expense_ledger?.name || 'Unspecified Expense'
+    (item) => item?.ledger?.name || item?.expense_ledger?.name || dictionary.projectManagement.budgets.summary.unspecifiedExpense
   );
 
   const productGroups = buildGroupedSummary(
     productItems,
-    (item) => item?.product_name || item?.product?.name || 'Unspecified Product'
+    (item) => item?.product_name || item?.product?.name || dictionary.projectManagement.budgets.summary.unspecifiedProduct
   );
 
   const subcontractGroups = buildGroupedSummary(
     subContractItems,
-    (item) => item?.project_task?.name || item?.project_task?.label || 'Unspecified Task'
+    (item) => item?.project_task?.name || item?.project_task?.label || dictionary.projectManagement.budgets.summary.unspecifiedTask
   );
 
   const expenseTotal = expenseGroups.reduce((sum, row) => sum + row.total, 0);
@@ -67,16 +69,16 @@ function BudgetSummaryTab({
   const tabSummaries = [
     {
       key: 'expense',
-      title: 'Expense Items Summary',
-      itemLabel: 'Expense',
+      title: dictionary.projectManagement.budgets.summary.expenseItems,
+      itemLabel: dictionary.projectManagement.budgets.summary.expense,
       groups: expenseGroups,
       total: expenseTotal,
       count: ledgerItems.length,
     },
     {
       key: 'product',
-      title: 'Product Items Summary',
-      itemLabel: 'Product',
+      title: dictionary.projectManagement.budgets.summary.productItems,
+      itemLabel: dictionary.projectManagement.budgets.summary.product,
       groups: productGroups,
       total: productTotal,
       count: productItems.length,
@@ -85,8 +87,8 @@ function BudgetSummaryTab({
       ? [
           {
             key: 'subcontract',
-            title: 'Subcontract Tasks Summary',
-            itemLabel: 'Task',
+            title: dictionary.projectManagement.budgets.summary.subcontractTasks,
+            itemLabel: dictionary.projectManagement.budgets.summary.task,
             groups: subcontractGroups,
             total: subcontractTotal,
             count: subContractItems.length,
@@ -102,17 +104,17 @@ function BudgetSummaryTab({
 
   return (
     <Paper variant='outlined' sx={{ p: 2, mt: 1 }}>
-      <Typography variant='h6' sx={{ mb: 0.5 }}>Overall Tabs Total</Typography>
+      <Typography variant='h6' sx={{ mb: 0.5 }}>{dictionary.projectManagement.budgets.summary.overallTabsTotal}</Typography>
       <Divider sx={{ mb: 2 }} />
 
       <TableContainer>
         <Table size='small'>
           <TableHead>
             <TableRow>
-              <TableCell>Tab</TableCell>
-              <TableCell align='center'>Items</TableCell>
-              <TableCell align='right'>Share of Grand Total</TableCell>
-              <TableCell align='right'>Total Amount</TableCell>
+              <TableCell>{dictionary.projectManagement.budgets.summary.tab}</TableCell>
+              <TableCell align='center'>{dictionary.projectManagement.budgets.summary.items}</TableCell>
+              <TableCell align='right'>{dictionary.projectManagement.budgets.summary.shareOfGrandTotal}</TableCell>
+              <TableCell align='right'>{dictionary.projectManagement.budgets.summary.totalAmount}</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -120,7 +122,7 @@ function BudgetSummaryTab({
               const share = grandTotalAmount > 0 ? (tab.total / grandTotalAmount) * 100 : 0;
               return (
                 <TableRow key={`${tab.key}-overall`} hover>
-                  <TableCell>{tab.title.replace(' Summary', '')}</TableCell>
+                  <TableCell>{tab.title}</TableCell>
                   <TableCell align='center'>
                     <Chip label={tab.count.toLocaleString()} size='small' />
                   </TableCell>
@@ -135,7 +137,7 @@ function BudgetSummaryTab({
             })}
             <TableRow sx={{ '& td': { borderTop: '2px solid', borderColor: 'divider' } }}>
               <TableCell>
-                <Typography fontWeight={700}>Grand Total</Typography>
+                <Typography fontWeight={700}>{dictionary.projectManagement.budgets.summary.grandTotal}</Typography>
               </TableCell>
               <TableCell align='center'>
                 <Chip label={totalItems.toLocaleString()} size='small' color='primary' />

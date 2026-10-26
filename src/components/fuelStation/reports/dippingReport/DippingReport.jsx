@@ -32,8 +32,11 @@ import * as yup from 'yup';
 import PDFContent from '../../../pdf/PDFContent';
 import fuelStationServices from '../../fuelStationServices';
 import DippingReportPDF from './DippingReportPDF';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function DippingReport({ closeDialog }) {
+  const dictionary = useDictionary();
+  const t = dictionary.reports.fuelStationReports.dipping;
   const { authUser } = useJumboAuth();
   const { data: stations, isFetching: isFetchingStation } = useQuery({
     queryKey: ['userStations', { userId: authUser?.user?.id }],
@@ -60,7 +63,7 @@ function DippingReport({ closeDialog }) {
     }
   }, [stations]);
 
-  document.title = 'Dipping Report';
+  document.title = t.title;
   const css = useProsERPStyles();
   const {
     authOrganization: { organization },
@@ -90,16 +93,16 @@ function DippingReport({ closeDialog }) {
   const validationSchema = yup.object({
     fuel_station_id: yup
       .number()
-      .required('Station is required')
-      .typeError('Station is required'),
+      .required(t.stationRequired)
+      .typeError(t.stationRequired),
     from: yup
       .string()
-      .required('Start Date is required')
-      .typeError('Start Date is required'),
+      .required(t.startDateRequired)
+      .typeError(t.startDateRequired),
     to: yup
       .string()
-      .required('End Date is required')
-      .typeError('End Date is required'),
+      .required(t.endDateRequired)
+      .typeError(t.endDateRequired),
   });
 
   const {
@@ -201,11 +204,9 @@ function DippingReport({ closeDialog }) {
           alignItems='center'
           position='relative'
         >
-          <Typography variant='h3' textAlign={'center'}>
-            Dipping Report
-          </Typography>
+          <Typography variant='h3' textAlign={'center'}>{t.title}</Typography>
           {belowLargeScreen && (
-            <Tooltip title='Close'>
+            <Tooltip title={dictionary.tooltips.close}>
               <IconButton
                 size='small'
                 sx={{ position: 'absolute', right: 20, top: 0 }}
@@ -238,7 +239,7 @@ function DippingReport({ closeDialog }) {
                   renderInput={(params) => (
                     <TextField
                       {...params}
-                      label='Station'
+                      label={t.station}
                       error={errors && !!errors?.fuel_station_id}
                       helperText={errors && errors.fuel_station_id?.message}
                     />
@@ -263,7 +264,7 @@ function DippingReport({ closeDialog }) {
               <Grid size={{ xs: 12, md: 4 }}>
                 <Div sx={{ mt: 1, mb: 1 }}>
                   <DateTimePicker
-                    label='From (MM/DD/YYYY)'
+                    label={t.fromDate}
                     defaultValue={dayjs().startOf('day')}
                     minDate={dayjs(organization.recording_start_date)}
                     ampm={false}
@@ -289,7 +290,7 @@ function DippingReport({ closeDialog }) {
               <Grid size={{ xs: 12, md: 4 }}>
                 <Div sx={{ mt: 1, mb: 1 }}>
                   <DateTimePicker
-                    label='To (MM/DD/YYYY)'
+                    label={t.toDate}
                     defaultValue={dayjs().endOf('day')}
                     minDate={dayjs(organization.recording_start_date)}
                     ampm={false}
@@ -337,7 +338,7 @@ function DippingReport({ closeDialog }) {
                         }
                       />
                     }
-                    label='Show cumulative deviation'
+                    label={t.showCumulativeDeviation}
                   />
                   <FormControlLabel
                     control={
@@ -349,7 +350,7 @@ function DippingReport({ closeDialog }) {
                         }
                       />
                     }
-                    label='Show calculated stock'
+                    label={t.showCalculatedStock}
                   />
                 </Div>
                 <Div
@@ -371,9 +372,7 @@ function DippingReport({ closeDialog }) {
                     type='submit'
                     size='small'
                     variant='contained'
-                  >
-                    Filter
-                  </LoadingButton>
+                  >{t.filter}</LoadingButton>
                 </Div>
               </Grid>
             </Grid>
@@ -425,14 +424,13 @@ function DippingReport({ closeDialog }) {
                 organization={organization}
                 showCumulativeDeviation={showCumulativeDeviation}
                 showCalculatedStock={showCalculatedStock}
+                dictionary={dictionary}
               />
             }
             fileName={downloadFileName}
           />
         ) : (
-          <Alert variant='outlined' severity='info'>
-            No dipping records present for the selected filters
-          </Alert>
+          <Alert variant='outlined' severity='info'>{t.noRecords}</Alert>
         )}
       </DialogContent>
     </>

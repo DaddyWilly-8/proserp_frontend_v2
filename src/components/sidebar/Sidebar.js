@@ -657,6 +657,17 @@ function Sidebar({ menus }) {
                     }
                 }
 
+                //Accounts > Recurring Transactions
+                if (!checkOrganizationPermission([PERMISSIONS.RECURRING_TRANSACTIONS_READ])) {
+                    const accountsMenuIndex = updatedMenus.findIndex(menu => menu.label === dictionary.sidebar.menu.accounts_and_finance);
+
+                    if (accountsMenuIndex >= 0) {
+                        updatedMenus[accountsMenuIndex].children = updatedMenus[accountsMenuIndex].children.filter(
+                            item => item.label !== dictionary.sidebar.menuItem.recurringTransactions
+                        );
+                    }
+                }
+
                 // Accounts > Masters
                 if (!checkOrganizationPermission([PERMISSIONS.ACCOUNTS_MASTERS_READ, PERMISSIONS.ACCOUNTS_MASTERS_CREATE])) {
                     const accountsMenuIndex = updatedMenus.findIndex(menu => menu.label === dictionary.sidebar.menu.accounts_and_finance);

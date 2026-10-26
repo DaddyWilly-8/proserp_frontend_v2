@@ -40,43 +40,44 @@ import { sanitizedNumber } from '@/app/helpers/input-sanitization-helpers';
 import CommaSeparatedField from '@/shared/Inputs/CommaSeparatedField';
 import purchaseBillServices from './purchaseBill-services';
 import purchaseServices from '../purchases/purchase-services';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
-const validationSchema = yup.object({
-  transaction_date: yup.string().required('Bill date is required'),
+const buildValidationSchema = (dictionary) => yup.object({
+  transaction_date: yup.string().required(dictionary.forms.grns.purchaseBillForm.errors.validation.billDate.required),
   due_date: yup.string().nullable(),
-  internal_reference: yup.string().max(20, 'Max 20 characters').nullable(),
-  supplier_reference: yup.string().max(20, 'Max 20 characters').nullable(),
+  internal_reference: yup.string().max(20, dictionary.forms.grns.purchaseBillForm.errors.validation.maxChars).nullable(),
+  supplier_reference: yup.string().max(20, dictionary.forms.grns.purchaseBillForm.errors.validation.maxChars).nullable(),
   vat_percentage: yup
     .number()
     .transform((value, original) => (original === '' ? undefined : value))
-    .min(0, 'Must be at least 0')
-    .max(100, 'Must not exceed 100')
+    .min(0, dictionary.forms.grns.purchaseBillForm.errors.validation.vat.min)
+    .max(100, dictionary.forms.grns.purchaseBillForm.errors.validation.vat.max)
     .nullable(),
   adjustments: yup.array().of(
     yup.object({
       complement_ledger_id: yup
         .number()
-        .required('Ledger is required')
-        .typeError('Ledger is required'),
+        .required(dictionary.forms.grns.purchaseBillForm.errors.validation.ledger.required)
+        .typeError(dictionary.forms.grns.purchaseBillForm.errors.validation.ledger.required),
       type: yup.string().required(),
-      description: yup.string().required('Description is required'),
+      description: yup.string().required(dictionary.forms.grns.purchaseBillForm.errors.validation.description.required),
       amount: yup
         .number()
-        .required('Amount is required')
-        .positive('Amount must be greater than 0')
-        .typeError('Amount is required'),
+        .required(dictionary.forms.grns.purchaseBillForm.errors.validation.amount.required)
+        .positive(dictionary.forms.grns.purchaseBillForm.errors.validation.amount.positive)
+        .typeError(dictionary.forms.grns.purchaseBillForm.errors.validation.amount.required),
     })
   ),
   items: yup.array().of(
     yup.object({
       amount: yup
         .number()
-        .required('Amount is required')
-        .positive('Amount must be greater than 0')
-        .typeError('Amount is required')
+        .required(dictionary.forms.grns.purchaseBillForm.errors.validation.amount.required)
+        .positive(dictionary.forms.grns.purchaseBillForm.errors.validation.amount.positive)
+        .typeError(dictionary.forms.grns.purchaseBillForm.errors.validation.amount.required)
         .test(
           'max-remaining',
-          'Amount exceeds the remaining balance for this item',
+          dictionary.forms.grns.purchaseBillForm.errors.validation.amount.maxRemainingItem,
           function (value) {
             const remaining = Number(this.parent?.remaining_amount ?? 0);
             return value == null || value <= remaining;
@@ -88,12 +89,12 @@ const validationSchema = yup.object({
     yup.object({
       amount: yup
         .number()
-        .required('Amount is required')
-        .positive('Amount must be greater than 0')
-        .typeError('Amount is required')
+        .required(dictionary.forms.grns.purchaseBillForm.errors.validation.amount.required)
+        .positive(dictionary.forms.grns.purchaseBillForm.errors.validation.amount.positive)
+        .typeError(dictionary.forms.grns.purchaseBillForm.errors.validation.amount.required)
         .test(
           'max-remaining',
-          'Amount exceeds the remaining balance for this cost',
+          dictionary.forms.grns.purchaseBillForm.errors.validation.amount.maxRemainingCost,
           function (value) {
             const remaining = Number(this.parent?.remaining_amount ?? 0);
             return value == null || value <= remaining;
@@ -126,6 +127,7 @@ const SectionHeader = ({ icon, title, hint }) => (
  * `existingBill` (the full details from purchaseBillServices.details()).
  */
 const PurchaseBillFormDialog = ({ grn, order, existingBill, setOpenDialog }) => {
+  const dictionary = useDictionary();
   const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
   const { authOrganization } = useJumboAuth();
@@ -135,6 +137,7 @@ const PurchaseBillFormDialog = ({ grn, order, existingBill, setOpenDialog }) => 
 
   const source = grn || order;
   const documentNo = grn ? grn.grnNo : order.orderNo;
+  const validationSchema = useMemo(() => buildValidationSchema(dictionary), [dictionary]);
   const orgVatPercentage = authOrganization?.organization?.settings?.vat_percentage || 0;
 
   const {
@@ -336,7 +339,7 @@ const PurchaseBillFormDialog = ({ grn, order, existingBill, setOpenDialog }) => 
         ? Object.values(validationErrors).flat().join(' ')
         : null;
       enqueueSnackbar(
-        detail || error?.response?.data?.message || `Failed to ${existingBill ? 'update' : 'create'} Purchase Bill`,
+        detail || error?.response?.data?.message || (existingBill ? dictionary.forms.grns.purchaseBillForm.messages.saveFailedUpdate : dictionary.forms.grns.purchaseBillForm.messages.saveFailedCreate),
         { variant: 'error' }
       );
     },
@@ -406,13 +409,13 @@ const PurchaseBillFormDialog = ({ grn, order, existingBill, setOpenDialog }) => 
   return (
     <form onSubmit={handleSubmit(onSubmit)} noValidate>
       <DialogTitle sx={{ textAlign: 'center' }}>
-        {existingBill ? `Edit ${existingBill.invoiceNo} for ${documentNo}` : `Purchase Bill for ${documentNo}`}
+        {(existingBill ? dictionary.forms.grns.purchaseBillForm.titles.edit : dictionary.forms.grns.purchaseBillForm.titles.create).replace('{invoiceNo}', existingBill?.invoiceNo).replace('{documentNo}', documentNo)}
       </DialogTitle>
       <DialogContent>
         <Stack spacing={2.5} sx={{ mt: 0.5 }}>
           {/* Bill Details */}
           <Stack spacing={1.5}>
-            <SectionHeader icon={<ReceiptLongOutlined fontSize='small' color='action' />} title='Bill Details' />
+            <SectionHeader icon={<ReceiptLongOutlined fontSize='small' color='action' />} title={dictionary.forms.grns.purchaseBillForm.sections.billDetails} />
             <Grid container columnSpacing={1.5} rowSpacing={1.5}>
               <Grid size={{ xs: 12, sm: 3 }}>
                 <Controller
@@ -420,7 +423,7 @@ const PurchaseBillFormDialog = ({ grn, order, existingBill, setOpenDialog }) => 
                   control={control}
                   render={({ field }) => (
                     <DateTimePicker
-                      label='Bill Date'
+                      label={dictionary.forms.grns.purchaseBillForm.labels.billDate}
                       value={dayjs(field.value)}
                       onChange={(newValue) =>
                         field.onChange(newValue ? newValue.toISOString() : null)
@@ -443,7 +446,7 @@ const PurchaseBillFormDialog = ({ grn, order, existingBill, setOpenDialog }) => 
                   control={control}
                   render={({ field }) => (
                     <DateTimePicker
-                      label='Due Date'
+                      label={dictionary.forms.grns.purchaseBillForm.labels.dueDate}
                       value={field.value ? dayjs(field.value) : null}
                       minDate={dayjs(getValues('transaction_date'))}
                       onChange={(newValue) =>
@@ -464,7 +467,7 @@ const PurchaseBillFormDialog = ({ grn, order, existingBill, setOpenDialog }) => 
               <Grid size={{ xs: 6, sm: 3 }}>
                 <TextField
                   fullWidth
-                  label='Internal Ref.'
+                  label={dictionary.forms.grns.purchaseBillForm.labels.internalRef}
                   size='small'
                   error={!!errors.internal_reference}
                   helperText={errors.internal_reference?.message}
@@ -475,7 +478,7 @@ const PurchaseBillFormDialog = ({ grn, order, existingBill, setOpenDialog }) => 
               <Grid size={{ xs: 6, sm: 3 }}>
                 <TextField
                   fullWidth
-                  label='Supplier Ref.'
+                  label={dictionary.forms.grns.purchaseBillForm.labels.supplierRef}
                   size='small'
                   error={!!errors.supplier_reference}
                   helperText={errors.supplier_reference?.message}
@@ -489,7 +492,7 @@ const PurchaseBillFormDialog = ({ grn, order, existingBill, setOpenDialog }) => 
                   multiline
                   minRows={1}
                   maxRows={4}
-                  label='Narration'
+                  label={dictionary.forms.grns.purchaseBillForm.labels.narration}
                   size='small'
                   {...register('narration')}
                 />
@@ -514,9 +517,9 @@ const PurchaseBillFormDialog = ({ grn, order, existingBill, setOpenDialog }) => 
               <Grid size={{ xs: 12, sm: 7 }}>
                 <Stack direction='row' spacing={0.5} alignItems='center'>
                   <Typography variant='body2' color='text.secondary'>
-                    {grn ? 'Goods/Services Amount' : 'Items Total'}
+                    {grn ? dictionary.forms.grns.purchaseBillForm.labels.goodsServicesAmount : dictionary.forms.grns.purchaseBillForm.labels.itemsTotal}
                   </Typography>
-                  <Tooltip title='Moves out of Unbilled Goods'>
+                  <Tooltip title={dictionary.tooltips.movesOutOfUnbilledGoods}>
                     <InfoOutlined sx={{ fontSize: 16, color: 'text.disabled' }} />
                   </Tooltip>
                 </Stack>
@@ -528,14 +531,14 @@ const PurchaseBillFormDialog = ({ grn, order, existingBill, setOpenDialog }) => 
                 <TextField
                   fullWidth
                   type='number'
-                  label='VAT %'
+                  label={dictionary.forms.grns.purchaseBillForm.labels.vatPercent}
                   size='small'
                   error={!!errors.vat_percentage}
                   helperText={
                     errors.vat_percentage?.message ||
                     (vatExemptAmount > 0
-                      ? `From org settings — applied on the amount above, excluding ${vatExemptAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })} that's VAT-exempt`
-                      : 'From org settings — applied on the amount above')
+                      ? dictionary.forms.grns.purchaseBillForm.messages.vatHelperExcluding.replace('{amount}', vatExemptAmount.toLocaleString(undefined, { minimumFractionDigits: 2 }))
+                      : dictionary.forms.grns.purchaseBillForm.messages.vatHelper)
                   }
                   {...register('vat_percentage')}
                 />
@@ -550,8 +553,8 @@ const PurchaseBillFormDialog = ({ grn, order, existingBill, setOpenDialog }) => 
               <Stack spacing={1.5}>
                 <SectionHeader
                   icon={<AccountBalanceWalletOutlined fontSize='small' color='action' />}
-                  title='Items to Bill'
-                  hint="Amount defaults to each item's full remaining balance — reduce it to bill only part of an item. Debit ledger defaults to the item's category expense ledger if left blank."
+                  title={dictionary.forms.grns.purchaseBillForm.sections.itemsToBill}
+                  hint={dictionary.forms.grns.purchaseBillForm.hints.itemsToBill}
                 />
                 <Stack spacing={1}>
                   {billItemFields.map((field, index) => (
@@ -570,7 +573,7 @@ const PurchaseBillFormDialog = ({ grn, order, existingBill, setOpenDialog }) => 
                             {field.product_name}
                           </Typography>
                           <Typography variant='caption' color='text.secondary'>
-                            Remaining:{' '}
+                            {dictionary.forms.grns.purchaseBillForm.labels.remaining}{' '}
                             {Number(field.remaining_amount).toLocaleString(undefined, {
                               minimumFractionDigits: 2,
                             })}
@@ -584,7 +587,7 @@ const PurchaseBillFormDialog = ({ grn, order, existingBill, setOpenDialog }) => 
                               <TextField
                                 fullWidth
                                 size='small'
-                                label='Amount to Bill'
+                                label={dictionary.forms.grns.purchaseBillForm.labels.amountToBill}
                                 value={amountField.value ?? ''}
                                 error={!!errors.items?.[index]?.amount}
                                 helperText={errors.items?.[index]?.amount?.message}
@@ -604,7 +607,7 @@ const PurchaseBillFormDialog = ({ grn, order, existingBill, setOpenDialog }) => 
                             control={control}
                             render={({ field: ledgerField }) => (
                               <LedgerSelect
-                                label='Debit Ledger'
+                                label={dictionary.forms.grns.purchaseBillForm.labels.debitLedger}
                                 allowedGroups={['Direct Expenses', 'Indirect Expenses', 'Current Assets', 'Current Liabilities']}
                                 onChange={(ledger) => ledgerField.onChange(ledger?.id ?? null)}
                               />
@@ -627,8 +630,8 @@ const PurchaseBillFormDialog = ({ grn, order, existingBill, setOpenDialog }) => 
               <Stack spacing={1.5}>
                 <SectionHeader
                   icon={<LocalShippingOutlined fontSize='small' color='action' />}
-                  title='Additional Costs to Bill'
-                  hint="Freight, PVOC, transportation, etc. entered on the order. Amount defaults to the full remaining balance — reduce it to bill only part of it now."
+                  title={dictionary.forms.grns.purchaseBillForm.sections.additionalCostsToBill}
+                  hint={dictionary.forms.grns.purchaseBillForm.hints.additionalCostsToBill}
                 />
                 <Stack spacing={1}>
                   {billAdditionalCostFields.map((field, index) => (
@@ -648,15 +651,15 @@ const PurchaseBillFormDialog = ({ grn, order, existingBill, setOpenDialog }) => 
                               {field.ledger_name}
                             </Typography>
                             {field.vat_exempted && (
-                              <Tooltip title="This cost is excluded from VAT when the bill's VAT % is applied">
+                              <Tooltip title={dictionary.tooltips.thisCostIsExcludedFromVat}>
                                 <Typography variant='caption' color='text.secondary'>
-                                  (VAT Exempt)
+                                  {dictionary.forms.grns.purchaseBillForm.labels.vatExemptParen}
                                 </Typography>
                               </Tooltip>
                             )}
                           </Stack>
                           <Typography variant='caption' color='text.secondary'>
-                            Remaining:{' '}
+                            {dictionary.forms.grns.purchaseBillForm.labels.remaining}{' '}
                             {Number(field.remaining_amount).toLocaleString(undefined, {
                               minimumFractionDigits: 2,
                             })}
@@ -670,7 +673,7 @@ const PurchaseBillFormDialog = ({ grn, order, existingBill, setOpenDialog }) => 
                               <TextField
                                 fullWidth
                                 size='small'
-                                label='Amount to Bill'
+                                label={dictionary.forms.grns.purchaseBillForm.labels.amountToBill}
                                 value={amountField.value ?? ''}
                                 error={!!errors.additional_costs?.[index]?.amount}
                                 helperText={errors.additional_costs?.[index]?.amount?.message}
@@ -698,8 +701,8 @@ const PurchaseBillFormDialog = ({ grn, order, existingBill, setOpenDialog }) => 
           <Stack spacing={1.5}>
             <SectionHeader
               icon={<RuleOutlined fontSize='small' color='action' />}
-              title='Adjustments'
-              hint='Withholding tax, retentions, penalties, discounts, etc.'
+              title={dictionary.forms.grns.purchaseBillForm.sections.adjustments}
+              hint={dictionary.forms.grns.purchaseBillForm.hints.adjustments}
             />
             <Stack spacing={1.5}>
               {fields.map((field, index) => (
@@ -719,7 +722,7 @@ const PurchaseBillFormDialog = ({ grn, order, existingBill, setOpenDialog }) => 
                         control={control}
                         render={({ field: ledgerField }) => (
                           <LedgerSelect
-                            label='Ledger'
+                            label={dictionary.forms.grns.purchaseBillForm.labels.ledger}
                             frontError={errors.adjustments?.[index]?.complement_ledger_id}
                             onChange={(ledger) =>
                               ledgerField.onChange(ledger?.id ?? null)
@@ -738,11 +741,11 @@ const PurchaseBillFormDialog = ({ grn, order, existingBill, setOpenDialog }) => 
                             select
                             fullWidth
                             size='small'
-                            label='Type'
+                            label={dictionary.forms.grns.purchaseBillForm.labels.type}
                             {...typeField}
                           >
-                            <MenuItem value='addition'>Addition</MenuItem>
-                            <MenuItem value='deduction'>Subtraction</MenuItem>
+                            <MenuItem value='addition'>{dictionary.forms.grns.purchaseBillForm.options.addition}</MenuItem>
+                            <MenuItem value='deduction'>{dictionary.forms.grns.purchaseBillForm.options.subtraction}</MenuItem>
                           </TextField>
                         )}
                       />
@@ -796,7 +799,7 @@ const PurchaseBillFormDialog = ({ grn, order, existingBill, setOpenDialog }) => 
                               renderInput={(params) => (
                                 <TextField
                                   {...params}
-                                  label='Applies To (optional — whole bill if blank)'
+                                  label={dictionary.forms.grns.purchaseBillForm.labels.appliesTo}
                                 />
                               )}
                             />
@@ -808,7 +811,7 @@ const PurchaseBillFormDialog = ({ grn, order, existingBill, setOpenDialog }) => 
                       <TextField
                         fullWidth
                         size='small'
-                        label='Description'
+                        label={dictionary.forms.grns.purchaseBillForm.labels.description}
                         error={!!errors.adjustments?.[index]?.description}
                         helperText={errors.adjustments?.[index]?.description?.message}
                         {...register(`adjustments.${index}.description`)}
@@ -822,7 +825,7 @@ const PurchaseBillFormDialog = ({ grn, order, existingBill, setOpenDialog }) => 
                           <TextField
                             fullWidth
                             size='small'
-                            label='Amount'
+                            label={dictionary.forms.grns.purchaseBillForm.labels.amount}
                             value={amountField.value ?? ''}
                             error={!!errors.adjustments?.[index]?.amount}
                             helperText={errors.adjustments?.[index]?.amount?.message}
@@ -842,7 +845,7 @@ const PurchaseBillFormDialog = ({ grn, order, existingBill, setOpenDialog }) => 
                       size={{ xs: 2, sm: 1 }}
                       sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                     >
-                      <Tooltip title='Remove Adjustment'>
+                      <Tooltip title={dictionary.tooltips.removeAdjustment}>
                         <IconButton onClick={() => remove(index)} color='error' size='small'>
                           <DeleteOutline fontSize='small' />
                         </IconButton>
@@ -866,7 +869,7 @@ const PurchaseBillFormDialog = ({ grn, order, existingBill, setOpenDialog }) => 
                     })
                   }
                 >
-                  Add Adjustment
+                  {dictionary.forms.grns.purchaseBillForm.buttons.addAdjustment}
                 </Button>
               </Box>
             </Stack>
@@ -888,7 +891,7 @@ const PurchaseBillFormDialog = ({ grn, order, existingBill, setOpenDialog }) => 
               gap: 0.5,
             }}
           >
-            <Typography variant='body2' color='text.secondary'>Net Payable to Supplier</Typography>
+            <Typography variant='body2' color='text.secondary'>{dictionary.forms.grns.purchaseBillForm.labels.netPayableToSupplier}</Typography>
             <Typography variant='h6' fontWeight='bold' color='primary.main'>
               {netPayable.toLocaleString(undefined, { minimumFractionDigits: 2 })}
             </Typography>
@@ -897,7 +900,7 @@ const PurchaseBillFormDialog = ({ grn, order, existingBill, setOpenDialog }) => 
       </DialogContent>
       <DialogActions>
         <Button onClick={() => setOpenDialog(false)} size='small'>
-          Cancel
+          {dictionary.forms.grns.purchaseBillForm.buttons.cancel}
         </Button>
         <LoadingButton
           type='submit'
@@ -905,7 +908,7 @@ const PurchaseBillFormDialog = ({ grn, order, existingBill, setOpenDialog }) => 
           size='small'
           loading={isPending}
         >
-          {existingBill ? 'Update Bill' : 'Create Bill'}
+          {existingBill ? dictionary.forms.grns.purchaseBillForm.buttons.updateBill : dictionary.forms.grns.purchaseBillForm.buttons.createBill}
         </LoadingButton>
       </DialogActions>
     </form>

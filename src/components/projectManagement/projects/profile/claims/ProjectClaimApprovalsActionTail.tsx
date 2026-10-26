@@ -20,6 +20,7 @@ import ProjectClaimApprovalDialog, {
   getNextPendingProjectClaimApprovalLevel,
 } from './ProjectClaimApprovalDialog';
 import { ProjectClaim } from './ProjectClaimType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface ProjectClaimApprovalsActionTailProps {
   claim: ProjectClaim;
@@ -28,6 +29,7 @@ interface ProjectClaimApprovalsActionTailProps {
 const ProjectClaimApprovalsActionTail = ({
   claim,
 }: ProjectClaimApprovalsActionTailProps) => {
+  const dictionary = useDictionary();
   const [openDialog, setOpenDialog] = useState(false);
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const { authUser, hasOrganizationRole, checkOrganizationPermission } = useJumboAuth();
@@ -102,10 +104,10 @@ const ProjectClaimApprovalsActionTail = ({
       queryClient.invalidateQueries({ queryKey: ['claimDetails', claim.id] });
       queryClient.invalidateQueries({ queryKey: ['claim-details', claim.id] });
       queryClient.invalidateQueries({ queryKey: ['projectProjectClaims'] });
-      enqueueSnackbar(data?.message || 'Your decision was removed', { variant: 'success' });
+      enqueueSnackbar(data?.message || dictionary.projectManagement.claims.actions.decisionRemoved, { variant: 'success' });
     },
     onError: (error: any) => {
-      enqueueSnackbar(error?.response?.data?.message || 'Something went wrong', {
+      enqueueSnackbar(error?.response?.data?.message || dictionary.projectManagement.claims.common.somethingWentWrong, {
         variant: 'error',
       });
     },
@@ -113,9 +115,8 @@ const ProjectClaimApprovalsActionTail = ({
 
   const handleUndo = () => {
     showDialog({
-      title: 'Undo My Decision',
-      content:
-        'This removes your latest decision so the claim goes back to where it stood before it. Continue?',
+      title: dictionary.projectManagement.claims.actions.undoTitle,
+      content: dictionary.projectManagement.claims.actions.undoText,
       variant: 'confirm',
       onYes: () => {
         hideDialog();
@@ -145,28 +146,28 @@ const ProjectClaimApprovalsActionTail = ({
       )}
 
       {canApprove && (
-        <Tooltip title='Approve Claim'>
+        <Tooltip title={dictionary.tooltips.approveClaim}>
           <IconButton onClick={() => setOpenDialog(true)}>
             <FactCheckOutlined />
           </IconButton>
         </Tooltip>
       )}
       {canReturn && !canApprove && (
-        <Tooltip title='Return To Requester'>
+        <Tooltip title={dictionary.tooltips.returnToRequester}>
           <IconButton onClick={() => setOpenDialog(true)}>
             <KeyboardReturnOutlined />
           </IconButton>
         </Tooltip>
       )}
       {canChangeOwnDecision && (
-        <Tooltip title='Change My Decision'>
+        <Tooltip title={dictionary.tooltips.changeMyDecision}>
           <IconButton onClick={() => setOpenEditDialog(true)}>
             <EditOutlined />
           </IconButton>
         </Tooltip>
       )}
       {canChangeOwnDecision && (
-        <Tooltip title='Undo My Decision'>
+        <Tooltip title={dictionary.tooltips.undoMyDecision}>
           <IconButton onClick={handleUndo}>
             <ReplayOutlined />
           </IconButton>

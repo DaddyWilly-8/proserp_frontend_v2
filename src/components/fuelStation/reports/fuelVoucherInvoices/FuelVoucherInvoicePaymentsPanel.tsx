@@ -21,6 +21,7 @@ import {
   Typography,
 } from '@mui/material';
 import { useState } from 'react';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const money = (value = 0) =>
   (value ?? 0).toLocaleString('en-US', {
@@ -35,6 +36,8 @@ interface Props {
 
 // Received / balance summary and the receipts already linked to a batch Fuel Voucher invoice.
 function FuelVoucherInvoicePaymentsPanel({ invoice }: Props) {
+  const dictionary = useDictionary();
+  const t = dictionary.reports.fuelStationReports.fuelVoucherInvoices;
   const { checkOrganizationPermission } = useJumboAuth();
   const [previewReceiptId, setPreviewReceiptId] = useState<number | null>(null);
 
@@ -51,22 +54,22 @@ function FuelVoucherInvoicePaymentsPanel({ invoice }: Props) {
       <Grid container spacing={1} alignItems='center'>
         <Grid size={12}>
           <Stack direction='row' spacing={3} flexWrap='wrap' alignItems='center'>
-            <Typography>{`Total: ${money(invoice.total)}`}</Typography>
-            <Typography>{`Received: ${money(invoice.paid_amount)}`}</Typography>
+            <Typography>{`${t.total}: ${money(invoice.total)}`}</Typography>
+            <Typography>{`${t.received}: ${money(invoice.paid_amount)}`}</Typography>
             <Typography fontWeight='bold'>
-              {`Balance: ${money(invoice.unpaid_amount)}`}
+              {`${t.balance}: ${money(invoice.unpaid_amount)}`}
             </Typography>
             {isPaid ? (
               <Chip
                 size='small'
                 color='success'
                 variant='outlined'
-                label={invoice.manually_paid_at ? 'Marked as paid' : 'Paid'}
+                label={invoice.manually_paid_at ? t.markedAsPaid : t.paid}
               />
             ) : invoice.paid_amount > 0 ? (
-              <Chip size='small' color='warning' variant='outlined' label='Partially Paid' />
+              <Chip size='small' color='warning' variant='outlined' label={t.partiallyPaid} />
             ) : (
-              <Chip size='small' variant='outlined' label='Unpaid' />
+              <Chip size='small' variant='outlined' label={t.unpaid} />
             )}
           </Stack>
         </Grid>
@@ -77,11 +80,11 @@ function FuelVoucherInvoicePaymentsPanel({ invoice }: Props) {
           <Table size='small'>
             <TableHead>
               <TableRow>
-                <TableCell>Receipt</TableCell>
-                <TableCell>Date</TableCell>
-                <TableCell>Received Into</TableCell>
-                <TableCell>Reference</TableCell>
-                <TableCell align='right'>Amount</TableCell>
+                <TableCell>{t.receipt}</TableCell>
+                <TableCell>{t.date}</TableCell>
+                <TableCell>{t.receivedInto}</TableCell>
+                <TableCell>{t.reference}</TableCell>
+                <TableCell align='right'>{t.amount}</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -90,7 +93,7 @@ function FuelVoucherInvoicePaymentsPanel({ invoice }: Props) {
                   <TableCell>
                     <Stack direction='row' spacing={1} alignItems='center'>
                       {canViewReceipts ? (
-                        <Tooltip title='View Receipt'>
+                        <Tooltip title={dictionary.tooltips.viewReceipt}>
                           <Typography
                             component='span'
                             variant='body2'
@@ -108,14 +111,14 @@ function FuelVoucherInvoicePaymentsPanel({ invoice }: Props) {
                       )}
                       {receipt.cancelled_at && (
                         <Tooltip
-                          title={`Cancelled ${readableDate(receipt.cancelled_at)} - the amount it applied here may no longer be accurate`}
+                          title={t.cancelledTip.replace('{date}', readableDate(receipt.cancelled_at))}
                         >
                           <Chip
                             size='small'
                             color='error'
                             variant='outlined'
                             icon={<CancelOutlined fontSize='small' />}
-                            label='Cancelled'
+                            label={t.cancelled}
                           />
                         </Tooltip>
                       )}

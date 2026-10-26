@@ -5,11 +5,13 @@ import { PERMISSIONS } from '@/utilities/constants/permissions';
 import { AttachFileOutlined, CancelOutlined } from '@mui/icons-material';
 import { Badge, Box, Chip, Divider, Grid, IconButton, Link, Stack, Tooltip, Typography, useTheme } from '@mui/material';
 import { useRef, useState } from 'react';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const money = (value: number = 0) =>
   value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 function PurchaseBillOnScreenPreview({ bill, organization }: { bill: any; organization: any }) {
+  const dictionary = useDictionary();
   const theme = useTheme();
   const { checkOrganizationPermission } = useJumboAuth();
   // Seeing this bill (gated on SupplierBills:Read) doesn't imply the viewer can see full Payment
@@ -347,7 +349,7 @@ function PurchaseBillOnScreenPreview({ bill, organization }: { bill: any; organi
                     <td style={{ padding: 8, border: `1px solid ${theme.palette.divider}` }}>
                       <Stack direction='row' spacing={1} alignItems='center'>
                         {canViewPayments ? (
-                          <Tooltip title='View Payment'>
+                          <Tooltip title={dictionary.tooltips.viewPayment}>
                             <Typography
                               component='span'
                               variant='body2'

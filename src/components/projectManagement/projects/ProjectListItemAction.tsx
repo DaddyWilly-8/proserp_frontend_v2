@@ -10,8 +10,10 @@ import { MenuItemProps } from '@jumbo/types';
 import { JumboDdMenu } from '@jumbo/components';
 import projectsServices from './project-services';
 import { Project } from './ProjectTypes';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const ProjectListItemAction = ({ project }: { project: Project }) => {
+  const dictionary = useDictionary();
   const { showDialog, hideDialog } = useJumboDialog();
   const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
@@ -20,12 +22,12 @@ const ProjectListItemAction = ({ project }: { project: Project }) => {
   const { mutate: deleteProject } = useMutation({
     mutationFn: (params: { id: number }) => projectsServices.deleteProject(params.id),
       onSuccess: (data: { message: string }) => {
-        enqueueSnackbar(data.message || 'Successfull delete project', { variant: 'success' });
+        enqueueSnackbar(data.message || dictionary.projectManagement.projects.deleteSuccess, { variant: 'success' });
         queryClient.invalidateQueries({ queryKey: ['projects'] });
       },
       onError: (error: any) => {
       enqueueSnackbar(
-        error?.response?.data?.message || 'Failed to delete project',
+        error?.response?.data?.message || dictionary.projectManagement.projects.deleteFailed,
         { variant: 'error' }
       );
     },
@@ -34,7 +36,7 @@ const ProjectListItemAction = ({ project }: { project: Project }) => {
   const menuItems: MenuItemProps[] = [
     checkOrganizationPermission(PERMISSIONS.PROJECTS_DELETE) && {
       icon: <DeleteOutlined color="error" />,
-      title: 'Delete',
+      title: dictionary.projectManagement.projects.delete,
       action: 'delete',
     },
   ].filter(Boolean) as MenuItemProps[];
@@ -43,8 +45,8 @@ const ProjectListItemAction = ({ project }: { project: Project }) => {
     switch (menuItem.action) {
       case 'delete':
         showDialog({
-          title: 'Confirm Project Deletion',
-          content: 'Are you sure you want to delete this project?',
+          title: dictionary.projectManagement.projects.confirmDeletionTitle,
+          content: dictionary.projectManagement.projects.confirmDeletionText,
           onYes: () => {
             hideDialog();
             deleteProject({ id: project.id ?? 0 });
@@ -61,7 +63,7 @@ const ProjectListItemAction = ({ project }: { project: Project }) => {
   return (
     <JumboDdMenu
       icon={
-        <Tooltip title="Actions">
+        <Tooltip title={dictionary.tooltips.actions}>
           <MoreHorizOutlined fontSize="small" />
         </Tooltip>
       }

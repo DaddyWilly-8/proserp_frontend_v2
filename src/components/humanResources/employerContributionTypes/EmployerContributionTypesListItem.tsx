@@ -3,12 +3,14 @@
 import { Chip, Divider, Grid, Tooltip, Typography } from '@mui/material';
 import { EmployerContributionType } from './EmployerContributionType';
 import EmployerContributionTypeItemAction from './EmployerContributionTypeItemAction';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const EmployerContributionTypesListItem = ({
   contributionType,
 }: {
   contributionType: EmployerContributionType;
 }) => {
+  const dictionary = useDictionary();
   return (
     <>
       <Divider />
@@ -31,7 +33,7 @@ const EmployerContributionTypesListItem = ({
         <Grid
           size={{ xs: 6, md: 2.2 }}
         >
-          <Tooltip title='Name'>
+          <Tooltip title={dictionary.tooltips.name}>
             <Typography variant='h6' fontSize={14} lineHeight={1.25} mb={0}>
               {contributionType.name}
             </Typography>
@@ -42,7 +44,7 @@ const EmployerContributionTypesListItem = ({
           size={{ xs: 6, md: 1.4 }}
           textAlign={{ xs: 'start', md: 'center' }}
         >
-          <Tooltip title='Code'>
+          <Tooltip title={dictionary.tooltips.code}>
             <Typography>{contributionType.code || '-'}</Typography>
           </Tooltip>
         </Grid>
@@ -54,8 +56,8 @@ const EmployerContributionTypesListItem = ({
           <Chip
             label={
               contributionType.category === 'statutory'
-                ? 'Statutory'
-                : 'Voluntary'
+                ? dictionary.humanResources.employerContributionTypes.list.statutory
+                : dictionary.humanResources.employerContributionTypes.list.voluntary
             }
             size='small'
             color={
@@ -69,9 +71,11 @@ const EmployerContributionTypesListItem = ({
           size={{ xs: 6, md: 2.1 }}
           textAlign={{ xs: 'start', md: 'center' }}
         >
-          <Tooltip title='Method'>
+          <Tooltip title={dictionary.tooltips.method}>
             <Typography textTransform='capitalize'>
-              {contributionType.computation_method.replaceAll('_', ' ')}
+              {dictionary.humanResources.employerContributionTypes.list.computationMethods[
+                contributionType.computation_method as keyof typeof dictionary.humanResources.employerContributionTypes.list.computationMethods
+              ] ?? contributionType.computation_method.replaceAll('_', ' ')}
             </Typography>
           </Tooltip>
         </Grid>
@@ -80,7 +84,7 @@ const EmployerContributionTypesListItem = ({
           size={{ xs: 5, md: 1.2 }}
           textAlign={{ xs: 'start', md: 'center' }}
         >
-          <Tooltip title='Default Value'>
+          <Tooltip title={dictionary.tooltips.defaultValue}>
             <Typography>
               {Number(contributionType.default_value || 0).toLocaleString(
                 'en-US'
@@ -93,7 +97,7 @@ const EmployerContributionTypesListItem = ({
           size={{ xs: 5, md: 2.5 }}
           textAlign={{ xs: 'start', md: 'center' }}
         >
-          <Tooltip title='Description'>
+          <Tooltip title={dictionary.tooltips.description}>
             <Typography noWrap>
               {contributionType.description || '-'}
             </Typography>
