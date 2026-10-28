@@ -97,7 +97,7 @@
         "never": "This keeps posting until you pause or delete it. Frequent schedules need an end.",
         "pastStart": "A first date in the past posts the missed dates straight away, and needs permission to back-date.",
         "locked": "This schedule has already posted, so its dates and amounts cannot change. You can rename it or move its end.",
-        "postTime": "The posting is dated with this time on its day (your server's timezone). The schedule itself runs once a day around 01:00."
+        "postTime": "The posting is dated with this time on its day (your server's timezone). The schedule itself runs once a day at 23:50."
       },
       "buttons": {
         "create": "Create Schedule",
