@@ -296,7 +296,7 @@ function ProformaForm({ toggleOpen, proforma = null }: ProformaFormProps) {
               <Typography variant='h4'>
                 {!proforma
                   ? dictionary.forms.proformaInvoices.title.new
-                  : dictionary.forms.proformaInvoices.title.edit.replace('{name}', proforma.proformaNo)}
+                  : dictionary.forms.proformaInvoices.title.edit.replace('{name}', proforma.proformaNo ?? '')}
               </Typography>
             </Div>
           </Grid>

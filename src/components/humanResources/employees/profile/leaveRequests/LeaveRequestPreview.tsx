@@ -129,7 +129,7 @@ const LeaveRequestPreview = ({ leaveRequest, title }: LeaveRequestPreviewProps) 
   const statusColor = STATUS_COLOR[leaveRequest.status] || 'default';
   const statusLabel =
     leaveRequest.status_label ||
-    dictionary.humanResources.leaveRequests.status[leaveRequest.status] ||
+    (dictionary.humanResources.leaveRequests.status as Record<string, string>)[leaveRequest.status] ||
     leaveRequest.status ||
     dictionary.humanResources.leaveRequests.status.pending;
 
@@ -281,7 +281,7 @@ const LeaveRequestPreview = ({ leaveRequest, title }: LeaveRequestPreviewProps) 
                     <Chip
                       size='small'
                       label={
-                        dictionary.humanResources.leaveRequests.status[
+                        (dictionary.humanResources.leaveRequests.status as Record<string, string>)[
                           (approval.status || 'pending').toLowerCase()
                         ] ?? approval.status
                       }

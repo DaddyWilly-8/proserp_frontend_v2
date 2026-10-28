@@ -135,7 +135,7 @@ const PayrollPeriodAdvancesTab = ({
   );
   const orgHasAccountsAndFinance = organizationHasSubscribed(MODULES.ACCOUNTS_AND_FINANCE);
   const isDark = theme.type === 'dark';
-  const monthName = t.common.months[MONTH_KEYS[month]] || month;
+  const monthName = (t.common.months as Record<string, string>)[MONTH_KEYS[month]] || month;
 
   const [search, setSearch] = useState('');
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
@@ -404,7 +404,7 @@ const PayrollPeriodAdvancesTab = ({
             <Typography variant='body2' fontWeight={600} gutterBottom>
               {t.advancesTab.locked.title.replace(
                 '{status}',
-                t.common.status[lockedRun?.status?.toLowerCase() ?? ''] ||
+                (t.common.status as Record<string, string>)[lockedRun?.status?.toLowerCase() ?? ''] ||
                   String(lockedRun?.status)
               )}
             </Typography>
@@ -509,7 +509,7 @@ const PayrollPeriodAdvancesTab = ({
               isPeriodLocked
                 ? t.advancesTab.locked.tooltip.replace(
                     '{status}',
-                    t.common.status[lockedRun?.status?.toLowerCase() ?? ''] ||
+                    (t.common.status as Record<string, string>)[lockedRun?.status?.toLowerCase() ?? ''] ||
                       String(lockedRun?.status)
                   )
                 : ''
@@ -537,7 +537,7 @@ const PayrollPeriodAdvancesTab = ({
               isPeriodLocked
                 ? t.advancesTab.locked.tooltip.replace(
                     '{status}',
-                    t.common.status[lockedRun?.status?.toLowerCase() ?? ''] ||
+                    (t.common.status as Record<string, string>)[lockedRun?.status?.toLowerCase() ?? ''] ||
                       String(lockedRun?.status)
                   )
                 : ''

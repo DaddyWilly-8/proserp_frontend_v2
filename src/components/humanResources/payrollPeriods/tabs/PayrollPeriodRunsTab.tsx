@@ -198,7 +198,7 @@ const PayrollPeriodRunsTab = ({
                     <TableCell align="center">
                       <Chip
                         label={
-                          t.common.status[(run.status || 'draft').toLowerCase()] ||
+                          (t.common.status as Record<string, string>)[(run.status || 'draft').toLowerCase()] ||
                           run.status ||
                           'draft'
                         }

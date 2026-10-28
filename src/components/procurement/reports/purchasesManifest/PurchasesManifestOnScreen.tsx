@@ -206,7 +206,7 @@ const PurchasesManifestOnScreen: React.FC<PurchasesManifestOnScreenProps> = ({
                 {dict.filterStatus}
               </Typography>
               <Typography variant='body1'>
-                {dict.statusOptions[reportData?.filters.status] ?? reportData?.filters.status}
+                {(dict.statusOptions as Record<string, string>)[reportData?.filters.status] ?? reportData?.filters.status}
               </Typography>
             </Box>
           </Grid>
@@ -437,7 +437,7 @@ const PurchasesManifestOnScreen: React.FC<PurchasesManifestOnScreenProps> = ({
                         </Typography>
                         {item.product?.type && (
                           <Typography variant='caption' color='text.secondary'>
-                            {dict.type}: {dict.productTypes[item.product.type] ?? item.product.type}
+                            {dict.type}: {(dict.productTypes as Record<string, string>)[item.product.type] ?? item.product.type}
                           </Typography>
                         )}
                       </TableCell>
@@ -451,7 +451,7 @@ const PurchasesManifestOnScreen: React.FC<PurchasesManifestOnScreenProps> = ({
                               : theme.palette.warning.main,
                           }}
                         >
-                          {dict.statusOptions[item.status] ?? item.status}
+                          {(dict.statusOptions as Record<string, string>)[item.status] ?? item.status}
                         </Typography>
                       </TableCell>
                       <TableCell>

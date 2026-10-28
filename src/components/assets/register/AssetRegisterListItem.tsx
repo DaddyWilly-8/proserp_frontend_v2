@@ -118,7 +118,7 @@ const AssetRegisterListItem: React.FC<AssetRegisterListItemProps> = ({ asset, vi
         <TableCell>
           <Chip
             size="small"
-            label={dictionary.register.list.status[asset.status]}
+            label={(dictionary.register.list.status as Record<string, string>)[asset.status]}
             color={STATUS_COLORS[asset.status]}
           />
         </TableCell>
@@ -149,7 +149,7 @@ const AssetRegisterListItem: React.FC<AssetRegisterListItemProps> = ({ asset, vi
         <Stack direction="row" spacing={0.5} alignItems="center" sx={{ flexShrink: 0 }}>
           <Chip
             size="small"
-            label={dictionary.register.list.status[asset.status]}
+            label={(dictionary.register.list.status as Record<string, string>)[asset.status]}
             color={STATUS_COLORS[asset.status]}
           />
           <AssetAttachmentButton asset={asset} />

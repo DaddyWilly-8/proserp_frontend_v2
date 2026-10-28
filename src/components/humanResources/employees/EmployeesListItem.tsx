@@ -128,7 +128,7 @@ const EmployeesListItem = ({ employee }: { employee: Employee }) => {
               <Chip
                 size='small'
                 label={
-                  dictionary.humanResources.employees.employmentTypes?.[employee.employment_type as string] ||
+                  (dictionary.humanResources.employees.employmentTypes as Record<string, string>)?.[employee.employment_type as string] ||
                   formatEmploymentType(employee.employment_type)
                 }
                 color='default'

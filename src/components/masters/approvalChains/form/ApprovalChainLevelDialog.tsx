@@ -121,7 +121,7 @@ function ApprovalChainLevelDialog({
     () => [
       { label: dictionary.forms.approvalChains.levelDialog.labels.atTheBeginning, position_index: null, id: null },
       ...approvalChainLevels.map((level) => ({
-        label: dictionary.forms.approvalChains.levelDialog.labels.after.replace('{role}', level.role?.name ?? '').replace('{label}', level.label),
+        label: dictionary.forms.approvalChains.levelDialog.labels.after.replace('{role}', level.role?.name ?? '').replace('{label}', level.label ?? ''),
         position_index: level.position_index ?? null,
         id: level.id ?? null,
       })),

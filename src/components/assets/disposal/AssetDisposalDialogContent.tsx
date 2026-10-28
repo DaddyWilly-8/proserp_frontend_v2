@@ -134,7 +134,7 @@ const AssetDisposalDialogContent: React.FC<AssetDisposalDialogContentProps> = ({
               {...register('disposal_method')}
             >
               {METHODS.map((m) => (
-                <MenuItem key={m} value={m}>{dictionary.disposal.form.methods[m]}</MenuItem>
+                <MenuItem key={m} value={m}>{(dictionary.disposal.form.methods as Record<string, string>)[m]}</MenuItem>
               ))}
             </TextField>
           </Grid>

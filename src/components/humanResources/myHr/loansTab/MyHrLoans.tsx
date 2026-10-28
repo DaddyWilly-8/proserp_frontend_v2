@@ -27,7 +27,7 @@ const MyHrLoans = () => {
   const dictionary = useDictionary();
   const t = dictionary.humanResources.myHr.loans;
   const STATUS_OPTIONS = STATUS_VALUES.map((value) => ({
-    label: t.statusOptions[STATUS_KEYS[value]],
+    label: (t.statusOptions as Record<string, string>)[STATUS_KEYS[value]],
     value,
   }));
   const searchParams = useSearchParams();

@@ -324,7 +324,7 @@ const LeaveRequestsListItem = ({
                             <Chip
                               size='small'
                               label={
-                                dictionary.humanResources.leaveRequests.status[
+                                (dictionary.humanResources.leaveRequests.status as Record<string, string>)[
                                   (approval.status || 'pending').toLowerCase()
                                 ] ??
                                 approval.status

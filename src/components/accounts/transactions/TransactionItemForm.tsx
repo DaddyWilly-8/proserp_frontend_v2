@@ -137,7 +137,7 @@ const TransactionItemForm: React.FC<TransactionItemFormProps> = ({
         );
     return baseOptions.map((opt) => ({
       ...opt,
-      label: dictionary.forms.transactions.itemForm.labels[relatableLabelKeys[opt.value]],
+      label: (dictionary.forms.transactions.itemForm.labels as Record<string, string>)[relatableLabelKeys[opt.value]],
     }));
   }, [deferGrnBilling, isReceipt, dictionary]);
   const [openLedgerQuickAdd, setOpenLedgerQuickAdd] = useState(false);

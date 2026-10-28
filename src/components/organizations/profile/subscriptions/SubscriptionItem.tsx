@@ -291,7 +291,7 @@ function SubscriptionItem({
                         : 'success'
                   }
                   label={
-                    subsDict.status[subscription.status.toLowerCase()] ||
+                    (subsDict.status as Record<string, string>)[subscription.status.toLowerCase()] ||
                     subscription.status
                   }
                   sx={{

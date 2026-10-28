@@ -33,7 +33,7 @@ const RecurringTransactionListItem: React.FC<RecurringTransactionListItemProps> 
   const dictionary = useDictionary();
   const t = dictionary.recurringTransactions;
 
-  const every = `${schedule.repeat_every} ${t.form.units[schedule.frequency]}`;
+  const every = `${schedule.repeat_every} ${(t.form.units as Record<string, string>)[schedule.frequency]}`;
   const next = schedule.next_run_date ? dayjs(schedule.next_run_date).format('DD MMM YYYY') : null;
   const progress = schedule.max_occurrences
     ? `${schedule.occurrences_count} / ${schedule.max_occurrences}`
@@ -43,7 +43,7 @@ const RecurringTransactionListItem: React.FC<RecurringTransactionListItemProps> 
   // noticed without opening it.
   const status = (
     <Stack direction="row" spacing={0.5} alignItems="center">
-      <Chip size="small" color={STATUS_COLOR[schedule.status]} label={t.list.status[schedule.status]} />
+      <Chip size="small" color={STATUS_COLOR[schedule.status]} label={(t.list.status as Record<string, string>)[schedule.status]} />
       {schedule.last_error && (
         <Tooltip title={schedule.last_error}>
           <Chip size="small" color="error" label={t.list.labels.failed} />
@@ -60,7 +60,7 @@ const RecurringTransactionListItem: React.FC<RecurringTransactionListItemProps> 
       >
         <TableCell>
           <Typography variant="body2" fontWeight={500}>{schedule.name}</Typography>
-          <Typography variant="caption" color="text.secondary">{t.list.types[schedule.transaction_type]}</Typography>
+          <Typography variant="caption" color="text.secondary">{(t.list.types as Record<string, string>)[schedule.transaction_type]}</Typography>
         </TableCell>
         <TableCell>
           <Typography variant="body2">{every}</Typography>
@@ -87,7 +87,7 @@ const RecurringTransactionListItem: React.FC<RecurringTransactionListItemProps> 
         <Box sx={{ minWidth: 0 }}>
           <Typography variant="subtitle2" fontWeight={600}>{schedule.name}</Typography>
           <Typography variant="caption" color="text.secondary" display="block">
-            {t.list.types[schedule.transaction_type]}
+            {(t.list.types as Record<string, string>)[schedule.transaction_type]}
           </Typography>
         </Box>
         <Stack direction="row" spacing={0.5} alignItems="center" sx={{ flexShrink: 0 }}>

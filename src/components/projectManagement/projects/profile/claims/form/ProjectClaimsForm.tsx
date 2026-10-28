@@ -297,7 +297,7 @@ const ProjectClaimsForm: React.FC<ProjectClaimsFormProps> = ({
   return (
     <>
       <DialogTitle textAlign='center'>
-        {claim ? t.titles.edit.replace('{no}', claim?.claimNo) : t.titles.new}
+        {claim ? t.titles.edit.replace('{no}', claim?.claimNo ?? '') : t.titles.new}
       </DialogTitle>
 
       <DialogContent dividers>

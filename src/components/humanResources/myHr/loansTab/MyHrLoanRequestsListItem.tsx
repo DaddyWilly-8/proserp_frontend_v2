@@ -130,7 +130,7 @@ const MyHrLoanRequestsListItem = ({
   const statusLabel =
     loanRequest.status_label ||
     (STATUS_LABEL_KEY[loanRequest.status]
-      ? t.statuses[STATUS_LABEL_KEY[loanRequest.status]]
+      ? (t.statuses as Record<string, string>)[STATUS_LABEL_KEY[loanRequest.status]]
       : undefined) ||
     loanRequest.status ||
     t.statuses.pending;

@@ -90,9 +90,9 @@ const PayrollPeriodsListItem = ({
   const runs: PayrollRunType[] = runsData?.data || [];
   const runCount = payrollPeriod.runs_count ?? runs.length ?? 0;
   const monthName =
-    t.common.months[MONTH_KEYS[payrollPeriod.month]] || payrollPeriod.month;
+    (t.common.months as Record<string, string>)[MONTH_KEYS[payrollPeriod.month]] || payrollPeriod.month;
   const statusValue = payrollPeriod.status || 'active';
-  const statusLabel = t.common.status[statusValue.toLowerCase()] || statusValue;
+  const statusLabel = (t.common.status as Record<string, string>)[statusValue.toLowerCase()] || statusValue;
 
   const handleRunCreated = () => {
     setOpenCreateRunDialog(false);

@@ -43,6 +43,7 @@ import { useSnackbar } from 'notistack';
 import React, { useState } from 'react';
 import { Transaction } from '../TransactionTypes';
 import paymentServices from './payment-services';
+import { collapseSalaryPaymentItems, EmployeeLinesSwitch } from './PayrollPaymentLinesSwitch';
 const PaymentFormDialogContent = dynamic(() => import('./PaymentFormDialogContent'), { ssr: false });
 const PaymentOnScreenPreview = dynamic(() => import('./PaymentOnScreenPreview'), { ssr: false });
 import PaymentPDF from './PaymentPDF';
@@ -70,6 +71,8 @@ const DocumentDialog: React.FC<DocumentDialogProps> = ({
   });
   const [activeTab, setActiveTab] = useState(0);
   const [showOnScreen, setShowOnScreen] = useState(true);
+  // Salary payments only: off = one total line, on = a line per employee.
+  const [showEmployeeLines, setShowEmployeeLines] = useState(false);
   const { theme } = useJumboTheme();
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
 
@@ -102,8 +105,13 @@ const DocumentDialog: React.FC<DocumentDialogProps> = ({
     setActiveTab(newValue);
   };
 
+  const voucher = showEmployeeLines ? data : collapseSalaryPaymentItems(data);
+
   return (
     <DialogContent>
+      {data?.payroll_salary_payment && (
+        <EmployeeLinesSwitch checked={showEmployeeLines} onChange={setShowEmployeeLines} />
+      )}
       {belowLargeScreen ? (
         <Grid
           container
@@ -204,11 +212,11 @@ const DocumentDialog: React.FC<DocumentDialogProps> = ({
           />
         } */}
       {showOnScreen ? (
-        <PaymentOnScreenPreview transaction={data} authObject={authObject} />
+        <PaymentOnScreenPreview transaction={voucher} authObject={authObject} />
       ) : (
         <PDFContent
           fileName={transaction.voucherNo}
-          document={<PaymentPDF transaction={data} authObject={authObject} />}
+          document={<PaymentPDF transaction={voucher} authObject={authObject} />}
         />
       )}
 

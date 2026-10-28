@@ -90,7 +90,7 @@ const RecurringTransactionViewDialogContent: React.FC<RecurringTransactionViewDi
   }
 
   const payload = schedule.payload;
-  const every = `${schedule.repeat_every} ${t.form.units[schedule.frequency]}`;
+  const every = `${schedule.repeat_every} ${(t.form.units as Record<string, string>)[schedule.frequency]}`;
   const progress = schedule.max_occurrences
     ? `${schedule.occurrences_count} / ${schedule.max_occurrences}`
     : `${schedule.occurrences_count}`;
@@ -107,8 +107,8 @@ const RecurringTransactionViewDialogContent: React.FC<RecurringTransactionViewDi
           )}
 
           <Stack spacing={0.75}>
-            <Field label={t.list.labels.type} value={t.list.types[schedule.transaction_type]} />
-            <Field label={t.list.labels.status} value={<Chip size="small" label={t.list.status[schedule.status]} />} />
+            <Field label={t.list.labels.type} value={(t.list.types as Record<string, string>)[schedule.transaction_type]} />
+            <Field label={t.list.labels.status} value={<Chip size="small" label={(t.list.status as Record<string, string>)[schedule.status]} />} />
             <Field label={t.form.labels.amountMode} value={schedule.amount_mode === 'total' ? t.form.labels.total : t.form.labels.fixed} />
             <Field label={t.view.labels.repeats} value={every} />
             <Field label={t.form.labels.startDate} value={dayjs(schedule.start_date).format('DD MMM YYYY')} />

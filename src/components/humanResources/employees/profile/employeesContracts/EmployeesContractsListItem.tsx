@@ -33,7 +33,7 @@ const EmployeesContractsListItem = ({
         <Grid size={{ xs: 6, md: 2.5 }}>
           <Tooltip title={dictionary.tooltips.contractType}>
             <Typography>
-              {dictionary.humanResources.employeesContracts.contractTypes[contract?.contract_type ?? ''] ??
+              {(dictionary.humanResources.employeesContracts.contractTypes as Record<string, string>)[contract?.contract_type ?? ''] ??
                 contract?.contract_type}
             </Typography>
           </Tooltip>
@@ -73,7 +73,7 @@ const EmployeesContractsListItem = ({
               />
             ) : (
               <Chip
-                label={dictionary.humanResources.employeesContracts.status[contract.status] ?? contract.status}
+                label={(dictionary.humanResources.employeesContracts.status as Record<string, string>)[contract.status] ?? contract.status}
                 color='primary'
                 size='small'
                 variant='outlined'

@@ -174,7 +174,7 @@ function ProfileContent() {
     : '';
 
   const empTypeBadge =
-    (dictionary.humanResources.employees.employmentTypes?.[employee?.employment_type as string] as
+    ((dictionary.humanResources.employees.employmentTypes as Record<string, string>)?.[employee?.employment_type as string] as
       | string
       | undefined) || formatEmploymentType(employee?.employment_type);
 

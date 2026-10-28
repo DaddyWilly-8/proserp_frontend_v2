@@ -122,7 +122,7 @@ const AssetBookingDetailDialog: React.FC<AssetBookingDetailDialogProps> = ({ boo
       <DialogTitle>
         <Stack direction="row" alignItems="center" spacing={1}>
           <span>{booking.code}</span>
-          <Chip size="small" color={STATUS_COLORS[booking.status]} label={dictionary.bookings.detail.status[booking.status]} />
+          <Chip size="small" color={STATUS_COLORS[booking.status]} label={(dictionary.bookings.detail.status as Record<string, string>)[booking.status]} />
         </Stack>
       </DialogTitle>
       <DialogContent>
@@ -133,7 +133,7 @@ const AssetBookingDetailDialog: React.FC<AssetBookingDetailDialogProps> = ({ boo
           </Grid>
           <Grid size={{ xs: 12, md: 6 }}>
             <Typography variant="caption" color="text.secondary">{dictionary.bookings.detail.labels.type}</Typography>
-            <Typography variant="body2">{dictionary.bookings.calendar.event[booking.booking_type]}</Typography>
+            <Typography variant="body2">{(dictionary.bookings.calendar.event as Record<string, string>)[booking.booking_type]}</Typography>
           </Grid>
           {booking.booking_type === 'internal' && (
             <Grid size={{ xs: 12, md: 6 }}>

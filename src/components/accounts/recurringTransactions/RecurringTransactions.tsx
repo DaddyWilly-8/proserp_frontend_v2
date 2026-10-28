@@ -110,7 +110,7 @@ const RecurringTransactions = () => {
                   >
                     <MenuItem value="">{t.list.labels.allTypes}</MenuItem>
                     {Object.keys(t.list.types).map((type) => (
-                      <MenuItem key={type} value={type}>{t.list.types[type]}</MenuItem>
+                      <MenuItem key={type} value={type}>{(t.list.types as Record<string, string>)[type]}</MenuItem>
                     ))}
                   </TextField>
                 </Grid>
@@ -125,7 +125,7 @@ const RecurringTransactions = () => {
                   >
                     <MenuItem value="">{t.list.labels.allStatuses}</MenuItem>
                     {Object.keys(t.list.status).map((status) => (
-                      <MenuItem key={status} value={status}>{t.list.status[status]}</MenuItem>
+                      <MenuItem key={status} value={status}>{(t.list.status as Record<string, string>)[status]}</MenuItem>
                     ))}
                   </TextField>
                 </Grid>

@@ -77,8 +77,8 @@ const ApprovalHistoryTable: React.FC<ApprovalHistoryTableProps> = ({ approvals }
                     <Chip
                       label={
                         approval.is_superseded
-                          ? dictionary.projectManagement.approvals.superseded.replace('{status}', dictionary.projectManagement.approvals.status[status] ?? String(approval.status))
-                          : (dictionary.projectManagement.approvals.status[status] ?? approval.status) || '-'
+                          ? dictionary.projectManagement.approvals.superseded.replace('{status}', (dictionary.projectManagement.approvals.status as Record<string, string>)[status] ?? String(approval.status))
+                          : ((dictionary.projectManagement.approvals.status as Record<string, string>)[status] ?? approval.status) || '-'
                       }
                       size="small"
                       color={DECISION_CHIP_COLOR[status] || 'default'}

@@ -61,7 +61,7 @@ const EmployeesAteendanceListItem = ({
         <Grid size={{ xs: 12, md: 3 }}>
           <Tooltip title={dictionary.tooltips.attendanceStatus}>
             <Typography>
-              {dictionary.humanResources.employeesAttendance.list.types[employeeAttendance.type] ??
+              {(dictionary.humanResources.employeesAttendance.list.types as Record<string, string>)[employeeAttendance.type] ??
                 employeeAttendance.type}
             </Typography>
           </Tooltip>

@@ -83,7 +83,7 @@ const AdvanceTransferListDialog = ({
 
   const monthNo = advanceSheet.period.month;
   const year = advanceSheet.period.year;
-  const monthName = t.common.months[MONTH_KEYS[monthNo - 1]];
+  const monthName = (t.common.months as Record<string, string>)[MONTH_KEYS[monthNo - 1]];
   const payrollPeriod = `${year} - ${monthName}`;
   const rows = advanceSheet.rows;
 

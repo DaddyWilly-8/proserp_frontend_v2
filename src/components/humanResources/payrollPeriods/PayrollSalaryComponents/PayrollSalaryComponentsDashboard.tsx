@@ -89,7 +89,7 @@ type AppliedFilters = {
 export default function PayrollSalaryComponentsDashboard({ onClose }: { onClose?: () => void } = {}) {
   const dictionary = useDictionary();
   const t = dictionary.humanResources.payrollPeriods;
-  const monthNames = MONTH_KEYS.map((key) => t.common.months[key]);
+  const monthNames = MONTH_KEYS.map((key) => (t.common.months as Record<string, string>)[key]);
   const { authOrganization, authUser } = useJumboAuth() as any;
   const { enqueueSnackbar } = useSnackbar();
   const now = new Date();

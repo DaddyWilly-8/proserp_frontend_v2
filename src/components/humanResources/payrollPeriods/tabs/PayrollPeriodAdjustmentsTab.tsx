@@ -372,7 +372,7 @@ const PayrollPeriodAdjustmentsTab = ({
   const [absenceBatchDialogOpen, setAbsenceBatchDialogOpen] = useState(false);
 
   const monthKey = MONTH_KEYS[month - 1];
-  const monthName = (monthKey && t.common.months[monthKey]) || month;
+  const monthName = (monthKey && (t.common.months as Record<string, string>)[monthKey]) || month;
 
   // Query to fetch adjustments using periodAdjustmentReview
   const {
@@ -411,7 +411,7 @@ const PayrollPeriodAdjustmentsTab = ({
   const lockedRun = periodRuns.find((run) => run.status !== 'draft');
   const isPeriodLocked = !!lockedRun;
   const lockedStatus = lockedRun
-    ? t.common.status[(lockedRun.status || '').toLowerCase()] ||
+    ? (t.common.status as Record<string, string>)[(lockedRun.status || '').toLowerCase()] ||
       lockedRun.status
     : '';
 

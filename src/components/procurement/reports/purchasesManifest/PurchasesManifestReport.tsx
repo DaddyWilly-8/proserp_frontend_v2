@@ -70,7 +70,7 @@ const PurchasesManifestReport = ({
   const dict = dictionary.reports.procurementReports.purchasesManifest;
   const STATUS_OPTIONS = STATUS_VALUES.map((value) => ({
     value,
-    label: dict.statusOptions[value],
+    label: (dict.statusOptions as Record<string, string>)[value],
   }));
   const { authOrganization, authUser } = useJumboAuth();
   const user = authUser?.user;

@@ -258,7 +258,7 @@ const SalarySheetDialog = ({
   const periodMonth = selectedPayrollPeriod?.month;
   const monthName =
     periodMonth && periodMonth >= 1 && periodMonth <= 12
-      ? t.common.months[MONTH_KEYS[periodMonth - 1]]
+      ? (t.common.months as Record<string, string>)[MONTH_KEYS[periodMonth - 1]]
       : selectedPayrollPeriod?.monthName || '';
   const selectedPeriod = selectedPayrollPeriod?.year
     ? `${selectedPayrollPeriod.year} - ${monthName}`

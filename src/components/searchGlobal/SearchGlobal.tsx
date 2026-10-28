@@ -12,6 +12,9 @@ import { PERMISSIONS } from '@/utilities/constants/permissions';
 import { MODULES } from '@/utilities/constants/modules';
 import { canAccessEntityConfig, entityConfigs } from './entityConfigs';
 import { useSpinner } from '@/shared/ProgressIndicators/SpinnerContext';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
+import { useLanguage } from '@/app/[lang]/contexts/LanguageContext';
+import { localizePath } from '@/app/helpers/locale-helpers';
 
 type SearchGlobalProps = {
   wrapperSx?: SxProps<Theme>;
@@ -37,6 +40,57 @@ const SearchGlobal = ({ wrapperSx, sx }: SearchGlobalProps) => {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const inputRef = React.useRef<HTMLInputElement>(null);
+  const dictionary = useDictionary();
+  const lang = useLanguage();
+  const labels: Record<string, string> = dictionary.globalSearch.labels;
+  const ui = dictionary.globalSearch.ui;
+
+  // Static page/report/type names are keyed by their English text. Names that come from
+  // the API (ledger names, employee names...) are never run through this.
+  const translate = (text?: string) => (text && labels[text]) || text;
+
+  const isStaticResult = (result: SearchResult) =>
+    result.type === 'Page' ||
+    /[?&]report=/.test(result.url ?? '') ||
+    (typeof result.id === 'string' && result.id.startsWith('/'));
+
+  const displayLabel = (result: SearchResult) =>
+    isStaticResult(result) ? translate(result.label) : result.label;
+
+  const displaySecondary = (result: SearchResult) => {
+    if (!result.description) return translate(result.type);
+    return isStaticResult(result) || result.description === result.type
+      ? translate(result.description)
+      : result.description;
+  };
+
+  // Pages match on either the English or the active-language name.
+  const matchPages = (value: string): SearchResult[] => {
+    const needle = value.toLowerCase();
+    return staticMenuItems
+      .filter(
+        page =>
+          (page.label.toLowerCase().includes(needle) ||
+            translate(page.label)!.toLowerCase().includes(needle)) &&
+          canAccessMenu(page.label)
+      )
+      .map(page => ({
+        id: page.uri,
+        label: page.label,
+        type: 'Page',
+        url: page.uri,
+      }));
+  };
+
+  // The static report entries only understand English keywords, so for a non-English query
+  // also try the English names whose translation contains what was typed.
+  const englishAliases = (value: string): string[] => {
+    const needle = value.toLowerCase();
+    if (needle.length < 3) return [];
+    return Object.keys(labels)
+      .filter(en => labels[en] !== en && labels[en].toLowerCase().includes(needle))
+      .slice(0, 12);
+  };
 
   // Permission/subscription requirements for static menu items (add more as needed)
   const staticMenuPermissions: Record<string, { permissions?: string[]; orgPermissions?: string[]; modules?: string[] }> = {
@@ -126,16 +180,7 @@ const SearchGlobal = ({ wrapperSx, sx }: SearchGlobalProps) => {
     setOpen(true);
 
     // Only show static menu items the user can access
-    const pageMatches: SearchResult[] = staticMenuItems
-      .filter(page =>
-        page.label.toLowerCase().includes(searchValue.toLowerCase()) && canAccessMenu(page.label)
-      )
-      .map(page => ({
-        id: page.uri,
-        label: page.label,
-        type: 'Page',
-        url: page.uri,
-      }));
+    const pageMatches: SearchResult[] = matchPages(searchValue);
 
     // Show static results instantly and keep them visible
     setResults(pageMatches);
@@ -152,13 +197,18 @@ const SearchGlobal = ({ wrapperSx, sx }: SearchGlobalProps) => {
             organizationHasSubscribed,
           })
         )
-        .map(async (entity) =>
-          entity.search(searchValue, {
-            checkPermission,
-            checkOrganizationPermission,
-            organizationHasSubscribed,
-          })
-        )
+        .map(async (entity) => {
+          const ctx = { checkPermission, checkOrganizationPermission, organizationHasSubscribed };
+          const queries = entity.type === 'report' ? [searchValue, ...englishAliases(searchValue)] : [searchValue];
+          const found = (await Promise.all(queries.map(q => entity.search(q, ctx)))).flat();
+          const seen = new Set<string>();
+          return found.filter((r: SearchResult) => {
+            const key = `${r.type}-${r.id}`;
+            if (seen.has(key)) return false;
+            seen.add(key);
+            return true;
+          });
+        })
     ).then((allResults) => {
       if (isCancelled) return;
       // Only keep entity results for which the user has permission (by label or type)
@@ -196,17 +246,7 @@ const SearchGlobal = ({ wrapperSx, sx }: SearchGlobalProps) => {
       return;
     }
     setOpen(true);
-    const pageMatches: SearchResult[] = staticMenuItems
-      .filter(page =>
-        page.label.toLowerCase().includes(value.toLowerCase()) && canAccessMenu(page.label)
-      )
-      .map(page => ({
-        id: page.uri,
-        label: page.label,
-        type: 'Page',
-        url: page.uri,
-      }));
-    setResults(pageMatches);
+    setResults(matchPages(value));
   };
 
   // Search immediately on Enter
@@ -219,7 +259,7 @@ const SearchGlobal = ({ wrapperSx, sx }: SearchGlobalProps) => {
   const handleResultClick = (result: SearchResult) => {
     // Prevent adding ?search=PageName for static menu items
     const isStaticMenu = staticMenuItems.some(item => item.label === result.label);
-    let url = result.url;
+    let url = localizePath(result.url, lang);
     if (!isStaticMenu) {
       try {
         const urlObj = new URL(url, window.location.origin);
@@ -278,8 +318,8 @@ const SearchGlobal = ({ wrapperSx, sx }: SearchGlobalProps) => {
         </SearchIconWrapper>
         <StyledInputBase
           name='search-globally'
-          placeholder='Search anything'
-          inputProps={{ 'aria-label': 'search' }}
+          placeholder={ui.placeholder}
+          inputProps={{ 'aria-label': ui.ariaLabel }}
           sx={sx ?? {}}
           value={query}
           onChange={handleInputChange}
@@ -313,7 +353,7 @@ const SearchGlobal = ({ wrapperSx, sx }: SearchGlobalProps) => {
               setOpen(false);
               inputRef.current?.focus();
             }}
-            aria-label="Clear search"
+            aria-label={ui.clear}
           >
             <CloseIcon fontSize="small" />
           </Box>
@@ -324,10 +364,10 @@ const SearchGlobal = ({ wrapperSx, sx }: SearchGlobalProps) => {
           {results.length === 0 ? (
             loading ? (
               <Box sx={{ p: 2, color: 'text.secondary', textAlign: 'center', fontSize: 13 }}>
-                Loading more results...
+                {ui.loadingMore}
               </Box>
             ) : (
-              <Box sx={{ p: 2, color: 'text.secondary', textAlign: 'center' }}>No results</Box>
+              <Box sx={{ p: 2, color: 'text.secondary', textAlign: 'center' }}>{ui.noResults}</Box>
             )
           ) : (
             <>
@@ -354,8 +394,8 @@ const SearchGlobal = ({ wrapperSx, sx }: SearchGlobalProps) => {
                     }}
                   >
                     <ListItemText
-                      primary={result.label}
-                      secondary={result.description || result.type}
+                      primary={displayLabel(result)}
+                      secondary={displaySecondary(result)}
                       primaryTypographyProps={{
                         sx: {
                           color: (theme) =>
@@ -379,7 +419,7 @@ const SearchGlobal = ({ wrapperSx, sx }: SearchGlobalProps) => {
               </List>
               {loading && (
                 <Box sx={{ p: 1, color: 'text.secondary', textAlign: 'center', fontSize: 13 }}>
-                  Loading more results...
+                  {ui.loadingMore}
                 </Box>
               )}
             </>

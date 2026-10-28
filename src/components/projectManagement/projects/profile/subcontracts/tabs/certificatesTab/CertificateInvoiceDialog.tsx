@@ -87,7 +87,7 @@ const CertificateInvoiceDialog = ({
       <DialogContent>
         <Stack spacing={2} sx={{ mt: 1 }}>
           <Alert severity='info'>
-            {dictionary.projectManagement.certificates.invoiceNotice.replace('{certificateNo}', certificate.certificateNo)}
+            {dictionary.projectManagement.certificates.invoiceNotice.replace('{certificateNo}', certificate.certificateNo ?? '')}
           </Alert>
           <DateTimePicker
             label={dictionary.projectManagement.certificates.billDueDate}

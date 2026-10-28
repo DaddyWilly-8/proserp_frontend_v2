@@ -33,7 +33,7 @@ export default function PersonalInfoTab() {
   if (!employee) return null;
 
   const displayGender = employee.gender
-    ? t.options.gender[employee.gender.toLowerCase()] ||
+    ? (t.options.gender as Record<string, string>)[employee.gender.toLowerCase()] ||
       employee.gender.charAt(0).toUpperCase() + employee.gender.slice(1).toLowerCase()
     : undefined;
   const translateEnum = (

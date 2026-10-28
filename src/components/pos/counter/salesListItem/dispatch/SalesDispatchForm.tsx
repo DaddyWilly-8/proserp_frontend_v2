@@ -304,7 +304,7 @@ const SalesDispatchForm: React.FC<SalesDispatchFormProps> = ({
                     '{deliveryNo}',
                     deliveryData?.deliveryNo
                   )
-                : dictionary.forms.counter.dispatch.title.new.replace('{saleNo}', sale?.saleNo)}
+                : dictionary.forms.counter.dispatch.title.new.replace('{saleNo}', sale?.saleNo ?? '')}
             </Grid>
             <Grid size={{ xs: 12, md: 4 }}>
               <Div sx={{ mt: 1, mb: 1 }}>

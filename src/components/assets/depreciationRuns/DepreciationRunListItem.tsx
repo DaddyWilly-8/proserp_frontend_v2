@@ -53,7 +53,7 @@ const DepreciationRunListItem: React.FC<DepreciationRunListItemProps> = ({ run, 
           <Typography variant="body2" sx={{ fontVariantNumeric: 'tabular-nums' }}>{fmt(run.total_depreciation)}</Typography>
         </TableCell>
         <TableCell>
-          <Chip size="small" label={dictionary.depreciationRuns.list.status[run.status]} color={run.status === 'posted' ? 'success' : 'default'} />
+          <Chip size="small" label={(dictionary.depreciationRuns.list.status as Record<string, string>)[run.status]} color={run.status === 'posted' ? 'success' : 'default'} />
         </TableCell>
         <TableCell>
           <Typography variant="body2">{run.creator?.name}</Typography>
@@ -81,7 +81,7 @@ const DepreciationRunListItem: React.FC<DepreciationRunListItemProps> = ({ run, 
           )}
         </Box>
         <Stack direction="row" spacing={0.5} alignItems="center" sx={{ flexShrink: 0 }}>
-          <Chip size="small" label={dictionary.depreciationRuns.list.status[run.status]} color={run.status === 'posted' ? 'success' : 'default'} />
+          <Chip size="small" label={(dictionary.depreciationRuns.list.status as Record<string, string>)[run.status]} color={run.status === 'posted' ? 'success' : 'default'} />
           <DepreciationRunItemAction run={run} />
         </Stack>
       </Stack>

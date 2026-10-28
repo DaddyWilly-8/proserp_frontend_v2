@@ -142,7 +142,7 @@ const PayrollPeriodStatutoryTab = ({
   const isDark = theme.type === 'dark';
   const { enqueueSnackbar } = useSnackbar();
   const monthName =
-    (MONTH_KEYS[month - 1] && t.common.months[MONTH_KEYS[month - 1]]) || month;
+    (MONTH_KEYS[month - 1] && (t.common.months as Record<string, string>)[MONTH_KEYS[month - 1]]) || month;
   const [downloadingKey, setDownloadingKey] = useState<string | null>(null);
 
   const { data, isLoading } = useQuery({

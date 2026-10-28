@@ -191,7 +191,7 @@ const AssetGlMappingFormDialogContent: React.FC<AssetGlMappingFormDialogContentP
             >
               <MenuItem value="">—</MenuItem>
               {METHODS.map((m) => (
-                <MenuItem key={m} value={m}>{dictionary.register.form.methods[m]}</MenuItem>
+                <MenuItem key={m} value={m}>{(dictionary.register.form.methods as Record<string, string>)[m]}</MenuItem>
               ))}
             </TextField>
           </Grid>
