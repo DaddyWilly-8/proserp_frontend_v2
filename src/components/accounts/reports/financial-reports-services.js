@@ -137,6 +137,13 @@ financialReportsServices.exportDebtorsOrCreditorsToExcel = async (params) => {
   return data;
 }
 
+financialReportsServices.exportReconciliationStatementToExcel = async (params) => {
+  const { data } = await axios.post(`/api/exports/excel/reconciliationStatement/`, params, {
+    responseType: 'blob',
+  })
+  return data;
+}
+
 financialReportsServices.exportApArAgingToExcel = async (params) => {
   const { data } = await axios.post(`/api/exports/excel/apArAging/`, params, {
     responseType: 'blob',

@@ -233,6 +233,46 @@
     }
   },
   "depreciationRuns": {
+    "autoRun": {
+      "button": "Auto-run",
+      "statusOn": "On",
+      "statusOff": "Off",
+      "title": "Automatic Depreciation",
+      "intro": "Depreciation is posted automatically only when this is switched on. Until then, runs are posted by hand.",
+      "notSetUp": "Automatic depreciation has not been set up for this organization.",
+      "labels": {
+        "enabled": "Post depreciation automatically",
+        "timing": "When to post",
+        "monthEnd": "On the last day of each month",
+        "dayOfNextMonth": "From a day of the following month",
+        "runDay": "Day of the month (1 to 28)",
+        "startMonth": "First month to post",
+        "narration": "Narration",
+        "postedAs": "Posted as",
+        "notifyPosted": "Notify when a run is posted",
+        "notifySkipped": "Notify when a month cannot be posted",
+        "notifyUsers": "Notify these people",
+        "latestPosted": "Latest posted month",
+        "nextMonth": "Next month to post",
+        "lastRun": "Last automatic run",
+        "lastProblem": "Stopped because"
+      },
+      "helper": {
+        "monthEnd": "Posts the month on its own last day, at about 23:50.",
+        "dayOfNextMonth": "Posts the previous month on or after this day. If a night is missed, the next night makes it up.",
+        "startMonth": "Used only until the first run exists. After that it carries on from the latest posted month.",
+        "startMonthRequired": "Required: no depreciation run has been posted yet.",
+        "narration": "Use {month} for the period, for example \"October 2026\".",
+        "notifyUsers": "Leave empty to notify everyone who can post depreciation."
+      },
+      "buttons": {
+        "save": "Save",
+        "cancel": "Cancel"
+      },
+      "messages": {
+        "saved": "Automatic depreciation settings saved"
+      }
+    },
     "list": {
       "labels": {
         "listHeader": "Depreciation Runs",

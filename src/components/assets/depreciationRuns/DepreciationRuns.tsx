@@ -15,6 +15,7 @@ import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import depreciationRunsServices from './depreciationRuns-services';
 import DepreciationRunListItem from './DepreciationRunListItem';
 import NewDepreciationRunActionTail from './NewDepreciationRunActionTail';
+import DepreciationAutoRunAction from './DepreciationAutoRunAction';
 import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
 
 const DepreciationRuns = () => {
@@ -116,6 +117,7 @@ const DepreciationRuns = () => {
                   </TextField>
                 </Grid>
                 <Grid size={{ xs: 3, sm: 8, lg: 9 }} sx={{ textAlign: 'right' }}>
+                  <DepreciationAutoRunAction />
                   <NewDepreciationRunActionTail />
                 </Grid>
               </Grid>

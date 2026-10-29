@@ -61,6 +61,13 @@ bankReconciliationServices.getReconciliationWorkspace = async (bankAccountId, pa
     return data;
 };
 
+bankReconciliationServices.getReconciliationStatement = async (bankAccountId, params = {}) => {
+    const { data } = await axios.get(`/api/accounts/bankReconciliation/bankAccounts/${bankAccountId}/reconciliationStatement`, {
+        params
+    });
+    return data;
+};
+
 bankReconciliationServices.listStatements = async (bankAccountId) => {
     const { data } = await axios.get(`/api/accounts/bankReconciliation/bankAccounts/${bankAccountId}/statements`);
     return data;

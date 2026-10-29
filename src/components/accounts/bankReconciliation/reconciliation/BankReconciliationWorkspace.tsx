@@ -8,6 +8,7 @@ import {
   Chip,
   Dialog,
   Divider,
+  IconButton,
   LinearProgress,
   InputAdornment,
   MenuItem,
@@ -16,12 +17,13 @@ import {
   Tab,
   Tabs,
   TextField,
+  Tooltip,
   Typography,
   useMediaQuery,
 } from '@mui/material';
 import { DateTimePicker } from '@mui/x-date-pickers';
 import dayjs, { Dayjs } from 'dayjs';
-import { CheckCircleOutlined, DeleteOutlined, LockOpenOutlined, SearchOutlined, UploadOutlined } from '@mui/icons-material';
+import { CheckCircleOutlined, DeleteOutlined, LockOpenOutlined, PrintOutlined, SearchOutlined, UploadOutlined } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
 import { useIsFetching, useIsMutating, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useSnackbar } from 'notistack';
@@ -31,6 +33,7 @@ import { PERMISSIONS } from '@/utilities/constants/permissions';
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 import bankReconciliationServices from '../bank-reconciliation-services';
 import ImportStatementDialog from '../statementImport/ImportStatementDialog';
+import ReconciliationStatementReport from '../../reports/reconciliationStatement/ReconciliationStatementReport';
 import DifferenceSummary from './DifferenceSummary';
 import MatchedLineGroup from './MatchedLineGroup';
 import UnmatchedJournalRow from './UnmatchedJournalRow';
@@ -60,6 +63,7 @@ export default function BankReconciliationWorkspace({ bankAccountId }: Props) {
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
   const mobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [importDialogOpen, setImportDialogOpen] = useState(false);
+  const [statementReportOpen, setStatementReportOpen] = useState(false);
   const [tab, setTab] = useState(0);
   // null = "whichever statement the workspace defaults to" (the latest one).
   // Set once the user explicitly picks a different statement from the
@@ -278,6 +282,12 @@ export default function BankReconciliationWorkspace({ bankAccountId }: Props) {
             )}
           </Box>
           <Box sx={{ display: 'flex', gap: 1 }}>
+            {/* Opens the report for this account and statement, like the Stock Report on a store */}
+            <Tooltip title='Reconciliation Statement'>
+              <IconButton onClick={() => setStatementReportOpen(true)}>
+                <PrintOutlined />
+              </IconButton>
+            </Tooltip>
             {/* Also offered on a completed statement: that's exactly when the next period's statement is imported */}
             {checkOrganizationPermission(PERMISSIONS.BANK_RECONCILIATION_CREATE) && (
               <Button variant='outlined' startIcon={<UploadOutlined />} onClick={() => setImportDialogOpen(true)}>
@@ -527,6 +537,18 @@ export default function BankReconciliationWorkspace({ bankAccountId }: Props) {
   return (
     <>
       {mainContent}
+      {/* The report for this account and the statement being worked on, already generated. */}
+      <Dialog open={statementReportOpen} fullWidth scroll='paper' maxWidth='xl' fullScreen={belowLargeScreen}>
+        {statementReportOpen && data?.statement && (
+          <ReconciliationStatementReport
+            setOpenDialog={setStatementReportOpen}
+            bankAccountId={bankAccountId}
+            from={data.statement.statement_date_from}
+            to={data.statement.statement_date_to}
+            standalone
+          />
+        )}
+      </Dialog>
       <Dialog open={importDialogOpen} fullWidth maxWidth='sm' fullScreen={belowLargeScreen}>
         {importDialogOpen && (
           <ImportStatementDialog

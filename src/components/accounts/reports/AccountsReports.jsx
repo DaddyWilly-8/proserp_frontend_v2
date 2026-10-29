@@ -14,6 +14,7 @@ import {
   BalanceOutlined,
   DeckOutlined,
   Money,
+  FactCheckOutlined,
   QueryStatsOutlined,
   ReceiptLongOutlined,
   ViewTimelineOutlined,
@@ -33,6 +34,7 @@ import BalanceSheet from './balance sheet/BalanceSheet';
 import CashierReport from './cashierReport/CashierReport';
 import DebtorCreditorReport from './debtorCreditor/DebtorCreditorReport';
 import ApArAgingReport from './agingReport/ApArAgingReport';
+import ReconciliationStatementReport from './reconciliationStatement/ReconciliationStatementReport';
 import IncomeStatement from './incomeStatement/IncomeStatement';
 import TrialBalance from './trial balance/TrialBalance';
 import XReport from './zReport/ZReport';
@@ -88,6 +90,9 @@ function AccountsReports() {
       setOpenDialog(true);
     } else if (reportParam === 'ap-ar-aging') {
       setReport(<ApArAgingReport setOpenDialog={setOpenDialog} />);
+      setOpenDialog(true);
+    } else if (reportParam === 'reconciliation-statement') {
+      setReport(<ReconciliationStatementReport setOpenDialog={setOpenDialog} />);
       setOpenDialog(true);
     } else if (reportParam === 'z-report') {
       setReport(<XReport />);
@@ -329,6 +334,28 @@ function AccountsReports() {
                 {dictionary.reports.accountsReports.agingReport.title}
               </Typography>
             </Grid>
+            {checkOrganizationPermission(PERMISSIONS.BANK_RECONCILIATION_READ) && (
+              <Grid
+                sx={{
+                  cursor: 'pointer',
+                  '&:hover': {
+                    bgcolor: 'action.hover',
+                  },
+                }}
+                size={{ xs: 6, md: 3, lg: 2 }}
+                p={1}
+                textAlign={'center'}
+                onClick={() => {
+                  setReport(
+                    <ReconciliationStatementReport setOpenDialog={setOpenDialog} />
+                  );
+                  setOpenDialog(true);
+                }}
+              >
+                <FactCheckOutlined sx={{ fontSize: '40px' }} />
+                <Typography>Reconciliation Statement</Typography>
+              </Grid>
+            )}
           </Grid>
         </JumboCardQuick>
       </LedgerSelectProvider>
