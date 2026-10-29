@@ -8,6 +8,7 @@ import {
   Chip,
   Dialog,
   Divider,
+  LinearProgress,
   InputAdornment,
   MenuItem,
   Paper,
@@ -22,7 +23,7 @@ import { DateTimePicker } from '@mui/x-date-pickers';
 import dayjs, { Dayjs } from 'dayjs';
 import { CheckCircleOutlined, DeleteOutlined, SearchOutlined, UploadOutlined } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useIsFetching, useIsMutating, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useSnackbar } from 'notistack';
 import { useJumboDialog } from '@jumbo/components/JumboDialog/hooks/useJumboDialog';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
@@ -71,6 +72,14 @@ export default function BankReconciliationWorkspace({ bankAccountId }: Props) {
   const [dateFrom, setDateFrom] = useState<Dayjs | null>(null);
   const [dateTo, setDateTo] = useState<Dayjs | null>(null);
   const [search, setSearch] = useState('');
+
+  // Any save in flight, or the workspace still reloading after one. The lists
+  // below are locked for that whole window: acting on a row that is about to
+  // disappear or change (a match just made, a balance not yet recomputed)
+  // risks a double match or a stale difference.
+  const mutating = useIsMutating();
+  const refreshing = useIsFetching({ queryKey: ['bank-reconciliation-workspace', bankAccountId] });
+  const busy = mutating > 0 || refreshing > 0;
 
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ['bank-reconciliation-workspace', bankAccountId, selectedStatementId],
@@ -274,7 +283,7 @@ export default function BankReconciliationWorkspace({ bankAccountId }: Props) {
               variant='contained'
               color='success'
               startIcon={<CheckCircleOutlined />}
-              disabled={!isBalanced}
+              disabled={!isBalanced || busy}
               loading={completeMutation.isPending}
               onClick={() => completeMutation.mutate()}
             >
@@ -331,7 +340,14 @@ export default function BankReconciliationWorkspace({ bankAccountId }: Props) {
           )}
         </Box>
 
-        <Paper variant='outlined'>
+        <Paper
+          variant='outlined'
+          aria-busy={busy}
+          sx={{ position: 'relative', ...(busy && { pointerEvents: 'none', opacity: 0.6, transition: 'opacity 0.15s' }) }}
+          // `inert` also blocks keyboard focus, which pointer-events alone doesn't.
+          {...(busy ? { inert: true } : {})}
+        >
+          {busy && <LinearProgress sx={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 1 }} />}
           <Tabs
             value={tab}
             onChange={(e, v) => setTab(v)}
@@ -490,4 +506,3 @@ export default function BankReconciliationWorkspace({ bankAccountId }: Props) {
     </>
   );
 }
-
