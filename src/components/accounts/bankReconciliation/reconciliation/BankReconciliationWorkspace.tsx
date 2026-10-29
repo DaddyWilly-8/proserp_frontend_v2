@@ -21,7 +21,7 @@ import {
 } from '@mui/material';
 import { DateTimePicker } from '@mui/x-date-pickers';
 import dayjs, { Dayjs } from 'dayjs';
-import { CheckCircleOutlined, DeleteOutlined, SearchOutlined, UploadOutlined } from '@mui/icons-material';
+import { CheckCircleOutlined, DeleteOutlined, LockOpenOutlined, SearchOutlined, UploadOutlined } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
 import { useIsFetching, useIsMutating, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useSnackbar } from 'notistack';
@@ -106,6 +106,29 @@ export default function BankReconciliationWorkspace({ bankAccountId }: Props) {
     },
     onError: (err: any) => enqueueSnackbar(err?.response?.data?.message || 'Failed to complete reconciliation', { variant: 'error' }),
   });
+
+  const reopenMutation = useMutation({
+    mutationFn: () => bankReconciliationServices.reopenStatement(data.statement.id),
+    onSuccess: (result) => {
+      enqueueSnackbar(result.message || 'Statement reopened', { variant: 'success' });
+      hideDialog();
+      queryClient.invalidateQueries({ queryKey: ['bank-reconciliation-workspace', bankAccountId] });
+      queryClient.invalidateQueries({ queryKey: ['bank-statements-list', bankAccountId] });
+      queryClient.invalidateQueries({ queryKey: ['bank-accounts-list'] });
+    },
+    onError: (err: any) => enqueueSnackbar(err?.response?.data?.message || 'Failed to reopen statement', { variant: 'error' }),
+  });
+
+  const confirmReopen = () => {
+    showDialog({
+      title: 'Reopen this reconciliation?',
+      content:
+        'This statement was completed and is locked. Reopening lets matches be changed again, and clears its "last reconciled" date until you complete it again. The change is recorded in the audit trail.',
+      variant: 'confirm',
+      onYes: () => reopenMutation.mutate(),
+      onNo: () => hideDialog(),
+    });
+  };
 
   const deleteStatementMutation = useMutation({
     mutationFn: () => bankReconciliationServices.deleteStatement(data.statement.id),
@@ -261,6 +284,16 @@ export default function BankReconciliationWorkspace({ bankAccountId }: Props) {
                 Import New Statement
               </Button>
             )}
+            {isCompleted && checkOrganizationPermission(PERMISSIONS.BANK_RECONCILIATION_DELETE) && (
+              <LoadingButton
+                variant='outlined'
+                startIcon={<LockOpenOutlined />}
+                loading={reopenMutation.isPending}
+                onClick={confirmReopen}
+              >
+                Reopen
+              </LoadingButton>
+            )}
             {checkOrganizationPermission(PERMISSIONS.BANK_RECONCILIATION_DELETE) && (
               <LoadingButton
                 variant='outlined'
@@ -347,6 +380,7 @@ export default function BankReconciliationWorkspace({ bankAccountId }: Props) {
           // `inert` also blocks keyboard focus, which pointer-events alone doesn't.
           {...(busy ? { inert: true } : {})}
         >
+          {/* tab panels below are read-only (inert) once the statement is completed; use Reopen to change them */}
           {busy && <LinearProgress sx={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 1 }} />}
           <Tabs
             value={tab}
@@ -364,7 +398,7 @@ export default function BankReconciliationWorkspace({ bankAccountId }: Props) {
           </Tabs>
 
           {tab === 0 && (
-            <Box sx={{ p: 2 }}>
+            <Box sx={{ p: 2, ...(isCompleted && { opacity: 0.85 }) }} {...(isCompleted ? { inert: true } : {})}>
               {unmatched_lines.length === 0 && (
                 <Typography color='text.secondary'>{filtersActive ? 'Nothing matches the current filters.' : 'No unmatched statement lines.'}</Typography>
               )}
@@ -385,7 +419,7 @@ export default function BankReconciliationWorkspace({ bankAccountId }: Props) {
           )}
 
           {tab === 1 && (
-            <Box sx={{ p: 2 }}>
+            <Box sx={{ p: 2, ...(isCompleted && { opacity: 0.85 }) }} {...(isCompleted ? { inert: true } : {})}>
               {unmatched_journals.length === 0 && (
                 <Typography color='text.secondary'>{filtersActive ? 'Nothing matches the current filters.' : 'No unmatched book entries.'}</Typography>
               )}
@@ -405,7 +439,7 @@ export default function BankReconciliationWorkspace({ bankAccountId }: Props) {
           )}
 
           {tab === 2 && (
-            <Box sx={{ p: 2 }}>
+            <Box sx={{ p: 2, ...(isCompleted && { opacity: 0.85 }) }} {...(isCompleted ? { inert: true } : {})}>
               {matched_lines.length === 0 && (
                 <Typography color='text.secondary'>{filtersActive ? 'Nothing matches the current filters.' : 'No matched lines yet.'}</Typography>
               )}
@@ -421,7 +455,7 @@ export default function BankReconciliationWorkspace({ bankAccountId }: Props) {
           )}
 
           {tab === 3 && (
-            <Box sx={{ p: 2 }}>
+            <Box sx={{ p: 2, ...(isCompleted && { opacity: 0.85 }) }} {...(isCompleted ? { inert: true } : {})}>
               {ignored_lines.length === 0 && (
                 <Typography color='text.secondary'>{filtersActive ? 'Nothing matches the current filters.' : 'No ignored lines.'}</Typography>
               )}
@@ -446,7 +480,7 @@ export default function BankReconciliationWorkspace({ bankAccountId }: Props) {
           )}
 
           {tab === 4 && (
-            <Box sx={{ p: 2 }}>
+            <Box sx={{ p: 2, ...(isCompleted && { opacity: 0.85 }) }} {...(isCompleted ? { inert: true } : {})}>
               <Typography variant='caption' color='text.secondary' display='block' sx={{ mb: 1 }}>
                 Book entries acknowledged as genuine timing differences (e.g. a cheque not yet presented, a deposit not yet credited) — excluded from the difference above until they clear on a future statement.
               </Typography>

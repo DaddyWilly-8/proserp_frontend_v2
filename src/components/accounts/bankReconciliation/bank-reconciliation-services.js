@@ -121,6 +121,11 @@ bankReconciliationServices.completeStatement = async (statementId) => {
     return data;
 };
 
+bankReconciliationServices.reopenStatement = async (statementId) => {
+    const { data } = await axios.post(`/api/accounts/bankReconciliation/statements/${statementId}/reopen`);
+    return data;
+};
+
 bankReconciliationServices.deleteStatement = async (statementId) => {
     const { data } = await axios.delete(`/api/accounts/bankReconciliation/statements/${statementId}`);
     return data;
