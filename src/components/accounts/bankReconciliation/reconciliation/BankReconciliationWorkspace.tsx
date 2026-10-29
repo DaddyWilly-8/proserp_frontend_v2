@@ -57,6 +57,7 @@ export default function BankReconciliationWorkspace({ bankAccountId }: Props) {
   const { checkOrganizationPermission } = useJumboAuth();
   const { theme } = useJumboTheme();
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
+  const mobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [importDialogOpen, setImportDialogOpen] = useState(false);
   const [tab, setTab] = useState(0);
   // null = "whichever statement the workspace defaults to" (the latest one).
@@ -283,17 +284,22 @@ export default function BankReconciliationWorkspace({ bankAccountId }: Props) {
         )}
 
         <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', alignItems: 'center', mb: 1 }}>
+          {/* On mobile the two pickers share one row (half width each, shorter format). */}
           <DateTimePicker
             label='From'
             value={dateFrom}
+            format={mobile ? 'DD/MM/YY HH:mm' : undefined}
             onChange={(newValue: Dayjs | null) => setDateFrom(newValue)}
+            sx={{ flex: { xs: '1 1 0', sm: '0 0 auto' }, minWidth: 0 }}
             slotProps={{ textField: { size: 'small' }, field: { clearable: true } }}
           />
           <DateTimePicker
             label='To'
             value={dateTo}
             minDateTime={dateFrom ?? undefined}
+            format={mobile ? 'DD/MM/YY HH:mm' : undefined}
             onChange={(newValue: Dayjs | null) => setDateTo(newValue)}
+            sx={{ flex: { xs: '1 1 0', sm: '0 0 auto' }, minWidth: 0 }}
             slotProps={{ textField: { size: 'small' }, field: { clearable: true } }}
           />
           <TextField
@@ -302,7 +308,7 @@ export default function BankReconciliationWorkspace({ bankAccountId }: Props) {
             placeholder='Description, reference, voucher, amount…'
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            sx={{ minWidth: 280, flexGrow: 1, maxWidth: 480 }}
+            sx={{ minWidth: { xs: '100%', sm: 280 }, flexGrow: 1, maxWidth: 480 }}
             InputProps={{
               startAdornment: (
                 <InputAdornment position='start'>
