@@ -11,6 +11,9 @@ import {
   IconButton,
   LinearProgress,
   InputAdornment,
+  ListItemIcon,
+  ListItemText,
+  Menu,
   MenuItem,
   Paper,
   Select,
@@ -23,7 +26,7 @@ import {
 } from '@mui/material';
 import { DateTimePicker } from '@mui/x-date-pickers';
 import dayjs, { Dayjs } from 'dayjs';
-import { CheckCircleOutlined, DeleteOutlined, LockOpenOutlined, PrintOutlined, SearchOutlined, UploadOutlined } from '@mui/icons-material';
+import { CheckCircleOutlined, DeleteOutlined, LockOpenOutlined, MoreVert, PrintOutlined, SearchOutlined, UploadOutlined } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
 import { useIsFetching, useIsMutating, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useSnackbar } from 'notistack';
@@ -39,6 +42,7 @@ import MatchedLineGroup from './MatchedLineGroup';
 import UnmatchedJournalRow from './UnmatchedJournalRow';
 import UnmatchedLineRow from './UnmatchedLineRow';
 import { formatDate } from './date-format';
+import { LOCKED_HINT } from './locked-hint';
 
 interface Props {
   bankAccountId: number;
@@ -62,6 +66,9 @@ export default function BankReconciliationWorkspace({ bankAccountId }: Props) {
   const { theme } = useJumboTheme();
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
   const mobile = useMediaQuery(theme.breakpoints.down('sm'));
+  // Below this width the secondary header actions fold into a ⋮ menu.
+  const compactHeader = useMediaQuery(theme.breakpoints.down('md'));
+  const [actionsAnchor, setActionsAnchor] = useState<null | HTMLElement>(null);
   const [importDialogOpen, setImportDialogOpen] = useState(false);
   const [statementReportOpen, setStatementReportOpen] = useState(false);
   const [tab, setTab] = useState(0);
@@ -263,7 +270,7 @@ export default function BankReconciliationWorkspace({ bankAccountId }: Props) {
                   setSelectedStatementId(Number(e.target.value));
                   setTab(0);
                 }}
-                sx={{ mt: 0.5, minWidth: 260 }}
+                sx={{ mt: 0.5, minWidth: { xs: 0, sm: 260 }, maxWidth: '100%' }}
               >
                 {statements.map((s: any) => (
                   <MenuItem key={s.id} value={s.id}>
@@ -281,48 +288,93 @@ export default function BankReconciliationWorkspace({ bankAccountId }: Props) {
               </Typography>
             )}
           </Box>
-          <Box sx={{ display: 'flex', gap: 1 }}>
+          <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
             {/* Opens the report for this account and statement, like the Stock Report on a store */}
             <Tooltip title='Reconciliation Statement'>
               <IconButton onClick={() => setStatementReportOpen(true)}>
                 <PrintOutlined />
               </IconButton>
             </Tooltip>
-            {/* Also offered on a completed statement: that's exactly when the next period's statement is imported */}
-            {checkOrganizationPermission(PERMISSIONS.BANK_RECONCILIATION_CREATE) && (
-              <Button variant='outlined' startIcon={<UploadOutlined />} onClick={() => setImportDialogOpen(true)}>
-                Import New Statement
-              </Button>
-            )}
-            {isCompleted && checkOrganizationPermission(PERMISSIONS.BANK_RECONCILIATION_DELETE) && (
-              <LoadingButton
-                variant='outlined'
-                startIcon={<LockOpenOutlined />}
-                loading={reopenMutation.isPending}
-                onClick={confirmReopen}
-              >
-                Reopen
-              </LoadingButton>
-            )}
-            {checkOrganizationPermission(PERMISSIONS.BANK_RECONCILIATION_DELETE) && (
-              <LoadingButton
-                variant='outlined'
-                color='error'
-                startIcon={<DeleteOutlined />}
-                loading={deleteStatementMutation.isPending}
-                onClick={confirmDeleteStatement}
-              >
-                Delete Statement
-              </LoadingButton>
+            {compactHeader ? (
+              <>
+                <IconButton aria-label='More actions' onClick={(e) => setActionsAnchor(e.currentTarget)}>
+                  <MoreVert />
+                </IconButton>
+                <Menu anchorEl={actionsAnchor} open={Boolean(actionsAnchor)} onClose={() => setActionsAnchor(null)}>
+                  {checkOrganizationPermission(PERMISSIONS.BANK_RECONCILIATION_CREATE) && (
+                    <MenuItem
+                      onClick={() => {
+                        setActionsAnchor(null);
+                        setImportDialogOpen(true);
+                      }}
+                    >
+                      <ListItemIcon>
+                        <UploadOutlined fontSize='small' />
+                      </ListItemIcon>
+                      <ListItemText>Import New Statement</ListItemText>
+                    </MenuItem>
+                  )}
+                  {checkOrganizationPermission(PERMISSIONS.BANK_RECONCILIATION_DELETE) && (
+                    <MenuItem
+                      sx={{ color: 'error.main' }}
+                      onClick={() => {
+                        setActionsAnchor(null);
+                        confirmDeleteStatement();
+                      }}
+                    >
+                      <ListItemIcon sx={{ color: 'error.main' }}>
+                        <DeleteOutlined fontSize='small' />
+                      </ListItemIcon>
+                      <ListItemText>Delete Statement</ListItemText>
+                    </MenuItem>
+                  )}
+                </Menu>
+              </>
+            ) : (
+              <>
+                {/* Also offered on a completed statement: that's exactly when the next period's statement is imported */}
+                {checkOrganizationPermission(PERMISSIONS.BANK_RECONCILIATION_CREATE) && (
+                  <Button variant='outlined' startIcon={<UploadOutlined />} onClick={() => setImportDialogOpen(true)}>
+                    Import New Statement
+                  </Button>
+                )}
+                {checkOrganizationPermission(PERMISSIONS.BANK_RECONCILIATION_DELETE) && (
+                  <LoadingButton
+                    variant='outlined'
+                    color='error'
+                    startIcon={<DeleteOutlined />}
+                    loading={deleteStatementMutation.isPending}
+                    onClick={confirmDeleteStatement}
+                  >
+                    Delete Statement
+                  </LoadingButton>
+                )}
+              </>
             )}
           </Box>
         </Box>
 
         <DifferenceSummary closingBalance={statement.closing_balance} bookBalance={book_balance} difference={difference} tolerance={tolerance} isCompleted={isCompleted} />
 
+        {isCompleted && checkOrganizationPermission(PERMISSIONS.BANK_RECONCILIATION_DELETE) && (
+          <Box sx={{ mb: 2 }}>
+            <LoadingButton
+              fullWidth={mobile}
+              variant='outlined'
+              startIcon={<LockOpenOutlined />}
+              disabled={busy}
+              loading={reopenMutation.isPending}
+              onClick={confirmReopen}
+            >
+              Reopen
+            </LoadingButton>
+          </Box>
+        )}
+
         {!isCompleted && checkOrganizationPermission(PERMISSIONS.BANK_RECONCILIATION_EDIT) && (
           <Box sx={{ mb: 2 }}>
             <LoadingButton
+              fullWidth={mobile}
               variant='contained'
               color='success'
               startIcon={<CheckCircleOutlined />}
@@ -390,7 +442,6 @@ export default function BankReconciliationWorkspace({ bankAccountId }: Props) {
           // `inert` also blocks keyboard focus, which pointer-events alone doesn't.
           {...(busy ? { inert: true } : {})}
         >
-          {/* tab panels below are read-only (inert) once the statement is completed; use Reopen to change them */}
           {busy && <LinearProgress sx={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 1 }} />}
           <Tabs
             value={tab}
@@ -408,7 +459,7 @@ export default function BankReconciliationWorkspace({ bankAccountId }: Props) {
           </Tabs>
 
           {tab === 0 && (
-            <Box sx={{ p: 2, ...(isCompleted && { opacity: 0.85 }) }} {...(isCompleted ? { inert: true } : {})}>
+            <Box sx={{ p: 2 }}>
               {unmatched_lines.length === 0 && (
                 <Typography color='text.secondary'>{filtersActive ? 'Nothing matches the current filters.' : 'No unmatched statement lines.'}</Typography>
               )}
@@ -423,13 +474,14 @@ export default function BankReconciliationWorkspace({ bankAccountId }: Props) {
                   existingMatches={item.existing_matches}
                   remainingAmount={item.remaining_amount}
                   tolerance={tolerance}
+                  locked={isCompleted}
                 />
               ))}
             </Box>
           )}
 
           {tab === 1 && (
-            <Box sx={{ p: 2, ...(isCompleted && { opacity: 0.85 }) }} {...(isCompleted ? { inert: true } : {})}>
+            <Box sx={{ p: 2 }}>
               {unmatched_journals.length === 0 && (
                 <Typography color='text.secondary'>{filtersActive ? 'Nothing matches the current filters.' : 'No unmatched book entries.'}</Typography>
               )}
@@ -443,13 +495,14 @@ export default function BankReconciliationWorkspace({ bankAccountId }: Props) {
                   existingMatches={journal.existing_matches}
                   remainingAmount={journal.remaining_amount}
                   tolerance={tolerance}
+                  locked={isCompleted}
                 />
               ))}
             </Box>
           )}
 
           {tab === 2 && (
-            <Box sx={{ p: 2, ...(isCompleted && { opacity: 0.85 }) }} {...(isCompleted ? { inert: true } : {})}>
+            <Box sx={{ p: 2 }}>
               {matched_lines.length === 0 && (
                 <Typography color='text.secondary'>{filtersActive ? 'Nothing matches the current filters.' : 'No matched lines yet.'}</Typography>
               )}
@@ -459,13 +512,14 @@ export default function BankReconciliationWorkspace({ bankAccountId }: Props) {
                   bankAccountId={bankAccountId}
                   matchedLine={matchedLine}
                   suggestionDayTolerance={suggestion_day_tolerance}
+                  locked={isCompleted}
                 />
               ))}
             </Box>
           )}
 
           {tab === 3 && (
-            <Box sx={{ p: 2, ...(isCompleted && { opacity: 0.85 }) }} {...(isCompleted ? { inert: true } : {})}>
+            <Box sx={{ p: 2 }}>
               {ignored_lines.length === 0 && (
                 <Typography color='text.secondary'>{filtersActive ? 'Nothing matches the current filters.' : 'No ignored lines.'}</Typography>
               )}
@@ -476,13 +530,18 @@ export default function BankReconciliationWorkspace({ bankAccountId }: Props) {
                     {formatDate(line.line_date)} — {line.description} — {formatAmount(line.amount)}
                   </Typography>
                   {checkOrganizationPermission(PERMISSIONS.BANK_RECONCILIATION_EDIT) && (
-                    <LoadingButton
-                      size='small'
-                      loading={unignoreMutation.isPending && unignoreMutation.variables === line.id}
-                      onClick={() => unignoreMutation.mutate(line.id)}
-                    >
-                      Restore
-                    </LoadingButton>
+                    <Tooltip title={isCompleted ? LOCKED_HINT : ''}>
+                      <span>
+                        <LoadingButton
+                          size='small'
+                          disabled={isCompleted}
+                          loading={unignoreMutation.isPending && unignoreMutation.variables === line.id}
+                          onClick={() => unignoreMutation.mutate(line.id)}
+                        >
+                          Restore
+                        </LoadingButton>
+                      </span>
+                    </Tooltip>
                   )}
                 </Box>
               ))}
@@ -490,7 +549,7 @@ export default function BankReconciliationWorkspace({ bankAccountId }: Props) {
           )}
 
           {tab === 4 && (
-            <Box sx={{ p: 2, ...(isCompleted && { opacity: 0.85 }) }} {...(isCompleted ? { inert: true } : {})}>
+            <Box sx={{ p: 2 }}>
               <Typography variant='caption' color='text.secondary' display='block' sx={{ mb: 1 }}>
                 Book entries acknowledged as genuine timing differences (e.g. a cheque not yet presented, a deposit not yet credited) — excluded from the difference above until they clear on a future statement.
               </Typography>
@@ -510,13 +569,18 @@ export default function BankReconciliationWorkspace({ bankAccountId }: Props) {
                     </Typography>
                   </Box>
                   {checkOrganizationPermission(PERMISSIONS.BANK_RECONCILIATION_EDIT) && (
-                    <LoadingButton
-                      size='small'
-                      loading={unmarkOutstandingMutation.isPending && unmarkOutstandingMutation.variables === journal.outstanding_item_id}
-                      onClick={() => unmarkOutstandingMutation.mutate(journal.outstanding_item_id)}
-                    >
-                      Unmark
-                    </LoadingButton>
+                    <Tooltip title={isCompleted ? LOCKED_HINT : ''}>
+                      <span>
+                        <LoadingButton
+                          size='small'
+                          disabled={isCompleted}
+                          loading={unmarkOutstandingMutation.isPending && unmarkOutstandingMutation.variables === journal.outstanding_item_id}
+                          onClick={() => unmarkOutstandingMutation.mutate(journal.outstanding_item_id)}
+                        >
+                          Unmark
+                        </LoadingButton>
+                      </span>
+                    </Tooltip>
                   )}
                 </Box>
               ))}

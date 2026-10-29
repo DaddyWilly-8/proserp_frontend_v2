@@ -16,6 +16,7 @@ import { descriptionIncludesVoucher } from './journal-display';
 import { formatDate } from './date-format';
 import { quickActionsFor } from './transaction-quick-actions';
 import CancelTransactionDialog from './CancelTransactionDialog';
+import { LOCKED_HINT } from './locked-hint';
 import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface StatementLine {
@@ -60,6 +61,8 @@ interface Props {
   existingMatches: ExistingMatch[];
   remainingAmount: number;
   tolerance?: number;
+  // The statement is completed: matching and marking outstanding are switched off until it is reopened.
+  locked?: boolean;
 }
 
 const formatAmount = (amount: number) =>
@@ -73,6 +76,7 @@ export default function UnmatchedJournalRow({
   existingMatches,
   remainingAmount,
   tolerance = 0.01,
+  locked = false,
 }: Props) {
   const dictionary = useDictionary();
   const { enqueueSnackbar } = useSnackbar();
@@ -196,7 +200,7 @@ export default function UnmatchedJournalRow({
                 key={match.id}
                 size='small'
                 label={`${match.statement_line.description} — ${formatAmount(match.matched_amount)}`}
-                onDelete={() => removeMatchMutation.mutate(match.id)}
+                onDelete={locked ? undefined : () => removeMatchMutation.mutate(match.id)}
                 deleteIcon={<LinkOffOutlined fontSize='small' />}
               />
             ))}
@@ -205,6 +209,7 @@ export default function UnmatchedJournalRow({
         <Autocomplete
           multiple
           size='small'
+          disabled={locked}
           options={directionFilteredLines}
           value={selectedLines}
           getOptionLabel={(option: UnmatchedLineOption) =>
@@ -226,13 +231,13 @@ export default function UnmatchedJournalRow({
         )}
       </Grid>
       <Grid size={{ xs: 12, md: 2 }} textAlign='end'>
-        <Tooltip title={dictionary.tooltips.matchSelectedStatementLinesToThis}>
+        <Tooltip title={locked ? LOCKED_HINT : dictionary.tooltips.matchSelectedStatementLinesToThis}>
           <span>
             <LoadingButton
               size='small'
               variant='contained'
               startIcon={<CheckCircleOutlined />}
-              disabled={selectedLines.length === 0 || !isBalanced}
+              disabled={locked || selectedLines.length === 0 || !isBalanced}
               loading={matchMutation.isPending}
               onClick={() => matchMutation.mutate()}
               sx={{ mr: hasAnyRowAction ? 1 : 0 }}
@@ -251,6 +256,8 @@ export default function UnmatchedJournalRow({
             <Menu anchorEl={menuAnchor} open={!!menuAnchor} onClose={() => setMenuAnchor(null)}>
               {canMarkOutstanding && (
                 <MenuItem
+                  disabled={locked}
+                  title={locked ? LOCKED_HINT : undefined}
                   onClick={() => {
                     setMenuAnchor(null);
                     markOutstandingMutation.mutate();

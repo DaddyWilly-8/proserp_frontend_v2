@@ -9,6 +9,7 @@ import { useSnackbar } from 'notistack';
 import bankReconciliationServices from '../bank-reconciliation-services';
 import { journalDisplayParts } from './journal-display';
 import PostTransactionDialog from './PostTransactionDialog';
+import { LOCKED_HINT } from './locked-hint';
 import { formatDate } from './date-format';
 import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
@@ -50,6 +51,8 @@ interface Props {
   existingMatches: ExistingMatch[];
   remainingAmount: number;
   tolerance?: number;
+  // The statement is completed: every action is switched off until it is reopened.
+  locked?: boolean;
 }
 
 const formatAmount = (amount: number) =>
@@ -69,6 +72,7 @@ export default function UnmatchedLineRow({
   existingMatches,
   remainingAmount,
   tolerance = 0.01,
+  locked = false,
 }: Props) {
   const dictionary = useDictionary();
   const { enqueueSnackbar } = useSnackbar();
@@ -157,7 +161,7 @@ export default function UnmatchedLineRow({
                 key={match.id}
                 size='small'
                 label={`${journalDisplayParts(match.journal).join(' — ')} — ${formatAmount(match.matched_amount)}`}
-                onDelete={() => removeMatchMutation.mutate(match.id)}
+                onDelete={locked ? undefined : () => removeMatchMutation.mutate(match.id)}
                 deleteIcon={<LinkOffOutlined fontSize='small' />}
               />
             ))}
@@ -166,6 +170,7 @@ export default function UnmatchedLineRow({
         <Autocomplete
           multiple
           size='small'
+          disabled={locked}
           options={directionFilteredJournals}
           value={selectedJournals}
           getOptionLabel={journalLabel}
@@ -188,6 +193,7 @@ export default function UnmatchedLineRow({
                     key={suggestion.id}
                     size='small'
                     clickable
+                    disabled={locked}
                     color={isSelected ? 'primary' : 'default'}
                     variant={isSelected ? 'filled' : 'outlined'}
                     icon={isSelected ? <CheckCircleOutlined fontSize='small' /> : undefined}
@@ -213,13 +219,13 @@ export default function UnmatchedLineRow({
         </Box>
       </Grid>
       <Grid size={{ xs: 12, md: 2 }} textAlign='end'>
-        <Tooltip title={dictionary.tooltips.matchSelectedBookEntriesToThis}>
+        <Tooltip title={locked ? LOCKED_HINT : dictionary.tooltips.matchSelectedBookEntriesToThis}>
           <span>
             <LoadingButton
               size='small'
               variant='contained'
               startIcon={<CheckCircleOutlined />}
-              disabled={selectedJournals.length === 0 || !isBalanced}
+              disabled={locked || selectedJournals.length === 0 || !isBalanced}
               loading={matchMutation.isPending}
               onClick={() => matchMutation.mutate()}
               sx={{ mr: 1 }}
@@ -228,24 +234,24 @@ export default function UnmatchedLineRow({
             </LoadingButton>
           </span>
         </Tooltip>
-        <Tooltip title={dictionary.tooltips.postTheMissingTransactionEG}>
+        <Tooltip title={locked ? LOCKED_HINT : dictionary.tooltips.postTheMissingTransactionEG}>
           <span>
             <IconButton
               size='small'
               onClick={() => setPostDialogOpen(true)}
-              disabled={existingMatches.length > 0}
+              disabled={locked || existingMatches.length > 0}
               sx={{ mr: 1 }}
             >
               <AddCircleOutlined fontSize='small' />
             </IconButton>
           </span>
         </Tooltip>
-        <Tooltip title={dictionary.tooltips.ignoreThisLineNotExpectedTo}>
+        <Tooltip title={locked ? LOCKED_HINT : dictionary.tooltips.ignoreThisLineNotExpectedTo}>
           <span>
             <IconButton
               size='small'
               onClick={() => ignoreMutation.mutate()}
-              disabled={ignoreMutation.isPending || existingMatches.length > 0}
+              disabled={locked || ignoreMutation.isPending || existingMatches.length > 0}
             >
               <VisibilityOffOutlined fontSize='small' />
             </IconButton>
