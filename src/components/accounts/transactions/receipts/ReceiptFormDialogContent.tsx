@@ -452,7 +452,7 @@ function ReceiptFormDialogContent({
                         (ledger) => ledger.id === receipt?.debit_ledger_id
                       ) || null
                     }
-                    allowedGroups={['Cash and cash equivalents']}
+                    allowedGroups={['Current Assets', 'Current Liabilities']}
                     onChange={(newValue: any) => {
                       if (Array.isArray(newValue)) return;
                       applyCurrencyLock(newValue?.currency?.id);

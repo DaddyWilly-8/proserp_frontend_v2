@@ -6,6 +6,7 @@ import { Stakeholder } from '@/components/masters/stakeholders/StakeholderType';
 import PDFContent from '@/components/pdf/PDFContent';
 import { FileExportGrid } from '@/components/sharedComponents/FileExportGrid';
 import { Organization } from '@/types/auth-types';
+import { MODULES } from '@/utilities/constants/modules';
 import { HighlightOff, KeyboardArrowDown, KeyboardArrowUp } from '@mui/icons-material';
 import {
   Autocomplete,
@@ -18,6 +19,7 @@ import {
   DialogTitle,
   Divider,
   FormControl,
+  FormControlLabel,
   Grid,
   IconButton,
   InputLabel,
@@ -26,6 +28,7 @@ import {
   Paper,
   Select,
   Stack,
+  Switch,
   Table,
   TableBody,
   TableCell,
@@ -64,6 +67,9 @@ interface SalesPerformanceRow {
   transaction_count: number;
   amount_ordered: number;
   amount_collected: number;
+  // Of the figures above, what came from fuel vouchers (when they are included)
+  fuel_voucher_count?: number;
+  fuel_voucher_amount?: number;
   products: SalesPerformanceProductRow[];
 }
 
@@ -71,6 +77,14 @@ const formatQuantity = (value: number, unitSymbol?: string | null) =>
   `${(value || 0).toLocaleString('en-US', { maximumFractionDigits: 2 })}${
     unitSymbol ? ` ${unitSymbol}` : ''
   }`;
+
+const fuelVoucherNote = (row: SalesPerformanceRow) =>
+  row.fuel_voucher_count
+    ? `incl. ${row.fuel_voucher_count} fuel voucher${row.fuel_voucher_count === 1 ? '' : 's'} (${formatAmount(row.fuel_voucher_amount || 0)})`
+    : null;
+
+const FUEL_VOUCHER_REPORT_NOTE =
+  'Fuel vouchers are included in Transactions and Amount Ordered. Collections against fuel vouchers are not tracked, so Amount Collected does not include them.';
 
 const formatAmount = (value: number) =>
   (value || 0).toLocaleString('en-US', {
@@ -103,6 +117,10 @@ function SalesPerformance({
     []
   );
   const [rows, setRows] = useState<SalesPerformanceRow[] | null>(null);
+  // Fuel vouchers are credit fuel sales to customers: offered to organizations with Fuel Station,
+  // for the customer view only (a voucher has no sales person)
+  const [includeFuelVouchers, setIncludeFuelVouchers] = useState(true);
+  const [fuelVouchersIncluded, setFuelVouchersIncluded] = useState(false);
   const [expandedKeys, setExpandedKeys] = useState<Set<string | number>>(
     new Set()
   );
@@ -122,7 +140,9 @@ function SalesPerformance({
   };
 
   const { enqueueSnackbar } = useSnackbar();
-  const { authUser, authOrganization } = useJumboAuth();
+  const { authUser, authOrganization, organizationHasSubscribed } = useJumboAuth();
+  const canIncludeFuelVouchers =
+    organizationHasSubscribed(MODULES.FUEL_STATION) && groupBy === 'customer';
   const { theme } = useJumboTheme();
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
   const organization = (authOrganization as any)?.organization as Organization;
@@ -139,6 +159,7 @@ function SalesPerformance({
     mutationFn: posServices.salesPerformance,
     onSuccess: (data) => {
       setRows(data?.data || []);
+      setFuelVouchersIncluded(!!data?.includes_fuel_vouchers);
       setExpandedKeys(new Set());
       setShowPdfPreview(false);
     },
@@ -154,6 +175,7 @@ function SalesPerformance({
       from: from.toISOString(),
       to: to.toISOString(),
       group_by: groupBy,
+      include_fuel_vouchers: canIncludeFuelVouchers ? (includeFuelVouchers ? 1 : 0) : undefined,
       order_by: orderBy,
       limit: limit || undefined,
       sales_outlet_id:
@@ -177,6 +199,7 @@ function SalesPerformance({
         organization,
         rows,
         groupBy,
+        includesFuelVouchers: fuelVouchersIncluded,
         from: from?.toISOString(),
         to: to?.toISOString(),
         baseCurrencyCode,
@@ -334,6 +357,20 @@ function SalesPerformance({
               }
             />
           </Grid>
+          {canIncludeFuelVouchers && (
+            <Grid size={{ xs: 12 }}>
+              <FormControlLabel
+                control={
+                  <Switch
+                    size='small'
+                    checked={includeFuelVouchers}
+                    onChange={(event) => setIncludeFuelVouchers(event.target.checked)}
+                  />
+                }
+                label='Include fuel vouchers'
+              />
+            </Grid>
+          )}
           <Grid size={{ xs: 12 }}>
             <Stack
               direction='row'
@@ -385,6 +422,7 @@ function SalesPerformance({
                   organization={organization}
                   rows={rows}
                   groupBy={groupBy}
+                  includesFuelVouchers={fuelVouchersIncluded}
                   from={from?.toISOString() || ''}
                   to={to?.toISOString() || ''}
                   baseCurrencyCode={baseCurrencyCode}
@@ -411,6 +449,11 @@ function SalesPerformance({
                           <Typography variant='subtitle2'>
                             {index + 1}. {row.label}
                           </Typography>
+                          {fuelVoucherNote(row) && (
+                            <Typography variant='caption' color='text.secondary' display='block'>
+                              {fuelVoucherNote(row)}
+                            </Typography>
+                          )}
                         </Grid>
                         {hasProducts && (
                           <Grid size={2} textAlign='right'>
@@ -611,7 +654,14 @@ function SalesPerformance({
                             )}
                           </TableCell>
                           <TableCell>{index + 1}</TableCell>
-                          <TableCell>{row.label}</TableCell>
+                          <TableCell>
+                            {row.label}
+                            {fuelVoucherNote(row) && (
+                              <Typography variant='caption' color='text.secondary' display='block'>
+                                {fuelVoucherNote(row)}
+                              </Typography>
+                            )}
+                          </TableCell>
                           <TableCell align='right'>
                             {row.transaction_count}
                           </TableCell>
@@ -711,6 +761,12 @@ function SalesPerformance({
               </Box>
             </>
           ))}
+
+        {rows && rows.length > 0 && fuelVouchersIncluded && (
+          <Typography variant='caption' color='text.secondary' display='block' sx={{ mt: 1 }}>
+            {FUEL_VOUCHER_REPORT_NOTE}
+          </Typography>
+        )}
       </DialogContent>
       <DialogActions>
         <Button size='small' onClick={() => setOpenSalesPerformance(false)}>

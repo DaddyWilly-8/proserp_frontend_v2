@@ -345,7 +345,7 @@ function ProductSalesCard() {
     });
 
   return (
-    <div>
+    <div style={{ height: '100%' }}>
       <JumboCardQuick
         title={
           <Grid
@@ -464,10 +464,11 @@ function ProductSalesCard() {
             !isLoading && popularProducts.length < 1
               ? smallScreen
                 ? 400
-                : 300
+                : 360
               : smallScreen
                 ? 500
-                : null,
+                : '100%',
+          minHeight: smallScreen ? undefined : 360,
         }}
       >
         {smallScreen && <Actions />}

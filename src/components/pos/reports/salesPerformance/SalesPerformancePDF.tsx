@@ -28,6 +28,8 @@ interface SalesPerformancePDFProps {
   organization: Organization;
   rows: SalesPerformanceRow[];
   groupBy: 'customer' | 'sales_person';
+  // Fuel vouchers are part of the figures (customer view only)
+  includesFuelVouchers?: boolean;
   from: string;
   to: string;
   baseCurrencyCode: string;
@@ -50,6 +52,7 @@ function SalesPerformancePDF({
   organization,
   rows,
   groupBy,
+  includesFuelVouchers = false,
   from,
   to,
   baseCurrencyCode,
@@ -93,6 +96,11 @@ function SalesPerformancePDF({
             {!!baseCurrencyCode && (
               <Text style={{ ...pdfStyles.minInfo }}>
                 {t.amountsInBase.replace('{currency}', baseCurrencyCode)}
+              </Text>
+            )}
+            {includesFuelVouchers && (
+              <Text style={{ ...pdfStyles.minInfo }}>
+                Fuel vouchers included. Collections on them are not tracked, so Amount Collected excludes them.
               </Text>
             )}
           </View>
