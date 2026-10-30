@@ -83,7 +83,11 @@ function Filters() {
                                 checkedIcon={<VisibilityOutlined />}
                             />
                         }
-                        label={dictionary.dashboardCards.showFigures}
+                        label={
+                            showFigures
+                                ? dictionary.dashboardCards.hideFigures
+                                : dictionary.dashboardCards.showFigures
+                        }
                         sx={{ mr: 0 }}
                     />
                 </Grid>

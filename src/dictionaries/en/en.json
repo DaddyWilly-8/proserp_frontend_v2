@@ -576,6 +576,7 @@
     "liabilitiesShort": "Liabilities",
     "cashShort": "Cash",
     "showFigures": "Show figures",
+    "hideFigures": "Hide figures",
     "asAt": "As at",
     "financialSummaryError": "Could not load the financial summary"
   },
