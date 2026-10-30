@@ -1,5 +1,6 @@
 // stockMovement.tsx
 import { readableDate } from '@/app/helpers/input-sanitization-helpers';
+import { getEmptyMovementKeys } from '@/app/helpers/stock-movement-helpers';
 import { applyCellStyle, CELL_STYLES, getAlternatingRowFill } from '../styles';
 import { getExcelColumnName } from '../uitls';
 import { createWorkbook } from '../workBook';
@@ -121,6 +122,7 @@ export async function exportStockMovementReportToExcel(exportedData: any) {
       organizationHasSubscribed,
       reportTitle,
       withDetails = false,
+      hideEmptyColumns = false,
     } = exportedData;
 
     const orgName = authOrganization?.organization?.name || '';
@@ -379,6 +381,13 @@ export async function exportStockMovementReportToExcel(exportedData: any) {
         ...remainingColumns,
         ...accountsColumns,
       ];
+    }
+
+    if (hideEmptyColumns) {
+      const emptyKeys = getEmptyMovementKeys(movementsData?.movements);
+      columnDefinitions = columnDefinitions.filter(
+        (col) => !emptyKeys.has(col.key)
+      );
     }
 
     // Calculate actual total columns (accounting for sub-columns)

@@ -227,7 +227,8 @@
       "printedBy": "Imechapishwa Na",
       "printedOn": "Imechapishwa Tarehe",
       "valueWarning": "Hisa iliyopo ina thamani hasi: ilitolewa kwa gharama kubwa kuliko ilivyoingia. Angalia viwango vya gharama."
-    }
+    },
+    "stockMovement": "Mwenendo wa Hisa"
   },
   "storeReports": {
     "stockReport": "Ripoti ya Hisa",
@@ -283,11 +284,17 @@
       "toDate": "Hadi (MM/DD/YYYY)",
       "includeSubstores": "Jumuisha Stoo Ndogo",
       "withMoreDetails": "Pamoja na maelezo zaidi",
+      "quantity": "Kiasi",
+      "amount": "Kiasi cha Fedha",
+      "total": "Jumla",
+      "hideEmptyColumns": "Ficha safu zisizo na mwendo",
       "filter": "Chuja",
       "onScreen": "Skrini",
       "downloadExcelForDetails": "Pakua Excel ili kuona maelezo zaidi",
       "detailedViewOnlyExcel": "Mwonekano wa kina unapatikana katika muundo wa Excel pekee. Tafadhali bofya kitufe cha Excel hapo juu ili kupakua ripoti kamili.",
-      "close": "Funga"
+      "close": "Funga",
+      "allStores": "Stoo Zote",
+      "storeOrAll": "Stoo (stoo zote ikiwa tupu)"
     },
     "stockDistribution": "Mgawanyo wa Hisa"
   },

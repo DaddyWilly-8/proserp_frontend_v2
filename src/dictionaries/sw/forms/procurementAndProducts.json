@@ -194,6 +194,9 @@
           "assetProduct": {
             "required": "Chagua bidhaa ya mali itakayopokea hisa hii"
           },
+          "costCenter": {
+            "required": "Chagua kituo cha gharama ambacho hisa hii inatolewa"
+          },
           "conversionDate": {
             "required": "Tarehe ya ubadilishaji inahitajika"
           }

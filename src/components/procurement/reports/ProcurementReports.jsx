@@ -9,6 +9,7 @@ import { PERMISSIONS } from '@/utilities/constants/permissions';
 import JumboCardQuick from '@jumbo/components/JumboCardQuick';
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 import {
+  FeedOutlined,
   InsightsOutlined,
   Inventory2Outlined,
   ReceiptLongOutlined,
@@ -30,6 +31,7 @@ import ProductInsights from './productInsights/ProductInsights';
 import PurchasesManifestReport from './purchasesManifest/PurchasesManifestReport';
 import PurchasesReport from './PurchasesReport';
 import StockByCostCenterReport from './StockByCostCenterReport';
+import StockMovement from '../stores/[store_id]/reports/stockMovement/StockMovement';
 import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
 import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
@@ -65,6 +67,10 @@ function ProcurementReports() {
     } else if (reportParam === 'purchases-report') {
       setReport(<PurchasesReport />);
       setOpenDialog(true);
+    } else if (reportParam === 'stock-movement') {
+      setReportName('StockMovement');
+      setReport(<StockMovement toggleOpen={setOpenDialog} isFromDashboard={true} />);
+      setOpenDialog(true);
     } else if (reportParam === 'stock-by-cost-center') {
       setReport(<StockByCostCenterReport />);
       setOpenDialog(true);
@@ -89,7 +95,7 @@ function ProcurementReports() {
             fullWidth
             fullScreen={belowLargeScreen}
             maxWidth={
-              ['PurchasesManifestReport', 'StockByCostCenterReport'].includes(
+              ['PurchasesManifestReport', 'StockByCostCenterReport', 'StockMovement'].includes(
                 reportName
               )
                 ? 'lg'
@@ -98,6 +104,7 @@ function ProcurementReports() {
             open={openDialog}
           >
             {report}
+            {reportName !== 'StockMovement' && (
             <DialogActions className={css.hiddenOnPrint}>
               <Button
                 sx={{ m: 1 }}
@@ -110,6 +117,7 @@ function ProcurementReports() {
                 {dict.close}
               </Button>
             </DialogActions>
+            )}
           </Dialog>
           <Typography variant={'h4'} mb={2}>
             {dict.title}
@@ -201,6 +209,32 @@ function ProcurementReports() {
                 >
                   <Inventory2Outlined sx={{ fontSize: '40px' }} />
                   <Typography>{dict.stockByCostCenter.title}</Typography>
+                </Grid>
+              )}
+              {checkOrganizationPermission(PERMISSIONS.STORES_REPORTS) && (
+                <Grid
+                  sx={{
+                    cursor: 'pointer',
+                    '&:hover': {
+                      bgcolor: 'action.hover',
+                    },
+                  }}
+                  size={{ xs: 6, md: 3, lg: 2 }}
+                  p={1}
+                  textAlign={'center'}
+                  onClick={() => {
+                    setReportName('StockMovement');
+                    setReport(
+                      <StockMovement
+                        toggleOpen={setOpenDialog}
+                        isFromDashboard={true}
+                      />
+                    );
+                    setOpenDialog(true);
+                  }}
+                >
+                  <FeedOutlined sx={{ fontSize: '40px' }} />
+                  <Typography>{dict.stockMovement}</Typography>
                 </Grid>
               )}
             </Grid>

@@ -35,6 +35,7 @@ import {
 import BalanceSheet from '../../accounts/reports/balance sheet/BalanceSheet';
 import financialReportsServices from '../../accounts/reports/financial-reports-services';
 import { useDashboardSettings } from '../Dashboard';
+import FinancialSummaryStrip from './FinancialSummaryStrip';
 import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface BalanceSheetItem {
@@ -229,17 +230,19 @@ function BalanceSheetTrend() {
         </DialogActions>
       </Dialog>
 
+      <FinancialSummaryStrip kind='balanceSheet' />
+
       {isLoading ? (
-        <ResponsiveContainer width='100%' height={midScreen ? 245 : 245}>
+        <ResponsiveContainer width='100%' height={196}>
           <Skeleton
             variant='rectangular'
             width='100%'
-            height={midScreen ? 245 : 245}
+            height={196}
             sx={{ borderRadius: 2 }}
           />
         </ResponsiveContainer>
       ) : (
-        <ResponsiveContainer width='100%' height={midScreen ? 240 : 245}>
+        <ResponsiveContainer width='100%' height={196}>
           <ComposedChart data={balanceSheetTrend}>
             <CartesianGrid
               strokeDasharray='3 3'
@@ -282,7 +285,13 @@ function BalanceSheetTrend() {
                 name,
               ]}
             />
-            <Legend wrapperStyle={{ color: theme.palette.text.primary }} />
+            <Legend
+              wrapperStyle={{
+                color: theme.palette.text.primary,
+                paddingTop: 8,
+                paddingBottom: 12,
+              }}
+            />
             <Line
               type='monotone'
               dataKey='Assets'

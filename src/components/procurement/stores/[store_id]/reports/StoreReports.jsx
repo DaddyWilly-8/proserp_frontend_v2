@@ -31,9 +31,9 @@ function StoreReports() {
     <React.Fragment>
         <Dialog
             open={stockReportDialogOpen || itemMovementDialogOpen || stockMovementDialogOpen || dormantStockDialogOpen || distributionDialogOpen}
-            scroll={'paper'}
+            scroll={belowLargeScreen ? 'body' : 'paper'}
             fullWidth   
-            maxWidth={distributionDialogOpen ? 'lg' : 'md'}
+            maxWidth={distributionDialogOpen || stockMovementDialogOpen || dormantStockDialogOpen ? 'lg' : 'md'}
             fullScreen={belowLargeScreen}
         >
             {stockReportDialogOpen && <StockReport setOpenDialog={setStockReportDialogOpen} />}

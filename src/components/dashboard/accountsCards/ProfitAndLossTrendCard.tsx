@@ -35,6 +35,7 @@ import {
 import financialReportsServices from '../../accounts/reports/financial-reports-services';
 import IncomeStatement from '../../accounts/reports/incomeStatement/IncomeStatement';
 import { useDashboardSettings } from '../Dashboard';
+import FinancialSummaryStrip from './FinancialSummaryStrip';
 import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface FinancialFigure {
@@ -264,15 +265,17 @@ function ProfitAndLossTrendCard() {
         </DialogActions>
       </Dialog>
 
+      <FinancialSummaryStrip kind='incomeStatement' />
+
       {isLoading ? (
         <Skeleton
           variant='rectangular'
           width='100%'
-          height={midScreen ? 245 : 245}
+          height={196}
           sx={{ borderRadius: 2 }}
         />
       ) : (
-        <ResponsiveContainer width='100%' height={midScreen ? 240 : 245}>
+        <ResponsiveContainer width='100%' height={196}>
           <ComposedChart
             data={profitAndLossTrend}
             margin={{ top: 10, right: 30, left: 10, bottom: 10 }}
@@ -298,7 +301,9 @@ function ProfitAndLossTrendCard() {
                 })
               }
             />
-            <Legend wrapperStyle={{ color: textColor }} />
+            <Legend
+              wrapperStyle={{ color: textColor, paddingTop: 8, paddingBottom: 12 }}
+            />
             <Line
               type='monotone'
               dataKey='Revenue'

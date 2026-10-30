@@ -227,7 +227,8 @@
       "printedBy": "Printed By",
       "printedOn": "Printed On",
       "valueWarning": "Stock on hand with a negative value: it was issued at a higher cost than it came in at. Check the cost rates."
-    }
+    },
+    "stockMovement": "Stock Movement"
   },
   "storeReports": {
     "stockReport": "Stock Report",
@@ -283,11 +284,17 @@
       "toDate": "To (MM/DD/YYYY)",
       "includeSubstores": "Include Substores",
       "withMoreDetails": "With more details",
+      "quantity": "Quantity",
+      "amount": "Amount",
+      "total": "Total",
+      "hideEmptyColumns": "Hide columns with no movement",
       "filter": "Filter",
       "onScreen": "On-Screen",
       "downloadExcelForDetails": "Download Excel to view more details",
       "detailedViewOnlyExcel": "The detailed view is only available in Excel format. Please click the Excel button above to download the complete report.",
-      "close": "Close"
+      "close": "Close",
+      "allStores": "All Stores",
+      "storeOrAll": "Store (all stores if empty)"
     },
     "stockDistribution": "Stock Distribution"
   },

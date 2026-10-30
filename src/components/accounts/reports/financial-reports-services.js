@@ -355,6 +355,13 @@ financialReportsServices.profitAndLossFigures = async (params) => {
   return data;
 }
 
+financialReportsServices.dashboardSummary = async (params) => {
+  const { data } = await axios.get(`/api/financialReports/dashboardSummary`, {
+    params
+  });
+  return data;
+}
+
 financialReportsServices.balanceSheetFigures = async (params) => {
   const { data } = await axios.get(`/api/financialReports/balanceSheetFigures`, {
     params

@@ -1,5 +1,6 @@
 'use client';
 import { readableDate, reportCostCentersToShow } from '@/app/helpers/input-sanitization-helpers';
+import { getEmptyMovementKeys } from '@/app/helpers/stock-movement-helpers';
 import useProsERPStyles from '@/app/helpers/style-helpers';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import CostCenterSelector from '@/components/masters/costCenters/CostCenterSelector';
@@ -34,8 +35,6 @@ import {
   Skeleton,
   Stack,
   Switch,
-  Tab,
-  Tabs,
   TextField,
   Tooltip,
   Typography,
@@ -52,6 +51,7 @@ import * as yup from 'yup';
 import storeServices from '../../../store-services';
 import StoreSelector from '../../../StoreSelector';
 import { useStoreProfile } from '../../StoreProfileProvider';
+import { FileExportGrid } from '@/components/sharedComponents/FileExportGrid';
 import StockMovementOnScreen from './StockMovementOnScreen';
 import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
@@ -65,6 +65,7 @@ const ReportDocument = ({
   store,
   reportTitle,
   dictionary,
+  emptyKeys = new Set(),
 }) => {
   const dict = dictionary.reports.storeReports.stockMovementReport;
   const mainColor =
@@ -208,6 +209,7 @@ const ReportDocument = ({
             >
               {dict.openingBalance}
             </Text>
+            {!emptyKeys.has('purchaseReceived') && (
             <Text
               style={{
                 ...pdfStyles.tableHeader,
@@ -218,9 +220,10 @@ const ReportDocument = ({
             >
               {dict.purchaseReceived}
             </Text>
+            )}
             {organizationHasSubscribed(
               MODULES.MANUFACTURING_AND_PROCESSING
-            ) && (
+            ) && !emptyKeys.has('produced') && (
               <Text
                 style={{
                   ...pdfStyles.tableHeader,
@@ -232,6 +235,7 @@ const ReportDocument = ({
                 {dict.producedQuantity}
               </Text>
             )}
+            {!emptyKeys.has('transferIn') && (
             <Text
               style={{
                 ...pdfStyles.tableHeader,
@@ -242,6 +246,8 @@ const ReportDocument = ({
             >
               {dict.transferIn}
             </Text>
+            )}
+            {!emptyKeys.has('transferOut') && (
             <Text
               style={{
                 ...pdfStyles.tableHeader,
@@ -252,6 +258,8 @@ const ReportDocument = ({
             >
               {dict.transferOut}
             </Text>
+            )}
+            {!emptyKeys.has('stockGain') && (
             <Text
               style={{
                 ...pdfStyles.tableHeader,
@@ -262,6 +270,8 @@ const ReportDocument = ({
             >
               {dict.stockGain}
             </Text>
+            )}
+            {!emptyKeys.has('stockLoss') && (
             <Text
               style={{
                 ...pdfStyles.tableHeader,
@@ -272,6 +282,8 @@ const ReportDocument = ({
             >
               {dict.stockLoss}
             </Text>
+            )}
+            {!emptyKeys.has('consumed') && (
             <Text
               style={{
                 ...pdfStyles.tableHeader,
@@ -282,6 +294,8 @@ const ReportDocument = ({
             >
               {dict.consumed}
             </Text>
+            )}
+            {!emptyKeys.has('sold') && (
             <Text
               style={{
                 ...pdfStyles.tableHeader,
@@ -292,6 +306,7 @@ const ReportDocument = ({
             >
               {dict.sold}
             </Text>
+            )}
             <Text
               style={{
                 ...pdfStyles.tableHeader,
@@ -380,6 +395,7 @@ const ReportDocument = ({
                 >
                   {movement.opening_balance}
                 </Text>
+                {!emptyKeys.has('purchaseReceived') && (
                 <Text
                   style={{
                     ...pdfStyles.tableCell,
@@ -390,9 +406,10 @@ const ReportDocument = ({
                 >
                   {movement.quantity_received}
                 </Text>
+                )}
                 {organizationHasSubscribed(
                   MODULES.MANUFACTURING_AND_PROCESSING
-                ) && (
+                ) && !emptyKeys.has('produced') && (
                   <Text
                     style={{
                       ...pdfStyles.tableCell,
@@ -404,6 +421,7 @@ const ReportDocument = ({
                     {movement.quantity_produced}
                   </Text>
                 )}
+                {!emptyKeys.has('transferIn') && (
                 <Text
                   style={{
                     ...pdfStyles.tableCell,
@@ -414,6 +432,8 @@ const ReportDocument = ({
                 >
                   {movement.quantity_transferred_in}
                 </Text>
+                )}
+                {!emptyKeys.has('transferOut') && (
                 <Text
                   style={{
                     ...pdfStyles.tableCell,
@@ -424,6 +444,8 @@ const ReportDocument = ({
                 >
                   {movement.quantity_transferred_out}
                 </Text>
+                )}
+                {!emptyKeys.has('stockGain') && (
                 <Text
                   style={{
                     ...pdfStyles.tableCell,
@@ -434,6 +456,8 @@ const ReportDocument = ({
                 >
                   {movement.stock_gain}
                 </Text>
+                )}
+                {!emptyKeys.has('stockLoss') && (
                 <Text
                   style={{
                     ...pdfStyles.tableCell,
@@ -444,6 +468,8 @@ const ReportDocument = ({
                 >
                   {movement.stock_loss}
                 </Text>
+                )}
+                {!emptyKeys.has('consumed') && (
                 <Text
                   style={{
                     ...pdfStyles.tableCell,
@@ -454,6 +480,8 @@ const ReportDocument = ({
                 >
                   {movement.quantity_consumed}
                 </Text>
+                )}
+                {!emptyKeys.has('sold') && (
                 <Text
                   style={{
                     ...pdfStyles.tableCell,
@@ -464,6 +492,7 @@ const ReportDocument = ({
                 >
                   {movement.quantity_sold}
                 </Text>
+                )}
                 <Text
                   style={{
                     ...pdfStyles.tableCell,
@@ -528,7 +557,7 @@ function StockMovement({ toggleOpen, dormantStock = false, isFromDashboard }) {
     organizationHasSubscribed,
   } = useJumboAuth();
   const { activeStore } = useStoreProfile();
-  const [selectedTab, setSelectedTab] = useState(0);
+  const [showPdf, setShowPdf] = useState(false);
   const { enqueueSnackbar } = useSnackbar();
   const [isDownloadingTemplate, setIsDownloadingTemplate] =
     React.useState(false);
@@ -538,18 +567,13 @@ function StockMovement({ toggleOpen, dormantStock = false, isFromDashboard }) {
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
   const [includeChildren, setIncludeChildren] = useState(true);
   const [withDetails, setWithDetails] = useState(false);
+  const [hideEmptyColumns, setHideEmptyColumns] = useState(true);
 
   // Validation schema
   const validationSchema = yup.object({
     isFromDashboard: yup.boolean(),
-    store_id: yup
-      .number()
-      .nullable()
-      .when('isFromDashboard', (isFromDashboard, schema) => {
-        return isFromDashboard
-          ? schema.required(dict.storeRequired).typeError(dict.storeRequired)
-          : schema;
-      }),
+    // From the dashboard no store means every store.
+    store_id: yup.number().nullable(),
     include_children: yup.boolean(),
   });
 
@@ -582,13 +606,10 @@ function StockMovement({ toggleOpen, dormantStock = false, isFromDashboard }) {
   }, [includeChildren, setValue]);
 
   const getMovements = async (filters) => {
-    if (!filters?.store_id) {
-      enqueueSnackbar(dict.selectStoreFirst, { variant: 'warning' });
-      return;
-    }
-
     setisFetching(true);
-    const data = await storeServices.getStockMovement(filters, dormantStock);
+    const data = filters?.store_id
+      ? await storeServices.getStockMovement(filters, dormantStock)
+      : await storeServices.getStockMovementAllStores(filters, dormantStock);
     setMovements(data);
     setisFetching(false);
   };
@@ -612,7 +633,9 @@ function StockMovement({ toggleOpen, dormantStock = false, isFromDashboard }) {
       const filters = buildFilters();
 
       // Pass all filters to the service
-      const responseData = await storeServices.getStockMovementExcel(filters);
+      const responseData = filters.store_id
+        ? await storeServices.getStockMovementExcel(filters)
+        : await storeServices.getStockMovementAllStoresExcel(filters);
 
       const blob = new Blob([responseData], {
         type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
@@ -629,15 +652,20 @@ function StockMovement({ toggleOpen, dormantStock = false, isFromDashboard }) {
     }
   };
 
-  const handleTabChange = (event, newValue) => {
-    setSelectedTab(newValue);
-  };
+  // With no store picked on the dashboard the report covers every store.
+  const reportStore = isFromDashboard
+    ? (watch('store') ?? { id: null, name: dict.allStores })
+    : activeStore;
 
   const reportTitle = dormantStock ? 'Dormant Stock' : 'Stock Movement';
   const displayReportTitle = dormantStock ? dict.dormantStock : dict.stockMovement;
   document.title = dict.documentTitle
     .replace('{store}', isFromDashboard ? dict.store : activeStore?.name)
     .replace('{title}', displayReportTitle);
+
+  const emptyKeys = hideEmptyColumns
+    ? getEmptyMovementKeys(movements?.movements)
+    : new Set();
 
   const exportedData = {
     organizationHasSubscribed: organizationHasSubscribed(
@@ -651,9 +679,10 @@ function StockMovement({ toggleOpen, dormantStock = false, isFromDashboard }) {
       PERMISSIONS.ACCOUNTS_REPORTS,
       PERMISSIONS.STORE_VALUES,
     ]),
-    store: isFromDashboard ? watch('store') : activeStore,
+    store: reportStore,
     reportTitle: reportTitle,
     withDetails: withDetails,
+    hideEmptyColumns: hideEmptyColumns,
   };
 
   const handlExcelExport = async (exportedData) => {
@@ -726,12 +755,12 @@ function StockMovement({ toggleOpen, dormantStock = false, isFromDashboard }) {
                   <Div sx={{ mt: 0.3 }}>
                     <StoreSelector
                       allowSubStores={true}
-                      label={dict.store}
+                      label={dict.storeOrAll}
                       proposedOptions={authOrganization?.stores}
                       frontError={errors.store_id}
                       onChange={(newValue) => {
                         setValue(`store`, newValue);
-                        setValue(`store_id`, newValue ? newValue.id : '', {
+                        setValue(`store_id`, newValue ? newValue.id : null, {
                           shouldValidate: true,
                           shouldDirty: true,
                         });
@@ -872,7 +901,7 @@ function StockMovement({ toggleOpen, dormantStock = false, isFromDashboard }) {
                 </Div>
               </Grid>
               <Grid container size={{ xs: 12, md: 12 }} textAlign={'right'}>
-                <Grid size={{ xs: 6, md: 4 }} textAlign={'left'}>
+                <Grid size={{ xs: 6, md: 3 }} textAlign={'left'}>
                   <Div sx={{ mt: 0.3 }}>
                     <FormControlLabel
                       control={
@@ -895,7 +924,7 @@ function StockMovement({ toggleOpen, dormantStock = false, isFromDashboard }) {
                   </Div>
                 </Grid>
                 {checkOrganizationPermission([PERMISSIONS.ACCOUNTS_REPORTS, PERMISSIONS.STORE_VALUES]) && (
-                  <Grid size={{ xs: 6, md: 4 }} textAlign={'left'}>
+                  <Grid size={{ xs: 6, md: 3 }} textAlign={'left'}>
                     <Div sx={{ mt: 0.3 }}>
                       <FormControlLabel
                         control={
@@ -905,9 +934,9 @@ function StockMovement({ toggleOpen, dormantStock = false, isFromDashboard }) {
                               const newValue = e.target.checked;
                               setWithDetails(newValue);
 
-                              // Reset to On-Screen tab when withDetails is enabled
+                              // Detailed view is Excel only, so leave the PDF preview
                               if (newValue) {
-                                setSelectedTab(0);
+                                setShowPdf(false);
                               }
 
                               // Fetch data with the new withDetails value
@@ -923,7 +952,20 @@ function StockMovement({ toggleOpen, dormantStock = false, isFromDashboard }) {
                     </Div>
                   </Grid>
                 )}
-                <Grid size={{ xs: 12, md: 4 }} textAlign={'right'}>
+                <Grid size={{ xs: 6, md: 3 }} textAlign={'left'}>
+                  <Div sx={{ mt: 0.3 }}>
+                    <FormControlLabel
+                      control={
+                        <Switch
+                          checked={hideEmptyColumns}
+                          onChange={(e) => setHideEmptyColumns(e.target.checked)}
+                        />
+                      }
+                      label={dict.hideEmptyColumns}
+                    />
+                  </Div>
+                </Grid>
+                <Grid size={{ xs: 12, md: 3 }} textAlign={'right'}>
                   <Stack
                     direction='row'
                     spacing={0.5}
@@ -931,15 +973,17 @@ function StockMovement({ toggleOpen, dormantStock = false, isFromDashboard }) {
                     alignItems='center'
                   >
                     <>
-                      <LoadingButton
-                        size='small'
-                        onClick={() => handlExcelExport(exportedData)}
-                        loading={isDownloadingTemplate}
-                        variant='contained'
-                        color='success'
-                      >
-                        Excel
-                      </LoadingButton>
+                      {movements?.movements?.length > 0 && (
+                        <FileExportGrid
+                          exportExcel
+                          exportPdf={!withDetails}
+                          handlePdf={() => setShowPdf((shown) => !shown)}
+                          handlExcelExport={() =>
+                            handlExcelExport(exportedData)
+                          }
+                          exportingExcel={isDownloadingTemplate}
+                        />
+                      )}
                       <LoadingButton
                         loading={isFetching}
                         type='submit'
@@ -954,21 +998,6 @@ function StockMovement({ toggleOpen, dormantStock = false, isFromDashboard }) {
               </Grid>
             </Grid>
           </form>
-          {/* Tabs - hidden when withDetails is true on below large screens */}
-          {belowLargeScreen &&
-            !isFetching &&
-            movements?.movements?.length > 0 &&
-            !withDetails && (
-              <Tabs
-                value={selectedTab}
-                onChange={handleTabChange}
-                indicatorColor='primary'
-                textColor='primary'
-              >
-                <Tab label={dict.onScreen} />
-                <Tab label='PDF' />
-              </Tabs>
-            )}
         </Span>
       </DialogTitle>
       <DialogContent>
@@ -996,33 +1025,8 @@ function StockMovement({ toggleOpen, dormantStock = false, isFromDashboard }) {
         )}
         {!isFetching && movements?.movements?.length > 0 && (
           <React.Fragment>
-            {withDetails ? (
-              // Show this message on ALL screens when withDetails is true
-              <Box
-                sx={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  minHeight: 200,
-                  p: 4,
-                  textAlign: 'center',
-                }}
-              >
-                <Typography variant='h2' sx={{ fontSize: 40, mb: 2 }}>
-                  📊
-                </Typography>
-                <Typography variant='h6' color='text.secondary' gutterBottom>
-                  {dict.downloadExcelForDetails}
-                </Typography>
-                <Typography variant='body2' color='text.secondary'>
-                  {dict.detailedViewOnlyExcel}
-                </Typography>
-              </Box>
-            ) : (
-              // Show normal content when withDetails is false
               <React.Fragment>
-                {belowLargeScreen && selectedTab === 0 ? (
+                {!showPdf || withDetails ? (
                   <StockMovementOnScreen
                     movementsData={movements}
                     authOrganization={authOrganization}
@@ -1030,7 +1034,9 @@ function StockMovement({ toggleOpen, dormantStock = false, isFromDashboard }) {
                     productCategories={watch('product_categories')}
                     checkOrganizationPermission={checkOrganizationPermission}
                     organizationHasSubscribed={organizationHasSubscribed}
-                    store={isFromDashboard ? watch('store') : activeStore}
+                    emptyKeys={emptyKeys}
+                    withDetails={withDetails}
+                    store={reportStore}
                     reportTitle={reportTitle}
                   />
                 ) : (
@@ -1045,20 +1051,20 @@ function StockMovement({ toggleOpen, dormantStock = false, isFromDashboard }) {
                         checkOrganizationPermission={
                           checkOrganizationPermission
                         }
-                        store={isFromDashboard ? watch('store') : activeStore}
+                        store={reportStore}
                         reportTitle={displayReportTitle}
                         dictionary={dictionary}
+                        emptyKeys={emptyKeys}
                       />
                     }
                     fileName={
                       isFromDashboard
-                        ? watch('store')?.name
+                        ? `${reportStore.name} ${dormantStock ? 'Dormant Stock' : 'Stock Movement'} ${readableDate(watch('from'))}-${readableDate(watch('to'))}`
                         : `${activeStore?.name} ${dormantStock ? 'Dormant Stock' : 'Stock Movement'} ${readableDate(watch('from'))}-${readableDate(watch('to'))}`
                     }
                   />
                 )}
               </React.Fragment>
-            )}
           </React.Fragment>
         )}
       </DialogContent>

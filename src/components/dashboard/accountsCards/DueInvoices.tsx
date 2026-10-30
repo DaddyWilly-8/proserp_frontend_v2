@@ -36,6 +36,7 @@ import customerInvoiceServices from '../../accounts/invoices/customerInvoice-ser
 import purchaseBillServices from '../../procurement/grns/purchaseBill-services';
 import financialReportsServices from '../../accounts/reports/financial-reports-services';
 import { useDashboardSettings } from '../Dashboard';
+import FinancialSummaryStrip from './FinancialSummaryStrip';
 import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface DueInvoice {
@@ -228,14 +229,15 @@ function DueInvoices() {
                 : 360,
         }}
       >
+        <FinancialSummaryStrip kind='receivablesPayables' />
         <JumboScrollbar
           autoHeight
           autoHeightMin={
             dueInvoices.incoming.length < 1 && dueInvoices.outgoing.length < 1
-              ? 200
+              ? 150
               : smallScreen
-                ? 300
-                : 250
+                ? 240
+                : 190
           }
           autoHide
           autoHideDuration={200}

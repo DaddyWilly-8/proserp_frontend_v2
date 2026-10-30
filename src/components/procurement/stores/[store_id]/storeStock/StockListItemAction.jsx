@@ -26,8 +26,12 @@ function StockListItemAction({productStock}) {
     && organizationHasSubscribed(MODULES.ASSET_REGISTER)
     && checkOrganizationPermission([PERMISSIONS.ASSETS_CREATE]);
 
+    // Asset products are tracked individually in the asset register, not by
+    // stock movements, so a movement report would always be empty for them.
+    const hasMovement = productStock.type !== 'Asset';
+
     const menuItems = [
-      {icon: <ViewTimelineOutlined/>, title: 'Movement', action: 'movement'},
+      ...(hasMovement ? [{icon: <ViewTimelineOutlined/>, title: 'Movement', action: 'movement'}] : []),
       ...(canConvertToAsset ? [{icon: <InventoryOutlined/>, title: 'Convert to Asset', action: 'convert_to_asset'}] : []),
     ];
 
@@ -42,6 +46,8 @@ function StockListItemAction({productStock}) {
       default:
       }
     }
+
+  if (menuItems.length === 0) return null;
 
   return  (
     <React.Fragment>
@@ -65,15 +71,17 @@ function StockListItemAction({productStock}) {
           <ConvertToAssetDialogContent productStock={productStock} toggleOpen={setOpenConvertDialog} />
         </Dialog>
       )}
-      <JumboDdMenu
-        icon={
-          <Tooltip title={dictionary.tooltips.actions}>
-            <MoreHorizOutlined/>
-          </Tooltip>
-        }
-          menuItems={menuItems}
-          onClickCallback={handleItemAction}
-        />
+      {menuItems.length > 0 && (
+        <JumboDdMenu
+          icon={
+            <Tooltip title={dictionary.tooltips.actions}>
+              <MoreHorizOutlined/>
+            </Tooltip>
+          }
+            menuItems={menuItems}
+            onClickCallback={handleItemAction}
+          />
+      )}
       </React.Fragment>
   )
 }

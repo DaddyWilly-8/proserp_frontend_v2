@@ -194,6 +194,9 @@
           "assetProduct": {
             "required": "Select the asset product to receive this stock"
           },
+          "costCenter": {
+            "required": "Select the cost center this stock is being converted from"
+          },
           "conversionDate": {
             "required": "Conversion date is required"
           }

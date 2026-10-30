@@ -29,6 +29,7 @@ import {
 } from 'recharts';
 import financialReportsServices from '../../accounts/reports/financial-reports-services';
 import { useDashboardSettings } from '../Dashboard';
+import FinancialSummaryStrip from '../accountsCards/FinancialSummaryStrip';
 import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface GroupedValue {
@@ -175,7 +176,7 @@ function InventoryValueTrend(props: InventoryValueTrendProps) {
     <JumboCardQuick
       title={dictionary.dashboardCards.inventoryValue}
       sx={{
-        height: midScreen ? 360 : null,
+        height: 360,
       }}
       action={
         // <Grid container columnSpacing={1} alignItems='center'>
@@ -265,15 +266,17 @@ function InventoryValueTrend(props: InventoryValueTrendProps) {
         // </Grid>
       }
     >
+      <FinancialSummaryStrip kind='inventory' />
+
       {isLoading ? (
         <Skeleton
           variant='rectangular'
           width='100%'
-          height={midScreen ? 245 : 245}
+          height={196}
           sx={{ borderRadius: 2 }}
         />
       ) : (
-        <ResponsiveContainer width='100%' height={midScreen ? 245 : 245}>
+        <ResponsiveContainer width='100%' height={196}>
           <ComposedChart
             data={inventoryValues}
             margin={{ top: 10, right: 30, left: 10, bottom: 10 }}

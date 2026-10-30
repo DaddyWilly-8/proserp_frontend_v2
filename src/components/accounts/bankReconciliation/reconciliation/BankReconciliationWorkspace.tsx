@@ -11,9 +11,6 @@ import {
   IconButton,
   LinearProgress,
   InputAdornment,
-  ListItemIcon,
-  ListItemText,
-  Menu,
   MenuItem,
   Paper,
   Select,
@@ -26,7 +23,7 @@ import {
 } from '@mui/material';
 import { DateTimePicker } from '@mui/x-date-pickers';
 import dayjs, { Dayjs } from 'dayjs';
-import { CheckCircleOutlined, DeleteOutlined, LockOpenOutlined, MoreVert, PrintOutlined, SearchOutlined, UploadOutlined } from '@mui/icons-material';
+import { CheckCircleOutlined, DeleteOutlined, LockOpenOutlined, PrintOutlined, SearchOutlined, UploadOutlined } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
 import { useIsFetching, useIsMutating, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useSnackbar } from 'notistack';
@@ -68,7 +65,6 @@ export default function BankReconciliationWorkspace({ bankAccountId }: Props) {
   const mobile = useMediaQuery(theme.breakpoints.down('sm'));
   // Below this width the secondary header actions fold into a ⋮ menu.
   const compactHeader = useMediaQuery(theme.breakpoints.down('md'));
-  const [actionsAnchor, setActionsAnchor] = useState<null | HTMLElement>(null);
   const [importDialogOpen, setImportDialogOpen] = useState(false);
   const [statementReportOpen, setStatementReportOpen] = useState(false);
   const [tab, setTab] = useState(0);
@@ -288,68 +284,35 @@ export default function BankReconciliationWorkspace({ bankAccountId }: Props) {
               </Typography>
             )}
           </Box>
-          <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+          <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', flexWrap: 'wrap' }}>
             {/* Opens the report for this account and statement, like the Stock Report on a store */}
             <Tooltip title='Reconciliation Statement'>
-              <IconButton onClick={() => setStatementReportOpen(true)}>
+              <IconButton size={compactHeader ? 'small' : 'medium'} onClick={() => setStatementReportOpen(true)}>
                 <PrintOutlined />
               </IconButton>
             </Tooltip>
-            {compactHeader ? (
-              <>
-                <IconButton aria-label='More actions' onClick={(e) => setActionsAnchor(e.currentTarget)}>
-                  <MoreVert />
-                </IconButton>
-                <Menu anchorEl={actionsAnchor} open={Boolean(actionsAnchor)} onClose={() => setActionsAnchor(null)}>
-                  {checkOrganizationPermission(PERMISSIONS.BANK_RECONCILIATION_CREATE) && (
-                    <MenuItem
-                      onClick={() => {
-                        setActionsAnchor(null);
-                        setImportDialogOpen(true);
-                      }}
-                    >
-                      <ListItemIcon>
-                        <UploadOutlined fontSize='small' />
-                      </ListItemIcon>
-                      <ListItemText>Import New Statement</ListItemText>
-                    </MenuItem>
-                  )}
-                  {checkOrganizationPermission(PERMISSIONS.BANK_RECONCILIATION_DELETE) && (
-                    <MenuItem
-                      sx={{ color: 'error.main' }}
-                      onClick={() => {
-                        setActionsAnchor(null);
-                        confirmDeleteStatement();
-                      }}
-                    >
-                      <ListItemIcon sx={{ color: 'error.main' }}>
-                        <DeleteOutlined fontSize='small' />
-                      </ListItemIcon>
-                      <ListItemText>Delete Statement</ListItemText>
-                    </MenuItem>
-                  )}
-                </Menu>
-              </>
-            ) : (
-              <>
-                {/* Also offered on a completed statement: that's exactly when the next period's statement is imported */}
-                {checkOrganizationPermission(PERMISSIONS.BANK_RECONCILIATION_CREATE) && (
-                  <Button variant='outlined' startIcon={<UploadOutlined />} onClick={() => setImportDialogOpen(true)}>
-                    Import New Statement
-                  </Button>
-                )}
-                {checkOrganizationPermission(PERMISSIONS.BANK_RECONCILIATION_DELETE) && (
-                  <LoadingButton
-                    variant='outlined'
-                    color='error'
-                    startIcon={<DeleteOutlined />}
-                    loading={deleteStatementMutation.isPending}
-                    onClick={confirmDeleteStatement}
-                  >
-                    Delete Statement
-                  </LoadingButton>
-                )}
-              </>
+            {/* Also offered on a completed statement: that's exactly when the next period's statement is imported */}
+            {checkOrganizationPermission(PERMISSIONS.BANK_RECONCILIATION_CREATE) && (
+              <Button
+                size={compactHeader ? 'small' : 'medium'}
+                variant='outlined'
+                startIcon={<UploadOutlined />}
+                onClick={() => setImportDialogOpen(true)}
+              >
+                Import New Statement
+              </Button>
+            )}
+            {checkOrganizationPermission(PERMISSIONS.BANK_RECONCILIATION_DELETE) && (
+              <LoadingButton
+                size={compactHeader ? 'small' : 'medium'}
+                variant='outlined'
+                color='error'
+                startIcon={<DeleteOutlined />}
+                loading={deleteStatementMutation.isPending}
+                onClick={confirmDeleteStatement}
+              >
+                Delete Statement
+              </LoadingButton>
             )}
           </Box>
         </Box>

@@ -560,7 +560,20 @@
     "profitAndLossTrend": "Profit & Loss Trend",
     "dippings": "Dippings",
     "receivables": "Receivables",
-    "payables": "Payables"
+    "payables": "Payables",
+    "incomeStatement": "Income Statement",
+    "balanceSheet": "Balance Sheet",
+    "netProfit": "Net Profit",
+    "totalAssets": "Total Assets",
+    "totalLiabilities": "Total Liabilities",
+    "equity": "Equity",
+    "cashAndBank": "Cash & Bank",
+    "vsPreviousPeriod": "vs previous period",
+    "vsBalanceAsAt": "vs balance as at",
+    "totalReceivable": "Total Receivable",
+    "totalPayable": "Total Payable",
+    "asAt": "As at",
+    "financialSummaryError": "Could not load the financial summary"
   },
   "tooltips": {
     "aPurchaseBillHasBeenCreated": "A Purchase Bill has been created for this GRN",

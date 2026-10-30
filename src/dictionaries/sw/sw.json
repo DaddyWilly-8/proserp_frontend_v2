@@ -567,7 +567,20 @@
     "profitAndLossTrend": "Mwenendo wa Faida na Hasara",
     "dippings": "Upimaji wa Matanki",
     "receivables": "Zinazodaiwa (Receivables)",
-    "payables": "Zinazodaiwa na Wengine (Payables)"
+    "payables": "Zinazodaiwa na Wengine (Payables)",
+    "incomeStatement": "Taarifa ya Mapato",
+    "balanceSheet": "Mizania",
+    "netProfit": "Faida Halisi",
+    "totalAssets": "Jumla ya Mali",
+    "totalLiabilities": "Jumla ya Madeni",
+    "equity": "Hisa za Wamiliki",
+    "cashAndBank": "Fedha Taslimu na Benki",
+    "vsPreviousPeriod": "ikilinganishwa na kipindi kilichopita",
+    "vsBalanceAsAt": "ikilinganishwa na mizania ya",
+    "totalReceivable": "Jumla ya Zinazodaiwa",
+    "totalPayable": "Jumla ya Madeni ya Kulipa",
+    "asAt": "Hadi",
+    "financialSummaryError": "Imeshindwa kupakia muhtasari wa fedha"
   },
   "tooltips": {
     "aPurchaseBillHasBeenCreated": "Ankara ya Ununuzi imeundwa kwa GRN hii",

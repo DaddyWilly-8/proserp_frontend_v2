@@ -41,6 +41,9 @@ function ConvertToAssetDialogContent({ productStock, toggleOpen }) {
   const { activeStore } = useStoreProfile();
   const { authOrganization } = useJumboAuth();
   const multiCostCenters = authOrganization?.costCenters?.length > 1;
+  // With a single cost center there's no selector, but the stock-out still has to be
+  // recorded on it - otherwise it's invisible in the stock list and the stock never drops.
+  const onlyCostCenterId = authOrganization?.costCenters?.length === 1 ? authOrganization.costCenters[0].id : null;
 
   const convertMutation = useMutation({
     mutationFn: assetsServices.convertFromStock,
@@ -61,7 +64,13 @@ function ConvertToAssetDialogContent({ productStock, toggleOpen }) {
       .positive(dictionary.forms.stores.convertToAsset.errors.validation.quantity.positive)
       .max(productStock.balance, dictionary.forms.stores.convertToAsset.errors.validation.quantity.max.replace('{count}', productStock.balance)),
     asset_product_id: yup.number().required(dictionary.forms.stores.convertToAsset.errors.validation.assetProduct.required).positive(),
-    cost_center_id: yup.number().nullable(),
+    // With several cost centers the stock-out has to be recorded on one of them.
+    cost_center_id: multiCostCenters
+      ? yup
+          .number()
+          .typeError(dictionary.forms.stores.convertToAsset.errors.validation.costCenter.required)
+          .required(dictionary.forms.stores.convertToAsset.errors.validation.costCenter.required)
+      : yup.number().nullable(),
     conversion_date: yup.string().required(dictionary.forms.stores.convertToAsset.errors.validation.conversionDate.required),
     remarks: yup.string().nullable(),
   });
@@ -77,7 +86,7 @@ function ConvertToAssetDialogContent({ productStock, toggleOpen }) {
     defaultValues: {
       quantity: 1,
       asset_product_id: null,
-      cost_center_id: null,
+      cost_center_id: onlyCostCenterId,
       conversion_date: dayjs().toISOString(),
       remarks: '',
       identifications: [],
@@ -153,7 +162,8 @@ function ConvertToAssetDialogContent({ productStock, toggleOpen }) {
               <CostCenterSelector
                 label={dictionary.forms.stores.convertToAsset.labels.costCenter}
                 multiple={false}
-                onChange={(newValue) => setValue('cost_center_id', newValue && !Array.isArray(newValue) ? newValue.id : null)}
+                onChange={(newValue) => setValue('cost_center_id', newValue && !Array.isArray(newValue) ? newValue.id : null, { shouldValidate: true })}
+                frontError={errors.cost_center_id}
               />
             </Grid>
           )}
