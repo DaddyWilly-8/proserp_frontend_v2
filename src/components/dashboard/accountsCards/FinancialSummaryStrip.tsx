@@ -78,10 +78,13 @@ const legendAmount = (value: number) =>
 export function useFinancialSummary() {
   const {
     chartFilters: { from, to, cost_center_ids },
+    showFigures,
   } = useDashboardSettings();
 
   return useQuery<FinancialSummary>({
     queryKey: ['financialSummary', from, to, cost_center_ids],
+    // Nothing is requested until the user chooses to see the figures.
+    enabled: showFigures,
     queryFn: () =>
       financialReportsServices.dashboardSummary({ from, to, cost_center_ids }),
   });
@@ -102,6 +105,7 @@ function Stat({
   dense?: boolean;
 }) {
   const { theme } = useJumboTheme();
+  const { showFigures } = useDashboardSettings();
   const { value, previous } = stat.metric;
 
   const change = value - previous;
@@ -116,6 +120,58 @@ function Stat({
       : theme.palette.error.main;
   const DeltaIcon = isFlat ? Remove : change > 0 ? ArrowUpward : ArrowDownward;
   const scale = dense ? DENSE_SCALE : SCALE;
+
+  if (!showFigures) {
+    // Same footprint as the real figure so the card doesn't jump when toggled.
+    const mask = (
+      <Typography
+        noWrap
+        sx={{
+          fontWeight: 700,
+          color: theme.palette.text.disabled,
+          letterSpacing: 2,
+          fontSize: inline
+            ? scaled(theme.typography.h5.fontSize, '1.25rem')
+            : scaled(theme.typography.h3.fontSize, '1.5rem', scale),
+        }}
+      >
+        ••••
+      </Typography>
+    );
+    return inline ? (
+      <Box sx={{ display: 'inline-flex', justifyContent: 'center' }}>
+        {mask}
+      </Box>
+    ) : (
+      <Box sx={{ minWidth: 0, flex: 1, textAlign: 'center' }}>
+        <Typography
+          variant='caption'
+          color='text.secondary'
+          component='div'
+          noWrap
+          sx={{
+            textTransform: 'uppercase',
+            letterSpacing: 0.5,
+            fontWeight: 600,
+            fontSize: scaled(
+              theme.typography.caption.fontSize,
+              '0.75rem',
+              scale
+            ),
+          }}
+        >
+          {dense && stat.shortLabel ? stat.shortLabel : stat.label}
+        </Typography>
+        {mask}
+        <Typography
+          variant='caption'
+          sx={{ visibility: 'hidden', display: 'block' }}
+        >
+          &nbsp;
+        </Typography>
+      </Box>
+    );
+  }
 
   if (inline) {
     return (
@@ -256,7 +312,25 @@ export function FigureLegend({
   higherIsBetter?: boolean;
 }) {
   const cards = useDictionary().dashboardCards;
+  const { showFigures } = useDashboardSettings();
   const { data: summary } = useFinancialSummary();
+  if (!showFigures) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+        <Stat
+          inline
+          stat={{
+            label: '',
+            metric: { value: 0, previous: 0 },
+            higherIsBetter,
+            signColoured: false,
+          }}
+          currency=''
+          comparisonLabel=''
+        />
+      </Box>
+    );
+  }
   if (!summary) return <Skeleton variant='rounded' height={28} />;
 
   const previousStart = dayjs(summary.period.previous_from);
@@ -296,11 +370,32 @@ function FinancialSummaryStrip({
   const cards = useDictionary().dashboardCards;
   const { theme } = useJumboTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  const { data: summary, isLoading, isError } = useFinancialSummary();
+  const { showFigures } = useDashboardSettings();
+  const { data: fetched, isLoading, isError } = useFinancialSummary();
 
-  if (isError) return null;
+  if (isError && showFigures) return null;
 
-  if (isLoading || !summary) {
+  // While hidden nothing is fetched; zeros stand in so the masked layout
+  // renders identically to the real one.
+  const zero = { value: 0, previous: 0 };
+  const summary: FinancialSummary | undefined = showFigures
+    ? fetched
+    : {
+        currency_code: '',
+        period: { previous_from: '', previous_to: '' },
+        income_statement: { revenue: zero, expenses: zero, net_profit: zero },
+        balance_sheet: {
+          assets: zero,
+          liabilities: zero,
+          equity: zero,
+          cash: zero,
+          receivables: zero,
+          payables: zero,
+          inventory: zero,
+        },
+      };
+
+  if ((showFigures && isLoading) || !summary) {
     return (
       <Skeleton
         variant='rounded'

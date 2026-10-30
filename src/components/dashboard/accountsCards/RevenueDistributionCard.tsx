@@ -192,7 +192,6 @@ function RevenueDistributionCard() {
         )}
       </Box>
 
-      {/* Where the legend would sit */}
       <Box sx={{ px: 2 }}>
         <FinancialSummaryStrip kind='revenue' inline />
       </Box>

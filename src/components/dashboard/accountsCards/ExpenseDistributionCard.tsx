@@ -1,17 +1,17 @@
 'use client';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import JumboCardQuick from '@jumbo/components/JumboCardQuick/JumboCardQuick';
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 import { Box, Skeleton, Typography, useMediaQuery } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
+import dayjs from 'dayjs';
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
 import exportingModule from 'highcharts/modules/exporting';
 import { useEffect, useState } from 'react';
 import financialReportsServices from '../../accounts/reports/financial-reports-services';
 import { useDashboardSettings } from '../Dashboard';
-import dayjs from 'dayjs';
 import { FigureLegend, useFinancialSummary } from './FinancialSummaryStrip';
-import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface ExpenseData {
   ledger_name: string;
@@ -26,6 +26,7 @@ function ExpenseDistributionCard() {
   const dictionary = useDictionary();
   const {
     chartFilters: { from, to, cost_center_ids },
+    showFigures,
   } = useDashboardSettings();
   const [params, setParams] = useState({
     from,
@@ -68,12 +69,18 @@ function ExpenseDistributionCard() {
   // previous window of the same length - not the summary's total expenses.
   const { data: summary } = useFinancialSummary();
   const { data: previousTotal } = useQuery({
-    queryKey: ['expenseDistributionPrevious', summary?.period, params.cost_center_ids],
+    queryKey: [
+      'expenseDistributionPrevious',
+      summary?.period,
+      params.cost_center_ids,
+    ],
     enabled: !!summary,
     queryFn: async () => {
       const expenses = await financialReportsServices.expenseFigures({
         from: dayjs(summary!.period.previous_from).toISOString(),
-        to: dayjs(summary!.period.previous_to).subtract(1, 'millisecond').toISOString(),
+        to: dayjs(summary!.period.previous_to)
+          .subtract(1, 'millisecond')
+          .toISOString(),
         ledgerGroupId: 19,
         cost_center_ids: params.cost_center_ids,
         group_by_ledgers: true,
@@ -81,7 +88,10 @@ function ExpenseDistributionCard() {
       return (expenses as ExpenseData[]).reduce((sum, e) => sum + e.amount, 0);
     },
   });
-  const currentTotal = (expenseDistribution || []).reduce((sum, p) => sum + p.y, 0);
+  const currentTotal = (expenseDistribution || []).reduce(
+    (sum, p) => sum + p.y,
+    0
+  );
 
   useEffect(() => {
     let mounted = true;
@@ -210,12 +220,15 @@ function ExpenseDistributionCard() {
         )}
       </Box>
 
-      {/* Where the legend would sit */}
       <Box sx={{ px: 2 }}>
-        {previousTotal === undefined || isLoading ? (
+        {showFigures && (previousTotal === undefined || isLoading) ? (
           <Skeleton variant='rounded' height={28} />
         ) : (
-          <FigureLegend value={currentTotal} previous={previousTotal} higherIsBetter={false} />
+          <FigureLegend
+            value={currentTotal}
+            previous={previousTotal ?? 0}
+            higherIsBetter={false}
+          />
         )}
       </Box>
     </JumboCardQuick>
