@@ -4,6 +4,7 @@ import { readableDate } from '@/app/helpers/input-sanitization-helpers';
 import { Person } from '@mui/icons-material';
 import { Chip, TableCell, TableRow, Tooltip, Typography } from '@mui/material';
 import { Movement } from './AuditTrailType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface AuditTrailListItemProps {
   movement: Movement;
@@ -14,6 +15,7 @@ const employeeName = (employee?: { first_name: string; last_name: string } | nul
   employee ? `${employee.first_name} ${employee.last_name}` : undefined;
 
 const AuditTrailListItem = ({ movement, showType = false }: AuditTrailListItemProps) => {
+  const dictionary = useDictionary();
   const isCostCenter = !!(movement.from_cost_center_id || movement.to_cost_center_id);
   const isManager = !isCostCenter && !!(movement.from_manager_id || movement.to_manager_id);
 
@@ -28,7 +30,11 @@ const AuditTrailListItem = ({ movement, showType = false }: AuditTrailListItemPr
       ? employeeName(movement.to_manager)
       : movement.to_department?.name;
 
-  const movementType = isCostCenter ? 'Cost Center' : isManager ? 'Manager' : 'Department';
+  const movementType = isCostCenter
+    ? dictionary.humanResources.auditTrail.kinds.costCenter
+    : isManager
+      ? dictionary.humanResources.auditTrail.kinds.manager
+      : dictionary.humanResources.auditTrail.kinds.department;
   const movementColor = isCostCenter ? 'primary' : isManager ? 'success' : 'info';
 
   return (

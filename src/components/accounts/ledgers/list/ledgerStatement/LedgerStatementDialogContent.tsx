@@ -31,6 +31,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import ledgerServices from '../../ledger-services';
 import LedgerStatementOnScreen from './LedgerStatementOnScreen';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 // ✅ Updated interfaces with currency support
 interface Transaction {
@@ -45,6 +46,7 @@ interface Transaction {
   correspondingLedger?: string | null;
   isCancelled?: boolean;
   isReversal?: boolean;
+  isScheduled?: boolean;
 }
 
 interface ReportDocumentProps {
@@ -202,12 +204,13 @@ const ReportDocument: React.FC<ReportDocumentProps> = ({
         : transaction.isReversal
           ? ' (Reversal)'
           : '';
+      const scheduledTag = transaction.isScheduled ? ' (Recurring)' : '';
 
       return {
         transactionDate: transaction.transactionDate,
         reference:
           `${transaction.voucherNo ? transaction.voucherNo : ''} ${transaction.reference ? transaction.reference : ''}`.trim(),
-        description: transaction.description + cancellationTag,
+        description: transaction.description + cancellationTag + scheduledTag,
         correspondingLedger: transaction.correspondingLedger || '',
         debit: transaction.debit,
         credit: transaction.credit,
@@ -434,6 +437,7 @@ const ReportDocument: React.FC<ReportDocumentProps> = ({
 const LedgerStatementDialogContent: React.FC<
   LedgerStatementDialogContentProps
 > = ({ setOpen, ledger, commingFilters = null }) => {
+  const dictionary = useDictionary();
   const [transactions, setTransactions] = useState<
     ReportDocumentProps['transactionsData'] | null
   >(null);
@@ -594,7 +598,7 @@ const LedgerStatementDialogContent: React.FC<
                 </Grid>
                 <Grid size={{ xs: 12, md: 6 }}>
                   <CostCenterSelector
-                    label='Cost Centers'
+                    label={dictionary.forms.ledgers.statementFilter.labels.costCenters}
                     multiple={true}
                     allowSameType={true}
                     onChange={(cost_centers) => {
@@ -612,7 +616,7 @@ const LedgerStatementDialogContent: React.FC<
                 <Grid size={{ xs: 12, md: 3 }}>
                   <Div sx={{ mt: 1, mb: 1 }}>
                     <DateTimePicker
-                      label='From (MM/DD/YYYY)'
+                      label={dictionary.forms.ledgers.statementFilter.labels.from}
                       sx={{ width: '100%' }}
                       minDate={dayjs(
                         authOrganization?.organization.recording_start_date
@@ -640,7 +644,7 @@ const LedgerStatementDialogContent: React.FC<
                 <Grid size={{ xs: 12, md: 3 }}>
                   <Div sx={{ mt: 1, mb: 1 }}>
                     <DateTimePicker
-                      label='To (MM/DD/YYYY)'
+                      label={dictionary.forms.ledgers.statementFilter.labels.to}
                       sx={{ width: '100%' }}
                       minDate={dayjs(watch('from'))}
                       value={dayjs(watch('to'))}
@@ -687,7 +691,7 @@ const LedgerStatementDialogContent: React.FC<
                           }}
                         />
                       }
-                      label='Detailed'
+                      label={dictionary.forms.ledgers.statementFilter.labels.detailed}
                     />
                     <FormControlLabel
                       control={
@@ -704,7 +708,7 @@ const LedgerStatementDialogContent: React.FC<
                           }}
                         />
                       }
-                      label='Show Cancellations'
+                      label={dictionary.forms.ledgers.statementFilter.labels.showCancellations}
                     />
                   </Stack>
                 )}
@@ -733,7 +737,7 @@ const LedgerStatementDialogContent: React.FC<
                       variant='contained'
                       sx={{ width: { xs: '100%', sm: 'auto' } }}
                     >
-                      Filter
+                      {dictionary.forms.ledgers.statementFilter.buttons.filter}
                     </LoadingButton>
                   )}
                 </Stack>
@@ -807,7 +811,7 @@ const LedgerStatementDialogContent: React.FC<
       </DialogContent>
       <DialogActions>
         <Button size='small' variant='outlined' onClick={() => setOpen(false)}>
-          Close
+          {dictionary.forms.ledgers.statementFilter.buttons.close}
         </Button>
       </DialogActions>
     </React.Fragment>

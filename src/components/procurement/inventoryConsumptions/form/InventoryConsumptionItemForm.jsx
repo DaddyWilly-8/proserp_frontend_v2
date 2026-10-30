@@ -11,25 +11,27 @@ import ProductSelect from '@/components/productAndServices/products/ProductSelec
 import { sanitizedNumber } from '@/app/helpers/input-sanitization-helpers';
 import { wholeUnitQuantityTest } from '@/app/helpers/measurement-unit-helpers';
 import LedgerSelect from '@/components/accounts/ledgers/forms/LedgerSelect';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function InventoryConsumptionItemForm({ setClearFormKey, submitMainForm, submitItemForm, setSubmitItemForm, item = null,index = -1, setShowForm = null, items=[], setItems, getUpdatedBalanceItems, setIsDirty }) {
+    const dictionary = useDictionary();
     const [isRetrieving, setIsRetrieving] = useState(false);
     const [selectedUnit, setSelectedUnit] = useState(item && item.measurement_unit_id);
     const { productOptions } = useProductsSelect();
     const nonInventoryIds = productOptions.filter(product => product.type !== 'Inventory').map(product => product.id);
 
     const validationSchema = yup.object({
-        product: yup.object().required("Product is required").typeError('Product is required'),
+        product: yup.object().required(dictionary.forms.inventoryConsumptions.form.errors.validation.product.required).typeError(dictionary.forms.inventoryConsumptions.form.errors.validation.product.required),
         quantity: yup.number()
             .transform((value) => (isNaN(value) ? undefined : value))
             .nullable()
             .when('product', {
             is: (product) => product?.type === 'Inventory',
             then: (schema) => schema
-                .required("Quantity is required")
-                .positive("Quantity must be a positive number")
-                .typeError('Quantity must be a number')
-                .test('balance-check', 'The quantity exceeds the available balance', function(value) {
+                .required(dictionary.forms.inventoryConsumptions.form.errors.validation.quantity.required)
+                .positive(dictionary.forms.inventoryConsumptions.form.errors.validation.quantity.positive)
+                .typeError(dictionary.forms.inventoryConsumptions.form.errors.validation.quantity.number)
+                .test('balance-check', dictionary.forms.inventoryConsumptions.form.errors.validation.quantity.exceedsBalance, function(value) {
                     const availableBalance = this.parent.available_balance;
                     if (availableBalance === 'N/A' || !value) return true;
                     return value <= parseFloat(availableBalance);
@@ -41,13 +43,13 @@ function InventoryConsumptionItemForm({ setClearFormKey, submitMainForm, submitI
 
                     if (availableBalance === 'N/A' || currentBalance >= availableBalance) return true;
                     return value <= currentBalance || this.createError({
-                        message: `This quantity will lead to negative balance. Current balance today is ${currentBalance.toLocaleString()}`
+                        message: dictionary.forms.inventoryConsumptions.form.messages.negativeBalance.replace('{balance}', currentBalance.toLocaleString())
                     });
                 }),
             otherwise: (schema) => schema
-                .required("Quantity is required")
-                .positive("Quantity must be a positive number")
-                .typeError('Quantity must be a number')
+                .required(dictionary.forms.inventoryConsumptions.form.errors.validation.quantity.required)
+                .positive(dictionary.forms.inventoryConsumptions.form.errors.validation.quantity.positive)
+                .typeError(dictionary.forms.inventoryConsumptions.form.errors.validation.quantity.number)
             }),
     });
 
@@ -171,7 +173,7 @@ function InventoryConsumptionItemForm({ setClearFormKey, submitMainForm, submitI
             <Grid container columnSpacing={1} rowSpacing={1} mb={2} mt={1}>
                 <Grid size={{xs: 12, md: 4}}>
                     <ProductSelect
-                        label='Product'
+                        label={dictionary.forms.inventoryConsumptions.form.labels.product}
                         frontError={errors.product}
                         defaultValue={item && item.product}
                         excludeIds={nonInventoryIds}
@@ -209,7 +211,7 @@ function InventoryConsumptionItemForm({ setClearFormKey, submitMainForm, submitI
                         {
                             isRetrieving ? <LinearProgress/> :
                                 <TextField
-                                    label="Available Balance"
+                                    label={dictionary.forms.inventoryConsumptions.form.labels.availableBalance}
                                     fullWidth
                                     size='small'
                                     value={watch('available_balance')}
@@ -224,7 +226,7 @@ function InventoryConsumptionItemForm({ setClearFormKey, submitMainForm, submitI
                 }
                 <Grid size={{xs: 6, md: !!product ? 2 : 4}}>
                     <TextField
-                        label="Quantity"
+                        label={dictionary.forms.inventoryConsumptions.form.labels.quantity}
                         fullWidth
                         size='small'
                         error={!!errors?.quantity}
@@ -276,7 +278,7 @@ function InventoryConsumptionItemForm({ setClearFormKey, submitMainForm, submitI
                 <Grid size={{xs: 12, md: 4}}>
                     <LedgerSelect
                         multiple={false}
-                        label="Corresponding Ledger"
+                        label={dictionary.forms.inventoryConsumptions.form.labels.correspondingLedger}
                         allowedGroups={['Expenses', 'Fixed Assets']}
                         defaultValue={item && item.ledger}
                         onChange={(newValue) => {
@@ -287,7 +289,7 @@ function InventoryConsumptionItemForm({ setClearFormKey, submitMainForm, submitI
                 </Grid>
                 <Grid size={{xs: 12, md: 8}}>
                     <TextField
-                        label="Description"
+                        label={dictionary.forms.inventoryConsumptions.form.labels.description}
                         fullWidth
                         size='small'
                         error={!!errors?.items?.[index]?.description}
@@ -304,15 +306,15 @@ function InventoryConsumptionItemForm({ setClearFormKey, submitMainForm, submitI
                     >
                         {
                             item ? (
-                                <><CheckOutlined fontSize='small' /> Done</>
+                                <><CheckOutlined fontSize='small' /> {dictionary.forms.inventoryConsumptions.form.buttons.done}</>
                             ) : (
-                                <><AddOutlined fontSize='small' /> Add</>
+                                <><AddOutlined fontSize='small' /> {dictionary.forms.inventoryConsumptions.form.buttons.add}</>
                             )
                         }
                     </LoadingButton>
                     {
                         item && 
-                        <Tooltip title='Close Edit'>
+                        <Tooltip title={dictionary.tooltips.closeEdit}>
                             <IconButton size='small' 
                                 onClick={() => {
                                     setShowForm(false);

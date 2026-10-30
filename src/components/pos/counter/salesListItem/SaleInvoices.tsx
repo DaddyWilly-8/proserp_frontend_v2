@@ -22,6 +22,7 @@ import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 import { readableDate } from '@/app/helpers/input-sanitization-helpers';
 import { SalesOrder } from '../SalesOrderType';
 import { BackdropSpinner } from '@/shared/ProgressIndicators/BackdropSpinner';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 export interface Invoice {
   id: number;
@@ -44,6 +45,7 @@ const SaleInvoices: React.FC<SaleInvoicesProps> = ({
   sale, 
   activeTab 
 }) => {
+  const dictionary = useDictionary();
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
   const [openInvoiceDeleteDialog, setOpenInvoiceDeleteDialog] = useState(false);
   const [openAdjustmentDialog, setOpenAdjustmentDialog] = useState(false);
@@ -84,25 +86,25 @@ const SaleInvoices: React.FC<SaleInvoicesProps> = ({
             container
           >
             <Grid size={{xs: 6, md: 4, lg: 4}}>
-              <Tooltip title={'Invoice No.'}>
+              <Tooltip title={dictionary.tooltips.invoiceNo}>
                 <Typography fontWeight={'bold'}>{invoice.invoiceNo}</Typography>
               </Tooltip>
-              <Tooltip title={'Invoice Date'}>
+              <Tooltip title={dictionary.tooltips.invoiceDate}>
                 <Typography>
                   {readableDate(invoice.transaction_date)}
                 </Typography>
               </Tooltip>
             </Grid>
             <Grid size={{xs: 6, md: 4, lg: 2}}>
-              <Tooltip title={'Internal Reference'}>
+              <Tooltip title={dictionary.tooltips.internalReference}>
                 <Typography>{invoice.internal_reference}</Typography>
               </Tooltip>
-              <Tooltip title={'Customer Reference'}>
+              <Tooltip title={dictionary.tooltips.customerReference}>
                 <Typography variant='caption'>{invoice.customer_reference}</Typography>
               </Tooltip>
             </Grid>
             <Grid size={{xs: 12, md: 4, lg: 4}} mt={0.5}>
-              <Tooltip title={'Narration'}>
+              <Tooltip title={dictionary.tooltips.narration}>
                 <Typography>{invoice.narration}</Typography>
               </Tooltip>
             </Grid>

@@ -37,6 +37,7 @@ interface PayrollComparisonReportDocumentProps {
   selectedCostCenters: CostCenter[];
   organization: any;
   userName: string;
+  dictionary: any;
 }
 
 function formatCurrency(value: number | string | null | undefined) {
@@ -66,24 +67,26 @@ export default function PayrollComparisonReportDocument({
   selectedCostCenters,
   organization,
   userName,
+  dictionary,
 }: PayrollComparisonReportDocumentProps) {
+  const t = dictionary.humanResources.payrollPeriods;
   const mainColor = organization?.settings?.main_color || '#2113AD';
   const lightColor = organization?.settings?.light_color || '#bec5da';
   const contrastText = organization?.settings?.contrast_text || '#FFFFFF';
 
   const comparison = data?.comparison;
   const metrics: { label: string; metric?: Metric }[] = [
-    { label: 'Total Employer Cost', metric: comparison?.total_employer_cost },
-    { label: 'Basic Salary', metric: comparison?.basic_salary },
-    { label: 'Gross Salary', metric: comparison?.gross_salary },
-    { label: 'Net Salary', metric: comparison?.net_salary },
-    { label: 'Employer Contributions Total', metric: comparison?.employer_contributions_total },
-    { label: 'Total Employees', metric: comparison?.total_employees },
+    { label: t.comparison.totalEmployerCost, metric: comparison?.total_employer_cost },
+    { label: t.comparison.basicSalary, metric: comparison?.basic_salary },
+    { label: t.comparison.grossSalary, metric: comparison?.gross_salary },
+    { label: t.comparison.netSalary, metric: comparison?.net_salary },
+    { label: t.comparison.employerContributionsTotal, metric: comparison?.employer_contributions_total },
+    { label: t.comparison.totalEmployees, metric: comparison?.total_employees },
   ].filter((row) => row.metric);
 
   const costCentersLabel = selectedCostCenters.length
     ? selectedCostCenters.map((cc) => cc.name).join(', ')
-    : `${organization?.name || 'All'} (company wide)`;
+    : `${organization?.name || t.comparison.all} (${t.comparison.companyWide})`;
 
   const headerCellStyle = {
     ...pdfStyles.tableHeader,
@@ -94,7 +97,9 @@ export default function PayrollComparisonReportDocument({
 
   return (
     <Document
-      title={`Payroll Comparison ${periodALabel} vs ${periodBLabel}`}
+      title={`${t.comparison.title} ${t.comparison.vs
+        .replace('{a}', periodALabel)
+        .replace('{b}', periodBLabel)}`}
       creator={` ${userName} | Powered By ProsERP`}
       producer='ProsERP'
     >
@@ -104,33 +109,35 @@ export default function PayrollComparisonReportDocument({
             <PdfLogo organization={organization} />
           </View>
           <View style={{ flex: 1, textAlign: 'right' }}>
-            <Text style={{ ...pdfStyles.majorInfo, color: mainColor }}>Payroll Comparison</Text>
+            <Text style={{ ...pdfStyles.majorInfo, color: mainColor }}>{t.comparison.title}</Text>
           </View>
         </View>
 
         <View style={{ ...pdfStyles.tableRow, marginBottom: 10 }}>
           <View style={{ flex: 1.5 }}>
-            <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>Comparing</Text>
+            <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>{t.comparison.comparing}</Text>
             <Text style={{ ...pdfStyles.minInfo }}>
-              {periodALabel} vs {periodBLabel}
+              {t.comparison.vs
+                .replace('{a}', periodALabel)
+                .replace('{b}', periodBLabel)}
             </Text>
           </View>
           <View style={{ flex: 1 }}>
-            <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>Cost Centers</Text>
+            <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>{t.comparison.costCenters}</Text>
             <Text style={{ ...pdfStyles.minInfo }}>{costCentersLabel}</Text>
           </View>
           <View style={{ flex: 1 }}>
-            <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>Printed On</Text>
+            <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>{t.comparison.printedOn}</Text>
             <Text style={{ ...pdfStyles.minInfo }}>{readableDate(undefined, true)}</Text>
           </View>
         </View>
 
         <View style={{ ...pdfStyles.table, marginBottom: 12 }}>
           <View style={pdfStyles.tableRow}>
-            <Text style={headerCellStyle}>Metric</Text>
+            <Text style={headerCellStyle}>{t.comparison.metric}</Text>
             <Text style={{ ...headerCellStyle, textAlign: 'right' }}>{periodALabel}</Text>
             <Text style={{ ...headerCellStyle, textAlign: 'right' }}>{periodBLabel}</Text>
-            <Text style={{ ...headerCellStyle, textAlign: 'right' }}>Difference</Text>
+            <Text style={{ ...headerCellStyle, textAlign: 'right' }}>{t.comparison.difference}</Text>
           </View>
           {metrics.map((row, index) => (
             <View key={row.label} style={pdfStyles.tableRow}>
@@ -179,9 +186,9 @@ export default function PayrollComparisonReportDocument({
         </View>
 
         {[
-          { title: 'Allowances', rows: comparison?.allowances ?? [] },
-          { title: 'Deductions', rows: comparison?.deductions ?? [] },
-          { title: 'Employer Contributions', rows: comparison?.employer_contributions ?? [] },
+          { title: t.comparison.allowances, rows: comparison?.allowances ?? [] },
+          { title: t.comparison.deductions, rows: comparison?.deductions ?? [] },
+          { title: t.comparison.employerContributions, rows: comparison?.employer_contributions ?? [] },
         ]
           .filter((section) => section.rows.length > 0)
           .map((section) => (
@@ -190,10 +197,10 @@ export default function PayrollComparisonReportDocument({
                 <Text style={{ flex: 4, textAlign: 'center', fontSize: 12 }}>{section.title}</Text>
               </View>
               <View style={pdfStyles.tableRow}>
-                <Text style={headerCellStyle}>Type</Text>
+                <Text style={headerCellStyle}>{t.comparison.type}</Text>
                 <Text style={{ ...headerCellStyle, textAlign: 'right' }}>{periodALabel}</Text>
                 <Text style={{ ...headerCellStyle, textAlign: 'right' }}>{periodBLabel}</Text>
-                <Text style={{ ...headerCellStyle, textAlign: 'right' }}>Difference</Text>
+                <Text style={{ ...headerCellStyle, textAlign: 'right' }}>{t.comparison.difference}</Text>
               </View>
               {section.rows.map((row, index) => (
                 <View key={String(row.type_id ?? row.type_name ?? index)} style={pdfStyles.tableRow}>

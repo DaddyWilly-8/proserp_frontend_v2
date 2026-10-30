@@ -10,6 +10,9 @@ interface PayslipPDFProps {
   payslip: any;
   organization: Organization | null;
   thermalPrinter?: boolean;
+  // react-pdf renders in its own tree, so React context (useDictionary)
+  // isn't available here — the caller passes the dictionary in.
+  dictionary: any;
 }
 
 function fmt(value: number) {
@@ -23,7 +26,10 @@ const PayslipPDF: React.FC<PayslipPDFProps> = ({
   payslip,
   organization,
   thermalPrinter = false,
+  dictionary,
 }) => {
+  const t = dictionary.humanResources.payrollRuns.payslipPdf;
+  const monthNames: string[] = dictionary.humanResources.payrollRuns.months;
   const mainColor = organization?.settings?.main_color || '#2113AD';
   const lightColor = organization?.settings?.light_color || '#bec5da';
   const contrastText = organization?.settings?.contrast_text || '#FFFFFF';
@@ -31,9 +37,9 @@ const PayslipPDF: React.FC<PayslipPDFProps> = ({
   const employeeName = getEmployeeName(payslip?.employee || payslip);
 
   const employeeNo =
-    payslip?.employee?.employee_number || payslip?.employee_number || 'N/A';
+    payslip?.employee?.employee_number || payslip?.employee_number || t.notAvailable;
 
-  const period = formatPayslipPeriod(payslip);
+  const period = formatPayslipPeriod(payslip, monthNames);
 
   // 80mm Thermal Version
   const PDF80mm = () => (
@@ -71,7 +77,7 @@ const PayslipPDF: React.FC<PayslipPDFProps> = ({
         >
           <View style={{ flex: 1 }}>
             <Text style={{ ...pdfStyles.midInfo, fontWeight: 'bold' }}>
-              PAYSLIP
+              {t.title}
             </Text>
             <Text style={{ ...pdfStyles.midInfo, textAlign: 'center' }}>
               {organization?.name}
@@ -81,19 +87,19 @@ const PayslipPDF: React.FC<PayslipPDFProps> = ({
 
         {/* Employee Info */}
         <View style={{ ...pdfStyles.tableRow, marginBottom: 4 }}>
-          <Text style={{ ...pdfStyles.minInfo, flex: 1 }}>Employee:</Text>
+          <Text style={{ ...pdfStyles.minInfo, flex: 1 }}>{t.employeeColon}</Text>
           <Text style={{ ...pdfStyles.minInfo, flex: 1.5, textAlign: 'right' }}>
             {employeeName}
           </Text>
         </View>
         <View style={{ ...pdfStyles.tableRow, marginBottom: 4 }}>
-          <Text style={{ ...pdfStyles.minInfo, flex: 1 }}>Emp No:</Text>
+          <Text style={{ ...pdfStyles.minInfo, flex: 1 }}>{t.empNoColon}</Text>
           <Text style={{ ...pdfStyles.minInfo, flex: 1.5, textAlign: 'right' }}>
             {employeeNo}
           </Text>
         </View>
         <View style={{ ...pdfStyles.tableRow, marginBottom: 8 }}>
-          <Text style={{ ...pdfStyles.minInfo, flex: 1 }}>Period:</Text>
+          <Text style={{ ...pdfStyles.minInfo, flex: 1 }}>{t.periodColon}</Text>
           <Text style={{ ...pdfStyles.minInfo, flex: 1.5, textAlign: 'right' }}>
             {period}
           </Text>
@@ -102,7 +108,7 @@ const PayslipPDF: React.FC<PayslipPDFProps> = ({
         {/* Summary Table */}
         <View style={{ ...pdfStyles.table, marginBottom: 8 }}>
           <View style={pdfStyles.tableRow}>
-            <Text style={{ ...pdfStyles.tableHeader, flex: 2 }}>Item</Text>
+            <Text style={{ ...pdfStyles.tableHeader, flex: 2 }}>{t.item}</Text>
             <Text
               style={{
                 ...pdfStyles.tableHeader,
@@ -110,13 +116,13 @@ const PayslipPDF: React.FC<PayslipPDFProps> = ({
                 textAlign: 'right',
               }}
             >
-              Amount
+              {t.amount}
             </Text>
           </View>
 
           <View style={{ ...pdfStyles.tableRow, borderTop: '1px solid #ddd' }}>
             <Text style={{ ...pdfStyles.tableCell, flex: 2 }}>
-              Basic Salary{payslip?.proration ? ' *' : ''}
+              {t.basicSalary + (payslip?.proration ? ' *' : '')}
             </Text>
             <Text
               style={{
@@ -131,15 +137,15 @@ const PayslipPDF: React.FC<PayslipPDFProps> = ({
           </View>
           {payslip?.proration && (
             <Text style={{ fontSize: 6, color: '#B45309', marginBottom: 2 }}>
-              * Prorated for {payslip.proration.active_days}/
-              {payslip.proration.total_days} days this period (full Basic
-              Salary: {fmt(payslip.full_basic_salary)}) — any allowance
-              marked * below was reduced the same way.
+              {t.proratedNote
+                .replace('{active}', String(payslip.proration.active_days))
+                .replace('{total}', String(payslip.proration.total_days))
+                .replace('{full}', fmt(payslip.full_basic_salary))}
             </Text>
           )}
           <View style={{ ...pdfStyles.tableRow }}>
             <Text style={{ ...pdfStyles.tableCell, flex: 2 }}>
-              Gross Salary
+              {t.grossSalary}
             </Text>
             <Text
               style={{ ...pdfStyles.tableCell, flex: 1.5, textAlign: 'right' }}
@@ -149,7 +155,7 @@ const PayslipPDF: React.FC<PayslipPDFProps> = ({
           </View>
           <View style={{ ...pdfStyles.tableRow }}>
             <Text style={{ ...pdfStyles.tableCell, flex: 2 }}>
-              Total Allowances
+              {t.totalAllowances}
             </Text>
             <Text
               style={{ ...pdfStyles.tableCell, flex: 1.5, textAlign: 'right' }}
@@ -159,7 +165,7 @@ const PayslipPDF: React.FC<PayslipPDFProps> = ({
           </View>
           <View style={{ ...pdfStyles.tableRow }}>
             <Text style={{ ...pdfStyles.tableCell, flex: 2 }}>
-              Total Deductions
+              {t.totalDeductions}
             </Text>
             <Text
               style={{ ...pdfStyles.tableCell, flex: 1.5, textAlign: 'right' }}
@@ -168,7 +174,7 @@ const PayslipPDF: React.FC<PayslipPDFProps> = ({
             </Text>
           </View>
           <View style={{ ...pdfStyles.tableRow }}>
-            <Text style={{ ...pdfStyles.tableCell, flex: 2 }}>PAYE</Text>
+            <Text style={{ ...pdfStyles.tableCell, flex: 2 }}>{t.paye}</Text>
             <Text
               style={{ ...pdfStyles.tableCell, flex: 1.5, textAlign: 'right' }}
             >
@@ -182,7 +188,7 @@ const PayslipPDF: React.FC<PayslipPDFProps> = ({
               marginTop: 2,
             }}
           >
-            <Text style={{ ...pdfStyles.tableHeader, flex: 2 }}>Net Pay</Text>
+            <Text style={{ ...pdfStyles.tableHeader, flex: 2 }}>{t.netPay}</Text>
             <Text
               style={{
                 ...pdfStyles.tableHeader,
@@ -206,7 +212,7 @@ const PayslipPDF: React.FC<PayslipPDFProps> = ({
                 marginBottom: 2,
               }}
             >
-              Allowances
+              {t.allowances}
             </Text>
             {payslip.allowances.map((item: any, idx: number) => (
               <View key={idx} style={pdfStyles.tableRow}>
@@ -240,7 +246,7 @@ const PayslipPDF: React.FC<PayslipPDFProps> = ({
                 marginBottom: 2,
               }}
             >
-              Deductions
+              {t.deductions}
             </Text>
             {payslip.deductions.map((item: any, idx: number) => (
               <View key={idx} style={pdfStyles.tableRow}>
@@ -268,7 +274,7 @@ const PayslipPDF: React.FC<PayslipPDFProps> = ({
                 marginBottom: 2,
               }}
             >
-              Employer Contributions
+              {t.employerContributions}
             </Text>
             {payslip.employer_contributions.map((item: any, idx: number) => (
               <View key={idx} style={pdfStyles.tableRow}>
@@ -304,7 +310,7 @@ const PayslipPDF: React.FC<PayslipPDFProps> = ({
         </View>
         <View style={{ flex: 1, textAlign: 'right' }}>
           <Text style={{ ...pdfStyles.majorInfo, color: mainColor }}>
-            PAYSLIP
+            {t.title}
           </Text>
           <Text style={{ ...pdfStyles.midInfo }}>{period}</Text>
         </View>
@@ -314,19 +320,19 @@ const PayslipPDF: React.FC<PayslipPDFProps> = ({
       <View style={{ ...pdfStyles.tableRow, marginBottom: 15 }}>
         <View style={{ flex: 1, padding: 2 }}>
           <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>
-            Employee Name
+            {t.employeeName}
           </Text>
           <Text style={{ ...pdfStyles.minInfo }}>{employeeName}</Text>
         </View>
         <View style={{ flex: 1, padding: 2 }}>
           <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>
-            Employee No.
+            {t.employeeNo}
           </Text>
           <Text style={{ ...pdfStyles.minInfo }}>{employeeNo}</Text>
         </View>
         <View style={{ flex: 1, padding: 2 }}>
           <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>
-            Company
+            {t.company}
           </Text>
           <Text style={{ ...pdfStyles.minInfo }}>
             {organization?.name || '-'}
@@ -345,7 +351,7 @@ const PayslipPDF: React.FC<PayslipPDFProps> = ({
               flex: 3,
             }}
           >
-            Description
+            {t.description}
           </Text>
           <Text
             style={{
@@ -356,7 +362,7 @@ const PayslipPDF: React.FC<PayslipPDFProps> = ({
               textAlign: 'right',
             }}
           >
-            Amount
+            {t.amount}
           </Text>
         </View>
 
@@ -368,7 +374,7 @@ const PayslipPDF: React.FC<PayslipPDFProps> = ({
               flex: 3,
             }}
           >
-            Basic Salary{payslip?.proration ? ' *' : ''}
+            {t.basicSalary + (payslip?.proration ? ' *' : '')}
           </Text>
           <Text
             style={{
@@ -391,10 +397,10 @@ const PayslipPDF: React.FC<PayslipPDFProps> = ({
               marginBottom: 2,
             }}
           >
-            * Prorated for {payslip.proration.active_days}/
-            {payslip.proration.total_days} days this period (full Basic
-            Salary: {fmt(payslip.full_basic_salary)}) — any allowance marked
-            * below was reduced the same way.
+            {t.proratedNote
+              .replace('{active}', String(payslip.proration.active_days))
+              .replace('{total}', String(payslip.proration.total_days))
+              .replace('{full}', fmt(payslip.full_basic_salary))}
           </Text>
         )}
         <View style={pdfStyles.tableRow}>
@@ -405,7 +411,7 @@ const PayslipPDF: React.FC<PayslipPDFProps> = ({
               flex: 3,
             }}
           >
-            Gross Salary
+            {t.grossSalary}
           </Text>
           <Text
             style={{
@@ -426,7 +432,7 @@ const PayslipPDF: React.FC<PayslipPDFProps> = ({
               flex: 3,
             }}
           >
-            Total Allowances
+            {t.totalAllowances}
           </Text>
           <Text
             style={{
@@ -447,7 +453,7 @@ const PayslipPDF: React.FC<PayslipPDFProps> = ({
               flex: 3,
             }}
           >
-            Total Deductions
+            {t.totalDeductions}
           </Text>
           <Text
             style={{
@@ -468,7 +474,7 @@ const PayslipPDF: React.FC<PayslipPDFProps> = ({
               flex: 3,
             }}
           >
-            PAYE
+            {t.paye}
           </Text>
           <Text
             style={{
@@ -492,7 +498,7 @@ const PayslipPDF: React.FC<PayslipPDFProps> = ({
               flex: 3,
             }}
           >
-            Net Pay
+            {t.netPay}
           </Text>
           <Text
             style={{
@@ -514,7 +520,7 @@ const PayslipPDF: React.FC<PayslipPDFProps> = ({
           <Text
             style={{ ...pdfStyles.midInfo, color: mainColor, marginBottom: 5 }}
           >
-            Allowances Breakdown
+            {t.allowancesBreakdown}
           </Text>
           <View style={pdfStyles.table}>
             <View style={pdfStyles.tableRow}>
@@ -526,7 +532,7 @@ const PayslipPDF: React.FC<PayslipPDFProps> = ({
                   flex: 3,
                 }}
               >
-                Label
+                {t.label}
               </Text>
               <Text
                 style={{
@@ -537,7 +543,7 @@ const PayslipPDF: React.FC<PayslipPDFProps> = ({
                   textAlign: 'right',
                 }}
               >
-                Amount
+                {t.amount}
               </Text>
             </View>
             {payslip.allowances.map((item: any, idx: number) => (
@@ -575,7 +581,7 @@ const PayslipPDF: React.FC<PayslipPDFProps> = ({
           <Text
             style={{ ...pdfStyles.midInfo, color: mainColor, marginBottom: 5 }}
           >
-            Deductions Breakdown
+            {t.deductionsBreakdown}
           </Text>
           <View style={pdfStyles.table}>
             <View style={pdfStyles.tableRow}>
@@ -587,7 +593,7 @@ const PayslipPDF: React.FC<PayslipPDFProps> = ({
                   flex: 3,
                 }}
               >
-                Label
+                {t.label}
               </Text>
               <Text
                 style={{
@@ -598,7 +604,7 @@ const PayslipPDF: React.FC<PayslipPDFProps> = ({
                   textAlign: 'right',
                 }}
               >
-                Amount
+                {t.amount}
               </Text>
             </View>
             {payslip.deductions.map((item: any, idx: number) => (
@@ -634,7 +640,7 @@ const PayslipPDF: React.FC<PayslipPDFProps> = ({
           <Text
             style={{ ...pdfStyles.midInfo, color: mainColor, marginBottom: 5 }}
           >
-            Employer Contributions
+            {t.employerContributions}
           </Text>
           <View style={pdfStyles.table}>
             <View style={pdfStyles.tableRow}>
@@ -646,7 +652,7 @@ const PayslipPDF: React.FC<PayslipPDFProps> = ({
                   flex: 3,
                 }}
               >
-                Label
+                {t.label}
               </Text>
               <Text
                 style={{
@@ -657,7 +663,7 @@ const PayslipPDF: React.FC<PayslipPDFProps> = ({
                   textAlign: 'right',
                 }}
               >
-                Amount
+                {t.amount}
               </Text>
             </View>
             {payslip.employer_contributions.map((item: any, idx: number) => (
@@ -693,8 +699,8 @@ const PayslipPDF: React.FC<PayslipPDFProps> = ({
 
   return (
     <Document
-      title={`Payslip - ${employeeName}`}
-      subject='Employee Payslip'
+      title={t.docTitle.replace('{name}', employeeName)}
+      subject={t.docSubject}
       creator='ProsERP'
       producer='ProsERP'
     >

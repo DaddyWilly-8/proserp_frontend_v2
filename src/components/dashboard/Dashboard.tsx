@@ -18,7 +18,6 @@ import React, {
 import { CostCenter } from '../masters/costCenters/CostCenterType';
 import QuickLinks from './QuickLinks';
 import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
-import { AnnouncementBanner } from '@/shared/AnnouncementBanner';
 
 const OrganizationCalendar = lazy(() => import('./OrganizationCalendar'));
 const Filters = lazy(() => import('./Filters'));
@@ -139,7 +138,7 @@ function Dashboard() {
     <React.Fragment>
       {authOrganization?.organization && (
         <DashboardContext.Provider value={{ chartFilters, setChartFilters }}>
-          <AnnouncementBanner
+          {/* <AnnouncementBanner
             id='customer-service-month-2026'
             startDate='2026-10-01'
             endDate='2026-10-31'
@@ -151,7 +150,7 @@ function Dashboard() {
                 better every day.
               </>
             }
-          />
+          /> */}
           {active_subscriptions.length === 0 && (
             <Card sx={{ my: 1, p: 1 }}>
               <Alert sx={{ m: 1 }} severity='warning'>

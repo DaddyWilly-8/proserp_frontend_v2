@@ -19,6 +19,7 @@ import { useForm } from 'react-hook-form';
 import * as yup from 'yup';
 import humanResourcesServices from '../humanResourcesServices';
 import { Designation } from './DesignationsType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface DesignationFormProp {
   setOpenDialog: (open: boolean) => void;
@@ -43,6 +44,7 @@ const DesignationForm = ({
   setOpenDialog,
   designation = null,
 }: DesignationFormProp) => {
+  const dictionary = useDictionary();
   const queryClient = useQueryClient();
   const { enqueueSnackbar } = useSnackbar();
 
@@ -54,7 +56,7 @@ const DesignationForm = ({
     mutationFn: humanResourcesServices.addDesignation,
     onSuccess: (data) => {
       setOpenDialog(false);
-      enqueueSnackbar('Success Adding Designation', {
+      enqueueSnackbar(dictionary.humanResources.designations.form.messages.addSuccess, {
         variant: 'success',
       });
       queryClient.invalidateQueries({ queryKey: ['designations'] });
@@ -84,7 +86,7 @@ const DesignationForm = ({
     mutationFn: humanResourcesServices.updateDesignation,
     onSuccess: (data) => {
       setOpenDialog(false);
-      enqueueSnackbar('Success Updating Designation', {
+      enqueueSnackbar(dictionary.humanResources.designations.form.messages.updateSuccess, {
         variant: 'success',
       });
       queryClient.invalidateQueries({ queryKey: ['designations'] });
@@ -108,7 +110,7 @@ const DesignationForm = ({
 
   const validationSchema = yup.object({
     id: yup.number().optional(),
-    title: yup.string().required('Title is required').max(255),
+    title: yup.string().required(dictionary.humanResources.designations.form.validation.titleRequired).max(255),
     code: yup.string().max(50),
     description: yup.string().max(500),
   });
@@ -150,8 +152,8 @@ const DesignationForm = ({
       <DialogTitle>
         <Grid size={12} textAlign={'center'}>
           {!designation?.id
-            ? 'Add Designation'
-            : `Edit Designation ${designation.title}`}
+            ? dictionary.humanResources.designations.form.titles.add
+            : dictionary.humanResources.designations.form.titles.edit.replace('{title}', designation.title)}
         </Grid>
       </DialogTitle>
       <DialogContent>
@@ -160,8 +162,8 @@ const DesignationForm = ({
             <Grid size={{ xs: 12, md: 6 }}>
               <Div sx={{ mt: 1, mb: 1 }}>
                 <TextField
-                  label='Title'
-                  placeholder='Designation Title'
+                  label={dictionary.humanResources.designations.form.labels.title}
+                  placeholder={dictionary.humanResources.designations.form.placeholders.title}
                   size='small'
                   fullWidth
                   error={
@@ -181,8 +183,8 @@ const DesignationForm = ({
             <Grid size={{ xs: 12, md: 6 }}>
               <Div sx={{ mt: 1, mb: 1 }}>
                 <TextField
-                  label='Code'
-                  placeholder='Designation Code'
+                  label={dictionary.humanResources.designations.form.labels.code}
+                  placeholder={dictionary.humanResources.designations.form.placeholders.code}
                   size='small'
                   fullWidth
                   error={
@@ -202,8 +204,8 @@ const DesignationForm = ({
             <Grid size={{ xs: 12 }}>
               <Div sx={{ mt: 1, mb: 1 }}>
                 <TextField
-                  label='Description'
-                  placeholder='Designation Description'
+                  label={dictionary.humanResources.designations.form.labels.description}
+                  placeholder={dictionary.humanResources.designations.form.placeholders.description}
                   size='small'
                   multiline
                   minRows={2}
@@ -226,7 +228,7 @@ const DesignationForm = ({
           </Grid>
           <DialogActions>
             <Button size='small' onClick={() => setOpenDialog(false)}>
-              Cancel
+              {dictionary.humanResources.designations.form.buttons.cancel}
             </Button>
             <LoadingButton
               type='submit'
@@ -235,7 +237,7 @@ const DesignationForm = ({
               sx={{ display: 'flex' }}
               loading={isPending || updateIsLoading}
             >
-              Submit
+              {dictionary.humanResources.designations.form.buttons.submit}
             </LoadingButton>
           </DialogActions>
         </form>

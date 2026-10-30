@@ -30,6 +30,7 @@ import { useRouter } from 'next/navigation';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import humanResourcesServices from '../humanResourcesServices';
 import { formatMoney, getEmployeeName, processPayslips } from './payrollUtils';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface PayslipsListProps {
   payrollRunId: number;
@@ -44,7 +45,10 @@ interface PayslipsListProps {
 // Mirrors the payments table: outlined Paper, small size, bold header.
 // Rendered as the list's container so the rows JumboList emits land in the
 // <TableBody>; the list runs with disableTransition so they stay valid <tr>s.
-const PayslipsTable = ({ children }: { children?: React.ReactNode }) => (
+const PayslipsTable = ({ children }: { children?: React.ReactNode }) => {
+  const dictionary = useDictionary();
+  const t = dictionary.humanResources.payrollRuns.payslipsList;
+  return (
   <TableContainer
     component={Paper}
     variant='outlined'
@@ -53,26 +57,32 @@ const PayslipsTable = ({ children }: { children?: React.ReactNode }) => (
     <Table size='small'>
       <TableHead>
         <TableRow>
-          <TableCell sx={{ fontWeight: 700 }}>Employee</TableCell>
-          {['Basic', 'Allowances', 'Gross', 'Deductions', 'PAYE', 'Net Pay'].map(
-            (label) => (
+          <TableCell sx={{ fontWeight: 700 }}>{t.employee}</TableCell>
+          {[t.basic, t.allowances, t.gross, t.deductions, t.paye, t.netPay].map(
+            (label: string) => (
               <TableCell key={label} align='right' sx={{ fontWeight: 700 }}>
                 {label}
               </TableCell>
             )
           )}
-          <TableCell sx={{ fontWeight: 700 }}>Status</TableCell>
+          <TableCell sx={{ fontWeight: 700 }}>{t.status}</TableCell>
           <TableCell align='center' sx={{ fontWeight: 700 }}>
-            Actions
+            {t.actions}
           </TableCell>
         </TableRow>
       </TableHead>
       <TableBody>{children}</TableBody>
     </Table>
   </TableContainer>
-);
+  );
+};
 
 const usePayslipRow = (rawPayslip: any, runStatus: string, isPosted: boolean) => {
+  const dictionary = useDictionary();
+  const statusNames = dictionary.humanResources.payrollRuns.status as Record<
+    string,
+    string
+  >;
   const router = useRouter();
   const lang = useLanguage();
   const { checkOrganizationPermission } = useJumboAuth();
@@ -97,12 +107,13 @@ const usePayslipRow = (rawPayslip: any, runStatus: string, isPosted: boolean) =>
   // fallback when it isn't one of those two.
   const runStatusRaw = (runStatus || '').toLowerCase();
   const statusLabel = isRowPaid
-    ? 'Paid'
+    ? statusNames.paid
     : isRowPartiallyPaid
-      ? 'Partially Paid'
+      ? statusNames.partially_paid
       : ['partially_paid', 'paid'].includes(runStatusRaw)
-        ? 'Unpaid'
-        : (runStatus || 'Approved')
+        ? statusNames.unpaid
+        : statusNames[(runStatus || 'approved').toLowerCase()] ||
+          (runStatus || 'Approved')
             .replace(/_/g, ' ')
             .replace(/\b\w/g, (c) => c.toUpperCase());
   const statusColor = isRowPaid
@@ -138,7 +149,9 @@ const EmployeeIdentity = ({
   employee: any;
   canOpen: boolean;
   onOpen: () => void;
-}) => (
+}) => {
+  const dictionary = useDictionary();
+  return (
   <>
     <Typography
       variant='body2'
@@ -163,7 +176,7 @@ const EmployeeIdentity = ({
       {employee?.deleted_at && (
         <Chip
           size='small'
-          label='Employee removed'
+          label={dictionary.humanResources.payrollRuns.payslipsList.employeeRemoved}
           color='warning'
           variant='outlined'
           sx={{ height: 18, fontSize: 11 }}
@@ -171,7 +184,8 @@ const EmployeeIdentity = ({
       )}
     </Stack>
   </>
-);
+  );
+};
 
 const PayslipTableRow = (props: {
   payslip: any;
@@ -179,6 +193,7 @@ const PayslipTableRow = (props: {
   isPosted: boolean;
   onViewPayslip: (payslip: any) => void;
 }) => {
+  const dictionary = useDictionary();
   const { payslip, employee, statusLabel, statusColor, canOpenEmployee, openEmployee } =
     usePayslipRow(props.payslip, props.runStatus, props.isPosted);
 
@@ -205,7 +220,7 @@ const PayslipTableRow = (props: {
         <Chip label={statusLabel} size='small' color={statusColor} />
       </TableCell>
       <TableCell align='center'>
-        <Tooltip title='View Payslip'>
+        <Tooltip title={dictionary.tooltips.viewPayslip}>
           <IconButton
             size='small'
             color='primary'
@@ -244,6 +259,7 @@ const PayslipCard = (props: {
   isPosted: boolean;
   onViewPayslip: (payslip: any) => void;
 }) => {
+  const dictionary = useDictionary();
   const { payslip, employee, statusLabel, statusColor, canOpenEmployee, openEmployee } =
     usePayslipRow(props.payslip, props.runStatus, props.isPosted);
 
@@ -279,7 +295,7 @@ const PayslipCard = (props: {
 
       <Box mt={1.5} mb={1.5}>
         <Typography variant='caption' color='text.secondary' display='block'>
-          Net Pay
+          {dictionary.humanResources.payrollRuns.payslipsList.netPay}
         </Typography>
         <Typography variant='h5' color='success.main' mb={0}>
           {formatMoney(payslip.net_salary || 0)}
@@ -296,15 +312,15 @@ const PayslipCard = (props: {
           gap: 1.5,
         }}
       >
-        <CardAmount label='Basic' value={payslip.basic_salary} />
-        <CardAmount label='Allowances' value={payslip.total_allowances} />
-        <CardAmount label='Gross' value={payslip.gross_salary} />
-        <CardAmount label='Deductions' value={payslip.total_deductions} />
-        <CardAmount label='PAYE' value={payslip.paye} color='error.main' />
+        <CardAmount label={dictionary.humanResources.payrollRuns.payslipsList.basic} value={payslip.basic_salary} />
+        <CardAmount label={dictionary.humanResources.payrollRuns.payslipsList.allowances} value={payslip.total_allowances} />
+        <CardAmount label={dictionary.humanResources.payrollRuns.payslipsList.gross} value={payslip.gross_salary} />
+        <CardAmount label={dictionary.humanResources.payrollRuns.payslipsList.deductions} value={payslip.total_deductions} />
+        <CardAmount label={dictionary.humanResources.payrollRuns.payslipsList.paye} value={payslip.paye} color='error.main' />
       </Box>
 
       <Stack direction='row' justifyContent='flex-end' mt={1}>
-        <Tooltip title='View Payslip'>
+        <Tooltip title={dictionary.tooltips.viewPayslip}>
           <IconButton
             size='small'
             color='primary'

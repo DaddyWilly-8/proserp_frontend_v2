@@ -42,30 +42,16 @@ import PayEmployeesDialog from './PayEmployeesDialog';
 import PayPayablesDialog from './PayPayablesDialog';
 import { PayrollRunType } from './PayrollRunType';
 import { getPayslipCalculations } from './payslipCalculations';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
-const MONTH_NAMES = [
-  'January',
-  'February',
-  'March',
-  'April',
-  'May',
-  'June',
-  'July',
-  'August',
-  'September',
-  'October',
-  'November',
-  'December',
-];
-
-const getErrorMessage = (error: any) => {
+const extractErrorMessage = (error: any, fallback: string) => {
   const validationErrors = error?.response?.data?.validation_errors;
   if (validationErrors && typeof validationErrors === 'object') {
     const first = Object.values(validationErrors)[0] as any;
     return Array.isArray(first) ? first[0] : String(first);
   }
   return (
-    error?.response?.data?.message || error?.message || 'Something went wrong'
+    error?.response?.data?.message || error?.message || fallback
   );
 };
 
@@ -90,6 +76,12 @@ const PayrollRunItemAction = ({
   payrollRun: PayrollRunType;
   isFromPayrollPeriodsList?: boolean;
 }) => {
+  const dictionary = useDictionary();
+  const t = dictionary.humanResources.payrollRuns.itemAction;
+  const common = dictionary.humanResources.payrollRuns;
+  const MONTH_NAMES: string[] = common.months;
+  const getErrorMessage = (error: any) =>
+    extractErrorMessage(error, common.listItem.somethingWentWrong);
   const { showDialog, hideDialog } = useJumboDialog();
   const { checkOrganizationPermission } = useJumboAuth();
   const { enqueueSnackbar } = useSnackbar();
@@ -134,7 +126,7 @@ const PayrollRunItemAction = ({
     mutationFn: humanResourcesServices.finalizePayrollRun,
     onSuccess: () => {
       invalidatePayrollRunQueries();
-      enqueueSnackbar('Payroll Run Finalized Successfully', {
+      enqueueSnackbar(t.finalized, {
         variant: 'success',
       });
     },
@@ -179,7 +171,7 @@ const PayrollRunItemAction = ({
       });
 
       // Get period label
-      let periodLabel = payrollRun.cost_center?.name || 'Company-wide Run';
+      let periodLabel = payrollRun.cost_center?.name || common.actions.companyWideRun;
 
       if (payrollRun?.period) {
         const monthIndex = payrollRun.period.month;
@@ -213,7 +205,7 @@ const PayrollRunItemAction = ({
       humanResourcesServices.submitPayrollRun({ id: payrollRun.id }),
     onSuccess: (response: any) => {
       invalidatePayrollRunQueries();
-      enqueueSnackbar(response?.message || 'Payroll submitted for approval', {
+      enqueueSnackbar(response?.message || common.listItem.messages.submitted, {
         variant: 'success',
       });
     },
@@ -225,7 +217,7 @@ const PayrollRunItemAction = ({
     mutationFn: () => humanResourcesServices.approvePayrollRun(payrollRun.id),
     onSuccess: () => {
       invalidatePayrollRunQueries();
-      enqueueSnackbar('Payroll run approved', { variant: 'success' });
+      enqueueSnackbar(common.listItem.messages.approved, { variant: 'success' });
     },
     onError: (error: any) =>
       enqueueSnackbar(getErrorMessage(error), { variant: 'error' }),
@@ -236,7 +228,7 @@ const PayrollRunItemAction = ({
       mutationFn: () => humanResourcesServices.withdrawPayrollRun(payrollRun.id),
       onSuccess: () => {
         invalidatePayrollRunQueries();
-        enqueueSnackbar('Payroll run withdrawn back to draft', {
+        enqueueSnackbar(common.listItem.messages.withdrawn, {
           variant: 'success',
         });
       },
@@ -259,7 +251,7 @@ const PayrollRunItemAction = ({
         setChainStatus('approved');
         setChainRemarks('');
         invalidatePayrollRunQueries();
-        enqueueSnackbar('Payroll approval recorded', { variant: 'success' });
+        enqueueSnackbar(common.approvalDialog.recorded, { variant: 'success' });
       },
       onError: (error: any) =>
         enqueueSnackbar(getErrorMessage(error), { variant: 'error' }),
@@ -276,8 +268,11 @@ const PayrollRunItemAction = ({
       invalidatePayrollRunQueries();
       enqueueSnackbar(
         response?.journal_voucher?.voucher_no
-          ? `Payroll posted: ${response.journal_voucher.voucher_no}`
-          : 'Payroll transactions posted',
+          ? common.listItem.messages.postedWithVoucher.replace(
+              '{voucher}',
+              response.journal_voucher.voucher_no
+            )
+          : common.listItem.messages.posted,
         { variant: 'success' }
       );
     },
@@ -289,7 +284,7 @@ const PayrollRunItemAction = ({
     mutationFn: humanResourcesServices.deletePayrollRun,
     onSuccess: () => {
       invalidatePayrollRunQueries();
-      enqueueSnackbar('Payroll run deleted', { variant: 'success' });
+      enqueueSnackbar(common.listItem.messages.deleted, { variant: 'success' });
     },
     onError: (error: any) =>
       enqueueSnackbar(getErrorMessage(error), { variant: 'error' }),
@@ -314,8 +309,8 @@ const PayrollRunItemAction = ({
         break;
       case 'submit':
         showDialog({
-          title: 'Submit Payroll Run',
-          content: 'Submit this payroll run and save payslips for approval?',
+          title: common.actions.submitTitle,
+          content: t.submitContent,
           onYes: () => {
             hideDialog();
             submitPayrollRun();
@@ -326,8 +321,8 @@ const PayrollRunItemAction = ({
         break;
       case 'approve':
         showDialog({
-          title: 'Approve Payroll Run',
-          content: 'Approve this payroll run directly?',
+          title: common.actions.approveTitle,
+          content: t.approveContent,
           onYes: () => {
             hideDialog();
             approvePayrollRun();
@@ -344,8 +339,8 @@ const PayrollRunItemAction = ({
         break;
       case 'delete':
         showDialog({
-          title: 'Delete Payroll Run',
-          content: 'Delete this draft payroll run?',
+          title: common.actions.deleteTitle,
+          content: t.deleteContent,
           onYes: () => {
             hideDialog();
             deletePayrollRun(payrollRun.id);
@@ -356,8 +351,8 @@ const PayrollRunItemAction = ({
         break;
       case 'finalize':
         showDialog({
-          title: 'Finalize Payroll Run',
-          content: 'Are you sure you want to finalize this payroll run?',
+          title: t.finalizeTitle,
+          content: t.finalizeContent,
           onYes: () => {
             hideDialog();
             finalizePayrollRun(payrollRun.id);
@@ -368,9 +363,8 @@ const PayrollRunItemAction = ({
         break;
       case 'withdraw':
         showDialog({
-          title: 'Withdraw Submission',
-          content:
-            'This puts the run back to Draft so it can be corrected before re-submitting. Continue?',
+          title: common.actions.withdrawTitle,
+          content: common.actions.withdrawContent,
           onYes: () => {
             hideDialog();
             withdrawPayrollRun();
@@ -380,7 +374,7 @@ const PayrollRunItemAction = ({
         });
         break;
       case 'export':
-        enqueueSnackbar('Export started', { variant: 'info' });
+        enqueueSnackbar(t.exportStarted, { variant: 'info' });
         break;
       default:
         break;
@@ -391,14 +385,14 @@ const PayrollRunItemAction = ({
     <>
       {(isSubmitting || isApproving) && <LinearProgress />}
 
-      <Tooltip title='Preview Salary Sheet'>
+      <Tooltip title={dictionary.tooltips.previewSalarySheet}>
         <IconButton size='small' onClick={() => handleItemAction('preview')}>
           <PreviewOutlined color='primary' />
         </IconButton>
       </Tooltip>
 
       {isDraft && (
-        <Tooltip title='Delete'>
+        <Tooltip title={dictionary.tooltips.delete}>
           <IconButton size='small' onClick={() => handleItemAction('delete')}>
             <DeleteOutlined color='error' />
           </IconButton>
@@ -406,7 +400,7 @@ const PayrollRunItemAction = ({
       )}
 
       {!isFromPayrollPeriodsList && canWithdraw && (
-        <Tooltip title='Withdraw Submission'>
+        <Tooltip title={dictionary.tooltips.withdrawSubmission}>
           <IconButton
             size='small'
             color='warning'
@@ -419,7 +413,7 @@ const PayrollRunItemAction = ({
       )}
 
       {!isFromPayrollPeriodsList && isSubmitted && (
-        <Tooltip title={hasApprovalChain ? 'Approve Level' : 'Approve'}>
+        <Tooltip title={hasApprovalChain ? t.approveLevel : t.approve}>
           <IconButton
             size='small'
             onClick={() =>
@@ -435,7 +429,7 @@ const PayrollRunItemAction = ({
         (isPosted || isPartiallyPaid) &&
         !isPaid &&
         canPayApprovedPayroll && (
-        <Tooltip title='Pay Employees'>
+        <Tooltip title={dictionary.tooltips.payEmployees}>
           <IconButton size='small' color='success' onClick={() => setOpenPayDialog(true)}>
             <FontAwesomeIcon icon={faMoneyBill1} size='lg' />
           </IconButton>
@@ -445,7 +439,7 @@ const PayrollRunItemAction = ({
       {!isFromPayrollPeriodsList &&
         (isPosted || isPartiallyPaid || isPaid) &&
         canPayApprovedPayroll && (
-          <Tooltip title='Pay Payables'>
+          <Tooltip title={dictionary.tooltips.payPayables}>
             <IconButton
               size='small'
               color='secondary'
@@ -458,7 +452,7 @@ const PayrollRunItemAction = ({
 
       {!isFromPayrollPeriodsList &&
         (isPaid || isPartiallyPaid || isPosted || isApproved) && (
-        <Tooltip title='Export Payslip'>
+        <Tooltip title={dictionary.tooltips.exportPayslip}>
           <IconButton size='small' onClick={() => handleItemAction('export')}>
             <DownloadOutlined color='primary' />
           </IconButton>
@@ -474,29 +468,31 @@ const PayrollRunItemAction = ({
         fullScreen={belowLargeScreen}
         scroll={belowLargeScreen ? 'body' : 'paper'}
       >
-        <DialogTitle>Payroll Approval</DialogTitle>
+        <DialogTitle>{t.dialogTitle}</DialogTitle>
         <DialogContent>
           <Stack spacing={2} mt={1}>
             <Alert severity='info'>
-              Pending level:{' '}
-              {getPendingPayrollLevel(payrollRun)?.name ||
-                getPendingPayrollLevel(payrollRun)?.level_name ||
-                'Next level'}
+              {t.pendingLevel.replace(
+                '{name}',
+                getPendingPayrollLevel(payrollRun)?.name ||
+                  getPendingPayrollLevel(payrollRun)?.level_name ||
+                  t.nextLevel
+              )}
             </Alert>
             <TextField
               select
               SelectProps={{ native: true }}
-              label='Decision'
+              label={t.decision}
               size='small'
               value={chainStatus}
               onChange={(event) => setChainStatus(event.target.value as any)}
             >
-              <option value='approved'>Approved</option>
-              <option value='rejected'>Rejected</option>
-              <option value='on hold'>On Hold</option>
+              <option value='approved'>{t.approved}</option>
+              <option value='rejected'>{t.rejected}</option>
+              <option value='on hold'>{t.onHold}</option>
             </TextField>
             <TextField
-              label='Remarks'
+              label={t.remarks}
               size='small'
               multiline
               minRows={2}
@@ -504,8 +500,8 @@ const PayrollRunItemAction = ({
               onChange={(event) => setChainRemarks(event.target.value)}
               helperText={
                 chainStatus === 'approved'
-                  ? 'Optional for approvals'
-                  : 'Required unless approving'
+                  ? t.optionalForApprovals
+                  : t.requiredUnlessApproving
               }
             />
           </Stack>
@@ -515,7 +511,7 @@ const PayrollRunItemAction = ({
             onClick={() => setOpenChainApprovalDialog(false)}
             disabled={isApprovingChain}
           >
-            Cancel
+            {t.cancel}
           </Button>
           <Button
             variant='contained'
@@ -524,7 +520,7 @@ const PayrollRunItemAction = ({
               isApprovingChain || !getPendingPayrollLevel(payrollRun)?.id
             }
           >
-            Save Decision
+            {t.saveDecision}
           </Button>
         </DialogActions>
       </Dialog>
@@ -539,20 +535,19 @@ const PayrollRunItemAction = ({
         scroll={belowLargeScreen ? 'body' : 'paper'}
       >
         <DialogTitle sx={{ textAlign: 'center' }}>
-          Post Payroll Transactions
+          {t.postTitle}
         </DialogTitle>
         <DialogContent>
           <Stack spacing={2} mt={1}>
             <Typography variant='body2' color='text.secondary'>
-              Posting records payroll in the general ledger. It does not pay
-              employees yet.
+              {t.postInfo}
             </Typography>
             <LedgerSelect
-              label='Salary Expense Account (fallback)'
+              label={t.salaryExpenseAccount}
               allowedGroups={['Expenses']}
               startAdornment={
                 <Tooltip
-                  title="Used as the debit account for basic salary and allowances only when no more specific account is mapped — a department's own Salary Expense Account, if set, is used instead; likewise an Allowance Type's own Expense Account, if set, overrides this for that allowance."
+                  title={dictionary.tooltips.usedAsTheDebitAccountFor}
                   arrow
                 >
                   <InfoOutlined fontSize='small' color='action' sx={{ cursor: 'help' }} />
@@ -566,7 +561,7 @@ const PayrollRunItemAction = ({
               }
             />
             <LedgerSelect
-              label='PAYE Payable Account'
+              label={t.payeAccount}
               allowedGroups={['Liabilities']}
               onChange={(ledger: any) =>
                 setPostForm((state) => ({
@@ -576,7 +571,7 @@ const PayrollRunItemAction = ({
               }
             />
             <LedgerSelect
-              label='Fallback Employee Payable Account'
+              label={t.fallbackPayableAccount}
               allowedGroups={['Liabilities']}
               onChange={(ledger: any) =>
                 setPostForm((state) => ({
@@ -586,7 +581,7 @@ const PayrollRunItemAction = ({
               }
             />
             <DateTimePicker
-              label='Transaction Date & Time'
+              label={t.transactionDate}
               value={
                 postForm.transaction_date
                   ? dayjs(postForm.transaction_date)
@@ -606,7 +601,7 @@ const PayrollRunItemAction = ({
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenPostDialog(false)} disabled={isPosting}>
-            Cancel
+            {t.cancel}
           </Button>
           <Button
             variant='contained'
@@ -618,7 +613,7 @@ const PayrollRunItemAction = ({
               !postForm.fallback_payable_ledger_id
             }
           >
-            Post
+            {t.post}
           </Button>
         </DialogActions>
       </Dialog>

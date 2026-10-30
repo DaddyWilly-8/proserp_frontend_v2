@@ -47,6 +47,7 @@ import EmployeeProfileProvider, {
 import EmployeesContracts from './employeesContracts/EmployeesContracts';
 import NextOfKins from './nextOfKins/NextOfKins';
 import PersonalInfoTab from './PersonalInfoTab';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 type TabKey =
   | 'personalInfo'
@@ -85,6 +86,7 @@ const formatEmploymentType = (employmentType?: string | null) => {
 };
 
 function ProfileContent() {
+  const dictionary = useDictionary();
   const { employee, reFetchEmployee } = useEmployeeProfile();
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
@@ -116,11 +118,15 @@ function ProfileContent() {
     mutationFn: humanResourcesServices.deleteEmployee,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['employees'] });
-      enqueueSnackbar('Employee deleted successfully', { variant: 'success' });
+      enqueueSnackbar(dictionary.humanResources.employees.profile.messages.deleted, {
+        variant: 'success',
+      });
       router.push(`/${lang}/humanResources/employees`);
     },
     onError: () => {
-      enqueueSnackbar('Error deleting employee', { variant: 'error' });
+      enqueueSnackbar(dictionary.humanResources.employees.profile.messages.deleteError, {
+        variant: 'error',
+      });
     },
   });
 
@@ -132,7 +138,9 @@ function ProfileContent() {
         setOpenEditDialog(true);
       },
       onError: () => {
-        enqueueSnackbar('Error loading employee details', { variant: 'error' });
+        enqueueSnackbar(dictionary.humanResources.employees.profile.messages.loadError, {
+          variant: 'error',
+        });
       },
     });
 
@@ -143,8 +151,8 @@ function ProfileContent() {
   const handleDelete = () => {
     if (!employee) return;
     showDialog({
-      title: 'Delete Employee',
-      content: 'Are you sure you want to delete this employee?',
+      title: dictionary.humanResources.employees.profile.dialogs.deleteTitle,
+      content: dictionary.humanResources.employees.profile.dialogs.deleteContent,
       onYes: () => {
         hideDialog();
         deleteEmployee(employee.id);
@@ -165,7 +173,10 @@ function ProfileContent() {
     ? `${employee.first_name ?? ''} ${employee.middle_name ?? ''} ${employee.last_name ?? ''}`.trim()
     : '';
 
-  const empTypeBadge = formatEmploymentType(employee?.employment_type);
+  const empTypeBadge =
+    ((dictionary.humanResources.employees.employmentTypes as Record<string, string>)?.[employee?.employment_type as string] as
+      | string
+      | undefined) || formatEmploymentType(employee?.employment_type);
 
   const renderTabContent = useMemo(() => {
     if (!employeeId) {
@@ -213,7 +224,7 @@ function ProfileContent() {
         return (
           <AttachmentForm
             hideFeatures
-            attachment_name='Employee'
+            attachment_name={dictionary.humanResources.employees.profile.attachmentName}
             attachment_sourceNo={
               employee?.employee_number || String(employeeId)
             }
@@ -224,7 +235,7 @@ function ProfileContent() {
       default:
         return null;
     }
-  }, [activeTab, employee?.employee_number, employeeId]);
+  }, [activeTab, employee?.employee_number, employeeId, dictionary]);
 
   return (
     <>
@@ -284,7 +295,7 @@ function ProfileContent() {
               </Typography>
               {employee?.manager && (
                 <Typography variant='body2' color='text.secondary'>
-                  {'Reports to: '}
+                  {`${dictionary.humanResources.employees.profile.reportsTo}: `}
                   <Typography
                     component='span'
                     variant='body2'
@@ -311,13 +322,16 @@ function ProfileContent() {
                 )}
                 {employee?.join_date && (
                   <Typography variant='body2' color='text.secondary'>
-                    Joined {readableDate(employee.join_date, false)}
+                    {dictionary.humanResources.employees.profile.joinedOn.replace(
+                      '{date}',
+                      readableDate(employee.join_date, false)
+                    )}
                   </Typography>
                 )}
               </Stack>
             </Stack>
             <Stack direction='row' spacing={1}>
-              <Tooltip title='Edit Employee'>
+              <Tooltip title={dictionary.tooltips.editEmployee}>
                 <Button
                   size='small'
                   variant='outlined'
@@ -331,17 +345,17 @@ function ProfileContent() {
                   disabled={isLoadingEditEmployee}
                   onClick={handleEdit}
                 >
-                  Edit
+                  {dictionary.humanResources.employees.profile.buttons.edit}
                 </Button>
               </Tooltip>
-              <Tooltip title='Delete Employee'>
+              <Tooltip title={dictionary.tooltips.deleteEmployee}>
                 <Button
                   size='small'
                   variant='outlined'
                   color='error'
                   onClick={handleDelete}
                 >
-                  Delete
+                  {dictionary.humanResources.employees.profile.buttons.delete}
                 </Button>
               </Tooltip>
             </Stack>
@@ -357,20 +371,32 @@ function ProfileContent() {
               scrollButtons='auto'
               allowScrollButtonsMobile
             >
-              <Tab label='Personal Info' value='personalInfo' />
-              <Tab label='Contracts' value='contracts' />
-              <Tab label='Bank Accounts' value='bankAccounts' />
-              <Tab label='Next of Kin' value='nextOfKin' />
-              <Tab label='Allowances' value='allowances' />
-              <Tab label='Deductions' value='deductions' />
               <Tab
-                label='Employer Contributions'
+                label={dictionary.humanResources.employees.profile.tabs.personalInfo}
+                value='personalInfo'
+              />
+              <Tab label={dictionary.humanResources.employees.profile.tabs.contracts} value='contracts' />
+              <Tab
+                label={dictionary.humanResources.employees.profile.tabs.bankAccounts}
+                value='bankAccounts'
+              />
+              <Tab label={dictionary.humanResources.employees.profile.tabs.nextOfKin} value='nextOfKin' />
+              <Tab label={dictionary.humanResources.employees.profile.tabs.allowances} value='allowances' />
+              <Tab label={dictionary.humanResources.employees.profile.tabs.deductions} value='deductions' />
+              <Tab
+                label={dictionary.humanResources.employees.profile.tabs.employerContributions}
                 value='employerContributions'
               />
-              <Tab label='Leave' value='leave' />
-              <Tab label='Attachments' value='attachments' />
-              <Tab label='Movements' value='movements' />
-              <Tab label='Salary History' value='salaryHistory' />
+              <Tab label={dictionary.humanResources.employees.profile.tabs.leave} value='leave' />
+              <Tab
+                label={dictionary.humanResources.employees.profile.tabs.attachments}
+                value='attachments'
+              />
+              <Tab label={dictionary.humanResources.employees.profile.tabs.movements} value='movements' />
+              <Tab
+                label={dictionary.humanResources.employees.profile.tabs.salaryHistory}
+                value='salaryHistory'
+              />
             </Tabs>
 
             {renderTabContent}

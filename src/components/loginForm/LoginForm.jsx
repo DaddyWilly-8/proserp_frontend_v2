@@ -138,7 +138,7 @@ const LoginForm = () => {
       setLoading(false);
       enqueueSnackbar(
         dictionary.signin.form.messages.loginError ||
-          'Login failed. Please try again.',
+          dictionary.forms.signin.loginFailed,
         { variant: 'error' }
       );
       console.error('Login error:', error);
@@ -214,7 +214,7 @@ const LoginForm = () => {
                 <InputAdornment position='end'>
                   <IconButton
                     aria-label={
-                      values.showPassword ? 'Hide password' : 'Show password'
+                      values.showPassword ? dictionary.forms.signin.hidePassword : dictionary.forms.signin.showPassword
                     }
                     onClick={handleClickShowPassword}
                     edge='end'

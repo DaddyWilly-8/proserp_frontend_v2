@@ -44,6 +44,7 @@ import ProductionOutputReportPdf from './ProductionOutputReportPdf';
 import productionReportsServices, {
   OutputReportResponse,
 } from './productionReportsServices';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const formatCurrency = (value: number | string): string =>
   Number(value || 0).toLocaleString(undefined, {
@@ -120,6 +121,8 @@ function OutputReportDialog({
   authOrganization,
   user,
 }: OutputReportDialogProps): JSX.Element {
+  const dictionary = useDictionary();
+  const dict = dictionary.reports.productionReports;
   const [isExporting, setIsExporting] = useState(false);
 
   const exportedData = {
@@ -153,7 +156,7 @@ function OutputReportDialog({
   return (
     <Dialog maxWidth='md' fullWidth open={open}>
       <DialogTitle>
-        <Typography variant='body2'>Product Output Report</Typography>
+        <Typography variant='body2'>{dict.productOutputReport}</Typography>
       </DialogTitle>
       <DialogContent>{document}</DialogContent>
       <DialogActions>
@@ -168,7 +171,7 @@ function OutputReportDialog({
           <FontAwesomeIcon icon={faFileExcel} color='green' /> Excel
         </LoadingButton>
         <Button size='small' variant='outlined' onClick={() => setOpen(false)}>
-          Close
+          {dict.close}
         </Button>
       </DialogActions>
     </Dialog>
@@ -197,6 +200,8 @@ const OutputReport: FC<OutputReportProps> = ({
   lightColor,
   isDark,
 }): JSX.Element => {
+  const dictionary = useDictionary();
+  const dict = dictionary.reports.productionReports;
   const { authOrganization, authUser } = useJumboAuth();
   const user = authUser?.user;
   const theme = useTheme();
@@ -218,7 +223,7 @@ const OutputReport: FC<OutputReportProps> = ({
   if (isLoading) {
     return (
       <Box sx={{ py: 6 }}>
-        <Typography align='center'>Loading output report...</Typography>
+        <Typography align='center'>{dict.loadingOutputReport}</Typography>
       </Box>
     );
   }
@@ -242,7 +247,7 @@ const OutputReport: FC<OutputReportProps> = ({
         >
           <Box></Box>
           <Stack direction='row' spacing={1}>
-            <Tooltip title='Preview'>
+            <Tooltip title={dictionary.tooltips.preview}>
               <IconButton size='small' onClick={() => setOpenOutput(true)}>
                 <VisibilityOutlined />
               </IconButton>
@@ -253,21 +258,21 @@ const OutputReport: FC<OutputReportProps> = ({
         <Grid container spacing={2}>
           <Grid size={{ xs: 12, md: 4 }}>
             <SummaryCard
-              label='Total Batches'
+              label={dict.totalBatches}
               value={report.summary?.total_batches ?? 0}
               accentColor={headerColor}
             />
           </Grid>
           <Grid size={{ xs: 12, md: 4 }}>
             <SummaryCard
-              label='Total Output Value'
+              label={dict.totalOutputValue}
               value={formatCurrency(report.summary?.total_output_value)}
               accentColor={headerColor}
             />
           </Grid>
           <Grid size={{ xs: 12, md: 4 }}>
             <SummaryCard
-              label='By-Product Value'
+              label={dict.byProductValue}
               value={formatCurrency(report.summary?.total_by_product_value)}
               accentColor={headerColor}
             />
@@ -322,9 +327,9 @@ const OutputReport: FC<OutputReportProps> = ({
               sx={{ width: '100%', pr: 1, ml: 2 }}
               justifyContent='space-between'
             >
-              <Typography fontWeight={700}>Product Summary</Typography>
+              <Typography fontWeight={700}>{dict.productSummary}</Typography>
               <Chip
-                label={`${report.summary?.products?.length || 0} products`}
+                label={dict.productsCount.replace('{count}', String(report.summary?.products?.length || 0))}
                 size='small'
               />
             </Stack>
@@ -339,34 +344,34 @@ const OutputReport: FC<OutputReportProps> = ({
                 <TableHead>
                   <TableRow sx={{ backgroundColor: headerColor }}>
                     <TableCell sx={{ color: contrastText, fontWeight: 700 }}>
-                      Finished Product
+                      {dict.finishedProduct}
                     </TableCell>
                     <TableCell sx={{ color: contrastText, fontWeight: 700 }}>
-                      Unit
+                      {dict.unit}
                     </TableCell>
                     <TableCell
                       align='right'
                       sx={{ color: contrastText, fontWeight: 700 }}
                     >
-                      Qty Produced
+                      {dict.qtyProduced}
                     </TableCell>
                     <TableCell
                       align='right'
                       sx={{ color: contrastText, fontWeight: 700 }}
                     >
-                      Avg Unit Cost
+                      {dict.avgUnitCost}
                     </TableCell>
                     <TableCell
                       align='right'
                       sx={{ color: contrastText, fontWeight: 700 }}
                     >
-                      Total Value
+                      {dict.totalValue}
                     </TableCell>
                     <TableCell
                       align='right'
                       sx={{ color: contrastText, fontWeight: 700 }}
                     >
-                      Batches
+                      {dict.batches}
                     </TableCell>
                   </TableRow>
                 </TableHead>
@@ -460,20 +465,20 @@ const OutputReport: FC<OutputReportProps> = ({
                       <Grid container spacing={1}>
                         <Grid size={6}>
                           <MobileDetailItem
-                            label='Start Date'
+                            label={dict.startDate}
                             value={readableDate(batch.start_date, true)}
                           />
                         </Grid>
                         <Grid size={6}>
                           <MobileDetailItem
-                            label='End Date'
+                            label={dict.endDate}
                             value={readableDate(batch.end_date, true)}
                           />
                         </Grid>
                         <Grid size={12}>
                           <Stack spacing={0.25}>
                             <Typography variant='caption' color='text.secondary'>
-                              Work Center
+                              {dict.workCenter}
                             </Typography>
                             <Typography variant='body2' fontWeight={600}>
                               {batch.work_center?.name}
@@ -485,13 +490,13 @@ const OutputReport: FC<OutputReportProps> = ({
                         </Grid>
                         <Grid size={6}>
                           <MobileDetailItem
-                            label='Output Value'
+                            label={dict.outputValue}
                             value={formatCurrency(batch.total_output_value)}
                           />
                         </Grid>
                         <Grid size={6}>
                           <MobileDetailItem
-                            label='By-Product Value'
+                            label={dict.byProductValue}
                             value={formatCurrency(batch.total_by_product_value)}
                           />
                         </Grid>
@@ -553,7 +558,7 @@ const OutputReport: FC<OutputReportProps> = ({
                                     mb: 1,
                                   }}
                                 >
-                                  Outputs
+                                  {dict.outputs}
                                 </Typography>
                                 {isXs ? (
                                   <Stack spacing={1.5}>
@@ -567,31 +572,31 @@ const OutputReport: FC<OutputReportProps> = ({
                                             <Grid container spacing={1}>
                                               <Grid size={6}>
                                                 <MobileDetailItem
-                                                  label='Unit'
+                                                  label={dict.unit}
                                                   value={output.measurement_unit?.symbol || '-'}
                                                 />
                                               </Grid>
                                               <Grid size={6}>
                                                 <MobileDetailItem
-                                                  label='Qty'
+                                                  label={dict.qty}
                                                   value={formatQuantity(output.quantity)}
                                                 />
                                               </Grid>
                                               <Grid size={6}>
                                                 <MobileDetailItem
-                                                  label='Unit Cost'
+                                                  label={dict.unitCost}
                                                   value={formatUnitCost(output.unit_cost)}
                                                 />
                                               </Grid>
                                               <Grid size={6}>
                                                 <MobileDetailItem
-                                                  label='Value %'
+                                                  label={dict.valuePercent}
                                                   value={formatQuantity(output.value_percentage)}
                                                 />
                                               </Grid>
                                               <Grid size={12}>
                                                 <MobileDetailItem
-                                                  label='Total Value'
+                                                  label={dict.totalValue}
                                                   value={formatCurrency(output.total_value)}
                                                 />
                                               </Grid>
@@ -610,17 +615,17 @@ const OutputReport: FC<OutputReportProps> = ({
                                     <Table size='small' sx={{ minWidth: 680 }}>
                                       <TableHead>
                                         <TableRow>
-                                          <TableCell>Product</TableCell>
-                                          <TableCell>Unit</TableCell>
-                                          <TableCell align='right'>Qty</TableCell>
+                                          <TableCell>{dict.product}</TableCell>
+                                          <TableCell>{dict.unit}</TableCell>
+                                          <TableCell align='right'>{dict.qty}</TableCell>
                                           <TableCell align='right'>
-                                            Unit Cost
+                                            {dict.unitCost}
                                           </TableCell>
                                           <TableCell align='right'>
-                                            Total Value
+                                            {dict.totalValue}
                                           </TableCell>
                                           <TableCell align='right'>
-                                            Value %
+                                            {dict.valuePercent}
                                           </TableCell>
                                         </TableRow>
                                       </TableHead>
@@ -664,7 +669,7 @@ const OutputReport: FC<OutputReportProps> = ({
                                     mb: 1,
                                   }}
                                 >
-                                  By-Products
+                                  {dict.byProducts}
                                 </Typography>
                                 {(batch.by_products || []).length ? (
                                   isXs ? (
@@ -679,7 +684,7 @@ const OutputReport: FC<OutputReportProps> = ({
                                               <Grid container spacing={1}>
                                                 <Grid size={6}>
                                                   <MobileDetailItem
-                                                    label='Unit'
+                                                    label={dict.unit}
                                                     value={
                                                       byProduct.measurement_unit
                                                         ?.symbol || '-'
@@ -688,19 +693,19 @@ const OutputReport: FC<OutputReportProps> = ({
                                                 </Grid>
                                                 <Grid size={6}>
                                                   <MobileDetailItem
-                                                    label='Qty'
+                                                    label={dict.qty}
                                                     value={formatQuantity(byProduct.quantity)}
                                                   />
                                                 </Grid>
                                                 <Grid size={12}>
                                                   <MobileDetailItem
-                                                    label='Market Value / Unit'
+                                                    label={dict.marketValuePerUnit}
                                                     value={formatCurrency(byProduct.market_value_per_unit)}
                                                   />
                                                 </Grid>
                                                 <Grid size={12}>
                                                   <MobileDetailItem
-                                                    label='Total Market Value'
+                                                    label={dict.totalMarketValue}
                                                     value={formatCurrency(byProduct.total_market_value)}
                                                   />
                                                 </Grid>
@@ -719,16 +724,16 @@ const OutputReport: FC<OutputReportProps> = ({
                                       <Table size='small' sx={{ minWidth: 660 }}>
                                         <TableHead>
                                           <TableRow>
-                                            <TableCell>Product</TableCell>
-                                            <TableCell>Unit</TableCell>
+                                            <TableCell>{dict.product}</TableCell>
+                                            <TableCell>{dict.unit}</TableCell>
                                             <TableCell align='right'>
-                                              Qty
+                                              {dict.qty}
                                             </TableCell>
                                             <TableCell align='right'>
-                                              Market Value / Unit
+                                              {dict.marketValuePerUnit}
                                             </TableCell>
                                             <TableCell align='right'>
-                                              Total Market Value
+                                              {dict.totalMarketValue}
                                             </TableCell>
                                           </TableRow>
                                         </TableHead>
@@ -769,7 +774,7 @@ const OutputReport: FC<OutputReportProps> = ({
                                   )
                                 ) : (
                                   <Alert variant='outlined' severity='info'>
-                                    No by-products recorded for this batch.
+                                    {dict.noByProductsForBatch}
                                   </Alert>
                                 )}
                               </Box>
@@ -799,6 +804,7 @@ const OutputReport: FC<OutputReportProps> = ({
                 reportData={report}
                 organization={authOrganization?.organization}
                 user={user}
+                dictionary={dictionary}
               />
             }
             fileName='productio-output-report'

@@ -16,6 +16,7 @@ import { useState } from 'react';
 import humanResourcesServices from '../humanResourcesServices';
 import { EmployerContributionType } from './EmployerContributionType';
 import EmployerContributionTypeForm from './EmployerContributionTypeForm';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const EditEmployerContributionType = ({
   contributionType,
@@ -55,6 +56,7 @@ const EmployerContributionTypeItemAction = ({
 }: {
   contributionType: EmployerContributionType;
 }) => {
+  const dictionary = useDictionary();
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const { showDialog, hideDialog } = useJumboDialog();
   const { enqueueSnackbar } = useSnackbar();
@@ -68,7 +70,7 @@ const EmployerContributionTypeItemAction = ({
       queryClient.invalidateQueries({
         queryKey: ['employerContributionTypes'],
       });
-      enqueueSnackbar('Employer Contribution Type Deleted Successfully', {
+      enqueueSnackbar(dictionary.humanResources.employerContributionTypes.actions.deleteSuccess, {
         variant: 'success',
       });
     },
@@ -79,11 +81,14 @@ const EmployerContributionTypeItemAction = ({
       // and delete the type, instead of just failing here.
       if (data?.confirm_required) {
         showDialog({
-          title: 'Employer contribution type still in use',
-          content: `${data.message.replace(
-            ' Remove it from their contributions, or confirm to remove it from all of them and delete the type.',
-            ''
-          )} Remove it from all of them and delete the type?`,
+          title: dictionary.humanResources.employerContributionTypes.actions.inUseTitle,
+          content: dictionary.humanResources.employerContributionTypes.actions.inUseContent.replace(
+            '{message}',
+            data.message.replace(
+              ' Remove it from their contributions, or confirm to remove it from all of them and delete the type.',
+              ''
+            )
+          ),
           onYes: () => {
             hideDialog();
             deleteEmployerContributionType({
@@ -97,7 +102,7 @@ const EmployerContributionTypeItemAction = ({
         return;
       }
 
-      let message = 'Something went wrong';
+      let message = dictionary.humanResources.employerContributionTypes.actions.somethingWrong;
 
       if (typeof data?.message === 'string') {
         message = data.message;
@@ -111,12 +116,12 @@ const EmployerContributionTypeItemAction = ({
   const menuItems = [
     {
       icon: <EditOutlined />,
-      title: 'Edit',
+      title: dictionary.humanResources.employerContributionTypes.actions.edit,
       action: 'edit',
     },
     {
       icon: <DeleteOutlined color='error' />,
-      title: 'Delete',
+      title: dictionary.humanResources.employerContributionTypes.actions.delete,
       action: 'delete',
     },
   ];
@@ -128,9 +133,8 @@ const EmployerContributionTypeItemAction = ({
         break;
       case 'delete':
         showDialog({
-          title: 'Confirm Delete',
-          content:
-            'Are you sure you want to delete this Employer Contribution Type?',
+          title: dictionary.humanResources.employerContributionTypes.actions.confirmDeleteTitle,
+          content: dictionary.humanResources.employerContributionTypes.actions.confirmDeleteContent,
           onYes: () => {
             hideDialog();
             deleteEmployerContributionType({ id: contributionType.id });
@@ -161,7 +165,7 @@ const EmployerContributionTypeItemAction = ({
       </Dialog>
       <JumboDdMenu
         icon={
-          <Tooltip title='Actions'>
+          <Tooltip title={dictionary.tooltips.actions}>
             <MoreHorizOutlined fontSize='small' />
           </Tooltip>
         }

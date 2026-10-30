@@ -16,12 +16,14 @@ import humanResourcesServices from '../humanResourcesServices';
 import { PublicHolidaysType } from './PublicHOlidaysType';
 import PublicHolidaysActionTail from './PublicHolidaysActionTail';
 import PublicHolidaysListItem from './PublicHolidaysListItem';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const YEAR_OPTIONS: Array<any> = [];
 let nextYear = dayjs().year() + 1;
 [1, 2, 3, 4].map(() => YEAR_OPTIONS.push(String(nextYear--)));
 
 const PublicHolidays = () => {
+  const dictionary = useDictionary();
   const listRef = useRef<any>(null);
   const [mounted, setMounted] = useState(false);
   const [year, setYear] = useState<string>('');
@@ -43,7 +45,7 @@ const PublicHolidays = () => {
   return (
     <>
       <Typography variant={'h4'} mb={2}>
-        Public Holidays
+        {dictionary.humanResources.publicHolidays.title}
       </Typography>
       <Grid container spacing={2} mb={2} mt={2} justifyContent='center'>
         <Grid size={{ xs: 12, md: 4 }}>
@@ -64,7 +66,7 @@ const PublicHolidays = () => {
               }));
             }}
             renderInput={(inputParams) => (
-              <TextField {...inputParams} label='Select Year' fullWidth />
+              <TextField {...inputParams} label={dictionary.humanResources.publicHolidays.list.selectYear} fullWidth />
             )}
           />
         </Grid>

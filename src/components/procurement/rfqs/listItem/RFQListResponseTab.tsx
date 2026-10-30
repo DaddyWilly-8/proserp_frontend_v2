@@ -42,6 +42,7 @@ import { PERMISSIONS } from '@/utilities/constants/permissions';
 import RFQResponsesForm from './form/RFQResponsesForm';
 import rfqServices from '../rfq-services';
 import { readableDate } from '@/app/helpers/input-sanitization-helpers';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface RFQListResponseTabProps {
   details: any;
@@ -49,6 +50,7 @@ interface RFQListResponseTabProps {
 }
 
 const RFQListResponseTab: React.FC<RFQListResponseTabProps> = ({ details, rfqId }) => {
+  const dictionary = useDictionary();
   const { checkOrganizationPermission } = useJumboAuth();
   const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
@@ -105,7 +107,7 @@ const RFQListResponseTab: React.FC<RFQListResponseTabProps> = ({ details, rfqId 
         <Grid container spacing={2} sx={{ width: '100%', margin: 0 }}>
           <Grid size={12} display="flex" justifyContent="space-between" alignItems="center" sx={{ px: 0 }}>
             <Typography variant="subtitle2" />
-            <Tooltip title="Add Response">
+            <Tooltip title={dictionary.tooltips.addResponse}>
               <IconButton size="small" onClick={() => setOpenResponseForm(true)}>
                 <AddOutlined fontSize="small" />
               </IconButton>
@@ -136,20 +138,20 @@ const RFQListResponseTab: React.FC<RFQListResponseTabProps> = ({ details, rfqId 
                         <TableCell>{response.validity_date ? readableDate(response.validity_date, false) : ''}</TableCell>
                         <TableCell align="right">
                           <Stack direction="row" spacing={0.5} justifyContent="flex-end">
-                            <Tooltip title="View Response">
+                            <Tooltip title={dictionary.tooltips.viewResponse}>
                               <IconButton size="small" onClick={() => setViewResponseId(response.id)}>
                                 <VisibilityOutlined fontSize="small" />
                               </IconButton>
                             </Tooltip>
                             {canEdit && !response.has_purchase_orders && (
-                              <Tooltip title="Edit Response">
+                              <Tooltip title={dictionary.tooltips.editResponse}>
                                 <IconButton size="small" onClick={() => setEditResponseId(response.id)}>
                                   <EditOutlined fontSize="small" />
                                 </IconButton>
                               </Tooltip>
                             )}
                             {canDelete && !response.has_purchase_orders && (
-                              <Tooltip title="Delete Response">
+                              <Tooltip title={dictionary.tooltips.deleteResponse}>
                                 <IconButton
                                   size="small"
                                   color="error"
@@ -160,7 +162,7 @@ const RFQListResponseTab: React.FC<RFQListResponseTabProps> = ({ details, rfqId 
                               </Tooltip>
                             )}
                             {response.has_purchase_orders && (
-                              <Tooltip title="This response has already been used to create a Purchase Order">
+                              <Tooltip title={dictionary.tooltips.thisResponseHasAlreadyBeenUsed}>
                                 <Chip label="Ordered" size="small" color="success" variant="outlined" />
                               </Tooltip>
                             )}

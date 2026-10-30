@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useMemo, useState, useCallback } from 'react';
 import {
   Alert,
   Button,
@@ -39,6 +39,7 @@ import { RFQItem } from '../../rfq-types';
 import rfqServices from '../../rfq-services';
 import { Restore } from '@mui/icons-material';
 import StakeholderSelectProvider from '@/components/masters/stakeholders/StakeholderSelectProvider';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface RFQResponsesFormProps {
   toggleOpen: (open: boolean) => void;
@@ -80,17 +81,20 @@ interface Stakeholder {
   sent_at?: string | null;
 }
 
-const validationSchema = yup.object({
-  response_date: yup.mixed().required('Response date is required').nullable(),
-  validity_date: yup.mixed().nullable(),
-  stakeholder_id: yup.number().required('Supplier is required').typeError('Supplier is required'),
-  currency_id: yup.number().required('Currency is required').typeError('Currency is required'),
-  exchange_rate: yup.number().when('currency_id', {
-    is: (val: number) => val > 1,
-    then: (schema) => schema.required('Exchange rate is required').positive('Exchange rate must be positive'),
-    otherwise: (schema) => schema.nullable(),
-  }),
-});
+const getValidationSchema = (dictionary: any) => {
+  const v = dictionary.forms.rfqs.response.validation;
+  return yup.object({
+    response_date: yup.mixed().required(v.responseDate).nullable(),
+    validity_date: yup.mixed().nullable(),
+    stakeholder_id: yup.number().required(v.supplier).typeError(v.supplier),
+    currency_id: yup.number().required(v.currency).typeError(v.currency),
+    exchange_rate: yup.number().when('currency_id', {
+      is: (val: number) => val > 1,
+      then: (schema) => schema.required(v.exchangeRate).positive(v.exchangeRatePositive),
+      otherwise: (schema) => schema.nullable(),
+    }),
+  });
+};
 
 function RFQResponsesFormContent({ 
   toggleOpen, 
@@ -101,6 +105,11 @@ function RFQResponsesFormContent({
   response,
   onSuccess 
 }: RFQResponsesFormProps) {
+  const dictionary = useDictionary();
+  const validationSchema = useMemo(
+    () => getValidationSchema(dictionary),
+    [dictionary]
+  );
   const queryClient = useQueryClient();
   const { enqueueSnackbar } = useSnackbar();
   const [serverError, setServerError] = useState<string | null>(null);
@@ -173,7 +182,7 @@ function RFQResponsesFormContent({
   const addMutation = useMutation({
     mutationFn: (payload: any) => rfqServices.addResponse(rfqId, payload),
     onSuccess: (data) => {
-      enqueueSnackbar(data?.message || 'RFQ response saved successfully', { variant: 'success' });
+      enqueueSnackbar(data?.message || dictionary.forms.rfqs.response.messages.saved, { variant: 'success' });
       queryClient.invalidateQueries({ queryKey: ['rfqDetails', rfqId] });
       queryClient.invalidateQueries({ queryKey: ['rfqDetails'] });
       queryClient.invalidateQueries({ queryKey: ['rfqs'] });
@@ -182,15 +191,15 @@ function RFQResponsesFormContent({
       if (onSuccess) onSuccess();
     },
     onError: (error: any) => {
-      setServerError(error?.response?.data?.message || 'Please check the information you submitted');
-      enqueueSnackbar(error?.response?.data?.message || 'Please check the information you submitted', { variant: 'error' });
+      setServerError(error?.response?.data?.message || dictionary.forms.rfqs.response.messages.checkInformation);
+      enqueueSnackbar(error?.response?.data?.message || dictionary.forms.rfqs.response.messages.checkInformation, { variant: 'error' });
     },
   });
 
   const updateMutation = useMutation({
     mutationFn: rfqServices.updateResponse,
     onSuccess: (data) => {
-      enqueueSnackbar(data?.message || 'RFQ response updated successfully', { variant: 'success' });
+      enqueueSnackbar(data?.message || dictionary.forms.rfqs.response.messages.updated, { variant: 'success' });
       queryClient.invalidateQueries({ queryKey: ['rfqDetails', rfqId] });
       queryClient.invalidateQueries({ queryKey: ['rfqDetails'] });
       queryClient.invalidateQueries({ queryKey: ['rfqs'] });
@@ -200,8 +209,8 @@ function RFQResponsesFormContent({
       if (onSuccess) onSuccess();
     },
     onError: (error: any) => {
-      setServerError(error?.response?.data?.message || 'Please check the information you submitted');
-      enqueueSnackbar(error?.response?.data?.message || 'Please check the information you submitted', { variant: 'error' });
+      setServerError(error?.response?.data?.message || dictionary.forms.rfqs.response.messages.checkInformation);
+      enqueueSnackbar(error?.response?.data?.message || dictionary.forms.rfqs.response.messages.checkInformation, { variant: 'error' });
     },
   });
 
@@ -212,7 +221,7 @@ function RFQResponsesFormContent({
     
     // Ensure at least one item remains in active list
     if (activeItems.length <= 1) {
-      enqueueSnackbar('At least one item must remain in the response', { variant: 'warning' });
+      enqueueSnackbar(dictionary.forms.rfqs.response.messages.atLeastOneItemRemain, { variant: 'warning' });
       return;
     }
 
@@ -284,7 +293,7 @@ function RFQResponsesFormContent({
       // Add back to responseItems
       setResponseItems((prev) => [...prev, restoredItem]);
       
-      enqueueSnackbar('Item restored successfully', { variant: 'success' });
+      enqueueSnackbar(dictionary.forms.rfqs.response.messages.itemRestored, { variant: 'success' });
       return;
     }
 
@@ -310,7 +319,7 @@ function RFQResponsesFormContent({
       return next;
     });
 
-    enqueueSnackbar('Item restored successfully', { variant: 'success' });
+    enqueueSnackbar(dictionary.forms.rfqs.response.messages.itemRestored, { variant: 'success' });
   };
 
   // Restore all removed items
@@ -355,7 +364,7 @@ function RFQResponsesFormContent({
 
     // Clear removed items
     setRemovedItems([]);
-    enqueueSnackbar(`Restored ${removedItems.length} item(s)`, { variant: 'success' });
+    enqueueSnackbar(dictionary.forms.rfqs.response.messages.itemsRestored.replace('{count}', String(removedItems.length)), { variant: 'success' });
   };
 
   const activeItems = responseItems.filter(item => !item.isRemoved);
@@ -373,7 +382,7 @@ function RFQResponsesFormContent({
       }));
 
     if (itemsToSend.length === 0) {
-      enqueueSnackbar('Please add at least one item with quantity and rate', { variant: 'warning' });
+      enqueueSnackbar(dictionary.forms.rfqs.response.messages.addItemWithQuantityAndRate, { variant: 'warning' });
       return;
     }
 
@@ -453,7 +462,7 @@ function RFQResponsesFormContent({
         <Grid size={{ xs: 12, md: 4 }}>
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <DateTimePicker
-              label="Response Date"
+              label={dictionary.forms.rfqs.response.responseDate}
               value={watch('response_date')}
               onChange={(newValue) => setValue('response_date', newValue, { shouldDirty: true, shouldValidate: true })}
               slotProps={{
@@ -471,7 +480,7 @@ function RFQResponsesFormContent({
         <Grid size={{ xs: 12, md: 4 }}>
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <DateTimePicker
-              label="Validity Date"
+              label={dictionary.forms.rfqs.response.validityDate}
               value={watch('validity_date')}
               minDate={watch('response_date') || dayjs()}
               onChange={(newValue) => setValue('validity_date', newValue, { shouldDirty: true, shouldValidate: true })}
@@ -493,10 +502,10 @@ function RFQResponsesFormContent({
             control={control}
             render={({ field, fieldState }) => (
               <FormControl fullWidth size="small" error={!!fieldState.error}>
-                <InputLabel>Supplier</InputLabel>
+                <InputLabel>{dictionary.forms.rfqs.response.supplier}</InputLabel>
                 <Select
                   {...field}
-                  label="Supplier"
+                  label={dictionary.forms.rfqs.response.supplier}
                   value={field.value || ''}
                   onChange={(e) => {
                     const value = e.target.value as number;
@@ -506,7 +515,7 @@ function RFQResponsesFormContent({
                 >
                   {stakeholders.length === 0 ? (
                     <MenuItem value="" disabled>
-                      No suppliers available
+                      {dictionary.forms.rfqs.response.noSuppliers}
                     </MenuItem>
                   ) : (
                     stakeholders.map((stakeholder) => (
@@ -551,7 +560,7 @@ function RFQResponsesFormContent({
         {watchedCurrencyId > 1 && (
           <Grid size={{ xs: 12, md: 4 }}>
             <TextField
-              label="Exchange Rate"
+              label={dictionary.forms.rfqs.response.exchangeRate}
               fullWidth
               size="small"
               InputProps={{
@@ -572,7 +581,7 @@ function RFQResponsesFormContent({
 
         <Grid size={{ xs: 12, md: watchedCurrencyId > 1 ? 4 : 8 }}>
           <TextField
-            label="Remarks"
+            label={dictionary.forms.rfqs.common.remarks}
             fullWidth
             size="small"
             multiline
@@ -591,7 +600,7 @@ function RFQResponsesFormContent({
         <Grid size={12} display="flex" justifyContent="space-between" alignItems="center">
           <Box display="flex" alignItems="center" gap={1}>
             <Typography variant="h6">
-              RFQ Response Items
+              {dictionary.forms.rfqs.response.itemsHeading}
             </Typography>
           </Box>
         </Grid>
@@ -616,7 +625,7 @@ function RFQResponsesFormContent({
               <Divider sx={{ mb: 2 }} />
               <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
                 <Typography variant="subtitle1" color="text.secondary">
-                  Removed Items ({removedItems.length})
+                  {dictionary.forms.rfqs.response.removedItems.replace('{count}', String(removedItems.length))}
                 </Typography>
                 <Button
                   size="small"
@@ -624,7 +633,7 @@ function RFQResponsesFormContent({
                   onClick={restoreAllItems}
                   variant="text"
                 >
-                  Restore All
+                  {dictionary.forms.rfqs.response.restoreAll}
                 </Button>
               </Box>
               {removedItems.map((item, index) => (
@@ -647,19 +656,21 @@ function RFQResponsesFormContent({
                       {index + 1}.
                     </Typography>
                     <Typography variant="body2">
-                      {item.rfq_item?.product?.name || item.rfq_item?.product?.item_name || 'Item'}
+                      {item.rfq_item?.product?.name || item.rfq_item?.product?.item_name || dictionary.forms.rfqs.response.itemFallback}
                     </Typography>
                     <Typography variant="caption" color="text.secondary">
-                      Required: {item.rfq_item?.quantity || 0} {item.rfq_item?.measurement_unit?.symbol || ''}
+                      {dictionary.forms.rfqs.response.required
+                        .replace('{quantity}', String(item.rfq_item?.quantity || 0))
+                        .replace('{unit}', item.rfq_item?.measurement_unit?.symbol || '')}
                     </Typography>
                     <Chip
-                      label="Removed"
+                      label={dictionary.forms.rfqs.response.removed}
                       size="small"
                       color="error"
                       variant="outlined"
                     />
                   </Box>
-                  <Tooltip title="Restore this item">
+                  <Tooltip title={dictionary.tooltips.restoreThisItem}>
                     <IconButton
                       size="small"
                       onClick={() => restoreItem(index)}
@@ -677,7 +688,7 @@ function RFQResponsesFormContent({
         {activeItems.length === 0 && (
           <Grid size={12}>
             <Alert severity="warning" sx={{ mt: 1 }}>
-              All items have been removed. Please restore at least one item to submit the response.
+              {dictionary.forms.rfqs.response.allItemsRemoved}
             </Alert>
           </Grid>
         )}
@@ -686,7 +697,7 @@ function RFQResponsesFormContent({
       <Grid container justifyContent="space-between" mt={2}>
         <Grid size={12} display="flex" justifyContent="flex-end" gap={1} mt={1}>
           <Button size="small" onClick={() => toggleOpen(false)}>
-            Cancel
+            {dictionary.forms.rfqs.common.cancel}
           </Button>
           <LoadingButton 
             loading={loading} 
@@ -695,7 +706,7 @@ function RFQResponsesFormContent({
             onClick={handleSave}
             disabled={!hasItemsWithValues || activeItems.length === 0}
           >
-            {isEditMode ? 'Update Response' : 'Submit Response'}
+            {isEditMode ? dictionary.forms.rfqs.response.updateResponse : dictionary.forms.rfqs.response.submitResponse}
           </LoadingButton>
         </Grid>
       </Grid>
@@ -706,11 +717,12 @@ function RFQResponsesFormContent({
 }
 
 function RFQResponsesForm({ toggleOpen, rfqDetails, rfqId, subContract, preselectedStakeholder, response, onSuccess }: RFQResponsesFormProps) {
+  const dictionary = useDictionary();
   const title = response?.id
-    ? `Edit RFQ Response - ${response?.stakeholder?.name || ''}`
+    ? dictionary.forms.rfqs.response.titleEdit.replace('{name}', response?.stakeholder?.name || '')
     : preselectedStakeholder?.name
-    ? `New RFQ Response - ${preselectedStakeholder.name}`
-    : 'New RFQ Response';
+    ? dictionary.forms.rfqs.response.titleNewFor.replace('{name}', preselectedStakeholder.name)
+    : dictionary.forms.rfqs.response.titleNew;
 
   return (
     <>

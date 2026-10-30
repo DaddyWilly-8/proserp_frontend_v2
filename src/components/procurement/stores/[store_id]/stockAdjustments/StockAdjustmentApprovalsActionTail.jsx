@@ -9,8 +9,10 @@ import { useState } from 'react';
 import StockAdjustmentApprovalDialog, {
   getNextPendingStockAdjustmentApprovalLevel,
 } from './StockAdjustmentApprovalDialog';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const StockAdjustmentApprovalsActionTail = ({ stockAdjustment }) => {
+  const dictionary = useDictionary();
   const [openDialog, setOpenDialog] = useState(false);
   const { hasOrganizationRole, checkOrganizationPermission } = useJumboAuth();
   const { theme } = useJumboTheme();
@@ -47,7 +49,7 @@ const StockAdjustmentApprovalsActionTail = ({ stockAdjustment }) => {
           disableElevation
           sx={{ '& .MuiButton-root': { px: 1 } }}
         >
-          <Tooltip title='Approve Stock Adjustment'>
+          <Tooltip title={dictionary.tooltips.approveStockAdjustment}>
             <IconButton onClick={() => setOpenDialog(true)}>
               <FactCheckOutlined />
             </IconButton>

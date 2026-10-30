@@ -2,14 +2,16 @@
 import JumboCardQuick from '@jumbo/components/JumboCardQuick';
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 import { Alert, useMediaQuery } from '@mui/material';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function OrganizationCalendar() {
+  const dictionary = useDictionary();
   const { theme } = useJumboTheme();
   const smallScreen = useMediaQuery(theme.breakpoints.down('md'));
   const midScreen = useMediaQuery(theme.breakpoints.down('lg'));
   return (
     <JumboCardQuick
-      title={'Organization Calendar'}
+      title={dictionary.dashboardCards.organizationCalendar}
       sx={{ height: midScreen ? 360 : null }}
     >
       <Alert variant={'outlined'} severity={'info'}>

@@ -11,10 +11,12 @@ import { LoadingButton } from '@mui/lab';
 import {
   DialogContent,
   DialogTitle,
+  FormControlLabel,
   Grid,
   IconButton,
   LinearProgress,
   Stack,
+  Switch,
   Tooltip,
   Typography,
   useMediaQuery,
@@ -30,24 +32,61 @@ import pdfStyles from '../../../pdf/pdf-styles';
 import PDFContent from '../../../pdf/PDFContent';
 import PdfLogo from '../../../pdf/PdfLogo';
 import financialReportsServices from '../financial-reports-services';
+import {
+  PeriodPdfHeader,
+  PDF_PAGE_STYLE,
+  PeriodPdfRow,
+  hasPeriodActivity,
+  pruneZeroNetTree,
+  periodSubtitle,
+} from '../periodColumns';
 import BalanceSheetOnScreen from './BalanceSheetOnScreen';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
-const ReportDocument = ({ reportData, authOrganization, user }) => {
+// Walks the balance sheet tree into indented rows; a node with visible
+// children is followed by its own "Total" row, as on screen.
+const flattenForPdf = (nodes, level, closingOnly, totalLabel) =>
+  nodes.filter((n) => hasPeriodActivity(n, closingOnly)).flatMap((node) => {
+    const visibleChildren = (node.children ?? []).filter((n) =>
+      hasPeriodActivity(n, closingOnly)
+    );
+    return [
+      { label: node.name, level, node, bold: level === 0, shaded: level === 0 },
+      ...flattenForPdf(visibleChildren, level + 1, closingOnly, totalLabel),
+      ...(visibleChildren.length > 0
+        ? [{ label: `${totalLabel} ${node.name}`, level, node, bold: true, shaded: false }]
+        : []),
+    ];
+  });
+
+const ReportDocument = ({
+  reportData,
+  authOrganization,
+  user,
+  netOnly,
+  closingOnly,
+  dictionary,
+}) => {
+  const t = dictionary.reports.accountsReports;
   const mainColor =
     authOrganization.organization.settings?.main_color || '#2113AD';
   const contrastText =
     authOrganization.organization.settings?.contrast_text || 'black';
   const lightColor =
     authOrganization.organization.settings?.light_color || '#bec5da';
-  const reportPeriod = `As at: ${readableDate(reportData.filters?.as_at, true)}`;
+  const reportPeriod = periodSubtitle(
+    reportData.filters,
+    readableDate,
+    t.common
+  );
 
   return reportData ? (
     <Document
       creator={` ${user.name} | Powered By ProsERP`}
       producer='ProsERP'
-      title={`Balance Sheet ${reportPeriod}`}
+      title={`${t.balanceSheet.title} ${reportPeriod}`}
     >
-      <Page size='A4' style={pdfStyles.page}>
+      <Page size='A4' orientation={closingOnly ? 'portrait' : 'landscape'} style={PDF_PAGE_STYLE}>
         <View style={pdfStyles.table}>
           <View style={{ ...pdfStyles.tableRow, marginBottom: 20 }}>
             <View style={{ flex: 1, maxWidth: 120 }}>
@@ -56,7 +95,9 @@ const ReportDocument = ({ reportData, authOrganization, user }) => {
             <View style={{ flex: 1, textAlign: 'right' }}>
               <Text
                 style={{ ...pdfStyles.majorInfo, color: mainColor }}
-              >{`Balance Sheet`}</Text>
+              >
+                {t.balanceSheet.title}
+              </Text>
               <Text style={{ ...pdfStyles.minInfo }}>{reportPeriod}</Text>
             </View>
           </View>
@@ -64,223 +105,45 @@ const ReportDocument = ({ reportData, authOrganization, user }) => {
         <View style={{ ...pdfStyles.tableRow, marginTop: 10 }}>
           <View style={{ flex: 1, padding: 2 }}>
             <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>
-              Printed By
+              {t.common.printedBy}
             </Text>
             <Text style={{ ...pdfStyles.minInfo }}>{user.name}</Text>
           </View>
           <View style={{ flex: 1, padding: 2 }}>
             <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>
-              Printed On
+              {t.common.printedOn}
             </Text>
             <Text style={{ ...pdfStyles.minInfo }}>
               {readableDate(undefined, true)}
             </Text>
           </View>
         </View>
-        {reportData?.balanceSheetData?.map((ledger_group, index) => {
-          let ledger_group_children = [];
-          let childIndex = 0;
-          ledger_group.children.forEach((child) => {
-            if (child.amount !== 0) {
-              child.id = childIndex;
-              childIndex++;
-              ledger_group_children.push(child);
-            }
-          });
-          return (
-            <View style={{ ...pdfStyles.table, marginTop: 15 }} key={index}>
-              <View style={{ ...pdfStyles.tableRow }}>
-                <View
-                  style={{
-                    ...pdfStyles.tableHeader,
-                    flex: 1,
-                  }}
-                >
-                  <Text style={pdfStyles.tableCellText}>
-                    {ledger_group.name}
-                  </Text>
-                </View>
-              </View>
-              {ledger_group_children?.map((group, index) => {
-                return (
-                  <View
-                    key={index}
-                    style={{ ...pdfStyles.tableRow, marginLeft: 5 }}
-                  >
-                    {group.amount !== 0 && (
-                      <View style={pdfStyles.table}>
-                        {group.children?.length > 0 && ( // header only if have children
-                          <View style={{ ...pdfStyles.tableRow }}>
-                            <View
-                              style={{
-                                ...pdfStyles.tableHeader,
-                                marginTop: 2,
-                                flex: 1,
-                              }}
-                            >
-                              <Text style={{ ...pdfStyles.tableCellText }}>
-                                {group.name}
-                              </Text>
-                            </View>
-                          </View>
-                        )}
-                        {/* child items */}
-                        {group.children?.map((lg, i) => (
-                          <View
-                            key={i}
-                            style={{
-                              ...pdfStyles.tableRow,
-                              marginLeft: 5,
-                              // backgroundColor: i % 2 !== 0 && lightColor,
-                            }}
-                          >
-                            {lg.amount !== 0 && (
-                              <>
-                                <View
-                                  style={{ ...pdfStyles.tableCell, flex: 1 }}
-                                >
-                                  <Text style={{ ...pdfStyles.tableCellText }}>
-                                    {lg.name}
-                                  </Text>
-                                </View>
-                                <View
-                                  style={{ ...pdfStyles.tableCell, flex: 1 }}
-                                >
-                                  <Text
-                                    style={{
-                                      ...pdfStyles.tableCellText,
-                                      textAlign: 'right',
-                                    }}
-                                  >
-                                    {lg.amount?.toLocaleString('en-US', {
-                                      maximumFractionDigits: 2,
-                                      minimumFractionDigits: 2,
-                                    })}
-                                  </Text>
-                                </View>
-                              </>
-                            )}
-                          </View>
-                        ))}
-                        {/* total if group has children */}
-                        {group.children.length > 0 && (
-                          <View
-                            style={{
-                              ...pdfStyles.tableRow,
-                            }}
-                          >
-                            <View
-                              style={{
-                                ...pdfStyles.tableHeader,
-                                flex: 1,
-                              }}
-                            >
-                              <Text style={{ ...pdfStyles.tableCellText }}>
-                                Total {group.name}
-                              </Text>
-                            </View>
-                            <View
-                              style={{
-                                ...pdfStyles.tableHeader,
-                                flex: 1,
-                              }}
-                            >
-                              <Text
-                                style={{
-                                  ...pdfStyles.tableCellText,
-                                  textAlign: 'right',
-                                }}
-                              >
-                                {group.amount?.toLocaleString('en-US', {
-                                  maximumFractionDigits: 2,
-                                  minimumFractionDigits: 2,
-                                })}
-                              </Text>
-                            </View>
-                          </View>
-                        )}
-                        {/* name and amount directly if group has no children */}
-                        {group.children.length === 0 && (
-                          <View
-                            style={{
-                              ...pdfStyles.tableRow,
-                              // backgroundColor: group.id % 2 !== 0 && lightColor,
-                            }}
-                          >
-                            <View style={{ ...pdfStyles.tableCell, flex: 1 }}>
-                              <Text style={{ ...pdfStyles.tableCellText }}>
-                                {group.name}
-                              </Text>
-                            </View>
-                            <View style={{ ...pdfStyles.tableCell, flex: 1 }}>
-                              <Text
-                                style={{
-                                  ...pdfStyles.tableCellText,
-                                  textAlign: 'right',
-                                }}
-                              >
-                                {group.amount?.toLocaleString('en-US', {
-                                  maximumFractionDigits: 2,
-                                  minimumFractionDigits: 2,
-                                })}
-                              </Text>
-                            </View>
-                          </View>
-                        )}
-                      </View>
-                    )}
-                  </View>
-                );
-              })}
-              <View
-                style={{
-                  ...pdfStyles.tableRow,
-                  marginTop: 2,
-                }}
-              >
-                <View style={{ ...pdfStyles.tableHeader, flex: 1.02 }}>
-                  <Text style={pdfStyles.tableCellText}>
-                    Total {ledger_group.name}
-                  </Text>
-                </View>
-                <View style={{ ...pdfStyles.tableHeader, flex: 1 }}>
-                  <Text
-                    style={{ ...pdfStyles.tableCellText, textAlign: 'right' }}
-                  >
-                    {ledger_group.amount?.toLocaleString('en-US', {
-                      maximumFractionDigits: 2,
-                      minimumFractionDigits: 2,
-                    })}
-                  </Text>
-                </View>
-              </View>
-            </View>
-          );
-        })}
-        <View
-          style={{
-            ...pdfStyles.tableRow,
-            marginTop: 5,
-          }}
-        >
-          <View style={{ ...pdfStyles.tableHeader, flex: 1.02 }}>
-            <Text style={pdfStyles.tableCellText}>
-              Total Liabilities and Owner&apos;s Equity
-            </Text>
-          </View>
-          <View style={{ ...pdfStyles.tableHeader, flex: 1 }}>
-            <Text style={{ ...pdfStyles.tableCellText, textAlign: 'right' }}>
-              {reportData?.balanceSheetData
-                ?.filter((ledger_group) => ledger_group.id !== 1)
-                .reduce((total, ledger_group) => {
-                  return total + ledger_group.amount;
-                }, 0)
-                .toLocaleString('en-US', {
-                  maximumFractionDigits: 2,
-                  minimumFractionDigits: 2,
-                })}
-            </Text>
-          </View>
+        <View style={{ ...pdfStyles.table, marginTop: 15 }}>
+          <PeriodPdfHeader netOnly={netOnly} closingOnly={closingOnly}
+            leading={[{ label: t.balanceSheet.category, flex: 3 }]}
+            labels={t.common}
+            mainColor={mainColor}
+            contrastText={contrastText}
+          filters={reportData.filters}
+          />
+          {flattenForPdf(
+            (netOnly
+              ? reportData?.balanceSheetData?.map((n) =>
+                  pruneZeroNetTree(n, closingOnly)
+                )
+              : reportData?.balanceSheetData) ?? [],
+            0,
+            closingOnly,
+            t.common.total
+          ).map((row, index) => (
+            <PeriodPdfRow netOnly={netOnly} closingOnly={closingOnly}
+              key={index}
+              leading={[{ text: row.label, flex: 3, indent: row.level }]}
+              node={row.node}
+              backgroundColor={row.shaded ? lightColor : '#FFFFFF'}
+              bold={row.bold}
+            />
+          ))}
         </View>
       </Page>
     </Document>
@@ -290,7 +153,8 @@ const ReportDocument = ({ reportData, authOrganization, user }) => {
 };
 
 function BalanceSheet({ as_at, setOpenBalanceSheettDialog }) {
-  document.title = 'Balance Sheet';
+  const dictionary = useDictionary();
+  document.title = dictionary.reports.accountsReports.balanceSheet.title;
   const css = useProsERPStyles();
   const [displayAs, setDisplayAs] = useState('on screen');
   const [triggerFetch, setTriggerFetch] = useState(as_at ? true : false);
@@ -305,28 +169,38 @@ function BalanceSheet({ as_at, setOpenBalanceSheettDialog }) {
     React.useState(false);
   const [uploadFieldsKey, setUploadFieldsKey] = useState(0);
   const [showOnScreen, setShowOnScreen] = useState(true);
+  const [netOnly, setNetOnly] = useState(true);
+  const [closingOnly, setClosingOnly] = useState(true);
 
   const { theme } = useJumboTheme();
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
 
   const validationSchema = yup.object({
-    as_at: yup
+    from: yup
       .string()
-      .required('Date is required')
-      .typeError('Date is required'),
+      .required(dictionary.reports.accountsReports.common.fromDateRequired)
+      .typeError(dictionary.reports.accountsReports.common.fromDateRequired),
+    to: yup
+      .string()
+      .required(dictionary.reports.accountsReports.common.toDateRequired)
+      .typeError(dictionary.reports.accountsReports.common.toDateRequired),
   });
 
   const { setValue, handleSubmit, watch } = useForm({
     resolver: yupResolver(validationSchema),
     defaultValues: {
-      as_at: as_at ? dayjs(as_at).toISOString() : dayjs().toISOString(),
+      from: as_at
+        ? dayjs(as_at).startOf('year').toISOString()
+        : dayjs().startOf('year').toISOString(),
+      to: as_at ? dayjs(as_at).toISOString() : dayjs().toISOString(),
     },
   });
 
   const retrieveReport = async (filters) => {
     setisFetching(true);
     const report = await financialReportsServices.balanceSheet({
-      as_at: filters.as_at,
+      from: filters.from,
+      to: filters.to,
       display_as: displayAs,
     });
     setReportData(report);
@@ -339,8 +213,11 @@ function BalanceSheet({ as_at, setOpenBalanceSheettDialog }) {
       setUploadFieldsKey((prevKey) => prevKey + 1);
 
       const responseData = await financialReportsServices.balanceSheet({
-        as_at: watch('as_at'),
+        from: watch('from'),
+        to: watch('to'),
         display_as: 'excel',
+        net_only: netOnly,
+        closing_only: closingOnly,
       });
 
       const blob = new Blob([responseData], {
@@ -349,12 +226,15 @@ function BalanceSheet({ as_at, setOpenBalanceSheettDialog }) {
 
       const link = document.createElement('a');
       link.href = window.URL.createObjectURL(blob);
-      link.download = `Balance Sheet as at ${readableDate(as_at, true)}.xlsx`;
+      link.download = `Balance Sheet ${readableDate(watch('from'), true)} to ${readableDate(watch('to'), true)}.xlsx`;
       link.click();
 
       setIsDownloadingTemplate(false);
     } catch (error) {
-      enqueueSnackbar('Error downloading Excel template', { variant: 'error' });
+      enqueueSnackbar(
+        dictionary.reports.accountsReports.common.excelDownloadError,
+        { variant: 'error' }
+      );
       setIsDownloadingTemplate(false);
     }
   };
@@ -363,7 +243,8 @@ function BalanceSheet({ as_at, setOpenBalanceSheettDialog }) {
     if (as_at && !!triggerFetch) {
       // this if is special to trigger data fetch when dialog opened from Dashboard
       retrieveReport({
-        as_at: as_at,
+        from: watch('from'),
+        to: as_at,
         display_as: 'on screen',
       });
       setTriggerFetch(false);
@@ -373,7 +254,8 @@ function BalanceSheet({ as_at, setOpenBalanceSheettDialog }) {
       (displayAs === 'on screen' || displayAs === 'pdf')
     ) {
       retrieveReport({
-        as_at: watch(`as_at`),
+        from: watch('from'),
+        to: watch('to'),
         display_as: displayAs,
       });
     }
@@ -384,10 +266,12 @@ function BalanceSheet({ as_at, setOpenBalanceSheettDialog }) {
       <DialogTitle textAlign={'center'}>
         <Grid container>
           <Grid size={{ xs: 12 }}>
-            <Typography variant='h3'>Balance Sheet</Typography>
+            <Typography variant='h3'>
+              {dictionary.reports.accountsReports.balanceSheet.title}
+            </Typography>
           </Grid>
           {belowLargeScreen && (
-            <Tooltip title='Close'>
+            <Tooltip title={dictionary.tooltips.close}>
               <IconButton
                 size='small'
                 sx={{ position: 'absolute', top: 10, right: 10 }}
@@ -411,10 +295,37 @@ function BalanceSheet({ as_at, setOpenBalanceSheettDialog }) {
               alignItems='center'
               justifyContent='center'
             >
-              <Grid size={{ xs: 12, md: 4, lg: 6 }}>
+              <Grid size={{ xs: 12, sm: 6, lg: 3 }}>
                 <Div sx={{ mt: 1, mb: 1 }}>
                   <DateTimePicker
-                    label='As at (MM/DD/YYYY)'
+                    label={dictionary.reports.accountsReports.common.from}
+                    defaultValue={as_at ? dayjs(as_at).startOf('year') : dayjs().startOf('year')}
+                    minDate={dayjs(
+                      authOrganization?.organization.recording_start_date
+                    )}
+                    slotProps={{
+                      textField: {
+                        size: 'small',
+                        fullWidth: true,
+                      },
+                    }}
+                    onChange={(newValue) => {
+                      setValue(
+                        'from',
+                        newValue ? newValue.toISOString() : null,
+                        {
+                          shouldValidate: true,
+                          shouldDirty: true,
+                        }
+                      );
+                    }}
+                  />
+                </Div>
+              </Grid>
+              <Grid size={{ xs: 12, sm: 6, lg: 3 }}>
+                <Div sx={{ mt: 1, mb: 1 }}>
+                  <DateTimePicker
+                    label={dictionary.reports.accountsReports.common.to}
                     defaultValue={as_at ? dayjs(as_at) : dayjs()}
                     minDate={dayjs(
                       authOrganization?.organization.recording_start_date
@@ -427,7 +338,7 @@ function BalanceSheet({ as_at, setOpenBalanceSheettDialog }) {
                     }}
                     onChange={(newValue) => {
                       setValue(
-                        'as_at',
+                        'to',
                         newValue ? newValue.toISOString() : null,
                         {
                           shouldValidate: true,
@@ -438,14 +349,49 @@ function BalanceSheet({ as_at, setOpenBalanceSheettDialog }) {
                   />
                 </Div>
               </Grid>
-              <Grid size={{ xs: 12, md: 6, lg: 6 }} textAlign='right'>
-                <Stack
-                  direction='row'
-                  spacing={0.5}
-                  justifyContent='end'
-                  alignItems='center'
-                >
-                  <>
+              <Grid size={{ xs: 12 }}>
+                {/* Options and export buttons share a row; Filter sits below it on the right */}
+                <Stack direction='column' spacing={1} useFlexGap>
+                  <Stack
+                    direction='row'
+                    useFlexGap
+                    flexWrap='wrap'
+                    columnGap={1}
+                    rowGap={0.5}
+                    justifyContent='space-between'
+                    alignItems='center'
+                  >
+                    <Stack
+                      direction='row'
+                      useFlexGap
+                      flexWrap='wrap'
+                      columnGap={1}
+                      rowGap={0.5}
+                      alignItems='center'
+                    >
+                      <FormControlLabel
+                        control={
+                          <Switch
+                            size='small'
+                            checked={netOnly}
+                            onChange={(e) => setNetOnly(e.target.checked)}
+                          />
+                        }
+                        label={dictionary.reports.accountsReports.common.netOnly}
+                        sx={{ mr: 0.5 }}
+                      />
+                      <FormControlLabel
+                        control={
+                          <Switch
+                            size='small'
+                            checked={closingOnly}
+                            onChange={(e) => setClosingOnly(e.target.checked)}
+                          />
+                        }
+                        label={dictionary.reports.accountsReports.common.closingOnly}
+                        sx={{ mr: 0.5 }}
+                      />
+                    </Stack>
                     {reportData && (
                       <FileExportGrid
                         exportExcel
@@ -457,15 +403,17 @@ function BalanceSheet({ as_at, setOpenBalanceSheettDialog }) {
                         }}
                       />
                     )}
+                  </Stack>
+                  <Stack direction='row' justifyContent='flex-end'>
                     <LoadingButton
                       loading={isFetching}
                       type='submit'
                       size='small'
                       variant='contained'
                     >
-                      Filter
+                      {dictionary.reports.accountsReports.common.filter}
                     </LoadingButton>
-                  </>
+                  </Stack>
                 </Stack>
               </Grid>
             </Grid>
@@ -484,12 +432,19 @@ function BalanceSheet({ as_at, setOpenBalanceSheettDialog }) {
                   reportData={reportData}
                   authOrganization={authOrganization}
                   user={user}
+                  netOnly={netOnly}
+                  closingOnly={closingOnly}
+                  dictionary={dictionary}
                 />
               }
-              fileName={`Balance Sheet as of ${readableDate(reportData?.filters?.as_at, true)}`}
+              fileName={`Balance Sheet ${readableDate(reportData?.filters?.from, true)} to ${readableDate(reportData?.filters?.to, true)}`}
             />
           ) : (
-            <BalanceSheetOnScreen reportData={reportData} />
+            <BalanceSheetOnScreen
+              reportData={reportData}
+              netOnly={netOnly}
+              closingOnly={closingOnly}
+            />
           ))
         )}
       </DialogContent>

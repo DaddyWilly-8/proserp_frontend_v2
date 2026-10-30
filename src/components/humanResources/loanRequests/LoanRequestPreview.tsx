@@ -17,6 +17,7 @@ import {
   Stack,
   Typography,
 } from '@mui/material';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 // Inlined rather than reused from loanApprovalUtils.ts — that module's
 // getLoanApprovalDecision() is typed against LoanRequestApproval, whose
 // chain_level_id is `number | undefined` (no null), while the API can return
@@ -96,13 +97,6 @@ const STATUS_COLOR: Record<string, any> = {
   cancelled: 'default',
 };
 
-const STATUS_LABEL: Record<string, string> = {
-  in_review: 'In Review',
-  approved: 'Approved',
-  rejected: 'Rejected',
-  cancelled: 'Cancelled',
-};
-
 const DECISION_COLOR: Record<string, any> = {
   approved: 'success',
   rejected: 'error',
@@ -131,6 +125,7 @@ const CompareField = ({
   requested: React.ReactNode;
   approved?: React.ReactNode;
 }) => {
+  const dictionary = useDictionary();
   const changed = approved != null && approved !== requested;
 
   return (
@@ -152,7 +147,7 @@ const CompareField = ({
             {requested}
           </Typography>
           <Typography variant='caption' color='text.secondary'>
-            Requested
+            {dictionary.humanResources.loanRequests.preview.requested}
           </Typography>
         </Box>
         {approved != null && (
@@ -165,7 +160,7 @@ const CompareField = ({
               {approved}
             </Typography>
             <Typography variant='caption' color='text.secondary'>
-              Approved
+              {dictionary.humanResources.loanRequests.preview.approved}
             </Typography>
           </Box>
         )}
@@ -192,18 +187,35 @@ interface LoanRequestPreviewProps {
  * the backend.
  */
 const LoanRequestPreview = ({ loanRequest, title }: LoanRequestPreviewProps) => {
+  const dictionary = useDictionary();
+  const STATUS_LABEL: Record<string, string> = {
+    in_review: dictionary.humanResources.loanRequests.list.statusOptions.in_review,
+    approved: dictionary.humanResources.loanRequests.list.statusOptions.approved,
+    rejected: dictionary.humanResources.loanRequests.list.statusOptions.rejected,
+    cancelled: dictionary.humanResources.loanRequests.list.statusOptions.cancelled,
+  };
+  const formatMonths = (count: number | string) =>
+    dictionary.humanResources.loanRequests.preview.monthsShort.replace('{count}', String(count));
+  const perPeriod = (value?: number | null) =>
+    dictionary.humanResources.loanRequests.preview.perPeriod.replace(
+      '{amount}',
+      formatCurrency(value)
+    );
   const employeeName =
     title ??
     (loanRequest.employee
       ? `${loanRequest.employee.first_name} ${loanRequest.employee.last_name}`
-      : `Employee #${loanRequest.employee_id}`);
+      : dictionary.humanResources.loanRequests.common.employeeFallback.replace(
+          '{id}',
+          String(loanRequest.employee_id)
+        ));
 
   const statusColor = STATUS_COLOR[loanRequest.status] || 'default';
   const statusLabel =
     loanRequest.status_label ||
     STATUS_LABEL[loanRequest.status] ||
     loanRequest.status ||
-    'Pending';
+    dictionary.humanResources.loanRequests.listItem.pending;
 
   const levels = [...(loanRequest.approval_chain?.levels || [])].sort(
     (a, b) => Number(a.position_index || 0) - Number(b.position_index || 0)
@@ -252,7 +264,7 @@ const LoanRequestPreview = ({ loanRequest, title }: LoanRequestPreviewProps) => 
         <CardContent>
           <Grid container spacing={2}>
             <CompareField
-              label='Amount'
+              label={dictionary.humanResources.loanRequests.common.amount}
               requested={formatCurrency(loanRequest.amount)}
               approved={
                 loanRequest.amount_approved != null
@@ -263,64 +275,71 @@ const LoanRequestPreview = ({ loanRequest, title }: LoanRequestPreviewProps) => 
             <CompareField
               label={
                 loanRequest.recovery_mode === 'fixed_amount'
-                  ? 'Recovery Amount'
-                  : 'Installments'
+                  ? dictionary.humanResources.loanRequests.preview.recoveryAmount
+                  : dictionary.humanResources.loanRequests.form.labels.installments
               }
               requested={
                 loanRequest.recovery_mode === 'fixed_amount'
-                  ? `${formatCurrency(loanRequest.installment_amount_requested)}/period`
-                  : `${loanRequest.installments} months`
+                  ? perPeriod(loanRequest.installment_amount_requested)
+                  : formatMonths(loanRequest.installments)
               }
               approved={
                 loanRequest.recovery_mode === 'fixed_amount'
                   ? loanRequest.installment_amount != null
-                    ? `${formatCurrency(loanRequest.installment_amount)}/period`
+                    ? perPeriod(loanRequest.installment_amount)
                     : undefined
                   : loanRequest.installments_approved != null
-                    ? `${loanRequest.installments_approved} months`
+                    ? formatMonths(loanRequest.installments_approved)
                     : undefined
               }
             />
           </Grid>
           {loanRequest.installment_amount != null && (
             <Typography variant='body2' color='text.secondary' mt={2}>
-              Deducted per period:{' '}
+              {dictionary.humanResources.loanRequests.preview.deductedPerPeriod}{' '}
               <strong>{formatCurrency(loanRequest.installment_amount)}</strong>
               {loanRequest.recovery_mode === 'fixed_amount' &&
                 loanRequest.installments_approved != null &&
-                ` (flat rate, ~${loanRequest.installments_approved} periods to clear)`}
+                dictionary.humanResources.loanRequests.preview.flatRateNote.replace(
+                  '{count}',
+                  String(loanRequest.installments_approved)
+                )}
             </Typography>
           )}
           {loanRequest.recovery_start_date && (
             <Typography variant='body2' color='text.secondary' mt={0.5}>
-              Recovery starts:{' '}
+              {dictionary.humanResources.loanRequests.preview.recoveryStarts}{' '}
               <strong>
                 {new Date(loanRequest.recovery_start_date).toLocaleDateString(
                   undefined,
                   { year: 'numeric', month: 'long' }
                 )}
               </strong>
-              {loanRequest.status === 'in_review' && ' (requested)'}
+              {loanRequest.status === 'in_review' &&
+                ` ${dictionary.humanResources.loanRequests.preview.requestedNote}`}
             </Typography>
           )}
         </CardContent>
       </Card>
 
       <Typography variant='subtitle1' fontWeight={600} mb={1.5}>
-        Approval Stages
+        {dictionary.humanResources.loanRequests.preview.approvalStages}
       </Typography>
 
       {approvals.length === 0 && !nextLevel ? (
         <Alert severity='info' variant='outlined'>
           {loanRequest.reviewed_at ? (
             <>
-              Decided directly on {readableDate(loanRequest.reviewed_at, false)}
+              {dictionary.humanResources.loanRequests.preview.decidedDirectly.replace(
+                '{date}',
+                readableDate(loanRequest.reviewed_at, false)
+              )}
               {loanRequest.review_remarks
                 ? ` — "${loanRequest.review_remarks}"`
                 : ''}
             </>
           ) : (
-            'No approval chain configured for this request — awaiting a direct decision.'
+            dictionary.humanResources.loanRequests.preview.noChain
           )}
         </Alert>
       ) : (
@@ -334,12 +353,13 @@ const LoanRequestPreview = ({ loanRequest, title }: LoanRequestPreviewProps) => 
             // Rejections/holds aren't level-specific actions, so those stay fixed.
             const actionLabel =
               decision === 'approved'
-                ? approval.approval_chain_level?.label || 'Approved'
+                ? approval.approval_chain_level?.label ||
+                  dictionary.humanResources.loanRequests.preview.actions.approved
                 : decision === 'rejected'
-                  ? 'Rejected'
+                  ? dictionary.humanResources.loanRequests.preview.actions.rejected
                   : decision === 'on hold'
-                    ? 'Put on hold'
-                    : 'Decision recorded';
+                    ? dictionary.humanResources.loanRequests.preview.actions.onHold
+                    : dictionary.humanResources.loanRequests.preview.actions.recorded;
             const isLast = !nextLevel && index === approvals.length - 1;
 
             return (
@@ -366,11 +386,27 @@ const LoanRequestPreview = ({ loanRequest, title }: LoanRequestPreviewProps) => 
                     flexWrap='wrap'
                   >
                     <Typography variant='subtitle2'>
-                      {actionLabel} by {approval.creator?.name || 'Unknown reviewer'}
+                      {dictionary.humanResources.loanRequests.preview.actionBy
+                        .replace('{action}', actionLabel)
+                        .replace(
+                          '{name}',
+                          approval.creator?.name ||
+                            dictionary.humanResources.loanRequests.preview.unknownReviewer
+                        )}
                     </Typography>
                     <Chip
                       size='small'
-                      label={approval.status || 'Pending'}
+                      label={
+                        approval.status
+                          ? decision === 'approved'
+                            ? dictionary.humanResources.loanRequests.listItem.decisions.approved
+                            : decision === 'rejected'
+                              ? dictionary.humanResources.loanRequests.listItem.decisions.rejected
+                              : decision === 'on hold'
+                                ? dictionary.humanResources.loanRequests.listItem.decisions.onHold
+                                : approval.status
+                          : dictionary.humanResources.loanRequests.listItem.pending
+                      }
                       color={DECISION_COLOR[decision] || 'default'}
                       sx={{ textTransform: 'capitalize' }}
                     />
@@ -384,14 +420,23 @@ const LoanRequestPreview = ({ loanRequest, title }: LoanRequestPreviewProps) => 
                   {(approval.amount_approved != null ||
                     approval.installments_approved != null) && (
                     <Typography variant='body2' mt={0.5}>
-                      Approved{' '}
-                      {approval.amount_approved != null &&
-                        formatCurrency(approval.amount_approved)}
+                      {dictionary.humanResources.loanRequests.preview.approvedAmount.replace(
+                        '{amount}',
+                        approval.amount_approved != null
+                          ? formatCurrency(approval.amount_approved)
+                          : ''
+                      )}
                       {approval.recovery_mode === 'fixed_amount'
                         ? approval.installment_amount_approved != null &&
-                          ` at ${formatCurrency(approval.installment_amount_approved)}/period`
+                          dictionary.humanResources.loanRequests.preview.atPerPeriod.replace(
+                            '{amount}',
+                            formatCurrency(approval.installment_amount_approved)
+                          )
                         : approval.installments_approved != null &&
-                          ` over ${approval.installments_approved} months`}
+                          dictionary.humanResources.loanRequests.preview.overMonths.replace(
+                            '{count}',
+                            String(approval.installments_approved)
+                          )}
                     </Typography>
                   )}
                   {approval.remarks && (
@@ -416,18 +461,20 @@ const LoanRequestPreview = ({ loanRequest, title }: LoanRequestPreviewProps) => 
               <Box sx={{ flex: 1 }}>
                 <Stack direction='row' spacing={1} alignItems='center'>
                   <Typography variant='subtitle2'>
-                    Waiting for{' '}
-                    {nextLevel.role?.name || 'next reviewer'}
+                    {dictionary.humanResources.loanRequests.preview.waitingFor.replace(
+                      '{role}',
+                      nextLevel.role?.name || dictionary.humanResources.loanRequests.preview.nextReviewer
+                    )}
                   </Typography>
                   <Chip
                     size='small'
-                    label='Pending'
+                    label={dictionary.humanResources.loanRequests.listItem.pending}
                     color='default'
                     sx={{ textTransform: 'capitalize' }}
                   />
                 </Stack>
                 <Typography variant='body2' color='text.secondary'>
-                  Not reached yet
+                  {dictionary.humanResources.loanRequests.preview.notReached}
                 </Typography>
               </Box>
             </Stack>
@@ -437,10 +484,21 @@ const LoanRequestPreview = ({ loanRequest, title }: LoanRequestPreviewProps) => 
 
       {loanRequest.disbursed_at && (
         <Alert severity='success' variant='outlined' sx={{ mt: 2 }}>
-          Disbursed {readableDate(loanRequest.disbursed_at, false)}
-          {loanRequest.disbursed_by ? ` by ${loanRequest.disbursed_by.name}` : ''}
+          {dictionary.humanResources.loanRequests.listItem.disbursedOn.replace(
+            '{date}',
+            readableDate(loanRequest.disbursed_at, false)
+          )}
+          {loanRequest.disbursed_by
+            ? dictionary.humanResources.loanRequests.preview.disbursedBy.replace(
+                '{name}',
+                String(loanRequest.disbursed_by.name)
+              )
+            : ''}
           {loanRequest.disbursement_reference
-            ? ` · Ref: ${loanRequest.disbursement_reference}`
+            ? dictionary.humanResources.loanRequests.preview.reference.replace(
+                '{reference}',
+                loanRequest.disbursement_reference
+              )
             : ''}
         </Alert>
       )}

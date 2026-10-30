@@ -12,8 +12,10 @@ import { useState } from 'react';
 import { DesignationsProvider } from '../../../designations/DesignationsProvider';
 import { EmployeesProvider } from '../../EmployeesProvider';
 import EmployeesContractsForm from './EmployeesContractsForm';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const EmployeesContractsActionTail = ({ employeeId }: { employeeId?: number }) => {
+  const dictionary = useDictionary();
   const [openDialog, setOpenDialog] = useState(false);
 
   //Screen handling constants
@@ -34,7 +36,7 @@ const EmployeesContractsActionTail = ({ employeeId }: { employeeId?: number }) =
         disableElevation
         sx={{ '& .MuiButton-root': { px: 1 } }}
       >
-        <Tooltip title='Add Contract'>
+        <Tooltip title={dictionary.tooltips.addContract}>
           <IconButton onClick={() => setOpenDialog(true)}>
             <AddOutlined />
           </IconButton>

@@ -28,6 +28,7 @@ import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 import PDFContent from '@/components/pdf/PDFContent';
 import StakeholderSelectProvider from '@/components/masters/stakeholders/StakeholderSelectProvider';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface Adjustment {
   id: number;
@@ -48,6 +49,7 @@ const DocumentDialog: React.FC<DocumentDialogProps> = ({
   authObject,
   setOpenDocumentDialog,
 }) => {
+  const dictionary = useDictionary();
   const { data: adjustmentData, isFetching } = useQuery({
     queryKey: ['adjustmentsDetails', { id: selectedAdjustment.id, type }],
     queryFn: () => posServices.invoiceAdjustmentDetails(selectedAdjustment.id, type),
@@ -87,7 +89,7 @@ const DocumentDialog: React.FC<DocumentDialogProps> = ({
           </Grid>
 
           <Grid size={1} textAlign="right">
-            <Tooltip title="Close">
+            <Tooltip title={dictionary.tooltips.close}>
               <IconButton size="small" onClick={() => setOpenDocumentDialog(false)}>
                 <HighlightOff color="primary" />
               </IconButton>

@@ -15,8 +15,11 @@ import LeaveAllocationsListItem, {
   LEAVE_ALLOCATION_COLUMN_WIDTHS,
 } from './LeaveAllocationsListItem';
 import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
-const LeaveAllocationsListHeader = () => (
+const LeaveAllocationsListHeader = () => {
+  const dictionary = useDictionary();
+  return (
   <Box sx={{ display: { xs: 'none', md: 'block' } }}>
     <Grid
       container
@@ -29,33 +32,34 @@ const LeaveAllocationsListHeader = () => (
     >
       <Grid size={LEAVE_ALLOCATION_COLUMN_WIDTHS.leaveType}>
         <Typography variant='caption' fontWeight={600} color='text.secondary'>
-          Leave Type
+          {dictionary.humanResources.leaveAllocations.list.leaveType}
         </Typography>
       </Grid>
       <Grid size={LEAVE_ALLOCATION_COLUMN_WIDTHS.period}>
         <Typography variant='caption' fontWeight={600} color='text.secondary'>
-          Period
+          {dictionary.humanResources.leaveAllocations.list.period}
         </Typography>
       </Grid>
       <Grid size={LEAVE_ALLOCATION_COLUMN_WIDTHS.allocated}>
         <Typography variant='caption' fontWeight={600} color='text.secondary'>
-          Allocated
+          {dictionary.humanResources.leaveAllocations.list.allocated}
         </Typography>
       </Grid>
       <Grid size={LEAVE_ALLOCATION_COLUMN_WIDTHS.used}>
         <Typography variant='caption' fontWeight={600} color='text.secondary'>
-          Used
+          {dictionary.humanResources.leaveAllocations.list.used}
         </Typography>
       </Grid>
       <Grid size={LEAVE_ALLOCATION_COLUMN_WIDTHS.remaining}>
         <Typography variant='caption' fontWeight={600} color='text.secondary'>
-          Remaining
+          {dictionary.humanResources.leaveAllocations.list.remaining}
         </Typography>
       </Grid>
       <Grid size={LEAVE_ALLOCATION_COLUMN_WIDTHS.actions} />
     </Grid>
   </Box>
-);
+  );
+};
 
 const LeaveAllocations = ({ employeeId }: { employeeId?: number }) => {
   const { checkOrganizationPermission } = useJumboAuth();

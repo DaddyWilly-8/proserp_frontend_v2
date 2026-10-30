@@ -2,6 +2,7 @@ export interface JournalLike {
   description?: string | null;
   voucher_no?: string | null;
   counterparty?: string | null;
+  is_scheduled?: boolean;
 }
 
 /**
@@ -21,6 +22,7 @@ export const descriptionIncludesVoucher = (journal?: JournalLike | null): boolea
 export const journalDisplayParts = (journal?: JournalLike | null): string[] => {
   if (!journal) return [];
   const parts = [
+    journal.is_scheduled ? 'Recurring' : null,
     descriptionIncludesVoucher(journal) ? null : journal.voucher_no,
     journal.counterparty,
     journal.description,

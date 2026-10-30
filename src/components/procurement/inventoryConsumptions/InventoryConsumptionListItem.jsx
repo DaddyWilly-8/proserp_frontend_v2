@@ -2,8 +2,10 @@ import { Box, Chip, Divider, Grid, Tooltip, Typography } from '@mui/material'
 import React from 'react'
 import InventoryConsumptionItemAction from './InventoryConsumptionItemAction'
 import { readableDate } from '@/app/helpers/input-sanitization-helpers'
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function InventoryConsumptionListItem({inventoryConsumption, consumptionTab = false}) {
+  const dictionary = useDictionary();
   return (
     <>
       <Grid
@@ -20,17 +22,17 @@ function InventoryConsumptionListItem({inventoryConsumption, consumptionTab = fa
       >
           
         <Grid size={{xs: 6, md: 2}}>
-          <Tooltip title='Consumption Date'>
+          <Tooltip title={dictionary.tooltips.consumptionDate}>
             <Typography>{`${readableDate(inventoryConsumption.consumption_date)}`}</Typography>
           </Tooltip>
         </Grid>
         <Grid size={{xs: 6, md: 2}}>
-          <Tooltip title='Consumption No.'>
+          <Tooltip title={dictionary.tooltips.consumptionNo2}>
             <Typography>{inventoryConsumption.consumptionNo}</Typography>
           </Tooltip>
         </Grid>
         <Grid size={{xs: 6, md: 3}}>
-          <Tooltip title='Cost Center'>
+          <Tooltip title={dictionary.tooltips.costCenter}>
             <Chip
               label={inventoryConsumption.cost_center?.name}
               color='default'
@@ -39,7 +41,7 @@ function InventoryConsumptionListItem({inventoryConsumption, consumptionTab = fa
           </Tooltip>
         </Grid>
         <Grid size={{xs: 6, md: 4}}>
-          <Tooltip title='Description'>
+          <Tooltip title={dictionary.tooltips.description}>
             <Typography>{inventoryConsumption.narration}</Typography>
           </Tooltip>
         </Grid>

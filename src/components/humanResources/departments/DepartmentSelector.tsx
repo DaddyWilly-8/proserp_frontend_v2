@@ -10,6 +10,7 @@ import {
 import React, { useEffect } from 'react';
 import { useDepartments } from './DepartmentsProvider';
 import { Department } from './DepartmentsType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface DepartmentSelector {
   onChange: (value: Department | Department[] | null) => void;
@@ -28,10 +29,11 @@ interface DepartmentSelector {
 }
 
 const DepartmentSelector = (props: DepartmentSelector) => {
+  const dictionary = useDictionary();
   const {
     onChange,
     frontError = null,
-    label = 'Select Departments',
+    label = dictionary.humanResources.departments.selector.label,
     defaultValue = null,
     value = null,
     addedDepartment = null,

@@ -15,6 +15,7 @@ import React, { useState } from 'react';
 import requisitionsServices from '../../requisitionsServices';
 import { ApprovalRequisition } from '../ApprovalRequisitionType';
 import ApprovedPaymentForm from './form/ApprovedPaymentForm';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface ApprovedPaymentActionTailProps {
   approvedRequisition: ApprovalRequisition;
@@ -25,6 +26,7 @@ const ApprovedPaymentActionTail: React.FC<ApprovedPaymentActionTailProps> = ({
   approvedRequisition,
   isExpanded,
 }) => {
+  const dictionary = useDictionary();
   const { theme } = useJumboTheme();
   const [openDialog, setOpenDialog] = useState(false);
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
@@ -65,7 +67,7 @@ const ApprovedPaymentActionTail: React.FC<ApprovedPaymentActionTailProps> = ({
         disableElevation
         sx={{ '& .MuiButton-root': { px: 1 } }}
       >
-        <Tooltip title='Pay'>
+        <Tooltip title={dictionary.tooltips.pay}>
           <IconButton onClick={() => setOpenDialog(true)}>
             <FontAwesomeIcon icon={faMoneyBill1} size='lg' />
           </IconButton>

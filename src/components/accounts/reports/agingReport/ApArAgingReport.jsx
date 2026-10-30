@@ -34,8 +34,10 @@ import PDFContent from '../../../pdf/PDFContent';
 import financialReportsServices from '../financial-reports-services';
 import ApArAgingOnScreen from './ApArAgingOnScreen';
 import ApArAgingPDF from './ApArAgingPDF';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function ApArAgingReport({ setOpenDialog }) {
+  const dictionary = useDictionary();
   const css = useProsERPStyles();
   const {
     authOrganization,
@@ -110,7 +112,10 @@ function ApArAgingReport({ setOpenDialog }) {
     }
   };
 
-  document.title = selectedType === 'payable' ? 'A/P Aging Report' : 'A/R Aging Report';
+  document.title =
+    selectedType === 'payable'
+      ? dictionary.reports.accountsReports.agingReport.payableReport
+      : dictionary.reports.accountsReports.agingReport.receivableReport;
 
   return (
     <>
@@ -118,10 +123,12 @@ function ApArAgingReport({ setOpenDialog }) {
         <Grid container>
           <Grid size={12} textAlign='center'>
             <Typography variant='h3'>
-              {selectedType === 'payable' ? 'A/P Aging Report' : 'A/R Aging Report'}
+              {selectedType === 'payable'
+                ? dictionary.reports.accountsReports.agingReport.payableReport
+                : dictionary.reports.accountsReports.agingReport.receivableReport}
             </Typography>
             {belowLargeScreen && (
-              <Tooltip title='Close'>
+              <Tooltip title={dictionary.tooltips.close}>
                 <IconButton
                   size='small'
                   sx={{ position: 'absolute', top: 10, right: 10 }}
@@ -139,7 +146,7 @@ function ApArAgingReport({ setOpenDialog }) {
               <Grid size={{ xs: 12, md: 6, lg: 3 }}>
                 <Div sx={{ mt: 1, mb: 1 }}>
                   <DateTimePicker
-                    label='As at'
+                    label={dictionary.reports.accountsReports.agingReport.asAt}
                     minDate={dayjs(authOrganization?.organization.recording_start_date)}
                     defaultValue={dayjs()}
                     slotProps={{ textField: { size: 'small', fullWidth: true } }}
@@ -155,21 +162,30 @@ function ApArAgingReport({ setOpenDialog }) {
               <Grid size={{ xs: 12, md: 6, lg: 3 }}>
                 <Div sx={{ mt: 1, mb: 1 }}>
                   <FormControl fullWidth size='small'>
-                    <InputLabel id='aging_type_select'>Type</InputLabel>
+                    <InputLabel id='aging_type_select'>
+                      {dictionary.reports.accountsReports.agingReport.type}
+                    </InputLabel>
                     <Select
                       value={selectedType}
                       onChange={(e) => setSelectedType(e.target.value)}
-                      label='Type'
+                      label={dictionary.reports.accountsReports.agingReport.type}
                     >
-                      <MenuItem value='payable'>Accounts Payable</MenuItem>
-                      <MenuItem value='receivable'>Accounts Receivable</MenuItem>
+                      <MenuItem value='payable'>
+                        {dictionary.reports.accountsReports.agingReport.accountsPayable}
+                      </MenuItem>
+                      <MenuItem value='receivable'>
+                        {dictionary.reports.accountsReports.agingReport.accountsReceivable}
+                      </MenuItem>
                     </Select>
                   </FormControl>
                 </Div>
               </Grid>
               <Grid size={{ xs: 12, md: 12, lg: 6 }}>
                 <CostCenterSelector
-                  label='Cost Centers (leave empty for all)'
+                  label={
+                    dictionary.reports.accountsReports.trialBalance
+                      .costCenterLabel
+                  }
                   multiple={true}
                   allowSameType={true}
                   // Declutters the field for a CostCenters:All user — projects
@@ -212,7 +228,10 @@ function ApArAgingReport({ setOpenDialog }) {
                       }
                     />
                   }
-                  label='Stakeholders Only'
+                  label={
+                    dictionary.reports.accountsReports.debtorCreditor
+                      .stakeholdersOnly
+                  }
                 />
               </Grid>
               <Grid size={12} textAlign='right'>
@@ -229,7 +248,7 @@ function ApArAgingReport({ setOpenDialog }) {
                     />
                   )}
                   <LoadingButton loading={isFetching} type='submit' size='small' variant='contained'>
-                    Filter
+                    {dictionary.reports.accountsReports.common.filter}
                   </LoadingButton>
                 </Stack>
               </Grid>
@@ -249,14 +268,19 @@ function ApArAgingReport({ setOpenDialog }) {
             <PDFContent
               fileName={`${selectedType === 'payable' ? 'A-P Aging Report' : 'A-R Aging Report'} ${readableDate(reportData?.filters?.as_at, true)}`}
               document={
-                <ApArAgingPDF reportData={reportData} authOrganization={authOrganization} user={user} />
+                <ApArAgingPDF
+                  reportData={reportData}
+                  authOrganization={authOrganization}
+                  user={user}
+                  dictionary={dictionary}
+                />
               }
             />
           ))
         )}
         {reportData && !hasAgingRows(reportData.group) && !isFetching && (
           <Typography textAlign='center' color='text.secondary' sx={{ mt: 3 }}>
-            Nothing outstanding for the selected filters.
+            {dictionary.reports.accountsReports.agingReport.nothingOutstanding}
           </Typography>
         )}
       </DialogContent>

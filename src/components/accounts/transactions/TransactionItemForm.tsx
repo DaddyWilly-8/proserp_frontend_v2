@@ -31,6 +31,7 @@ import LedgerSelect from '../ledgers/forms/LedgerSelect';
 import { useLedgerSelect } from '../ledgers/forms/LedgerSelectProvider';
 import QuickAddLedger from '../ledgers/forms/QuickAddLedger';
 import { Ledger } from '../ledgers/LedgerType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 // Traceability-only link from a payment item to a Bill or Purchase Order it
 // settles/relates to (isPayment), or from a receipt item to a Customer
@@ -45,6 +46,8 @@ type TransactionItem = {
   description: string;
   relatable_type?: ItemRelatableType | null;
   relatable_id?: number | null;
+  // 'fuel_voucher_invoice' when the linked "invoice" is a Fuel Voucher invoice
+  relatable_kind?: string | null;
   relatable?: PurchaseOrderOption | BillOption | InvoiceOption | null;
   relatableNo?: string;
 };
@@ -57,6 +60,12 @@ const paymentRelatableTypeOptions: { value: ItemRelatableType; label: string }[]
 const receiptRelatableTypeOptions: { value: ItemRelatableType; label: string }[] = [
   { value: 'invoice', label: 'Invoice' },
 ];
+
+const relatableLabelKeys: Record<ItemRelatableType, string> = {
+  purchase: 'purchaseOrder',
+  bill: 'bill',
+  invoice: 'invoice',
+};
 
 type TransactionItemFormProps = {
   setClearFormKey: React.Dispatch<React.SetStateAction<number>>;
@@ -109,6 +118,7 @@ const TransactionItemForm: React.FC<TransactionItemFormProps> = ({
   setItems,
   defaultAmount,
 }) => {
+  const dictionary = useDictionary();
   const [isAdding, setIsAdding] = useState(false);
   const { ungroupedLedgerOptions } = useLedgerSelect();
   const { authOrganization } = useJumboAuth();
@@ -120,11 +130,16 @@ const TransactionItemForm: React.FC<TransactionItemFormProps> = ({
   // doesn't apply, "Bill" isn't a real option at all. Receipts have no such
   // duality — "Invoice" is the only relatable concept on that side.
   const relatableTypeOptions = useMemo(() => {
-    if (isReceipt) return receiptRelatableTypeOptions;
-    return paymentRelatableTypeOptions.filter((opt) =>
-      deferGrnBilling ? opt.value !== 'purchase' : opt.value !== 'bill'
-    );
-  }, [deferGrnBilling, isReceipt]);
+    const baseOptions = isReceipt
+      ? receiptRelatableTypeOptions
+      : paymentRelatableTypeOptions.filter((opt) =>
+          deferGrnBilling ? opt.value !== 'purchase' : opt.value !== 'bill'
+        );
+    return baseOptions.map((opt) => ({
+      ...opt,
+      label: (dictionary.forms.transactions.itemForm.labels as Record<string, string>)[relatableLabelKeys[opt.value]],
+    }));
+  }, [deferGrnBilling, isReceipt, dictionary]);
   const [openLedgerQuickAdd, setOpenLedgerQuickAdd] = useState(false);
   const [ledgerType, setLedgerType] = useState<'debit' | 'credit'>('credit');
   const [addedLedger, setAddedLedger] = useState<Ledger | null>(null);
@@ -137,45 +152,45 @@ const TransactionItemForm: React.FC<TransactionItemFormProps> = ({
       is: (isPaymentOrTransfer: boolean) => isPaymentOrTransfer,
       then: (schema) =>
         schema
-          .required('Debit account is required')
-          .positive('Debit account is required')
+          .required(dictionary.forms.transactions.itemForm.errors.validation.debitRequired)
+          .positive(dictionary.forms.transactions.itemForm.errors.validation.debitRequired)
           .test(
             'unique-ledgers',
-            'Debit and credit accounts cannot be the same',
+            dictionary.forms.transactions.itemForm.errors.validation.sameAccounts,
             function (value) {
               return value !== this.parent.credit_ledger_id;
             }
           )
-          .typeError('Debit account is required'),
+          .typeError(dictionary.forms.transactions.itemForm.errors.validation.debitRequired),
       otherwise: (schema) => schema.nullable(),
     }),
     credit_ledger_id: yup.number().when('$isReceipt', {
       is: (isReceipt: boolean) => isReceipt,
       then: (schema) =>
         schema
-          .required('Credit account is required')
-          .positive('Credit account is required')
+          .required(dictionary.forms.transactions.itemForm.errors.validation.creditRequired)
+          .positive(dictionary.forms.transactions.itemForm.errors.validation.creditRequired)
           .test(
             'unique-ledgers',
-            'Debit and credit accounts cannot be the same',
+            dictionary.forms.transactions.itemForm.errors.validation.sameAccounts,
             function (value) {
               return value !== this.parent.debit_ledger_id;
             }
           )
-          .typeError('Credit account is required'),
+          .typeError(dictionary.forms.transactions.itemForm.errors.validation.creditRequired),
       otherwise: (schema) => schema.nullable(),
     }),
     description: yup
       .string()
-      .required('Description is required')
-      .typeError('Description is required'),
+      .required(dictionary.forms.transactions.itemForm.errors.validation.descriptionRequired)
+      .typeError(dictionary.forms.transactions.itemForm.errors.validation.descriptionRequired),
     amount: yup
       .number()
-      .required('Amount is required')
-      .positive('Amount must be greater than 0')
+      .required(dictionary.forms.transactions.itemForm.errors.validation.amountRequired)
+      .positive(dictionary.forms.transactions.itemForm.errors.validation.amountPositive)
       .test(
         'max-amount',
-        'Amount should not exceed unapproved amount of selected relatable',
+        dictionary.forms.transactions.itemForm.errors.validation.amountExceedsRelatable,
         function (value) {
           const relatable = this.parent?.relatable as
             PurchaseOrderOption | BillOption | InvoiceOption | null | undefined;
@@ -201,12 +216,17 @@ const TransactionItemForm: React.FC<TransactionItemFormProps> = ({
 
           return this.createError({
             message: cappedByPurchaseOrder
-              ? `Amount should not exceed unapproved amount (${maxAmount.toLocaleString()}) — capped against ${(relatable as BillOption)?.purchase_order_no}, not this Bill itself`
-              : `Amount should not exceed unapproved amount (${maxAmount.toLocaleString()}) of selected relatable`,
+              ? dictionary.forms.transactions.itemForm.errors.validation.amountExceedsCapped
+                  .replace('{max}', maxAmount.toLocaleString())
+                  .replace('{purchaseOrderNo}', String((relatable as BillOption)?.purchase_order_no))
+              : dictionary.forms.transactions.itemForm.errors.validation.amountExceedsMax.replace(
+                  '{max}',
+                  maxAmount.toLocaleString()
+                ),
           });
         }
       )
-      .typeError('Amount is required'),
+      .typeError(dictionary.forms.transactions.itemForm.errors.validation.amountRequired),
   });
 
   const {
@@ -244,6 +264,7 @@ const TransactionItemForm: React.FC<TransactionItemFormProps> = ({
               id: item.relatable_id,
               orderNo: item.relatableNo,
               invoiceNo: item.relatableNo,
+              kind: item.relatable_kind ?? undefined,
             } as any)
           : null),
     },
@@ -302,7 +323,7 @@ const TransactionItemForm: React.FC<TransactionItemFormProps> = ({
       if (selectedCurrencyId !== selectedLedgerCurrencyId) {
         setError(currencyErrorField, {
           type: 'manual',
-          message: `Ledger currency does not match the selected currency.`,
+          message: dictionary.forms.transactions.itemForm.errors.validation.currencyMismatch,
         });
       } else {
         clearErrors(currencyErrorField);
@@ -353,7 +374,7 @@ const TransactionItemForm: React.FC<TransactionItemFormProps> = ({
     ) {
       setError(currencyErrorField, {
         type: 'manual',
-        message: 'Ledger currency must match the selected currency.',
+        message: dictionary.forms.transactions.itemForm.errors.validation.currencyMustMatch,
       });
       return;
     }
@@ -368,6 +389,7 @@ const TransactionItemForm: React.FC<TransactionItemFormProps> = ({
       description: formData.description,
       relatable_type: formData.relatable_type || null,
       relatable_id: relatable?.id ?? null,
+      relatable_kind: (relatable as InvoiceOption | null)?.kind === 'fuel_voucher_invoice' ? 'fuel_voucher_invoice' : null,
       relatable: relatable ?? null,
       relatableNo:
         (relatable as any)?.orderNo ||
@@ -434,10 +456,10 @@ const TransactionItemForm: React.FC<TransactionItemFormProps> = ({
               <LedgerSelect
                 label={
                   isPayment
-                    ? 'Pay (Debit)'
+                    ? dictionary.forms.transactions.itemForm.labels.payDebit
                     : isTransfer
-                      ? 'To (Debit)'
-                      : 'Debit'
+                      ? dictionary.forms.transactions.itemForm.labels.toDebit
+                      : dictionary.forms.transactions.itemForm.labels.debit
                 }
                 frontError={errors.debit_ledger_id}
                 addedLedger={addedLedger}
@@ -471,7 +493,7 @@ const TransactionItemForm: React.FC<TransactionItemFormProps> = ({
                   });
                 }}
                 startAdornment={
-                  <Tooltip title={'Add New Debit'}>
+                  <Tooltip title={dictionary.tooltips.addNewDebit}>
                     <AddOutlined
                       onClick={() => {
                         setOpenLedgerQuickAdd(true);
@@ -491,7 +513,7 @@ const TransactionItemForm: React.FC<TransactionItemFormProps> = ({
           <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
             <Div sx={{ mt: 1 }}>
               <LedgerSelect
-                label={isReceipt ? 'From (Credit)' : 'Credit'}
+                label={isReceipt ? dictionary.forms.transactions.itemForm.labels.fromCredit : dictionary.forms.transactions.itemForm.labels.credit}
                 addedLedger={addedLedger}
                 frontError={errors.credit_ledger_id}
                 allowedGroups={
@@ -517,7 +539,7 @@ const TransactionItemForm: React.FC<TransactionItemFormProps> = ({
                   });
                 }}
                 startAdornment={
-                  <Tooltip title={'Add New Credit'}>
+                  <Tooltip title={dictionary.tooltips.addNewCredit}>
                     <AddOutlined
                       onClick={() => {
                         setOpenLedgerQuickAdd(true);
@@ -552,7 +574,7 @@ const TransactionItemForm: React.FC<TransactionItemFormProps> = ({
                   renderInput={(params) => (
                     <TextField
                       {...params}
-                      label='Link To (optional)'
+                      label={dictionary.forms.transactions.itemForm.labels.linkTo}
                       size='small'
                       fullWidth
                     />
@@ -625,7 +647,7 @@ const TransactionItemForm: React.FC<TransactionItemFormProps> = ({
               size='small'
               fullWidth
               defaultValue={watch('description')}
-              label='Description'
+              label={dictionary.forms.transactions.itemForm.labels.description}
               error={!!errors.description}
               helperText={errors.description?.message}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
@@ -641,7 +663,7 @@ const TransactionItemForm: React.FC<TransactionItemFormProps> = ({
         <Grid size={{ xs: 12, sm: 6, md: 4, lg: 2 }}>
           <Div sx={{ mt: 1 }}>
             <TextField
-              label='Amount'
+              label={dictionary.forms.transactions.itemForm.labels.amount}
               fullWidth
               size='small'
               value={watch('amount') || ''}
@@ -673,16 +695,16 @@ const TransactionItemForm: React.FC<TransactionItemFormProps> = ({
           >
             {item ? (
               <>
-                <CheckOutlined fontSize='small' /> Done
+                <CheckOutlined fontSize='small' /> {dictionary.forms.transactions.itemForm.buttons.done}
               </>
             ) : (
               <>
-                <AddOutlined fontSize='small' /> Add
+                <AddOutlined fontSize='small' /> {dictionary.forms.transactions.itemForm.buttons.add}
               </>
             )}
           </LoadingButton>
           {item && setShowForm && (
-            <Tooltip title='Close Edit'>
+            <Tooltip title={dictionary.tooltips.closeEdit}>
               <IconButton size='small' onClick={() => setShowForm(false)}>
                 <DisabledByDefault fontSize='small' color='success' />
               </IconButton>

@@ -30,6 +30,7 @@ import CostReport from './CostReport';
 import productionReportsServices from './productionReportsServices';
 import { OutputReportResponse, CostReportResponse } from './productionReportsServices';
 import OutputReport from './OutputReport';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface TabPanelProps {
   children: ReactNode;
@@ -51,6 +52,8 @@ interface WorkCenter {
 }
 
 function ProductionReportsContent() {
+  const dictionary = useDictionary();
+  const dict = dictionary.reports.productionReports;
   const theme = useTheme();
   const isDark = (theme as any).type === 'dark';
   const {
@@ -119,7 +122,7 @@ function ProductionReportsContent() {
 
   const handleGenerateReport = async (): Promise<void> => {
     if (!from || !to) {
-      setFilterError('From and To dates are required.');
+      setFilterError(dict.datesRequired);
       return;
     }
 
@@ -150,7 +153,7 @@ function ProductionReportsContent() {
       })
       .catch((err: any) => {
         setOutputError(
-          err?.response?.data?.message || 'Failed to load output report.'
+          err?.response?.data?.message || dict.outputLoadFailed
         );
       })
       .finally(() => {
@@ -164,7 +167,7 @@ function ProductionReportsContent() {
       })
       .catch((err: any) => {
         setCostError(
-          err?.response?.data?.message || 'Failed to load cost report.'
+          err?.response?.data?.message || dict.costLoadFailed
         );
       })
       .finally(() => {
@@ -184,7 +187,7 @@ function ProductionReportsContent() {
 
   return (
     <Stack spacing={2}>
-      <Typography variant='h4'>Production Reports</Typography>
+      <Typography variant='h4'>{dict.title}</Typography>
       <JumboCardQuick sx={{ overflow: 'visible' }}>
         <Stack spacing={2}>
           <Box
@@ -198,7 +201,7 @@ function ProductionReportsContent() {
             <Grid container spacing={2} alignItems='center'>
               <Grid size={{ xs: 12, md: selectedTab === 0 ? 3 : 4 }}>
                 <DateTimePicker
-                  label='From'
+                  label={dict.from}
                   value={from}
                   onChange={(value) => setFrom(value as Dayjs)}
                   slotProps={{ textField: { size: 'small', fullWidth: true } }}
@@ -206,7 +209,7 @@ function ProductionReportsContent() {
               </Grid>
               <Grid size={{ xs: 12, md: selectedTab === 0 ? 3 : 4 }}>
                 <DateTimePicker
-                  label='To'
+                  label={dict.to}
                   value={to}
                   onChange={(value) => setTo(value as Dayjs)}
                   slotProps={{ textField: { size: 'small', fullWidth: true } }}
@@ -226,7 +229,7 @@ function ProductionReportsContent() {
                     setSelectedWorkCenter(newValue)
                   }
                   renderInput={(params) => (
-                    <TextField {...params} label='Work Center' fullWidth />
+                    <TextField {...params} label={dict.workCenter} fullWidth />
                   )}
                 />
               </Grid>
@@ -248,7 +251,7 @@ function ProductionReportsContent() {
                     renderInput={(params) => (
                       <TextField
                         {...params}
-                        label='Finished Product'
+                        label={dict.finishedProduct}
                         fullWidth
                       />
                     )}
@@ -267,7 +270,7 @@ function ProductionReportsContent() {
                   size='small'
                   onClick={handleGenerateReport}
                 >
-                  Generate Report
+                  {dict.generateReport}
                 </Button>
               </Grid>
             </Grid>
@@ -292,8 +295,8 @@ function ProductionReportsContent() {
                 variant='scrollable'
                 scrollButtons='auto'
               >
-                <Tab label='Output Report' />
-                <Tab label='Cost Report' />
+                <Tab label={dict.outputReport} />
+                <Tab label={dict.costReport} />
               </Tabs>
 
               <TabPanel value={selectedTab} index={0}>

@@ -11,8 +11,10 @@ import {
 } from '@mui/material';
 import { useState } from 'react';
 import EmployeeBankAccountForm from './EmployeeBankAccountForm';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const EmployeeBankAccountActionTail = ({ employeeId }: { employeeId?: number }) => {
+  const dictionary = useDictionary();
   const [openDialog, setOpenDialog] = useState(false);
 
   const { theme } = useJumboTheme();
@@ -29,7 +31,7 @@ const EmployeeBankAccountActionTail = ({ employeeId }: { employeeId?: number }) 
         disableElevation
         sx={{ '& .MuiButton-root': { px: 1 } }}
       >
-        <Tooltip title='Add Bank Account'>
+        <Tooltip title={dictionary.tooltips.addBankAccount}>
           <IconButton onClick={() => setOpenDialog(true)}>
             <AddOutlined />
           </IconButton>

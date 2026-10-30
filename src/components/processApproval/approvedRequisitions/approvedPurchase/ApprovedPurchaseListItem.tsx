@@ -17,6 +17,7 @@ import React from 'react';
 import requisitionsServices from '../../requisitionsServices';
 import { PurchaseApprovalRequisition } from '../ApprovalRequisitionType';
 import ApprovedPurchaseItemAction from './ApprovedPurchaseItemAction';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface Order {
   id: number;
@@ -39,6 +40,7 @@ function ApprovedPurchaseListItem({
   approvedRequisition,
   isExpanded,
 }: ApprovedPurchaseListItemProps) {
+  const dictionary = useDictionary();
   const { checkOrganizationPermission } = useJumboAuth();
 
   const {
@@ -110,10 +112,10 @@ function ApprovedPurchaseListItem({
           }}
         >
           <Grid size={{ xs: 6, md: 2.5 }}>
-            <Tooltip title='Order No.'>
+            <Tooltip title={dictionary.tooltips.orderNo}>
               <Typography>{order.orderNo}</Typography>
             </Tooltip>
-            <Tooltip title='Date'>
+            <Tooltip title={dictionary.tooltips.date}>
               <Typography variant='caption'>
                 {readableDate(order.order_date)}
               </Typography>
@@ -121,7 +123,7 @@ function ApprovedPurchaseListItem({
           </Grid>
 
           <Grid size={{ xs: 6, md: 4 }}>
-            <Tooltip title='Supplier'>
+            <Tooltip title={dictionary.tooltips.supplier}>
               <Typography>{order.stakeholder.name}</Typography>
             </Tooltip>
           </Grid>
@@ -134,7 +136,7 @@ function ApprovedPurchaseListItem({
               justifyContent: 'space-between',
             }}
           >
-            <Tooltip title='Status'>
+            <Tooltip title={dictionary.tooltips.status}>
               <Chip
                 size='small'
                 label={order.status}
@@ -143,7 +145,7 @@ function ApprovedPurchaseListItem({
             </Tooltip>
 
             {checkOrganizationPermission(PERMISSIONS.PURCHASES_CREATE) && (
-              <Tooltip title='Amount'>
+              <Tooltip title={dictionary.tooltips.amount}>
                 <Typography>
                   {(order.amount + order.vat_amount).toLocaleString('en-US', {
                     style: 'currency',

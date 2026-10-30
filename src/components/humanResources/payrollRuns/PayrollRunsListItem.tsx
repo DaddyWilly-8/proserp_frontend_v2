@@ -32,15 +32,16 @@ import PayslipsList from './PayslipsList';
 import { PayrollRunType } from './PayrollRunType';
 import { formatPayslipPeriod, processPayslips, statusColor } from './payrollUtils';
 import SummaryTab from './SummaryTab';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
-const getErrorMessage = (error: any) => {
+const extractErrorMessage = (error: any, fallback: string) => {
   const validationErrors = error?.response?.data?.validation_errors;
   if (validationErrors && typeof validationErrors === 'object') {
     const first = Object.values(validationErrors)[0] as any;
     return Array.isArray(first) ? first[0] : String(first);
   }
   return (
-    error?.response?.data?.message || error?.message || 'Something went wrong'
+    error?.response?.data?.message || error?.message || fallback
   );
 };
 
@@ -52,6 +53,10 @@ const PayrollRunsListItem = ({
   selectedPayrollPeriod: PayrollPeriodType | null;
 }) => {
   const theme = useTheme();
+  const dictionary = useDictionary();
+  const t = dictionary.humanResources.payrollRuns;
+  const getErrorMessage = (error: any) =>
+    extractErrorMessage(error, t.listItem.somethingWentWrong);
   const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
   const { organizationHasSubscribed, checkOrganizationPermission } =
@@ -230,8 +235,11 @@ const PayrollRunsListItem = ({
   const employeeName =
     `${payrollRun.employee?.first_name || ''} ${payrollRun.employee?.last_name || ''}`.trim();
   const runLabel =
-    employeeName || payrollRun.cost_center?.name || 'Company-wide run';
-  const periodLabel = formatPayslipPeriod({ run: { period: payrollRun.period } });
+    employeeName || payrollRun.cost_center?.name || t.listItem.companyWideRun;
+  const periodLabel = formatPayslipPeriod(
+    { run: { period: payrollRun.period } },
+    t.months
+  );
 
   // Mutations
   const { mutate: submitPayrollRun, isPending: isSubmitting } = useMutation({
@@ -239,7 +247,7 @@ const PayrollRunsListItem = ({
       humanResourcesServices.submitPayrollRun({ id: payrollRun.id }),
     onSuccess: (response) => {
       invalidatePayrollRunQueries();
-      enqueueSnackbar(response?.message || 'Payroll submitted for approval', {
+      enqueueSnackbar(response?.message || t.listItem.messages.submitted, {
         variant: 'success',
       });
     },
@@ -251,7 +259,7 @@ const PayrollRunsListItem = ({
     mutationFn: () => humanResourcesServices.approvePayrollRun(payrollRun.id),
     onSuccess: () => {
       invalidatePayrollRunQueries();
-      enqueueSnackbar('Payroll run approved', { variant: 'success' });
+      enqueueSnackbar(t.listItem.messages.approved, { variant: 'success' });
     },
     onError: (error) =>
       enqueueSnackbar(getErrorMessage(error), { variant: 'error' }),
@@ -261,7 +269,7 @@ const PayrollRunsListItem = ({
     mutationFn: () => humanResourcesServices.completePayrollRun(payrollRun.id),
     onSuccess: () => {
       invalidatePayrollRunQueries();
-      enqueueSnackbar('Payroll run completed', { variant: 'success' });
+      enqueueSnackbar(t.listItem.messages.completed, { variant: 'success' });
     },
     onError: (error) =>
       enqueueSnackbar(getErrorMessage(error), { variant: 'error' }),
@@ -273,7 +281,7 @@ const PayrollRunsListItem = ({
         humanResourcesServices.reverseCompletePayrollRun(payrollRun.id),
       onSuccess: () => {
         invalidatePayrollRunQueries();
-        enqueueSnackbar('Payroll run reverted to approved', {
+        enqueueSnackbar(t.listItem.messages.revertedToApproved, {
           variant: 'success',
         });
       },
@@ -286,7 +294,7 @@ const PayrollRunsListItem = ({
       mutationFn: () => humanResourcesServices.withdrawPayrollRun(payrollRun.id),
       onSuccess: () => {
         invalidatePayrollRunQueries();
-        enqueueSnackbar('Payroll run withdrawn back to draft', {
+        enqueueSnackbar(t.listItem.messages.withdrawn, {
           variant: 'success',
         });
       },
@@ -303,7 +311,7 @@ const PayrollRunsListItem = ({
       humanResourcesServices.reversePayrollRunTransactions(payrollRun.id),
     onSuccess: () => {
       invalidatePayrollRunQueries();
-      enqueueSnackbar('Payroll transactions reversed; run reverted to approved', {
+      enqueueSnackbar(t.listItem.messages.transactionsReversed, {
         variant: 'success',
       });
     },
@@ -322,8 +330,11 @@ const PayrollRunsListItem = ({
       invalidatePayrollRunQueries();
       enqueueSnackbar(
         response?.journal_voucher?.voucher_no
-          ? `Payroll posted: ${response.journal_voucher.voucher_no}`
-          : 'Payroll transactions posted',
+          ? t.listItem.messages.postedWithVoucher.replace(
+              '{voucher}',
+              response.journal_voucher.voucher_no
+            )
+          : t.listItem.messages.posted,
         { variant: 'success' }
       );
     },
@@ -335,7 +346,7 @@ const PayrollRunsListItem = ({
     mutationFn: () => humanResourcesServices.deletePayrollRun(payrollRun.id),
     onSuccess: () => {
       invalidatePayrollRunQueries();
-      enqueueSnackbar('Payroll run deleted', { variant: 'success' });
+      enqueueSnackbar(t.listItem.messages.deleted, { variant: 'success' });
     },
     onError: (error) =>
       enqueueSnackbar(getErrorMessage(error), { variant: 'error' }),
@@ -382,7 +393,7 @@ const PayrollRunsListItem = ({
       });
       setSimulationResult(response?.data || response);
       setOpenSimulationDialog(true);
-      enqueueSnackbar('Employee simulation generated', { variant: 'success' });
+      enqueueSnackbar(t.listItem.messages.simulationGenerated, { variant: 'success' });
     } catch (error: any) {
       enqueueSnackbar(getErrorMessage(error), { variant: 'error' });
     } finally {
@@ -475,7 +486,14 @@ const PayrollRunsListItem = ({
               />
             )}
             <Chip
-              label={payrollRun.status_label || payrollRun.status || 'draft'}
+              label={
+                (t.status as Record<string, string>)[
+                  (payrollRun.status || 'draft').toLowerCase()
+                ] ||
+                payrollRun.status_label ||
+                payrollRun.status ||
+                t.status.draft
+              }
               color={statusColor(payrollRun.status || '')}
               size='small'
               sx={{
@@ -543,11 +561,11 @@ const PayrollRunsListItem = ({
                     },
                   }}
                 >
-                  <Tab label='Summary' />
-                  {hasApprovalsTab && <Tab label='Approvals' />}
-                  {hasPaymentsTabs && <Tab label='Payments' />}
-                  {hasPaymentsTabs && <Tab label='Payable Settlements' />}
-                  {hasPayslips && <Tab label='Payslips' />}
+                  <Tab label={t.listItem.tabs.summary} />
+                  {hasApprovalsTab && <Tab label={t.listItem.tabs.approvals} />}
+                  {hasPaymentsTabs && <Tab label={t.listItem.tabs.payments} />}
+                  {hasPaymentsTabs && <Tab label={t.listItem.tabs.payableSettlements} />}
+                  {hasPayslips && <Tab label={t.listItem.tabs.payslips} />}
                 </Tabs>
               </Box>
 
@@ -584,7 +602,7 @@ const PayrollRunsListItem = ({
                   <PayrollPaymentsTab
                     payments={employeePayments}
                     payrollRunId={payrollRun.id}
-                    emptyMessage='No employee payments have been made against this run yet.'
+                    emptyMessage={t.listItem.noEmployeePayments}
                     canReverse={canReversePayment}
                     canEdit={canEditPayment}
                   />
@@ -596,7 +614,7 @@ const PayrollRunsListItem = ({
                   <PayrollPaymentsTab
                     payments={payableSettlementPayments}
                     payrollRunId={payrollRun.id}
-                    emptyMessage='No payable settlements have been recorded against this run yet.'
+                    emptyMessage={t.listItem.noPayableSettlements}
                     canReverse={canReversePayment}
                     canEdit={canEditPayment}
                   />

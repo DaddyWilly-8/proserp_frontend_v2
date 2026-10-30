@@ -26,6 +26,7 @@ import projectsServices from '../../../project-services';
 import MaterialIssuedSelector from '../../subcontracts/tabs/materialIssued/MaterialIssuedSelector';
 import TaskViewListItem from './TaskViewListItem';
 import TaskViewSummary from './TaskViewSummary';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface TaskViewProps {
   setOpenDialog: (value: boolean) => void;
@@ -38,6 +39,7 @@ const MaterialUsedListHeader = ({
 }: {
   isAggregated: boolean;
 }) => {
+  const dictionary = useDictionary();
   return (
     <Grid
       mt={1}
@@ -56,21 +58,21 @@ const MaterialUsedListHeader = ({
     >
       {!isAggregated && (
         <Grid size={4}>
-          <Typography>Date</Typography>
+          <Typography>{dictionary.projectManagement.wbs.taskView.date}</Typography>
         </Grid>
       )}
 
       <Grid size={!isAggregated ? 5 : 6}>
-        <Typography noWrap={false}>Product Name</Typography>
+        <Typography noWrap={false}>{dictionary.projectManagement.wbs.taskView.productName}</Typography>
       </Grid>
 
       <Grid size={!isAggregated ? 3 : 3}>
-        <Typography>Quantity</Typography>
+        <Typography>{dictionary.projectManagement.wbs.taskView.quantity}</Typography>
       </Grid>
 
       {isAggregated && (
         <Grid size={3}>
-          <Typography>Budgeted Quantity</Typography>
+          <Typography>{dictionary.projectManagement.wbs.taskView.budgetedQuantity}</Typography>
         </Grid>
       )}
     </Grid>
@@ -78,6 +80,7 @@ const MaterialUsedListHeader = ({
 };
 
 const TaskView = ({ setOpenDialog, task, activity }: TaskViewProps) => {
+  const dictionary = useDictionary();
   const listRef = useRef<any>(null);
   const [selectedTab, setSelectedTab] = useState(0);
   const [queryOptions, setQueryOptions] = React.useState({
@@ -134,9 +137,9 @@ const TaskView = ({ setOpenDialog, task, activity }: TaskViewProps) => {
 
   const taskSubtitle = task.weighted_percentage
     ? task.weighted_percentage.toLocaleString() +
-      '% of ' +
-      (activity?.name || 'Task details and resource usage')
-    : activity?.name || 'Task details and resource usage';
+      dictionary.projectManagement.wbs.taskView.percentOf +
+      (activity?.name || dictionary.projectManagement.wbs.taskView.detailsAndUsage)
+    : activity?.name || dictionary.projectManagement.wbs.taskView.detailsAndUsage;
 
   const renderMaterial = React.useCallback(
     (material: any) => {
@@ -150,19 +153,23 @@ const TaskView = ({ setOpenDialog, task, activity }: TaskViewProps) => {
   let tableHeader: Array<string> = [];
 
   !isAggregated
-    ? (tableHeader = ['Date', 'Product Name', 'Quantity'])
+    ? (tableHeader = [
+        dictionary.projectManagement.wbs.taskView.date,
+        dictionary.projectManagement.wbs.taskView.productName,
+        dictionary.projectManagement.wbs.taskView.quantity,
+      ])
     : (tableHeader = [
-        'Product Name',
-        'Quantity',
-        'Budgeted Quantity',
-        'Budget Balance',
+        dictionary.projectManagement.wbs.taskView.productName,
+        dictionary.projectManagement.wbs.taskView.quantity,
+        dictionary.projectManagement.wbs.taskView.budgetedQuantity,
+        dictionary.projectManagement.wbs.taskView.budgetBalance,
       ]);
 
   return (
     <>
       <DialogTitle sx={{ pb: 1 }}>
         <Typography textAlign={'center'} fontSize={20} fontWeight={700}>
-          {task?.name + ' Task' || 'Task details'}
+          {task?.name ? dictionary.projectManagement.wbs.taskView.taskTitle.replace('{name}', task.name) : dictionary.projectManagement.wbs.taskView.taskDetails}
         </Typography>
         <Typography
           textAlign={'center'}
@@ -182,8 +189,8 @@ const TaskView = ({ setOpenDialog, task, activity }: TaskViewProps) => {
             variant='fullWidth'
             sx={{ minHeight: 40 }}
           >
-            <Tab label='Deliverables' />
-            <Tab label='Material Used' />
+            <Tab label={dictionary.projectManagement.wbs.taskView.deliverables} />
+            <Tab label={dictionary.projectManagement.wbs.taskView.materialUsed} />
           </Tabs>
         </Paper>
       </DialogTitle>
@@ -205,16 +212,16 @@ const TaskView = ({ setOpenDialog, task, activity }: TaskViewProps) => {
                       borderColor: 'divider',
                     },
                   }}
-                  aria-label='Deliverables Table'
+                  aria-label={dictionary.projectManagement.wbs.taskView.deliverablesTable}
                 >
                   <TableHead sx={{ bgcolor: 'action.hover' }}>
                     <TableRow>
-                      <TableCell sx={{ width: '25%' }}>Code</TableCell>
+                      <TableCell sx={{ width: '25%' }}>{dictionary.projectManagement.wbs.taskView.code}</TableCell>
                       <TableCell sx={{ width: '50%' }} align='left'>
-                        Description
+                        {dictionary.projectManagement.wbs.taskView.description}
                       </TableCell>
                       <TableCell sx={{ width: '25%' }}>
-                        Contribution Percentage
+                        {dictionary.projectManagement.wbs.taskView.contributionPercentage}
                       </TableCell>
                     </TableRow>
                   </TableHead>
@@ -239,7 +246,7 @@ const TaskView = ({ setOpenDialog, task, activity }: TaskViewProps) => {
             ) : (
               <Paper variant='outlined' sx={{ p: 2, borderRadius: 2 }}>
                 <Typography color='text.secondary'>
-                  No task deliverables for this task
+                  {dictionary.projectManagement.wbs.taskView.noDeliverables}
                 </Typography>
               </Paper>
             ))}
@@ -295,7 +302,7 @@ const TaskView = ({ setOpenDialog, task, activity }: TaskViewProps) => {
           variant='outlined'
           onClick={() => setOpenDialog(false)}
         >
-          Close
+          {dictionary.projectManagement.wbs.common.close}
         </Button>
       </DialogActions>
     </>

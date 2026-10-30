@@ -10,8 +10,10 @@ import {
 } from '@mui/material';
 import { useState } from 'react';
 import DepartmentForm from './DepartmentForm';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const DepartmentActionTail = () => {
+  const dictionary = useDictionary();
   const { checkOrganizationPermission } = useJumboAuth();
   const [openDialog, setOpenDialog] = useState(false);
 
@@ -30,7 +32,7 @@ const DepartmentActionTail = () => {
         sx={{ '& .MuiButton-root': { px: 1 } }}
       >
         {/* {( */}
-        <Tooltip title='Add Department'>
+        <Tooltip title={dictionary.tooltips.addDepartment}>
           <IconButton onClick={() => setOpenDialog(true)}>
             <AddOutlined />
           </IconButton>

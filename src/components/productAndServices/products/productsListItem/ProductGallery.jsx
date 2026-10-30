@@ -37,6 +37,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useSnackbar } from 'notistack';
 import { useRef, useState } from 'react';
 import productServices from '../productServices';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 // ─── Lightbox ─────────────────────────────────────────────────────────────────
 
@@ -260,6 +261,7 @@ const DeleteConfirmDialog = ({ open, onClose, onConfirm, isPending }) => (
 // ─── Photo Card ───────────────────────────────────────────────────────────────
 
 const PhotoCard = ({ photo, productId, canEdit, isDragging, onPreview }) => {
+  const dictionary = useDictionary();
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: photo.id });
   const style = { transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.5 : 1 };
   const queryClient = useQueryClient();
@@ -359,25 +361,25 @@ const PhotoCard = ({ photo, productId, canEdit, isDragging, onPreview }) => {
             alignItems='center'
             sx={{ position: 'absolute', bottom: 0, left: 0, right: 0, bgcolor: 'rgba(0,0,0,0.45)', px: 0.5 }}
           >
-            <Tooltip title='Drag to reorder'>
+            <Tooltip title={dictionary.tooltips.dragToReorder}>
               <IconButton size='small' {...attributes} {...listeners} sx={{ color: 'rgba(255,255,255,0.7)', cursor: 'grab', '&:active': { cursor: 'grabbing' } }}>
                 <DragHandleOutlined fontSize='small' />
               </IconButton>
             </Tooltip>
             {!photo.is_main ? (
-              <Tooltip title='Set as main photo'>
+              <Tooltip title={dictionary.tooltips.setAsMainPhoto}>
                 <IconButton size='small' onClick={() => setMain()} sx={{ color: 'white' }}>
                   <StarOutlined fontSize='small' />
                 </IconButton>
               </Tooltip>
             ) : (
-              <Tooltip title='Main photo'>
+              <Tooltip title={dictionary.tooltips.mainPhoto}>
                 <IconButton size='small' disabled sx={{ color: 'warning.main' }}>
                   <Star fontSize='small' />
                 </IconButton>
               </Tooltip>
             )}
-            <Tooltip title='Delete photo'>
+            <Tooltip title={dictionary.tooltips.deletePhoto}>
               <IconButton size='small' onClick={() => setConfirmOpen(true)} sx={{ color: 'error.light' }}>
                 <DeleteOutlined fontSize='small' />
               </IconButton>

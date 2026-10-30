@@ -6,8 +6,10 @@ import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { useJumboTheme } from "@jumbo/components/JumboTheme/hooks";
 import ProjectClaimsForm from "./form/ProjectClaimsForm";
 import { PERMISSIONS } from '@/utilities/constants/permissions';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const ProjectClaimsActionTail = () => {
+  const dictionary = useDictionary();
   const { checkOrganizationPermission } = useJumboAuth();
   const { theme } = useJumboTheme();
   const [openDialog, setOpenDialog] = useState(false);
@@ -24,7 +26,7 @@ const ProjectClaimsActionTail = () => {
 
       {canCreateClaim && (
         <ButtonGroup variant="outlined" size="small" disableElevation sx={{ '& .MuiButton-root': { px: 1 } }}>
-          <Tooltip title={"Add Payment Claim"}>
+          <Tooltip title={dictionary.tooltips.addPaymentClaim}>
             <IconButton onClick={() => setOpenDialog(true)}>
               <AddOutlined />
             </IconButton>

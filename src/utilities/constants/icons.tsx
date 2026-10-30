@@ -54,6 +54,7 @@ import {
   ViewAgendaOutlined,
   WarehouseOutlined,
   TrendingDownOutlined,
+  EventRepeatOutlined,
 } from '@mui/icons-material';
 
 export const ICONS = {
@@ -118,6 +119,7 @@ export const ICONS = {
   businessCenter: BusinessCenterOutlined,
   assetRegister: WarehouseOutlined,
   depreciationRuns: TrendingDownOutlined,
+  recurringTransactions: EventRepeatOutlined,
   assetBookings: CalendarMonthOutlined,
 } as const;
 

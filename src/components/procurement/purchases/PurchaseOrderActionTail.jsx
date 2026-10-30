@@ -6,8 +6,10 @@ import PurchaseOrderDialogForm from './purchaseOrderForm/PurchaseOrderDialogForm
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function PurchaseOrderActionTail() {
+    const dictionary = useDictionary();
     const {checkOrganizationPermission} = useJumboAuth()
     const [openDialog, setOpenDialog] = useState(false);
 
@@ -20,7 +22,7 @@ function PurchaseOrderActionTail() {
         {
             checkOrganizationPermission(PERMISSIONS.PURCHASES_CREATE) &&
             <>
-                <Tooltip title='New Purchase Order'>
+                <Tooltip title={dictionary.tooltips.newPurchaseOrder}>
                     <IconButton onClick={() => setOpenDialog(true)}>
                         <AddOutlined/>
                     </IconButton>

@@ -25,8 +25,37 @@ fuelStationServices.dippingReport = async (params) => {
     return data;
 }
 
+fuelStationServices.tankStockReport = async (params) => {
+    const { data } = await axios.get(`/api/fuelStations/dippings/tankStockReport`, {
+        params
+    })
+    return data;
+}
+
+fuelStationServices.uninvoicedFuelVouchers = async (params) => {
+    const { data } = await axios.get(`/api/fuelStations/fuelVoucherInvoices/uninvoicedVouchers`, { params });
+    return data;
+}
+
+fuelStationServices.createFuelVoucherInvoice = async (invoice) => {
+    const { data } = await axios.post(`/api/fuelStations/fuelVoucherInvoices`, invoice);
+    return data;
+}
+
+fuelStationServices.deleteFuelVoucherInvoice = async (id) => {
+    const { data } = await axios.delete(`/api/fuelStations/fuelVoucherInvoices/${id}`);
+    return data;
+}
+
 fuelStationServices.exportDippingReportToExcel = async (exportedData) => {
     const res = await axios.post(`/api/exports/excel/dippingReport/`, exportedData, {
+        responseType: 'blob',
+    });
+    return res.data;
+}
+
+fuelStationServices.exportTankStockReportToExcel = async (exportedData) => {
+    const res = await axios.post(`/api/exports/excel/tankStockReport/`, exportedData, {
         responseType: 'blob',
     });
     return res.data;
@@ -44,27 +73,6 @@ fuelStationServices.exportFuelVouchersToExcel = async (exportedData) => {
         responseType: 'blob',
     });
     return res.data;
-}
-
-fuelStationServices.stockSalesSummaryReport = async (params) => {
-    const { data } = await axios.get(`/api/fuelStations/stations/stockSalesSummaryReport`, {
-        params,
-        paramsSerializer: (params) => {
-            const searchParams = new URLSearchParams();
-
-            Object.keys(params).forEach(key => {
-                const value = params[key];
-                if (Array.isArray(value)) {
-                    value.forEach(item => searchParams.append(`${key}[]`, item));
-                } else if (value !== null && value !== undefined && value !== '') {
-                    searchParams.append(key, value);
-                }
-            });
-
-            return searchParams.toString();
-        }
-    })
-    return data;
 }
 
 fuelStationServices.shiftsSummaryReport = async (params) => {

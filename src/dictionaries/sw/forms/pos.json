@@ -1,0 +1,497 @@
+{
+  "counter": {
+    "saleDialog": {
+      "title": {
+        "new": "Mauzo Mapya",
+        "edit": "Hariri: {saleNo}"
+      },
+      "buttons": {
+        "attachAssetBooking": "Ambatisha Uhifadhi wa Mali",
+        "addAndSubmit": "Ongeza na Wasilisha",
+        "submitWithoutAdd": "Wasilisha bila kuongeza",
+        "cancel": "Ghairi",
+        "suspend": "Simamisha",
+        "checkout": "Kamilisha Mauzo"
+      },
+      "dialog": {
+        "lastItemNotAdded": "Kipengee cha mwisho hakijaongezwa kwenye orodha",
+        "unsavedChanges": "Mabadiliko Hayajahifadhiwa"
+      },
+      "messages": {
+        "bookingFailed": "Mauzo yamehifadhiwa, lakini uhifadhi ulioambatishwa haukuweza kuundwa/kuunganishwa — uongeze mwenyewe kutoka kwenye kalenda ya Uhifadhi.",
+        "bookingPending": "Uhifadhi wa {code} utaundwa na kuunganishwa mauzo haya yakihifadhiwa",
+        "displayConnected": "Imeunganishwa - Bofya kukata muunganisho",
+        "displayNotConnected": "Skrini ya Serial Haijaunganishwa - Bofya kuunganisha"
+      },
+      "validation": {
+        "salesOutletRequired": "Duka la mauzo linahitajika",
+        "currencyRequired": "Sarafu inahitajika",
+        "salesDateRequired": "Tarehe ya mauzo inahitajika",
+        "paymentMethodRequired": "Njia ya malipo inahitajika",
+        "submitTypeRequired": "Aina ya uwasilishaji inahitajika",
+        "submitTypeInvalid": "Aina ya uwasilishaji lazima iwe \"complete\" au \"pending\"",
+        "debitAccountRequired": "Akaunti ya debiti inahitajika",
+        "itemMin": "Lazima uongeze angalau kipengee kimoja",
+        "productRequired": "Bidhaa inahitajika",
+        "quantityRequired": "Kiasi kinahitajika",
+        "priceRequired": "Bei inahitajika"
+      }
+    },
+    "saleTop": {
+      "walkInCustomer": "Mteja wa Papo Hapo",
+      "labels": {
+        "transactionDate": "Tarehe ya Muamala",
+        "exchangeRate": "Kiwango cha Ubadilishaji",
+        "client": "Mteja",
+        "reference": "Rejea",
+        "paymentMethod": "Njia ya Malipo",
+        "account": "Akaunti",
+        "salesPerson": "Muuzaji",
+        "remarks": "Maoni"
+      },
+      "paymentMethods": {
+        "instant": "Papo Hapo",
+        "onAccount": "Kwa Akaunti"
+      }
+    },
+    "saleItem": {
+      "addItem": "Ongeza Kipengee",
+      "labels": {
+        "availableBalance": "Salio Lililopo",
+        "quantity": "Kiasi",
+        "price": "Bei",
+        "priceVatInclusive": "Bei (Pamoja na VAT)",
+        "amount": "Kiasi cha Fedha",
+        "description": "Maelezo"
+      },
+      "buttons": {
+        "done": "Imekamilika",
+        "add": "Ongeza"
+      },
+      "validation": {
+        "productRequired": "Bidhaa inahitajika",
+        "priceRequired": "Bei inahitajika",
+        "pricePositive": "Bei lazima iwe chanya",
+        "storeRequired": "Stoo inahitajika",
+        "quantityRequired": "Kiasi kinahitajika",
+        "quantityPositive": "Kiasi lazima kiwe chanya",
+        "quantityExceedsBalance": "Kiasi kinazidi salio lililopo",
+        "negativeBalance": "Kiasi hiki kitasababisha salio hasi. Salio la sasa la leo ni {balance}"
+      }
+    },
+    "quickAdd": {
+      "label": "Ongeza Haraka kwa SKU ya Bidhaa (Msimbo wa Bidhaa)",
+      "productNotFound": "Hakuna bidhaa inayolingana iliyopatikana",
+      "noPrice": "Bei ya kuuza haijawekwa kwa bidhaa iliyopatikana",
+      "noBalance": "Hakuna salio la hisa"
+    },
+    "saleSummary": {
+      "summary": "Muhtasari",
+      "total": "Jumla",
+      "vat": "VAT",
+      "grandTotal": "Jumla Kuu",
+      "instantSale": "Mauzo ya Papo Hapo",
+      "suggestRecentPrice": "Pendekeza Bei ya Karibuni"
+    },
+    "productSalesReport": {
+      "labels": {
+        "title": "Ripoti ya Mauzo ya Bidhaa",
+        "amountsInBaseCurrency": "Kiasi katika sarafu kuu ({code})",
+        "from": "Kuanzia",
+        "to": "Hadi",
+        "countersAll": "Kaunta (zote ikiwa tupu)",
+        "clientsAll": "Wateja (wote ikiwa tupu)",
+        "productsAll": "Bidhaa (zote ikiwa tupu)",
+        "generate": "Tengeneza",
+        "close": "Funga",
+        "product": "Bidhaa",
+        "qtyOrdered": "Kiasi Kilichoagizwa",
+        "qtyDispatched": "Kiasi Kilichosafirishwa",
+        "qtyUndispatched": "Kiasi Ambacho Hakijasafirishwa",
+        "amountOrdered": "Thamani Iliyoagizwa",
+        "amountDispatched": "Thamani Iliyosafirishwa",
+        "amountUndispatched": "Thamani Isiyosafirishwa",
+        "paymentReceived": "Malipo Yaliyopokelewa",
+        "total": "Jumla",
+        "collectionDistribution": "Mgawanyo wa Makusanyo"
+      },
+      "messages": {
+        "noSales": "Hakuna mauzo yaliyopatikana kwa kipindi hiki.",
+        "exportFailed": "Imeshindikana kusafirisha faili la Excel"
+      }
+    },
+    "dispatch": {
+      "title": {
+        "new": "Usafirishaji wa {saleNo}",
+        "edit": "Hariri Usafirishaji wa {deliveryNo}"
+      },
+      "labels": {
+        "dispatchDate": "Tarehe ya Usafirishaji",
+        "dispatchFrom": "Imesafirishwa Kutoka",
+        "destination": "Mahali Inapokwenda",
+        "vehicleInformation": "Taarifa za Gari",
+        "driverInformation": "Taarifa za Dereva",
+        "remarks": "Maoni",
+        "availableBalance": "Salio Lililopo",
+        "dispatchQuantity": "Kiasi cha Kusafirisha"
+      },
+      "buttons": {
+        "cancel": "Ghairi",
+        "dispatch": "Safirisha"
+      },
+      "validation": {
+        "dispatchDateRequired": "Tarehe ya usafirishaji inahitajika",
+        "deliveryDateRequired": "Tarehe ya uwasilishaji inahitajika",
+        "dispatchFromRequired": "Mahali pa kusafirishia pahitajika",
+        "dispatchDestinationRequired": "Mahali inapokwenda pahitajika",
+        "destinationRequired": "Mahali inapokwenda pahitajika",
+        "quantityRequired": "Kiasi kinahitajika",
+        "quantityExceedsBalance": "Kiasi hakiwezi kuzidi Salio Lililopo",
+        "negativeBalance": "Kiasi hiki kitasababisha salio hasi. Salio la sasa la leo ni {balance}",
+        "quantityExceedsRequired": "Kiasi hakiwezi kuzidi Kiasi Kinachohitajika Kusafirishwa",
+        "storeRequired": "Stoo inahitajika"
+      }
+    },
+    "receipt": {
+      "title": "Risiti Mpya",
+      "labels": {
+        "paymentDate": "Tarehe ya Malipo",
+        "receivingAccount": "Akaunti ya Kupokelea",
+        "exchangeRate": "Kiwango cha Ubadilishaji",
+        "amount": "Kiasi",
+        "reference": "Rejea",
+        "narration": "Maelezo ya Muamala"
+      },
+      "buttons": {
+        "cancel": "Ghairi",
+        "receipt": "Toa Risiti"
+      },
+      "messages": {
+        "amountOf": "{message} cha {amount}"
+      },
+      "validation": {
+        "paymentDateRequired": "Tarehe ya malipo inahitajika",
+        "narrationRequired": "Maelezo ya muamala yanahitajika",
+        "receivingAccountRequired": "Akaunti ya kupokelea inahitajika",
+        "amountGreaterThanZero": "Kiasi kilichoingizwa lazima kiwe zaidi ya 0",
+        "amountExceedsReceiptable": "Kiasi kilichoingizwa kinazidi kiasi kinachoweza kupokelewa",
+        "amountRequired": "Kiasi kinahitajika"
+      }
+    },
+    "invoice": {
+      "title": "Ankara Mpya",
+      "editTitle": "Hariri Ankara {invoiceNo}",
+      "labels": {
+        "invoiceDate": "Tarehe ya Ankara",
+        "internalReference": "Rejea ya Ndani",
+        "customerReference": "Rejea ya Mteja",
+        "deliveryNote": "Hati ya Uwasilishaji",
+        "dueDate": "Tarehe ya Mwisho wa Malipo",
+        "termsAndInstructions": "Masharti na Maelekezo",
+        "narration": "Maelezo ya Muamala",
+        "postVfd": "Tuma VFD",
+        "summary": "Muhtasari",
+        "total": "Jumla",
+        "vatAmount": "Kiasi cha VAT",
+        "grandTotal": "Jumla Kuu"
+      },
+      "buttons": {
+        "cancel": "Ghairi",
+        "invoice": "Toa Ankara",
+        "save": "Hifadhi"
+      },
+      "validation": {
+        "invoiceDateRequired": "Tarehe ya ankara inahitajika"
+      }
+    },
+    "adjustment": {
+      "title": {
+        "edit": "Hariri {voucherNo}",
+        "debit": "Hati ya Debiti kwa {invoiceNo}",
+        "credit": "Hati ya Krediti kwa {invoiceNo}",
+        "note": "Hati kwa {invoiceNo}"
+      },
+      "noteTypes": {
+        "debit": "Hati ya Debiti",
+        "credit": "Hati ya Krediti"
+      },
+      "labels": {
+        "product": "Bidhaa",
+        "description": "Maelezo",
+        "complementLedger": "Leja Pinzani",
+        "unit": "Kipimo",
+        "quantity": "Kiasi",
+        "rate": "Kiwango",
+        "noteDate": "Tarehe ya Hati",
+        "noteType": "Aina ya Hati",
+        "narration": "Maelezo ya Muamala",
+        "summary": "Muhtasari",
+        "total": "Jumla",
+        "vatAmount": "Kiasi cha VAT",
+        "grandTotal": "Jumla Kuu"
+      },
+      "buttons": {
+        "add": "Ongeza",
+        "cancel": "Ghairi",
+        "submit": "Wasilisha"
+      },
+      "messages": {
+        "fixValidationErrors": "Tafadhali rekebisha makosa ya uthibitishaji kabla ya kuwasilisha."
+      },
+      "validation": {
+        "invoiceDateRequired": "Tarehe ya ankara inahitajika",
+        "noteTypeRequired": "Aina ya hati inahitajika",
+        "narrationRequired": "Maelezo ya muamala yanahitajika",
+        "complementLedgerRequired": "Leja pinzani inahitajika",
+        "complementLedgerInvalid": "Chagua leja pinzani sahihi",
+        "measurementUnitRequired": "Kipimo kinahitajika",
+        "quantityRequired": "Kiasi kinahitajika",
+        "quantityNumber": "Kiasi lazima kiwe namba",
+        "quantityPositive": "Kiasi lazima kiwe chanya",
+        "rateRequired": "Kiwango kinahitajika",
+        "rateNumber": "Kiwango lazima kiwe namba",
+        "ratePositive": "Kiwango lazima kiwe chanya",
+        "productOrDescription": "Bidhaa au Maelezo lazima yatolewe"
+      }
+    }
+  },
+  "proformaInvoices": {
+    "title": {
+      "new": "Ankara Mpya ya Proforma",
+      "edit": "Hariri {name}"
+    },
+    "labels": {
+      "proformaDate": "Tarehe ya Proforma",
+      "expiryDate": "Tarehe ya Kuisha Muda",
+      "exchangeRate": "Kiwango cha Ubadilishaji",
+      "client": "Mteja",
+      "reference": "Rejea",
+      "remarks": "Maoni",
+      "summary": "Muhtasari",
+      "total": "Jumla",
+      "vat": "VAT",
+      "grandTotal": "Jumla Kuu",
+      "addItem": "Ongeza Kipengee",
+      "quickProductRegistration": "Usajili wa Haraka wa Bidhaa",
+      "productService": "Bidhaa/Huduma",
+      "quantity": "Kiasi",
+      "price": "Bei",
+      "priceVatInclusive": "Bei (Pamoja na VAT)",
+      "amount": "Kiasi cha Fedha",
+      "description": "Maelezo"
+    },
+    "dialog": {
+      "unsavedChanges": "Mabadiliko Hayajahifadhiwa",
+      "lastItemNotAdded": "Kipengee cha mwisho hakijaongezwa kwenye orodha"
+    },
+    "buttons": {
+      "addAndSubmit": "Ongeza na Wasilisha",
+      "submitWithoutAdd": "Wasilisha bila kuongeza",
+      "cancel": "Ghairi",
+      "submit": "Wasilisha",
+      "done": "Imekamilika",
+      "add": "Ongeza"
+    },
+    "validation": {
+      "proformaDateRequired": "Tarehe ya proforma inahitajika",
+      "salesDateRequired": "Tarehe ya mauzo inahitajika",
+      "clientRequired": "Mteja anahitajika",
+      "currencyRequired": "Sarafu inahitajika",
+      "exchangeRateRequired": "Kiwango cha ubadilishaji kinahitajika",
+      "itemMin": "Lazima uongeze angalau kipengee kimoja",
+      "productRequired": "Bidhaa inahitajika",
+      "quantityRequired": "Kiasi kinahitajika",
+      "priceRequired": "Bei inahitajika"
+    },
+    "saleForm": {
+      "title": "Mauzo ya {name}",
+      "labels": {
+        "transactionDate": "Tarehe ya Muamala",
+        "exchangeRate": "Kiwango cha Ubadilishaji",
+        "client": "Mteja",
+        "reference": "Rejea",
+        "saleCounter": "Kaunta ya Mauzo",
+        "paymentMethod": "Njia ya Malipo",
+        "account": "Akaunti",
+        "remarks": "Maoni",
+        "salesPerson": "Muuzaji",
+        "summary": "Muhtasari",
+        "total": "Jumla",
+        "vat": "VAT",
+        "grandTotal": "Jumla Kuu",
+        "instantSale": "Mauzo ya Papo Hapo",
+        "store": "Stoo",
+        "availableBalance": "Salio Lililopo",
+        "quantity": "Kiasi",
+        "price": "Bei"
+      },
+      "paymentMethods": {
+        "instant": "Papo Hapo",
+        "onAccount": "Kwa Akaunti"
+      },
+      "buttons": {
+        "cancel": "Ghairi",
+        "checkout": "Kamilisha Mauzo"
+      },
+      "validation": {
+        "salesOutletRequired": "Duka la mauzo linahitajika",
+        "currencyRequired": "Sarafu inahitajika",
+        "salesDateRequired": "Tarehe ya mauzo inahitajika",
+        "paymentMethodRequired": "Njia ya malipo inahitajika",
+        "debitAccountRequired": "Akaunti ya debiti inahitajika",
+        "storeRequired": "Stoo inahitajika",
+        "quantityRequired": "Kiasi kinahitajika",
+        "quantityPositive": "Kiasi lazima kiwe chanya",
+        "quantityExceedsBalance": "Kiasi hakiwezi kuzidi Salio Lililopo"
+      }
+    }
+  },
+  "reports": {
+    "salesPerformance": {
+      "title": "Utendaji wa Mauzo",
+      "labels": {
+        "from": "Kuanzia",
+        "to": "Hadi",
+        "groupBy": "Panga Kwa",
+        "rankBy": "Pangilia Kwa",
+        "topN": "Bora N",
+        "clientsAll": "Wateja (wote ikiwa tupu)",
+        "salesPeopleAll": "Wauzaji (wote ikiwa tupu)",
+        "customer": "Mteja",
+        "salesPerson": "Muuzaji",
+        "generate": "Tengeneza",
+        "close": "Funga",
+        "rank": "Nafasi",
+        "transactions": "Miamala",
+        "amountOrdered": "Thamani Iliyoagizwa",
+        "amountCollected": "Thamani Iliyokusanywa",
+        "amountDispatched": "Thamani Iliyosafirishwa",
+        "quantity": "Kiasi",
+        "product": "Bidhaa",
+        "total": "Jumla",
+        "productsSold": "Bidhaa zilizouzwa",
+        "productsSoldBy": "Bidhaa zilizouzwa na {name}"
+      },
+      "messages": {
+        "noSales": "Hakuna mauzo yaliyopatikana kwa kipindi hiki.",
+        "exportFailed": "Imeshindikana kusafirisha faili la Excel"
+      }
+    },
+    "salesManifest": {
+      "title": "Orodha ya Mauzo",
+      "labels": {
+        "counter": "Kaunta",
+        "clients": "Wateja",
+        "recordedBy": "Imerekodiwa Na",
+        "salesPerson": "Muuzaji",
+        "fromDate": "Kuanzia (MM/DD/YYYY)",
+        "toDate": "Hadi (MM/DD/YYYY)",
+        "separateVat": "Tenganisha VAT",
+        "collectionDistribution": "Mgawanyo wa Makusanyo",
+        "filter": "Chuja",
+        "close": "Funga"
+      },
+      "validation": {
+        "startDateRequired": "Tarehe ya kuanza inahitajika"
+      }
+    },
+    "salesAndCashSummary": {
+      "title": "Muhtasari wa Mauzo na Fedha Taslimu",
+      "labels": {
+        "costCenters": "Kituo/Vituo vya Gharama (acha wazi kwa vyote)",
+        "fromDate": "Kuanzia (MM/DD/YYYY)",
+        "toDate": "Hadi (MM/DD/YYYY)",
+        "separateCreditSales": "Tenganisha Mauzo ya Mkopo na Risiti",
+        "filter": "Chuja",
+        "close": "Funga"
+      },
+      "validation": {
+        "fromRequired": "Tarehe ya kuanza inahitajika",
+        "toRequired": "Tarehe ya mwisho inahitajika"
+      }
+    }
+  },
+  "priceLists": {
+    "title": {
+      "new": "Orodha Mpya ya Bei",
+      "edit": "Hariri Orodha ya Bei"
+    },
+    "labels": {
+      "effectiveDateTime": "Tarehe na Muda wa Kuanza Kutumika",
+      "applicableOutlets": "Maduka Husika",
+      "costInsights": "Uchambuzi wa Gharama",
+      "costCenter": "Kituo cha Gharama",
+      "narration": "Maelezo ya Muamala",
+      "productService": "Bidhaa/Huduma",
+      "unit": "Kipimo",
+      "price": "Bei",
+      "bottomCap": "Bei ya Chini Kabisa"
+    },
+    "itemForm": {
+      "addItem": "Ongeza Kipengee",
+      "averageCost": "Wastani wa Gharama"
+    },
+    "dialog": {
+      "unsavedChanges": "Mabadiliko Hayajahifadhiwa",
+      "lastItemNotAdded": "Kipengee cha mwisho hakijaongezwa kwenye orodha"
+    },
+    "buttons": {
+      "addAndSubmit": "Ongeza na Wasilisha",
+      "submitWithoutAdd": "Wasilisha bila kuongeza",
+      "cancel": "Ghairi",
+      "submit": "Wasilisha",
+      "done": "Imekamilika",
+      "add": "Ongeza"
+    },
+    "validation": {
+      "effectiveDateRequired": "Tarehe ya kuanza kutumika inahitajika",
+      "outletMin": "Lazima uongeze angalau duka moja",
+      "outletRequired": "Duka linahitajika",
+      "itemMin": "Lazima uongeze angalau kipengee kimoja",
+      "productRequired": "Bidhaa inahitajika",
+      "priceRequired": "Bei inahitajika",
+      "invalidBottomCap": "Bei ya chini kabisa si sahihi",
+      "bottomCapExceeds": "Bei ya chini kabisa haiwezi kuzidi bei",
+      "noAvailableUnit": "Hakuna kipimo kinachopatikana cha bidhaa hii kuweka bei. Tafadhali chagua bidhaa nyingine."
+    }
+  },
+  "outlet": {
+    "title": {
+      "new": "Fomu ya Duka Jipya",
+      "edit": "Hariri {name}"
+    },
+    "types": {
+      "workCenter": "Kituo cha Kazi",
+      "shop": "Duka",
+      "fuelStation": "Kituo cha Mafuta",
+      "manufacturing": "Uzalishaji"
+    },
+    "labels": {
+      "name": "Jina",
+      "type": "Aina",
+      "address": "Anwani",
+      "project": "Mradi (si lazima — huuza kwenye kituo cha gharama cha mradi)",
+      "counters": "Kaunta",
+      "counterName": "Jina la Kaunta",
+      "ledgerAccounts": "Akaunti za Leja"
+    },
+    "buttons": {
+      "add": "Ongeza",
+      "cancel": "Ghairi",
+      "submit": "Wasilisha"
+    },
+    "messages": {
+      "restrictCategories": "Zuia duka hili kuuza bidhaa kutoka kwenye kategoria zilizochaguliwa pekee. Acha wazi kuruhusu bidhaa zote.",
+      "usersManagedByProject": "Watumiaji husimamiwa kupitia kituo cha gharama cha mradi uliounganishwa, si kwa kila duka."
+    },
+    "validation": {
+      "nameRequired": "Jina la duka linahitajika",
+      "typeRequired": "Aina ya duka inahitajika",
+      "userRequired": "Angalau mtumiaji mmoja anahitajika",
+      "storeRequired": "Angalau stoo moja inahitajika",
+      "counterNameRequired": "Jina la kaunta linahitajika",
+      "ledgerRequired": "Angalau akaunti moja ya leja inahitajika",
+      "counterRequired": "Angalau kaunta moja inahitajika"
+    }
+  }
+}

@@ -8,6 +8,7 @@ import {
   faClockRotateLeft,
   faCubes,
   faReceipt,
+  faChartColumn,
   faTableCells,
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -37,11 +38,13 @@ import {
 } from '@mui/material';
 import React, { lazy, useState } from 'react';
 import DippingReport from '../fuelStation/reports/dippingReport/DippingReport';
+import TankStockReport from '../fuelStation/reports/tankStockReport/TankStockReport';
 import FuelVouchersReport from '../fuelStation/reports/FuelVouchersReport/FuelVouchersReport';
 import ShiftsSummaryReport from '../fuelStation/reports/shiftsSummaryReport/ShiftsSummaryReport';
 import StockMovement from '../procurement/stores/[store_id]/reports/stockMovement/StockMovement';
 import ItemMovement from '../procurement/stores/[store_id]/storeStock/ItemMovement';
 import StockReport from '../procurement/stores/[store_id]/storeStock/StockReport';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const DebtorCreditorReport = lazy(
   () => import('../accounts/reports/debtorCreditor/DebtorCreditorReport')
@@ -84,6 +87,7 @@ const ProjectStatusReport = lazy(
 );
 
 function QuickReports() {
+  const dictionary = useDictionary();
   const { theme } = useJumboTheme();
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
 
@@ -100,6 +104,7 @@ function QuickReports() {
   const [openSalesManifest, setOpenSalesManifest] = useState(false);
   const [openSalesPerformance, setOpenSalesPerformance] = useState(false);
   const [openDippingReport, setOpenDippingReport] = useState(false);
+  const [openTankStockReport, setOpenTankStockReport] = useState(false);
   const [fuelVouchersDialogOpen, setFuelVouchersDialogOpen] = useState(false);
   const [openShiftsSummaryReport, setOpenShiftsSummaryReport] = useState(false);
   const [openLeaveBalancesReport, setOpenLeaveBalancesReport] = useState(false);
@@ -119,6 +124,7 @@ function QuickReports() {
 
   const handleCloseDialog = () => {
     setOpenDippingReport(false);
+    setOpenTankStockReport(false);
     setOpenSalesAndCashSummary(false);
     setDebtorsCreditorsDialogOpen(false);
     setApArAgingDialogOpen(false);
@@ -144,6 +150,7 @@ function QuickReports() {
         maxWidth={
           stockMovementDialogOpen ||
           openDippingReport ||
+          openTankStockReport ||
           openSalesManifest ||
           openSalesPerformance ||
           openCashierReport ||
@@ -153,7 +160,9 @@ function QuickReports() {
           openProjectStatusReport ||
           apArAgingDialogOpen
             ? 'lg'
-            : fuelVouchersDialogOpen || openShiftsSummaryReport
+            : fuelVouchersDialogOpen ||
+                openShiftsSummaryReport ||
+                debtorsCreditorsDialogOpen
               ? 'xl'
               : 'md'
         }
@@ -163,6 +172,7 @@ function QuickReports() {
           openSalesAndCashSummary ||
           debtorsCreditorsDialogOpen ||
           openDippingReport ||
+          openTankStockReport ||
           stockReportDialogOpen ||
           itemMovementDialogOpen ||
           stockMovementDialogOpen ||
@@ -218,6 +228,9 @@ function QuickReports() {
         {openDippingReport && (
           <DippingReport closeDialog={setOpenDippingReport} />
         )}
+        {openTankStockReport && (
+          <TankStockReport closeDialog={setOpenTankStockReport} />
+        )}
         {openSalesManifest && (
           <StakeholderSelectProvider>
             <SalesManifest setOpenSalesManifest={setOpenSalesManifest} />
@@ -257,6 +270,8 @@ function QuickReports() {
 
         {(debtorsCreditorsDialogOpen ||
           openDippingReport ||
+          openTankStockReport ||
+          openTankStockReport ||
           apArAgingDialogOpen ||
           openShiftsSummaryReport ||
           openProjectStatusReport ||
@@ -273,7 +288,7 @@ function QuickReports() {
           </DialogActions>
         )}
       </Dialog>
-      <JumboCardQuick title={'Quick Reports'}>
+      <JumboCardQuick title={dictionary.dashboardCards.quickReports}>
         {isLoading ? (
           <LinearProgress />
         ) : (
@@ -380,6 +395,31 @@ function QuickReports() {
                   style={{ fontSize: '48px' }}
                 />
                 <Typography>Dipping Report</Typography>
+              </Grid>
+            )}
+            {organizationHasSubscribed(MODULES.FUEL_STATION) &&
+              checkOrganizationPermission([
+                PERMISSIONS.STORES_REPORTS,
+                PERMISSIONS.FUEL_STATIONS_REPORTS,
+              ]) && (
+              <Grid
+                size={{ xs: 6, md: 2, lg: 1.5 }}
+                p={1}
+                textAlign={'center'}
+                sx={{
+                  cursor: 'pointer',
+                  '&:hover': {
+                    bgcolor: 'action.hover',
+                  },
+                }}
+                onClick={() => handleOpenDialog(setOpenTankStockReport)}
+              >
+                <FontAwesomeIcon
+                  size='lg'
+                  icon={faChartColumn}
+                  style={{ fontSize: '48px' }}
+                />
+                <Typography>Tank Stock Report</Typography>
               </Grid>
             )}
             {organizationHasSubscribed(MODULES.PROCUREMENT_AND_SUPPLY) &&

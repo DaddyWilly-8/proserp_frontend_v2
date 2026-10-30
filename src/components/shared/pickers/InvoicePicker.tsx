@@ -9,6 +9,9 @@ import React, { useEffect, useState } from 'react';
 
 export interface InvoiceOption {
   id: number;
+  // Fuel Voucher invoices are listed alongside Customer Invoices but are a separate record,
+  // so an id alone doesn't identify an option - id + kind does.
+  kind?: 'customer_invoice' | 'fuel_voucher_invoice';
   invoiceNo: string;
   transaction_date?: string;
   due_date?: string | null;
@@ -37,6 +40,9 @@ interface InvoicePickerProps {
 // only listable per-stakeholder) — when `stakeholder` isn't supplied, this
 // falls back to a two-step Customer -> Invoice picker instead of pretending
 // a global search exists. Mirrors BillPicker.
+const sameInvoice = (a?: InvoiceOption | null, b?: InvoiceOption | null) =>
+  !!a && !!b && a.id === b.id && (a.kind ?? 'customer_invoice') === (b.kind ?? 'customer_invoice');
+
 function InvoicePicker({
   value = null,
   onChange,
@@ -74,7 +80,8 @@ function InvoicePicker({
   const { data: resolvedInvoice } = useQuery({
     queryKey: ['invoicePickerResolve', value?.id],
     queryFn: () => customerInvoiceServices.details(value?.id as number),
-    enabled: !!value?.id && !stakeholderId,
+    // Fuel Voucher invoices can't be resolved through the Sales invoice endpoint
+    enabled: !!value?.id && !stakeholderId && value?.kind !== 'fuel_voucher_invoice',
   });
 
   useEffect(() => {
@@ -103,7 +110,7 @@ function InvoicePicker({
     ? invoicesResponse
     : invoicesResponse?.data || [];
   const mergedInvoiceOptions =
-    value && !invoiceOptions.some((invoice) => invoice.id === value.id)
+    value && !invoiceOptions.some((invoice) => sameInvoice(invoice, value))
       ? [value, ...invoiceOptions]
       : invoiceOptions;
 
@@ -142,7 +149,7 @@ function InvoicePicker({
                 ).toLocaleString()})`
               : ''
           }
-          isOptionEqualToValue={(option: any, val: any) => option.id === val?.id}
+          isOptionEqualToValue={(option: any, val: any) => sameInvoice(option, val)}
           onChange={(e, newValue: any) => onChange(newValue)}
           renderInput={(params) => (
             <TextField

@@ -19,6 +19,7 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 import { Div } from '@jumbo/shared';
 import { SalesOrder } from '../../SalesOrderType';
 import { FieldErrors, UseFormRegister, UseFormSetValue, UseFormWatch } from 'react-hook-form';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface FormValues {
   id?: number;
@@ -69,6 +70,7 @@ const SaleInvoiceTopInformation: React.FC<SaleInvoiceTopInformationProps> = ({
   sale_items,
   setSale_items,
 }) => {
+  const dictionary = useDictionary();
 
     console.log(sale)
   const { authOrganization } = useJumboAuth();
@@ -180,7 +182,7 @@ const SaleInvoiceTopInformation: React.FC<SaleInvoiceTopInformationProps> = ({
             <Grid size={{ xs: 12, md: 4 }}>
               <Div sx={{ mt: 0.3 }}>
                 <DateTimePicker
-                  label='Invoice Date'
+                  label={dictionary.forms.counter.invoice.labels.invoiceDate}
                   minDate={dayjs(organization?.recording_start_date)}
                   value={dayjs(transactionDate)}
                   slotProps={{
@@ -209,7 +211,7 @@ const SaleInvoiceTopInformation: React.FC<SaleInvoiceTopInformationProps> = ({
               <Div sx={{ mt: 0.3 }}>
                 <TextField
                   size='small'
-                  label='Internal Reference'
+                  label={dictionary.forms.counter.invoice.labels.internalReference}
                   fullWidth
                   {...register('internal_reference')}
                 />
@@ -221,7 +223,7 @@ const SaleInvoiceTopInformation: React.FC<SaleInvoiceTopInformationProps> = ({
               <Div sx={{ mt: 0.3 }}>
                 <TextField
                   size='small'
-                  label='Customer Reference'
+                  label={dictionary.forms.counter.invoice.labels.customerReference}
                   fullWidth
                   {...register('customer_reference')}
                 />
@@ -242,7 +244,7 @@ const SaleInvoiceTopInformation: React.FC<SaleInvoiceTopInformationProps> = ({
                     renderInput={(params) => (
                       <TextField 
                         {...params} 
-                        label="Delivery Note"
+                        label={dictionary.forms.counter.invoice.labels.deliveryNote}
                         error={!!errors?.delivery_note_ids}
                         helperText={errors?.delivery_note_ids?.message}
                       />
@@ -273,7 +275,7 @@ const SaleInvoiceTopInformation: React.FC<SaleInvoiceTopInformationProps> = ({
             <Grid size={{ xs: 12, md: 4 }}>
               <Div sx={{ mt: 0.3 }}>
                 <DateTimePicker
-                  label='Due Date'
+                  label={dictionary.forms.counter.invoice.labels.dueDate}
                   minDate={dayjs(watch('transaction_date'))}
                   slotProps={{
                     textField: {
@@ -303,7 +305,7 @@ const SaleInvoiceTopInformation: React.FC<SaleInvoiceTopInformationProps> = ({
                   renderInput={(params) => (
                     <TextField 
                       {...params} 
-                      label="Terms and Instructions" 
+                      label={dictionary.forms.counter.invoice.labels.termsAndInstructions} 
                       size="small" 
                       fullWidth 
                       multiline
@@ -327,7 +329,7 @@ const SaleInvoiceTopInformation: React.FC<SaleInvoiceTopInformationProps> = ({
               <Div sx={{ mt: 0.3 }}>
                 <TextField
                   size='small'
-                  label='Narration'
+                  label={dictionary.forms.counter.invoice.labels.narration}
                   fullWidth
                   multiline
                   minRows={2}
@@ -351,7 +353,7 @@ const SaleInvoiceTopInformation: React.FC<SaleInvoiceTopInformationProps> = ({
                       });
                     }}
                   />
-                  <Typography variant="body1">Post VFD</Typography>
+                  <Typography variant="body1">{dictionary.forms.counter.invoice.labels.postVfd}</Typography>
                 </Div>
               </Grid>
             )}
@@ -363,12 +365,12 @@ const SaleInvoiceTopInformation: React.FC<SaleInvoiceTopInformationProps> = ({
       <Grid size={{ xs: 12, md: 3 }}>
         <Grid container spacing={1}>
           <Grid size={12}>
-            <Typography align='center' variant='h5'>Summary</Typography>
+            <Typography align='center' variant='h5'>{dictionary.forms.counter.invoice.labels.summary}</Typography>
             <Divider />
           </Grid>
 
           <Grid size={6}>
-            <Typography variant='body2'>Total:</Typography>
+            <Typography variant='body2'>{dictionary.forms.counter.invoice.labels.total}:</Typography>
           </Grid>
           <Grid size={6}>
             <Typography align='right'>
@@ -382,7 +384,7 @@ const SaleInvoiceTopInformation: React.FC<SaleInvoiceTopInformationProps> = ({
           {vat_registered && (
             <>
               <Grid size={6}>
-                <Typography variant='body2'>VAT Amount:</Typography>
+                <Typography variant='body2'>{dictionary.forms.counter.invoice.labels.vatAmount}:</Typography>
               </Grid>
               <Grid size={6}>
                 <Typography align='right'>
@@ -394,7 +396,7 @@ const SaleInvoiceTopInformation: React.FC<SaleInvoiceTopInformationProps> = ({
               </Grid>
 
               <Grid size={6}>
-                <Typography variant='body2'>Grand Total:</Typography>
+                <Typography variant='body2'>{dictionary.forms.counter.invoice.labels.grandTotal}:</Typography>
               </Grid>
               <Grid size={6}>
                 <Typography align='right'>

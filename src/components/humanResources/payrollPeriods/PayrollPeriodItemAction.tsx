@@ -22,6 +22,7 @@ import PayrollPeriodNewViewDialog, {
   PayrollPeriodNewViewDialogProp,
 } from './PayrollPeriodNewViewDialog';
 import { PayrollPeriodType } from './PayrollPeriodType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const PayrollPeriodForm = lazy(() => import('./PayrollPeriodForm'));
 
@@ -45,6 +46,8 @@ const PayrollPeriodItemAction = ({
   payrollPeriod,
   hasRuns = false,
 }: PayrollPeriodItemActionProps) => {
+  const dictionary = useDictionary();
+  const t = dictionary.humanResources.payrollPeriods;
   const { showDialog, hideDialog } = useJumboDialog();
   const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
@@ -63,14 +66,14 @@ const PayrollPeriodItemAction = ({
     mutationFn: () =>
       humanResourcesServices.deletePayrollPeriod(payrollPeriod.id),
     onSuccess: () => {
-      enqueueSnackbar('Payroll period deleted successfully', {
+      enqueueSnackbar(t.itemAction.messages.deleted, {
         variant: 'success',
       });
       queryClient.invalidateQueries({ queryKey: ['payrollPeriods'] });
     },
     onError: (error: any) => {
       const message =
-        error?.response?.data?.message || 'Failed to delete period';
+        error?.response?.data?.message || t.itemAction.messages.deleteFailed;
       enqueueSnackbar(message, { variant: 'error' });
     },
   });
@@ -189,15 +192,17 @@ const PayrollPeriodItemAction = ({
 
   const handleDelete = () => {
     if (hasRuns) {
-      enqueueSnackbar('Cannot delete period with existing runs', {
+      enqueueSnackbar(t.itemAction.messages.cannotDeleteWithRuns, {
         variant: 'error',
       });
       return;
     }
 
     showDialog({
-      title: 'Delete Payroll Period',
-      content: `Delete ${payrollPeriod.year} - ${payrollPeriod.month}?`,
+      title: t.itemAction.deleteDialog.title,
+      content: t.itemAction.deleteDialog.content
+        .replace('{year}', String(payrollPeriod.year))
+        .replace('{month}', String(payrollPeriod.month)),
       onYes: () => {
         hideDialog();
         deletePeriod();
@@ -249,7 +254,7 @@ const PayrollPeriodItemAction = ({
         />
       )}
 
-      <Tooltip title='Preview Period Run'>
+      <Tooltip title={dictionary.tooltips.previewPeriodRun}>
         <IconButton
           size='small'
           onClick={() => {
@@ -261,7 +266,7 @@ const PayrollPeriodItemAction = ({
       </Tooltip>
 
       {canEdit && (
-        <Tooltip title='Edit'>
+        <Tooltip title={dictionary.tooltips.edit}>
           <IconButton size='small' onClick={() => setOpenEditDialog(true)}>
             <EditOutlined fontSize='small' />
           </IconButton>
@@ -269,7 +274,7 @@ const PayrollPeriodItemAction = ({
       )}
 
       {!hasRuns && (
-        <Tooltip title='Delete'>
+        <Tooltip title={dictionary.tooltips.delete}>
           <IconButton
             size='small'
             onClick={handleDelete}

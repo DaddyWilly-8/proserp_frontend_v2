@@ -27,6 +27,7 @@ import { PERMISSIONS } from '@/utilities/constants/permissions';
 import { readableDate } from '@/app/helpers/input-sanitization-helpers';
 import { SalesOrder } from '../SalesOrderType';
 import { BackdropSpinner } from '@/shared/ProgressIndicators/BackdropSpinner';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface DeliveryNote {
   id: string;
@@ -46,6 +47,7 @@ interface SaleDeliveryNotesProps {
 }
 
 const SaleDeliveryNotes: React.FC<SaleDeliveryNotesProps> = ({ expanded, sale }) => {
+  const dictionary = useDictionary();
   const [selectedDeliveryNote, setSelectedDeliveryNote] = useState<DeliveryNote | null>(null);
   const [openDeliveryNoteDeleteDialog, setOpenDeliveryNoteDeleteDialog] = useState(false);
   const [openDeliveryEditDialog, setOpenDeliveryEditDialog] = useState(false);
@@ -87,31 +89,31 @@ const SaleDeliveryNotes: React.FC<SaleDeliveryNotesProps> = ({ expanded, sale })
             container
           >
             <Grid size={{xs: 6, md: 2, lg: 2}}>
-              <Tooltip title={'Delivery No.'}>
+              <Tooltip title={dictionary.tooltips.deliveryNo}>
                 <Typography fontWeight={'bold'}>{deliveryNote.deliveryNo}</Typography>
               </Tooltip>
-              <Tooltip title={'Dispatch Date'}>
+              <Tooltip title={dictionary.tooltips.dispatchDate}>
                 <Typography>
                   {readableDate(deliveryNote.dispatch_date)}
                 </Typography>
               </Tooltip>
             </Grid>
             <Grid size={{xs: 6, md: 2, lg: 3}}>
-              <Tooltip title={'Dispatch From'}>
+              <Tooltip title={dictionary.tooltips.dispatchFrom}>
                 <Typography>{deliveryNote.dispatch_from}</Typography>
               </Tooltip>
-              <Tooltip title={'Destination'}>
+              <Tooltip title={dictionary.tooltips.destination}>
                 <Typography>{deliveryNote.destination}</Typography>
               </Tooltip>
             </Grid>
             <Grid size={{xs: 6, md: 2, lg: 3}} mt={0.5}>
               {deliveryNote.driver_information && (
-                <Tooltip title={'Driver Information'}>
+                <Tooltip title={dictionary.tooltips.driverInformation}>
                   <Typography>{deliveryNote.driver_information}</Typography>
                 </Tooltip>
               )}
               {deliveryNote.vehicle_information && (
-                <Tooltip title={'Vehicle Information'}>
+                <Tooltip title={dictionary.tooltips.vehicleInformation}>
                   <Chip
                     label={deliveryNote.vehicle_information}
                     size='small'
@@ -120,7 +122,7 @@ const SaleDeliveryNotes: React.FC<SaleDeliveryNotesProps> = ({ expanded, sale })
               )}
             </Grid>
             <Grid size={{xs: 6, md: 3, lg: 2}} mt={0.5}>
-              <Tooltip title={'Remarks'}>
+              <Tooltip title={dictionary.tooltips.remarks}>
                 <Typography>{deliveryNote.remarks}</Typography>
               </Tooltip>
             </Grid>

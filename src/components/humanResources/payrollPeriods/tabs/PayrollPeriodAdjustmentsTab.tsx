@@ -54,6 +54,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import { useSnackbar } from 'notistack';
 import React, { ChangeEvent, useEffect, useState } from 'react';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import { sanitizedNumber } from '@/app/helpers/input-sanitization-helpers';
 import CommaSeparatedField from '@/shared/Inputs/CommaSeparatedField';
 import EmployeeSelector from '../../employees/EmployeeSelector';
@@ -187,30 +188,29 @@ interface ImportResult {
   }>;
 }
 
-const MONTH_NAMES = [
-  '',
-  'January',
-  'February',
-  'March',
-  'April',
-  'May',
-  'June',
-  'July',
-  'August',
-  'September',
-  'October',
-  'November',
-  'December',
+const MONTH_KEYS = [
+  'january',
+  'february',
+  'march',
+  'april',
+  'may',
+  'june',
+  'july',
+  'august',
+  'september',
+  'october',
+  'november',
+  'december',
 ];
 
-const getErrorMessage = (error: any) => {
+const getApiErrorMessage = (error: any, fallback: string) => {
   const validationErrors = error?.response?.data?.validation_errors;
   if (validationErrors && typeof validationErrors === 'object') {
     const first = Object.values(validationErrors)[0] as any;
     return Array.isArray(first) ? first[0] : String(first);
   }
   return (
-    error?.response?.data?.message || error?.message || 'Something went wrong'
+    error?.response?.data?.message || error?.message || fallback
   );
 };
 
@@ -231,6 +231,10 @@ const PayrollPeriodAdjustmentsTab = ({
   year,
   month,
 }: PayrollPeriodAdjustmentsTabProps) => {
+  const dictionary = useDictionary();
+  const t = dictionary.humanResources.payrollPeriods;
+  const getErrorMessage = (error: any) =>
+    getApiErrorMessage(error, t.adjustmentsTab.somethingWentWrong);
   const theme = useTheme();
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
   const { enqueueSnackbar } = useSnackbar();
@@ -367,7 +371,8 @@ const PayrollPeriodAdjustmentsTab = ({
   const [overtimeBatchDialogOpen, setOvertimeBatchDialogOpen] = useState(false);
   const [absenceBatchDialogOpen, setAbsenceBatchDialogOpen] = useState(false);
 
-  const monthName = MONTH_NAMES[month] || month;
+  const monthKey = MONTH_KEYS[month - 1];
+  const monthName = (monthKey && (t.common.months as Record<string, string>)[monthKey]) || month;
 
   // Query to fetch adjustments using periodAdjustmentReview
   const {
@@ -405,6 +410,10 @@ const PayrollPeriodAdjustmentsTab = ({
   const periodRuns: { status: string }[] = periodRunsData?.data || [];
   const lockedRun = periodRuns.find((run) => run.status !== 'draft');
   const isPeriodLocked = !!lockedRun;
+  const lockedStatus = lockedRun
+    ? (t.common.status as Record<string, string>)[(lockedRun.status || '').toLowerCase()] ||
+      lockedRun.status
+    : '';
 
   // Overtime types for the "Log Overtime" dialog's type selector.
   const { data: overtimeTypesResponse } = useQuery({
@@ -485,7 +494,7 @@ const PayrollPeriodAdjustmentsTab = ({
       anchor.download = 'payroll-adjustments-template.xlsx';
       anchor.click();
       window.URL.revokeObjectURL(url);
-      enqueueSnackbar('Template downloaded successfully', {
+      enqueueSnackbar(t.adjustmentsTab.messages.templateDownloaded, {
         variant: 'success',
       });
     },
@@ -506,22 +515,27 @@ const PayrollPeriodAdjustmentsTab = ({
 
       if (result.errors && result.errors.length > 0) {
         enqueueSnackbar(
-          `${result.message}. ${result.errors.length} error(s) found. Check the details below.`,
+          t.adjustmentsTab.messages.errorsFound
+            .replace('{message}', String(result.message))
+            .replace('{count}', String(result.errors.length)),
           { variant: 'warning' }
         );
       } else if (result.imported > 0 && result.skipped === 0) {
-        enqueueSnackbar(result.message || 'Adjustments imported successfully', {
+        enqueueSnackbar(result.message || t.adjustmentsTab.messages.importSuccess, {
           variant: 'success',
         });
       } else if (result.imported > 0 && result.skipped > 0) {
         enqueueSnackbar(
-          `${result.message}. ${result.imported} imported, ${result.skipped} skipped.`,
+          t.adjustmentsTab.messages.importedSkipped
+            .replace('{message}', String(result.message))
+            .replace('{imported}', String(result.imported))
+            .replace('{skipped}', String(result.skipped)),
           { variant: 'warning' }
         );
       } else {
         enqueueSnackbar(
           result.message ||
-            'No adjustments were imported. Please check the errors below.',
+            t.adjustmentsTab.messages.noneImported,
           { variant: 'error' }
         );
       }
@@ -548,7 +562,7 @@ const PayrollPeriodAdjustmentsTab = ({
     onSuccess: () => {
       setEditingAllowance(null);
       refetchAdjustments();
-      enqueueSnackbar('Allowance updated successfully', { variant: 'success' });
+      enqueueSnackbar(t.adjustmentsTab.messages.allowanceUpdated, { variant: 'success' });
     },
     onError: (error: any) => {
       enqueueSnackbar(getErrorMessage(error), { variant: 'error' });
@@ -566,7 +580,7 @@ const PayrollPeriodAdjustmentsTab = ({
     onSuccess: () => {
       setEditingDeduction(null);
       refetchAdjustments();
-      enqueueSnackbar('Deduction updated successfully', { variant: 'success' });
+      enqueueSnackbar(t.adjustmentsTab.messages.deductionUpdated, { variant: 'success' });
     },
     onError: (error: any) => {
       enqueueSnackbar(getErrorMessage(error), { variant: 'error' });
@@ -582,7 +596,7 @@ const PayrollPeriodAdjustmentsTab = ({
       setDeletingId(null);
       setDeletingType(null);
       refetchAdjustments();
-      enqueueSnackbar('Allowance deleted successfully', { variant: 'success' });
+      enqueueSnackbar(t.adjustmentsTab.messages.allowanceDeleted, { variant: 'success' });
     },
     onError: (error: any) => {
       setDeleteDialogOpen(false);
@@ -599,7 +613,7 @@ const PayrollPeriodAdjustmentsTab = ({
       setDeletingId(null);
       setDeletingType(null);
       refetchAdjustments();
-      enqueueSnackbar('Deduction deleted successfully', { variant: 'success' });
+      enqueueSnackbar(t.adjustmentsTab.messages.deductionDeleted, { variant: 'success' });
     },
     onError: (error: any) => {
       setDeleteDialogOpen(false);
@@ -613,7 +627,7 @@ const PayrollPeriodAdjustmentsTab = ({
     onSuccess: () => {
       closeOvertimeDialog();
       refetchAdjustments();
-      enqueueSnackbar('Overtime entry updated successfully', {
+      enqueueSnackbar(t.adjustmentsTab.messages.overtimeUpdated, {
         variant: 'success',
       });
     },
@@ -630,7 +644,7 @@ const PayrollPeriodAdjustmentsTab = ({
       setDeletingId(null);
       setDeletingType(null);
       refetchAdjustments();
-      enqueueSnackbar('Overtime entry removed successfully', {
+      enqueueSnackbar(t.adjustmentsTab.messages.overtimeRemoved, {
         variant: 'success',
       });
     },
@@ -646,7 +660,7 @@ const PayrollPeriodAdjustmentsTab = ({
     onSuccess: () => {
       closeAbsenceDialog();
       refetchAdjustments();
-      enqueueSnackbar('Absence entry updated successfully', {
+      enqueueSnackbar(t.adjustmentsTab.messages.absenceUpdated, {
         variant: 'success',
       });
     },
@@ -663,7 +677,7 @@ const PayrollPeriodAdjustmentsTab = ({
       setDeletingId(null);
       setDeletingType(null);
       refetchAdjustments();
-      enqueueSnackbar('Absence entry removed successfully', {
+      enqueueSnackbar(t.adjustmentsTab.messages.absenceRemoved, {
         variant: 'success',
       });
     },
@@ -679,7 +693,7 @@ const PayrollPeriodAdjustmentsTab = ({
     onSuccess: () => {
       closeLeaveEncashmentDialog();
       refetchAdjustments();
-      enqueueSnackbar('Leave encashment added successfully', {
+      enqueueSnackbar(t.adjustmentsTab.messages.leaveEncashmentAdded, {
         variant: 'success',
       });
     },
@@ -697,7 +711,7 @@ const PayrollPeriodAdjustmentsTab = ({
       setDeletingId(null);
       setDeletingType(null);
       refetchAdjustments();
-      enqueueSnackbar('Leave encashment removed and days restored to balance', {
+      enqueueSnackbar(t.adjustmentsTab.messages.leaveEncashmentRemoved, {
         variant: 'success',
       });
     },
@@ -955,10 +969,10 @@ const PayrollPeriodAdjustmentsTab = ({
     type === 'allowance'
       ? (item as PeriodAllowance).allowance_type?.name ||
         (item as PeriodAllowance).allowanceType?.name ||
-        'N/A'
+        t.common.notAvailable
       : (item as PeriodDeduction).deduction_type?.name ||
         (item as PeriodDeduction).deductionType?.name ||
-        'N/A';
+        t.common.notAvailable;
 
   const filterAdjustments = (
     items: (PeriodAllowance | PeriodDeduction)[],
@@ -995,8 +1009,9 @@ const PayrollPeriodAdjustmentsTab = ({
     if (allItems.length === 0) {
       return (
         <Alert severity='info' sx={{ borderRadius: 2 }}>
-          No {type === 'allowance' ? 'allowances' : 'deductions'} uploaded for
-          this period. Use the &quot;Upload Adjustments&quot; button to add some.
+          {type === 'allowance'
+            ? t.adjustmentsTab.empty.noAllowances
+            : t.adjustmentsTab.empty.noDeductions}
         </Alert>
       );
     }
@@ -1006,8 +1021,10 @@ const PayrollPeriodAdjustmentsTab = ({
     if (items.length === 0) {
       return (
         <Alert severity='info' sx={{ borderRadius: 2 }}>
-          No {type === 'allowance' ? 'allowances' : 'deductions'} match &quot;
-          {searchQuery}&quot;.
+          {(type === 'allowance'
+            ? t.adjustmentsTab.empty.noAllowancesMatch
+            : t.adjustmentsTab.empty.noDeductionsMatch
+          ).replace('{query}', searchQuery)}
         </Alert>
       );
     }
@@ -1029,7 +1046,7 @@ const PayrollPeriodAdjustmentsTab = ({
           <TableRow key={item.id} hover>
             <TableCell>
               <Typography variant='body2' noWrap>
-                {employee?.employee_number || 'N/A'} —{' '}
+                {employee?.employee_number || t.common.notAvailable} —{' '}
                 {employee?.first_name || ''} {employee?.last_name || ''}
               </Typography>
             </TableCell>
@@ -1053,7 +1070,7 @@ const PayrollPeriodAdjustmentsTab = ({
             </TableCell>
             <TableCell align='center'>
               <Stack direction='row' spacing={0.5} justifyContent='center'>
-                <Tooltip title={isPeriodLocked ? 'Period is locked' : 'Edit'}>
+                <Tooltip title={isPeriodLocked ? t.adjustmentsTab.tooltips.periodLocked : t.common.edit}>
                   <span>
                     <IconButton
                       size='small'
@@ -1065,7 +1082,7 @@ const PayrollPeriodAdjustmentsTab = ({
                     </IconButton>
                   </span>
                 </Tooltip>
-                <Tooltip title={isPeriodLocked ? 'Period is locked' : 'Delete'}>
+                <Tooltip title={isPeriodLocked ? t.adjustmentsTab.tooltips.periodLocked : t.common.delete}>
                   <span>
                     <IconButton
                       size='small'
@@ -1093,11 +1110,11 @@ const PayrollPeriodAdjustmentsTab = ({
         <Table size='small' sx={{ minWidth: 650 }}>
           <TableHead>
             <TableRow sx={{ bgcolor: isDark ? 'action.hover' : 'grey.50' }}>
-              <TableCell>Employee</TableCell>
-              <TableCell>Type</TableCell>
-              <TableCell align='right'>Amount</TableCell>
-              <TableCell>Remarks</TableCell>
-              <TableCell align='center'>Actions</TableCell>
+              <TableCell>{t.adjustmentsTab.columns.employee}</TableCell>
+              <TableCell>{t.adjustmentsTab.columns.type}</TableCell>
+              <TableCell align='right'>{t.common.amount}</TableCell>
+              <TableCell>{t.common.remarks}</TableCell>
+              <TableCell align='center'>{t.adjustmentsTab.columns.actions}</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>{renderTableRows(items, type)}</TableBody>
@@ -1105,11 +1122,12 @@ const PayrollPeriodAdjustmentsTab = ({
             <TableRow sx={{ bgcolor: isDark ? 'action.hover' : 'grey.50' }}>
               <TableCell colSpan={2}>
                 <Typography variant='body2' fontWeight={700}>
-                  Total ({items.length}
-                  {items.length !== allItems.length
-                    ? ` of ${allItems.length}`
-                    : ''}
+                  {(items.length !== allItems.length
+                    ? t.adjustmentsTab.totalOf
+                    : t.adjustmentsTab.total
                   )
+                    .replace('{count}', String(items.length))
+                    .replace('{all}', String(allItems.length))}
                 </Typography>
               </TableCell>
               <TableCell align='right'>
@@ -1131,8 +1149,7 @@ const PayrollPeriodAdjustmentsTab = ({
     if (allItems.length === 0) {
       return (
         <Alert severity='info' sx={{ borderRadius: 2 }}>
-          No overtime logged for this period yet. Use the &quot;Log Overtime&quot;
-          button to add an entry.
+          {t.adjustmentsTab.empty.noOvertime}
         </Alert>
       );
     }
@@ -1142,7 +1159,7 @@ const PayrollPeriodAdjustmentsTab = ({
     if (items.length === 0) {
       return (
         <Alert severity='info' sx={{ borderRadius: 2 }}>
-          No overtime entries match &quot;{searchQuery}&quot;.
+          {t.adjustmentsTab.empty.noOvertimeMatch.replace('{query}', searchQuery)}
         </Alert>
       );
     }
@@ -1158,12 +1175,12 @@ const PayrollPeriodAdjustmentsTab = ({
         <Table size='small' sx={{ minWidth: 750 }}>
           <TableHead>
             <TableRow sx={{ bgcolor: isDark ? 'action.hover' : 'grey.50' }}>
-              <TableCell>Employee</TableCell>
-              <TableCell>Type</TableCell>
-              <TableCell>Date</TableCell>
-              <TableCell align='right'>Hours</TableCell>
-              <TableCell>Remarks</TableCell>
-              <TableCell align='center'>Actions</TableCell>
+              <TableCell>{t.adjustmentsTab.columns.employee}</TableCell>
+              <TableCell>{t.adjustmentsTab.columns.type}</TableCell>
+              <TableCell>{t.common.date}</TableCell>
+              <TableCell align='right'>{t.adjustmentsTab.columns.hours}</TableCell>
+              <TableCell>{t.common.remarks}</TableCell>
+              <TableCell align='center'>{t.adjustmentsTab.columns.actions}</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -1174,7 +1191,7 @@ const PayrollPeriodAdjustmentsTab = ({
                 <TableRow key={item.id} hover>
                   <TableCell>
                     <Typography variant='body2' noWrap>
-                      {employee?.employee_number || 'N/A'} —{' '}
+                      {employee?.employee_number || t.common.notAvailable} —{' '}
                       {employee?.first_name || ''} {employee?.last_name || ''}
                     </Typography>
                   </TableCell>
@@ -1183,7 +1200,7 @@ const PayrollPeriodAdjustmentsTab = ({
                       label={
                         item.overtime_type
                           ? `${item.overtime_type.name} (${Number(item.overtime_type.multiplier).toFixed(2)}x)`
-                          : 'N/A'
+                          : t.common.notAvailable
                       }
                       size='small'
                       color='info'
@@ -1207,7 +1224,7 @@ const PayrollPeriodAdjustmentsTab = ({
                   </TableCell>
                   <TableCell align='center'>
                     <Stack direction='row' spacing={0.5} justifyContent='center'>
-                      <Tooltip title={isPeriodLocked ? 'Period is locked' : 'Edit'}>
+                      <Tooltip title={isPeriodLocked ? t.adjustmentsTab.tooltips.periodLocked : t.common.edit}>
                         <span>
                           <IconButton
                             size='small'
@@ -1219,7 +1236,7 @@ const PayrollPeriodAdjustmentsTab = ({
                           </IconButton>
                         </span>
                       </Tooltip>
-                      <Tooltip title={isPeriodLocked ? 'Period is locked' : 'Delete'}>
+                      <Tooltip title={isPeriodLocked ? t.adjustmentsTab.tooltips.periodLocked : t.common.delete}>
                         <span>
                           <IconButton
                             size='small'
@@ -1241,11 +1258,12 @@ const PayrollPeriodAdjustmentsTab = ({
             <TableRow sx={{ bgcolor: isDark ? 'action.hover' : 'grey.50' }}>
               <TableCell colSpan={3}>
                 <Typography variant='body2' fontWeight={700}>
-                  Total ({items.length}
-                  {items.length !== allItems.length
-                    ? ` of ${allItems.length}`
-                    : ''}
+                  {(items.length !== allItems.length
+                    ? t.adjustmentsTab.totalOf
+                    : t.adjustmentsTab.total
                   )
+                    .replace('{count}', String(items.length))
+                    .replace('{all}', String(allItems.length))}
                 </Typography>
               </TableCell>
               <TableCell align='right'>
@@ -1267,8 +1285,7 @@ const PayrollPeriodAdjustmentsTab = ({
     if (allItems.length === 0) {
       return (
         <Alert severity='info' sx={{ borderRadius: 2 }}>
-          No absences logged for this period yet. Use the &quot;Log Absence&quot;
-          button to add an entry.
+          {t.adjustmentsTab.empty.noAbsences}
         </Alert>
       );
     }
@@ -1278,7 +1295,7 @@ const PayrollPeriodAdjustmentsTab = ({
     if (items.length === 0) {
       return (
         <Alert severity='info' sx={{ borderRadius: 2 }}>
-          No absence entries match &quot;{searchQuery}&quot;.
+          {t.adjustmentsTab.empty.noAbsencesMatch.replace('{query}', searchQuery)}
         </Alert>
       );
     }
@@ -1295,13 +1312,13 @@ const PayrollPeriodAdjustmentsTab = ({
         <Table size='small' sx={{ minWidth: 800 }}>
           <TableHead>
             <TableRow sx={{ bgcolor: isDark ? 'action.hover' : 'grey.50' }}>
-              <TableCell>Employee</TableCell>
-              <TableCell>Date</TableCell>
-              <TableCell align='right'>Hours</TableCell>
-              <TableCell align='right'>Rate/Hr</TableCell>
-              <TableCell align='right'>Amount</TableCell>
-              <TableCell>Remarks</TableCell>
-              <TableCell align='center'>Actions</TableCell>
+              <TableCell>{t.adjustmentsTab.columns.employee}</TableCell>
+              <TableCell>{t.common.date}</TableCell>
+              <TableCell align='right'>{t.adjustmentsTab.columns.hours}</TableCell>
+              <TableCell align='right'>{t.adjustmentsTab.columns.ratePerHour}</TableCell>
+              <TableCell align='right'>{t.common.amount}</TableCell>
+              <TableCell>{t.common.remarks}</TableCell>
+              <TableCell align='center'>{t.adjustmentsTab.columns.actions}</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -1312,7 +1329,7 @@ const PayrollPeriodAdjustmentsTab = ({
                 <TableRow key={item.id} hover>
                   <TableCell>
                     <Typography variant='body2' noWrap>
-                      {employee?.employee_number || 'N/A'} —{' '}
+                      {employee?.employee_number || t.common.notAvailable} —{' '}
                       {employee?.first_name || ''} {employee?.last_name || ''}
                     </Typography>
                   </TableCell>
@@ -1327,7 +1344,7 @@ const PayrollPeriodAdjustmentsTab = ({
                     </Typography>
                   </TableCell>
                   <TableCell align='right'>
-                    <Tooltip title={item.hourly_rate !== null ? 'Overridden' : 'Derived from contract'}>
+                    <Tooltip title={item.hourly_rate !== null ? t.adjustmentsTab.tooltips.overridden : t.adjustmentsTab.tooltips.derivedFromContract}>
                       <Typography variant='body2' color={item.hourly_rate !== null ? 'text.primary' : 'text.secondary'}>
                         {item.hourly_rate !== null ? Number(item.hourly_rate).toLocaleString() : '—'}
                       </Typography>
@@ -1345,7 +1362,7 @@ const PayrollPeriodAdjustmentsTab = ({
                   </TableCell>
                   <TableCell align='center'>
                     <Stack direction='row' spacing={0.5} justifyContent='center'>
-                      <Tooltip title={isPeriodLocked ? 'Period is locked' : 'Edit'}>
+                      <Tooltip title={isPeriodLocked ? t.adjustmentsTab.tooltips.periodLocked : t.common.edit}>
                         <span>
                           <IconButton
                             size='small'
@@ -1357,7 +1374,7 @@ const PayrollPeriodAdjustmentsTab = ({
                           </IconButton>
                         </span>
                       </Tooltip>
-                      <Tooltip title={isPeriodLocked ? 'Period is locked' : 'Delete'}>
+                      <Tooltip title={isPeriodLocked ? t.adjustmentsTab.tooltips.periodLocked : t.common.delete}>
                         <span>
                           <IconButton
                             size='small'
@@ -1379,11 +1396,12 @@ const PayrollPeriodAdjustmentsTab = ({
             <TableRow sx={{ bgcolor: isDark ? 'action.hover' : 'grey.50' }}>
               <TableCell>
                 <Typography variant='body2' fontWeight={700}>
-                  Total ({items.length}
-                  {items.length !== allItems.length
-                    ? ` of ${allItems.length}`
-                    : ''}
+                  {(items.length !== allItems.length
+                    ? t.adjustmentsTab.totalOf
+                    : t.adjustmentsTab.total
                   )
+                    .replace('{count}', String(items.length))
+                    .replace('{all}', String(allItems.length))}
                 </Typography>
               </TableCell>
               <TableCell />
@@ -1412,8 +1430,7 @@ const PayrollPeriodAdjustmentsTab = ({
     if (allItems.length === 0) {
       return (
         <Alert severity='info' sx={{ borderRadius: 2 }}>
-          No leave has been bought back for this period yet. Use the &quot;Buy
-          Leave&quot; button to add an entry.
+          {t.adjustmentsTab.empty.noLeaveEncashments}
         </Alert>
       );
     }
@@ -1423,7 +1440,7 @@ const PayrollPeriodAdjustmentsTab = ({
     if (items.length === 0) {
       return (
         <Alert severity='info' sx={{ borderRadius: 2 }}>
-          No leave encashment entries match &quot;{searchQuery}&quot;.
+          {t.adjustmentsTab.empty.noLeaveEncashmentsMatch.replace('{query}', searchQuery)}
         </Alert>
       );
     }
@@ -1446,12 +1463,12 @@ const PayrollPeriodAdjustmentsTab = ({
         <Table size='small' sx={{ minWidth: 750 }}>
           <TableHead>
             <TableRow sx={{ bgcolor: isDark ? 'action.hover' : 'grey.50' }}>
-              <TableCell>Employee</TableCell>
-              <TableCell>Leave Type</TableCell>
-              <TableCell align='right'>Days Bought</TableCell>
-              <TableCell align='right'>Amount</TableCell>
-              <TableCell>Remarks</TableCell>
-              <TableCell align='center'>Actions</TableCell>
+              <TableCell>{t.adjustmentsTab.columns.employee}</TableCell>
+              <TableCell>{t.adjustmentsTab.columns.leaveType}</TableCell>
+              <TableCell align='right'>{t.adjustmentsTab.columns.daysBought}</TableCell>
+              <TableCell align='right'>{t.common.amount}</TableCell>
+              <TableCell>{t.common.remarks}</TableCell>
+              <TableCell align='center'>{t.adjustmentsTab.columns.actions}</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -1462,13 +1479,13 @@ const PayrollPeriodAdjustmentsTab = ({
                 <TableRow key={item.id} hover>
                   <TableCell>
                     <Typography variant='body2' noWrap>
-                      {employee?.employee_number || 'N/A'} —{' '}
+                      {employee?.employee_number || t.common.notAvailable} —{' '}
                       {employee?.first_name || ''} {employee?.last_name || ''}
                     </Typography>
                   </TableCell>
                   <TableCell>
                     <Chip
-                      label={item.leave_type?.name || 'N/A'}
+                      label={item.leave_type?.name || t.common.notAvailable}
                       size='small'
                       color='success'
                       variant='outlined'
@@ -1493,8 +1510,8 @@ const PayrollPeriodAdjustmentsTab = ({
                     <Tooltip
                       title={
                         isPeriodLocked
-                          ? 'Period is locked'
-                          : 'Delete (restores bought days to balance)'
+                          ? t.adjustmentsTab.tooltips.periodLocked
+                          : t.adjustmentsTab.tooltips.deleteRestores
                       }
                     >
                       <span>
@@ -1519,11 +1536,12 @@ const PayrollPeriodAdjustmentsTab = ({
             <TableRow sx={{ bgcolor: isDark ? 'action.hover' : 'grey.50' }}>
               <TableCell colSpan={2}>
                 <Typography variant='body2' fontWeight={700}>
-                  Total ({items.length}
-                  {items.length !== allItems.length
-                    ? ` of ${allItems.length}`
-                    : ''}
+                  {(items.length !== allItems.length
+                    ? t.adjustmentsTab.totalOf
+                    : t.adjustmentsTab.total
                   )
+                    .replace('{count}', String(items.length))
+                    .replace('{all}', String(allItems.length))}
                 </Typography>
               </TableCell>
               <TableCell align='right'>
@@ -1549,14 +1567,10 @@ const PayrollPeriodAdjustmentsTab = ({
       {isPeriodLocked && (
         <Alert severity='warning' sx={{ borderRadius: 2, mb: 2 }}>
           <Typography variant='body2' fontWeight={600} gutterBottom>
-            This period&apos;s payroll run is already {lockedRun?.status}
+            {t.adjustmentsTab.locked.title.replace('{status}', String(lockedStatus))}
           </Typography>
           <Typography variant='body2' color='text.secondary'>
-            Adjustments, overtime, absences, and leave encashments are
-            read-only below — anything added or changed here wouldn&apos;t be
-            reflected in that run. Generate a new run for this period to
-            apply changes, or make them while a run for it is still in
-            Draft.
+            {t.adjustmentsTab.locked.description}
           </Typography>
         </Alert>
       )}
@@ -1600,27 +1614,27 @@ const PayrollPeriodAdjustmentsTab = ({
         >
           <Tab
             icon={<AddCircleOutline />}
-            label='Allowances'
+            label={t.adjustmentsTab.tabs.allowances}
             iconPosition='start'
           />
           <Tab
             icon={<RemoveCircleOutline />}
-            label='Deductions'
+            label={t.adjustmentsTab.tabs.deductions}
             iconPosition='start'
           />
           <Tab
             icon={<AccessTimeOutlined />}
-            label='Overtime'
+            label={t.adjustmentsTab.tabs.overtime}
             iconPosition='start'
           />
           <Tab
             icon={<EventBusyOutlined />}
-            label='Absent'
+            label={t.adjustmentsTab.tabs.absent}
             iconPosition='start'
           />
           <Tab
             icon={<EventAvailableOutlined />}
-            label='Leave Encashment'
+            label={t.adjustmentsTab.tabs.leaveEncashment}
             iconPosition='start'
           />
         </Tabs>
@@ -1628,7 +1642,7 @@ const PayrollPeriodAdjustmentsTab = ({
           <Tooltip
             title={
               isPeriodLocked
-                ? `This period's run is already ${lockedRun?.status} — new overtime entries won't be reflected in it`
+                ? t.adjustmentsTab.locked.overtime.replace('{status}', String(lockedStatus))
                 : ''
             }
           >
@@ -1645,7 +1659,7 @@ const PayrollPeriodAdjustmentsTab = ({
                   width: { xs: '100%', md: 'auto' },
                 }}
               >
-                Log Overtime
+                {t.adjustmentsTab.buttons.logOvertime}
               </Button>
             </span>
           </Tooltip>
@@ -1653,7 +1667,7 @@ const PayrollPeriodAdjustmentsTab = ({
           <Tooltip
             title={
               isPeriodLocked
-                ? `This period's run is already ${lockedRun?.status} — new absence entries won't be reflected in it`
+                ? t.adjustmentsTab.locked.absence.replace('{status}', String(lockedStatus))
                 : ''
             }
           >
@@ -1670,7 +1684,7 @@ const PayrollPeriodAdjustmentsTab = ({
                   width: { xs: '100%', md: 'auto' },
                 }}
               >
-                Log Absence
+                {t.adjustmentsTab.buttons.logAbsence}
               </Button>
             </span>
           </Tooltip>
@@ -1678,7 +1692,7 @@ const PayrollPeriodAdjustmentsTab = ({
           <Tooltip
             title={
               isPeriodLocked
-                ? `This period's run is already ${lockedRun?.status} — new leave encashments won't be reflected in it`
+                ? t.adjustmentsTab.locked.leaveEncashment.replace('{status}', String(lockedStatus))
                 : ''
             }
           >
@@ -1695,7 +1709,7 @@ const PayrollPeriodAdjustmentsTab = ({
                   width: { xs: '100%', md: 'auto' },
                 }}
               >
-                Buy Leave
+                {t.adjustmentsTab.buttons.buyLeave}
               </Button>
             </span>
           </Tooltip>
@@ -1704,7 +1718,7 @@ const PayrollPeriodAdjustmentsTab = ({
             <Tooltip
               title={
                 isPeriodLocked
-                  ? `This period's run is already ${lockedRun?.status} — new adjustments won't be reflected in it`
+                  ? t.adjustmentsTab.locked.adjustments.replace('{status}', String(lockedStatus))
                   : ''
               }
             >
@@ -1723,14 +1737,16 @@ const PayrollPeriodAdjustmentsTab = ({
                     width: { xs: '100%', sm: 'auto' },
                   }}
                 >
-                  Add {tabValue === 0 ? 'Allowance' : 'Deduction'}
+                  {tabValue === 0
+                    ? t.adjustmentsTab.buttons.addAllowance
+                    : t.adjustmentsTab.buttons.addDeduction}
                 </Button>
               </span>
             </Tooltip>
             <Tooltip
               title={
                 isPeriodLocked
-                  ? `This period's run is already ${lockedRun?.status} — new adjustments won't be reflected in it`
+                  ? t.adjustmentsTab.locked.adjustments.replace('{status}', String(lockedStatus))
                   : ''
               }
             >
@@ -1747,7 +1763,7 @@ const PayrollPeriodAdjustmentsTab = ({
                     width: { xs: '100%', sm: 'auto' },
                   }}
                 >
-                  Upload Adjustments
+                  {t.adjustmentsTab.buttons.uploadAdjustments}
                 </Button>
               </span>
             </Tooltip>
@@ -1769,17 +1785,18 @@ const PayrollPeriodAdjustmentsTab = ({
             }}
           >
             <Typography variant='body2' fontWeight={600} gutterBottom>
-              Ad-hoc Allowances — {monthName} {year}
+              {t.adjustmentsTab.panels.allowancesTitle
+                .replace('{month}', String(monthName))
+                .replace('{year}', String(year))}
             </Typography>
             <Typography variant='body2' color='text.secondary'>
-              These will appear in payslips when the payroll run is submitted.
-              You can edit the amount and remarks, or delete entries as needed.
+              {t.adjustmentsTab.panels.adHocDescription}
             </Typography>
           </Alert>
 
           <TextField
             size='small'
-            placeholder='Search by employee number, name, type, or remarks'
+            placeholder={t.adjustmentsTab.search.typeRemarks}
             value={allowanceSearch}
             onChange={(e) => setAllowanceSearch(e.target.value)}
             InputProps={{
@@ -1825,17 +1842,18 @@ const PayrollPeriodAdjustmentsTab = ({
             }}
           >
             <Typography variant='body2' fontWeight={600} gutterBottom>
-              Ad-hoc Deductions — {monthName} {year}
+              {t.adjustmentsTab.panels.deductionsTitle
+                .replace('{month}', String(monthName))
+                .replace('{year}', String(year))}
             </Typography>
             <Typography variant='body2' color='text.secondary'>
-              These will appear in payslips when the payroll run is submitted.
-              You can edit the amount and remarks, or delete entries as needed.
+              {t.adjustmentsTab.panels.adHocDescription}
             </Typography>
           </Alert>
 
           <TextField
             size='small'
-            placeholder='Search by employee number, name, type, or remarks'
+            placeholder={t.adjustmentsTab.search.typeRemarks}
             value={deductionSearch}
             onChange={(e) => setDeductionSearch(e.target.value)}
             InputProps={{
@@ -1881,19 +1899,18 @@ const PayrollPeriodAdjustmentsTab = ({
             }}
           >
             <Typography variant='body2' fontWeight={600} gutterBottom>
-              Logged Overtime — {monthName} {year}
+              {t.adjustmentsTab.panels.overtimeTitle
+                .replace('{month}', String(monthName))
+                .replace('{year}', String(year))}
             </Typography>
             <Typography variant='body2' color='text.secondary'>
-              Hours logged here for monthly-paid employees are converted to an
-              &quot;Overtime Pay&quot; amount when the payroll run is generated, using
-              each employee&apos;s standard hours per month and the selected
-              overtime type&apos;s multiplier.
+              {t.adjustmentsTab.panels.overtimeDescription}
             </Typography>
           </Alert>
 
           <TextField
             size='small'
-            placeholder='Search by employee number, name, type, or remarks'
+            placeholder={t.adjustmentsTab.search.typeRemarks}
             value={overtimeSearch}
             onChange={(e) => setOvertimeSearch(e.target.value)}
             InputProps={{
@@ -1936,19 +1953,18 @@ const PayrollPeriodAdjustmentsTab = ({
             }}
           >
             <Typography variant='body2' fontWeight={600} gutterBottom>
-              Logged Absences — {monthName} {year}
+              {t.adjustmentsTab.panels.absencesTitle
+                .replace('{month}', String(monthName))
+                .replace('{year}', String(year))}
             </Typography>
             <Typography variant='body2' color='text.secondary'>
-              Hours logged here for monthly-paid employees are converted to a
-              pre-tax &quot;Absence Deduction&quot; amount when the payroll run is
-              generated, using each employee&apos;s standard hours per month —
-              deducted from basic salary before PAYE, the reverse of Overtime.
+              {t.adjustmentsTab.panels.absencesDescription}
             </Typography>
           </Alert>
 
           <TextField
             size='small'
-            placeholder='Search by employee number, name, or remarks'
+            placeholder={t.adjustmentsTab.search.nameRemarks}
             value={absenceSearch}
             onChange={(e) => setAbsenceSearch(e.target.value)}
             InputProps={{
@@ -1991,19 +2007,18 @@ const PayrollPeriodAdjustmentsTab = ({
             }}
           >
             <Typography variant='body2' fontWeight={600} gutterBottom>
-              Leave Encashment — {monthName} {year}
+              {t.adjustmentsTab.panels.leaveEncashmentTitle
+                .replace('{month}', String(monthName))
+                .replace('{year}', String(year))}
             </Typography>
             <Typography variant='body2' color='text.secondary'>
-              Employer-bought leave days. Each entry pays out as a taxable
-              &quot;Leave Encashment&quot; allowance on this period&apos;s payslip and
-              deducts the days bought from the employee&apos;s leave balance for
-              the year. Deleting an entry restores the days.
+              {t.adjustmentsTab.panels.leaveEncashmentDescription}
             </Typography>
           </Alert>
 
           <TextField
             size='small'
-            placeholder='Search by employee number, name, leave type, or remarks'
+            placeholder={t.adjustmentsTab.search.leaveType}
             value={leaveEncashmentSearch}
             onChange={(e) => setLeaveEncashmentSearch(e.target.value)}
             InputProps={{
@@ -2044,7 +2059,7 @@ const PayrollPeriodAdjustmentsTab = ({
         fullScreen={belowLargeScreen}
         scroll={belowLargeScreen ? 'body' : 'paper'}
       >
-        <MuiDialogTitle>Upload Adjustments</MuiDialogTitle>
+        <MuiDialogTitle>{t.adjustmentsTab.upload.title}</MuiDialogTitle>
         <MuiDialogContent>
         {(isDownloading || isImporting) && (
           <LinearProgress sx={{ mb: 2, borderRadius: 1 }} />
@@ -2061,13 +2076,10 @@ const PayrollPeriodAdjustmentsTab = ({
             }}
           >
             <Typography variant='body2' fontWeight={600} gutterBottom>
-              Upload Instructions
+              {t.adjustmentsTab.upload.instructionsTitle}
             </Typography>
             <Typography variant='body2' color='text.secondary'>
-              Download the template, fill in the adjustments, and upload the
-              file. Each row represents one adjustment for an employee.
-              Re-uploading will overwrite matching entries based on (period,
-              employee, type).
+              {t.adjustmentsTab.upload.instructions}
             </Typography>
           </Alert>
 
@@ -2128,7 +2140,10 @@ const PayrollPeriodAdjustmentsTab = ({
                   {file.name}
                 </Typography>
                 <Typography variant='body2' color='text.secondary'>
-                  {(file.size / 1024).toFixed(1)} KB • Ready to upload
+                  {t.adjustmentsTab.upload.readyToUpload.replace(
+                    '{size}',
+                    (file.size / 1024).toFixed(1)
+                  )}
                 </Typography>
                 <Button
                   variant='outlined'
@@ -2137,13 +2152,13 @@ const PayrollPeriodAdjustmentsTab = ({
                   onClick={() => setFile(null)}
                   sx={{ borderRadius: 2, textTransform: 'none' }}
                 >
-                  Remove File
+                  {t.adjustmentsTab.upload.removeFile}
                 </Button>
               </>
             ) : (
               <>
                 <Typography variant='body2' color='text.secondary'>
-                  No file selected
+                  {t.adjustmentsTab.upload.noFile}
                 </Typography>
                 <Button
                   variant='outlined'
@@ -2156,7 +2171,7 @@ const PayrollPeriodAdjustmentsTab = ({
                     fontWeight: 500,
                   }}
                 >
-                  Select Excel File
+                  {t.adjustmentsTab.upload.selectFile}
                   <input
                     hidden
                     type='file'
@@ -2183,7 +2198,9 @@ const PayrollPeriodAdjustmentsTab = ({
                   fontWeight: 600,
                 }}
               >
-                {isDownloading ? 'Downloading...' : 'Download Template'}
+                {isDownloading
+                  ? t.adjustmentsTab.upload.downloading
+                  : t.adjustmentsTab.upload.downloadTemplate}
               </Button>
             )}
             {file && (
@@ -2201,7 +2218,9 @@ const PayrollPeriodAdjustmentsTab = ({
                   fontWeight: 600,
                 }}
               >
-                {isImporting ? 'Uploading...' : 'Upload & Import'}
+                {isImporting
+                  ? t.adjustmentsTab.upload.uploading
+                  : t.adjustmentsTab.upload.uploadImport}
               </Button>
             )}
           </Stack>
@@ -2242,7 +2261,7 @@ const PayrollPeriodAdjustmentsTab = ({
                     color={isDark ? theme.palette.text.primary : 'primary'}
                     gutterBottom
                   >
-                    Import Summary
+                    {t.adjustmentsTab.upload.importSummary}
                   </Typography>
                   <Box
                     sx={{ display: 'flex', gap: 4, mt: 1, flexWrap: 'wrap' }}
@@ -2253,7 +2272,7 @@ const PayrollPeriodAdjustmentsTab = ({
                         color='text.secondary'
                         display='block'
                       >
-                        Imported
+                        {t.adjustmentsTab.upload.imported}
                       </Typography>
                       <Typography
                         variant='h6'
@@ -2269,7 +2288,7 @@ const PayrollPeriodAdjustmentsTab = ({
                         color='text.secondary'
                         display='block'
                       >
-                        Skipped
+                        {t.adjustmentsTab.upload.skipped}
                       </Typography>
                       <Typography
                         variant='h6'
@@ -2285,7 +2304,7 @@ const PayrollPeriodAdjustmentsTab = ({
                         color='text.secondary'
                         display='block'
                       >
-                        Errors
+                        {t.adjustmentsTab.upload.errors}
                       </Typography>
                       <Typography
                         variant='h6'
@@ -2317,8 +2336,10 @@ const PayrollPeriodAdjustmentsTab = ({
                       sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
                     >
                       <ErrorOutline fontSize='small' color='warning' />
-                      Skipped Rows ({importResult.errors.length} row
-                      {importResult.errors.length > 1 ? 's' : ''})
+                      {t.adjustmentsTab.upload.skippedRows.replace(
+                        '{count}',
+                        String(importResult.errors.length)
+                      )}
                     </Typography>
 
                     <Box
@@ -2375,7 +2396,7 @@ const PayrollPeriodAdjustmentsTab = ({
                           color={isDark ? 'text.primary' : 'text.secondary'}
                           sx={{ letterSpacing: 0.5 }}
                         >
-                          Row No.
+                          {t.adjustmentsTab.upload.rowNo}
                         </Typography>
                         <Typography
                           variant='caption'
@@ -2383,7 +2404,7 @@ const PayrollPeriodAdjustmentsTab = ({
                           color={isDark ? 'text.primary' : 'text.secondary'}
                           sx={{ letterSpacing: 0.5 }}
                         >
-                          Error Description
+                          {t.adjustmentsTab.upload.errorDescription}
                         </Typography>
                       </Box>
 
@@ -2430,9 +2451,11 @@ const PayrollPeriodAdjustmentsTab = ({
                       }}
                     >
                       <Typography variant='body2'>
-                        ✅ All {importResult.imported} adjustment
-                        {importResult.imported > 1 ? 's' : ''} were imported
-                        successfully!
+                        ✅{' '}
+                        {t.adjustmentsTab.upload.allImported.replace(
+                          '{count}',
+                          String(importResult.imported)
+                        )}
                       </Typography>
                     </Alert>
                   )}
@@ -2442,7 +2465,7 @@ const PayrollPeriodAdjustmentsTab = ({
         </Stack>
         </MuiDialogContent>
         <MuiDialogActions>
-          <Button onClick={handleCloseUploadDialog}>Close</Button>
+          <Button onClick={handleCloseUploadDialog}>{t.common.close}</Button>
         </MuiDialogActions>
       </Dialog>
       {/* Edit Dialog */}
@@ -2458,12 +2481,14 @@ const PayrollPeriodAdjustmentsTab = ({
         scroll={belowLargeScreen ? 'body' : 'paper'}
       >
         <MuiDialogTitle>
-          Edit {editingAllowance ? 'Allowance' : 'Deduction'}
+          {editingAllowance
+            ? t.adjustmentsTab.edit.editAllowance
+            : t.adjustmentsTab.edit.editDeduction}
         </MuiDialogTitle>
         <MuiDialogContent>
           <Box sx={{ pt: 2 }}>
             <TextField
-              label='Amount'
+              label={t.common.amount}
               fullWidth
               value={editAmount}
               onChange={(e) => setEditAmount(sanitizedNumber(e.target.value) || 0)}
@@ -2472,13 +2497,13 @@ const PayrollPeriodAdjustmentsTab = ({
               InputProps={{ inputComponent: CommaSeparatedField as any }}
             />
             <TextField
-              label='Remarks'
+              label={t.common.remarks}
               fullWidth
               multiline
               rows={3}
               value={editRemarks}
               onChange={(e) => setEditRemarks(e.target.value)}
-              placeholder='Optional remarks for this adjustment'
+              placeholder={t.adjustmentsTab.edit.remarksPlaceholder}
             />
           </Box>
         </MuiDialogContent>
@@ -2489,7 +2514,7 @@ const PayrollPeriodAdjustmentsTab = ({
               setEditingDeduction(null);
             }}
           >
-            Cancel
+            {t.common.cancel}
           </Button>
           <Button
             onClick={handleEditSave}
@@ -2500,7 +2525,7 @@ const PayrollPeriodAdjustmentsTab = ({
               editDeductionMutation.isPending
             }
           >
-            Save
+            {t.common.save}
           </Button>
         </MuiDialogActions>
       </Dialog>
@@ -2509,25 +2534,16 @@ const PayrollPeriodAdjustmentsTab = ({
         open={deleteDialogOpen}
         onClose={() => setDeleteDialogOpen(false)}
       >
-        <MuiDialogTitle>Confirm Delete</MuiDialogTitle>
+        <MuiDialogTitle>{t.adjustmentsTab.delete.title}</MuiDialogTitle>
         <MuiDialogContent>
           <Typography>
-            Are you sure you want to delete this{' '}
-            {deletingType === 'leaveEncashment' ? 'leave encashment' : deletingType}
-            {deletingType === 'overtime' ||
-            deletingType === 'absence' ||
-            deletingType === 'leaveEncashment'
-              ? ' entry'
-              : ' adjustment'}
-            ? This action cannot be undone
-            {deletingType === 'leaveEncashment'
-              ? ' (the bought days will be restored to the leave balance)'
+            {deletingType
+              ? t.adjustmentsTab.delete.message[deletingType]
               : ''}
-            .
           </Typography>
         </MuiDialogContent>
         <MuiDialogActions>
-          <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
+          <Button onClick={() => setDeleteDialogOpen(false)}>{t.common.cancel}</Button>
           <Button
             onClick={handleDeleteConfirm}
             color='error'
@@ -2540,7 +2556,7 @@ const PayrollPeriodAdjustmentsTab = ({
               deleteLeaveEncashmentMutation.isPending
             }
           >
-            Delete
+            {t.common.delete}
           </Button>
         </MuiDialogActions>
       </Dialog>
@@ -2555,7 +2571,7 @@ const PayrollPeriodAdjustmentsTab = ({
         fullScreen={belowLargeScreen}
         scroll={belowLargeScreen ? 'body' : 'paper'}
       >
-        <MuiDialogTitle>Edit Overtime Entry</MuiDialogTitle>
+        <MuiDialogTitle>{t.adjustmentsTab.edit.overtimeTitle}</MuiDialogTitle>
         <MuiDialogContent>
           <Stack spacing={2} sx={{ pt: 2 }}>
             <Autocomplete
@@ -2568,11 +2584,11 @@ const PayrollPeriodAdjustmentsTab = ({
               value={overtimeType}
               onChange={(_event, newValue) => setOvertimeType(newValue)}
               renderInput={(params) => (
-                <TextField {...params} label='Overtime Type' />
+                <TextField {...params} label={t.adjustmentsTab.edit.overtimeType} />
               )}
             />
             <DatePicker
-              label='Date'
+              label={t.common.date}
               value={overtimeDate ? dayjs(overtimeDate) : null}
               onChange={(newValue) =>
                 setOvertimeDate(newValue ? newValue.toISOString() : '')
@@ -2583,12 +2599,14 @@ const PayrollPeriodAdjustmentsTab = ({
                 textField: {
                   size: 'small',
                   fullWidth: true,
-                  helperText: `Must fall within ${monthName} ${year}`,
+                  helperText: t.adjustmentsTab.edit.mustFallWithin
+                    .replace('{month}', String(monthName))
+                    .replace('{year}', String(year)),
                 },
               }}
             />
             <TextField
-              label='Hours'
+              label={t.adjustmentsTab.columns.hours}
               size='small'
               fullWidth
               type='number'
@@ -2601,19 +2619,19 @@ const PayrollPeriodAdjustmentsTab = ({
               inputProps={{ min: 0.25, step: 0.25 }}
             />
             <TextField
-              label='Remarks'
+              label={t.common.remarks}
               size='small'
               fullWidth
               multiline
               minRows={2}
               value={overtimeRemarks}
               onChange={(e) => setOvertimeRemarks(e.target.value)}
-              placeholder='Optional remarks for this entry'
+              placeholder={t.adjustmentsTab.edit.entryRemarksPlaceholder}
             />
           </Stack>
         </MuiDialogContent>
         <MuiDialogActions>
-          <Button onClick={closeOvertimeDialog}>Cancel</Button>
+          <Button onClick={closeOvertimeDialog}>{t.common.cancel}</Button>
           <Button
             onClick={handleOvertimeSave}
             variant='contained'
@@ -2624,7 +2642,7 @@ const PayrollPeriodAdjustmentsTab = ({
               editOvertimeMutation.isPending
             }
           >
-            Save
+            {t.common.save}
           </Button>
         </MuiDialogActions>
       </Dialog>
@@ -2639,11 +2657,11 @@ const PayrollPeriodAdjustmentsTab = ({
         fullScreen={belowLargeScreen}
         scroll={belowLargeScreen ? 'body' : 'paper'}
       >
-        <MuiDialogTitle>Edit Absence Entry</MuiDialogTitle>
+        <MuiDialogTitle>{t.adjustmentsTab.edit.absenceTitle}</MuiDialogTitle>
         <MuiDialogContent>
           <Stack spacing={2} sx={{ pt: 2 }}>
             <DatePicker
-              label='Date'
+              label={t.common.date}
               value={absenceDate ? dayjs(absenceDate) : null}
               onChange={(newValue) =>
                 setAbsenceDate(newValue ? newValue.toISOString() : '')
@@ -2654,12 +2672,14 @@ const PayrollPeriodAdjustmentsTab = ({
                 textField: {
                   size: 'small',
                   fullWidth: true,
-                  helperText: `Must fall within ${monthName} ${year}`,
+                  helperText: t.adjustmentsTab.edit.mustFallWithin
+                    .replace('{month}', String(monthName))
+                    .replace('{year}', String(year)),
                 },
               }}
             />
             <TextField
-              label='Hours'
+              label={t.adjustmentsTab.columns.hours}
               size='small'
               fullWidth
               type='number'
@@ -2672,7 +2692,7 @@ const PayrollPeriodAdjustmentsTab = ({
               inputProps={{ min: 0.25, step: 0.25 }}
             />
             <TextField
-              label='Rate/Hour'
+              label={t.adjustmentsTab.edit.ratePerHour}
               size='small'
               fullWidth
               value={absenceHourlyRate}
@@ -2684,31 +2704,34 @@ const PayrollPeriodAdjustmentsTab = ({
               InputProps={{ inputComponent: CommaSeparatedField as any }}
               helperText={
                 absenceHourlyRateTouched
-                  ? 'Overridden — edit to change, or clear to fall back to the derived rate'
+                  ? t.adjustmentsTab.edit.rateOverridden
                   : derivedAbsenceHourlyRate !== null
-                    ? `Auto-derived from contract (basic salary ÷ standard hours/month) — edit to override`
-                    : "Couldn't derive a rate for this employee — enter it manually"
+                    ? t.adjustmentsTab.edit.rateDerived
+                    : t.adjustmentsTab.edit.rateCouldNotDerive
               }
             />
             <Alert severity='info' sx={{ borderRadius: 2 }}>
               {absenceComputedAmount !== null
-                ? `Deduction: ${absenceComputedAmount.toLocaleString()} (${Number(absenceHours)} hour(s) × ${Number(absenceHourlyRate).toLocaleString()}/hour)`
-                : 'Enter hours and a rate to see the computed deduction'}
+                ? t.adjustmentsTab.edit.deductionPreview
+                    .replace('{amount}', absenceComputedAmount.toLocaleString())
+                    .replace('{hours}', String(Number(absenceHours)))
+                    .replace('{rate}', Number(absenceHourlyRate).toLocaleString())
+                : t.adjustmentsTab.edit.deductionHint}
             </Alert>
             <TextField
-              label='Remarks'
+              label={t.common.remarks}
               size='small'
               fullWidth
               multiline
               minRows={2}
               value={absenceRemarks}
               onChange={(e) => setAbsenceRemarks(e.target.value)}
-              placeholder='Optional remarks for this entry'
+              placeholder={t.adjustmentsTab.edit.entryRemarksPlaceholder}
             />
           </Stack>
         </MuiDialogContent>
         <MuiDialogActions>
-          <Button onClick={closeAbsenceDialog}>Cancel</Button>
+          <Button onClick={closeAbsenceDialog}>{t.common.cancel}</Button>
           <Button
             onClick={handleAbsenceSave}
             variant='contained'
@@ -2719,7 +2742,7 @@ const PayrollPeriodAdjustmentsTab = ({
               editAbsenceMutation.isPending
             }
           >
-            Save
+            {t.common.save}
           </Button>
         </MuiDialogActions>
       </Dialog>
@@ -2768,7 +2791,7 @@ const PayrollPeriodAdjustmentsTab = ({
         fullScreen={belowLargeScreen}
         scroll={belowLargeScreen ? 'body' : 'paper'}
       >
-        <MuiDialogTitle>Buy Leave (Leave Encashment)</MuiDialogTitle>
+        <MuiDialogTitle>{t.adjustmentsTab.leaveDialog.title}</MuiDialogTitle>
         <MuiDialogContent>
           <Stack spacing={2} sx={{ pt: 2 }}>
             <EmployeesProvider>
@@ -2791,7 +2814,7 @@ const PayrollPeriodAdjustmentsTab = ({
               value={leaveEncashmentType}
               onChange={(_event, newValue) => setLeaveEncashmentType(newValue)}
               renderInput={(params) => (
-                <TextField {...params} label='Leave Type' />
+                <TextField {...params} label={t.adjustmentsTab.columns.leaveType} />
               )}
             />
             {leaveEncashmentEmployee && leaveEncashmentType && (
@@ -2802,12 +2825,17 @@ const PayrollPeriodAdjustmentsTab = ({
                 sx={{ borderRadius: 2 }}
               >
                 {leaveEncashmentAllocation
-                  ? `Remaining balance for ${year}: ${leaveEncashmentAllocation.remaining_days} day(s)`
-                  : `No leave allocation found for this employee/leave type in ${year}.`}
+                  ? t.adjustmentsTab.leaveDialog.remainingBalance
+                      .replace('{year}', String(year))
+                      .replace('{days}', String(leaveEncashmentAllocation.remaining_days))
+                  : t.adjustmentsTab.leaveDialog.noAllocation.replace(
+                      '{year}',
+                      String(year)
+                    )}
               </Alert>
             )}
             <TextField
-              label='Days Bought'
+              label={t.adjustmentsTab.columns.daysBought}
               size='small'
               fullWidth
               type='number'
@@ -2829,12 +2857,15 @@ const PayrollPeriodAdjustmentsTab = ({
                 leaveEncashmentDaysBought !== '' &&
                 Number(leaveEncashmentDaysBought) >
                   leaveEncashmentAllocation.remaining_days
-                  ? `Exceeds remaining balance of ${leaveEncashmentAllocation.remaining_days} day(s)`
+                  ? t.adjustmentsTab.leaveDialog.exceedsBalance.replace(
+                      '{days}',
+                      String(leaveEncashmentAllocation.remaining_days)
+                    )
                   : ' '
               }
             />
             <TextField
-              label='Amount'
+              label={t.common.amount}
               size='small'
               fullWidth
               value={leaveEncashmentAmount}
@@ -2848,28 +2879,31 @@ const PayrollPeriodAdjustmentsTab = ({
               InputProps={{ inputComponent: CommaSeparatedField as any }}
               helperText={
                 leaveEncashmentAmountTouched
-                  ? 'The taxable cash value paid out for the days bought — manually set'
+                  ? t.adjustmentsTab.leaveDialog.amountManual
                   : leaveEncashmentDailyRate !== null
-                    ? `Auto-calculated: ${leaveEncashmentDailyRate.toLocaleString()}/day × days bought — edit to override`
+                    ? t.adjustmentsTab.leaveDialog.amountAuto.replace(
+                        '{rate}',
+                        leaveEncashmentDailyRate.toLocaleString()
+                      )
                     : leaveEncashmentEmployee
-                      ? "Couldn't derive a daily rate for this employee — enter the amount manually"
-                      : 'The taxable cash value paid out for the days bought'
+                      ? t.adjustmentsTab.leaveDialog.amountCouldNotDerive
+                      : t.adjustmentsTab.leaveDialog.amountDefault
               }
             />
             <TextField
-              label='Remarks'
+              label={t.common.remarks}
               size='small'
               fullWidth
               multiline
               minRows={2}
               value={leaveEncashmentRemarks}
               onChange={(e) => setLeaveEncashmentRemarks(e.target.value)}
-              placeholder='Optional remarks for this entry'
+              placeholder={t.adjustmentsTab.edit.entryRemarksPlaceholder}
             />
           </Stack>
         </MuiDialogContent>
         <MuiDialogActions>
-          <Button onClick={closeLeaveEncashmentDialog}>Cancel</Button>
+          <Button onClick={closeLeaveEncashmentDialog}>{t.common.cancel}</Button>
           <Button
             onClick={handleLeaveEncashmentSave}
             variant='contained'
@@ -2884,7 +2918,7 @@ const PayrollPeriodAdjustmentsTab = ({
               addLeaveEncashmentMutation.isPending
             }
           >
-            Save
+            {t.common.save}
           </Button>
         </MuiDialogActions>
       </Dialog>

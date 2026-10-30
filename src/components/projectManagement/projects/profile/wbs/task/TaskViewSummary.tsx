@@ -9,6 +9,7 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface LinearProgressWithLabelProps {
   value: any;
@@ -25,15 +26,16 @@ function LinearProgressWithLabel({
   color,
   hasTimeDates,
 }: LinearProgressWithLabelProps) {
+  const dictionary = useDictionary();
   const tooltipMsg = !hasTimeDates
-    ? 'No start/end dates set — execution progress only.'
+    ? dictionary.projectManagement.wbs.common.noDatesSet
     : color === 'success'
-      ? 'Execution is on track with time elapsed.'
+      ? dictionary.projectManagement.wbs.common.onTrack
       : color === 'warning'
-        ? 'Execution is lagging behind time elapsed. Monitor closely.'
+        ? dictionary.projectManagement.wbs.common.lagging
         : color === 'error'
-          ? 'Execution is significantly behind schedule.'
-          : 'Progress status.';
+          ? dictionary.projectManagement.wbs.common.behindSchedule
+          : dictionary.projectManagement.wbs.common.progressStatus;
   return (
     <Box sx={{ width: '100%' }}>
       <Box
@@ -47,16 +49,16 @@ function LinearProgressWithLabel({
         })}
       >
         <Typography variant='body2' color='text.secondary' fontWeight={500}>
-          Execution: {Math.min(100, Math.round(execPercent))}%
+          {dictionary.projectManagement.wbs.common.execution}: {Math.min(100, Math.round(execPercent))}%
         </Typography>
         {hasTimeDates ? (
           <Typography variant='body2' color='text.secondary' fontWeight={500}>
-            Time Elapsed: {Math.min(100, Math.round(timePercent))}%
+            {dictionary.projectManagement.wbs.common.timeElapsed}: {Math.min(100, Math.round(timePercent))}%
           </Typography>
         ) : (
           <Chip
             size='small'
-            label='Time: Not Set'
+            label={dictionary.projectManagement.wbs.common.timeNotSet}
             variant='outlined'
             sx={{ fontSize: '0.7rem', height: 20 }}
           />
@@ -75,6 +77,7 @@ function LinearProgressWithLabel({
 }
 
 const TaskViewSummary = ({ task }: { task: any }) => {
+  const dictionary = useDictionary();
   const execPercent = task.executed_percentage ?? 0;
   const rawTimePercent = task.percentage_time_elapsed ?? 0;
   const timePercent = Math.min(100, rawTimePercent);
@@ -106,12 +109,12 @@ const TaskViewSummary = ({ task }: { task: any }) => {
       <Grid size={12} mb={1}>
         <Stack direction='row' spacing={2} alignItems='center'>
           {!!task?.is_milestone && (
-            <Tooltip title='Milestone Task'>
+            <Tooltip title={dictionary.tooltips.milestoneTask}>
               <FlagOutlined fontSize='small' color='success' />
             </Tooltip>
           )}
           {task.code && (
-            <Tooltip title='Task Code'>
+            <Tooltip title={dictionary.tooltips.taskCode}>
               <Typography variant='body2' color='text.secondary'>
                 {task.code}
               </Typography>
@@ -124,24 +127,24 @@ const TaskViewSummary = ({ task }: { task: any }) => {
       <Grid size={12} mb={1}>
         <Grid container spacing={1} alignItems='center'>
           <Grid size={{ xs: 6, md: 3 }}>
-            <Tooltip title='Quantity'>
+            <Tooltip title={dictionary.tooltips.quantity}>
               <Typography variant='body2'>
-                Quantity: {task.quantity?.toLocaleString?.() ?? '—'}{' '}
+                {dictionary.projectManagement.wbs.common.quantity}: {task.quantity?.toLocaleString?.() ?? '—'}{' '}
                 {task.measurement_unit?.symbol ?? ''}
               </Typography>
             </Tooltip>
           </Grid>
           <Grid size={{ xs: 6, md: 3 }}>
             <Box>
-              <Tooltip title='Executed Quantity'>
+              <Tooltip title={dictionary.tooltips.executedQuantity}>
                 <Typography variant='body2'>
-                  Executed: {task.executed_quantity?.toLocaleString?.() ?? '—'}{' '}
+                  {dictionary.projectManagement.wbs.common.executed}: {task.executed_quantity?.toLocaleString?.() ?? '—'}{' '}
                   {task.measurement_unit?.symbol ?? ''}
                 </Typography>
               </Tooltip>
-              <Tooltip title='Remaining Quantity'>
+              <Tooltip title={dictionary.tooltips.remainingQuantity}>
                 <Typography variant='caption' color='text.secondary'>
-                  Remaining:{' '}
+                  {dictionary.projectManagement.wbs.common.remaining}:{' '}
                   {(
                     task.quantity - task.executed_quantity
                   )?.toLocaleString?.() ?? '—'}{' '}
@@ -152,26 +155,26 @@ const TaskViewSummary = ({ task }: { task: any }) => {
           </Grid>
           <Grid size={{ xs: 12, md: 3 }}>
             <Box>
-              <Tooltip title='Start → End Date'>
+              <Tooltip title={dictionary.tooltips.startEndDate}>
                 <Typography variant='body2' noWrap>
                   {task.start_date || task.end_date
-                    ? `${task.start_date ? readableDate(task.start_date, false) : 'Not Set'} → ${
+                    ? `${task.start_date ? readableDate(task.start_date, false) : dictionary.projectManagement.wbs.common.notSet} → ${
                         task.end_date
                           ? readableDate(task.end_date, false)
-                          : 'Not Set'
+                          : dictionary.projectManagement.wbs.common.notSet
                       }`
-                    : 'Not Set'}
+                    : dictionary.projectManagement.wbs.common.notSet}
                 </Typography>
               </Tooltip>
-              <Tooltip title='Duration'>
+              <Tooltip title={dictionary.tooltips.duration}>
                 <Typography variant='caption' color='text.secondary'>
-                  Duration: {task.number_of_days ?? '—'} days
+                  {dictionary.projectManagement.wbs.common.duration}: {task.number_of_days ?? '—'} {dictionary.projectManagement.wbs.common.days}
                 </Typography>
               </Tooltip>
             </Box>
           </Grid>
           <Grid size={{ xs: 6, md: 2.5 }}>
-            <Tooltip title='Remaining Days'>
+            <Tooltip title={dictionary.tooltips.remainingDays}>
               <Typography
                 variant='caption'
                 color={
@@ -180,9 +183,9 @@ const TaskViewSummary = ({ task }: { task: any }) => {
                     : 'text.secondary'
                 }
               >
-                <strong>Remaining:</strong>{' '}
+                <strong>{dictionary.projectManagement.wbs.common.remaining}:</strong>{' '}
                 {task.days_remaining < 0 ? 0 : (task.days_remaining ?? '—')}{' '}
-                days
+                {dictionary.projectManagement.wbs.common.days}
               </Typography>
             </Tooltip>
           </Grid>
@@ -202,11 +205,11 @@ const TaskViewSummary = ({ task }: { task: any }) => {
             />
           </Grid>
           {/* <Grid size={{ xs: 4 }} textAlign={'end'}>
-            <Tooltip title='Weighted Percentage'>
+            <Tooltip title={dictionary.tooltips.weightedPercentage}>
               <Chip
                 size='small'
                 color='default'
-                label={`${task.weighted_percentage?.toLocaleString() ?? 0}% Weight`}
+                label={`${task.weighted_percentage?.toLocaleString() ?? 0}% ${dictionary.projectManagement.wbs.common.weight}`}
               />
             </Tooltip>
           </Grid> */}

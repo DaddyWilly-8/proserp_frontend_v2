@@ -8,6 +8,7 @@ import { useSnackbar } from "notistack";
 import { useLedgerGroup } from "../../ledgerGroups/LedgerGroupProvider";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import ledgerServices from "../ledger-services";
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface LedgerGroupFormData {
   name: string;
@@ -27,6 +28,7 @@ interface AddQuickLedgerGroupProps {
 }
 
 export default function AddQuickLedgerGroup({ setOpenQuickAddLedgerGroup }: AddQuickLedgerGroupProps) {
+    const dictionary = useDictionary();
     const { ledgerGroupOptions, ledgerGroupOptionIds, isLoading } = useLedgerGroup();
     const queryClient = useQueryClient();
     const [serverError, setServerError] = useState<Record<string, string[]> | null>(null);
@@ -51,11 +53,11 @@ export default function AddQuickLedgerGroup({ setOpenQuickAddLedgerGroup }: AddQ
     const validationSchema = yup.object({
         name: yup
             .string()
-            .required('Ledger Group Name is required'),
+            .required(dictionary.forms.ledgers.quickGroup.errors.validation.nameRequired),
         parentGroupId: yup
             .mixed()
-            .oneOf(ledgerGroupOptionIds, 'Please select a group from the given options')
-            .required('Parent Group is required')
+            .oneOf(ledgerGroupOptionIds, dictionary.forms.ledgers.quickGroup.errors.validation.selectFromOptions)
+            .required(dictionary.forms.ledgers.quickGroup.errors.validation.parentRequired)
     });
 
     const { 
@@ -80,14 +82,14 @@ export default function AddQuickLedgerGroup({ setOpenQuickAddLedgerGroup }: AddQ
     return (
         <>
             <Typography variant="h6" textAlign={'center'}>
-                Quick Add Ledger Group
+                {dictionary.forms.ledgers.quickGroup.title}
             </Typography>
             {isLoading ? <LinearProgress /> : (
                 <Grid container spacing={1}>
                     <Grid size={12}>
                         <TextField
                             fullWidth
-                            label="Ledger Group Name"
+                            label={dictionary.forms.ledgers.quickGroup.labels.name}
                             size="small"
                             error={!!errors.name}
                             helperText={errors.name?.message}
@@ -102,7 +104,7 @@ export default function AddQuickLedgerGroup({ setOpenQuickAddLedgerGroup }: AddQ
                     <Grid size={{xs: 12, sm: 6}}>
                         <TextField
                             fullWidth
-                            label="Alias (optional)"
+                            label={dictionary.forms.ledgers.quickGroup.labels.alias}
                             size="small"
                             {...register('alias')}
                         />
@@ -123,7 +125,7 @@ export default function AddQuickLedgerGroup({ setOpenQuickAddLedgerGroup }: AddQ
                             renderInput={(params) => (
                                 <TextField
                                     {...params}
-                                    label="Parent Group"
+                                    label={dictionary.forms.ledgers.quickGroup.labels.parentGroup}
                                     error={!!errors.parentGroupId}
                                     helperText={errors.parentGroupId?.message}
                                 />
@@ -144,7 +146,7 @@ export default function AddQuickLedgerGroup({ setOpenQuickAddLedgerGroup }: AddQ
                     <Grid size={12}>
                         <TextField
                             fullWidth
-                            label="Description (optional)"
+                            label={dictionary.forms.ledgers.quickGroup.labels.description}
                             size="small"
                             multiline
                             minRows={2}
@@ -163,7 +165,7 @@ export default function AddQuickLedgerGroup({ setOpenQuickAddLedgerGroup }: AddQ
                                 onClick={() => setOpenQuickAddLedgerGroup(false)}
                                 type="button"
                             >
-                                Cancel
+                                {dictionary.forms.ledgers.quickGroup.buttons.cancel}
                             </Button>
                             <LoadingButton
                                 type="submit"
@@ -172,7 +174,7 @@ export default function AddQuickLedgerGroup({ setOpenQuickAddLedgerGroup }: AddQ
                                 onClick={handleSubmit(handleFormSubmit)}
                                 loading={storeLedgerGroup.isPending}
                             >
-                                Add
+                                {dictionary.forms.ledgers.quickGroup.buttons.add}
                             </LoadingButton>
                         </Box>
                     </Grid>

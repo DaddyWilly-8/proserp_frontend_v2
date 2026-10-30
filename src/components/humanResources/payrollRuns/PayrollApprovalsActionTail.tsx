@@ -10,6 +10,7 @@ import PayrollApprovalDialog, {
   getNextPendingPayrollLevel,
 } from './PayrollApprovalDialog';
 import { PayrollRunType } from './PayrollRunType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface PayrollApprovalsActionTailProps {
   payrollRun: PayrollRunType;
@@ -20,6 +21,7 @@ const PayrollApprovalsActionTail = ({
   payrollRun,
   selectedPayrollPeriod,
 }: PayrollApprovalsActionTailProps) => {
+  const dictionary = useDictionary();
   const [openDialog, setOpenDialog] = useState(false);
   const { hasOrganizationRole } = useJumboAuth();
   const { theme } = useJumboTheme();
@@ -52,7 +54,7 @@ const PayrollApprovalsActionTail = ({
           disableElevation
           sx={{ '& .MuiButton-root': { px: 1 } }}
         >
-          <Tooltip title='Approve Payroll Run'>
+          <Tooltip title={dictionary.tooltips.approvePayrollRun}>
             <IconButton onClick={() => setOpenDialog(true)}>
               <FactCheckOutlined />
             </IconButton>

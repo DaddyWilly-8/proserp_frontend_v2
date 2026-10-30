@@ -16,6 +16,7 @@ import { useSnackbar } from 'notistack';
 import { useState } from 'react';
 import humanResourcesServices from '../../../humanResourcesServices';
 import { EmployeeAllowanceType } from './EmployeeAllowanceType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const EditEmployeeAllowance = ({
   employeeAllowance,
@@ -53,6 +54,7 @@ const EmployeeAllowanceItemAction = ({
 }: {
   employeeAllowance: EmployeeAllowanceType;
 }) => {
+  const dictionary = useDictionary();
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const { showDialog, hideDialog } = useJumboDialog();
   const { enqueueSnackbar } = useSnackbar();
@@ -64,12 +66,12 @@ const EmployeeAllowanceItemAction = ({
     mutationFn: humanResourcesServices.deleteEmployeeAllowance,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['employeeAllowances'] });
-      enqueueSnackbar('Employee Allowance Deleted Successfully', {
+      enqueueSnackbar(dictionary.humanResources.employeeAllowances.messages.deleted, {
         variant: 'success',
       });
     },
     onError: (error: any) => {
-      let message = 'Something went wrong';
+      let message = dictionary.humanResources.profileSectionsCommon.somethingWentWrong;
 
       if (
         typeof error === 'object' &&
@@ -88,12 +90,12 @@ const EmployeeAllowanceItemAction = ({
   const menuItems = [
     {
       icon: <EditOutlined />,
-      title: 'Edit',
+      title: dictionary.humanResources.profileSectionsCommon.edit,
       action: 'edit',
     },
     {
       icon: <DeleteOutlined color='error' />,
-      title: 'Delete',
+      title: dictionary.humanResources.profileSectionsCommon.delete,
       action: 'delete',
     },
   ];
@@ -105,8 +107,8 @@ const EmployeeAllowanceItemAction = ({
         break;
       case 'delete':
         showDialog({
-          title: 'Confirm Delete',
-          content: 'Are you sure you want to delete this Employee Allowance?',
+          title: dictionary.humanResources.profileSectionsCommon.confirmDelete,
+          content: dictionary.humanResources.employeeAllowances.messages.deleteConfirm,
           onYes: () => {
             hideDialog();
             deleteEmployeeAllowance(employeeAllowance.id);
@@ -137,7 +139,7 @@ const EmployeeAllowanceItemAction = ({
       </Dialog>
       <JumboDdMenu
         icon={
-          <Tooltip title='Actions'>
+          <Tooltip title={dictionary.tooltips.actions}>
             <MoreHorizOutlined fontSize='small' />
           </Tooltip>
         }

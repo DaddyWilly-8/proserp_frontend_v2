@@ -20,6 +20,7 @@ import {
 } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const DETAIL_CARD_HEIGHT = 360;
 
@@ -65,6 +66,7 @@ const MobileRowCard = ({
 // dedupes the fetch when both are mounted, rather than hitting the endpoint
 // twice for the same payload.
 const OnLeaveToday = () => {
+  const dictionary = useDictionary();
   const router = useRouter();
   const lang = useLanguage();
   const { theme } = useJumboTheme();
@@ -82,7 +84,7 @@ const OnLeaveToday = () => {
 
   return (
     <JumboCardQuick
-      title='Employees On Leave Today'
+      title={dictionary.dashboardCards.employeesOnLeaveToday}
       sx={{ height: DETAIL_CARD_HEIGHT, display: 'flex', flexDirection: 'column' }}
       wrapperSx={{ overflowY: 'auto', flex: 1 }}
     >

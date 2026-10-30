@@ -1,0 +1,151 @@
+{
+  "recurringTransactions": {
+    "list": {
+      "labels": {
+        "listHeader": "Recurring Transactions",
+        "howToCreate": "To schedule a transaction, open it in Transactions and choose Repeat from its menu.",
+        "name": "Name",
+        "schedule": "Repeats Every",
+        "amount": "Amount",
+        "next": "Next Run",
+        "progress": "Posted",
+        "status": "Status",
+        "type": "Type",
+        "actions": "Actions",
+        "search": "Search",
+        "allTypes": "All types",
+        "allStatuses": "All statuses",
+        "failed": "Failed"
+      },
+      "status": {
+        "active": "Active",
+        "paused": "Paused",
+        "completed": "Completed"
+      },
+      "types": {
+        "journal_voucher": "Journal Voucher",
+        "payment": "Payment",
+        "receipt": "Receipt",
+        "fund_transfer": "Fund Transfer"
+      },
+      "actionsTitle": {
+        "view": "View",
+        "edit": "Edit",
+        "pause": "Pause",
+        "resume": "Resume",
+        "delete": "Delete"
+      },
+      "dialog": {
+        "resume": {
+          "title": "Resume this schedule?",
+          "content": "Dates that fell while it was paused are skipped. It carries on from the next scheduled date."
+        },
+        "delete": {
+          "title": "Delete this schedule?",
+          "content": "No more transactions will be posted from it. Transactions already posted stay as they are."
+        }
+      }
+    },
+    "form": {
+      "repeatTitle": "Repeat Transaction",
+      "repeatIntro": "{voucherNo} is copied as it is now, so later changes to it do not affect the schedule. Choose when and how often it should be posted.",
+      "editTitle": "Edit Schedule",
+      "labels": {
+        "name": "Name",
+        "amountMode": "Amount",
+        "fixed": "Same amount every time",
+        "total": "Spread a total over periods",
+        "frequency": "Frequency",
+        "repeatEvery": "Repeat every",
+        "weekdays": "On these days",
+        "monthEnd": "Post on the last day of the month",
+        "startDate": "First date",
+        "ends": "Ends",
+        "never": "Never",
+        "onDate": "On a date",
+        "afterCount": "After a number of postings",
+        "endDate": "End date",
+        "occurrences": "Number of postings",
+        "periods": "Number of periods",
+        "postTime": "Time on the transaction"
+      },
+      "frequencies": {
+        "daily": "Daily",
+        "weekly": "Weekly",
+        "monthly": "Monthly",
+        "yearly": "Yearly"
+      },
+      "units": {
+        "daily": "day(s)",
+        "weekly": "week(s)",
+        "monthly": "month(s)",
+        "yearly": "year(s)"
+      },
+      "weekdays": [
+        "Sun",
+        "Mon",
+        "Tue",
+        "Wed",
+        "Thu",
+        "Fri",
+        "Sat"
+      ],
+      "helper": {
+        "fixed": "Each line is posted with the amount it has now, every time.",
+        "total": "The amounts of the copied transaction are treated as totals. Each period posts its share, and the last period takes any rounding so the total is exact.",
+        "weekdays": "Leave empty to use the weekday of the first date.",
+        "never": "This keeps posting until you pause or delete it. Frequent schedules need an end.",
+        "pastStart": "A first date in the past posts the missed dates straight away, and needs permission to back-date.",
+        "locked": "This schedule has already posted, so its dates and amounts cannot change. You can rename it or move its end.",
+        "postTime": "The posting is dated with this time on its day (your server's timezone). The schedule itself runs once a day at 23:50."
+      },
+      "buttons": {
+        "create": "Create Schedule",
+        "save": "Save",
+        "cancel": "Cancel",
+        "createSchedule": "Create Schedule"
+      },
+      "messages": {
+        "created": "Recurring schedule created",
+        "updated": "Recurring schedule updated"
+      },
+      "scheduleMode": {
+        "toggle": "Repeat on a schedule instead of posting once",
+        "info": "Nothing is posted now. The lines you enter are saved as a schedule and posted on the dates below. The date at the top of the form is not used; the schedule starts on its first date."
+      }
+    },
+    "view": {
+      "title": "Recurring Schedule",
+      "labels": {
+        "lastError": "Last error",
+        "repeats": "Repeats every",
+        "narration": "Narration",
+        "lines": "Lines",
+        "debit": "Debit",
+        "credit": "Credit",
+        "description": "Description",
+        "amount": "Amount",
+        "totalAmount": "Total",
+        "history": "History",
+        "noRuns": "Nothing has been posted yet.",
+        "date": "Date",
+        "voucher": "Voucher"
+      },
+      "runStatus": {
+        "posted": "Posted",
+        "failed": "Failed",
+        "cancelled": "Cancelled"
+      },
+      "buttons": {
+        "close": "Close",
+        "cancelOccurrence": "Cancel",
+        "confirmCancel": "Cancel Posting"
+      },
+      "cancelDialog": {
+        "title": "Cancel {voucherNo}",
+        "content": "This reverses the posting and keeps it on record. The schedule carries on with the next date; this period is not posted again.",
+        "reason": "Reason for cancellation"
+      }
+    }
+  }
+}

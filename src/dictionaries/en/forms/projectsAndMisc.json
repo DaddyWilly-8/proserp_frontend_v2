@@ -1,0 +1,526 @@
+{
+  "projects": {
+    "shared": {
+      "weightGreaterThanZero": "Weight Percentage must be greater than 0",
+      "weightValidNumber": "Weight Percentage must be a valid number",
+      "weightMax": "Weight Percentage must be less than or equal to 100",
+      "totalExceeds": "Total percentage should not exceed 100%. You currently have {total}% allocated.",
+      "resolveErrors": "Please resolve the errors before submitting.",
+      "atTheBeginning": "At the beginning",
+      "afterName": "After - {name}",
+      "cancel": "Cancel",
+      "submit": "Submit",
+      "name": "Name",
+      "code": "Code",
+      "description": "Description",
+      "position": "Position",
+      "weightedPercentage": "Weighted Percentage",
+      "quantity": "Quantity",
+      "amount": "Amount",
+      "exchangeRate": "Exchange Rate",
+      "contractRate": "Contract Rate",
+      "measurementUnit": "Measurement Unit",
+      "reference": "Reference",
+      "commencementDate": "Commencement Date",
+      "completionDate": "Completion Date",
+      "startDate": "Start Date",
+      "endDate": "End Date",
+      "startDateRequired": "Start Date is required",
+      "endDateRequired": "End Date is required",
+      "quantityRequired": "Quantity is required",
+      "unitRequired": "Measurement Unit is required",
+      "wholeUnit": "This unit is whole-units-only — quantity cannot be a fraction",
+      "done": "Done",
+      "add": "Add",
+      "rate": "Rate",
+      "remarks": "Remarks",
+      "deductionSign": "Deduction (-)",
+      "additionSign": "Addition (+)"
+    },
+    "updates": {
+      "errors": {
+        "updateDateRequired": "Update date is required"
+      },
+      "titles": {
+        "edit": "Edit Project Update",
+        "new": "New Project Update"
+      },
+      "tabs": {
+        "description": "Description",
+        "tasksProgress": "Tasks Progress"
+      },
+      "buttons": {
+        "cancel": "Cancel",
+        "next": "Next >",
+        "submit": "Submit",
+        "returnAndAdd": "Return and Add",
+        "submitWithoutAdd": "Submit without add"
+      },
+      "dialogs": {
+        "unsavedChanges": "Unsaved Changes",
+        "lastItemNotAdded": "Last item was not added to the list"
+      }
+    },
+    "deliverableGroups": {
+      "errors": {
+        "nameRequired": "Group name is required"
+      },
+      "titles": {
+        "edit": "Edit: {name}",
+        "new": "New Deliverable Groups"
+      }
+    },
+    "wbs": {
+      "errors": {
+        "nameRequired": "Activity name is required",
+        "weightRequired": "Weighted percentage is required"
+      },
+      "titles": {
+        "edit": "Edit: {name}",
+        "newSub": "New {name} Activity",
+        "new": "New Timeline Activity"
+      }
+    },
+    "deliverables": {
+      "errors": {
+        "descriptionRequired": "Description is required",
+        "unitRequired": "Measurement Unit is required",
+        "quantityRequired": "Quantity is required",
+        "wholeUnit": "This unit is whole-units-only — quantity cannot be a fraction",
+        "contractRateRequired": "Contract rate is required when client is selected",
+        "contractRateNumber": "Contract rate must be a number"
+      },
+      "titles": {
+        "edit": "Edit Deliverable",
+        "add": "Add {name} Deliverable"
+      },
+      "labels": {
+        "after": "After: {description}"
+      }
+    },
+    "subcontracts": {
+      "errors": {
+        "subcontractorRequired": "Sub Contractor Name is required"
+      },
+      "titles": {
+        "edit": "Edit: {no}",
+        "new": "New Sub Contract",
+        "addSubContractor": "Add Sub Contractor"
+      },
+      "labels": {
+        "subContractorName": "Sub Contractor Name",
+        "storeAssigned": "Store Assigned (optional)",
+        "remarks": "Remarks"
+      }
+    },
+    "budgets": {
+      "errors": {
+        "nameRequired": "Budget name is required",
+        "startDateRequired": "Start Date is required",
+        "endDateRequired": "End Date is required",
+        "endAfterStart": "End date must be after start date",
+        "costCenterRequired": "Cost Center is required"
+      },
+      "titles": {
+        "duplicate": "Duplicate {name} Budget",
+        "edit": "Edit {name} Budget",
+        "newProject": "New Project Budget",
+        "new": "New Budget"
+      },
+      "dialogs": {
+        "restoreTitle": "Restore Previous Subcontract Tasks?",
+        "restoreText": "You have previous Subcontract Tasks for this cost center. Would you like to restore them or start with a blank list?",
+        "lossTitle": "Subcontract Tasks Will Be Lost",
+        "lossText": "Changing the cost center will clear all current Subcontract Tasks. Do you want to continue?",
+        "unsavedTitle": "Unsaved Expense Item",
+        "unsavedText": "You have unsaved changes in Expense Items form. Do you want to add the item first, or submit without adding it?"
+      },
+      "buttons": {
+        "startNew": "Start New",
+        "restorePrevious": "Restore Previous",
+        "cancel": "Cancel",
+        "continue": "Continue",
+        "submit": "Submit",
+        "submitWithoutAdd": "Submit Without Add",
+        "addAndSubmit": "Add & Submit"
+      },
+      "labels": {
+        "budgetName": "Budget Name",
+        "startDate": "Start Date",
+        "endDate": "End Date",
+        "costCenter": "Cost Center",
+        "remarks": "Remarks",
+        "optionalFilters": "Optional Filters",
+        "filtersHint": "Use these filters to narrow down listed items. Leave blank to show all.",
+        "showFilters": "Show Filters",
+        "filterBoundTo": "Filter by Bound To (Optional)",
+        "all": "All",
+        "task": "Task",
+        "filterByTask": "Filter by Task (Optional)",
+        "selectBoundTo": "Select Bound To to enable Task filter",
+        "filterByExpense": "Filter by Expense (Optional)",
+        "filterByProduct": "Filter by Product (Optional)",
+        "filterBySubTask": "Filter by Subcontract Task (Optional)",
+        "notRequired": "Not required"
+      },
+      "tabs": {
+        "expenseItems": "Expense Items",
+        "productItems": "Product Items",
+        "subcontractTask": "Subcontract Task",
+        "summary": "Summary"
+      }
+    },
+    "tasks": {
+      "errors": {
+        "nameRequired": "Task name is required",
+        "nameMax": "Task name must not exceed 191 characters",
+        "weightRequired": "Weight Percentage is required",
+        "weightMin": "Weight Percentage must be greater than or Equal to 0",
+        "totalExceedsActivity": "Total percentage should not exceed 100%. You currently have {total}% allocated for this Activity.",
+        "contributionMin": "Contribution Percentage must be greater than or equal to 0",
+        "contributionMax": "Contribution Percentage must be less than or equal to 100",
+        "contributionRequired": "Contribution Percentage is required when Deliverable is selected",
+        "contributionType": "Contribution Percentage is Required",
+        "duplicateDeliverable": "Duplicate deliverable. Select a different Deliverable.",
+        "contributionExceeds": "The total contribution for deliverable exceeds 100% with the new task. It sums to {total}%."
+      },
+      "titles": {
+        "edit": "Edit {name} Task",
+        "new": "New {name} Task",
+        "deliverableContributions": "Deliverable Contributions"
+      },
+      "labels": {
+        "taskName": "Task Name",
+        "milestone": "Milestone",
+        "dependencies": "Dependencies",
+        "handlers": "Handlers",
+        "weightPercentage": "Weight Percentage",
+        "deliverable": "Deliverable",
+        "contributionPercentage": "Contribution Percentage"
+      },
+      "buttons": {
+        "addContribution": "Add Contribution"
+      }
+    },
+    "claims": {
+      "errors": {
+        "remarksRequired": "Remarks is required",
+        "claimDateRequired": "Claim date is required",
+        "currencyRequired": "Currency is required",
+        "invalidCurrency": "Invalid currency",
+        "atLeastOneDeliverable": "You must add at least one certified deliverable"
+      },
+      "messages": {
+        "created": "Claim created successfully",
+        "updated": "Claim updated successfully",
+        "postsToInvoice": "This will post straight to a Customer Invoice — fill in its due date and any reference/terms now.",
+        "lastItemNotSaved": "The last added item has not been saved to the list yet."
+      },
+      "titles": {
+        "edit": "Edit {no}",
+        "new": "New Claim",
+        "unsavedChanges": "Unsaved Changes"
+      },
+      "labels": {
+        "claimDate": "Claim Date",
+        "remarks": "Remarks",
+        "invoiceDueDate": "Invoice Due Date",
+        "customerReference": "Customer Reference",
+        "termsAndInstructions": "Terms and Instructions",
+        "summary": "Summary",
+        "grossAmount": "Gross Amount:",
+        "netAdjustments": "Net Adjustments:",
+        "subtotal": "Subtotal:",
+        "vat": "VAT ({percentage}%):",
+        "grandTotal": "Grand Total:"
+      },
+      "tabs": {
+        "claimedDeliverables": "Claimed Deliverables",
+        "adjustments": "Adjustments"
+      },
+      "buttons": {
+        "cancel": "Cancel",
+        "addItemAndSubmit": "Add Item & Submit",
+        "submitWithoutAdding": "Submit Without Adding",
+        "next": "Next",
+        "updateClaim": "Update Claim",
+        "createClaim": "Create Claim"
+      }
+    },
+    "claimAdjustments": {
+      "errors": {
+        "typeRequired": "Type is required",
+        "descriptionRequired": "Description is required",
+        "amountRequired": "Amount is required",
+        "amountPositive": "Amount must be greater than 0",
+        "amountValid": "Valid amount is required",
+        "ledgerRequired": "Complement Ledger is required"
+      },
+      "labels": {
+        "type": "Type",
+        "complementLedger": "Complement Ledger",
+        "amount": "Amount",
+        "description": "Description"
+      }
+    },
+    "claimedDeliverables": {
+      "errors": {
+        "deliverableRequired": "Deliverable is required",
+        "revenueLedgerRequired": "Revenue Ledger is required",
+        "quantityRequired": "Quantity is required",
+        "quantityPositive": "Quantity must be positive",
+        "quantityValid": "Valid quantity is required"
+      },
+      "messages": {
+        "loading": "Loading...",
+        "noDeliverables": "No deliverables found",
+        "typeToSearch": "Type at least 2 characters to search"
+      },
+      "labels": {
+        "deliverable": "Deliverable",
+        "revenueLedger": "Revenue Ledger",
+        "certifiedQuantity": "Certified Quantity",
+        "rate": "Rate",
+        "amount": "Amount",
+        "remarks": "Remarks"
+      },
+      "tooltips": {
+        "quantityRate": "Quantity: {quantity} {unit}\nRate: {rate}",
+        "lineTotal": "Line Total ({quantity} × {rate}{vat})",
+        "vatSuffix": " × {percentage}% VAT"
+      }
+    },
+    "certificates": {
+      "errors": {
+        "remarksRequired": "Remarks is required",
+        "dateRequired": "Certificate date is required",
+        "atLeastOneTask": "You must add at least one Certified Task"
+      },
+      "messages": {
+        "created": "Certificate created",
+        "updated": "Certificate updated",
+        "postsToBill": "This will post straight to a Supplier Bill — fill in its due date and any reference now.",
+        "lastItemNotAdded": "The last item has not been added to the list."
+      },
+      "titles": {
+        "edit": "Edit {no}",
+        "new": "New Certificate Form",
+        "unsavedChanges": "Unsaved Changes"
+      },
+      "labels": {
+        "certificateDate": "Certificate Date",
+        "remarks": "Remarks",
+        "billDueDate": "Bill Due Date",
+        "supplierReference": "Supplier Reference",
+        "summary": "Summary",
+        "grossAmount": "Gross Amount:",
+        "netAdjustments": "Net Adjustments:",
+        "subtotal": "Subtotal:",
+        "vat": "VAT ({percentage}%):",
+        "grandTotal": "Grand Total:"
+      },
+      "tabs": {
+        "certifiedTasks": "Certified Tasks",
+        "adjustments": "Adjustments"
+      },
+      "buttons": {
+        "cancel": "Cancel",
+        "addAndSubmit": "Add & Submit",
+        "submitWithoutAdding": "Submit Without Adding",
+        "previous": "Previous",
+        "next": "Next",
+        "updateCertificate": "Update Certificate",
+        "submitCertificate": "Submit Certificate"
+      }
+    },
+    "certifiedAdjustments": {
+      "errors": {
+        "typeRequired": "Type is required",
+        "descriptionRequired": "Description is required",
+        "amountRequired": "Amount is required",
+        "amountPositive": "Amount must be positive",
+        "amountValid": "Valid amount is required",
+        "ledgerRequired": "Complement Ledger is required"
+      },
+      "labels": {
+        "type": "Type",
+        "complementLedger": "Complement Ledger",
+        "amount": "Amount",
+        "description": "Description"
+      }
+    },
+    "certifiedTasks": {
+      "errors": {
+        "taskRequired": "Project Task is required",
+        "quantityRequired": "Quantity is required",
+        "quantityPositive": "Quantity must be positive",
+        "quantityValid": "Valid quantity is required",
+        "exceedsUncertified": "Certified Quantity cannot exceed un-certified ({quantity})",
+        "exceedsExecuted": "Certified Quantity cannot exceed executed quantity ({quantity})"
+      },
+      "labels": {
+        "projectTask": "Project Task",
+        "certifiedQuantity": "Certified Quantity",
+        "rate": "Rate",
+        "remarks": "Remarks"
+      }
+    },
+    "materialIssued": {
+      "errors": {
+        "productRequired": "Product is required",
+        "quantityRequired": "Quantity is required",
+        "quantityPositive": "Quantity must be positive",
+        "exceedsBalance": "Quantity exceeds available balance",
+        "negativeBalance": "This quantity will lead to negative balance. Current balance today is {balance}"
+      },
+      "labels": {
+        "availableBalance": "Available Balance",
+        "quantity": "Quantity",
+        "remarks": "Remarks"
+      },
+      "buttons": {
+        "done": "Done",
+        "add": "Add"
+      }
+    },
+    "budgetItems": {
+      "errors": {
+        "productRequired": "Product name is required",
+        "expenseRequired": "Expense name is required",
+        "currencyRequired": "Currency is required",
+        "exchangeRateRequired": "Exchange rate is required",
+        "rateRequired": "Rate is required",
+        "quantityRequired": "Quantity is required",
+        "unitRequired": "Measurement Unit is required",
+        "wholeUnit": "This unit is whole-units-only — quantity cannot be a fraction",
+        "alternativeSameAsMain": "An alternative product cannot be the same as the Main Product.",
+        "boundToRequired": "Bound to is required",
+        "selectTaskRequired": "Select Task is required"
+      },
+      "labels": {
+        "productName": "Product name",
+        "expenseName": "Expense Name",
+        "boundTo": "Bound To",
+        "task": "Task",
+        "selectTask": "Select Task",
+        "select": "Select",
+        "unit": "Unit",
+        "quantity": "Quantity",
+        "rate": "Rate",
+        "exchangeRate": "Exchange Rate",
+        "description": "Description",
+        "alternativeProducts": "Alternative Products",
+        "quickAddLedger": "Quick Add Ledger"
+      },
+      "buttons": {
+        "done": "Done",
+        "add": "Add"
+      }
+    },
+    "form": {
+      "titles": {
+        "edit": "Edit: {name}",
+        "new": "New Project"
+      },
+      "labels": {
+        "projectName": "Project Name",
+        "projectCategory": "Project Category",
+        "client": "Client",
+        "reference": "Reference",
+        "commencementDate": "Commencement Date",
+        "completionDate": "Completion Date",
+        "inventoryStores": "Inventory Store(s)",
+        "description": "Description"
+      },
+      "buttons": {
+        "cancel": "Cancel",
+        "submit": "Submit"
+      },
+      "errors": {
+        "nameRequired": "Project Name is required",
+        "nameType": "Enter your Project Name",
+        "categoryRequired": "Project Category is required"
+      }
+    },
+    "projectUsers": {
+      "titles": {
+        "attachUsers": "Attach Users"
+      },
+      "labels": {
+        "selectUsers": "Select Users"
+      },
+      "buttons": {
+        "cancel": "Cancel",
+        "attach": "Attach"
+      },
+      "messages": {
+        "attached": "Users attached successfully",
+        "failed": "Operation failed"
+      }
+    }
+  },
+  "attachments": {
+    "errors": {
+      "nameRequired": "File Name is required",
+      "unsupportedFormat": "Unsupported File Format",
+      "fileRequired": "File is required"
+    },
+    "messages": {
+      "uploaded": "Attachment uploaded",
+      "noAttachments": "No attachments for this {name}"
+    },
+    "titles": {
+      "attachmentsFor": "Attachments For {sourceNo}"
+    },
+    "labels": {
+      "name": "Name",
+      "fileAttachment": "File Attachment"
+    },
+    "buttons": {
+      "upload": "Upload",
+      "close": "Close"
+    }
+  },
+  "projectCategories": {
+    "errors": {
+      "nameRequired": "Category name is required"
+    },
+    "messages": {
+      "success": "Success"
+    },
+    "titles": {
+      "new": "New Category Form",
+      "edit": "Edit {name}"
+    },
+    "labels": {
+      "categoryName": "Category Name",
+      "description": "Description"
+    },
+    "buttons": {
+      "cancel": "Cancel",
+      "submit": "Submit"
+    }
+  },
+  "assetBookingQuickAdd": {
+    "titles": {
+      "attachBooking": "Attach an Asset Booking"
+    },
+    "labels": {
+      "asset": "Asset",
+      "start": "Start",
+      "end": "End",
+      "rate": "Rate"
+    },
+    "messages": {
+      "noBillingProduct": "{code} has no billing product mapped — you'll need to add the appropriate item to this sale manually.",
+      "enterRate": "Enter a rate to add {item} as a line item on this sale — it won't be added automatically without one.",
+      "theBillingProduct": "the billing product",
+      "checkingAvailability": "Checking availability…",
+      "alreadyBooked": "{code} is already booked for part of this period{conflict}. Pick a different time or asset."
+    },
+    "buttons": {
+      "cancel": "Cancel",
+      "add": "Add"
+    }
+  }
+}

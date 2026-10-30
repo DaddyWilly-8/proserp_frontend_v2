@@ -13,8 +13,10 @@ import { Department } from './DepartmentsType';
 import LedgerGroupProvider from '@/components/accounts/ledgerGroups/LedgerGroupProvider';
 import LedgerSelectProvider from '@/components/accounts/ledgers/forms/LedgerSelectProvider';
 import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const Departments = () => {
+  const dictionary = useDictionary();
   const params = useParams<{ id?: string; keyword?: string }>();
   const searchParams = useSearchParams();
   const listRef = useRef<any>(null);
@@ -59,7 +61,7 @@ const Departments = () => {
     <LedgerSelectProvider>
       <LedgerGroupProvider>
         <Typography variant={'h4'} mb={2}>
-          Departments
+          {dictionary.humanResources.departments.list.title}
         </Typography>
         <JumboRqList
           ref={listRef}

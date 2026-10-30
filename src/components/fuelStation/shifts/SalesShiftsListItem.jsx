@@ -3,8 +3,10 @@ import { Box, Chip, Grid, Tooltip, Typography } from '@mui/material';
 import { useContext } from 'react';
 import { StationFormContext } from './SalesShifts';
 import SalesShiftsItemAction from './SalesShiftsItemAction';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const SalesShiftsListItem = ({ ClosedShift }) => {
+  const dictionary = useDictionary();
   const { activeStation } = useContext(StationFormContext);
   const { shifts } = activeStation;
 
@@ -26,19 +28,19 @@ const SalesShiftsListItem = ({ ClosedShift }) => {
       }}
     >
       <Grid size={{ xs: 6, md: 3 }}>
-        <Tooltip title='Shift Start'>
+        <Tooltip title={dictionary.tooltips.shiftStart}>
           <Typography>{readableDate(ClosedShift.shift_start, true)}</Typography>
         </Tooltip>
       </Grid>
       <Grid size={{ xs: 6, md: 3 }}>
-        <Tooltip title='Shift End'>
+        <Tooltip title={dictionary.tooltips.shiftEnd}>
           <Typography fontWeight={'bold'}>
             {readableDate(ClosedShift.shift_end, true)}
           </Typography>
         </Tooltip>
       </Grid>
       <Grid size={{ xs: 6, md: 2 }}>
-        <Tooltip title='Shift Team'>
+        <Tooltip title={dictionary.tooltips.shiftTeam}>
           <Typography>
             {
               shifts?.find(
@@ -49,13 +51,13 @@ const SalesShiftsListItem = ({ ClosedShift }) => {
         </Tooltip>
       </Grid>
       <Grid size={{ xs: 6, md: 2 }}>
-        <Tooltip title='Shift No'>
+        <Tooltip title={dictionary.tooltips.shiftNo}>
           <Typography fontWeight={'bold'}>{ClosedShift.shiftNo}</Typography>
         </Tooltip>
       </Grid>
 
       <Grid size={{ xs: 6, md: 1 }}>
-        <Tooltip title='Status'>
+        <Tooltip title={dictionary.tooltips.status}>
           <Chip
             size='small'
             label={ClosedShift.status}

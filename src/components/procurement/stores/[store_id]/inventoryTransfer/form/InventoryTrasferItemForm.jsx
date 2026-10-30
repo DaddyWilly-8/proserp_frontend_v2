@@ -10,8 +10,10 @@ import { useProductsSelect } from '@/components/productAndServices/products/Prod
 import ProductSelect from '@/components/productAndServices/products/ProductSelect';
 import productServices from '@/components/productAndServices/products/productServices';
 import { wholeUnitQuantityTest } from '@/app/helpers/measurement-unit-helpers';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function InventoryTrasferItemForm({ setClearFormKey, submitMainForm, submitItemForm, setSubmitItemForm, item = null, index = -1, setItems, items = [], setShowForm = null, sourceCostCenterId = null, transferDate, setIsDirty}) {
+    const dictionary = useDictionary();
     const [isRetrieving, setIsRetrieving] = useState(false);
     const { activeStore } = useStoreProfile();
     const {productOptions} = useProductsSelect();
@@ -19,17 +21,17 @@ function InventoryTrasferItemForm({ setClearFormKey, submitMainForm, submitItemF
     const [selectedUnit, setSelectedUnit] = useState(item && (item.measurement_unit_id ? item.measurement_unit_id : item.measurement_unit_id));
 
     const validationSchema = yup.object({
-        product: yup.object().required("Product is required").typeError('Product is required'),
+        product: yup.object().required(dictionary.forms.stores.inventoryTransfer.errors.validation.product.required).typeError(dictionary.forms.stores.inventoryTransfer.errors.validation.product.required),
         quantity: yup.number()
             .transform((value) => (isNaN(value) ? undefined : value))
             .nullable()
             .when('product', {
             is: (product) => product?.type === 'Inventory',
             then: (schema) => schema
-                .required("Quantity is required")
-                .positive("Quantity must be a positive number")
-                .typeError('Quantity must be a number')
-                .test('balance-check', 'The quantity exceeds the available balance', function(value) {
+                .required(dictionary.forms.stores.inventoryTransfer.errors.validation.quantity.required)
+                .positive(dictionary.forms.stores.inventoryTransfer.errors.validation.quantity.positive)
+                .typeError(dictionary.forms.stores.inventoryTransfer.errors.validation.quantity.number)
+                .test('balance-check', dictionary.forms.stores.inventoryTransfer.errors.validation.quantity.exceedsBalance, function(value) {
                     const availableBalance = this.parent.available_balance;
                     if (availableBalance === 'N/A' || !value) return true;
                     return value <= parseFloat(availableBalance);
@@ -40,13 +42,13 @@ function InventoryTrasferItemForm({ setClearFormKey, submitMainForm, submitItemF
                     const availableBalance = parseFloat(this.parent.available_balance || 0);
                     if (currentBalance >= availableBalance) return true;
                     return value <= currentBalance || this.createError({
-                        message: `This quantity will lead to negative balance. Current balance today is ${currentBalance.toLocaleString()}`
+                        message: dictionary.forms.stores.inventoryTransfer.messages.negativeBalance.replace('{balance}', currentBalance.toLocaleString())
                     });
                 }),
             otherwise: (schema) => schema
-                .required("Quantity is required")
-                .positive("Quantity must be a positive number")
-                .typeError('Quantity must be a number')
+                .required(dictionary.forms.stores.inventoryTransfer.errors.validation.quantity.required)
+                .positive(dictionary.forms.stores.inventoryTransfer.errors.validation.quantity.positive)
+                .typeError(dictionary.forms.stores.inventoryTransfer.errors.validation.quantity.number)
             }),
     });
 
@@ -162,7 +164,7 @@ function InventoryTrasferItemForm({ setClearFormKey, submitMainForm, submitItemF
             <Grid container columnSpacing={1} rowSpacing={1} mb={2} mt={2}>
                 {!item && (
                     <Grid size={12} textAlign={'center'} mt={1} mb={1}>
-                        Add Item
+                        {dictionary.forms.stores.inventoryTransfer.titles.addItem}
                     </Grid>
                 )}
                 <Grid size={{xs: 12, md: 4, lg: 6}}>
@@ -198,7 +200,7 @@ function InventoryTrasferItemForm({ setClearFormKey, submitMainForm, submitItemF
                     {
                         isRetrieving ? <LinearProgress /> :
                         <TextField
-                            label="Available Balance"
+                            label={dictionary.forms.stores.inventoryTransfer.labels.availableBalance}
                             fullWidth
                             size='small'
                             value={watch('available_balance')}
@@ -211,7 +213,7 @@ function InventoryTrasferItemForm({ setClearFormKey, submitMainForm, submitItemF
                 </Grid>
                 <Grid size={{xs: 12, md: 4, lg: 3}}>
                     <TextField
-                        label="Quantity"
+                        label={dictionary.forms.stores.inventoryTransfer.labels.quantity}
                         fullWidth
                         size='small'
                         error={!!errors?.quantity}
@@ -273,15 +275,15 @@ function InventoryTrasferItemForm({ setClearFormKey, submitMainForm, submitItemF
                     >
                         {
                             item ? (
-                                <><CheckOutlined fontSize='small' /> Done</>
+                                <><CheckOutlined fontSize='small' /> {dictionary.forms.stores.inventoryTransfer.buttons.done}</>
                             ) : (
-                                <><AddOutlined fontSize='small' /> Add</>
+                                <><AddOutlined fontSize='small' /> {dictionary.forms.stores.inventoryTransfer.buttons.add}</>
                             )
                         }
                     </LoadingButton>
                     {
                         item &&
-                        <Tooltip title='Close Edit'>
+                        <Tooltip title={dictionary.tooltips.closeEdit}>
                             <IconButton size='small'
                                 onClick={() => {
                                     setShowForm(false);

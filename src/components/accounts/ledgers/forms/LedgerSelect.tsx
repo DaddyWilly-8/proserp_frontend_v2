@@ -14,6 +14,7 @@ import {
 } from '@mui/material';
 import React, { useEffect, useMemo, useCallback, useState } from 'react';
 import { useLedgerSelect } from './LedgerSelectProvider';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const EMPTY_LEDGER_REFS: LedgerRef[] = [];
 const EMPTY_GROUPS: string[] = [];
@@ -57,10 +58,11 @@ interface LedgerSelectProps {
 }
 
 function LedgerSelect(props: LedgerSelectProps) {
+  const dictionary = useDictionary();
   const {
     onChange,
     frontError = null,
-    label = 'Select Ledger',
+    label = dictionary.forms.ledgers.select.label,
     defaultValue = null,
     allowedGroups = EMPTY_GROUPS,
     notAllowedGroups = EMPTY_GROUPS,
@@ -311,7 +313,7 @@ function LedgerSelect(props: LedgerSelectProps) {
       multiple={multiple}
       isOptionEqualToValue={isOptionEqualToValue}
       loading={!isLoaded}
-      loadingText="Loading ledgers..."
+      loadingText={dictionary.forms.ledgers.select.loading}
       renderInput={renderInput}
       renderOption={renderOption}
       onChange={(

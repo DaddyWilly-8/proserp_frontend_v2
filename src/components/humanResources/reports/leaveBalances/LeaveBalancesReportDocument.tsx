@@ -29,6 +29,7 @@ interface LeaveBalancesReportDocumentProps {
   organization: any;
   userName: string;
   filtersLabel: string;
+  dictionary: any;
 }
 
 function formatNumber(value: number | string | null | undefined) {
@@ -36,14 +37,14 @@ function formatNumber(value: number | string | null | undefined) {
   return numeric.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
 }
 
-const columns = [
-  { label: 'Employee No.', flex: 1.2 },
-  { label: 'Name', flex: 2 },
-  { label: 'Department', flex: 1.5 },
-  { label: 'Leave Type', flex: 1.5 },
-  { label: 'Allocated', flex: 1, align: 'right' as const },
-  { label: 'Used', flex: 1, align: 'right' as const },
-  { label: 'Remaining', flex: 1, align: 'right' as const },
+const buildColumns = (dictionary: any) => [
+  { label: dictionary.humanResources.reports.common.employeeNo, flex: 1.2 },
+  { label: dictionary.humanResources.reports.common.name, flex: 2 },
+  { label: dictionary.humanResources.reports.common.department, flex: 1.5 },
+  { label: dictionary.humanResources.reports.common.leaveType, flex: 1.5 },
+  { label: dictionary.humanResources.reports.leaveBalances.columns.allocated, flex: 1, align: 'right' as const },
+  { label: dictionary.humanResources.reports.leaveBalances.columns.used, flex: 1, align: 'right' as const },
+  { label: dictionary.humanResources.reports.leaveBalances.columns.remaining, flex: 1, align: 'right' as const },
 ];
 
 export default function LeaveBalancesReportDocument({
@@ -51,7 +52,9 @@ export default function LeaveBalancesReportDocument({
   organization,
   userName,
   filtersLabel,
+  dictionary,
 }: LeaveBalancesReportDocumentProps) {
+  const columns = buildColumns(dictionary);
   const mainColor = organization?.settings?.main_color || '#2113AD';
   const lightColor = organization?.settings?.light_color || '#bec5da';
   const contrastText = organization?.settings?.contrast_text || '#FFFFFF';
@@ -61,7 +64,7 @@ export default function LeaveBalancesReportDocument({
 
   return (
     <Document
-      title={`Leave Balances ${data?.year ?? ''}`}
+      title={`${dictionary.humanResources.reports.leaveBalances.title} ${data?.year ?? ''}`}
       creator={` ${userName} | Powered By ProsERP`}
       producer='ProsERP'
     >
@@ -71,21 +74,21 @@ export default function LeaveBalancesReportDocument({
             <PdfLogo organization={organization} />
           </View>
           <View style={{ flex: 1, textAlign: 'right' }}>
-            <Text style={{ ...pdfStyles.majorInfo, color: mainColor }}>Leave Balances</Text>
+            <Text style={{ ...pdfStyles.majorInfo, color: mainColor }}>{dictionary.humanResources.reports.leaveBalances.title}</Text>
           </View>
         </View>
 
         <View style={{ ...pdfStyles.tableRow, marginBottom: 12 }}>
           <View style={{ flex: 1 }}>
-            <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>Year</Text>
+            <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>{dictionary.humanResources.reports.common.year}</Text>
             <Text style={pdfStyles.minInfo}>{data?.year}</Text>
           </View>
           <View style={{ flex: 2 }}>
-            <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>Filters</Text>
+            <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>{dictionary.humanResources.reports.common.filters}</Text>
             <Text style={pdfStyles.minInfo}>{filtersLabel}</Text>
           </View>
           <View style={{ flex: 1 }}>
-            <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>Printed On</Text>
+            <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>{dictionary.humanResources.reports.common.printedOn}</Text>
             <Text style={pdfStyles.minInfo}>{readableDate(undefined, true)}</Text>
           </View>
         </View>
@@ -137,7 +140,7 @@ export default function LeaveBalancesReportDocument({
           {totals && (
             <View style={pdfStyles.tableRow}>
               <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 6.2 }}>
-                Total ({totals.count})
+                {dictionary.humanResources.reports.common.totalWithCount.replace('{count}', String(totals.count))}
               </Text>
               <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 1, textAlign: 'right' }}>
                 {formatNumber(totals.allocated_days)}

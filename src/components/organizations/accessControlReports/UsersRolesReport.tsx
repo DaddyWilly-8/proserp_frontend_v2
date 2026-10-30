@@ -96,6 +96,7 @@ const UsersRolesReport = () => {
                 users={users}
                 authOrganization={authOrganization}
                 user={user}
+                dictionary={dictionary}
                 showContacts={showContacts}
               />
             }

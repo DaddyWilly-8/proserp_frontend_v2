@@ -11,6 +11,7 @@ import projectsServices from '../../project-services';
 import { JumboDdMenu } from '@jumbo/components';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const EditSubContract = ({subContract,setOpenDialog}) => {
   const {data:SubContractDetails,isFetching} = useQuery({
@@ -28,6 +29,7 @@ const EditSubContract = ({subContract,setOpenDialog}) => {
 }
 
 const SubcontractItemAction = ({subContract}) => {
+  const dictionary = useDictionary();
   const [openEditDialog,setOpenEditDialog] = useState(false);
   const {showDialog,hideDialog} = useJumboDialog();
   const { enqueueSnackbar } = useSnackbar();
@@ -54,12 +56,12 @@ const SubcontractItemAction = ({subContract}) => {
   const menuItems = [
     checkOrganizationPermission(PERMISSIONS.PROJECT_SUBCONTRACTS_EDIT) && {
       icon: <EditOutlined/>,
-      title: 'Edit',
+      title: dictionary.projectManagement.common.edit,
       action: 'edit',
     },
     checkOrganizationPermission(PERMISSIONS.PROJECT_SUBCONTRACTS_DELETE) && {
       icon: <DeleteOutlined color='error'/>,
-      title: 'Delete',
+      title: dictionary.projectManagement.common.delete,
       action: 'delete',
     },
   ].filter(Boolean);
@@ -71,8 +73,8 @@ const SubcontractItemAction = ({subContract}) => {
         break; 
       case 'delete':
         showDialog({
-          title: 'Confirm Delete',
-          content: 'Are you sure you want to delete this Sub Contract?',
+          title: dictionary.projectManagement.common.confirmDelete,
+          content: dictionary.projectManagement.subcontracts.confirmDeleteText,
           onYes: () =>{ 
             hideDialog();
             deleteSubContract(subContract.id)
@@ -100,7 +102,7 @@ const SubcontractItemAction = ({subContract}) => {
       {menuItems.length > 0 && (
         <JumboDdMenu
           icon={
-            <Tooltip title='Actions'>
+            <Tooltip title={dictionary.tooltips.actions}>
               <MoreHorizOutlined/>
             </Tooltip>
           }

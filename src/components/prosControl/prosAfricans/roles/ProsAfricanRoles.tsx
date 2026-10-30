@@ -10,6 +10,7 @@ import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { PROS_CONTROL_PERMISSIONS } from '@/utilities/constants/prosControlPermissions';
 import axios from 'axios';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface Permission {
   id: number;
@@ -28,6 +29,7 @@ interface RoleAccordionProps {
 }
 
 const ProsAfricansRoles = () => {
+  const dictionary = useDictionary();
   const { checkPermission } = useJumboAuth();
   const { showDialog, hideDialog } = useJumboDialog();
   const { enqueueSnackbar } = useSnackbar();
@@ -50,8 +52,8 @@ const ProsAfricansRoles = () => {
   const deleteRole = (role: Role) => {
     showDialog({
       variant: 'confirm',
-      title: `Delete ${role.name} role?`,
-      content: `All users with this role won't have it anymore`,
+      title: dictionary.forms.prosAfricans.form.dialogs.deleteTitle.replace('{name}', String(role.name)),
+      content: dictionary.forms.prosAfricans.form.dialogs.deleteContent,
       onYes: async() => {
         hideDialog();
         try {
@@ -151,7 +153,7 @@ const ProsAfricansRoles = () => {
                         variant='contained' 
                         color='primary'
                       >
-                        Save
+                        {dictionary.forms.prosAfricans.form.buttons.save}
                       </LoadingButton>
                     }
                     {
@@ -163,7 +165,7 @@ const ProsAfricansRoles = () => {
                         variant='contained' 
                         color='error'
                       >
-                        Delete
+                        {dictionary.forms.prosAfricans.form.buttons.delete}
                       </Button>
                     }
                   </Box>

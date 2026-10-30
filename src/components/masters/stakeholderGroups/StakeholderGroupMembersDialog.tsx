@@ -23,6 +23,7 @@ import StakeholderGroupMemberSearchAdd from './StakeholderGroupMemberSearchAdd';
 import { getErrorMessage } from '@/utilities/helpers/errorHandler';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface GroupStakeholder {
   id: number;
@@ -38,6 +39,7 @@ const StakeholderGroupMembersDialog = ({
   group: { id: number; name: string };
   setOpenDialog: (open: boolean) => void;
 }) => {
+  const dictionary = useDictionary();
   const queryClient = useQueryClient();
   const { enqueueSnackbar } = useSnackbar();
   const { checkOrganizationPermission } = useJumboAuth();
@@ -56,7 +58,7 @@ const StakeholderGroupMembersDialog = ({
   const { mutate: removeStakeholder } = useMutation({
     mutationFn: (stakeholderId: number) => stakeholderGroupServices.removeStakeholder({ id: group.id, stakeholderId }),
     onSuccess: () => {
-      enqueueSnackbar('Stakeholder removed from group', { variant: 'success' });
+      enqueueSnackbar(dictionary.forms.stakeholderGroups.members.messages.removed, { variant: 'success' });
       queryClient.invalidateQueries({ queryKey: ['stakeholder-group-members', group.id] });
       queryClient.invalidateQueries({ queryKey: ['stakeholder-groups'] });
     },
@@ -66,7 +68,7 @@ const StakeholderGroupMembersDialog = ({
   return (
     <>
       <DialogTitle>
-        {group.name} &mdash; Members ({total})
+        {dictionary.forms.stakeholderGroups.members.title.replace('{name}', group.name).replace('{total}', String(total))}
       </DialogTitle>
       <DialogContent>
         {canEdit && (
@@ -75,7 +77,7 @@ const StakeholderGroupMembersDialog = ({
           </div>
         )}
 
-        {!isLoading && members.length === 0 && <Typography color='text.secondary'>No members yet.</Typography>}
+        {!isLoading && members.length === 0 && <Typography color='text.secondary'>{dictionary.forms.stakeholderGroups.members.empty}</Typography>}
 
         <List dense disablePadding>
           {members.map((member) => (
@@ -95,7 +97,7 @@ const StakeholderGroupMembersDialog = ({
                 secondary={
                   <Stack direction='row' spacing={1}>
                     {member.phone && <Chip size='small' label={member.phone} />}
-                    {!member.phone && <Chip size='small' color='warning' label='No phone number' />}
+                    {!member.phone && <Chip size='small' color='warning' label={dictionary.forms.stakeholderGroups.members.noPhone} />}
                   </Stack>
                 }
               />
@@ -111,7 +113,7 @@ const StakeholderGroupMembersDialog = ({
       </DialogContent>
       <DialogActions>
         <Button size='small' onClick={() => setOpenDialog(false)}>
-          Close
+          {dictionary.forms.stakeholderGroups.members.buttons.close}
         </Button>
       </DialogActions>
     </>

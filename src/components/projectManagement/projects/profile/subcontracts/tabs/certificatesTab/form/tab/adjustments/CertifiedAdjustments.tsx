@@ -24,6 +24,7 @@ import { useLedgerSelect } from '@/components/accounts/ledgers/forms/LedgerSelec
 import CommaSeparatedField from '@/shared/Inputs/CommaSeparatedField';
 import { sanitizedNumber } from '@/app/helpers/input-sanitization-helpers';
 import { Div } from '@jumbo/shared';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 // ==================== Types ====================
 interface Adjustment {
@@ -68,6 +69,9 @@ const CertifiedAdjustments: React.FC<CertifiedAdjustmentsProps> = ({
   adjustments,
   setAdjustments,
 }) => {
+  const dictionary = useDictionary();
+  const t = dictionary.forms.projects.certifiedAdjustments;
+  const sh = dictionary.forms.projects.shared;
   const [isAdding, setIsAdding] = useState(false);
   const { ungroupedLedgerOptions } = useLedgerSelect();
 
@@ -77,18 +81,18 @@ const CertifiedAdjustments: React.FC<CertifiedAdjustmentsProps> = ({
   };
 
   const validationSchema = yup.object({
-    type: yup.string().oneOf(['+', '-']).required('Type is required'),
+    type: yup.string().oneOf(['+', '-']).required(t.errors.typeRequired),
     type_name: yup.string(),
-    description: yup.string().required('Description is required'),
+    description: yup.string().required(t.errors.descriptionRequired),
     amount: yup
       .number()
-      .required('Amount is required')
-      .positive('Amount must be positive')
-      .typeError('Valid amount is required'),
+      .required(t.errors.amountRequired)
+      .positive(t.errors.amountPositive)
+      .typeError(t.errors.amountValid),
     complement_ledger_id: yup
       .number()
-      .required('Complement Ledger is required')
-      .typeError('Complement Ledger is required'),
+      .required(t.errors.ledgerRequired)
+      .typeError(t.errors.ledgerRequired),
   });
 
   type FormData = yup.InferType<typeof validationSchema>;
@@ -174,7 +178,7 @@ const CertifiedAdjustments: React.FC<CertifiedAdjustmentsProps> = ({
       <Grid size={{ xs: 12, md: 4 }}>
         <Div sx={{ mt: 0.3 }}>
           <OperationSelector
-            label="Type"
+            label={t.labels.type}
             frontError={errors.type}
             value={
               watchedType === '+'
@@ -199,7 +203,7 @@ const CertifiedAdjustments: React.FC<CertifiedAdjustmentsProps> = ({
         <Div sx={{ mt: 0.3 }}>
           <LedgerSelect
             multiple={false}
-            label="Complement Ledger"
+            label={t.labels.complementLedger}
             value={
               ungroupedLedgerOptions?.find(
                 (l: LedgerOption) => l.id === watchedComplementLedgerId
@@ -228,7 +232,7 @@ const CertifiedAdjustments: React.FC<CertifiedAdjustmentsProps> = ({
             size="small"
             fullWidth
             value={watchedAmount ?? ''}
-            label="Amount"
+            label={t.labels.amount}
             error={!!errors.amount}
             helperText={errors.amount?.message}
             InputProps={{
@@ -256,7 +260,7 @@ const CertifiedAdjustments: React.FC<CertifiedAdjustmentsProps> = ({
             multiline
             rows={2}
             value={watchedDescription || ''}
-            label="Description"
+            label={t.labels.description}
             error={!!errors.description}
             helperText={errors.description?.message}
             onChange={(e) => {
@@ -279,11 +283,11 @@ const CertifiedAdjustments: React.FC<CertifiedAdjustmentsProps> = ({
           onClick={handleSubmit(onSubmit)}
           sx={{ mb: 0.5, mr: 1 }}
         >
-          {adjustment ? 'Done' : 'Add'}
+          {adjustment ? sh.done : sh.add}
         </LoadingButton>
 
         {adjustment && setShowForm && (
-          <Tooltip title="Cancel Edit">
+          <Tooltip title={dictionary.tooltips.cancelEdit}>
             <IconButton
               size="small"
               onClick={() => {

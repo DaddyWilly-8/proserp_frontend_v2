@@ -19,6 +19,7 @@ import { useSnackbar } from 'notistack';
 import { FC, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import * as yup from 'yup';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface ChangePasswordFormValues {
   current_password: string;
@@ -31,25 +32,26 @@ interface ChangePasswordFormProps {
   toggleOpen: (open: boolean) => void;
 }
 
-const validationSchema = yup.object({
-  current_password: yup.string().required('Current password is required'),
+const buildValidationSchema = (dictionary: any) => yup.object({
+  current_password: yup.string().required(dictionary.forms.changePassword.errors.currentRequired),
   password: yup
     .string()
-    .required('New password is required')
+    .required(dictionary.forms.changePassword.errors.newRequired)
     .matches(
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,})/,
-      'Must contain at least 8 characters, 1 uppercase, 1 lowercase and 1 number'
+      dictionary.forms.changePassword.errors.complexity
     ),
   password_confirmation: yup
     .string()
-    .required('Password confirmation is required')
-    .oneOf([yup.ref('password')], 'Password does not match'),
+    .required(dictionary.forms.changePassword.errors.confirmationRequired)
+    .oneOf([yup.ref('password')], dictionary.forms.changePassword.errors.mismatch),
 });
 
 const ChangePasswordForm: FC<ChangePasswordFormProps> = ({
   open,
   toggleOpen,
 }) => {
+  const dictionary = useDictionary();
   const { enqueueSnackbar } = useSnackbar();
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -62,7 +64,7 @@ const ChangePasswordForm: FC<ChangePasswordFormProps> = ({
     reset,
     formState: { errors, isSubmitting },
   } = useForm<ChangePasswordFormValues>({
-    resolver: yupResolver(validationSchema),
+    resolver: yupResolver(buildValidationSchema(dictionary)),
     defaultValues: {
       current_password: '',
       password: '',
@@ -92,7 +94,7 @@ const ChangePasswordForm: FC<ChangePasswordFormProps> = ({
   return (
     <Dialog open={open} onClose={handleClose} fullWidth maxWidth='xs'>
       <form onSubmit={handleSubmit(onSubmit)} noValidate autoComplete='off'>
-        <DialogTitle>Change Password</DialogTitle>
+        <DialogTitle>{dictionary.forms.changePassword.title}</DialogTitle>
         <DialogContent>
           <Controller
             name='current_password'
@@ -102,7 +104,7 @@ const ChangePasswordForm: FC<ChangePasswordFormProps> = ({
                 {...field}
                 fullWidth
                 margin='normal'
-                label='Current Password'
+                label={dictionary.forms.changePassword.labels.currentPassword}
                 type={showCurrentPassword ? 'text' : 'password'}
                 error={!!errors.current_password}
                 helperText={errors.current_password?.message}
@@ -138,7 +140,7 @@ const ChangePasswordForm: FC<ChangePasswordFormProps> = ({
                 {...field}
                 fullWidth
                 margin='normal'
-                label='New Password'
+                label={dictionary.forms.changePassword.labels.newPassword}
                 type={showPassword ? 'text' : 'password'}
                 error={!!errors.password}
                 helperText={errors.password?.message}
@@ -168,7 +170,7 @@ const ChangePasswordForm: FC<ChangePasswordFormProps> = ({
                 {...field}
                 fullWidth
                 margin='normal'
-                label='Confirm New Password'
+                label={dictionary.forms.changePassword.labels.confirmNewPassword}
                 type={showPasswordConfirmation ? 'text' : 'password'}
                 error={!!errors.password_confirmation}
                 helperText={errors.password_confirmation?.message}
@@ -199,14 +201,14 @@ const ChangePasswordForm: FC<ChangePasswordFormProps> = ({
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose} disabled={isSubmitting}>
-            Cancel
+            {dictionary.forms.changePassword.buttons.cancel}
           </Button>
           <LoadingButton
             type='submit'
             variant='contained'
             loading={isSubmitting}
           >
-            Change Password
+            {dictionary.forms.changePassword.buttons.submit}
           </LoadingButton>
         </DialogActions>
       </form>

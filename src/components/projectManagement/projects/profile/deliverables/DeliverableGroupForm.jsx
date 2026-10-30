@@ -18,6 +18,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSnackbar } from 'notistack';
 import { useForm } from 'react-hook-form';
 import * as yup from 'yup';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import projectsServices from '../../project-services';
 import { useProjectProfile } from '../ProjectProfileProvider';
 
@@ -26,6 +27,9 @@ const DeliverableGroupForm = ({
   deliverableGroup = null,
   parentGroup = null,
 }) => {
+  const dictionary = useDictionary();
+  const t = dictionary.forms.projects.deliverableGroups;
+  const sh = dictionary.forms.projects.shared;
   const queryClient = useQueryClient();
   const { enqueueSnackbar } = useSnackbar();
   const { project, deliverable_groups } = useProjectProfile();
@@ -78,7 +82,7 @@ const DeliverableGroupForm = ({
       } = group;
 
       const option = {
-        name: `After - ${name}`,
+        name: sh.afterName.replace('{name}', name),
         depth,
         id,
         parent_id,
@@ -105,17 +109,17 @@ const DeliverableGroupForm = ({
   );
 
   const positionIndexOptions = [
-    { name: 'At the beginning', position_index: null, id: null },
+    { name: sh.atTheBeginning, position_index: null, id: null },
     ...sameLevelGroups,
   ];
 
   const validationSchema = yup.object({
-    name: yup.string().required("Group name is required").typeError("Group name is required"),
+    name: yup.string().required(t.errors.nameRequired).typeError(t.errors.nameRequired),
     weighted_percentage: yup
       .number()
       .nullable()
       .notRequired()
-      .test("greater-than-zero", "Weight Percentage must be greater than 0", function (value) {
+      .test("greater-than-zero", sh.weightGreaterThanZero, function (value) {
         // Allow null/undefined/empty values
         if (value === null || value === undefined || value === '') {
           return true;
@@ -124,20 +128,20 @@ const DeliverableGroupForm = ({
         // Check if value is a valid number
         if (isNaN(value)) {
           return this.createError({
-            message: "Weight Percentage must be a valid number"
+            message: sh.weightValidNumber
           });
         }
         
         // Reject 0 and negative numbers
         if (value <= 0) {
           return this.createError({
-            message: "Weight Percentage must be greater than 0"
+            message: sh.weightGreaterThanZero
           });
         }
         
         return true;
       })
-      .max(100, "Weight Percentage must be less than or equal to 100")
+      .max(100, sh.weightMax)
       .test("check-total", function (value) {
         const context = this.options.context || {};
         const { sameLevelGroups, deliverableGroup } = context;
@@ -157,7 +161,7 @@ const DeliverableGroupForm = ({
 
         if (totalWeightPercentages + value > 100) {
           return this.createError({
-            message: `Total percentage should not exceed 100%. You currently have ${totalWeightPercentages}% allocated.`,
+            message: sh.totalExceeds.replace('{total}', totalWeightPercentages),
           });
         }
         return true;
@@ -190,7 +194,7 @@ const DeliverableGroupForm = ({
     if (Object.keys(errors).length === 0) {
       saveMutation.mutate(data);
     } else {
-      enqueueSnackbar('Please resolve the errors before submitting.', {
+      enqueueSnackbar(sh.resolveErrors, {
         variant: 'error',
       });
     }
@@ -200,8 +204,8 @@ const DeliverableGroupForm = ({
     <>
       <DialogTitle textAlign='center'>
         {deliverableGroup
-          ? `Edit: ${deliverableGroup.name}`
-          : 'New Deliverable Groups'}
+          ? t.titles.edit.replace('{name}', deliverableGroup.name)
+          : t.titles.new}
       </DialogTitle>
       <DialogContent>
         <form autoComplete='off'>
@@ -210,7 +214,7 @@ const DeliverableGroupForm = ({
               <Div sx={{ mt: 1 }}>
                 <TextField
                   size='small'
-                  label='Name'
+                  label={sh.name}
                   fullWidth
                   error={!!errors?.name}
                   helperText={errors?.name?.message}
@@ -222,7 +226,7 @@ const DeliverableGroupForm = ({
               <Div sx={{ mt: 1 }}>
                 <TextField
                   size='small'
-                  label='Code'
+                  label={sh.code}
                   fullWidth
                   {...register('code')}
                 />
@@ -236,7 +240,7 @@ const DeliverableGroupForm = ({
                   defaultValue={deliverableGroup?.weighted_percentage}
                   error={!!errors?.weighted_percentage}
                   helperText={errors?.weighted_percentage?.message}
-                  label='Weighted Percentage'
+                  label={sh.weightedPercentage}
                   InputProps={{
                     endAdornment: <span>%</span>,
                   }}
@@ -272,7 +276,7 @@ const DeliverableGroupForm = ({
                   renderInput={(params) => (
                     <TextField
                       {...params}
-                      label='Position'
+                      label={sh.position}
                       size='small'
                       fullWidth
                     />
@@ -297,7 +301,7 @@ const DeliverableGroupForm = ({
                   fullWidth
                   multiline
                   rows={2}
-                  label='Description'
+                  label={sh.description}
                   {...register('description')}
                 />
               </Div>
@@ -307,7 +311,7 @@ const DeliverableGroupForm = ({
       </DialogContent>
       <DialogActions>
         <Button size='small' onClick={() => setOpenDialog(false)}>
-          Cancel
+          {sh.cancel}
         </Button>
         <LoadingButton
           type='submit'
@@ -319,7 +323,7 @@ const DeliverableGroupForm = ({
             addDeliverableGroup.isPending || updateDeliverableGroup.isPending
           }
         >
-          Submit
+          {sh.submit}
         </LoadingButton>
       </DialogActions>
     </>

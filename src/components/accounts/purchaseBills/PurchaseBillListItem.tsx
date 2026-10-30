@@ -4,8 +4,10 @@ import { readableDate } from '@/app/helpers/input-sanitization-helpers';
 import { Chip, Grid, ListItemText, Stack, Tooltip, Typography } from '@mui/material';
 import PurchaseBillItemAction from './PurchaseBillItemAction';
 import { PurchaseBill } from './PurchaseBillType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function PurchaseBillListItem({ purchaseBill }: { purchaseBill: PurchaseBill }) {
+  const dictionary = useDictionary();
   const sourceNo = purchaseBill.source?.orderNo || purchaseBill.source?.grnNo || purchaseBill.source?.certificateNo || '';
 
   const paidAmount = purchaseBill.paid_amount ?? 0;
@@ -38,7 +40,7 @@ function PurchaseBillListItem({ purchaseBill }: { purchaseBill: PurchaseBill }) 
       <Grid size={{ xs: 6, md: 2, lg: 1.5 }}>
         <ListItemText
           primary={
-            <Tooltip title='Bill Date'>
+            <Tooltip title={dictionary.tooltips.billDate}>
               <Typography variant='h5' fontSize={14} lineHeight={1.25} mb={0} noWrap component='span'>
                 {readableDate(purchaseBill.transaction_date)}
               </Typography>
@@ -64,7 +66,7 @@ function PurchaseBillListItem({ purchaseBill }: { purchaseBill: PurchaseBill }) 
         <ListItemText
           primary={
             <Stack direction='row' spacing={0.5} alignItems='center'>
-              <Tooltip title='Bill No.'>
+              <Tooltip title={dictionary.tooltips.billNo}>
                 <Typography variant='h5' fontSize={14} lineHeight={1.25} mb={0} noWrap component='span'>
                   {purchaseBill.invoiceNo}
                 </Typography>
@@ -76,7 +78,7 @@ function PurchaseBillListItem({ purchaseBill }: { purchaseBill: PurchaseBill }) 
               ) : (
                 <>
                   {paymentStatus === 'paid' && (
-                    <Tooltip title='Fully paid to the supplier'>
+                    <Tooltip title={dictionary.tooltips.fullyPaidToTheSupplier}>
                       <Chip size='small' variant='outlined' color='success' label='Paid' />
                     </Tooltip>
                   )}
@@ -86,7 +88,7 @@ function PurchaseBillListItem({ purchaseBill }: { purchaseBill: PurchaseBill }) 
                     </Tooltip>
                   )}
                   {paymentStatus === 'unpaid' && (
-                    <Tooltip title='Not yet paid to the supplier'>
+                    <Tooltip title={dictionary.tooltips.notYetPaidToTheSupplier}>
                       <Chip size='small' variant='outlined' label='Unpaid' />
                     </Tooltip>
                   )}
@@ -96,7 +98,7 @@ function PurchaseBillListItem({ purchaseBill }: { purchaseBill: PurchaseBill }) 
           }
           secondary={
             sourceNo ? (
-              <Tooltip title='Source Document'>
+              <Tooltip title={dictionary.tooltips.sourceDocument}>
                 <Typography variant='caption' color='gray' component='span'>
                   {sourceNo}
                 </Typography>
@@ -109,7 +111,7 @@ function PurchaseBillListItem({ purchaseBill }: { purchaseBill: PurchaseBill }) 
       <Grid size={{ xs: 12, md: 3, lg: 2.5 }} sx={{ minWidth: 0 }}>
         <ListItemText
           primary={
-            <Tooltip title='Supplier'>
+            <Tooltip title={dictionary.tooltips.supplier}>
               <Typography variant='h5' fontSize={14} lineHeight={1.25} mb={0} noWrap component='span'>
                 {purchaseBill.stakeholder?.name}
               </Typography>
@@ -141,7 +143,7 @@ function PurchaseBillListItem({ purchaseBill }: { purchaseBill: PurchaseBill }) 
       <Grid size={{ xs: 12, md: 3, lg: 3 }}>
         <ListItemText
           secondary={
-            <Tooltip title='Internal / Supplier Reference'>
+            <Tooltip title={dictionary.tooltips.internalSupplierReference}>
               <Typography component='span' fontSize={14} lineHeight={1.25} mb={0} noWrap>
                 {[purchaseBill.internal_reference, purchaseBill.supplier_reference]
                   .filter(Boolean)
@@ -155,7 +157,7 @@ function PurchaseBillListItem({ purchaseBill }: { purchaseBill: PurchaseBill }) 
       <Grid size={{ xs: 10, md: 4, lg: 2.5 }} display='flex' justifyContent='flex-end'>
         <ListItemText
           primary={
-            <Tooltip title='Net Payable'>
+            <Tooltip title={dictionary.tooltips.netPayable}>
               <Typography variant='h5' fontSize={14} lineHeight={1.25} mb={0} noWrap component='span'>
                 {purchaseBill.net_amount?.toLocaleString(undefined, {
                   minimumFractionDigits: 2,

@@ -34,8 +34,10 @@ import billOfMaterialsServices from '../billOfMaterialsServices';
 import { wholeUnitQuantityTest } from '@/app/helpers/measurement-unit-helpers';
 import BillOfMaterialItemForm from './BillOfMaterialItemForm';
 import BillOfMaterialItemRow from './BillOfMaterialItemRow';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function BillOfMaterialForm({ toggleOpen, billOfMaterial }) {
+  const dictionary = useDictionary();
   const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
   const { productOptions } = useProductsSelect();
@@ -71,15 +73,15 @@ function BillOfMaterialForm({ toggleOpen, billOfMaterial }) {
   const validationSchema = yup.object({
     product_id: yup
       .number()
-      .required('Product is required')
-      .typeError('Product is required'),
+      .required(dictionary.forms.boms.validation.productRequired)
+      .typeError(dictionary.forms.boms.validation.productRequired),
 
     quantity: yup.number().when('product', (product, schema) => {
       if (product && product.type === 'Inventory') {
         return schema
-          .required('Quantity is required')
-          .positive('Quantity must be a positive number')
-          .typeError('Quantity is required')
+          .required(dictionary.forms.boms.validation.quantityRequired)
+          .positive(dictionary.forms.boms.validation.quantityPositive)
+          .typeError(dictionary.forms.boms.validation.quantityRequired)
           .test(wholeUnitQuantityTest);
       }
       return schema;
@@ -87,20 +89,20 @@ function BillOfMaterialForm({ toggleOpen, billOfMaterial }) {
 
     items: yup
       .array()
-      .min(1, 'You must add at least one Input item')
-      .typeError('You must add at least one Input item')
+      .min(1, dictionary.forms.boms.validation.atLeastOneInput)
+      .typeError(dictionary.forms.boms.validation.atLeastOneInput)
       .of(
         yup.object().shape({
           product_id: yup
             .number()
-            .required('Input Product is required')
-            .positive('Input Product is required')
-            .typeError('Input Product is required'),
+            .required(dictionary.forms.boms.validation.inputProductRequired)
+            .positive(dictionary.forms.boms.validation.inputProductRequired)
+            .typeError(dictionary.forms.boms.validation.inputProductRequired),
           quantity: yup
             .number()
-            .required('Quantity is required')
-            .positive('Quantity is required')
-            .typeError('Quantity is required'),
+            .required(dictionary.forms.boms.validation.quantityRequired)
+            .positive(dictionary.forms.boms.validation.quantityRequired)
+            .typeError(dictionary.forms.boms.validation.quantityRequired),
         })
       ),
   });
@@ -203,7 +205,9 @@ function BillOfMaterialForm({ toggleOpen, billOfMaterial }) {
       <DialogTitle>
         <Grid container columnSpacing={2}>
           <Grid size={{ xs: 12 }} textAlign='center' mb={2}>
-            {billOfMaterial ? 'Edit Bill Of Material' : 'New Bill Of Material'}
+            {billOfMaterial
+              ? dictionary.forms.boms.titles.edit
+              : dictionary.forms.boms.titles.new}
           </Grid>
           <Grid size={{ xs: 12 }}>
             <form autoComplete='off'>
@@ -211,7 +215,7 @@ function BillOfMaterialForm({ toggleOpen, billOfMaterial }) {
                 {!!openProductQuickAdd && (
                   <Grid size={{ xs: 12 }} textAlign='center'>
                     <Typography variant='h5'>
-                      Quick Output Product Registration
+                      {dictionary.forms.boms.titles.quickOutput}
                     </Typography>
                   </Grid>
                 )}
@@ -219,7 +223,7 @@ function BillOfMaterialForm({ toggleOpen, billOfMaterial }) {
                   <>
                     <Grid size={{ xs: 12, md: 8 }}>
                       <ProductSelect
-                        label='Output Product'
+                        label={dictionary.forms.boms.labels.outputProduct}
                         frontError={errors.product_id}
                         addedProduct={addedProduct}
                         defaultValue={billOfMaterial && billOfMaterial.product}
@@ -255,7 +259,7 @@ function BillOfMaterialForm({ toggleOpen, billOfMaterial }) {
                           checkOrganizationPermission([
                             PERMISSIONS.PRODUCTS_CREATE,
                           ]) && (
-                            <Tooltip title={'Add New Output Product'}>
+                            <Tooltip title={dictionary.tooltips.addNewOutputProduct}>
                               <AddOutlined
                                 onClick={() => setOpenProductQuickAdd(true)}
                                 sx={{ cursor: 'pointer' }}
@@ -267,7 +271,7 @@ function BillOfMaterialForm({ toggleOpen, billOfMaterial }) {
                     </Grid>
                     <Grid size={{ xs: 12, md: 4 }}>
                       <TextField
-                        label='Quantity'
+                        label={dictionary.forms.boms.labels.quantity}
                         fullWidth
                         size='small'
                         defaultValue={billOfMaterial && billOfMaterial.quantity}
@@ -387,9 +391,9 @@ function BillOfMaterialForm({ toggleOpen, billOfMaterial }) {
         <Dialog open={showWarning} onClose={() => setShowWarning(false)}>
           <DialogTitle>
             <Grid container alignItems='center' justifyContent='space-between'>
-              <Grid size={{ xs: 11 }}>Unsaved Changes</Grid>
+              <Grid size={{ xs: 11 }}>{dictionary.forms.boms.dialogs.unsavedChanges}</Grid>
               <Grid size={{ xs: 1 }} textAlign='right'>
-                <Tooltip title='Close'>
+                <Tooltip title={dictionary.tooltips.close}>
                   <IconButton
                     size='small'
                     onClick={() => setShowWarning(false)}
@@ -400,7 +404,7 @@ function BillOfMaterialForm({ toggleOpen, billOfMaterial }) {
               </Grid>
             </Grid>
           </DialogTitle>
-          <DialogContent>Last item was not added to the list</DialogContent>
+          <DialogContent>{dictionary.forms.boms.dialogs.lastItemNotAdded}</DialogContent>
           <DialogActions>
             <Button
               size='small'
@@ -409,21 +413,21 @@ function BillOfMaterialForm({ toggleOpen, billOfMaterial }) {
                 setShowWarning(false);
               }}
             >
-              Add and Submit
+              {dictionary.forms.boms.buttons.addAndSubmit}
             </Button>
             <Button
               size='small'
               onClick={handleConfirmSubmitWithoutAdd}
               color='secondary'
             >
-              Submit without add
+              {dictionary.forms.boms.buttons.submitWithoutAdd}
             </Button>
           </DialogActions>
         </Dialog>
       </DialogContent>
       <DialogActions>
         <Button size='small' onClick={() => toggleOpen(false)}>
-          Cancel
+          {dictionary.forms.boms.buttons.cancel}
         </Button>
         <LoadingButton
           loading={
@@ -434,7 +438,7 @@ function BillOfMaterialForm({ toggleOpen, billOfMaterial }) {
           onClick={handleSubmit(onSubmit)}
           size='small'
         >
-          Submit
+          {dictionary.forms.boms.buttons.submit}
         </LoadingButton>
       </DialogActions>
     </React.Fragment>

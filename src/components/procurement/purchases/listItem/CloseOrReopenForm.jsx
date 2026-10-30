@@ -12,8 +12,10 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Div } from '@jumbo/shared';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const CloseOrReopenForm = ({ setOpenDialog, order, isReOpen }) => {
+  const dictionary = useDictionary();
   const queryClient = useQueryClient();
   const { enqueueSnackbar } = useSnackbar();
   const {authOrganization,checkOrganizationPermission} = useJumboAuth();
@@ -45,11 +47,11 @@ const CloseOrReopenForm = ({ setOpenDialog, order, isReOpen }) => {
   const validationSchema = yup.object({
     datetime_closed: yup.string().when([], (val, schema, context) => {
       if (!context || context.isReOpen) return schema;
-      return schema.required('Closing date is required').typeError('Closing date is required');
+      return schema.required(dictionary.forms.purchases.closeOrReopen.errors.validation.closingDate.required).typeError(dictionary.forms.purchases.closeOrReopen.errors.validation.closingDate.required);
     }),
     datetime_reopened: yup.string().when([], (val, schema, context) => {
       if (!context || !context.isReOpen) return schema;
-      return schema.required('Reopening date is required').typeError('Reopening date is required');
+      return schema.required(dictionary.forms.purchases.closeOrReopen.errors.validation.reopeningDate.required).typeError(dictionary.forms.purchases.closeOrReopen.errors.validation.reopeningDate.required);
     }),
   });
 
@@ -73,7 +75,7 @@ const CloseOrReopenForm = ({ setOpenDialog, order, isReOpen }) => {
     <>
       <DialogTitle>
         <Grid size={12} textAlign={"center"}>
-          {isReOpen ? `Re-Open Order: ${order.orderNo}` : `Close Order: ${order.orderNo}`}
+          {(isReOpen ? dictionary.forms.purchases.closeOrReopen.titles.reopen : dictionary.forms.purchases.closeOrReopen.titles.close).replace('{orderNo}', order.orderNo)}
         </Grid>
       </DialogTitle>
       <DialogContent>
@@ -83,7 +85,7 @@ const CloseOrReopenForm = ({ setOpenDialog, order, isReOpen }) => {
                 <Div sx={{ mt: 1, mb: 1 }}>
                     <DateTimePicker
                         fullWidth
-                        label={isReOpen ? 'Re-Opening Date' : 'Closing Date'}
+                        label={isReOpen ? dictionary.forms.purchases.closeOrReopen.labels.reopeningDate : dictionary.forms.purchases.closeOrReopen.labels.closingDate}
                         defaultValue={dayjs()}
                         minDate={checkOrganizationPermission(PERMISSIONS.PURCHASES_BACKDATE) ? dayjs(authOrganization?.organization.recording_start_date) : dayjs().startOf('day')}
                         maxDate={checkOrganizationPermission(PERMISSIONS.PURCHASES_POSTDATE) ? dayjs().add(10,'year').endOf('year') : dayjs().endOf('day')}
@@ -115,7 +117,7 @@ const CloseOrReopenForm = ({ setOpenDialog, order, isReOpen }) => {
               <Div sx={{ mt: 1, mb: 1 }}>
                 <TextField
                   name='remarks'
-                  label='Remarks'
+                  label={dictionary.forms.purchases.closeOrReopen.labels.remarks}
                   size='small'
                   multiline={true}
                   minRows={2}
@@ -127,7 +129,7 @@ const CloseOrReopenForm = ({ setOpenDialog, order, isReOpen }) => {
           </Grid>
           <DialogActions>
             <Button size='small' onClick={() => setOpenDialog(false)}>
-              Cancel
+              {dictionary.forms.purchases.closeOrReopen.buttons.cancel}
             </Button>
             <LoadingButton  
               type="submit"
@@ -136,7 +138,7 @@ const CloseOrReopenForm = ({ setOpenDialog, order, isReOpen }) => {
               sx={{ display: 'flex' }}
               loading={closeOrder.isPending || reOpenOrder.isPending}
             >
-              Submit
+              {dictionary.forms.purchases.closeOrReopen.buttons.submit}
             </LoadingButton>
           </DialogActions>
         </form>

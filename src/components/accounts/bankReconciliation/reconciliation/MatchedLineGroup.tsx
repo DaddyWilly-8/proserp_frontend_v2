@@ -1,4 +1,5 @@
 'use client';
+import RecurringTag from '@/components/accounts/recurringTransactions/RecurringTag';
 
 import React from 'react';
 import { Box, Button, Chip, Grid, IconButton, Tooltip, Typography } from '@mui/material';
@@ -10,12 +11,15 @@ import { useJumboDialog } from '@jumbo/components/JumboDialog/hooks/useJumboDial
 import bankReconciliationServices from '../bank-reconciliation-services';
 import { descriptionIncludesVoucher } from './journal-display';
 import { formatDate, daysBetween } from './date-format';
+import { LOCKED_HINT } from './locked-hint';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface Journal {
   id: number;
   journal_date: string;
   description: string;
   voucher_no?: string | null;
+  is_scheduled?: boolean;
   counterparty?: string | null;
   credit_ledger?: { name: string };
   debit_ledger?: { name: string };
@@ -44,12 +48,15 @@ interface Props {
     total_matched: number;
   };
   suggestionDayTolerance?: number;
+  // The statement is completed: unmatching and undoing are switched off until it is reopened.
+  locked?: boolean;
 }
 
 const formatAmount = (amount: number) =>
   amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-export default function MatchedLineGroup({ bankAccountId, matchedLine, suggestionDayTolerance }: Props) {
+export default function MatchedLineGroup({ bankAccountId, matchedLine, suggestionDayTolerance, locked = false }: Props) {
+  const dictionary = useDictionary();
   const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
   const { showDialog, hideDialog } = useJumboDialog();
@@ -115,9 +122,13 @@ export default function MatchedLineGroup({ bankAccountId, matchedLine, suggestio
         </Grid>
         <Grid size={{ xs: 4, md: 2 }} textAlign='end'>
           {matches.length > 1 && (
-            <Button size='small' color='error' onClick={() => unmatchAllMutation.mutate()} disabled={unmatchAllMutation.isPending}>
-              Unmatch All
-            </Button>
+            <Tooltip title={locked ? LOCKED_HINT : ''}>
+              <span>
+                <Button size='small' color='error' onClick={() => unmatchAllMutation.mutate()} disabled={locked || unmatchAllMutation.isPending}>
+                  Unmatch All
+                </Button>
+              </span>
+            </Tooltip>
           )}
         </Grid>
       </Grid>
@@ -131,6 +142,7 @@ export default function MatchedLineGroup({ bankAccountId, matchedLine, suggestio
             <Grid size={{ xs: 12, md: 6 }}>
               <Typography variant='caption' color='text.secondary'>
                 Book Entry{!descriptionIncludesVoucher(match.journal) && match.journal?.voucher_no ? ` — ${match.journal.voucher_no}` : ''}
+                {match.journal?.is_scheduled && <RecurringTag />}
               </Typography>
               <Typography variant='body2'>
                 {formatDate(match.journal?.journal_date)} — {match.journal?.description}
@@ -165,12 +177,13 @@ export default function MatchedLineGroup({ bankAccountId, matchedLine, suggestio
                 </Tooltip>
               )}
               {match.created_transaction ? (
-                <Tooltip title='Undo — deletes this transaction, since it was created just for this match'>
+                <Tooltip title={locked ? LOCKED_HINT : dictionary.tooltips.undoDeletesThisTransactionSinceIt}>
                   <span>
                     <LoadingButton
                       size='small'
                       color='error'
                       startIcon={<UndoOutlined fontSize='small' />}
+                      disabled={locked}
                       loading={undoMutation.isPending}
                       onClick={() => confirmUndo(match)}
                     >
@@ -179,10 +192,12 @@ export default function MatchedLineGroup({ bankAccountId, matchedLine, suggestio
                   </span>
                 </Tooltip>
               ) : (
-                <Tooltip title='Remove this book entry from the match'>
-                  <IconButton size='small' color='error' onClick={() => removeMatchMutation.mutate(match.id)} disabled={removeMatchMutation.isPending}>
-                    <LinkOffOutlined fontSize='small' />
-                  </IconButton>
+                <Tooltip title={locked ? LOCKED_HINT : dictionary.tooltips.removeThisBookEntryFromThe}>
+                  <span>
+                    <IconButton size='small' color='error' onClick={() => removeMatchMutation.mutate(match.id)} disabled={locked || removeMatchMutation.isPending}>
+                      <LinkOffOutlined fontSize='small' />
+                    </IconButton>
+                  </span>
                 </Tooltip>
               )}
             </Grid>

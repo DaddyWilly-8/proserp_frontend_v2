@@ -4,6 +4,7 @@ import { AdjustOutlined } from '@mui/icons-material';
 import { alpha, Dialog, IconButton, Tooltip, useMediaQuery } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import { useState } from 'react';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface PayrollPeriodAdjustmentsActionProps {
   payrollPeriodId: number;
@@ -16,13 +17,14 @@ const PayrollPeriodAdjustmentsAction = ({
   year,
   month,
 }: PayrollPeriodAdjustmentsActionProps) => {
+  const dictionary = useDictionary();
   const [openDialog, setOpenDialog] = useState(false);
   const theme = useTheme();
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
 
   return (
     <>
-      <Tooltip title="Ad-hoc Adjustments">
+      <Tooltip title={dictionary.tooltips.adHocAdjustments}>
         <IconButton
           onClick={() => setOpenDialog(true)}
           size="small"

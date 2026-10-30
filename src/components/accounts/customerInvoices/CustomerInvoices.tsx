@@ -8,8 +8,11 @@ import { PERMISSIONS } from '@/utilities/constants/permissions';
 import JumboListToolbar from '@jumbo/components/JumboList/components/JumboListToolbar';
 import JumboRqList from '@jumbo/components/JumboReactQuery/JumboRqList';
 import JumboSearch from '@jumbo/components/JumboSearch';
-import { EventAvailableOutlined, FilterAltOffOutlined, FilterAltOutlined } from '@mui/icons-material';
-import { Card, Grid, IconButton, MenuItem, TextField, Tooltip, Typography } from '@mui/material';
+import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
+import FuelVoucherInvoices from '@/components/fuelStation/reports/fuelVoucherInvoices/FuelVoucherInvoices';
+import StakeholderSelectProvider from '@/components/masters/stakeholders/StakeholderSelectProvider';
+import { AddOutlined, EventAvailableOutlined, FilterAltOffOutlined, FilterAltOutlined } from '@mui/icons-material';
+import { Card, Dialog, Grid, IconButton, MenuItem, TextField, Tooltip, Typography, useMediaQuery } from '@mui/material';
 import { DateTimePicker } from '@mui/x-date-pickers';
 import dayjs, { Dayjs } from 'dayjs';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -18,6 +21,7 @@ import customerInvoiceServices from '../invoices/customerInvoice-services';
 import CustomerInvoiceListItem from './CustomerInvoiceListItem';
 import { CustomerInvoice } from './CustomerInvoiceType';
 import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface FilterDate {
   from?: string | null;
@@ -37,12 +41,39 @@ interface QueryOptions {
 }
 
 const CustomerInvoices = () => {
+  const dictionary = useDictionary();
   const searchParams = useSearchParams();
   const listRef = useRef<any>(null);
   const [mounted, setMounted] = useState(false);
   const [openFilters, setOpenFilters] = useState(false);
+  const [openFuelInvoiceDialog, setOpenFuelInvoiceDialog] = useState(false);
+  const { theme } = useJumboTheme();
+  const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
   const [filterDate, setFilterDate] = useState<FilterDate>({});
   const { authOrganization, checkOrganizationPermission, organizationHasSubscribed } = useJumboAuth();
+
+  // Organizations running Fuel Stations also get Fuel Voucher invoices in this list: a type
+  // filter is always on show for them, and picking Fuel Voucher Invoices offers a + to raise one
+  const hasFuelStations = organizationHasSubscribed(MODULES.FUEL_STATION);
+  const hasPointOfSale = organizationHasSubscribed(MODULES.POINT_OF_SALE);
+  const hasProjectManagement = organizationHasSubscribed(MODULES.PROJECT_MANAGEMENT);
+
+  // Only offer the invoice types this organization can actually have: Sales invoices come from
+  // Point of Sale, IPC invoices from Project Management. "Customer Invoices" (both together) is
+  // only worth a separate entry next to Fuel Voucher Invoices.
+  const groupCustomerInvoices = hasFuelStations && (hasPointOfSale || hasProjectManagement);
+  const invoiceTypeOptions = [
+    { value: '', label: 'All', indent: false },
+    ...(groupCustomerInvoices ? [{ value: 'customer_invoice', label: 'Customer Invoices', indent: false }] : []),
+    ...(hasPointOfSale ? [{ value: 'sale', label: 'Sales', indent: groupCustomerInvoices }] : []),
+    ...(hasProjectManagement
+      ? [{ value: 'project_claim', label: 'Project Payment Claims (IPC)', indent: groupCustomerInvoices }]
+      : []),
+    ...(hasFuelStations ? [{ value: 'fuel_voucher', label: 'Fuel Voucher Invoices', indent: false }] : []),
+  ];
+  const canCreateFuelInvoices =
+    hasFuelStations &&
+    checkOrganizationPermission([PERMISSIONS.STORES_REPORTS, PERMISSIONS.FUEL_STATIONS_REPORTS]);
 
   const [queryOptions, setQueryOptions] = useState<QueryOptions>({
     queryKey: 'customer-invoices',
@@ -119,7 +150,7 @@ const CustomerInvoices = () => {
         ref={listRef}
         wrapperComponent={Card}
         service={customerInvoiceServices.getList}
-        primaryKey='id'
+        primaryKey='list_key'
         queryOptions={queryOptions}
         itemsPerPage={10}
         itemsPerPageOptions={[10, 20, 30, 50, 100]}
@@ -134,25 +165,13 @@ const CustomerInvoices = () => {
           <JumboListToolbar
             hideItemsPerPage
             action={
-              <Grid container columnSpacing={1} rowSpacing={1} justifyContent='end'>
+              // Same arrangement as the Purchases / Requisitions lists: date range on demand, the
+              // type selector in a responsive grid, then filter toggle + search (+ new)
+              <Grid container columnSpacing={1} rowSpacing={1} justifyContent='end' alignItems='center'>
                 {openFilters && (
                   <Grid size={12}>
                     <Grid container spacing={1}>
-                      <Grid size={{ xs: 12, md: 4 }}>
-                        <TextField
-                          select
-                          size='small'
-                          fullWidth
-                          label='Source'
-                          value={queryOptions.queryParams.source ?? ''}
-                          onChange={(event) => handleSourceChange(event.target.value)}
-                        >
-                          <MenuItem value=''>All invoices</MenuItem>
-                          <MenuItem value='sale'>Sales</MenuItem>
-                          <MenuItem value='project_claim'>Project Payment Claims (IPC)</MenuItem>
-                        </TextField>
-                      </Grid>
-                      <Grid size={{ xs: 12, md: 4 }}>
+                      <Grid size={{ xs: 12, md: 6 }}>
                         <DateTimePicker
                           label='From'
                           value={filterDate.from ? dayjs(filterDate.from) : null}
@@ -161,7 +180,7 @@ const CustomerInvoices = () => {
                           onChange={(value) => handleDateChange(value, 'from')}
                         />
                       </Grid>
-                      <Grid size={{ xs: 11, md: 3.5 }}>
+                      <Grid size={{ xs: 'grow', md: 5.5 }}>
                         <DateTimePicker
                           label='To'
                           value={filterDate.to ? dayjs(filterDate.to) : null}
@@ -170,8 +189,8 @@ const CustomerInvoices = () => {
                           onChange={(value) => handleDateChange(value, 'to')}
                         />
                       </Grid>
-                      <Grid size={{ xs: 1, md: 0.5 }} alignContent='end'>
-                        <Tooltip title='Filter Dates'>
+                      <Grid size={{ xs: 'auto', md: 0.5 }} alignContent='end'>
+                        <Tooltip title={dictionary.tooltips.filterDates}>
                           <IconButton onClick={applyDateFilters}>
                             <EventAvailableOutlined />
                           </IconButton>
@@ -181,7 +200,27 @@ const CustomerInvoices = () => {
                   </Grid>
                 )}
 
-                <Grid size={{ xs: 1, md: 0.5 }}>
+                {/* Nothing to choose between when "All" is the only type */}
+                {invoiceTypeOptions.length > 1 && (
+                  <Grid size={{ xs: 12, md: 6, lg: 3 }}>
+                    <TextField
+                      select
+                      size='small'
+                      fullWidth
+                      label='Invoice Type'
+                      value={queryOptions.queryParams.source ?? ''}
+                      onChange={(event) => handleSourceChange(event.target.value)}
+                    >
+                      {invoiceTypeOptions.map((option) => (
+                        <MenuItem key={option.value} value={option.value} sx={option.indent ? { pl: 4 } : undefined}>
+                          {option.label}
+                        </MenuItem>
+                      ))}
+                    </TextField>
+                  </Grid>
+                )}
+
+                <Grid size='auto'>
                   <Tooltip title={!openFilters ? 'Filter' : 'Clear Filters'}>
                     <IconButton size='small' onClick={!openFilters ? () => setOpenFilters(true) : resetFilters}>
                       {!openFilters ? <FilterAltOutlined /> : <FilterAltOffOutlined />}
@@ -189,14 +228,44 @@ const CustomerInvoices = () => {
                   </Tooltip>
                 </Grid>
 
-                <Grid size={{ xs: 11, md: 11.5 }}>
-                  <JumboSearch onChange={handleOnKeywordChange} value={queryOptions.queryParams.keyword} />
+                <Grid size={{ xs: 'grow', lg: 5 }}>
+                  <JumboSearch
+                    onChange={handleOnKeywordChange}
+                    value={queryOptions.queryParams.keyword}
+                    placeholder='Search by invoice no, customer, reference...'
+                  />
                 </Grid>
+
+                {canCreateFuelInvoices && queryOptions.queryParams.source === 'fuel_voucher' && (
+                  <Grid size='auto'>
+                    <Tooltip title={dictionary.tooltips.newFuelVoucherInvoice}>
+                      <IconButton size='small' color='primary' onClick={() => setOpenFuelInvoiceDialog(true)}>
+                        <AddOutlined />
+                      </IconButton>
+                    </Tooltip>
+                  </Grid>
+                )}
               </Grid>
             }
           />
         }
       />
+      {canCreateFuelInvoices && (
+        <Dialog
+          open={openFuelInvoiceDialog}
+          onClose={() => setOpenFuelInvoiceDialog(false)}
+          fullWidth
+          maxWidth='lg'
+          fullScreen={belowLargeScreen}
+          scroll='paper'
+        >
+          {openFuelInvoiceDialog && (
+            <StakeholderSelectProvider>
+              <FuelVoucherInvoices closeDialog={setOpenFuelInvoiceDialog} />
+            </StakeholderSelectProvider>
+          )}
+        </Dialog>
+      )}
     </>
   );
 };

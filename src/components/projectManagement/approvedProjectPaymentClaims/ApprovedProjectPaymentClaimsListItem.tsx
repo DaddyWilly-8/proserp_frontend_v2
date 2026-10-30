@@ -18,6 +18,7 @@ import ProjectClaimApprovalsActionTail from '@/components/projectManagement/proj
 import { ProjectClaim } from '@/components/projectManagement/projects/profile/claims/ProjectClaimType';
 import InvoiceLinkChip from '@/components/projectManagement/InvoiceLinkChip';
 import ApprovalHistoryTable from '@/components/projectManagement/approvals/ApprovalHistoryTable';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface ApprovedProjectPaymentClaimsListItemProps {
   claim: ProjectClaim;
@@ -41,6 +42,7 @@ const STATUS_CHIP_COLOR: Record<
 const ApprovedProjectPaymentClaimsListItem: React.FC<
   ApprovedProjectPaymentClaimsListItemProps
 > = ({ claim }) => {
+  const dictionary = useDictionary();
   const [expanded, setExpanded] = React.useState(false);
 
   const formattedAmount = React.useMemo(() => {
@@ -94,10 +96,10 @@ const ApprovedProjectPaymentClaimsListItem: React.FC<
       >
         <Grid container spacing={1} alignItems="center" width="100%" sx={{ minWidth: 0 }}>
           <Grid size={{ xs: 12, md: 2 }} sx={{ minWidth: 0 }}>
-            <Tooltip title="Claim Number">
-              <Typography noWrap>{claim.claimNo || 'Draft / Pending'}</Typography>
+            <Tooltip title={dictionary.tooltips.claimNumber}>
+              <Typography noWrap>{claim.claimNo || dictionary.projectManagement.approvedClaims.draftPending}</Typography>
             </Tooltip>
-            <Tooltip title="Claim Date">
+            <Tooltip title={dictionary.tooltips.claimDate}>
               <Typography variant="caption" color="text.secondary" display="block">
                 {claim.claim_date ? readableDate(claim.claim_date) : '—'}
               </Typography>
@@ -105,7 +107,7 @@ const ApprovedProjectPaymentClaimsListItem: React.FC<
           </Grid>
 
           <Grid size={{ xs: 12, md: 3 }} sx={{ minWidth: 0 }}>
-            <Tooltip title="Project">
+            <Tooltip title={dictionary.tooltips.project}>
               <Typography variant="body2" noWrap>
                 {claim.project?.name || '—'}
               </Typography>
@@ -127,7 +129,7 @@ const ApprovedProjectPaymentClaimsListItem: React.FC<
           </Grid>
 
           <Grid size={{ xs: 12, md: 4, lg: 4 }} sx={{ minWidth: 0 }}>
-            <Tooltip title="Remarks">
+            <Tooltip title={dictionary.tooltips.remarks}>
               <Typography variant="body2" fontSize={14} noWrap>
                 {claim.remarks || '—'}
               </Typography>
@@ -135,10 +137,10 @@ const ApprovedProjectPaymentClaimsListItem: React.FC<
           </Grid>
 
           <Grid size={{ xs: 12, md: 3, lg: 3 }}>
-            <Tooltip title="Total Amount">
+            <Tooltip title={dictionary.tooltips.totalAmount}>
               <Typography noWrap>{formattedAmount}</Typography>
             </Tooltip>
-            <Tooltip title="Status">
+            <Tooltip title={dictionary.tooltips.status}>
               {claim.status === 'invoiced' ? (
                 <span>
                   <InvoiceLinkChip

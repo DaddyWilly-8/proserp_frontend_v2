@@ -16,6 +16,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import { useSnackbar } from 'notistack';
 import { useEffect, useState } from 'react';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import projectsServices from '@/components/projectManagement/projects/project-services';
 import { Certificate } from './CertificateType';
 
@@ -37,6 +38,7 @@ const CertificateInvoiceDialog = ({
   certificate,
   onClose,
 }: CertificateInvoiceDialogProps) => {
+  const dictionary = useDictionary();
   const [dueDate, setDueDate] = useState<string>('');
   const [supplierReference, setSupplierReference] = useState('');
 
@@ -58,7 +60,7 @@ const CertificateInvoiceDialog = ({
       onClose();
     },
     onError: (error: any) => {
-      enqueueSnackbar(error?.response?.data?.message || 'Failed to create invoice', {
+      enqueueSnackbar(error?.response?.data?.message || dictionary.projectManagement.certificates.invoiceFailed, {
         variant: 'error',
       });
     },
@@ -81,15 +83,14 @@ const CertificateInvoiceDialog = ({
       fullScreen={belowLargeScreen}
       scroll={belowLargeScreen ? 'body' : 'paper'}
     >
-      <DialogTitle>Create Supplier Bill</DialogTitle>
+      <DialogTitle>{dictionary.projectManagement.certificates.createSupplierBill}</DialogTitle>
       <DialogContent>
         <Stack spacing={2} sx={{ mt: 1 }}>
           <Alert severity='info'>
-            This will post {certificate.certificateNo} to the subcontractor&apos;s account as a
-            real bill and it can no longer be edited directly.
+            {dictionary.projectManagement.certificates.invoiceNotice.replace('{certificateNo}', certificate.certificateNo ?? '')}
           </Alert>
           <DateTimePicker
-            label='Bill Due Date'
+            label={dictionary.projectManagement.certificates.billDueDate}
             minDate={certificate.certificate_date ? dayjs(certificate.certificate_date) : undefined}
             value={dueDate ? dayjs(dueDate) : null}
             onChange={(val) => setDueDate(val?.toISOString() || '')}
@@ -98,7 +99,7 @@ const CertificateInvoiceDialog = ({
             }}
           />
           <TextField
-            label='Supplier Reference'
+            label={dictionary.projectManagement.certificates.supplierReference}
             size='small'
             fullWidth
             inputProps={{ maxLength: 20 }}
@@ -109,7 +110,7 @@ const CertificateInvoiceDialog = ({
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose} disabled={isSubmitting}>
-          Cancel
+          {dictionary.projectManagement.common.cancel}
         </Button>
         <LoadingButton
           loading={isSubmitting}
@@ -117,7 +118,7 @@ const CertificateInvoiceDialog = ({
           color='primary'
           onClick={handleSubmit}
         >
-          Create Invoice
+          {dictionary.projectManagement.certificates.createInvoice}
         </LoadingButton>
       </DialogActions>
     </Dialog>

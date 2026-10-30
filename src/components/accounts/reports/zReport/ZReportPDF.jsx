@@ -2,7 +2,8 @@ import pdfStyles from '@/components/pdf/pdf-styles';
 import { Document, Page, Text, View } from '@react-pdf/renderer';
 import React from 'react'
 
-function ZReportPDF({reportData, authOrganization, user, thermalPrinter}) {
+function ZReportPDF({reportData, authOrganization, user, thermalPrinter, dictionary}) {
+    const t = dictionary.reports.accountsReports.zReport;
     const organization = authOrganization.organization;
     const TotalVATIncl = reportData.totalGross - 0;
     const TotalVATExcl = reportData.totalGross - reportData.totaltax;
@@ -23,8 +24,8 @@ function ZReportPDF({reportData, authOrganization, user, thermalPrinter}) {
     const vatPercentage = organization?.settings?.vat_percentage ?? 18;
     const TAX_GROUP_CODES = { 1: 'SR', 2: 'ZR', 3: 'SR', 4: 'EX' };
     const taxRowLabel = (index, letter) => index === 0
-        ? `TAX: A - ${Number(vatPercentage).toFixed(2)}%`
-        : `TAX: ${letter} - ${TAX_GROUP_CODES[index]}`;
+        ? `${t.tax} A - ${Number(vatPercentage).toFixed(2)}%`
+        : `${t.tax} ${letter} - ${TAX_GROUP_CODES[index]}`;
 
     const PDF80mm = () => (
         <Page size={[80 * 2.83465, 297 * 2.83465]}  style={{...pdfStyles.page, padding: 10, scale: 0.7 }}>
@@ -37,7 +38,7 @@ function ZReportPDF({reportData, authOrganization, user, thermalPrinter}) {
     
             <View style={{ ...pdfStyles.tableRow, textAlign: 'center'}}>
               <View style={{flex:0.4}}>
-                <Text style={{...pdfStyles.minInfo, fontFamily: 'Helvetica-Bold', textAlign: 'right'}}>MOBILE:</Text>
+                <Text style={{...pdfStyles.minInfo, fontFamily: 'Helvetica-Bold', textAlign: 'right'}}>{t.mobile}</Text>
               </View>
               <View style={{flex:0.6}}>
                 <Text style={{...pdfStyles.minInfo, textAlign: 'left'}}>{organization.phone}</Text>
@@ -64,7 +65,7 @@ function ZReportPDF({reportData, authOrganization, user, thermalPrinter}) {
     
             <View style={{ ...pdfStyles.tableRow, textAlign: 'center'}}>
               <View style={{flex:0.4}}>
-                <Text style={{...pdfStyles.minInfo, fontFamily: 'Helvetica-Bold', textAlign: 'right'}}>SERIAL NUMBER:</Text>
+                <Text style={{...pdfStyles.minInfo, fontFamily: 'Helvetica-Bold', textAlign: 'right'}}>{t.serialNumber}</Text>
               </View>
               <View style={{flex:0.6}}>
                 <Text style={{...pdfStyles.minInfo, textAlign: 'left'}}>{organization.tra_serial_number}</Text>
@@ -82,7 +83,7 @@ function ZReportPDF({reportData, authOrganization, user, thermalPrinter}) {
     
             <View style={{ ...pdfStyles.tableRow, textAlign: 'center'}}>
               <View style={{flex:0.3}}>
-                <Text style={{...pdfStyles.minInfo, fontFamily: 'Helvetica-Bold', textAlign: 'right'}}>TAX OFFICE:</Text>
+                <Text style={{...pdfStyles.minInfo, fontFamily: 'Helvetica-Bold', textAlign: 'right'}}>{t.taxOffice}</Text>
               </View>
               <View style={{...pdfStyles.minInfo,flex:0.7}}>
                 <Text style={{...pdfStyles.minInfo, textAlign: 'left'}}>{reportData.taxOffice}</Text>
@@ -96,13 +97,13 @@ function ZReportPDF({reportData, authOrganization, user, thermalPrinter}) {
     
             <View style={{ ...pdfStyles.tableRow}}>
               <View style={{ flex: 1}}>
-                <Text style={{...pdfStyles.minInfo, fontFamily: 'Helvetica-Bold'}}>DATE</Text>
+                <Text style={{...pdfStyles.minInfo, fontFamily: 'Helvetica-Bold'}}>{t.date}</Text>
                 <Text style={{...pdfStyles.minInfo}}>{reportData.date}</Text>
               </View>
               <View style={{...pdfStyles.minInfo,flex: 0.5}}>
               </View>
               <View style={{ flex: 1, textAlign: 'right'}}>
-                <Text style={{...pdfStyles.minInfo, fontFamily: 'Helvetica-Bold'}}>TIME</Text>
+                <Text style={{...pdfStyles.minInfo, fontFamily: 'Helvetica-Bold'}}>{t.time}</Text>
                 <Text style={{...pdfStyles.minInfo}}>{reportData.time}</Text>
               </View>
             </View>
@@ -114,7 +115,7 @@ function ZReportPDF({reportData, authOrganization, user, thermalPrinter}) {
             </View>
             <View style={{ ...pdfStyles.tableRow, ...pdfStyles.textBold, textAlign: 'center'}}>
               <View style={{ flex: 1}}>
-                <Text style={{...pdfStyles.minInfo, marginTop: 3, fontFamily: 'Helvetica-Bold'}}>Z REPORT</Text>
+                <Text style={{...pdfStyles.minInfo, marginTop: 3, fontFamily: 'Helvetica-Bold'}}>{t.title.toUpperCase()}</Text>
               </View>
             </View>
             <View style={{ ...pdfStyles.tableRow}}>
@@ -125,7 +126,7 @@ function ZReportPDF({reportData, authOrganization, user, thermalPrinter}) {
     
             <View style={{ ...pdfStyles.tableRow}}>
               <View style={{ flex: 1}}>
-                <Text style={{...pdfStyles.minInfo, fontFamily: 'Helvetica-Bold'}}>DISCOUNT: </Text>
+                <Text style={{...pdfStyles.minInfo, fontFamily: 'Helvetica-Bold'}}>{`${t.discount} `}</Text>
               </View>
               <View style={{...pdfStyles.minInfo,flex: 0.5}}>
               </View>
@@ -135,7 +136,7 @@ function ZReportPDF({reportData, authOrganization, user, thermalPrinter}) {
             </View>
             <View style={{ ...pdfStyles.tableRow}}>
               <View style={{ flex: 1}}>
-                <Text style={{...pdfStyles.minInfo, fontFamily: 'Helvetica-Bold'}}>AMOUNT: </Text>
+                <Text style={{...pdfStyles.minInfo, fontFamily: 'Helvetica-Bold'}}>{`${t.amount} `}</Text>
               </View>
               <View style={{...pdfStyles.minInfo,flex: 0.5}}>
               </View>
@@ -145,7 +146,7 @@ function ZReportPDF({reportData, authOrganization, user, thermalPrinter}) {
             </View>
             <View style={{ ...pdfStyles.tableRow}}>
               <View style={{ flex: 1}}>
-                <Text style={{...pdfStyles.minInfo, fontFamily: 'Helvetica-Bold'}}>MARKUP: </Text>
+                <Text style={{...pdfStyles.minInfo, fontFamily: 'Helvetica-Bold'}}>{`${t.markup} `}</Text>
               </View>
               <View style={{...pdfStyles.minInfo,flex: 0.5}}>
               </View>
@@ -155,7 +156,7 @@ function ZReportPDF({reportData, authOrganization, user, thermalPrinter}) {
             </View>
             <View style={{ ...pdfStyles.tableRow}}>
               <View style={{ flex: 1}}>
-                <Text style={{...pdfStyles.minInfo, fontFamily: 'Helvetica-Bold'}}>AMOUNT: </Text>
+                <Text style={{...pdfStyles.minInfo, fontFamily: 'Helvetica-Bold'}}>{`${t.amount} `}</Text>
               </View>
               <View style={{...pdfStyles.minInfo,flex: 0.5}}>
               </View>
@@ -165,7 +166,7 @@ function ZReportPDF({reportData, authOrganization, user, thermalPrinter}) {
             </View>
             <View style={{ ...pdfStyles.tableRow}}>
               <View style={{ flex: 1}}>
-                <Text style={{...pdfStyles.minInfo, fontFamily: 'Helvetica-Bold'}}>MONEY: </Text>
+                <Text style={{...pdfStyles.minInfo, fontFamily: 'Helvetica-Bold'}}>{`${t.money} `}</Text>
               </View>
               <View style={{...pdfStyles.minInfo,flex: 0.5}}>
               </View>
@@ -182,7 +183,7 @@ function ZReportPDF({reportData, authOrganization, user, thermalPrinter}) {
     
             <View style={{ ...pdfStyles.tableRow}}>
               <View style={{ flex: 1}}>
-                <Text style={{...pdfStyles.minInfo, fontFamily: 'Helvetica-Bold'}}>FIRST RECEIPT: </Text>
+                <Text style={{...pdfStyles.minInfo, fontFamily: 'Helvetica-Bold'}}>{`${t.firstReceipt} `}</Text>
               </View>
               <View style={{...pdfStyles.minInfo,flex: 0.5}}>
               </View>
@@ -192,7 +193,7 @@ function ZReportPDF({reportData, authOrganization, user, thermalPrinter}) {
             </View>
             <View style={{ ...pdfStyles.tableRow}}>
               <View style={{ flex: 1}}>
-                <Text style={{...pdfStyles.minInfo, fontFamily: 'Helvetica-Bold'}}>LAST RECEIPT: </Text>
+                <Text style={{...pdfStyles.minInfo, fontFamily: 'Helvetica-Bold'}}>{`${t.lastReceipt} `}</Text>
               </View>
               <View style={{...pdfStyles.minInfo,flex: 0.5}}>
               </View>
@@ -202,7 +203,7 @@ function ZReportPDF({reportData, authOrganization, user, thermalPrinter}) {
             </View>
             <View style={{ ...pdfStyles.tableRow}}>
               <View style={{ flex: 1}}>
-                <Text style={{...pdfStyles.minInfo, fontFamily: 'Helvetica-Bold'}}>RECEIPTS ISSUED: </Text>
+                <Text style={{...pdfStyles.minInfo, fontFamily: 'Helvetica-Bold'}}>{`${t.receiptsIssued} `}</Text>
               </View>
               <View style={{...pdfStyles.minInfo,flex: 0.5}}>
               </View>
@@ -212,7 +213,7 @@ function ZReportPDF({reportData, authOrganization, user, thermalPrinter}) {
             </View>
             <View style={{ ...pdfStyles.tableRow}}>
               <View style={{ flex: 1}}>
-                <Text style={{...pdfStyles.minInfo, fontFamily: 'Helvetica-Bold'}}>CORRECTIONS: </Text>
+                <Text style={{...pdfStyles.minInfo, fontFamily: 'Helvetica-Bold'}}>{`${t.corrections} `}</Text>
               </View>
               <View style={{...pdfStyles.minInfo,flex: 0.5}}>
               </View>
@@ -228,7 +229,7 @@ function ZReportPDF({reportData, authOrganization, user, thermalPrinter}) {
             </View>
             <View style={{ ...pdfStyles.tableRow, textAlign: 'center'}}>
               <View style={{ flex: 1, marginTop: 3}}>
-                <Text style={{...pdfStyles.minInfo, fontFamily: 'Helvetica-Bold'}}>PAYMENT REPORT</Text>
+                <Text style={{...pdfStyles.minInfo, fontFamily: 'Helvetica-Bold'}}>{t.paymentReport}</Text>
               </View>
             </View> 
             <View style={{ ...pdfStyles.tableRow}}>
@@ -239,7 +240,7 @@ function ZReportPDF({reportData, authOrganization, user, thermalPrinter}) {
     
             <View style={{ ...pdfStyles.tableRow}}>
               <View style={{ flex: 1}}>
-                <Text style={{...pdfStyles.minInfo, fontFamily: 'Helvetica-Bold'}}>CASH: </Text>
+                <Text style={{...pdfStyles.minInfo, fontFamily: 'Helvetica-Bold'}}>{`${t.cash} `}</Text>
               </View>
               <View style={{...pdfStyles.minInfo,flex: 0.5}}>
               </View>
@@ -249,7 +250,7 @@ function ZReportPDF({reportData, authOrganization, user, thermalPrinter}) {
             </View>
             <View style={{ ...pdfStyles.tableRow}}>
               <View style={{ flex: 1}}>
-                <Text style={{...pdfStyles.minInfo, fontFamily: 'Helvetica-Bold'}}>TOTAL: </Text>
+                <Text style={{...pdfStyles.minInfo, fontFamily: 'Helvetica-Bold'}}>{`${t.total} `}</Text>
               </View>
               <View style={{...pdfStyles.minInfo,flex: 0.5}}>
               </View>
@@ -265,7 +266,7 @@ function ZReportPDF({reportData, authOrganization, user, thermalPrinter}) {
             </View>
             <View style={{ ...pdfStyles.tableRow, ...pdfStyles.textBold, textAlign: 'center'}}>
               <View style={{ flex: 1}}>
-                <Text style={{...pdfStyles.minInfo, fontFamily: 'Helvetica-Bold'}}>TAX REPORT</Text>
+                <Text style={{...pdfStyles.minInfo, fontFamily: 'Helvetica-Bold'}}>{t.taxReport}</Text>
               </View>
             </View> 
             <View style={{ ...pdfStyles.tableRow}}>
@@ -283,7 +284,7 @@ function ZReportPDF({reportData, authOrganization, user, thermalPrinter}) {
             </View>
             <View style={{ ...pdfStyles.tableRow}}>
               <View style={{ flex: 1}}>
-                <Text style={{...pdfStyles.minInfo, fontFamily: 'Helvetica-Bold'}}>TURNOVER: </Text>
+                <Text style={{...pdfStyles.minInfo, fontFamily: 'Helvetica-Bold'}}>{`${t.turnover} `}</Text>
               </View>
               <View style={{...pdfStyles.minInfo,flex: 0.5}}>
               </View>
@@ -293,7 +294,7 @@ function ZReportPDF({reportData, authOrganization, user, thermalPrinter}) {
             </View>
             <View style={{ ...pdfStyles.tableRow}}>
               <View style={{ flex: 1}}>
-                <Text style={{...pdfStyles.minInfo, fontFamily: 'Helvetica-Bold'}}>NET SUM: </Text>
+                <Text style={{...pdfStyles.minInfo, fontFamily: 'Helvetica-Bold'}}>{`${t.netSum} `}</Text>
               </View>
               <View style={{...pdfStyles.minInfo,flex: 0.5}}>
               </View>
@@ -303,7 +304,7 @@ function ZReportPDF({reportData, authOrganization, user, thermalPrinter}) {
             </View>
             <View style={{ ...pdfStyles.tableRow}}>
               <View style={{ flex: 1}}>
-                <Text style={{...pdfStyles.minInfo, fontFamily: 'Helvetica-Bold'}}>TAX: </Text>
+                <Text style={{...pdfStyles.minInfo, fontFamily: 'Helvetica-Bold'}}>{`${t.tax} `}</Text>
               </View>
               <View style={{...pdfStyles.minInfo,flex: 0.5}}>
               </View>
@@ -322,12 +323,12 @@ function ZReportPDF({reportData, authOrganization, user, thermalPrinter}) {
 
             <View style={{ ...pdfStyles.tableRow, marginTop: 5}}>
               <View style={{ flex: 1}}>
-                <Text style={{...pdfStyles.minInfo}}>TOTALS:</Text>
+                <Text style={{...pdfStyles.minInfo}}>{t.totals}</Text>
               </View>
             </View>
             <View style={{ ...pdfStyles.tableRow}}>
               <View style={{ flex: 1}}>
-                <Text style={{...pdfStyles.minInfo, fontFamily: 'Helvetica-Bold'}}>TURNOVER: </Text>
+                <Text style={{...pdfStyles.minInfo, fontFamily: 'Helvetica-Bold'}}>{`${t.turnover} `}</Text>
               </View>
               <View style={{...pdfStyles.minInfo,flex: 0.5}}>
               </View>
@@ -337,7 +338,7 @@ function ZReportPDF({reportData, authOrganization, user, thermalPrinter}) {
             </View>
             <View style={{ ...pdfStyles.tableRow}}>
               <View style={{ flex: 1}}>
-                <Text style={{...pdfStyles.minInfo, fontFamily: 'Helvetica-Bold'}}>NET (A+B+C): </Text>
+                <Text style={{...pdfStyles.minInfo, fontFamily: 'Helvetica-Bold'}}>{`${t.netAbc} `}</Text>
               </View>
               <View style={{...pdfStyles.minInfo,flex: 0.5}}>
               </View>
@@ -347,7 +348,7 @@ function ZReportPDF({reportData, authOrganization, user, thermalPrinter}) {
             </View>
             <View style={{ ...pdfStyles.tableRow}}>
               <View style={{ flex: 1}}>
-                <Text style={{...pdfStyles.minInfo, fontFamily: 'Helvetica-Bold'}}>TAX: </Text>
+                <Text style={{...pdfStyles.minInfo, fontFamily: 'Helvetica-Bold'}}>{`${t.tax} `}</Text>
               </View>
               <View style={{...pdfStyles.minInfo,flex: 0.5}}>
               </View>
@@ -357,7 +358,7 @@ function ZReportPDF({reportData, authOrganization, user, thermalPrinter}) {
             </View>
             <View style={{ ...pdfStyles.tableRow}}>
               <View style={{ flex: 1}}>
-                <Text style={{...pdfStyles.minInfo, fontFamily: 'Helvetica-Bold'}}>TURNOVER(EX+SR): </Text>
+                <Text style={{...pdfStyles.minInfo, fontFamily: 'Helvetica-Bold'}}>{`${t.turnoverExSr} `}</Text>
               </View>
               <View style={{...pdfStyles.minInfo,flex: 0.5}}>
               </View>
@@ -381,7 +382,7 @@ function ZReportPDF({reportData, authOrganization, user, thermalPrinter}) {
                     <View style={{...pdfStyles.minInfo,flex:0.4}}>
                     </View>
                     <View style={{flex:1.5}}>
-                        <Text style={{...pdfStyles.minInfo, fontFamily: 'Helvetica-Bold', textAlign: 'right'}}>MOBILE:</Text>
+                        <Text style={{...pdfStyles.minInfo, fontFamily: 'Helvetica-Bold', textAlign: 'right'}}>{t.mobile}</Text>
                     </View>
                     <View style={{flex:2}}>
                         <Text style={{...pdfStyles.minInfo, textAlign: 'left'}}>{organization.phone}</Text>
@@ -414,7 +415,7 @@ function ZReportPDF({reportData, authOrganization, user, thermalPrinter}) {
                     <View style={{flex:0.4}}>
                     </View>
                     <View style={{flex:1.5}}>
-                        <Text style={{...pdfStyles.minInfo, fontFamily: 'Helvetica-Bold', textAlign: 'right'}}>SERIAL NUMBER:</Text>
+                        <Text style={{...pdfStyles.minInfo, fontFamily: 'Helvetica-Bold', textAlign: 'right'}}>{t.serialNumber}</Text>
                     </View>
                     <View style={{flex:2}}>
                         <Text style={{...pdfStyles.minInfo, textAlign: 'left'}}>{organization.tra_serial_number}</Text>
@@ -436,7 +437,7 @@ function ZReportPDF({reportData, authOrganization, user, thermalPrinter}) {
                     <View style={{flex:0.2}}>
                     </View>
                     <View style={{flex:0.2}}>
-                        <Text style={{...pdfStyles.minInfo, fontFamily: 'Helvetica-Bold', textAlign: 'right'}}>TAX OFFICE:</Text>
+                        <Text style={{...pdfStyles.minInfo, fontFamily: 'Helvetica-Bold', textAlign: 'right'}}>{t.taxOffice}</Text>
                     </View>
                     <View style={{...pdfStyles.minInfo,flex:0.6}}>
                         <Text style={{...pdfStyles.minInfo, textAlign: 'left'}}>{reportData.taxOffice}</Text>
@@ -456,13 +457,13 @@ function ZReportPDF({reportData, authOrganization, user, thermalPrinter}) {
                     <View style={{flex:1}}>
                     </View> 
                     <View style={{ flex: 1}}>
-                        <Text style={{...pdfStyles.minInfo, fontFamily: 'Helvetica-Bold'}}>DATE</Text>
+                        <Text style={{...pdfStyles.minInfo, fontFamily: 'Helvetica-Bold'}}>{t.date}</Text>
                         <Text style={{...pdfStyles.minInfo}}>{reportData.date}</Text>
                     </View>
                     <View style={{...pdfStyles.minInfo,flex: 0.5}}>
                     </View>
                     <View style={{ flex: 1, textAlign: 'right'}}>
-                        <Text style={{...pdfStyles.minInfo, fontFamily: 'Helvetica-Bold'}}>TIME</Text>
+                        <Text style={{...pdfStyles.minInfo, fontFamily: 'Helvetica-Bold'}}>{t.time}</Text>
                         <Text style={{...pdfStyles.minInfo}}>{reportData.time}</Text>
                     </View>
                     <View style={{flex:1}}>
@@ -480,7 +481,7 @@ function ZReportPDF({reportData, authOrganization, user, thermalPrinter}) {
                 </View>
                 <View style={{ ...pdfStyles.tableRow, ...pdfStyles.textBold, textAlign: 'center'}}>
                     <View style={{ flex: 1}}>
-                        <Text style={{...pdfStyles.minInfo, marginTop: 3, fontFamily: 'Helvetica-Bold'}}>Z REPORT</Text>
+                        <Text style={{...pdfStyles.minInfo, marginTop: 3, fontFamily: 'Helvetica-Bold'}}>{t.title.toUpperCase()}</Text>
                     </View>
                 </View>
                 <View style={{ ...pdfStyles.tableRow}}>
@@ -497,7 +498,7 @@ function ZReportPDF({reportData, authOrganization, user, thermalPrinter}) {
                     <View style={{flex:1}}>
                     </View>
                     <View style={{ flex: 1}}>
-                        <Text style={{...pdfStyles.minInfo, fontFamily: 'Helvetica-Bold'}}>DISCOUNT: </Text>
+                        <Text style={{...pdfStyles.minInfo, fontFamily: 'Helvetica-Bold'}}>{`${t.discount} `}</Text>
                     </View>
                     <View style={{...pdfStyles.minInfo,flex: 0.5}}>
                     </View>
@@ -511,7 +512,7 @@ function ZReportPDF({reportData, authOrganization, user, thermalPrinter}) {
                     <View style={{flex:1}}>
                     </View>
                     <View style={{ flex: 1}}>
-                        <Text style={{...pdfStyles.minInfo, fontFamily: 'Helvetica-Bold'}}>AMOUNT: </Text>
+                        <Text style={{...pdfStyles.minInfo, fontFamily: 'Helvetica-Bold'}}>{`${t.amount} `}</Text>
                     </View>
                     <View style={{...pdfStyles.minInfo,flex: 0.5}}>
                     </View>
@@ -525,7 +526,7 @@ function ZReportPDF({reportData, authOrganization, user, thermalPrinter}) {
                     <View style={{flex:1}}>
                     </View>
                     <View style={{ flex: 1}}>
-                        <Text style={{...pdfStyles.minInfo, fontFamily: 'Helvetica-Bold'}}>MARKUP: </Text>
+                        <Text style={{...pdfStyles.minInfo, fontFamily: 'Helvetica-Bold'}}>{`${t.markup} `}</Text>
                     </View>
                     <View style={{...pdfStyles.minInfo,flex: 0.5}}>
                     </View>
@@ -539,7 +540,7 @@ function ZReportPDF({reportData, authOrganization, user, thermalPrinter}) {
                     <View style={{flex:1}}>
                     </View>
                     <View style={{ flex: 1}}>
-                        <Text style={{...pdfStyles.minInfo, fontFamily: 'Helvetica-Bold'}}>AMOUNT: </Text>
+                        <Text style={{...pdfStyles.minInfo, fontFamily: 'Helvetica-Bold'}}>{`${t.amount} `}</Text>
                     </View>
                     <View style={{...pdfStyles.minInfo,flex: 0.5}}>
                     </View>
@@ -553,7 +554,7 @@ function ZReportPDF({reportData, authOrganization, user, thermalPrinter}) {
                     <View style={{flex:1}}>
                     </View>
                     <View style={{ flex: 1}}>
-                        <Text style={{...pdfStyles.minInfo, fontFamily: 'Helvetica-Bold'}}>MONEY: </Text>
+                        <Text style={{...pdfStyles.minInfo, fontFamily: 'Helvetica-Bold'}}>{`${t.money} `}</Text>
                     </View>
                     <View style={{...pdfStyles.minInfo,flex: 0.5}}>
                     </View>
@@ -578,7 +579,7 @@ function ZReportPDF({reportData, authOrganization, user, thermalPrinter}) {
                     <View style={{flex:1}}>
                     </View>
                     <View style={{ flex: 1}}>
-                        <Text style={{...pdfStyles.minInfo, fontFamily: 'Helvetica-Bold'}}>FIRST RECEIPT: </Text>
+                        <Text style={{...pdfStyles.minInfo, fontFamily: 'Helvetica-Bold'}}>{`${t.firstReceipt} `}</Text>
                     </View>
                     <View style={{...pdfStyles.minInfo,flex: 0.5}}>
                     </View>
@@ -592,7 +593,7 @@ function ZReportPDF({reportData, authOrganization, user, thermalPrinter}) {
                     <View style={{flex:1}}>
                     </View>
                     <View style={{ flex: 1}}>
-                        <Text style={{...pdfStyles.minInfo, fontFamily: 'Helvetica-Bold'}}>LAST RECEIPT: </Text>
+                        <Text style={{...pdfStyles.minInfo, fontFamily: 'Helvetica-Bold'}}>{`${t.lastReceipt} `}</Text>
                     </View>
                     <View style={{...pdfStyles.minInfo,flex: 0.5}}>
                     </View>
@@ -606,7 +607,7 @@ function ZReportPDF({reportData, authOrganization, user, thermalPrinter}) {
                     <View style={{flex:1}}>
                     </View>
                     <View style={{ flex: 1}}>
-                        <Text style={{...pdfStyles.minInfo, fontFamily: 'Helvetica-Bold'}}>RECEIPTS ISSUED: </Text>
+                        <Text style={{...pdfStyles.minInfo, fontFamily: 'Helvetica-Bold'}}>{`${t.receiptsIssued} `}</Text>
                     </View>
                     <View style={{...pdfStyles.minInfo,flex: 0.5}}>
                     </View>
@@ -620,7 +621,7 @@ function ZReportPDF({reportData, authOrganization, user, thermalPrinter}) {
                     <View style={{flex:1}}>
                     </View>
                     <View style={{ flex: 1}}>
-                        <Text style={{...pdfStyles.minInfo, fontFamily: 'Helvetica-Bold'}}>CORRECTIONS: </Text>
+                        <Text style={{...pdfStyles.minInfo, fontFamily: 'Helvetica-Bold'}}>{`${t.corrections} `}</Text>
                     </View>
                     <View style={{...pdfStyles.minInfo,flex: 0.5}}>
                     </View>
@@ -642,7 +643,7 @@ function ZReportPDF({reportData, authOrganization, user, thermalPrinter}) {
                     </View>
                     <View style={{ ...pdfStyles.tableRow, textAlign: 'center'}}>
                     <View style={{ flex: 1, marginTop: 3}}>
-                        <Text style={{...pdfStyles.minInfo, fontFamily: 'Helvetica-Bold'}}>PAYMENT REPORT</Text>
+                        <Text style={{...pdfStyles.minInfo, fontFamily: 'Helvetica-Bold'}}>{t.paymentReport}</Text>
                     </View>
                 </View> 
                 <View style={{ ...pdfStyles.tableRow}}>
@@ -659,7 +660,7 @@ function ZReportPDF({reportData, authOrganization, user, thermalPrinter}) {
                     <View style={{flex:1}}>
                     </View>
                     <View style={{ flex: 1}}>
-                        <Text style={{...pdfStyles.minInfo, fontFamily: 'Helvetica-Bold'}}>CASH: </Text>
+                        <Text style={{...pdfStyles.minInfo, fontFamily: 'Helvetica-Bold'}}>{`${t.cash} `}</Text>
                     </View>
                     <View style={{...pdfStyles.minInfo,flex: 0.5}}>
                     </View>
@@ -673,7 +674,7 @@ function ZReportPDF({reportData, authOrganization, user, thermalPrinter}) {
                     <View style={{flex:1}}>
                     </View>
                     <View style={{ flex: 1}}>
-                        <Text style={{...pdfStyles.minInfo, fontFamily: 'Helvetica-Bold'}}>TOTAL: </Text>
+                        <Text style={{...pdfStyles.minInfo, fontFamily: 'Helvetica-Bold'}}>{`${t.total} `}</Text>
                     </View>
                     <View style={{...pdfStyles.minInfo,flex: 0.5}}>
                     </View>
@@ -695,7 +696,7 @@ function ZReportPDF({reportData, authOrganization, user, thermalPrinter}) {
                 </View>
                 <View style={{ ...pdfStyles.tableRow, ...pdfStyles.textBold, textAlign: 'center'}}>
                     <View style={{ flex: 1}}>
-                        <Text style={{...pdfStyles.minInfo, fontFamily: 'Helvetica-Bold'}}>TAX REPORT</Text>
+                        <Text style={{...pdfStyles.minInfo, fontFamily: 'Helvetica-Bold'}}>{t.taxReport}</Text>
                     </View>
                     </View> 
                     <View style={{ ...pdfStyles.tableRow}}>
@@ -723,7 +724,7 @@ function ZReportPDF({reportData, authOrganization, user, thermalPrinter}) {
                 <View style={{flex:1}}>
                 </View>
                 <View style={{ flex: 1}}>
-                    <Text style={{...pdfStyles.minInfo, fontFamily: 'Helvetica-Bold'}}>TURNOVER: </Text>
+                    <Text style={{...pdfStyles.minInfo, fontFamily: 'Helvetica-Bold'}}>{`${t.turnover} `}</Text>
                 </View>
                 <View style={{...pdfStyles.minInfo,flex: 0.5}}>
                 </View>
@@ -737,7 +738,7 @@ function ZReportPDF({reportData, authOrganization, user, thermalPrinter}) {
                 <View style={{flex:1}}>
                 </View>
                 <View style={{ flex: 1}}>
-                    <Text style={{...pdfStyles.minInfo, fontFamily: 'Helvetica-Bold'}}>NET SUM: </Text>
+                    <Text style={{...pdfStyles.minInfo, fontFamily: 'Helvetica-Bold'}}>{`${t.netSum} `}</Text>
                 </View>
                 <View style={{...pdfStyles.minInfo,flex: 0.5}}>
                 </View>
@@ -751,7 +752,7 @@ function ZReportPDF({reportData, authOrganization, user, thermalPrinter}) {
                 <View style={{flex:1}}>
                 </View>
                 <View style={{ flex: 1}}>
-                    <Text style={{...pdfStyles.minInfo, fontFamily: 'Helvetica-Bold'}}>TAX: </Text>
+                    <Text style={{...pdfStyles.minInfo, fontFamily: 'Helvetica-Bold'}}>{`${t.tax} `}</Text>
                 </View>
                 <View style={{...pdfStyles.minInfo,flex: 0.5}}>
                 </View>
@@ -778,7 +779,7 @@ function ZReportPDF({reportData, authOrganization, user, thermalPrinter}) {
                 <View style={{flex:0.55}}>
                 </View>
                 <View style={{ flex: 1}}>
-                    <Text style={{...pdfStyles.minInfo}}>TOTALS:</Text>
+                    <Text style={{...pdfStyles.minInfo}}>{t.totals}</Text>
                 </View>
                 <View style={{flex:1}}>
                 </View>
@@ -787,7 +788,7 @@ function ZReportPDF({reportData, authOrganization, user, thermalPrinter}) {
                 <View style={{flex:1}}>
                 </View>
                 <View style={{ flex: 1}}>
-                    <Text style={{...pdfStyles.minInfo, fontFamily: 'Helvetica-Bold'}}>TURNOVER: </Text>
+                    <Text style={{...pdfStyles.minInfo, fontFamily: 'Helvetica-Bold'}}>{`${t.turnover} `}</Text>
                 </View>
                 <View style={{...pdfStyles.minInfo,flex: 0.5}}>
                 </View>
@@ -801,7 +802,7 @@ function ZReportPDF({reportData, authOrganization, user, thermalPrinter}) {
                 <View style={{flex:1}}>
                 </View>
                 <View style={{ flex: 1}}>
-                    <Text style={{...pdfStyles.minInfo, fontFamily: 'Helvetica-Bold'}}>NET (A+B+C): </Text>
+                    <Text style={{...pdfStyles.minInfo, fontFamily: 'Helvetica-Bold'}}>{`${t.netAbc} `}</Text>
                 </View>
                 <View style={{...pdfStyles.minInfo,flex: 0.5}}>
                 </View>
@@ -815,7 +816,7 @@ function ZReportPDF({reportData, authOrganization, user, thermalPrinter}) {
                 <View style={{flex:1}}>
                 </View>
                 <View style={{ flex: 1}}>
-                    <Text style={{...pdfStyles.minInfo, fontFamily: 'Helvetica-Bold'}}>TAX: </Text>
+                    <Text style={{...pdfStyles.minInfo, fontFamily: 'Helvetica-Bold'}}>{`${t.tax} `}</Text>
                 </View>
                 <View style={{...pdfStyles.minInfo,flex: 0.5}}>
                 </View>
@@ -829,7 +830,7 @@ function ZReportPDF({reportData, authOrganization, user, thermalPrinter}) {
                 <View style={{flex:1}}>
                 </View>
                 <View style={{ flex: 1}}>
-                    <Text style={{...pdfStyles.minInfo, fontFamily: 'Helvetica-Bold'}}>TURNOVER(EX+SR): </Text>
+                    <Text style={{...pdfStyles.minInfo, fontFamily: 'Helvetica-Bold'}}>{`${t.turnoverExSr} `}</Text>
                 </View>
                 <View style={{...pdfStyles.minInfo,flex: 0.5}}>
                 </View>

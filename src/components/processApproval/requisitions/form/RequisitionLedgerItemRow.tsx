@@ -32,6 +32,7 @@ import { RequisitionLedgerItem } from '../../RequisitionType';
 import LedgerBudgetCheckDetails from '../listItem/tabs/form/LedgerBudgetCheckDetails';
 import RelatableOrderDetails from '../listItem/tabs/form/RelatableOrderDetails';
 import RequisitionLedgerItemForm from './RequisitionLedgerItemForm';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface FetchRelatableDetailsProps {
   relatable: any;
@@ -57,6 +58,7 @@ const FetchRelatableDetails = ({
   toggleOpen,
   ledger_item,
 }: FetchRelatableDetailsProps & { ledger_item: RequisitionLedgerItem }) => {
+  const dictionary = useDictionary();
   const { authOrganization } = useJumboAuth();
   const isPurchaseOrder =
     relatable?.relatable_type === 'purchase' ||
@@ -130,7 +132,7 @@ const FetchRelatableDetails = ({
             color='primary'
             onClick={() => toggleOpen(false)}
           >
-            Close
+            {dictionary.forms.requisitions.common.close}
           </Button>
         </DialogActions>
       </>
@@ -151,6 +153,7 @@ function RequisitionLedgerItemRow({
   costCenterId,
   notAllowedLedgers = [],
 }: RequisitionLedgerItemRowProps) {
+  const dictionary = useDictionary();
   const [showForm, setShowForm] = useState(
     isDuplicate && Boolean(ledger_item?.relatable_id)
   );
@@ -222,7 +225,7 @@ function RequisitionLedgerItemRow({
                     overflowWrap: 'anywhere',
                   }}
                 >
-                  <Tooltip title={'Relatable To'}>
+                  <Tooltip title={dictionary.tooltips.relatableTo}>
                     <span>{ledger_item.ledger?.name}</span>
                   </Tooltip>
                   {ledger_item.ledger && canSeeBudget && (
@@ -248,7 +251,7 @@ function RequisitionLedgerItemRow({
                 </Typography>
               }
               secondary={
-                <Tooltip title={'Remarks'}>
+                <Tooltip title={dictionary.tooltips.remarks}>
                   <Typography
                     component='span'
                     variant='body2'
@@ -266,7 +269,7 @@ function RequisitionLedgerItemRow({
             <Grid size={{ xs: 7, md: 1 }}>
               <ListItemText
                 primary={
-                  <Tooltip title={'Relatable To'}>
+                  <Tooltip title={dictionary.tooltips.relatableTo}>
                     <Typography
                       variant={'caption'}
                       fontSize={14}
@@ -283,8 +286,11 @@ function RequisitionLedgerItemRow({
                     <Tooltip
                       title={
                         ledger_item.relatable?.capped_by_purchase_order
-                          ? `Order Date - (Amount) — capped against ${ledger_item.relatable?.purchase_order_no}, not this Bill itself`
-                          : 'Order Date - (Amount)'
+                          ? dictionary.forms.requisitions.ledgerItem.orderDateAmountCapped.replace(
+                              '{orderNo}',
+                              String(ledger_item.relatable?.purchase_order_no)
+                            )
+                          : dictionary.forms.requisitions.ledgerItem.orderDateAmount
                       }
                     >
                       <Typography
@@ -314,13 +320,14 @@ function RequisitionLedgerItemRow({
                       </Typography>
                     </Tooltip>
                     <Tooltip
-                      title={`View ${
+                      title={dictionary.forms.requisitions.ledgerItem.viewDetails.replace(
+                        '{type}',
                         ledger_item.relatable_type === 'purchase'
-                          ? 'Order'
+                          ? dictionary.forms.requisitions.ledgerItem.typeOrder
                           : ledger_item.relatable_type === 'bill'
-                            ? 'Bill'
-                            : 'Certificate'
-                      } Details`}
+                            ? dictionary.forms.requisitions.ledgerItem.typeBill
+                            : dictionary.forms.requisitions.ledgerItem.typeCertificate
+                      )}
                     >
                       <IconButton
                         onClick={() => {
@@ -340,7 +347,7 @@ function RequisitionLedgerItemRow({
             textAlign={!ledger_item.relatable_id ? { md: 'end' } : 'end'}
             size={{ xs: !ledger_item.relatable_id ? 8 : 5, md: 2 }}
           >
-            <Tooltip title='Quantity'>
+            <Tooltip title={dictionary.tooltips.quantity}>
               <Typography>
                 {ledger_item.quantity?.toLocaleString()} {''}
                 {ledger_item?.unit_symbol ||
@@ -353,7 +360,7 @@ function RequisitionLedgerItemRow({
             textAlign={!ledger_item.relatable_id ? 'end' : { md: 'end' }}
             size={{ xs: !ledger_item.relatable_id ? 4 : 6, md: 2 }}
           >
-            <Tooltip title='Rate'>
+            <Tooltip title={dictionary.tooltips.rate}>
               <Typography>{ledger_item.rate?.toLocaleString()}</Typography>
             </Tooltip>
           </Grid>
@@ -361,7 +368,7 @@ function RequisitionLedgerItemRow({
             textAlign={!ledger_item.relatable_id ? { md: 'end' } : 'end'}
             size={{ xs: 6, md: 2 }}
           >
-            <Tooltip title='Amount'>
+            <Tooltip title={dictionary.tooltips.amount}>
               <Typography>
                 {(
                   (ledger_item?.rate ?? 0) * (ledger_item?.quantity ?? 0)
@@ -373,7 +380,7 @@ function RequisitionLedgerItemRow({
             </Tooltip>
           </Grid>
           <Grid textAlign={'end'} size={{ xs: 12, lg: 1 }}>
-            <Tooltip title='Edit Item'>
+            <Tooltip title={dictionary.tooltips.editItem}>
               <IconButton
                 size='small'
                 onClick={() => {
@@ -383,7 +390,7 @@ function RequisitionLedgerItemRow({
                 <EditOutlined fontSize='small' />
               </IconButton>
             </Tooltip>
-            <Tooltip title='Remove Item'>
+            <Tooltip title={dictionary.tooltips.removeItem}>
               <IconButton size='small' onClick={handleRemoveItem}>
                 <DisabledByDefault fontSize='small' color='error' />
               </IconButton>

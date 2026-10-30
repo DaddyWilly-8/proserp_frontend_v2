@@ -14,9 +14,11 @@ import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import useProsERPStyles from '@/app/helpers/style-helpers';
 import { readableDate } from '@/app/helpers/input-sanitization-helpers';
 import { Div, Span } from '@jumbo/shared';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function ZReport() {
-  document.title = 'Z Report';
+  const dictionary = useDictionary();
+  document.title = dictionary.reports.accountsReports.zReport.title;
   const { authOrganization, authUser: {user}} = useJumboAuth();
   const {hiddenOnPrint} = useProsERPStyles();
   const [reportData, setReportData] = useState(null);
@@ -24,7 +26,7 @@ function ZReport() {
   const [thermalPrinter, setThermalPrinter] = useState(false);
 
   const validationSchema = yup.object({
-      from: yup.string().required('Start Date is required').typeError('Start Date is required'),
+      from: yup.string().required(dictionary.reports.accountsReports.common.startDateRequired).typeError(dictionary.reports.accountsReports.common.startDateRequired),
     });
   
   const { setValue, handleSubmit } = useForm({
@@ -51,7 +53,7 @@ function ZReport() {
       <DialogTitle textAlign={'center'} className={hiddenOnPrint}>
         <Grid container>
           <Grid size={{xs: 12}}>
-            <Typography variant="h3">Z Report</Typography>
+            <Typography variant="h3">{dictionary.reports.accountsReports.zReport.title}</Typography>
           </Grid>
         </Grid>
         <Span>
@@ -66,7 +68,7 @@ function ZReport() {
               <Grid size={{xs: 12, md: 6}}>
                 <Div sx={{ mt: 1, mb: 1 }}>
                   <DateTimePicker
-                    label="From (MM/DD/YYYY)"
+                    label={dictionary.reports.accountsReports.common.from}
                     minDate={dayjs(authOrganization?.organization.recording_start_date)}
                     defaultValue={today.startOf('day')}
                     slotProps={{
@@ -87,7 +89,7 @@ function ZReport() {
               <Grid size={{xs: 12, md: 6}}>
                 <Div sx={{ mt: 1, mb: 1 }}>
                   <DateTimePicker
-                    label="To (MM/DD/YYYY)"
+                    label={dictionary.reports.accountsReports.common.to}
                     defaultValue={dayjs().endOf('day')}
                     minDate={dayjs(authOrganization?.organization.recording_start_date)}
                     slotProps={{
@@ -107,7 +109,7 @@ function ZReport() {
               </Grid>
               <Grid size={12} textAlign="right">
                 <LoadingButton loading={isFetching} type="submit" size="small" variant="contained">
-                  Filter
+                  {dictionary.reports.accountsReports.common.filter}
                 </LoadingButton>
               </Grid>
             </Grid>
@@ -140,7 +142,7 @@ function ZReport() {
           reportData &&
           (
             <PDFContent
-              document={<ZReportPDF reportData={reportData} thermalPrinter={thermalPrinter} authOrganization={authOrganization} user={user}/>}
+              document={<ZReportPDF reportData={reportData} thermalPrinter={thermalPrinter} authOrganization={authOrganization} user={user} dictionary={dictionary}/>}
               fileName={downloadFileName}
             />
           )

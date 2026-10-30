@@ -19,6 +19,7 @@ import LedgerGroupProvider from '@/components/accounts/ledgerGroups/LedgerGroupP
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { MODULES } from '@/utilities/constants/modules';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function LedgerItemsTab({
   index = -1,
@@ -33,6 +34,8 @@ function LedgerItemsTab({
   allTasks = [],
   selectedCostCenter
 }) {
+  const dictionary = useDictionary();
+  const t = dictionary.forms.projects.budgetItems;
   const [isAdding, setIsAdding] = useState(false);
   const [boundToOption, setBoundToOption] = useState(ledgerItem?.selectedItemable ? 'Task' : ledgerItem?.bound_to === 'ProjectTask' ? 'Task' : '');
   const [selectedItemable, setSelectedItemable] = useState(ledgerItem?.selectedItemable ?? allTasks.find(task => task.id === ledgerItem?.budget_itemable_id) ?? null);
@@ -57,19 +60,19 @@ function LedgerItemsTab({
   };
 
   const validationSchema = yup.object({
-    ledger_id: yup.number().required("Expense name is required").typeError('Expense name is required'),
-    currency_id: yup.number().positive('Currency is required').required('Currency is required').typeError('Currency is required'),
-    exchange_rate: yup.number().positive('Exchange rate is required').required('Exchange rate is required').typeError('Exchange rate is required'),
-    rate: yup.number().positive('Rate is required').required("Rate is required").positive("Rate is required").typeError('Rate is required'),
-    quantity: yup.number().positive('Quantity is required').required("Quantity is required").positive("Quantity is required").typeError('Quantity is required')
+    ledger_id: yup.number().required(t.errors.expenseRequired).typeError(t.errors.expenseRequired),
+    currency_id: yup.number().positive(t.errors.currencyRequired).required(t.errors.currencyRequired).typeError(t.errors.currencyRequired),
+    exchange_rate: yup.number().positive(t.errors.exchangeRateRequired).required(t.errors.exchangeRateRequired).typeError(t.errors.exchangeRateRequired),
+    rate: yup.number().positive(t.errors.rateRequired).required(t.errors.rateRequired).positive(t.errors.rateRequired).typeError(t.errors.rateRequired),
+    quantity: yup.number().positive(t.errors.quantityRequired).required(t.errors.quantityRequired).positive(t.errors.quantityRequired).typeError(t.errors.quantityRequired)
       .test(
         'whole-unit',
-        'This unit is whole-units-only — quantity cannot be a fraction',
+        t.errors.wholeUnit,
         function (value) {
           return this.parent.measurement_unit?.allows_fractional !== false || !value || Number.isInteger(value);
         }
       ),
-    measurement_unit_id: yup.number().required("Measurement Unit is required").typeError('Measurement Unit is required'),
+    measurement_unit_id: yup.number().required(t.errors.unitRequired).typeError(t.errors.unitRequired),
   });
 
   const { setValue, handleSubmit, watch, reset, formState: { errors, dirtyFields } } = useForm({
@@ -175,14 +178,14 @@ function LedgerItemsTab({
           <Div sx={{ mt: 1 }}>
             <LedgerSelect
               multiple={false}
-              label="Expense Name"
+              label={t.labels.expenseName}
               allowedGroups={['Expenses']}
               frontError={errors?.ledger_id}
               addedLedger={recentlyAddedLedger}
               value={recentlyAddedLedger || ungroupedLedgerOptions.find(option => option.id === watch('ledger_id')) || null}
               onChange={handleLedgerChange}
               startAdornment={canQuickAddLedger ? (
-                <Tooltip title="Quick Add Ledger" placement="top">
+                <Tooltip title={dictionary.tooltips.quickAddLedger} placement="top">
                   <AddOutlined
                     onClick={() => setOpenQuickAddLedger(true)}
                     sx={{ cursor: 'pointer' }}
@@ -197,11 +200,11 @@ function LedgerItemsTab({
             <Grid size={{ xs: 12, md: 4 }} display="flex" flexDirection="column" alignItems="center" justifyContent="center">
               <Div sx={{ mt: 1, width: '100%' }}>
                 <FormControl fullWidth>
-                  <InputLabel id="bound-to-label" sx={{ width: '100%'}}>Bound To</InputLabel>
+                  <InputLabel id="bound-to-label" sx={{ width: '100%'}}>{t.labels.boundTo}</InputLabel>
                   <Select
                     labelId="bound-to-label"
                     value={boundToOption}
-                    label="Bound To"
+                    label={t.labels.boundTo}
                     size='small'
                     fullWidth
                     onChange={(e) => {
@@ -210,7 +213,7 @@ function LedgerItemsTab({
                       setValue('bound_to', e.target.value);
                     }}
                   >
-                    <MenuItem value="Task">Task</MenuItem>
+                    <MenuItem value="Task">{t.labels.task}</MenuItem>
                   </Select>
                 </FormControl>
               </Div>
@@ -223,7 +226,7 @@ function LedgerItemsTab({
                   getOptionLabel={(option) => formatTaskOptionLabel(option)}
                   value={selectedItemable}
                   renderInput={(params) => (
-                    <TextField {...params} label={`Select ${boundToOption}`} size="small" fullWidth />
+                    <TextField {...params} label={boundToOption === 'Task' ? t.labels.selectTask : t.labels.select} size="small" fullWidth />
                   )}
                   onChange={(e, newValue) => {
                     setSelectedItemable(newValue);
@@ -261,7 +264,7 @@ function LedgerItemsTab({
           <Grid size={{xs: 6, md: 2, lg: 2}}>
             <Div sx={{mt: 1}}>
               <TextField
-                label="Exchange Rate"
+                label={t.labels.exchangeRate}
                 fullWidth
                 size='small'
                 defaultValue={watch(`exchange_rate`)}
@@ -283,7 +286,7 @@ function LedgerItemsTab({
         <Grid size={{xs: 12, md: watch(`currency_id`) > 1 ? 2 : (selectedCostCenter?.cost_centerable_id ? 2.66 : 4)}}>
           <Div sx={{ mt: 1}}>
             <MeasurementSelector
-              label='Unit'
+              label={t.labels.unit}
               frontError={errors && errors?.measurement_unit_id}
               defaultValue={ledgerItem?.measurement_unit_id}
               onChange={(newValue) => {
@@ -300,7 +303,7 @@ function LedgerItemsTab({
         <Grid size={{xs: watch(`currency_id`) > 1 ? 6 : 12, md: watch(`currency_id`) > 1 ? 2 : (selectedCostCenter?.cost_centerable_id ? 2.66 : 4)}}>
           <Div sx={{mt: 1}}>
             <TextField
-              label="Quantity"
+              label={t.labels.quantity}
               fullWidth
               size="small"
               InputProps={{
@@ -321,7 +324,7 @@ function LedgerItemsTab({
         <Grid size={{xs: watch(`currency_id`) > 1 ? 6 : 12, md: watch(`currency_id`) > 1 ? 2 : (selectedCostCenter?.cost_centerable_id ? 2.66 : 4)}}>
           <Div sx={{mt: 1}}>
             <TextField
-              label="Rate"
+              label={t.labels.rate}
               fullWidth
               size="small"
               error={errors && !!errors?.rate}
@@ -342,7 +345,7 @@ function LedgerItemsTab({
         <Grid size={{xs: 12, md: selectedCostCenter?.cost_centerable_id ? 12 :  watch(`currency_id`) > 1 ? 8 : 4}}>
           <Div sx={{mt: 1}}>
             <TextField
-              label="Description"
+              label={t.labels.description}
               fullWidth
               multiline={true}
               rows={2}
@@ -363,7 +366,7 @@ function LedgerItemsTab({
           <QuickAddLedger
             ledgerType="debit"
             toggleOpen={setOpenQuickAddLedger}
-            heading="Quick Add Ledger"
+            heading={t.labels.quickAddLedger}
             setAddedLedger={(newLedger) => {
               setRecentlyAddedLedger(newLedger);
               setValue('ledger_id', newLedger?.id ?? null, {
@@ -386,15 +389,15 @@ function LedgerItemsTab({
         >
           {
             ledgerItem ? (
-              <><CheckOutlined fontSize='small' /> Done</>
+              <><CheckOutlined fontSize='small' /> {t.buttons.done}</>
             ) : (
-              <><AddOutlined fontSize='small' /> Add</>
+              <><AddOutlined fontSize='small' /> {t.buttons.add}</>
             )
           }
         </LoadingButton>
         {
           ledgerItem && 
-          <Tooltip title='Close Edit'>
+          <Tooltip title={dictionary.tooltips.closeEdit}>
             <IconButton size='small' 
               onClick={() => {
                 setShowForm(false);

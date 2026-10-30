@@ -29,6 +29,7 @@ import CommaSeparatedField from '@/shared/Inputs/CommaSeparatedField';
 import { sanitizedNumber } from '@/app/helpers/input-sanitization-helpers';
 import { useFormContext, useWatch } from 'react-hook-form';
 import { StationFormContext } from '../../SalesShifts';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function CashReconciliation({
   cashierIndex,
@@ -38,6 +39,7 @@ function CashReconciliation({
   getCashierLedgers,
   cashierPumpProducts
 }) {
+  const dictionary = useDictionary();
   const {
     setValue,
     errors,
@@ -73,7 +75,7 @@ function CashReconciliation({
     if (
       collectionLedgerId && (collectedAmount === null || collectedAmount === '' || isNaN(Number(collectedAmount)))
     ) {
-      setManualCollectedError('Collected Amount is required');
+      setManualCollectedError(dictionary.forms.shifts.validation.collectedAmountRequired);
     } else {
       setManualCollectedError('');
     }
@@ -82,7 +84,7 @@ function CashReconciliation({
   useEffect(() => {
     // Only show error if user has attempted to enter collected amount
     if (collectedAmount !== undefined && collectedAmount !== null && collectedAmount !== '' && !collectionLedgerId) {
-      setManualLedgerError('Collection Ledger is required');
+      setManualLedgerError(dictionary.forms.shifts.validation.collectionLedgerRequired);
     } else {
       setManualLedgerError('');
     }
@@ -238,7 +240,7 @@ function CashReconciliation({
   const isZeroCollected = sanitizedNumber(collectedAmount) === 0;
   const expectedCash = calculatedMainLedgerAmount;
   const isShort = (isZeroCollected && expectedCash < 0) || isZeroCollected || profitLoss < 0;
-  const profitLossLabel = isShort ? 'Short' : 'Over';
+  const profitLossLabel = isShort ? dictionary.forms.shifts.recon.short : dictionary.forms.shifts.recon.over;
   const profitLossIcon = isShort ? <TrendingDown color="error" fontSize="small" /> : <TrendingUp color="success" fontSize="small" />;
   const profitLossColor = isShort ? 'error.main' : 'success.main';
 
@@ -300,7 +302,7 @@ function CashReconciliation({
         shouldDirty: true,
       });
       trigger(`cashiers.${cashierIndex}.collected_amount`);
-      alert('Collected Amount should not start with 0. Please enter the correct amount.');
+      alert(dictionary.forms.shifts.messages.collectedNoLeadingZero);
       return;
     }
     if (value === '' || value === null) {
@@ -334,16 +336,16 @@ function CashReconciliation({
           <Card variant="outlined">
             <CardContent>
               <Typography variant="subtitle1" align="center" fontWeight="bold" gutterBottom>
-                Products Summary
+                {dictionary.forms.shifts.recon.productsSummary}
               </Typography>
               <Divider />
               <TableContainer>
                 <Table size="small">
                   <TableHead>
                     <TableRow>
-                      <TableCell>Product</TableCell>
-                      <TableCell align="right">Qty (L)</TableCell>
-                      <TableCell align="right">Amount</TableCell>
+                      <TableCell>{dictionary.forms.shifts.labels.product}</TableCell>
+                      <TableCell align="right">{dictionary.forms.shifts.recon.qtyL}</TableCell>
+                      <TableCell align="right">{dictionary.forms.shifts.labels.amount}</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -361,7 +363,7 @@ function CashReconciliation({
                     })}
                     <TableRow>
                       <TableCell colSpan={2} align="right" sx={{ fontWeight: 'bold' }}>
-                        Total Sales:
+                        {dictionary.forms.shifts.recon.totalSales}
                       </TableCell>
                       <TableCell align="right" sx={{ fontWeight: 'bold' }}>
                         {grandProductsTotal.toLocaleString()}
@@ -379,16 +381,16 @@ function CashReconciliation({
           <Card variant="outlined">
             <CardContent>
               <Typography variant="subtitle1" align="center" fontWeight="bold" gutterBottom>
-                Fuel Vouchers
+                {dictionary.forms.shifts.tabs.fuelVouchers}
               </Typography>
               <Divider />
               <TableContainer>
                 <Table size="small">
                   <TableHead>
                     <TableRow>
-                      <TableCell>Product</TableCell>
-                      <TableCell align="right">Qty (L)</TableCell>
-                      <TableCell align="right">Amount</TableCell>
+                      <TableCell>{dictionary.forms.shifts.labels.product}</TableCell>
+                      <TableCell align="right">{dictionary.forms.shifts.recon.qtyL}</TableCell>
+                      <TableCell align="right">{dictionary.forms.shifts.labels.amount}</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -409,7 +411,7 @@ function CashReconciliation({
                     })}
                     <TableRow>
                       <TableCell colSpan={2} align="right" sx={{ fontWeight: 'bold' }}>
-                        Total Vouchers:
+                        {dictionary.forms.shifts.recon.totalVouchers}
                       </TableCell>
                       <TableCell align="right" sx={{ fontWeight: 'bold' }}>
                         {grandFuelVoucherTotal.toLocaleString()}
@@ -427,7 +429,7 @@ function CashReconciliation({
           <Card variant="outlined">
             <CardContent>
               <Typography variant="subtitle1" align="center" fontWeight="bold" gutterBottom>
-                Cash Distribution
+                {dictionary.forms.shifts.recon.cashDistribution}
               </Typography>
               <Divider sx={{ mb: 2 }} />
 
@@ -454,7 +456,7 @@ function CashReconciliation({
                     renderInput={(params) => (
                       <TextField
                         {...params}
-                        label="Main Ledger"
+                        label={dictionary.forms.shifts.labels.mainLedger}
                         error={!!errors?.cashiers?.[cashierIndex]?.main_ledger_id}
                         helperText={errors?.cashiers?.[cashierIndex]?.main_ledger_id?.message}
                       />
@@ -467,7 +469,7 @@ function CashReconciliation({
                   <TextField
                     size="small"
                     fullWidth
-                    label="Main Ledger Amount"
+                    label={dictionary.forms.shifts.labels.mainLedgerAmount}
                     value={actualMainLedgerAmount.toLocaleString()}
                     InputProps={{
                       readOnly: true,
@@ -506,7 +508,7 @@ function CashReconciliation({
                           renderInput={(params) => (
                             <TextField
                               {...params}
-                              label="Other Ledger"
+                              label={dictionary.forms.shifts.labels.otherLedger}
                               error={!!errors?.cashiers?.[cashierIndex]?.other_transactions?.[originalIdx]?.ledger_id}
                               helperText={errors?.cashiers?.[cashierIndex]?.other_transactions?.[originalIdx]?.ledger_id?.message}
                             />
@@ -519,9 +521,9 @@ function CashReconciliation({
                         <TextField
                           size="small"
                           fullWidth
-                          label="Narration"
+                          label={dictionary.forms.shifts.labels.narration}
                           value={transaction?.narration ?? ''}
-                          placeholder="Enter transaction description"
+                          placeholder={dictionary.forms.shifts.labels.enterTransactionDescription}
                           error={!!errors?.cashiers?.[cashierIndex]?.other_transactions?.[originalIdx]?.narration}
                           helperText={errors?.cashiers?.[cashierIndex]?.other_transactions?.[originalIdx]?.narration?.message}
                           onChange={(e) => {
@@ -534,7 +536,7 @@ function CashReconciliation({
                         <TextField
                           size="small"
                           fullWidth
-                          label="Amount"
+                          label={dictionary.forms.shifts.labels.amount}
                           value={transaction?.amount ?? ''}
                           error={!!errors?.cashiers?.[cashierIndex]?.other_transactions?.[originalIdx]?.amount}
                           helperText={errors?.cashiers?.[cashierIndex]?.other_transactions?.[originalIdx]?.amount?.message}
@@ -546,7 +548,7 @@ function CashReconciliation({
                       </Grid>
 
                       <Grid size={{ xs: 1 }} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <Tooltip title="Remove this transaction">
+                        <Tooltip title={dictionary.tooltips.removeThisTransaction}>
                           <IconButton
                             size="small"
                             color="error"
@@ -570,7 +572,7 @@ function CashReconciliation({
                     onClick={addCashTransaction}
                     disabled={availableLedgers.length === 0}
                   >
-                    Add Other Transaction
+                    {dictionary.forms.shifts.buttons.addOtherTransaction}
                   </Button>
                 </Grid>
               </Grid>
@@ -583,7 +585,7 @@ function CashReconciliation({
           <Card variant="outlined" sx={{ mt: 2 }}>
             <CardContent>
               <Typography variant="subtitle1" gutterBottom>
-                Collected Amount
+                {dictionary.forms.shifts.labels.collectedAmount}
               </Typography>
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                 <Grid container spacing={2}>
@@ -609,7 +611,7 @@ function CashReconciliation({
                       renderInput={(params) => (
                         <TextField
                           {...params}
-                          label="Collection Ledger"
+                          label={dictionary.forms.shifts.labels.collectionLedger}
                           error={!!errors?.cashiers?.[cashierIndex]?.collection_ledger_id || !!manualLedgerError}
                           helperText={errors?.cashiers?.[cashierIndex]?.collection_ledger_id?.message || manualLedgerError}
                         />
@@ -628,7 +630,7 @@ function CashReconciliation({
                       InputProps={{
                         inputComponent: CommaSeparatedField,
                       }}
-                      label="Collected Amount"
+                      label={dictionary.forms.shifts.labels.collectedAmount}
                       sx={{
                         '& .MuiInputBase-input': {
                           textAlign: 'right',
@@ -647,22 +649,22 @@ function CashReconciliation({
           <Card variant="outlined">
             <CardContent>
               <Typography variant="subtitle1" align="center" fontWeight="bold" gutterBottom>
-                Cash Summary
+                {dictionary.forms.shifts.recon.cashSummary}
               </Typography>
               <Divider />
               <TableContainer>
                 <Table size="small">
                   <TableBody>
                     <TableRow>
-                      <TableCell>Sales Amount</TableCell>
+                      <TableCell>{dictionary.forms.shifts.recon.salesAmount}</TableCell>
                       <TableCell align="right">{grandProductsTotal.toLocaleString()}</TableCell>
                     </TableRow>
                     <TableRow>
-                      <TableCell>Fuel Vouchers</TableCell>
+                      <TableCell>{dictionary.forms.shifts.tabs.fuelVouchers}</TableCell>
                       <TableCell align="right">{grandFuelVoucherTotal.toLocaleString()}</TableCell>
                     </TableRow>
                     <TableRow sx={{ borderTop: '2px solid', borderColor: 'divider' }}>
-                      <TableCell sx={{ fontWeight: 'bold' }}>Expected Cash</TableCell>
+                      <TableCell sx={{ fontWeight: 'bold' }}>{dictionary.forms.shifts.recon.expectedCash}</TableCell>
                       <TableCell align="right" sx={{ fontWeight: 'bold', color: 'primary.main' }}>
                         {actualMainLedgerAmount.toLocaleString()}
                       </TableCell>

@@ -9,6 +9,7 @@
     "clean-build": "rm -rf .next && next build",
     "start": "next start",
     "lint": "next lint",
+    "check:i18n": "node scripts/check-i18n.js",
     "format": "prettier --check --ignore-path .gitignore .",
     "format:fix": "prettier --write --ignore-path .gitignore .",
     "install:force": "npm install --force"

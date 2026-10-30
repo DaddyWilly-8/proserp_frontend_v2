@@ -1,3 +1,4 @@
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import { LeaveRequestType } from '@/components/humanResources/employees/profile/leaveRequests/LeaveRequestType';
 import humanResourcesServices from '@/components/humanResources/humanResourcesServices';
 import { getSanitizedSearchKeyword } from '@/utilities/getSanitizedSearchKeyword';
@@ -10,14 +11,21 @@ import MyHrLeaveRequestsActionTail from './MyHrLeaveRequestsActionTail';
 import MyHrLeaveRequestsListItem from './MyHrLeaveRequestsListItem';
 import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
 
-const STATUS_OPTIONS = [
-  { label: 'In Review', value: 'in_review' },
-  { label: 'Approved', value: 'approved' },
-  { label: 'Rejected', value: 'rejected' },
-  { label: 'On Hold', value: 'on hold' },
-];
+const STATUS_VALUES = ['in_review', 'approved', 'rejected', 'on hold'];
+const STATUS_KEYS: Record<string, string> = {
+  in_review: 'inReview',
+  approved: 'approved',
+  rejected: 'rejected',
+  'on hold': 'onHold',
+};
 
 const MyHrLeaveRequests = () => {
+  const dictionary = useDictionary();
+  const t = dictionary.humanResources.myHr.leaves.requests;
+  const STATUS_OPTIONS = STATUS_VALUES.map((value) => ({
+    label: (t.statusOptions as Record<string, string>)[STATUS_KEYS[value]],
+    value,
+  }));
   const searchParams = useSearchParams();
   const listRef = useRef<any>(null);
   const [mounted, setMounted] = useState(false);
@@ -73,7 +81,7 @@ const MyHrLeaveRequests = () => {
               }));
             }}
             renderInput={(inputParams) => (
-              <TextField {...inputParams} label='Status' fullWidth />
+              <TextField {...inputParams} label={t.status} fullWidth />
             )}
           />
         </Grid>

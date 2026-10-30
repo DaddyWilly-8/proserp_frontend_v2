@@ -11,6 +11,7 @@ import { JumboDdMenu } from '@jumbo/components';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { MenuItemProps } from '@jumbo/types';
 import { CostCenter } from './CostCenterType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface EditCostCenterProps {
   costCenterId: number;
@@ -43,6 +44,7 @@ interface CostCenterItemActionProps {
 }
 
 const CostCenterItemAction = ({ costCenter }: CostCenterItemActionProps) => {
+  const dictionary = useDictionary();
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const { showDialog, hideDialog } = useJumboDialog();
 
@@ -91,7 +93,7 @@ const CostCenterItemAction = ({ costCenter }: CostCenterItemActionProps) => {
       </Dialog>
       <JumboDdMenu
         icon={
-          <Tooltip title='Actions'>
+          <Tooltip title={dictionary.tooltips.actions}>
             <MoreHorizOutlined fontSize='small'/>
           </Tooltip>
         }

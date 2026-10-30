@@ -1,4 +1,5 @@
 import { useLanguage } from '@/app/[lang]/contexts/LanguageContext';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { MODULES } from '@/utilities/constants/modules';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
@@ -24,6 +25,7 @@ import { useState } from 'react';
 import DashboardQuickLink from '../procurement/reports/productInsights/DashboardQuickLink';
 
 function QuickLinks() {
+  const dictionary = useDictionary();
   const router = useRouter();
   const lang = useLanguage();
   const { checkOrganizationPermission, organizationHasSubscribed } =
@@ -37,7 +39,7 @@ function QuickLinks() {
   };
 
   return (
-    <JumboCardQuick title={'Quick Links'}>
+    <JumboCardQuick title={dictionary.dashboardCards.quickLinks}>
       {isLoading && (
         <div style={{ width: '100%', padding: '16px' }}>
           <Skeleton

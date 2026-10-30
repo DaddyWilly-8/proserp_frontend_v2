@@ -11,8 +11,10 @@ import {
 } from '@mui/material';
 import { useState } from 'react';
 import EmployerContributionTypeForm from './EmployerContributionTypeForm';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const EmployerContributionTypeActionTail = () => {
+  const dictionary = useDictionary();
   const [openDialog, setOpenDialog] = useState(false);
 
   const { theme } = useJumboTheme();
@@ -29,7 +31,7 @@ const EmployerContributionTypeActionTail = () => {
         disableElevation
         sx={{ '& .MuiButton-root': { px: 1 } }}
       >
-        <Tooltip title='Add Employer Contribution Type'>
+        <Tooltip title={dictionary.tooltips.addEmployerContributionType}>
           <IconButton onClick={() => setOpenDialog(true)}>
             <AddOutlined />
           </IconButton>

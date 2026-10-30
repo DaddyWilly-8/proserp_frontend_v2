@@ -12,8 +12,10 @@ import { DeductionType } from './DeductionType';
 import DeductionTypeActionTail from './DeductionTypeActionTail';
 import DeductionTypesListItem from './DeductionTypesListItem';
 import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const DeductionTypes = () => {
+  const dictionary = useDictionary();
   const params = useParams<{ keyword?: string }>();
   const searchParams = useSearchParams();
   const listRef = useRef<any>(null);
@@ -60,7 +62,7 @@ const DeductionTypes = () => {
     <>
       <LedgerSelectProvider>
         <Typography variant={'h4'} mb={2}>
-          Deduction Types
+          {dictionary.humanResources.deductionTypes.list.title}
         </Typography>
         <JumboRqList
           ref={listRef}

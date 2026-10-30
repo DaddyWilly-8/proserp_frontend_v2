@@ -16,6 +16,7 @@ import { useState } from 'react';
 import humanResourcesServices from '../humanResourcesServices';
 import PayeTaxBandForm from './PayeTaxBandForm';
 import { PayeTaxBandType } from './PayeTaxBandType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const EditPayeTaxBand = ({
   payeTaxBand,
@@ -52,6 +53,7 @@ const PayeTaxBandItemAction = ({
 }: {
   payeTaxBand: PayeTaxBandType;
 }) => {
+  const dictionary = useDictionary();
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const { showDialog, hideDialog } = useJumboDialog();
   const { enqueueSnackbar } = useSnackbar();
@@ -63,12 +65,12 @@ const PayeTaxBandItemAction = ({
     mutationFn: humanResourcesServices.deletePayeTaxBand,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['payeTaxBands'] });
-      enqueueSnackbar('PAYE Tax Band Deleted Successfully', {
+      enqueueSnackbar(dictionary.humanResources.payeTaxBands.actions.deleteSuccess, {
         variant: 'success',
       });
     },
     onError: (error: any) => {
-      let message = 'Something went wrong';
+      let message = dictionary.humanResources.payeTaxBands.actions.somethingWrong;
 
       if (
         typeof error === 'object' &&
@@ -87,12 +89,12 @@ const PayeTaxBandItemAction = ({
   const menuItems = [
     {
       icon: <EditOutlined />,
-      title: 'Edit',
+      title: dictionary.humanResources.payeTaxBands.actions.edit,
       action: 'edit',
     },
     {
       icon: <DeleteOutlined color='error' />,
-      title: 'Delete',
+      title: dictionary.humanResources.payeTaxBands.actions.delete,
       action: 'delete',
     },
   ];
@@ -104,8 +106,8 @@ const PayeTaxBandItemAction = ({
         break;
       case 'delete':
         showDialog({
-          title: 'Confirm Delete',
-          content: 'Are you sure you want to delete this PAYE Tax Band?',
+          title: dictionary.humanResources.payeTaxBands.actions.confirmDeleteTitle,
+          content: dictionary.humanResources.payeTaxBands.actions.confirmDeleteContent,
           onYes: () => {
             hideDialog();
             deletePayeTaxBand(payeTaxBand.id);
@@ -136,7 +138,7 @@ const PayeTaxBandItemAction = ({
       </Dialog>
       <JumboDdMenu
         icon={
-          <Tooltip title='Actions'>
+          <Tooltip title={dictionary.tooltips.actions}>
             <MoreHorizOutlined fontSize='small' />
           </Tooltip>
         }

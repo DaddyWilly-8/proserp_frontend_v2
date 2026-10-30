@@ -43,6 +43,7 @@ import {
 import React, { useEffect, useState } from 'react';
 import ProductBudgetCheckDetails from './ProductBudgetCheckDetails';
 import Vendors from './Vendors';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface ApprovalRequisitionProductItemProps {
   approval?: Approval;
@@ -77,6 +78,7 @@ function ApprovalRequisitionProductItem({
   setRequisitionProductItem,
   isMaterialMode = false,
 }: ApprovalRequisitionProductItemProps) {
+  const dictionary = useDictionary();
   const { authOrganization, checkOrganizationPermission } = useJumboAuth();
   const canSeeBudget = checkOrganizationPermission([
     PERMISSIONS.BUDGETS_CREATE,
@@ -224,7 +226,9 @@ function ApprovalRequisitionProductItem({
     if (quantity > availableBalance) {
       setQuantityErrors((prev) => ({
         ...prev,
-        [itemIndex]: `Quantity ${quantity.toLocaleString()} exceeds available store balance ${availableBalance.toLocaleString()}`
+        [itemIndex]: dictionary.forms.requisitions.approvalItem.quantityExceedsBalance
+          .replace('{quantity}', quantity.toLocaleString())
+          .replace('{balance}', availableBalance.toLocaleString())
       }));
     } else {
       setQuantityErrors((prev) => {
@@ -320,7 +324,7 @@ function ApprovalRequisitionProductItem({
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                       <Typography>{item.product?.name}</Typography>
                       {stockBalances.length > 0 && (
-                        <Tooltip title="View all store balances">
+                        <Tooltip title={dictionary.tooltips.viewAllStoreBalances}>
                           <IconButton
                             size="small"
                             color="default"
@@ -339,7 +343,7 @@ function ApprovalRequisitionProductItem({
                 </Grid>
                 <Grid size={{ xs: 12, md: 2 }}>
                   <TextField
-                    label='Quantity'
+                    label={dictionary.forms.requisitions.common.quantity}
                     fullWidth
                     size='small'
                     defaultValue={item.quantity}
@@ -359,7 +363,7 @@ function ApprovalRequisitionProductItem({
                 <Grid size={{ xs: 12, md: 2 }}>
                   <TextField
                     select
-                    label='Fulfillment'
+                    label={dictionary.forms.requisitions.approvalItem.fulfillment}
                     size='small'
                     fullWidth
                     value={fulfillmentType}
@@ -375,15 +379,15 @@ function ApprovalRequisitionProductItem({
                       })
                     }
                   >
-                    <MenuItem value='STOCK'>Stock</MenuItem>
-                    <MenuItem value='PURCHASE'>Purchase</MenuItem>
-                    <MenuItem value='IMPREST'>Imprest</MenuItem>
+                    <MenuItem value='STOCK'>{dictionary.forms.requisitions.approvalItem.fulfillmentStock}</MenuItem>
+                    <MenuItem value='PURCHASE'>{dictionary.forms.requisitions.approvalItem.fulfillmentPurchase}</MenuItem>
+                    <MenuItem value='IMPREST'>{dictionary.forms.requisitions.approvalItem.fulfillmentImprest}</MenuItem>
                   </TextField>
                 </Grid>
                 <Grid size={{ xs: 12, md: 3 }}>
                   {fulfillmentType === 'STOCK' ? (
                     <StoreSelector
-                      label='Store'
+                      label={dictionary.forms.requisitions.approvalItem.store}
                       frontError={errors?.[itemIndex]?.store_id}
                       multiple={false}
                       defaultValue={(item as any).store || null}
@@ -391,7 +395,7 @@ function ApprovalRequisitionProductItem({
                     />
                   ) : (
                     <TextField
-                      label='Rate'
+                      label={dictionary.forms.requisitions.common.rate}
                       fullWidth
                       size='small'
                       value={Number(item.rate || 0).toLocaleString()}
@@ -412,7 +416,7 @@ function ApprovalRequisitionProductItem({
                 </Grid>
                 <Grid size={{ xs: 12, md: 9 }}>
                   <TextField
-                    label='Remarks'
+                    label={dictionary.forms.requisitions.common.remarks}
                     fullWidth
                     size='small'
                     defaultValue={item.remarks}
@@ -426,7 +430,7 @@ function ApprovalRequisitionProductItem({
                   />
                 </Grid>
                 <Grid size={{ xs: 12, md: 3 }} textAlign='end'>
-                  <Tooltip title='Split this item'>
+                  <Tooltip title={dictionary.tooltips.splitThisItem}>
                     <IconButton
                       size='small'
                       color='primary'
@@ -436,7 +440,7 @@ function ApprovalRequisitionProductItem({
                     </IconButton>
                   </Tooltip>
                   {requisitionProductItem.length > 1 && (
-                    <Tooltip title='Delete item'>
+                    <Tooltip title={dictionary.tooltips.deleteItem}>
                       <IconButton
                         size='small'
                         color='error'
@@ -480,7 +484,7 @@ function ApprovalRequisitionProductItem({
                 <Div
                   sx={{ mt: 1, mb: 1.7, display: 'flex', alignItems: 'center' }}
                 >
-                  <Tooltip title='Product'>
+                  <Tooltip title={dictionary.tooltips.product}>
                     <Typography>{item.product?.name}</Typography>
                   </Tooltip>
                   {item.product && canSeeBudget && (
@@ -520,7 +524,7 @@ function ApprovalRequisitionProductItem({
               <Grid size={{ xs: 6, md: 1.5, lg: 1.5 }}>
                 <Div sx={{ mt: 1 }}>
                   <TextField
-                    label='Quantity'
+                    label={dictionary.forms.requisitions.common.quantity}
                     fullWidth
                     size='small'
                     defaultValue={item.quantity}
@@ -546,7 +550,7 @@ function ApprovalRequisitionProductItem({
               </Grid>
               <Grid size={{ xs: 6, md: 1, lg: 1 }}>
                 <Typography align='left' variant='body2'>
-                  VAT
+                  {dictionary.forms.requisitions.approvalItem.vat}
                   <Checkbox
                     size='small'
                     checked={!!item.vat_percentage}
@@ -571,7 +575,7 @@ function ApprovalRequisitionProductItem({
                   <TextField
                     key={`price-${fieldKeys[itemIndex]?.priceKey || 0}`}
                     size='small'
-                    label='Rate'
+                    label={dictionary.forms.requisitions.common.rate}
                     fullWidth
                     error={!!errors?.[itemIndex]?.rate}
                     helperText={errors?.[itemIndex]?.rate?.message || ''}
@@ -612,7 +616,7 @@ function ApprovalRequisitionProductItem({
                   <Div sx={{ mt: 1 }}>
                     <TextField
                       key={`vat-${fieldKeys[itemIndex]?.vatKey || 0}`}
-                      label='Rate (VAT Inclusive)'
+                      label={dictionary.forms.requisitions.approvalItem.rateVatInclusive}
                       size='small'
                       fullWidth
                       error={!!errors?.[itemIndex]?.rate}
@@ -657,7 +661,7 @@ function ApprovalRequisitionProductItem({
                 }}
               >
                 <Div sx={{ mt: 1 }}>
-                  <Tooltip title='Amount'>
+                  <Tooltip title={dictionary.tooltips.amount}>
                     <Typography>
                       {(
                         item.quantity *
@@ -677,7 +681,7 @@ function ApprovalRequisitionProductItem({
               >
                 <Div sx={{ mt: 1 }}>
                   <TextField
-                    label='Remarks'
+                    label={dictionary.forms.requisitions.common.remarks}
                     fullWidth
                     size='small'
                     defaultValue={item.remarks}
@@ -701,7 +705,7 @@ function ApprovalRequisitionProductItem({
                   }}
                 >
                   <Div sx={{ mt: 1.5, mb: 0.5 }}>
-                    <Tooltip title='Delete item'>
+                    <Tooltip title={dictionary.tooltips.deleteItem}>
                       <IconButton
                         size='small'
                         color='error'
@@ -720,7 +724,7 @@ function ApprovalRequisitionProductItem({
                   indicatorColor='primary'
                   sx={{ mt: 2 }}
                 >
-                  <Tab label='VENDORS' />
+                  <Tab label={dictionary.forms.requisitions.approvalItem.tabVendors} />
                 </Tabs>
                 <Vendors
                   key={item.id}
@@ -739,7 +743,7 @@ function ApprovalRequisitionProductItem({
           <Box
             sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2, mb: 2 }}
           >
-            <Tooltip title='Restore all deleted items' arrow placement='top'>
+            <Tooltip title={dictionary.tooltips.restoreAllDeletedItems} arrow placement='top'>
               <Button
                 variant='outlined'
                 color='secondary'
@@ -747,7 +751,7 @@ function ApprovalRequisitionProductItem({
                 startIcon={<Restore />}
                 onClick={handleResetItems}
               >
-                Reset
+                {dictionary.forms.requisitions.common.reset}
               </Button>
             </Tooltip>
           </Box>
@@ -762,7 +766,7 @@ function ApprovalRequisitionProductItem({
       >
         <DialogTitle>
           <Typography variant="h6">
-            Store Balances - {selectedProductName}
+            {dictionary.forms.requisitions.approvalItem.storeBalances.replace('{product}', String(selectedProductName))}
           </Typography>
         </DialogTitle>
         <DialogContent>
@@ -771,10 +775,10 @@ function ApprovalRequisitionProductItem({
               <TableHead>
                 <TableRow>
                   <TableCell sx={{fontWeight: 'bold' }}>
-                    Store Name
+                    {dictionary.forms.requisitions.approvalItem.storeName}
                   </TableCell>
                   <TableCell sx={{fontWeight: 'bold' }} align="right">
-                    Balance
+                    {dictionary.forms.requisitions.approvalItem.balance}
                   </TableCell>
                 </TableRow>
               </TableHead>
@@ -799,7 +803,7 @@ function ApprovalRequisitionProductItem({
                   <TableRow>
                     <TableCell colSpan={2} align="center">
                       <Typography variant="body2" color="text.secondary">
-                        No store balances available
+                        {dictionary.forms.requisitions.approvalItem.noStoreBalances}
                       </Typography>
                     </TableCell>
                   </TableRow>
@@ -810,7 +814,7 @@ function ApprovalRequisitionProductItem({
         </DialogContent>
         <Box sx={{ display: 'flex', justifyContent: 'flex-end', p: 2 }}>
           <Button variant="contained" onClick={handleCloseStockDialog}>
-            Close
+            {dictionary.forms.requisitions.common.close}
           </Button>
         </Box>
       </Dialog>

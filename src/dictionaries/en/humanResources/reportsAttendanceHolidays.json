@@ -1,0 +1,236 @@
+{
+  "reports": {
+    "page": {
+      "title": "Human Resources Reports",
+      "noPermission": "You don't have permission to view any HR reports yet.",
+      "close": "Close"
+    },
+    "cards": {
+      "salaryComponentsSummary": "Salary Components Summary",
+      "payrollComparison": "Payroll Comparison",
+      "leaveBalances": "Leave Balances",
+      "leaveRenewals": "Leave Renewals",
+      "staffLoans": "Staff Loans"
+    },
+    "common": {
+      "employeeNo": "Employee No.",
+      "name": "Name",
+      "department": "Department",
+      "status": "Status",
+      "employee": "Employee",
+      "leaveType": "Leave Type",
+      "filter": "Filter",
+      "close": "Close",
+      "total": "Total",
+      "totalWithCount": "Total ({count})",
+      "filters": "Filters",
+      "printedOn": "Printed On",
+      "year": "Year",
+      "yes": "Yes",
+      "no": "No"
+    },
+    "leaveBalances": {
+      "title": "Leave Balances",
+      "subtitle": "Allocated, used, and remaining leave days per employee for {year}",
+      "allLeaveTypes": "All Leave Types",
+      "allEmployees": "All employees",
+      "columns": {
+        "allocated": "Allocated",
+        "used": "Used",
+        "remaining": "Remaining"
+      },
+      "messages": {
+        "exportError": "Unable to export leave balances",
+        "loadError": "Unable to load leave balances.",
+        "noRecords": "No leave allocations found for the selected filters."
+      }
+    },
+    "leaveRenewals": {
+      "title": "Leave Renewals",
+      "subtitle": "See which employees need a fresh leave allocation, and bulk-allocate without touching the leave type's own settings",
+      "labels": {
+        "scope": "Scope",
+        "gender": "Gender",
+        "startDateOptional": "Start Date (optional)",
+        "currentStartDate": "Current Start Date",
+        "priorCycleEnd": "Prior Cycle End"
+      },
+      "options": {
+        "selectLeaveType": "Select a leave type",
+        "allEmployees": "All Employees",
+        "activeContracts": "Employees With Active Contracts",
+        "any": "Any",
+        "female": "Female",
+        "male": "Male"
+      },
+      "status": {
+        "needsRenewal": "Needs Renewal",
+        "active": "Active",
+        "midCycle": "Mid-Cycle"
+      },
+      "buttons": {
+        "preview": "Preview",
+        "apply": "Apply",
+        "setStartDate": "Set Start Date",
+        "delete": "Delete",
+        "cancel": "Cancel",
+        "continue": "Continue"
+      },
+      "summary": {
+        "newCyclesStart": "New cycles will start on",
+        "automatic": "(automatic)",
+        "needRenewal": "{count} need renewal",
+        "active": "{count} active",
+        "midCycleSkipped": "{count} mid-cycle (skipped)",
+        "selected": "{count} allocation(s) selected",
+        "pickStartDateHint": "— pick a Start Date above to enable \"Set Start Date\"",
+        "neverAllocated": "Never allocated"
+      },
+      "messages": {
+        "pickLeaveType": "Pick a leave type and click Preview to see who needs renewal.",
+        "noEmployeesInScope": "No employees in scope for this leave type.",
+        "loadError": "Unable to load the renewals preview.",
+        "applied": "Applied — {created} created, {updated} refreshed, {skipped} skipped",
+        "applyError": "Unable to apply leave allocation",
+        "allocationsDeleted": "Allocations deleted",
+        "deleteError": "Unable to delete allocations",
+        "startDateUpdated": "Start date updated",
+        "startDateError": "Unable to update start date"
+      },
+      "dialogs": {
+        "confirmTitle": "Confirm Leave Allocation",
+        "confirmContent": "This will create {created} new allocations, refresh {updated} existing ones, and leave {skipped} mid-cycle allocations untouched.",
+        "cannotUndo": "This action cannot be undone. Continue?",
+        "deleteTitle": "Delete {count} Allocation(s)?",
+        "deleteContent": "Any allocation already touched by a leave request (used days > 0) will be skipped instead of deleted, and reported back.",
+        "setStartDateTitle": "Set Start Date on {count} Allocation(s)?",
+        "setStartDateContentBefore": "Moves the start date (and cycle end date) of the selected allocations to",
+        "setStartDateContentAfter": ". Any allocation already touched by a leave request (used days > 0) will be skipped instead, and reported back."
+      }
+    },
+    "staffLoans": {
+      "title": "Staff Loans",
+      "pdfTitle": "Staff Loans Report",
+      "subtitle": "Loan status, approved terms, and how much has been recovered via payroll so far",
+      "allLoans": "All loans",
+      "onlyOutstanding": "Only outstanding",
+      "fullyRecovered": "Fully Recovered",
+      "statusOptions": {
+        "all": "All Statuses",
+        "in_review": "In Review",
+        "approved": "Approved",
+        "rejected": "Rejected",
+        "cancelled": "Cancelled"
+      },
+      "columns": {
+        "requested": "Requested",
+        "amountApproved": "Amount Approved",
+        "approved": "Approved",
+        "installment": "Installment",
+        "disbursed": "Disbursed",
+        "recovered": "Recovered",
+        "outstanding": "Outstanding"
+      },
+      "messages": {
+        "exportError": "Unable to export staff loans report",
+        "loadError": "Unable to load staff loans.",
+        "noRecords": "No staff loans found for the selected filters."
+      }
+    }
+  },
+  "employeesAttendance": {
+    "title": "Employees Attendance",
+    "list": {
+      "labels": {
+        "status": "Status",
+        "from": "From",
+        "to": "To"
+      },
+      "types": {
+        "present": "Present",
+        "absent": "Absent",
+        "on leave": "On Leave"
+      }
+    },
+    "dialog": {
+      "title": "Employee Attendance",
+      "tabs": {
+        "downloadTemplate": "Download Template",
+        "uploadExcel": "Upload Excel"
+      },
+      "gettingStarted": "Getting Started",
+      "gettingStartedText": "Download the Excel template below. Fill in employee attendance details following the format provided.",
+      "templateTitle": "Employee Attendance Template",
+      "templateDescription": "Excel file with pre-defined columns and dropdown validation",
+      "uploadInstructions": "Upload Instructions",
+      "uploadInstructionsText": "Upload the filled Excel file. Employees with existing IDs or duplicate entries will be skipped. If a row has Basic Salary, an active contract will be created automatically.",
+      "readyToUpload": "{size} KB • Ready to upload",
+      "removeFile": "Remove File",
+      "noFileSelected": "No file selected",
+      "selectExcelFile": "Select Excel File",
+      "importSummary": "Import Summary",
+      "imported": "Imported",
+      "skipped": "Skipped",
+      "errors": "Errors",
+      "totalProcessed": "Total Processed",
+      "skippedRows": "Skipped Rows ({count} row(s))",
+      "rowNo": "Row No.",
+      "errorDescription": "Error Description",
+      "rowData": "Row data: {data}",
+      "tipLabel": "Tip:",
+      "tipText": "Correct the errors above and re-upload the Excel file to import these employees.",
+      "allImported": "✅ All {count} employee(s) were imported successfully!",
+      "buttons": {
+        "close": "Close",
+        "downloadTemplate": "Download Template",
+        "downloading": "Downloading...",
+        "uploadAndImport": "Upload & Import",
+        "uploading": "Uploading..."
+      },
+      "messages": {
+        "templateDownloaded": "Template downloaded successfully",
+        "importErrors": "{message}. {count} error(s) found. Check the details below.",
+        "importedSuccessfully": "Employees Attendance imported successfully",
+        "importedAndSkipped": "{message}. {imported} imported, {skipped} skipped.",
+        "noneImported": "No employees attendance were imported. Please check the errors below."
+      }
+    }
+  },
+  "publicHolidays": {
+    "title": "Public Holidays",
+    "list": {
+      "selectYear": "Select Year",
+      "isPaid": "Is Paid",
+      "notPaid": "Not Paid"
+    },
+    "form": {
+      "addTitle": "Add Public Holiday",
+      "editTitle": "Edit Public Holiday",
+      "labels": {
+        "name": "Public Holiday Name",
+        "date": "Date",
+        "isPaid": "Is Paid"
+      },
+      "buttons": {
+        "cancel": "Cancel",
+        "submit": "Submit"
+      },
+      "messages": {
+        "added": "Success Adding Public Holiday",
+        "updated": "Success Updating Public Holiday"
+      },
+      "errors": {
+        "nameRequired": "Name is required",
+        "dateRequired": "Date is required",
+        "fieldRequired": "This field is required"
+      }
+    },
+    "actions": {
+      "edit": "Edit",
+      "delete": "Delete",
+      "confirmDeleteTitle": "Confirm Delete",
+      "confirmDeleteContent": "Are you sure you want to delete this Public holiday?",
+      "deleted": "Public Holiday Deleted Successfully"
+    }
+  }
+}

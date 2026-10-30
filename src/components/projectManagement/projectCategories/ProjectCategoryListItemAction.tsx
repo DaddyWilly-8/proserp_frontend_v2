@@ -11,8 +11,10 @@ import { JumboDdMenu } from '@jumbo/components';
 import ProjectCategoryFormDialog from './ProjectCategoryFormDialog';
 import projectCategoryServices from './project-category-services';
 import { Category } from './ProjectCategoriesType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const ProjectCategoryListItemAction = ({ projectCategory }: { projectCategory: Category }) => {
+  const dictionary = useDictionary();
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const { showDialog, hideDialog } = useJumboDialog();
   const { enqueueSnackbar } = useSnackbar();
@@ -29,15 +31,15 @@ const ProjectCategoryListItemAction = ({ projectCategory }: { projectCategory: C
     },
     onError: (error: any) => {
       enqueueSnackbar(
-        error?.response?.data?.message || 'Failed to delete project category',
+        error?.response?.data?.message || dictionary.projectManagement.projectCategories.deleteFailed,
         { variant: 'error' }
       );
     },
   });
 
   const menuItems: MenuItemProps[] = [
-    { icon: <EditOutlined />, title: 'Edit', action: 'edit' },
-    { icon: <DeleteOutlined color="error" />, title: 'Delete', action: 'delete' },
+    { icon: <EditOutlined />, title: dictionary.projectManagement.common.edit, action: 'edit' },
+    { icon: <DeleteOutlined color="error" />, title: dictionary.projectManagement.common.delete, action: 'delete' },
   ];
 
   const handleItemAction = (menuItem: MenuItemProps) => {
@@ -47,8 +49,8 @@ const ProjectCategoryListItemAction = ({ projectCategory }: { projectCategory: C
         break;
       case 'delete':
         showDialog({
-          title: 'Confirm Project Category Deletion',
-          content: 'Are you sure you want to delete this project category?',
+          title: dictionary.projectManagement.projectCategories.confirmDeletionTitle,
+          content: dictionary.projectManagement.projectCategories.confirmDeletionText,
           onYes: () => {
             hideDialog();
           deleteProjectCategory({ id: projectCategory.id ? projectCategory.id : 0 });
@@ -77,7 +79,7 @@ return (
   </Dialog>
   <JumboDdMenu
     icon={
-      <Tooltip title="Actions">
+      <Tooltip title={dictionary.tooltips.actions}>
         <MoreHorizOutlined fontSize="small" />
       </Tooltip>
     }

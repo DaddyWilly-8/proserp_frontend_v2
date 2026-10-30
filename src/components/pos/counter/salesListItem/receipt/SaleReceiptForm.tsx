@@ -1,4 +1,5 @@
 import dayjs from 'dayjs';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import { useSnackbar } from 'notistack';
 import * as yup from 'yup';
 import React, { useState } from 'react';
@@ -44,6 +45,7 @@ interface FormValues {
 }
 
 const SaleReceiptForm: React.FC<SaleReceiptFormProps> = ({ toggleOpen, sale = null }) => {
+    const dictionary = useDictionary();
     const [transaction_date] = useState(dayjs());
     const { enqueueSnackbar } = useSnackbar();
     const queryClient = useQueryClient();
@@ -71,22 +73,22 @@ const SaleReceiptForm: React.FC<SaleReceiptFormProps> = ({ toggleOpen, sale = nu
     }, [addSaleReceipt]);
 
     const validationSchema = yup.object({
-      transaction_date: yup.string().required('Payment Date is required').typeError('Payment Date is required'),
-      narration: yup.string().typeError('Narration is required'),
+      transaction_date: yup.string().required(dictionary.forms.counter.receipt.validation.paymentDateRequired).typeError(dictionary.forms.counter.receipt.validation.paymentDateRequired),
+      narration: yup.string().typeError(dictionary.forms.counter.receipt.validation.narrationRequired),
       debit_ledger_id: yup.number()
-        .required('Receiving Account is required')
-        .positive('Receiving Account Is Required')
-        .typeError('Receiving Account Is Required'),
+        .required(dictionary.forms.counter.receipt.validation.receivingAccountRequired)
+        .positive(dictionary.forms.counter.receipt.validation.receivingAccountRequired)
+        .typeError(dictionary.forms.counter.receipt.validation.receivingAccountRequired),
       amount: yup.number()
-        .test('zero-amount', 'Entered amount must be greater than 0', (value) => 
+        .test('zero-amount', dictionary.forms.counter.receipt.validation.amountGreaterThanZero, (value) => 
           sanitizedNumber(value) > 0
         )
-        .test('exceeds-receiptable-amount', 'Entered amount exceeds receiptable amount', function(value) {
+        .test('exceeds-receiptable-amount', dictionary.forms.counter.receipt.validation.amountExceedsReceiptable, function(value) {
           const { receiptable_amount, exchange_rate } = this.parent;
           return sanitizedNumber(value) * exchange_rate <= (receiptable_amount || 0);
         })
-        .required('Amount is required')
-        .typeError('Amount is required'),
+        .required(dictionary.forms.counter.receipt.validation.amountRequired)
+        .typeError(dictionary.forms.counter.receipt.validation.amountRequired),
     });
 
     const { 
@@ -124,11 +126,11 @@ const SaleReceiptForm: React.FC<SaleReceiptFormProps> = ({ toggleOpen, sale = nu
           <form autoComplete='off'>
             <Grid container columnSpacing={1} rowSpacing={2}>
                 <Grid size={12} sx={{ textAlign: 'center', fontSize: 17 }}>
-                  {'New Receipt'}
+                  {dictionary.forms.counter.receipt.title}
                 </Grid>
                 <Grid size={{xs: 12, md: 4}}>
                   <DateTimePicker
-                    label='Payment Date'
+                    label={dictionary.forms.counter.receipt.labels.paymentDate}
                     minDate={dayjs(organization?.recording_start_date)}
                     defaultValue={transaction_date}
                     slotProps={{
@@ -159,7 +161,7 @@ const SaleReceiptForm: React.FC<SaleReceiptFormProps> = ({ toggleOpen, sale = nu
                     renderInput={(params) => (
                       <TextField 
                         {...params} 
-                        label="Receiving Account"
+                        label={dictionary.forms.counter.receipt.labels.receivingAccount}
                         error={!!errors?.debit_ledger_id}
                         helperText={errors?.debit_ledger_id?.message}
                       />
@@ -191,7 +193,7 @@ const SaleReceiptForm: React.FC<SaleReceiptFormProps> = ({ toggleOpen, sale = nu
                 {currencyId > 1 && (
                   <Grid size={{xs: 12, md: 4}}>
                     <TextField
-                      label="Exchange Rate"
+                      label={dictionary.forms.counter.receipt.labels.exchangeRate}
                       fullWidth
                       size='small'
                       error={!!errors?.exchange_rate}
@@ -214,16 +216,18 @@ const SaleReceiptForm: React.FC<SaleReceiptFormProps> = ({ toggleOpen, sale = nu
                   <Div sx={divSx}>
                     <TextField
                       size='small'
-                      label='Amount'
+                      label={dictionary.forms.counter.receipt.labels.amount}
                       fullWidth
                       error={!!errors?.amount}
                       helperText={
                         !!errors?.amount?.message && amount > 0 ? 
-                          `${errors.amount.message} of ${(sale?.receiptable_amount || 0).toLocaleString("en-US", {
-                            style: "currency", 
-                            currency: sale?.currency?.code || 'USD',
-                            minimumFractionDigits: 3
-                          })}` : 
+                          dictionary.forms.counter.receipt.messages.amountOf
+                            .replace('{message}', errors.amount.message)
+                            .replace('{amount}', (sale?.receiptable_amount || 0).toLocaleString("en-US", {
+                              style: "currency", 
+                              currency: sale?.currency?.code || 'USD',
+                              minimumFractionDigits: 3
+                            })) : 
                           errors?.amount?.message
                       }
                       InputProps={{
@@ -242,7 +246,7 @@ const SaleReceiptForm: React.FC<SaleReceiptFormProps> = ({ toggleOpen, sale = nu
                 <Grid size={{xs: 12, md: 4}}>
                   <TextField
                     size='small'
-                    label='Reference'
+                    label={dictionary.forms.counter.receipt.labels.reference}
                     fullWidth
                     error={!!errors?.reference}
                     helperText={errors?.reference?.message}
@@ -252,7 +256,7 @@ const SaleReceiptForm: React.FC<SaleReceiptFormProps> = ({ toggleOpen, sale = nu
                 <Grid size={{xs: 12, md: currencyId > 1 ? 8 : 4}}>
                   <TextField
                     size='small'
-                    label='Narration'
+                    label={dictionary.forms.counter.receipt.labels.narration}
                     fullWidth
                     multiline={true}
                     minRows={2}
@@ -265,7 +269,7 @@ const SaleReceiptForm: React.FC<SaleReceiptFormProps> = ({ toggleOpen, sale = nu
 
         <DialogActions>
           <Button size='small' onClick={() => toggleOpen(false)}>
-            Cancel
+            {dictionary.forms.counter.receipt.buttons.cancel}
           </Button>
           <LoadingButton
             loading={addSaleReceipt.isPending}
@@ -274,7 +278,7 @@ const SaleReceiptForm: React.FC<SaleReceiptFormProps> = ({ toggleOpen, sale = nu
             variant='contained'
             onClick={handleSubmit((data) => saveMutation(data))}
           >
-            Receipt
+            {dictionary.forms.counter.receipt.buttons.receipt}
           </LoadingButton>
         </DialogActions>
       </>

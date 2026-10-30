@@ -29,6 +29,8 @@ import {
 } from 'recharts';
 import financialReportsServices from '../../accounts/reports/financial-reports-services';
 import { useDashboardSettings } from '../Dashboard';
+import FinancialSummaryStrip from '../accountsCards/FinancialSummaryStrip';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface GroupedValue {
   balanceValue?: number;
@@ -51,6 +53,7 @@ interface InventoryValueTrendProps {
 }
 
 function InventoryValueTrend(props: InventoryValueTrendProps) {
+  const dictionary = useDictionary();
   const { theme } = useJumboTheme();
   const smallScreen = useMediaQuery(theme.breakpoints.down('md'));
   const xlScreen = useMediaQuery(theme.breakpoints.up('lg'));
@@ -169,16 +172,16 @@ function InventoryValueTrend(props: InventoryValueTrendProps) {
 
   return (
     <JumboCardQuick
-      title={'Inventory Value'}
+      title={dictionary.dashboardCards.inventoryValue}
       sx={{
-        height: midScreen ? 360 : null,
+        height: 360,
       }}
       action={
         // <Grid container columnSpacing={1} alignItems='center'>
         //   <Grid size={{ xs: 8 }}>
         !smallScreen ? (
           <ButtonGroup variant='outlined' size='small' disableElevation>
-            <Tooltip title='Daily Trend'>
+            <Tooltip title={dictionary.tooltips.dailyTrend}>
               <Button
                 variant={
                   params.aggregate_by === 'day' ? 'contained' : 'outlined'
@@ -190,7 +193,7 @@ function InventoryValueTrend(props: InventoryValueTrendProps) {
                 Daily
               </Button>
             </Tooltip>
-            <Tooltip title='Weekly Trend'>
+            <Tooltip title={dictionary.tooltips.weeklyTrend}>
               <Button
                 variant={
                   params.aggregate_by === 'week' ? 'contained' : 'outlined'
@@ -202,7 +205,7 @@ function InventoryValueTrend(props: InventoryValueTrendProps) {
                 Weekly
               </Button>
             </Tooltip>
-            <Tooltip title='Monthly Trend'>
+            <Tooltip title={dictionary.tooltips.monthlyTrend}>
               <Button
                 variant={
                   params.aggregate_by === 'month' ? 'contained' : 'outlined'
@@ -214,7 +217,7 @@ function InventoryValueTrend(props: InventoryValueTrendProps) {
                 Monthly
               </Button>
             </Tooltip>
-            <Tooltip title='Yearly Trend'>
+            <Tooltip title={dictionary.tooltips.yearlyTrend}>
               <Button
                 variant={
                   params.aggregate_by === 'year' ? 'contained' : 'outlined'
@@ -261,15 +264,17 @@ function InventoryValueTrend(props: InventoryValueTrendProps) {
         // </Grid>
       }
     >
+      <FinancialSummaryStrip kind='inventory' />
+
       {isLoading ? (
         <Skeleton
           variant='rectangular'
           width='100%'
-          height={midScreen ? 245 : 245}
+          height={196}
           sx={{ borderRadius: 2 }}
         />
       ) : (
-        <ResponsiveContainer width='100%' height={midScreen ? 245 : 245}>
+        <ResponsiveContainer width='100%' height={196}>
           <ComposedChart
             data={inventoryValues}
             margin={{ top: 10, right: 30, left: 10, bottom: 10 }}

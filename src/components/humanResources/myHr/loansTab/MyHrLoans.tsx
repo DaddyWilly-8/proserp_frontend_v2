@@ -1,5 +1,6 @@
 'use client';
 
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import humanResourcesServices from '@/components/humanResources/humanResourcesServices';
 import { getSanitizedSearchKeyword } from '@/utilities/getSanitizedSearchKeyword';
 import JumboListToolbar from '@jumbo/components/JumboList/components/JumboListToolbar';
@@ -13,15 +14,22 @@ import MyHrLoanRequestsListItem from './MyHrLoanRequestsListItem';
 import MyHrLoansActionTail from './MyHrLoansActionTail';
 import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
 
-const STATUS_OPTIONS = [
-  { label: 'In Review', value: 'in_review' },
-  { label: 'Approved', value: 'approved' },
-  { label: 'Rejected', value: 'rejected' },
-  { label: 'On Hold', value: 'on hold' },
-];
+const STATUS_VALUES = ['in_review', 'approved', 'rejected', 'on hold'];
+const STATUS_KEYS: Record<string, string> = {
+  in_review: 'inReview',
+  approved: 'approved',
+  rejected: 'rejected',
+  'on hold': 'onHold',
+};
 
 type LeaveSubTab = 'balances' | 'requests';
 const MyHrLoans = () => {
+  const dictionary = useDictionary();
+  const t = dictionary.humanResources.myHr.loans;
+  const STATUS_OPTIONS = STATUS_VALUES.map((value) => ({
+    label: (t.statusOptions as Record<string, string>)[STATUS_KEYS[value]],
+    value,
+  }));
   const searchParams = useSearchParams();
   const listRef = useRef<any>(null);
   const [mounted, setMounted] = useState(false);
@@ -87,7 +95,7 @@ const MyHrLoans = () => {
               }));
             }}
             renderInput={(inputParams) => (
-              <TextField {...inputParams} label='Status' fullWidth />
+              <TextField {...inputParams} label={t.status} fullWidth />
             )}
           />
         </Grid>

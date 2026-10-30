@@ -23,8 +23,10 @@ import { TrendingUp, TrendingDown, LocalGasStation, ReceiptOutlined, AttachMoney
 import { useWatch } from 'react-hook-form';
 import { StationFormContext } from '../SalesShifts';
 import { useLedgerSelect } from '@/components/accounts/ledgers/forms/LedgerSelectProvider';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function ShiftSummary({ paymentItems = [] }) {
+  const dictionary = useDictionary();
   const {activeStation} = useContext(StationFormContext);
   const {fuel_pumps, products} = activeStation;
   const {ungroupedLedgerOptions} = useLedgerSelect();
@@ -489,23 +491,23 @@ function ShiftSummary({ paymentItems = [] }) {
         <CardContent>
           <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <Payment color="primary" />
-            Payments Received Summary
+            {dictionary.forms.shifts.summary.paymentsReceivedSummary}
             {currencyCode && (
               <Typography variant="caption" color="textSecondary" sx={{ ml: 1 }}>
-                (Amounts in {currencyCode})
+                {dictionary.forms.shifts.summary.amountsIn.replace('{currency}', currencyCode)}
               </Typography>
             )}
           </Typography>
           <Divider sx={{ mb: 2 }} />
 
-          <Typography variant="subtitle2" sx={{ mt: 1, mb: 0.5 }}>Paid To:</Typography>
+          <Typography variant="subtitle2" sx={{ mt: 1, mb: 0.5 }}>{dictionary.forms.shifts.summary.paidTo}</Typography>
           <TableContainer sx={{ mb: 2 }}>
             <Table size="small">
               <TableHead>
                 <TableRow>
-                  <TableCell>Ledger</TableCell>
-                  <TableCell align="center">Payers Count</TableCell>
-                  <TableCell align="right">Total</TableCell>
+                  <TableCell>{dictionary.forms.shifts.summary.ledger}</TableCell>
+                  <TableCell align="center">{dictionary.forms.shifts.summary.payersCount}</TableCell>
+                  <TableCell align="right">{dictionary.forms.shifts.recon.total}</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -519,7 +521,7 @@ function ShiftSummary({ paymentItems = [] }) {
                   </TableRow>
                 ))}
                 <TableRow sx={{ '& td': { borderTop: '2px solid', borderColor: 'divider', fontWeight: 'bold' } }}>
-                  <TableCell colSpan={2}>TOTAL PAYMENTS</TableCell>
+                  <TableCell colSpan={2}>{dictionary.forms.shifts.summary.totalPayments}</TableCell>
                   <TableCell align="right">{formatMoney(totalPayments)}</TableCell>
                 </TableRow>
               </TableBody>
@@ -535,10 +537,10 @@ function ShiftSummary({ paymentItems = [] }) {
       <CardContent>
         <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <AccountBalance color="primary" />
-          Financial Ledgers Summary
+          {dictionary.forms.shifts.summary.financialLedgersSummary}
           {currencyCode && (
             <Typography variant="caption" color="textSecondary" sx={{ ml: 1 }}>
-              (Amounts in {currencyCode})
+              {dictionary.forms.shifts.summary.amountsIn.replace('{currency}', currencyCode)}
             </Typography>
           )}
         </Typography>
@@ -549,7 +551,7 @@ function ShiftSummary({ paymentItems = [] }) {
             <Paper elevation={0} sx={{ p: 2, bgcolor: 'primary.50', borderRadius: 1 }}>
               <Typography variant="subtitle2" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 <AttachMoney fontSize="small" />
-                MAIN LEDGERS (PER CASHIER)
+                {dictionary.forms.shifts.summary.mainLedgersPerCashier}
                 {currencyCode && (
                   <Typography variant="caption" color="textSecondary" sx={{ ml: 1 }}>
                     ({currencyCode})
@@ -558,16 +560,16 @@ function ShiftSummary({ paymentItems = [] }) {
               </Typography>
               
               {mainLedgersSummary.summary.length === 0 ? (
-                <Alert severity="info" sx={{ mt: 1 }}>No main ledgers defined</Alert>
+                <Alert severity="info" sx={{ mt: 1 }}>{dictionary.forms.shifts.summary.noMainLedgers}</Alert>
               ) : (
                 <>
                   <TableContainer sx={{ maxHeight: 200 }}>
                     <Table size="small">
                       <TableHead>
                         <TableRow>
-                          <TableCell>Cashier</TableCell>
-                          <TableCell>Ledger</TableCell>
-                          <TableCell align="right">Amount</TableCell>
+                          <TableCell>{dictionary.forms.shifts.messages.cashierDefault}</TableCell>
+                          <TableCell>{dictionary.forms.shifts.summary.ledger}</TableCell>
+                          <TableCell align="right">{dictionary.forms.shifts.labels.amount}</TableCell>
                         </TableRow>
                       </TableHead>
                       <TableBody>
@@ -590,7 +592,7 @@ function ShiftSummary({ paymentItems = [] }) {
                   
                   <Box sx={{ mt: 2, pt: 1, borderTop: '1px solid', borderColor: 'divider' }}>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <Typography variant="body2" fontWeight="bold">Total Main Ledgers:</Typography>
+                      <Typography variant="body2" fontWeight="bold">{dictionary.forms.shifts.summary.totalMainLedgers}</Typography>
                       <Typography variant="body1" fontWeight="bold">
                         {formatMoney(mainLedgersSummary.totalMainLedgerAmount)}
                       </Typography>
@@ -605,7 +607,7 @@ function ShiftSummary({ paymentItems = [] }) {
             <Paper elevation={0} sx={{ p: 2, bgcolor: 'secondary.50', borderRadius: 1 }}>
               <Typography variant="subtitle2" color="secondary.dark" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 <Payment fontSize="small" />
-                OTHER TRANSACTIONS
+                {dictionary.forms.shifts.summary.otherTransactions}
                 {currencyCode && (
                   <Typography variant="caption" color="textSecondary" sx={{ ml: 1 }}>
                     ({currencyCode})
@@ -614,15 +616,15 @@ function ShiftSummary({ paymentItems = [] }) {
               </Typography>
               
               {otherLedgersSummary.summary.length === 0 ? (
-                <Alert severity="info" sx={{ mt: 1 }}>No other ledger transactions</Alert>
+                <Alert severity="info" sx={{ mt: 1 }}>{dictionary.forms.shifts.summary.noOtherTransactions}</Alert>
               ) : (
                 <>
                   <TableContainer sx={{ maxHeight: 200 }}>
                     <Table size="small">
                       <TableHead>
                         <TableRow>
-                          <TableCell>Ledger</TableCell>
-                          <TableCell align="right">Amount</TableCell>
+                          <TableCell>{dictionary.forms.shifts.summary.ledger}</TableCell>
+                          <TableCell align="right">{dictionary.forms.shifts.labels.amount}</TableCell>
                         </TableRow>
                       </TableHead>
                       <TableBody>
@@ -642,7 +644,7 @@ function ShiftSummary({ paymentItems = [] }) {
                   
                   <Box sx={{ mt: 2, pt: 1, borderTop: '1px solid', borderColor: 'divider' }}>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <Typography variant="body2" fontWeight="bold">Total Other Transactions:</Typography>
+                      <Typography variant="body2" fontWeight="bold">{dictionary.forms.shifts.summary.totalOtherTransactions}</Typography>
                       <Typography variant="body1" fontWeight="bold" color="secondary.dark">
                         {formatMoney(otherLedgersSummary.totalOtherLedgerAmount)}
                       </Typography>
@@ -657,7 +659,7 @@ function ShiftSummary({ paymentItems = [] }) {
             <Paper elevation={0} sx={{ p: 2, bgcolor: 'info.50', borderRadius: 1, mt: 2 }}>
               <Typography variant="subtitle2" color="info.dark" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 <ReceiptOutlined fontSize="small" />
-                FUEL VOUCHERS SUMMARY
+                {dictionary.forms.shifts.summary.fuelVouchersSummaryCaps}
                 {currencyCode && (
                   <Typography variant="caption" color="textSecondary" sx={{ ml: 1 }}>
                     ({currencyCode})
@@ -666,18 +668,18 @@ function ShiftSummary({ paymentItems = [] }) {
               </Typography>
               
               {fuelVouchersAggregated.summary.length === 0 ? (
-                <Alert severity="info" sx={{ mt: 1 }}>No fuel vouchers recorded</Alert>
+                <Alert severity="info" sx={{ mt: 1 }}>{dictionary.forms.shifts.summary.noFuelVouchers}</Alert>
                 ) : (
                   <>
                     <TableContainer sx={{ maxHeight: 200 }}>
                       <Table size="small">
                         <TableHead>
                           <TableRow>
-                            <TableCell>Stakeholder/Ledger</TableCell>
-                            <TableCell>Product</TableCell>
-                            <TableCell align="right">Quantity (L)</TableCell>
-                            <TableCell align="center">Counts</TableCell>
-                            <TableCell align="right">Amount</TableCell>
+                            <TableCell>{dictionary.forms.shifts.summary.stakeholderLedger}</TableCell>
+                            <TableCell>{dictionary.forms.shifts.labels.product}</TableCell>
+                            <TableCell align="right">{dictionary.forms.shifts.summary.quantityL}</TableCell>
+                            <TableCell align="center">{dictionary.forms.shifts.summary.counts}</TableCell>
+                            <TableCell align="right">{dictionary.forms.shifts.labels.amount}</TableCell>
                           </TableRow>
                         </TableHead>
                         <TableBody>
@@ -715,7 +717,7 @@ function ShiftSummary({ paymentItems = [] }) {
                       <Grid container spacing={2}>
                         <Grid size={{ xs: 6 }}>
                           <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                            <Typography variant="body2">Total Quantity:</Typography>
+                            <Typography variant="body2">{dictionary.forms.shifts.summary.totalQuantity}</Typography>
                             <Typography variant="body2" fontWeight="bold">
                               {fuelVouchersAggregated.totalVoucherQuantity.toLocaleString()} L
                             </Typography>
@@ -723,7 +725,7 @@ function ShiftSummary({ paymentItems = [] }) {
                         </Grid>
                         <Grid size={{ xs: 6 }}>
                           <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                            <Typography variant="body2" fontWeight="bold">Total Vouchers Amount:</Typography>
+                            <Typography variant="body2" fontWeight="bold">{dictionary.forms.shifts.summary.totalVouchersAmount}</Typography>
                             <Typography variant="body1" fontWeight="bold" color="info.dark">
                               {fuelVouchersAggregated.totalVoucherAmount.toLocaleString()}
                             </Typography>
@@ -751,10 +753,10 @@ function ShiftSummary({ paymentItems = [] }) {
               }}
             >
               <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
-                GRAND TOTALS
+                {dictionary.forms.shifts.summary.grandTotals}
                 {currencyCode && (
                   <Typography variant="caption" color="textSecondary" sx={{ ml: 1 }}>
-                    (Amounts in {currencyCode})
+                    {dictionary.forms.shifts.summary.amountsIn.replace('{currency}', currencyCode)}
                   </Typography>
                 )}
               </Typography>
@@ -763,7 +765,7 @@ function ShiftSummary({ paymentItems = [] }) {
                 <Grid size={{ xs: 12, md: 4 }}>
                   <Box sx={{ p: 1.5, bgcolor: 'primary.50', borderRadius: 1 }}>
                     <Typography variant="caption" color="textSecondary" display="block">
-                      Total Main Ledgers
+                      {dictionary.forms.shifts.summary.totalMainLedgersLabel}
                     </Typography>
                     <Typography variant="h6">
                       {formatMoney(mainLedgersSummary.totalMainLedgerAmount)}
@@ -774,7 +776,7 @@ function ShiftSummary({ paymentItems = [] }) {
                 <Grid size={{ xs: 12, md: 4 }}>
                   <Box sx={{ p: 1.5, bgcolor: 'secondary.50', borderRadius: 1 }}>
                     <Typography variant="caption" color="textSecondary" display="block">
-                      Total Other Ledgers
+                      {dictionary.forms.shifts.summary.totalOtherLedgers}
                     </Typography>
                     <Typography variant="h6" color="secondary.dark">
                       {formatMoney(otherLedgersSummary.totalOtherLedgerAmount)}
@@ -785,7 +787,7 @@ function ShiftSummary({ paymentItems = [] }) {
                 <Grid size={{ xs: 12, md: 4 }}>
                   <Box sx={{ p: 1.5, bgcolor: 'info.50', borderRadius: 1 }}>
                     <Typography variant="caption" color="textSecondary" display="block">
-                      Total Vouchers
+                      {dictionary.forms.shifts.summary.totalVouchersLabel}
                     </Typography>
                     <Typography variant="h6" color="info.dark">
                       {formatMoney(fuelVouchersAggregated.totalVoucherAmount)}
@@ -797,7 +799,7 @@ function ShiftSummary({ paymentItems = [] }) {
                   <Divider sx={{ my: 1 }} />
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 1 }}>
                     <Typography variant="h6" fontWeight="bold">
-                      TOTAL DISTRIBUTED CASH:
+                      {dictionary.forms.shifts.summary.totalDistributedCash}
                     </Typography>
                     <Typography variant="h5" fontWeight="bold">
                       {formatMoney(
@@ -821,7 +823,7 @@ function ShiftSummary({ paymentItems = [] }) {
       <CardContent>
         <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <LocalGasStation color="primary" />
-          Product Sales Summary
+          {dictionary.forms.shifts.summary.productSalesSummary}
         </Typography>
         <Divider sx={{ mb: 2 }} />
 
@@ -829,10 +831,10 @@ function ShiftSummary({ paymentItems = [] }) {
           <Table size="small">
             <TableHead>
               <TableRow>
-                <TableCell>Product</TableCell>
-                <TableCell align="right">Pump Sales (L)</TableCell>
-                <TableCell align="right">Adjustments (+/-)</TableCell>
-                <TableCell align="right">Total Sold (L)</TableCell>
+                <TableCell>{dictionary.forms.shifts.labels.product}</TableCell>
+                <TableCell align="right">{dictionary.forms.shifts.summary.pumpSalesL}</TableCell>
+                <TableCell align="right">{dictionary.forms.shifts.summary.adjustmentsPlusMinus}</TableCell>
+                <TableCell align="right">{dictionary.forms.shifts.summary.totalSoldL}</TableCell>
                 <TableCell align="right">Price{currencyCode ? ` (${currencyCode})` : ''}</TableCell>
                 <TableCell align="right">Amount{currencyCode ? ` (${currencyCode})` : ''}</TableCell>
               </TableRow>
@@ -882,7 +884,7 @@ function ShiftSummary({ paymentItems = [] }) {
               })}
 
               <TableRow sx={{ '& td': { borderTop: '2px solid', borderColor: 'divider', fontWeight: 'bold' } }}>
-                <TableCell>TOTAL</TableCell>
+                <TableCell>{dictionary.forms.shifts.summary.totalCaps}</TableCell>
                 <TableCell align="right">
                   {Object.values(totalPumpReadings).reduce((sum, qty) => sum + (qty || 0), 0).toLocaleString()}
                 </TableCell>
@@ -920,22 +922,22 @@ function ShiftSummary({ paymentItems = [] }) {
       <CardContent>
         <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <ReceiptOutlined color="default" />
-          Fuel Vouchers Summary
+          {dictionary.forms.shifts.summary.fuelVouchersSummary}
         </Typography>
         <Divider sx={{ mb: 2 }} />
 
         {financialSummary.totalFuelVoucherItems === 0 ? (
-          <Alert severity="info">No fuel vouchers recorded</Alert>
+          <Alert severity="info">{dictionary.forms.shifts.summary.noFuelVouchers}</Alert>
         ) : (
           <>
             <TableContainer>
               <Table size="small">
                 <TableHead>
                   <TableRow>
-                    <TableCell>Product</TableCell>
-                    <TableCell align="right">Quantity (L)</TableCell>
-                    <TableCell align="right">Price (TZS)</TableCell>
-                    <TableCell align="right">Amount (TZS)</TableCell>
+                    <TableCell>{dictionary.forms.shifts.labels.product}</TableCell>
+                    <TableCell align="right">{dictionary.forms.shifts.summary.quantityL}</TableCell>
+                    <TableCell align="right">{dictionary.forms.shifts.summary.priceTzs}</TableCell>
+                    <TableCell align="right">{dictionary.forms.shifts.labels.amountTzs}</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -961,7 +963,7 @@ function ShiftSummary({ paymentItems = [] }) {
                   })}
 
                   <TableRow sx={{ '& td': { borderTop: '2px solid', borderColor: 'divider', fontWeight: 'bold' } }}>
-                    <TableCell>TOTAL VOUCHERS</TableCell>
+                    <TableCell>{dictionary.forms.shifts.summary.totalVouchersCaps}</TableCell>
                     <TableCell align="right">
                       {Object.values(totalFuelVouchers.totals).reduce((sum, qty) => sum + (qty || 0), 0).toLocaleString()}
                     </TableCell>
@@ -976,7 +978,7 @@ function ShiftSummary({ paymentItems = [] }) {
 
             <Box sx={{ mt: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
               <Chip
-                label={`${financialSummary.totalFuelVoucherItems} Vouchers`}
+                label={dictionary.forms.shifts.summary.vouchersCount.replace('{count}', financialSummary.totalFuelVoucherItems)}
                 size="small"
                 variant="outlined"
               />
@@ -1004,10 +1006,10 @@ function ShiftSummary({ paymentItems = [] }) {
           ) : (
             <TrendingDown color="error" />
           )}
-          Cash Collection & Over/Short Summary
+          {dictionary.forms.shifts.summary.cashCollectionOverShort}
           {currencyCode && (
             <Typography variant="caption" color="textSecondary" sx={{ ml: 1 }}>
-              (Amounts in {currencyCode})
+              {dictionary.forms.shifts.summary.amountsIn.replace('{currency}', currencyCode)}
             </Typography>
           )}
         </Typography>
@@ -1019,17 +1021,17 @@ function ShiftSummary({ paymentItems = [] }) {
             <Grid size={{ xs: 12 }}>
               <Paper elevation={0} sx={{ p: 2, bgcolor: 'background.default', borderRadius: 1, mb: 2 }}>
                 <Typography variant="subtitle2" color="textSecondary" gutterBottom>
-                  PER CASHIER BREAKDOWN
+                  {dictionary.forms.shifts.summary.perCashierBreakdown}
                 </Typography>
                 <TableContainer>
                   <Table size="small">
                     <TableHead>
                       <TableRow>
-                        <TableCell>Cashier</TableCell>
-                        <TableCell align="right">Expected Cash</TableCell>
-                        <TableCell align="right">Collected Cash</TableCell>
-                        <TableCell align="right">Over/Short</TableCell>
-                        <TableCell align="center">Status</TableCell>
+                        <TableCell>{dictionary.forms.shifts.messages.cashierDefault}</TableCell>
+                        <TableCell align="right">{dictionary.forms.shifts.recon.expectedCash}</TableCell>
+                        <TableCell align="right">{dictionary.forms.shifts.summary.collectedCash}</TableCell>
+                        <TableCell align="right">{dictionary.forms.shifts.summary.overShort}</TableCell>
+                        <TableCell align="center">{dictionary.forms.shifts.summary.status}</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
@@ -1055,7 +1057,7 @@ function ShiftSummary({ paymentItems = [] }) {
                           <TableCell align="center">
                             <Chip
                               size="small"
-                              label={cashier.isBalanced ? "BALANCED" : (cashier.profitLoss > 0 ? "OVER" : "SHORT")}
+                              label={cashier.isBalanced ? dictionary.forms.shifts.summary.balancedCaps : (cashier.profitLoss > 0 ? dictionary.forms.shifts.summary.overCaps : dictionary.forms.shifts.summary.shortCaps)}
                               color={cashier.isBalanced ? "success" : (cashier.profitLoss > 0 ? "info" : "error")}
                               variant="outlined"
                             />
@@ -1073,10 +1075,10 @@ function ShiftSummary({ paymentItems = [] }) {
           <Grid size={{ xs: 12 }} sx={{ p: 2, bgcolor: 'background.default', borderRadius: 1 }}>
             <Paper elevation={0} sx={{ p: 2, bgcolor: 'info.50', borderRadius: 1, mb: 2 }}>
               <Typography variant="subtitle2" color="info.dark" gutterBottom>
-                PAYMENTS RECEIVED DURING SHIFT
+                {dictionary.forms.shifts.summary.paymentsReceivedDuringShift}
               </Typography>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 1 }}>
-                <Typography fontWeight="bold">Total Payments Collected:</Typography>
+                <Typography fontWeight="bold">{dictionary.forms.shifts.summary.totalPaymentsCollected}</Typography>
                 <Typography variant="h6" fontWeight="bold" color="info.main">
                   {formatMoney(totalPayments)}
                 </Typography>
@@ -1088,7 +1090,7 @@ function ShiftSummary({ paymentItems = [] }) {
           <Grid size={{ xs: 12, md: 6 }}>
             <Paper elevation={0} sx={{ p: 2, bgcolor: 'background.default', borderRadius: 1 }}>
               <Typography variant="subtitle2" color="textSecondary" gutterBottom>
-                CASH FLOW COMPARISON
+                {dictionary.forms.shifts.summary.cashFlowComparison}
               </Typography>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
                 <Typography>Expected Cash{currencyCode ? ` (${currencyCode})` : ''}:</Typography>
@@ -1120,7 +1122,7 @@ function ShiftSummary({ paymentItems = [] }) {
           <Grid size={{ xs: 12, md: 6 }}>
             <Paper elevation={0} sx={{ p: 2, bgcolor: 'background.default', borderRadius: 1 }}>
               <Typography variant="subtitle2" color="textSecondary" gutterBottom>
-                OVER/SHORT BREAKDOWN
+                {dictionary.forms.shifts.summary.overShortBreakdown}
               </Typography>
               <Grid container spacing={1}>
                 <Grid size={{ xs: 6 }}>
@@ -1129,7 +1131,7 @@ function ShiftSummary({ paymentItems = [] }) {
                       {formatMoney(profitLossSummary.totalProfit)}
                     </Typography>
                     <Typography variant="caption" color="textSecondary">
-                      Total Over
+                      {dictionary.forms.shifts.summary.totalOver}
                     </Typography>
                   </Paper>
                 </Grid>
@@ -1140,7 +1142,7 @@ function ShiftSummary({ paymentItems = [] }) {
                       {formatMoney(profitLossSummary.totalLoss)}
                     </Typography>
                     <Typography variant="caption" color="textSecondary">
-                      Total Short
+                      {dictionary.forms.shifts.summary.totalShort}
                     </Typography>
                   </Paper>
                 </Grid>
@@ -1158,7 +1160,7 @@ function ShiftSummary({ paymentItems = [] }) {
                 }}
               >
                 <Typography variant="subtitle2" color="textSecondary" gutterBottom>
-                  NET RESULT
+                  {dictionary.forms.shifts.summary.netResult}
                 </Typography>
                 <Typography
                   variant="h3"
@@ -1168,7 +1170,7 @@ function ShiftSummary({ paymentItems = [] }) {
                   {profitLossSummary.netProfitLoss === 0 ? '' : profitLossSummary.netProfitLoss > 0 ? '+' : '-'}{formatMoney(Math.abs(profitLossSummary.netProfitLoss))}
                 </Typography>
                 <Typography variant="caption" color="textSecondary">
-                  {profitLossSummary.netProfitLoss === 0 ? 'Balanced' : profitLossSummary.netProfitLoss > 0 ? 'Overall Over' : 'Overall Short'}
+                  {profitLossSummary.netProfitLoss === 0 ? dictionary.forms.shifts.summary.balanced : profitLossSummary.netProfitLoss > 0 ? dictionary.forms.shifts.summary.overallOver : dictionary.forms.shifts.summary.overallShort}
                 </Typography>
               </Paper>
             </Paper>
@@ -1182,7 +1184,7 @@ function ShiftSummary({ paymentItems = [] }) {
     <Card variant="outlined" sx={{ mb: 3 }}>
       <CardContent>
         <Typography variant="h6" gutterBottom>
-          Shift Overview
+          {dictionary.forms.shifts.summary.shiftOverview}
         </Typography>
         <Divider sx={{ mb: 2 }} />
 
@@ -1193,7 +1195,7 @@ function ShiftSummary({ paymentItems = [] }) {
                 {financialSummary.totalCashiers}
               </Typography>
               <Typography variant="caption" color="textSecondary">
-                Cashiers
+                {dictionary.forms.shifts.summary.cashiers}
               </Typography>
             </Paper>
           </Grid>
@@ -1204,7 +1206,7 @@ function ShiftSummary({ paymentItems = [] }) {
                 {financialSummary.totalPumpsAssigned}
               </Typography>
               <Typography variant="caption" color="textSecondary">
-                Pumps Assigned
+                {dictionary.forms.shifts.summary.pumpsAssigned}
               </Typography>
             </Paper>
           </Grid>
@@ -1215,7 +1217,7 @@ function ShiftSummary({ paymentItems = [] }) {
                 {financialSummary.totalFuelVoucherItems}
               </Typography>
               <Typography variant="caption" color="textSecondary">
-                Fuel Vouchers
+                {dictionary.forms.shifts.tabs.fuelVouchers}
               </Typography>
             </Paper>
           </Grid>
@@ -1226,7 +1228,7 @@ function ShiftSummary({ paymentItems = [] }) {
                 {financialSummary.totalAdjustmentItems}
               </Typography>
               <Typography variant="caption" color="textSecondary">
-                Adjustments
+                {dictionary.forms.shifts.tabs.adjustments}
               </Typography>
             </Paper>
           </Grid>
@@ -1235,7 +1237,7 @@ function ShiftSummary({ paymentItems = [] }) {
         {/* Balance Status */}
         <Box sx={{ mt: 3, p: 2, borderRadius: 1, bgcolor: 'background.default' }}>
           <Typography variant="subtitle2" gutterBottom>
-            Shift Balance Status
+            {dictionary.forms.shifts.summary.shiftBalanceStatus}
           </Typography>
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -1249,15 +1251,15 @@ function ShiftSummary({ paymentItems = [] }) {
                 }}
               />
               <Typography>
-                {profitLossSummary.netProfitLoss === 0 ? 'Perfectly Balanced' :
-                profitLossSummary.netProfitLoss > 0 ? `Over: +${profitLossSummary.netProfitLoss.toLocaleString()}` :
-                `Short: -${Math.abs(profitLossSummary.netProfitLoss).toLocaleString()}`}
+                {profitLossSummary.netProfitLoss === 0 ? dictionary.forms.shifts.summary.perfectlyBalanced :
+                profitLossSummary.netProfitLoss > 0 ? dictionary.forms.shifts.summary.overAmount.replace('{amount}', profitLossSummary.netProfitLoss.toLocaleString()) :
+                dictionary.forms.shifts.summary.shortAmount.replace('{amount}', Math.abs(profitLossSummary.netProfitLoss).toLocaleString())}
               </Typography>
             </Box>
 
             <Chip
-              label={profitLossSummary.netProfitLoss === 0 ? "BALANCED" :
-                    profitLossSummary.netProfitLoss > 0 ? "OVER" : "SHORT"}
+              label={profitLossSummary.netProfitLoss === 0 ? dictionary.forms.shifts.summary.balancedCaps :
+                    profitLossSummary.netProfitLoss > 0 ? dictionary.forms.shifts.summary.overCaps : dictionary.forms.shifts.summary.shortCaps}
               color={profitLossSummary.netProfitLoss === 0 ? "success" :
                     profitLossSummary.netProfitLoss > 0 ? "info" : "error"}
               size="small"
@@ -1284,7 +1286,7 @@ function ShiftSummary({ paymentItems = [] }) {
 
       {allCashiers.length === 0 && (
         <Alert severity="info" sx={{ mt: 2 }}>
-          No cashiers added yet. Please add cashiers in the &quot;Cashiers Records&quot; tab.
+          {dictionary.forms.shifts.summary.noCashiersAdded}
         </Alert>
       )}
     </div>

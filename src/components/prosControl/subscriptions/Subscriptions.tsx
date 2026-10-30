@@ -118,13 +118,13 @@ const Subscriptions: React.FC = () => {
             hideItemsPerPage
             actionTail={
               <Grid container columnSpacing={1} rowSpacing={1}>
-                <Grid size={{ xs: 12, lg: 4 }} alignItems="center">
+                <Grid size={{ xs: 12, md: 4 }} alignItems="center">
                   <SubscriptionsStatusSelector
                     value={queryOptions.queryParams.status}
                     onChange={handleOnStatusChange}
                   />
                 </Grid>
-                <Grid size={{ xs: 12, lg: 8 }}>
+                <Grid size={{ xs: 12, md: 8 }}>
                   <Stack direction="row">
                     <JumboSearch
                       onChange={handleOnChange}

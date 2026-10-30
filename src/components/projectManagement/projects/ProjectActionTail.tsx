@@ -12,8 +12,10 @@ import React, { useState } from 'react';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
 import ProjectFormDialog from './ProjectFormDialog';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const ProjectsActionTail = () => {
+  const dictionary = useDictionary();
   const [openDialog, setOpenDialog] = useState(false);
   const { theme } = useJumboTheme();
   const { checkOrganizationPermission } = useJumboAuth();
@@ -32,7 +34,7 @@ return (
       sx={{ '& .MuiButton-root': { px: 1 } }}
     >
       {checkOrganizationPermission(PERMISSIONS.PROJECTS_CREATE) && (
-        <Tooltip title="New Project">
+        <Tooltip title={dictionary.tooltips.newProject}>
           <IconButton onClick={() => setOpenDialog(true)}>
             <AddOutlined />
           </IconButton>

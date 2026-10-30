@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { Dialog, DialogActions, DialogContent, DialogTitle, TextField } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface Props {
   open: boolean;
@@ -12,11 +13,12 @@ interface Props {
 }
 
 export default function CancelTransactionDialog({ open, loading, onClose, onConfirm }: Props) {
+  const dictionary = useDictionary();
   const [reason, setReason] = useState('');
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth='sm' fullWidth>
-      <DialogTitle>Cancel this transaction?</DialogTitle>
+      <DialogTitle>{dictionary.forms.bankReconciliation.cancelTransaction.title}</DialogTitle>
       <DialogContent>
         <TextField
           autoFocus
@@ -24,13 +26,13 @@ export default function CancelTransactionDialog({ open, loading, onClose, onConf
           multiline
           minRows={2}
           sx={{ mt: 1 }}
-          label='Reason for cancelling'
+          label={dictionary.forms.bankReconciliation.cancelTransaction.labels.reason}
           value={reason}
           onChange={(e) => setReason(e.target.value)}
         />
       </DialogContent>
       <DialogActions>
-        <LoadingButton onClick={onClose}>Back</LoadingButton>
+        <LoadingButton onClick={onClose}>{dictionary.forms.bankReconciliation.cancelTransaction.buttons.back}</LoadingButton>
         <LoadingButton
           variant='contained'
           color='error'
@@ -38,7 +40,7 @@ export default function CancelTransactionDialog({ open, loading, onClose, onConf
           loading={loading}
           onClick={() => onConfirm(reason)}
         >
-          Cancel Transaction
+          {dictionary.forms.bankReconciliation.cancelTransaction.buttons.cancelTransaction}
         </LoadingButton>
       </DialogActions>
     </Dialog>

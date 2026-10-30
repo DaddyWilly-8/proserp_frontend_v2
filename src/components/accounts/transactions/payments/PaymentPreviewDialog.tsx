@@ -14,6 +14,7 @@ import { useState } from 'react';
 import paymentServices from './payment-services';
 import PaymentOnScreenPreview from './PaymentOnScreenPreview';
 import PaymentPDF from './PaymentPDF';
+import { collapseSalaryPaymentItems, EmployeeLinesSwitch } from './PayrollPaymentLinesSwitch';
 
 interface PaymentPreviewDialogProps {
   open: boolean;
@@ -32,6 +33,8 @@ const PaymentPreviewDialog = ({ open, paymentId, onClose }: PaymentPreviewDialog
   const { theme } = useJumboTheme();
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
   const [showOnScreen, setShowOnScreen] = useState(true);
+  // Salary payments only: off = one total line, on = a line per employee.
+  const [showEmployeeLines, setShowEmployeeLines] = useState(false);
 
   // Being able to see this voucher number on a Purchase Bill doesn't by itself mean the viewer
   // can see full Payment details — gate this exactly like the real Payments list's own "View"
@@ -91,6 +94,9 @@ const PaymentPreviewDialog = ({ open, paymentId, onClose }: PaymentPreviewDialog
           </>
         ) : (
           <>
+            {data.payroll_salary_payment && (
+              <EmployeeLinesSwitch checked={showEmployeeLines} onChange={setShowEmployeeLines} />
+            )}
             <PreviewTopBar
               fileExportGrid={
                 <FileExportGrid exportPdf handlePdf={() => setShowOnScreen((prev) => !prev)} />
@@ -102,11 +108,11 @@ const PaymentPreviewDialog = ({ open, paymentId, onClose }: PaymentPreviewDialog
               }
             />
             {showOnScreen ? (
-              <PaymentOnScreenPreview transaction={data} authObject={authObject as unknown as AuthObject} />
+              <PaymentOnScreenPreview transaction={showEmployeeLines ? data : collapseSalaryPaymentItems(data)} authObject={authObject as unknown as AuthObject} />
             ) : (
               <PDFContent
                 fileName={data.voucherNo}
-                document={<PaymentPDF transaction={data} authObject={authObject as unknown as AuthObject} />}
+                document={<PaymentPDF transaction={showEmployeeLines ? data : collapseSalaryPaymentItems(data)} authObject={authObject as unknown as AuthObject} />}
               />
             )}
           </>

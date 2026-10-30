@@ -48,6 +48,7 @@ import PayEmployeesDialog from './PayEmployeesDialog';
 import PayPayablesDialog from './PayPayablesDialog';
 import { getPayslipCalculations, PayslipComputed } from './payslipCalculations';
 import { SalarySheetType } from './salarySheetType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface PayrollRunActionsProps {
   isDraft: boolean;
@@ -123,11 +124,15 @@ export const PayrollRunActions = ({
   isReversingComplete,
   isWithdrawing,
   isReversingTransactions,
-  runLabel = 'this run',
+  runLabel: runLabelProp,
   payrollRun,
   previewRows = [], // Default to empty array
   selectedPayrollPeriod,
 }: PayrollRunActionsProps) => {
+  const dictionary = useDictionary();
+  const t = dictionary.humanResources.payrollRuns.actions;
+  const monthNames: string[] = dictionary.humanResources.payrollRuns.months;
+  const runLabel = runLabelProp ?? t.thisRun;
   const { enqueueSnackbar } = useSnackbar();
   const { organizationHasSubscribed, checkOrganizationPermission } =
     useJumboAuth();
@@ -242,23 +247,9 @@ export const PayrollRunActions = ({
       });
 
       // Get period label
-      let periodLabel = payrollRun.cost_center?.name || 'Company-wide Run';
+      let periodLabel = payrollRun.cost_center?.name || t.companyWideRun;
 
       if (payrollRun?.period) {
-        const monthNames = [
-          'January',
-          'February',
-          'March',
-          'April',
-          'May',
-          'June',
-          'July',
-          'August',
-          'September',
-          'October',
-          'November',
-          'December',
-        ];
         const monthIndex = payrollRun.period.month;
         // Ensure month is within valid range (1-12)
         const monthName =
@@ -315,10 +306,10 @@ export const PayrollRunActions = ({
         queryKey: ['showPayrollRun', payrollRun.id],
       });
       queryClient.invalidateQueries({ queryKey: ['payrollRunDetails'] });
-      enqueueSnackbar('Payroll Run APproved', { variant: 'success' });
+      enqueueSnackbar(t.approvedMsg, { variant: 'success' });
     },
     onError: (error: any) => {
-      enqueueSnackbar(getErrorMessage(error) || 'Something went wrong', {
+      enqueueSnackbar(getErrorMessage(error) || t.somethingWentWrong, {
         variant: 'error',
       });
     },
@@ -337,9 +328,9 @@ export const PayrollRunActions = ({
         setConfirmDialog({
           open: true,
           action: 'submit',
-          title: 'Submit Payroll Run',
-          message: `Are you sure you want to submit "${runLabel}" for approval? This will save all payslips.`,
-          confirmText: 'Submit',
+          title: t.submitTitle,
+          message: t.submitMessage.replace('{name}', runLabel),
+          confirmText: t.submitConfirm,
           color: 'primary',
         });
         break;
@@ -347,9 +338,9 @@ export const PayrollRunActions = ({
         setConfirmDialog({
           open: true,
           action: 'delete',
-          title: 'Delete Payroll Run',
-          message: `Are you sure you want to delete "${runLabel}"? This action cannot be undone.`,
-          confirmText: 'Delete',
+          title: t.deleteTitle,
+          message: t.deleteMessage.replace('{name}', runLabel),
+          confirmText: t.deleteConfirm,
           color: 'error',
         });
         break;
@@ -365,9 +356,8 @@ export const PayrollRunActions = ({
   };
   const handleReverseComplete = () => {
     showDialog({
-      title: 'Revert to Approved',
-      content:
-        'This puts the run back to Approved so it can be corrected. No payment was ever created for this path, so nothing else changes. Continue?',
+      title: t.revertTitle,
+      content: t.revertContent,
       onYes: () => {
         hideDialog();
         onAction('reverse-complete');
@@ -379,9 +369,8 @@ export const PayrollRunActions = ({
 
   const handleWithdraw = () => {
     showDialog({
-      title: 'Withdraw Submission',
-      content:
-        'This puts the run back to Draft so it can be corrected before re-submitting. Continue?',
+      title: t.withdrawTitle,
+      content: t.withdrawContent,
       onYes: () => {
         hideDialog();
         onAction('withdraw');
@@ -393,9 +382,8 @@ export const PayrollRunActions = ({
 
   const handleReverseTransactions = () => {
     showDialog({
-      title: 'Reverse Posted Transactions',
-      content:
-        'This deletes the journal voucher posted to the GL and puts the run back to Approved so it can be corrected before re-posting. Continue?',
+      title: t.reverseTitle,
+      content: t.reverseContent,
       onYes: () => {
         hideDialog();
         onAction('reverse-transactions');
@@ -407,8 +395,8 @@ export const PayrollRunActions = ({
 
   const handleDirectApprove = () => {
     showDialog({
-      title: 'Approve Payroll Run',
-      content: 'Once approved, this action cannot be undone',
+      title: t.approveTitle,
+      content: t.approveContent,
       onYes: () => {
         hideDialog();
         directApprovePayroll(payrollRun.id || payrollRunId);
@@ -469,7 +457,7 @@ export const PayrollRunActions = ({
         useFlexGap
       >
         {/* 1. PREVIEW - Always visible */}
-        <Tooltip title='Preview Salary Sheet'>
+        <Tooltip title={dictionary.tooltips.previewSalarySheet}>
           <IconButton
             size='small'
             onClick={() => handleActionClick('preview')}
@@ -486,7 +474,7 @@ export const PayrollRunActions = ({
 
         {/* Salaray sheet (basic transfer list) */}
         {canViewBankTransferList && (
-          <Tooltip title='View Bank Transfer List'>
+          <Tooltip title={dictionary.tooltips.viewBankTransferList}>
             <IconButton
               size='small'
               onClick={() => handleActionClick('bankTransfer')}
@@ -503,7 +491,7 @@ export const PayrollRunActions = ({
 
         {/* 2. SUBMIT - For draft runs */}
         {isDraft && (
-          <Tooltip title='Submit for Approval'>
+          <Tooltip title={dictionary.tooltips.submitForApproval}>
             <IconButton
               size='small'
               onClick={() => handleActionClick('submit')}
@@ -521,7 +509,7 @@ export const PayrollRunActions = ({
 
         {/* WITHDRAW SUBMISSION - back to draft, before any approval decision is recorded */}
         {canWithdraw && (
-          <Tooltip title='Withdraw Submission'>
+          <Tooltip title={dictionary.tooltips.withdrawSubmission}>
             <IconButton
               size='small'
               onClick={handleWithdraw}
@@ -540,7 +528,7 @@ export const PayrollRunActions = ({
         {/* DIRECT APPROVE PAYROLL */}
         {canDirectDecide && (
           <>
-            <Tooltip title='Approve'>
+            <Tooltip title={dictionary.tooltips.approve}>
               <IconButton size='small' onClick={handleDirectApprove}>
                 <CheckCircleOutlined color='success' />
               </IconButton>
@@ -550,7 +538,7 @@ export const PayrollRunActions = ({
 
         {/* 4. POST PAYROLL TRANSACTIONS - For approved runs */}
         {isApproved && orgHasSubscribedAccountsAndFinance && canPostJournal && (
-          <Tooltip title='Post Payroll Transactions'>
+          <Tooltip title={dictionary.tooltips.postPayrollTransactions}>
             <IconButton
               size='small'
               onClick={() => handleActionClick('post')}
@@ -578,7 +566,7 @@ export const PayrollRunActions = ({
         {/* Undo Post Transactions — only while still 'posted' (nothing paid/
              settled yet); deletes the journal voucher back to Approved. */}
         {isPosted && orgHasSubscribedAccountsAndFinance && canPostJournal && (
-          <Tooltip title='Reverse Posted Transactions'>
+          <Tooltip title={dictionary.tooltips.reversePostedTransactions}>
             <IconButton
               size='small'
               onClick={handleReverseTransactions}
@@ -600,7 +588,7 @@ export const PayrollRunActions = ({
           !isPaid &&
           orgHasSubscribedAccountsAndFinance &&
           canPayApprovedPayroll && (
-            <Tooltip title='Pay Employees'>
+            <Tooltip title={dictionary.tooltips.payEmployees}>
               <IconButton
                 size='small'
                 onClick={() => setOpenPayDialog(true)}
@@ -617,7 +605,7 @@ export const PayrollRunActions = ({
         {(isPosted || isPartiallyPaid || isPaid) &&
           orgHasSubscribedAccountsAndFinance &&
           canPayApprovedPayroll && (
-            <Tooltip title='Pay Payables'>
+            <Tooltip title={dictionary.tooltips.payPayables}>
               <IconButton
                 size='small'
                 onClick={() => setOpenPayPayablesDialog(true)}
@@ -630,7 +618,7 @@ export const PayrollRunActions = ({
 
         {/* SHOW COMPLETE BUTTON IF NOT SUBSCRIBED TO ACCOUNTS AND FINANCE */}
         {isApproved && !orgHasSubscribedAccountsAndFinance && (
-          <Tooltip title='Complete Payroll'>
+          <Tooltip title={dictionary.tooltips.completePayroll}>
             <IconButton
               size='small'
               onClick={() => handleActionClick('complete')}
@@ -649,7 +637,7 @@ export const PayrollRunActions = ({
         {/* Undo Complete — no Payment ever exists on this path, so it's a
              plain status revert back to Approved. */}
         {isCompleted && !orgHasSubscribedAccountsAndFinance && (
-          <Tooltip title='Revert to Approved'>
+          <Tooltip title={dictionary.tooltips.revertToApproved}>
             <IconButton
               size='small'
               onClick={handleReverseComplete}
@@ -667,7 +655,7 @@ export const PayrollRunActions = ({
 
         {/* 7. DELETE - For draft runs */}
         {isDraft && (
-          <Tooltip title='Delete Run'>
+          <Tooltip title={dictionary.tooltips.deleteRun}>
             <IconButton
               size='small'
               onClick={() => handleActionClick('delete')}
@@ -741,7 +729,7 @@ export const PayrollRunActions = ({
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 2 }}>
           <Button onClick={handleCloseConfirm} variant='outlined' size='small'>
-            Cancel
+            {t.cancel}
           </Button>
           <Button
             variant='contained'
@@ -776,22 +764,21 @@ export const PayrollRunActions = ({
       >
         <DialogTitle>
           <Typography variant='h6' component='div' fontWeight={600}>
-            Post Payroll Transactions
+            {t.postTitle}
           </Typography>
         </DialogTitle>
         <DialogContent>
           <Stack spacing={2} mt={1}>
             <Alert severity='info' sx={{ mb: 1 }}>
-              Posting records payroll in the general ledger. It does not pay
-              employees yet.
+              {t.postInfo}
             </Alert>
 
             <LedgerSelect
-              label='Salary Expense Account (fallback)'
+              label={t.salaryExpenseAccount}
               allowedGroups={['Expenses']}
               startAdornment={
                 <Tooltip
-                  title="Used as the debit account for basic salary and allowances only when no more specific account is mapped — a department's own Salary Expense Account, if set, is used instead; likewise an Allowance Type's own Expense Account, if set, overrides this for that allowance."
+                  title={dictionary.tooltips.usedAsTheDebitAccountFor}
                   arrow
                 >
                   <InfoOutlined
@@ -810,7 +797,7 @@ export const PayrollRunActions = ({
             />
 
             <LedgerSelect
-              label='PAYE Payable Account'
+              label={t.payeAccount}
               allowedGroups={['Liabilities']}
               onChange={(ledger: any) =>
                 setPostForm((state) => ({
@@ -821,7 +808,7 @@ export const PayrollRunActions = ({
             />
 
             <LedgerSelect
-              label='Fallback Employee Payable Account'
+              label={t.fallbackPayableAccount}
               allowedGroups={['Liabilities']}
               onChange={(ledger: any) =>
                 setPostForm((state) => ({
@@ -832,7 +819,7 @@ export const PayrollRunActions = ({
             />
 
             <DateTimePicker
-              label='Transaction Date & Time'
+              label={t.transactionDate}
               value={
                 postForm.transaction_date
                   ? dayjs(postForm.transaction_date)
@@ -857,7 +844,7 @@ export const PayrollRunActions = ({
             size='small'
             disabled={isPosting}
           >
-            Cancel
+            {t.cancel}
           </Button>
           <Button
             variant='contained'
@@ -866,7 +853,7 @@ export const PayrollRunActions = ({
             onClick={handlePostConfirm}
             disabled={isPosting || !isPostFormValid}
           >
-            {isPosting ? <CircularProgress size={18} /> : 'Post'}
+            {isPosting ? <CircularProgress size={18} /> : t.post}
           </Button>
         </DialogActions>
       </Dialog>
@@ -894,7 +881,7 @@ export const PayrollRunActions = ({
       >
         <DialogTitle>
           <Typography variant='h6' component='div' fontWeight={600}>
-            Are you sure you want to complete the payroll
+            {t.completeQuestion}
           </Typography>
         </DialogTitle>
         <DialogActions sx={{ px: 3, pb: 2 }}>
@@ -904,7 +891,7 @@ export const PayrollRunActions = ({
             size='small'
             disabled={isCompleting}
           >
-            Cancel
+            {t.cancel}
           </Button>
           <Button
             variant='contained'
@@ -912,7 +899,7 @@ export const PayrollRunActions = ({
             onClick={handleCompleteConfirm}
             disabled={isCompleting}
           >
-            {isCompleting ? <CircularProgress size={18} /> : 'Complete Payroll'}
+            {isCompleting ? <CircularProgress size={18} /> : t.completePayroll}
           </Button>
         </DialogActions>
       </Dialog>

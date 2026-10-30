@@ -11,8 +11,10 @@ import {
 } from '@mui/material';
 import { useState } from 'react';
 import BankForm from './BankForm';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const BankActionTail = () => {
+  const dictionary = useDictionary();
   const [openDialog, setOpenDialog] = useState(false);
   const { theme } = useJumboTheme();
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
@@ -28,7 +30,7 @@ const BankActionTail = () => {
         disableElevation
         sx={{ '& .MuiButton-root': { px: 1 } }}
       >
-        <Tooltip title='Add Bank'>
+        <Tooltip title={dictionary.tooltips.addBank}>
           <IconButton onClick={() => setOpenDialog(true)}>
             <AddOutlined />
           </IconButton>

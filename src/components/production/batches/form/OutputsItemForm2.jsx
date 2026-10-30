@@ -9,19 +9,21 @@ import { Div } from '@jumbo/shared';
 import CommaSeparatedField from '@/shared/Inputs/CommaSeparatedField';
 import { sanitizedNumber } from '@/app/helpers/input-sanitization-helpers';
 import StoreSelector from '@/components/procurement/stores/StoreSelector';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function OutputsItemForm2({fetchedBOMs, setOutputs, outputs = [], submitType, setInventoryInputs, productionDates}) {
+  const dictionary = useDictionary();
   const { activeWorkCenter } = useContext(ProductionBatchesContext);
 
   const outputSchema = yup.object().shape({
     quantity: yup
       .number()
-      .typeError('Produced Quantity is required')
-      .required('Produced Quantity is required'),
+      .typeError(dictionary.forms.batches.validation.producedQuantityRequired)
+      .required(dictionary.forms.batches.validation.producedQuantityRequired),
     store_id: yup
       .number()
-      .required('Store is required')
-      .typeError('Store is required'),
+      .required(dictionary.forms.batches.validation.storeRequired)
+      .typeError(dictionary.forms.batches.validation.storeRequired),
   });
 
   const {
@@ -112,14 +114,14 @@ function OutputsItemForm2({fetchedBOMs, setOutputs, outputs = [], submitType, se
     <Grid container columnSpacing={1} rowSpacing={1} mt={1}>
       <Grid size={{xs: 9, md: 8}}>
         <Div sx={{ mt: 1.7, mb: 1.7 }}>
-          <Tooltip title="Product">
+          <Tooltip title={dictionary.tooltips.product}>
             <Typography textAlign={{ md: 'center' }}>{fetchedBOMs?.product.name}</Typography>
           </Tooltip>
         </Div>
       </Grid>
       <Grid size={{xs: 3, md: 4}}>
         <Div sx={{ mt: 1.7, mb: 1.7 }}>
-          <Tooltip title="Expected Produced Quantity">
+          <Tooltip title={dictionary.tooltips.expectedProducedQuantity}>
             <Typography>{`${fetchedBOMs?.measurement_unit.symbol} ${fetchedBOMs?.quantity}`}</Typography>
           </Tooltip>
         </Div>
@@ -136,7 +138,7 @@ function OutputsItemForm2({fetchedBOMs, setOutputs, outputs = [], submitType, se
       </Grid>
       <Grid size={{xs: 12, md: 3}}>
         <TextField
-          label="Produced Quantity"
+          label={dictionary.forms.batches.labels.producedQuantity}
           fullWidth
           size="small"
           value={outputs[0]?.quantity || ''}
@@ -158,7 +160,7 @@ function OutputsItemForm2({fetchedBOMs, setOutputs, outputs = [], submitType, se
       </Grid>
       <Grid size={{xs: 12, md: 6}}>
         <TextField
-          label="Remarks"
+          label={dictionary.forms.batches.labels.remarks}
           fullWidth
           size="small"
           onChange={(e) => {

@@ -1,4 +1,5 @@
 import React from 'react';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import {
   Dialog,
   Typography,
@@ -84,6 +85,7 @@ const ProductBudgetCheckDetails: React.FC<ProductBudgetCheckDetailsProps> = ({
   open,
   onClose,
 }) => {
+  const dictionary = useDictionary();
   const { data, isFetching } = useQuery({
     queryKey: ['productBudgetCheck', { productId, costCenterId }],
     queryFn: () => fetchProductBudgetCheck(productId, costCenterId),
@@ -98,7 +100,7 @@ const ProductBudgetCheckDetails: React.FC<ProductBudgetCheckDetailsProps> = ({
         {/* Header */}
         <Box mb={3}>
           <Typography variant="h3" textAlign={'center'} fontWeight={700}>
-            Budget Check
+            {dictionary.forms.requisitions.budgetCheck.title}
           </Typography>
           <Typography variant="body2" color="text.secondary" textAlign={'center'}>
             {productName}
@@ -109,23 +111,23 @@ const ProductBudgetCheckDetails: React.FC<ProductBudgetCheckDetailsProps> = ({
           <Skeleton variant="rectangular" width="100%" height={240} />
         ) : !costCenterId ? (
           <Typography color="text.secondary" textAlign={'center'}>
-            Please select a cost center to fetch budget check details.
+            {dictionary.forms.requisitions.budgetCheck.selectCostCenter}
           </Typography>
         ) : data ? (
           <Grid container spacing={3}>
             {/* Budget */}
             <Grid size={12}>
-              <Section title="Budget Allocation">
+              <Section title={dictionary.forms.requisitions.budgetCheck.budgetAllocation}>
                 <Grid size={{ xs: 6, md: 6 }}>
                   <StatItem
-                    label="Budgeted Quantity"
+                    label={dictionary.forms.requisitions.budgetCheck.budgetedQuantity}
                     value={data.budgeted_quantity}
                     unit={unit}
                   />
                 </Grid>
                 <Grid size={{ xs: 6, md: 6 }}>
                   <StatItem
-                    label="Budgeted Amount"
+                    label={dictionary.forms.requisitions.budgetCheck.budgetedAmount}
                     value={data.budgeted_amount}
                     currency={currency}
                   />
@@ -135,31 +137,31 @@ const ProductBudgetCheckDetails: React.FC<ProductBudgetCheckDetailsProps> = ({
 
             {/* Requests & Approval */}
             <Grid size={12}>
-              <Section title="Request & Approval">
+              <Section title={dictionary.forms.requisitions.budgetCheck.requestAndApproval}>
                 <Grid size={{xs: 6, md: 3}}>
                   <StatItem
-                    label="Requested Quantity"
+                    label={dictionary.forms.requisitions.budgetCheck.requestedQuantity}
                     value={data.requested_quantity}
                     unit={unit}
                   />
                 </Grid>
                 <Grid size={{xs: 6, md: 3}}>
                   <StatItem
-                    label="Requested Amount"
+                    label={dictionary.forms.requisitions.budgetCheck.requestedAmount}
                     value={data.requested_amount}
                     currency={currency}
                   />
                 </Grid>
                 <Grid size={{xs: 6, md: 3}}>
                   <StatItem
-                    label="Approved Quantity"
+                    label={dictionary.forms.requisitions.budgetCheck.approvedQuantity}
                     value={data.approved_quantity}
                     unit={unit}
                   />
                 </Grid>
                 <Grid size={{xs: 6, md: 3}}>
                   <StatItem
-                    label="Approved Amount"
+                    label={dictionary.forms.requisitions.budgetCheck.approvedAmount}
                     value={data.approved_amount}
                     currency={currency}
                   />
@@ -169,17 +171,17 @@ const ProductBudgetCheckDetails: React.FC<ProductBudgetCheckDetailsProps> = ({
 
             {/* Execution */}
             <Grid size={12}>
-              <Section title="Procurement & Receiving">
+              <Section title={dictionary.forms.requisitions.budgetCheck.procurementAndReceiving}>
                 <Grid size={{ xs: 6, md: 6 }}>
                   <StatItem
-                    label="Ordered Quantity"
+                    label={dictionary.forms.requisitions.budgetCheck.orderedQuantity}
                     value={data.ordered_quantity}
                     unit={unit}
                   />
                 </Grid>
                 <Grid size={{ xs: 6, md: 6 }}>
                   <StatItem
-                    label="Received Quantity"
+                    label={dictionary.forms.requisitions.budgetCheck.receivedQuantity}
                     value={data.received_quantity}
                     unit={unit}
                   />
@@ -189,17 +191,17 @@ const ProductBudgetCheckDetails: React.FC<ProductBudgetCheckDetailsProps> = ({
 
             {/* Consumption */}
             <Grid size={12}>
-              <Section title="Consumption">
+              <Section title={dictionary.forms.requisitions.budgetCheck.consumption}>
                 <Grid size={{ xs: 6, md: 6 }}>
                   <StatItem
-                    label="Consumed Quantity"
+                    label={dictionary.forms.requisitions.budgetCheck.consumedQuantity}
                     value={data.consumed_quantity}
                     unit={unit}
                   />
                 </Grid>
                 <Grid size={{ xs: 6, md: 6 }}>
                   <StatItem
-                    label="Consumed Amount"
+                    label={dictionary.forms.requisitions.budgetCheck.consumedAmount}
                     value={data.consumed_amount}
                     currency={currency}
                   />
@@ -215,7 +217,7 @@ const ProductBudgetCheckDetails: React.FC<ProductBudgetCheckDetailsProps> = ({
                   fontWeight={700}
                   mb={2}
                 >
-                  Store Availability
+                  {dictionary.forms.requisitions.budgetCheck.storeAvailability}
                 </Typography>
 
                 {data.store_availability?.length ? (
@@ -223,9 +225,9 @@ const ProductBudgetCheckDetails: React.FC<ProductBudgetCheckDetailsProps> = ({
                     <Table size="small">
                       <TableHead>
                         <TableRow>
-                          <TableCell>Store</TableCell>
+                          <TableCell>{dictionary.forms.requisitions.budgetCheck.store}</TableCell>
                           <TableCell align="right">
-                            Available Quantity{unit ? ` (${unit})` : ''}
+                            {dictionary.forms.requisitions.budgetCheck.availableQuantity}{unit ? ` (${unit})` : ''}
                           </TableCell>
                         </TableRow>
                       </TableHead>
@@ -250,7 +252,7 @@ const ProductBudgetCheckDetails: React.FC<ProductBudgetCheckDetailsProps> = ({
                   </TableContainer>
                 ) : (
                   <Typography color="text.secondary">
-                    No store availability data.
+                    {dictionary.forms.requisitions.budgetCheck.noStoreAvailability}
                   </Typography>
                 )}
               </Paper>
@@ -258,7 +260,7 @@ const ProductBudgetCheckDetails: React.FC<ProductBudgetCheckDetailsProps> = ({
           </Grid>
         ) : (
           <Typography color="text.secondary">
-            No budget data available.
+            {dictionary.forms.requisitions.budgetCheck.noBudgetData}
           </Typography>
         )}
       </Box>

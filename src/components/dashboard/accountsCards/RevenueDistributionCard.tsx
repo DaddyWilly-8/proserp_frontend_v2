@@ -9,6 +9,8 @@ import exportingModule from 'highcharts/modules/exporting';
 import { useEffect, useState } from 'react';
 import financialReportsServices from '../../accounts/reports/financial-reports-services';
 import { useDashboardSettings } from '../Dashboard';
+import FinancialSummaryStrip from './FinancialSummaryStrip';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface RevenueData {
   ledger_name: string;
@@ -21,6 +23,7 @@ interface ChartDataPoint {
 }
 
 function RevenueDistributionCard() {
+  const dictionary = useDictionary();
   const {
     chartFilters: { from, to, cost_center_ids },
   } = useDashboardSettings();
@@ -92,14 +95,14 @@ function RevenueDistributionCard() {
   const options: Highcharts.Options = {
     chart: {
       type: 'pie',
-      height: 255,
+      height: 265,
       backgroundColor: 'transparent',
       spacing: [10, 10, 10, 10],
       style: { color: textColor },
     },
     title: { text: '' },
     tooltip: {
-      pointFormat: '{point.y}: <b>({point.percentage:.1f}%)</b>',
+      pointFormat: '{point.y:,.2f}: <b>({point.percentage:.1f}%)</b>',
       backgroundColor,
       style: { color: textColor },
     },
@@ -128,7 +131,7 @@ function RevenueDistributionCard() {
     series: [
       {
         type: 'pie',
-        name: 'Revenue',
+        name: dictionary.dashboardCards.revenue,
         colorByPoint: true,
         data: revenueDistribution || [],
       } as Highcharts.SeriesPieOptions,
@@ -160,7 +163,7 @@ function RevenueDistributionCard() {
             fontFamily: 'NoirPro, Arial',
           }}
         >
-          Revenue Composition
+          {dictionary.dashboardCards.revenueComposition}
         </Typography>
       </Box>
 
@@ -176,7 +179,7 @@ function RevenueDistributionCard() {
           <Skeleton
             variant='rectangular'
             width='100%'
-            height={245}
+            height={255}
             sx={{ borderRadius: 2 }}
           />
         ) : (
@@ -187,6 +190,11 @@ function RevenueDistributionCard() {
             options={options}
           />
         )}
+      </Box>
+
+      {/* Where the legend would sit */}
+      <Box sx={{ px: 2 }}>
+        <FinancialSummaryStrip kind='revenue' inline />
       </Box>
     </JumboCardQuick>
   );

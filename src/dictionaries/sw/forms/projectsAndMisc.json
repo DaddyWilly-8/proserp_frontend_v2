@@ -1,0 +1,526 @@
+{
+  "projects": {
+    "shared": {
+      "weightGreaterThanZero": "Asilimia ya Uzito lazima iwe kubwa kuliko 0",
+      "weightValidNumber": "Asilimia ya Uzito lazima iwe namba halali",
+      "weightMax": "Asilimia ya Uzito lazima iwe chini ya au sawa na 100",
+      "totalExceeds": "Jumla ya asilimia haipaswi kuzidi 100%. Kwa sasa umetenga {total}%.",
+      "resolveErrors": "Tafadhali rekebisha makosa kabla ya kuwasilisha.",
+      "atTheBeginning": "Mwanzoni",
+      "afterName": "Baada ya - {name}",
+      "cancel": "Ghairi",
+      "submit": "Wasilisha",
+      "name": "Jina",
+      "code": "Msimbo",
+      "description": "Maelezo",
+      "position": "Nafasi",
+      "weightedPercentage": "Asilimia ya Uzito",
+      "quantity": "Kiasi",
+      "amount": "Kiasi",
+      "exchangeRate": "Kiwango cha Ubadilishaji",
+      "contractRate": "Kiwango cha Mkataba",
+      "measurementUnit": "Kipimo",
+      "reference": "Rejea",
+      "commencementDate": "Tarehe ya Kuanza",
+      "completionDate": "Tarehe ya Kukamilika",
+      "startDate": "Tarehe ya Kuanza",
+      "endDate": "Tarehe ya Kuisha",
+      "startDateRequired": "Tarehe ya Kuanza inahitajika",
+      "endDateRequired": "Tarehe ya Kuisha inahitajika",
+      "quantityRequired": "Kiasi kinahitajika",
+      "unitRequired": "Kipimo kinahitajika",
+      "wholeUnit": "Kipimo hiki ni cha vipimo kamili tu — kiasi hakiwezi kuwa sehemu",
+      "done": "Imekamilika",
+      "add": "Ongeza",
+      "rate": "Kiwango",
+      "remarks": "Maoni",
+      "deductionSign": "Makato (-)",
+      "additionSign": "Nyongeza (+)"
+    },
+    "updates": {
+      "errors": {
+        "updateDateRequired": "Tarehe ya sasisho inahitajika"
+      },
+      "titles": {
+        "edit": "Hariri Sasisho la Mradi",
+        "new": "Sasisho Jipya la Mradi"
+      },
+      "tabs": {
+        "description": "Maelezo",
+        "tasksProgress": "Maendeleo ya Kazi"
+      },
+      "buttons": {
+        "cancel": "Ghairi",
+        "next": "Endelea >",
+        "submit": "Wasilisha",
+        "returnAndAdd": "Rudi na Ongeza",
+        "submitWithoutAdd": "Wasilisha bila kuongeza"
+      },
+      "dialogs": {
+        "unsavedChanges": "Mabadiliko Hayajahifadhiwa",
+        "lastItemNotAdded": "Kipengee cha mwisho hakijaongezwa kwenye orodha"
+      }
+    },
+    "deliverableGroups": {
+      "errors": {
+        "nameRequired": "Jina la kundi linahitajika"
+      },
+      "titles": {
+        "edit": "Hariri: {name}",
+        "new": "Makundi Mapya ya Vinavyotolewa"
+      }
+    },
+    "wbs": {
+      "errors": {
+        "nameRequired": "Jina la shughuli linahitajika",
+        "weightRequired": "Asilimia ya uzito inahitajika"
+      },
+      "titles": {
+        "edit": "Hariri: {name}",
+        "newSub": "Shughuli Mpya ya {name}",
+        "new": "Shughuli Mpya ya Ratiba"
+      }
+    },
+    "deliverables": {
+      "errors": {
+        "descriptionRequired": "Maelezo yanahitajika",
+        "unitRequired": "Kipimo kinahitajika",
+        "quantityRequired": "Kiasi kinahitajika",
+        "wholeUnit": "Kipimo hiki ni cha vipimo kamili tu — kiasi hakiwezi kuwa sehemu",
+        "contractRateRequired": "Kiwango cha mkataba kinahitajika mteja anapochaguliwa",
+        "contractRateNumber": "Kiwango cha mkataba lazima kiwe namba"
+      },
+      "titles": {
+        "edit": "Hariri Kinachotolewa",
+        "add": "Ongeza Kinachotolewa cha {name}"
+      },
+      "labels": {
+        "after": "Baada ya: {description}"
+      }
+    },
+    "subcontracts": {
+      "errors": {
+        "subcontractorRequired": "Jina la Mkandarasi Mdogo linahitajika"
+      },
+      "titles": {
+        "edit": "Hariri: {no}",
+        "new": "Mkataba Mdogo Mpya",
+        "addSubContractor": "Ongeza Mkandarasi Mdogo"
+      },
+      "labels": {
+        "subContractorName": "Jina la Mkandarasi Mdogo",
+        "storeAssigned": "Stoo Iliyopangiwa (si lazima)",
+        "remarks": "Maoni"
+      }
+    },
+    "budgets": {
+      "errors": {
+        "nameRequired": "Jina la bajeti linahitajika",
+        "startDateRequired": "Tarehe ya Kuanza inahitajika",
+        "endDateRequired": "Tarehe ya Kuisha inahitajika",
+        "endAfterStart": "Tarehe ya kuisha lazima iwe baada ya tarehe ya kuanza",
+        "costCenterRequired": "Kituo cha Gharama kinahitajika"
+      },
+      "titles": {
+        "duplicate": "Nakili Bajeti ya {name}",
+        "edit": "Hariri Bajeti ya {name}",
+        "newProject": "Bajeti Mpya ya Mradi",
+        "new": "Bajeti Mpya"
+      },
+      "dialogs": {
+        "restoreTitle": "Rejesha Kazi za Mkataba Mdogo za Awali?",
+        "restoreText": "Una Kazi za Mkataba Mdogo za awali kwa kituo hiki cha gharama. Je, ungependa kuzirejesha au kuanza na orodha tupu?",
+        "lossTitle": "Kazi za Mkataba Mdogo Zitapotea",
+        "lossText": "Kubadilisha kituo cha gharama kutafuta Kazi zote za Mkataba Mdogo za sasa. Je, unataka kuendelea?",
+        "unsavedTitle": "Kipengee cha Gharama Hakijahifadhiwa",
+        "unsavedText": "Una mabadiliko ambayo hayajahifadhiwa kwenye fomu ya Vipengee vya Gharama. Je, unataka kuongeza kipengee kwanza, au kuwasilisha bila kukiongeza?"
+      },
+      "buttons": {
+        "startNew": "Anza Upya",
+        "restorePrevious": "Rejesha za Awali",
+        "cancel": "Ghairi",
+        "continue": "Endelea",
+        "submit": "Wasilisha",
+        "submitWithoutAdd": "Wasilisha Bila Kuongeza",
+        "addAndSubmit": "Ongeza na Wasilisha"
+      },
+      "labels": {
+        "budgetName": "Jina la Bajeti",
+        "startDate": "Tarehe ya Kuanza",
+        "endDate": "Tarehe ya Kuisha",
+        "costCenter": "Kituo cha Gharama",
+        "remarks": "Maoni",
+        "optionalFilters": "Vichujio Hiari",
+        "filtersHint": "Tumia vichujio hivi kupunguza vipengee vilivyoorodheshwa. Acha wazi kuonyesha vyote.",
+        "showFilters": "Onyesha Vichujio",
+        "filterBoundTo": "Chuja kwa Kilichofungwa (Hiari)",
+        "all": "Vyote",
+        "task": "Kazi",
+        "filterByTask": "Chuja kwa Kazi (Hiari)",
+        "selectBoundTo": "Chagua Kilichofungwa ili kuwezesha kichujio cha Kazi",
+        "filterByExpense": "Chuja kwa Gharama (Hiari)",
+        "filterByProduct": "Chuja kwa Bidhaa (Hiari)",
+        "filterBySubTask": "Chuja kwa Kazi ya Mkataba Mdogo (Hiari)",
+        "notRequired": "Si lazima"
+      },
+      "tabs": {
+        "expenseItems": "Vipengee vya Gharama",
+        "productItems": "Vipengee vya Bidhaa",
+        "subcontractTask": "Kazi ya Mkataba Mdogo",
+        "summary": "Muhtasari"
+      }
+    },
+    "tasks": {
+      "errors": {
+        "nameRequired": "Jina la kazi linahitajika",
+        "nameMax": "Jina la kazi lisizidi herufi 191",
+        "weightRequired": "Asilimia ya Uzito inahitajika",
+        "weightMin": "Asilimia ya Uzito lazima iwe kubwa kuliko au sawa na 0",
+        "totalExceedsActivity": "Jumla ya asilimia haipaswi kuzidi 100%. Kwa sasa umetenga {total}% kwa Shughuli hii.",
+        "contributionMin": "Asilimia ya Mchango lazima iwe kubwa kuliko au sawa na 0",
+        "contributionMax": "Asilimia ya Mchango lazima iwe chini ya au sawa na 100",
+        "contributionRequired": "Asilimia ya Mchango inahitajika wakati Kinachotolewa kimechaguliwa",
+        "contributionType": "Asilimia ya Mchango inahitajika",
+        "duplicateDeliverable": "Kinachotolewa kimerudiwa. Chagua Kinachotolewa tofauti.",
+        "contributionExceeds": "Jumla ya mchango wa kinachotolewa inazidi 100% pamoja na kazi mpya. Jumla ni {total}%."
+      },
+      "titles": {
+        "edit": "Hariri Kazi ya {name}",
+        "new": "Kazi Mpya ya {name}",
+        "deliverableContributions": "Michango ya Vinavyotolewa"
+      },
+      "labels": {
+        "taskName": "Jina la Kazi",
+        "milestone": "Hatua Muhimu",
+        "dependencies": "Utegemezi",
+        "handlers": "Wasimamizi",
+        "weightPercentage": "Asilimia ya Uzito",
+        "deliverable": "Kinachotolewa",
+        "contributionPercentage": "Asilimia ya Mchango"
+      },
+      "buttons": {
+        "addContribution": "Ongeza Mchango"
+      }
+    },
+    "claims": {
+      "errors": {
+        "remarksRequired": "Maoni yanahitajika",
+        "claimDateRequired": "Tarehe ya dai inahitajika",
+        "currencyRequired": "Sarafu inahitajika",
+        "invalidCurrency": "Sarafu si sahihi",
+        "atLeastOneDeliverable": "Lazima uongeze angalau kinachotolewa kimoja kilichothibitishwa"
+      },
+      "messages": {
+        "created": "Dai limeundwa kwa mafanikio",
+        "updated": "Dai limesasishwa kwa mafanikio",
+        "postsToInvoice": "Hii itachapishwa moja kwa moja kwenye Ankara ya Mteja — jaza tarehe yake ya mwisho wa malipo na rejea/masharti yoyote sasa.",
+        "lastItemNotSaved": "Kipengee cha mwisho kilichoongezwa bado hakijahifadhiwa kwenye orodha."
+      },
+      "titles": {
+        "edit": "Hariri {no}",
+        "new": "Dai Jipya",
+        "unsavedChanges": "Mabadiliko Hayajahifadhiwa"
+      },
+      "labels": {
+        "claimDate": "Tarehe ya Dai",
+        "remarks": "Maoni",
+        "invoiceDueDate": "Tarehe ya Mwisho wa Malipo ya Ankara",
+        "customerReference": "Rejea ya Mteja",
+        "termsAndInstructions": "Masharti na Maelekezo",
+        "summary": "Muhtasari",
+        "grossAmount": "Kiasi Jumla:",
+        "netAdjustments": "Marekebisho Halisi:",
+        "subtotal": "Jumla Ndogo:",
+        "vat": "VAT ({percentage}%):",
+        "grandTotal": "Jumla Kuu:"
+      },
+      "tabs": {
+        "claimedDeliverables": "Vinavyotolewa Vilivyodaiwa",
+        "adjustments": "Marekebisho"
+      },
+      "buttons": {
+        "cancel": "Ghairi",
+        "addItemAndSubmit": "Ongeza Kipengee na Wasilisha",
+        "submitWithoutAdding": "Wasilisha Bila Kuongeza",
+        "next": "Endelea",
+        "updateClaim": "Sasisha Dai",
+        "createClaim": "Unda Dai"
+      }
+    },
+    "claimAdjustments": {
+      "errors": {
+        "typeRequired": "Aina inahitajika",
+        "descriptionRequired": "Maelezo yanahitajika",
+        "amountRequired": "Kiasi kinahitajika",
+        "amountPositive": "Kiasi lazima kiwe kikubwa kuliko 0",
+        "amountValid": "Kiasi halali kinahitajika",
+        "ledgerRequired": "Leja Linganishi inahitajika"
+      },
+      "labels": {
+        "type": "Aina",
+        "complementLedger": "Leja Linganishi",
+        "amount": "Kiasi",
+        "description": "Maelezo"
+      }
+    },
+    "claimedDeliverables": {
+      "errors": {
+        "deliverableRequired": "Kinachotolewa kinahitajika",
+        "revenueLedgerRequired": "Leja ya Mapato inahitajika",
+        "quantityRequired": "Kiasi kinahitajika",
+        "quantityPositive": "Kiasi lazima kiwe chanya",
+        "quantityValid": "Kiasi halali kinahitajika"
+      },
+      "messages": {
+        "loading": "Inapakia...",
+        "noDeliverables": "Hakuna vinavyotolewa vilivyopatikana",
+        "typeToSearch": "Andika angalau herufi 2 ili kutafuta"
+      },
+      "labels": {
+        "deliverable": "Kinachotolewa",
+        "revenueLedger": "Leja ya Mapato",
+        "certifiedQuantity": "Kiasi Kilichothibitishwa",
+        "rate": "Kiwango",
+        "amount": "Kiasi",
+        "remarks": "Maoni"
+      },
+      "tooltips": {
+        "quantityRate": "Kiasi: {quantity} {unit}\nKiwango: {rate}",
+        "lineTotal": "Jumla ya Mstari ({quantity} × {rate}{vat})",
+        "vatSuffix": " × {percentage}% VAT"
+      }
+    },
+    "certificates": {
+      "errors": {
+        "remarksRequired": "Maoni yanahitajika",
+        "dateRequired": "Tarehe ya cheti inahitajika",
+        "atLeastOneTask": "Lazima uongeze angalau Kazi moja Iliyothibitishwa"
+      },
+      "messages": {
+        "created": "Cheti kimeundwa",
+        "updated": "Cheti kimesasishwa",
+        "postsToBill": "Hii itachapishwa moja kwa moja kwenye Ankara ya Msambazaji — jaza tarehe yake ya mwisho wa malipo na rejea yoyote sasa.",
+        "lastItemNotAdded": "Kipengee cha mwisho hakijaongezwa kwenye orodha."
+      },
+      "titles": {
+        "edit": "Hariri {no}",
+        "new": "Fomu ya Cheti Kipya",
+        "unsavedChanges": "Mabadiliko Hayajahifadhiwa"
+      },
+      "labels": {
+        "certificateDate": "Tarehe ya Cheti",
+        "remarks": "Maoni",
+        "billDueDate": "Tarehe ya Mwisho wa Malipo ya Ankara",
+        "supplierReference": "Rejea ya Msambazaji",
+        "summary": "Muhtasari",
+        "grossAmount": "Kiasi Jumla:",
+        "netAdjustments": "Marekebisho Halisi:",
+        "subtotal": "Jumla Ndogo:",
+        "vat": "VAT ({percentage}%):",
+        "grandTotal": "Jumla Kuu:"
+      },
+      "tabs": {
+        "certifiedTasks": "Kazi Zilizothibitishwa",
+        "adjustments": "Marekebisho"
+      },
+      "buttons": {
+        "cancel": "Ghairi",
+        "addAndSubmit": "Ongeza na Wasilisha",
+        "submitWithoutAdding": "Wasilisha Bila Kuongeza",
+        "previous": "Iliyotangulia",
+        "next": "Endelea",
+        "updateCertificate": "Sasisha Cheti",
+        "submitCertificate": "Wasilisha Cheti"
+      }
+    },
+    "certifiedAdjustments": {
+      "errors": {
+        "typeRequired": "Aina inahitajika",
+        "descriptionRequired": "Maelezo yanahitajika",
+        "amountRequired": "Kiasi kinahitajika",
+        "amountPositive": "Kiasi lazima kiwe chanya",
+        "amountValid": "Kiasi halali kinahitajika",
+        "ledgerRequired": "Leja Linganishi inahitajika"
+      },
+      "labels": {
+        "type": "Aina",
+        "complementLedger": "Leja Linganishi",
+        "amount": "Kiasi",
+        "description": "Maelezo"
+      }
+    },
+    "certifiedTasks": {
+      "errors": {
+        "taskRequired": "Kazi ya Mradi inahitajika",
+        "quantityRequired": "Kiasi kinahitajika",
+        "quantityPositive": "Kiasi lazima kiwe chanya",
+        "quantityValid": "Kiasi halali kinahitajika",
+        "exceedsUncertified": "Kiasi Kilichothibitishwa hakiwezi kuzidi kisichothibitishwa ({quantity})",
+        "exceedsExecuted": "Kiasi Kilichothibitishwa hakiwezi kuzidi kiasi kilichotekelezwa ({quantity})"
+      },
+      "labels": {
+        "projectTask": "Kazi ya Mradi",
+        "certifiedQuantity": "Kiasi Kilichothibitishwa",
+        "rate": "Kiwango",
+        "remarks": "Maoni"
+      }
+    },
+    "materialIssued": {
+      "errors": {
+        "productRequired": "Bidhaa inahitajika",
+        "quantityRequired": "Kiasi kinahitajika",
+        "quantityPositive": "Kiasi lazima kiwe chanya",
+        "exceedsBalance": "Kiasi kinazidi salio lililopo",
+        "negativeBalance": "Kiasi hiki kitasababisha salio hasi. Salio la sasa leo ni {balance}"
+      },
+      "labels": {
+        "availableBalance": "Salio Lililopo",
+        "quantity": "Kiasi",
+        "remarks": "Maoni"
+      },
+      "buttons": {
+        "done": "Imekamilika",
+        "add": "Ongeza"
+      }
+    },
+    "budgetItems": {
+      "errors": {
+        "productRequired": "Jina la bidhaa linahitajika",
+        "expenseRequired": "Jina la gharama linahitajika",
+        "currencyRequired": "Sarafu inahitajika",
+        "exchangeRateRequired": "Kiwango cha ubadilishaji kinahitajika",
+        "rateRequired": "Kiwango kinahitajika",
+        "quantityRequired": "Kiasi kinahitajika",
+        "unitRequired": "Kipimo kinahitajika",
+        "wholeUnit": "Kipimo hiki ni cha vipimo kamili tu — kiasi hakiwezi kuwa sehemu",
+        "alternativeSameAsMain": "Bidhaa mbadala haiwezi kuwa sawa na Bidhaa Kuu.",
+        "boundToRequired": "Kilichofungwa kinahitajika",
+        "selectTaskRequired": "Kuchagua Kazi kunahitajika"
+      },
+      "labels": {
+        "productName": "Jina la bidhaa",
+        "expenseName": "Jina la Gharama",
+        "boundTo": "Kilichofungwa",
+        "task": "Kazi",
+        "selectTask": "Chagua Kazi",
+        "select": "Chagua",
+        "unit": "Kipimo",
+        "quantity": "Kiasi",
+        "rate": "Kiwango",
+        "exchangeRate": "Kiwango cha Ubadilishaji",
+        "description": "Maelezo",
+        "alternativeProducts": "Bidhaa Mbadala",
+        "quickAddLedger": "Ongeza Leja Haraka"
+      },
+      "buttons": {
+        "done": "Imekamilika",
+        "add": "Ongeza"
+      }
+    },
+    "form": {
+      "titles": {
+        "edit": "Hariri: {name}",
+        "new": "Mradi Mpya"
+      },
+      "labels": {
+        "projectName": "Jina la Mradi",
+        "projectCategory": "Kategoria ya Mradi",
+        "client": "Mteja",
+        "reference": "Rejea",
+        "commencementDate": "Tarehe ya Kuanza",
+        "completionDate": "Tarehe ya Kukamilika",
+        "inventoryStores": "Stoo za Bidhaa",
+        "description": "Maelezo"
+      },
+      "buttons": {
+        "cancel": "Ghairi",
+        "submit": "Wasilisha"
+      },
+      "errors": {
+        "nameRequired": "Jina la Mradi linahitajika",
+        "nameType": "Weka Jina la Mradi",
+        "categoryRequired": "Kategoria ya Mradi inahitajika"
+      }
+    },
+    "projectUsers": {
+      "titles": {
+        "attachUsers": "Ambatisha Watumiaji"
+      },
+      "labels": {
+        "selectUsers": "Chagua Watumiaji"
+      },
+      "buttons": {
+        "cancel": "Ghairi",
+        "attach": "Ambatisha"
+      },
+      "messages": {
+        "attached": "Watumiaji wameambatishwa kwa mafanikio",
+        "failed": "Operesheni imeshindwa"
+      }
+    }
+  },
+  "attachments": {
+    "errors": {
+      "nameRequired": "Jina la Faili linahitajika",
+      "unsupportedFormat": "Aina ya Faili Haikubaliki",
+      "fileRequired": "Faili linahitajika"
+    },
+    "messages": {
+      "uploaded": "Kiambatisho kimepakiwa",
+      "noAttachments": "Hakuna viambatisho vya {name} hii"
+    },
+    "titles": {
+      "attachmentsFor": "Viambatisho vya {sourceNo}"
+    },
+    "labels": {
+      "name": "Jina",
+      "fileAttachment": "Kiambatisho cha Faili"
+    },
+    "buttons": {
+      "upload": "Pakia",
+      "close": "Funga"
+    }
+  },
+  "projectCategories": {
+    "errors": {
+      "nameRequired": "Jina la kategoria linahitajika"
+    },
+    "messages": {
+      "success": "Imefanikiwa"
+    },
+    "titles": {
+      "new": "Fomu ya Kategoria Mpya",
+      "edit": "Hariri {name}"
+    },
+    "labels": {
+      "categoryName": "Jina la Kategoria",
+      "description": "Maelezo"
+    },
+    "buttons": {
+      "cancel": "Ghairi",
+      "submit": "Wasilisha"
+    }
+  },
+  "assetBookingQuickAdd": {
+    "titles": {
+      "attachBooking": "Ambatisha Uhifadhi wa Mali"
+    },
+    "labels": {
+      "asset": "Mali",
+      "start": "Kuanza",
+      "end": "Kuisha",
+      "rate": "Kiwango"
+    },
+    "messages": {
+      "noBillingProduct": "{code} haina bidhaa ya kutoza iliyounganishwa — utahitaji kuongeza kipengee sahihi kwenye mauzo haya mwenyewe.",
+      "enterRate": "Weka kiwango ili kuongeza {item} kama kipengee kwenye mauzo haya — haitaongezwa kiotomatiki bila kiwango.",
+      "theBillingProduct": "bidhaa ya kutoza",
+      "checkingAvailability": "Inakagua upatikanaji…",
+      "alreadyBooked": "{code} tayari imehifadhiwa kwa sehemu ya kipindi hiki{conflict}. Chagua muda au mali tofauti."
+    },
+    "buttons": {
+      "cancel": "Ghairi",
+      "add": "Ongeza"
+    }
+  }
+}

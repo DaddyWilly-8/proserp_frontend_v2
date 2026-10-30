@@ -29,6 +29,7 @@ import { Controller, useForm } from 'react-hook-form';
 import * as yup from 'yup';
 import humanResourcesServices from '../humanResourcesServices';
 import { LeaveType } from './LeaveTypesType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const FieldLabel = ({ label, hint }: { label: string; hint: string }) => (
   <Stack direction='row' spacing={0.5} alignItems='center' sx={{ mb: 0.5 }}>
@@ -66,6 +67,7 @@ interface ApiResponse {
 }
 
 const LeaveTypeForm = ({ setOpenDialog, leaveType }: LeaveTypeFormProp) => {
+  const dictionary = useDictionary();
   const queryClient = useQueryClient();
   const { enqueueSnackbar } = useSnackbar();
 
@@ -91,7 +93,7 @@ const LeaveTypeForm = ({ setOpenDialog, leaveType }: LeaveTypeFormProp) => {
     mutationFn: humanResourcesServices.addLeaveType,
     onSuccess: (data) => {
       setOpenDialog(false);
-      enqueueSnackbar('Success Adding Leave Type', {
+      enqueueSnackbar(dictionary.humanResources.leaveTypes.form.messages.addSuccess, {
         variant: 'success',
       });
       queryClient.invalidateQueries({ queryKey: ['leaveTypes'] });
@@ -109,7 +111,7 @@ const LeaveTypeForm = ({ setOpenDialog, leaveType }: LeaveTypeFormProp) => {
     mutationFn: humanResourcesServices.updateLeaveType,
     onSuccess: (data) => {
       setOpenDialog(false);
-      enqueueSnackbar('Leave Type update success', {
+      enqueueSnackbar(dictionary.humanResources.leaveTypes.form.messages.updateSuccess, {
         variant: 'success',
       });
       queryClient.invalidateQueries({ queryKey: ['leaveTypes'] });
@@ -184,23 +186,23 @@ const LeaveTypeForm = ({ setOpenDialog, leaveType }: LeaveTypeFormProp) => {
     id: yup.number().optional(),
     name: yup
       .string()
-      .required('name is required')
-      .max(255, 'The name cannot exceed 255 characters'),
+      .required(dictionary.humanResources.leaveTypes.form.validation.nameRequired)
+      .max(255, dictionary.humanResources.leaveTypes.form.validation.nameMax),
     days_per_year: yup
       .number()
-      .required('days per year is required')
-      .min(1, 'Days per year must be greater than 0'),
+      .required(dictionary.humanResources.leaveTypes.form.validation.daysRequired)
+      .min(1, dictionary.humanResources.leaveTypes.form.validation.daysMin),
     cycle_months: yup
       .number()
       .transform((value, originalValue) => (originalValue === '' ? undefined : value))
-      .min(1, 'Cycle must be at least 1 month')
-      .max(240, 'Cycle cannot exceed 240 months')
+      .min(1, dictionary.humanResources.leaveTypes.form.validation.cycleMin)
+      .max(240, dictionary.humanResources.leaveTypes.form.validation.cycleMax)
       .optional(),
     carry_forward_months: yup
       .number()
       .transform((value, originalValue) => (originalValue === '' ? undefined : value))
-      .min(0, 'Carry forward cannot be negative')
-      .max(60, 'Carry forward cannot exceed 60 months')
+      .min(0, dictionary.humanResources.leaveTypes.form.validation.carryMin)
+      .max(60, dictionary.humanResources.leaveTypes.form.validation.carryMax)
       .nullable()
       .optional(),
     excludes_saturday: yup.boolean().optional(),
@@ -273,8 +275,8 @@ const LeaveTypeForm = ({ setOpenDialog, leaveType }: LeaveTypeFormProp) => {
       <DialogTitle>
         <Grid size={12} textAlign={'center'}>
           {!leaveType?.id
-            ? 'Add Leave Type'
-            : `Edit Leave Type ${leaveType.name}`}
+            ? dictionary.humanResources.leaveTypes.form.titles.add
+            : dictionary.humanResources.leaveTypes.form.titles.edit.replace('{name}', leaveType.name)}
         </Grid>
       </DialogTitle>
       <DialogContent>
@@ -283,8 +285,8 @@ const LeaveTypeForm = ({ setOpenDialog, leaveType }: LeaveTypeFormProp) => {
             <Grid size={{ xs: 12, md: 6 }}>
               <Div sx={{ mt: 1 }}>
                 <TextField
-                  label='Name'
-                  placeholder='Leave Type Name'
+                  label={dictionary.humanResources.leaveTypes.form.labels.name}
+                  placeholder={dictionary.humanResources.leaveTypes.form.placeholders.name}
                   size='small'
                   fullWidth
                   error={
@@ -304,8 +306,8 @@ const LeaveTypeForm = ({ setOpenDialog, leaveType }: LeaveTypeFormProp) => {
             <Grid size={{ xs: 12, md: 6 }}>
               <Div sx={{ mt: 1 }}>
                 <TextField
-                  label='Days Per Year'
-                  placeholder='Days Per Year'
+                  label={dictionary.humanResources.leaveTypes.form.labels.daysPerYear}
+                  placeholder={dictionary.humanResources.leaveTypes.form.placeholders.daysPerYear}
                   size='small'
                   fullWidth
                   error={
@@ -327,11 +329,11 @@ const LeaveTypeForm = ({ setOpenDialog, leaveType }: LeaveTypeFormProp) => {
             <Grid size={{ xs: 12, md: 6 }}>
               <Div sx={{ mt: 1 }}>
                 <FieldLabel
-                  label='Cycle (Months)'
-                  hint='Leave at 12 for a normal annual leave type — set to 36 for a leave type usable once every 3 years (e.g. Maternity). Changing this later reshapes every existing allocation for this type.'
+                  label={dictionary.humanResources.leaveTypes.form.labels.cycleMonths}
+                  hint={dictionary.humanResources.leaveTypes.form.hints.cycleMonths}
                 />
                 <TextField
-                  placeholder='Cycle (Months)'
+                  placeholder={dictionary.humanResources.leaveTypes.form.placeholders.cycleMonths}
                   size='small'
                   fullWidth
                   error={!!errors?.cycle_months}
@@ -343,11 +345,11 @@ const LeaveTypeForm = ({ setOpenDialog, leaveType }: LeaveTypeFormProp) => {
             <Grid size={{ xs: 12, md: 6 }}>
               <Div sx={{ mt: 1 }}>
                 <FieldLabel
-                  label='Carry Forward (Months)'
-                  hint='Optional — how many months unused balance from one cycle can still be used into the next. Leave blank to disable carry forward.'
+                  label={dictionary.humanResources.leaveTypes.form.labels.carryForwardMonths}
+                  hint={dictionary.humanResources.leaveTypes.form.hints.carryForwardMonths}
                 />
                 <TextField
-                  placeholder='Carry Forward (Months)'
+                  placeholder={dictionary.humanResources.leaveTypes.form.placeholders.carryForwardMonths}
                   size='small'
                   fullWidth
                   error={!!errors?.carry_forward_months}
@@ -359,8 +361,8 @@ const LeaveTypeForm = ({ setOpenDialog, leaveType }: LeaveTypeFormProp) => {
             <Grid size={{ xs: 12, md: 6 }}>
               <Div sx={{ mt: 1 }}>
                 <FieldLabel
-                  label='Excludes Saturday'
-                  hint='On — Saturdays within the requested date range are not counted as leave days. Off — Saturdays count like any other day.'
+                  label={dictionary.humanResources.leaveTypes.form.labels.excludesSaturday}
+                  hint={dictionary.humanResources.leaveTypes.form.hints.excludesSaturday}
                 />
                 <Controller
                   name='excludes_saturday'
@@ -373,7 +375,11 @@ const LeaveTypeForm = ({ setOpenDialog, leaveType }: LeaveTypeFormProp) => {
                           onChange={(e) => field.onChange(e.target.checked)}
                         />
                       }
-                      label={field.value ? 'Excluded' : 'Counted as a leave day'}
+                      label={
+                        field.value
+                          ? dictionary.humanResources.leaveTypes.form.options.excluded
+                          : dictionary.humanResources.leaveTypes.form.options.counted
+                      }
                     />
                   )}
                 />
@@ -382,8 +388,8 @@ const LeaveTypeForm = ({ setOpenDialog, leaveType }: LeaveTypeFormProp) => {
             <Grid size={{ xs: 12, md: 6 }}>
               <Div sx={{ mt: 1 }}>
                 <FieldLabel
-                  label='Excludes Sunday'
-                  hint='On — Sundays within the requested date range are not counted as leave days (e.g. Annual Leave in a 5- or 6-day work week). Off — Sundays count like any other day (e.g. some Sick Leave policies).'
+                  label={dictionary.humanResources.leaveTypes.form.labels.excludesSunday}
+                  hint={dictionary.humanResources.leaveTypes.form.hints.excludesSunday}
                 />
                 <Controller
                   name='excludes_sunday'
@@ -396,7 +402,11 @@ const LeaveTypeForm = ({ setOpenDialog, leaveType }: LeaveTypeFormProp) => {
                           onChange={(e) => field.onChange(e.target.checked)}
                         />
                       }
-                      label={field.value ? 'Excluded' : 'Counted as a leave day'}
+                      label={
+                        field.value
+                          ? dictionary.humanResources.leaveTypes.form.options.excluded
+                          : dictionary.humanResources.leaveTypes.form.options.counted
+                      }
                     />
                   )}
                 />
@@ -407,13 +417,13 @@ const LeaveTypeForm = ({ setOpenDialog, leaveType }: LeaveTypeFormProp) => {
             <Grid size={{ xs: 12 }}>
               <Div sx={{ mt: 1 }}>
                 <FieldLabel
-                  label='Apply To Employees'
+                  label={dictionary.humanResources.leaveTypes.form.labels.applyToEmployees}
                   hint={
                     applyScope !== 'none'
-                      ? 'This will allocate leave days to all existing employees'
+                      ? dictionary.humanResources.leaveTypes.form.hints.applyAll
                       : leaveType?.id
-                        ? "Changes above (e.g. Days Per Year) won't reach employees who already have this leave type unless you pick a scope here"
-                        : 'Select an option to bulk allocate leave days'
+                        ? dictionary.humanResources.leaveTypes.form.hints.applyEditNone
+                        : dictionary.humanResources.leaveTypes.form.hints.applyNewNone
                   }
                 />
                 <Controller
@@ -427,10 +437,10 @@ const LeaveTypeForm = ({ setOpenDialog, leaveType }: LeaveTypeFormProp) => {
                       value={field.value || 'none'}
                       onChange={field.onChange}
                     >
-                      <MenuItem value='none'>None</MenuItem>
-                      <MenuItem value='all'>All Employees</MenuItem>
+                      <MenuItem value='none'>{dictionary.humanResources.leaveTypes.form.options.none}</MenuItem>
+                      <MenuItem value='all'>{dictionary.humanResources.leaveTypes.form.options.allEmployees}</MenuItem>
                       <MenuItem value='active_contracts'>
-                        Employees With Active Contracts
+                        {dictionary.humanResources.leaveTypes.form.options.activeContracts}
                       </MenuItem>
                     </TextField>
                   )}
@@ -442,8 +452,8 @@ const LeaveTypeForm = ({ setOpenDialog, leaveType }: LeaveTypeFormProp) => {
               <Grid size={{ xs: 12 }}>
                 <Div sx={{ mt: 1 }}>
                   <FieldLabel
-                    label='Gender'
-                    hint='Optional — narrow the scope above to only male or female employees (e.g. Maternity)'
+                    label={dictionary.humanResources.leaveTypes.form.labels.gender}
+                    hint={dictionary.humanResources.leaveTypes.form.hints.gender}
                   />
                   <Controller
                     name='apply_to_gender'
@@ -456,9 +466,9 @@ const LeaveTypeForm = ({ setOpenDialog, leaveType }: LeaveTypeFormProp) => {
                         value={field.value || ''}
                         onChange={field.onChange}
                       >
-                        <MenuItem value=''>Any</MenuItem>
-                        <MenuItem value='female'>Female</MenuItem>
-                        <MenuItem value='male'>Male</MenuItem>
+                        <MenuItem value=''>{dictionary.humanResources.leaveTypes.form.options.any}</MenuItem>
+                        <MenuItem value='female'>{dictionary.humanResources.leaveTypes.form.options.female}</MenuItem>
+                        <MenuItem value='male'>{dictionary.humanResources.leaveTypes.form.options.male}</MenuItem>
                       </TextField>
                     )}
                   />
@@ -470,8 +480,8 @@ const LeaveTypeForm = ({ setOpenDialog, leaveType }: LeaveTypeFormProp) => {
               <Grid size={{ xs: 12 }}>
                 <Div sx={{ mt: 1 }}>
                   <FieldLabel
-                    label='Start Date'
-                    hint='Optional — overrides the automatic date (Jan 1 for annual types, today for longer cycles) for any newly-created allocations.'
+                    label={dictionary.humanResources.leaveTypes.form.labels.startDate}
+                    hint={dictionary.humanResources.leaveTypes.form.hints.startDate}
                   />
                   <Controller
                     name='apply_start_date'
@@ -495,7 +505,7 @@ const LeaveTypeForm = ({ setOpenDialog, leaveType }: LeaveTypeFormProp) => {
           </Grid>
           <DialogActions>
             <Button size='small' onClick={() => setOpenDialog(false)}>
-              Cancel
+              {dictionary.humanResources.leaveTypes.form.buttons.cancel}
             </Button>
             <LoadingButton
               type='submit'
@@ -504,7 +514,7 @@ const LeaveTypeForm = ({ setOpenDialog, leaveType }: LeaveTypeFormProp) => {
               sx={{ display: 'flex' }}
               loading={isPending || updateIsLoading}
             >
-              Submit
+              {dictionary.humanResources.leaveTypes.form.buttons.submit}
             </LoadingButton>
           </DialogActions>
         </form>
@@ -519,43 +529,49 @@ const LeaveTypeForm = ({ setOpenDialog, leaveType }: LeaveTypeFormProp) => {
       >
         <DialogTitle>
           <Typography variant='h6' fontWeight={600}>
-            Confirm Bulk Leave Allocation
+            {dictionary.humanResources.leaveTypes.form.titles.confirmBulk}
           </Typography>
         </DialogTitle>
         <DialogContent>
           <Typography variant='body2' color='text.secondary' sx={{ mb: 2 }}>
-            This action will allocate {confirmDialog.data?.days_per_year || 0}{' '}
-            leave days to multiple employees:
+            {dictionary.humanResources.leaveTypes.form.bulk.intro.replace(
+              '{days}',
+              String(confirmDialog.data?.days_per_year || 0)
+            )}
           </Typography>
           <Grid container spacing={1}>
             <Grid size={12}>
               <Typography variant='body2'>
-                <strong>Will Update:</strong> {confirmDialog.wouldUpdate}{' '}
-                employees
+                <strong>{dictionary.humanResources.leaveTypes.form.bulk.willUpdate}</strong>{' '}
+                {dictionary.humanResources.leaveTypes.form.bulk.employeesCount.replace(
+                  '{count}',
+                  String(confirmDialog.wouldUpdate)
+                )}
                 {confirmDialog.wouldUpdate > 0 && (
                   <Typography
                     variant='caption'
                     display='block'
                     color='text.secondary'
                   >
-                    (Employees who already have this leave type will have their
-                    allocation updated)
+                    {dictionary.humanResources.leaveTypes.form.bulk.updateNote}
                   </Typography>
                 )}
               </Typography>
             </Grid>
             <Grid size={12}>
               <Typography variant='body2'>
-                <strong>Will Create:</strong> {confirmDialog.wouldCreate} new
-                employees
+                <strong>{dictionary.humanResources.leaveTypes.form.bulk.willCreate}</strong>{' '}
+                {dictionary.humanResources.leaveTypes.form.bulk.newEmployeesCount.replace(
+                  '{count}',
+                  String(confirmDialog.wouldCreate)
+                )}
                 {confirmDialog.wouldCreate > 0 && (
                   <Typography
                     variant='caption'
                     display='block'
                     color='text.secondary'
                   >
-                    (Employees who don&apos;t have this leave type will get it
-                    allocated)
+                    {dictionary.humanResources.leaveTypes.form.bulk.createNote}
                   </Typography>
                 )}
               </Typography>
@@ -563,35 +579,36 @@ const LeaveTypeForm = ({ setOpenDialog, leaveType }: LeaveTypeFormProp) => {
             {confirmDialog.wouldSkip > 0 && (
               <Grid size={12}>
                 <Typography variant='body2'>
-                  <strong>Will Skip (already mid-cycle):</strong>{' '}
-                  {confirmDialog.wouldSkip} employees
+                  <strong>{dictionary.humanResources.leaveTypes.form.bulk.willSkip}</strong>{' '}
+                  {dictionary.humanResources.leaveTypes.form.bulk.employeesCount.replace(
+                    '{count}',
+                    String(confirmDialog.wouldSkip)
+                  )}
                   <Typography
                     variant='caption'
                     display='block'
                     color='text.secondary'
                   >
-                    (Employees already partway through a multi-year cycle are
-                    left untouched — edit their allocation individually if
-                    you need to change it)
+                    {dictionary.humanResources.leaveTypes.form.bulk.skipNote}
                   </Typography>
                 </Typography>
               </Grid>
             )}
           </Grid>
           <Typography variant='body2' color='warning.main' sx={{ mt: 2 }}>
-            This action cannot be undone. Continue?
+            {dictionary.humanResources.leaveTypes.form.bulk.warning}
           </Typography>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCancelBulkUpdate} variant='outlined'>
-            Cancel
+            {dictionary.humanResources.leaveTypes.form.buttons.cancel}
           </Button>
           <Button
             onClick={handleConfirmBulkUpdate}
             variant='contained'
             color='warning'
           >
-            Continue
+            {dictionary.humanResources.leaveTypes.form.buttons.continue}
           </Button>
         </DialogActions>
       </Dialog>

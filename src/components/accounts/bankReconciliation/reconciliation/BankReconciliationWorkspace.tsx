@@ -8,17 +8,24 @@ import {
   Chip,
   Dialog,
   Divider,
+  IconButton,
+  LinearProgress,
+  InputAdornment,
   MenuItem,
   Paper,
   Select,
   Tab,
   Tabs,
+  TextField,
+  Tooltip,
   Typography,
   useMediaQuery,
 } from '@mui/material';
-import { CheckCircleOutlined, DeleteOutlined, UploadOutlined } from '@mui/icons-material';
+import { DateTimePicker } from '@mui/x-date-pickers';
+import dayjs, { Dayjs } from 'dayjs';
+import { CheckCircleOutlined, DeleteOutlined, LockOpenOutlined, PrintOutlined, SearchOutlined, UploadOutlined } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useIsFetching, useIsMutating, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useSnackbar } from 'notistack';
 import { useJumboDialog } from '@jumbo/components/JumboDialog/hooks/useJumboDialog';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
@@ -26,11 +33,13 @@ import { PERMISSIONS } from '@/utilities/constants/permissions';
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 import bankReconciliationServices from '../bank-reconciliation-services';
 import ImportStatementDialog from '../statementImport/ImportStatementDialog';
+import ReconciliationStatementReport from '../../reports/reconciliationStatement/ReconciliationStatementReport';
 import DifferenceSummary from './DifferenceSummary';
 import MatchedLineGroup from './MatchedLineGroup';
 import UnmatchedJournalRow from './UnmatchedJournalRow';
 import UnmatchedLineRow from './UnmatchedLineRow';
 import { formatDate } from './date-format';
+import { LOCKED_HINT } from './locked-hint';
 
 interface Props {
   bankAccountId: number;
@@ -39,6 +48,13 @@ interface Props {
 const formatAmount = (amount: number) =>
   amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
+const amountText = (amount: any): string => {
+  const n = Number(amount);
+  if (!Number.isFinite(n)) return '';
+  const abs = Math.abs(n);
+  return `${abs} ${formatAmount(abs)} ${formatAmount(abs).replace(/,/g, '')}`;
+};
+
 export default function BankReconciliationWorkspace({ bankAccountId }: Props) {
   const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
@@ -46,7 +62,11 @@ export default function BankReconciliationWorkspace({ bankAccountId }: Props) {
   const { checkOrganizationPermission } = useJumboAuth();
   const { theme } = useJumboTheme();
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
+  const mobile = useMediaQuery(theme.breakpoints.down('sm'));
+  // Below this width the secondary header actions fold into a ⋮ menu.
+  const compactHeader = useMediaQuery(theme.breakpoints.down('md'));
   const [importDialogOpen, setImportDialogOpen] = useState(false);
+  const [statementReportOpen, setStatementReportOpen] = useState(false);
   const [tab, setTab] = useState(0);
   // null = "whichever statement the workspace defaults to" (the latest one).
   // Set once the user explicitly picks a different statement from the
@@ -54,6 +74,19 @@ export default function BankReconciliationWorkspace({ bankAccountId }: Props) {
   // permanently unreachable the moment a newer one is imported, since
   // the backend always defaults to the latest by date.
   const [selectedStatementId, setSelectedStatementId] = useState<number | null>(null);
+  // Narrow what the tabs list. View-only: the difference above is always
+  // computed from the whole statement, so filtering can't hide a real gap.
+  const [dateFrom, setDateFrom] = useState<Dayjs | null>(null);
+  const [dateTo, setDateTo] = useState<Dayjs | null>(null);
+  const [search, setSearch] = useState('');
+
+  // Any save in flight, or the workspace still reloading after one. The lists
+  // below are locked for that whole window: acting on a row that is about to
+  // disappear or change (a match just made, a balance not yet recomputed)
+  // risks a double match or a stale difference.
+  const mutating = useIsMutating();
+  const refreshing = useIsFetching({ queryKey: ['bank-reconciliation-workspace', bankAccountId] });
+  const busy = mutating > 0 || refreshing > 0;
 
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ['bank-reconciliation-workspace', bankAccountId, selectedStatementId],
@@ -80,6 +113,29 @@ export default function BankReconciliationWorkspace({ bankAccountId }: Props) {
     },
     onError: (err: any) => enqueueSnackbar(err?.response?.data?.message || 'Failed to complete reconciliation', { variant: 'error' }),
   });
+
+  const reopenMutation = useMutation({
+    mutationFn: () => bankReconciliationServices.reopenStatement(data.statement.id),
+    onSuccess: (result) => {
+      enqueueSnackbar(result.message || 'Statement reopened', { variant: 'success' });
+      hideDialog();
+      queryClient.invalidateQueries({ queryKey: ['bank-reconciliation-workspace', bankAccountId] });
+      queryClient.invalidateQueries({ queryKey: ['bank-statements-list', bankAccountId] });
+      queryClient.invalidateQueries({ queryKey: ['bank-accounts-list'] });
+    },
+    onError: (err: any) => enqueueSnackbar(err?.response?.data?.message || 'Failed to reopen statement', { variant: 'error' }),
+  });
+
+  const confirmReopen = () => {
+    showDialog({
+      title: 'Reopen this reconciliation?',
+      content:
+        'This statement was completed and is locked. Reopening lets matches be changed again, and clears its "last reconciled" date until you complete it again. The change is recorded in the audit trail.',
+      variant: 'confirm',
+      onYes: () => reopenMutation.mutate(),
+      onNo: () => hideDialog(),
+    });
+  };
 
   const deleteStatementMutation = useMutation({
     mutationFn: () => bankReconciliationServices.deleteStatement(data.statement.id),
@@ -149,9 +205,52 @@ export default function BankReconciliationWorkspace({ bankAccountId }: Props) {
       </Box>
     );
   } else {
-    const { statement, matched_lines, unmatched_lines, ignored_lines, unmatched_journals, outstanding_journals, book_balance, difference, amount_tolerance, suggestion_day_tolerance } = data;
+    const { statement, book_balance, difference, amount_tolerance, suggestion_day_tolerance } = data;
+    const allMatchedLines: any[] = data.matched_lines;
+    const allUnmatchedLines: any[] = data.unmatched_lines;
+    const allIgnoredLines: any[] = data.ignored_lines;
+    const allUnmatchedJournals: any[] = data.unmatched_journals;
+    const allOutstandingJournals: any[] = data.outstanding_journals;
+
+    const terms = search.toLowerCase().split(/\s+/).filter(Boolean).map((t) => t.replace(/,/g, ''));
+    const filtersActive = Boolean(dateFrom || dateTo || terms.length);
+    // Statement lines carry a date only (midnight), journals a full
+    // timestamp. A midnight value is treated as the whole day, so picking a
+    // time on the same day doesn't drop that day's statement lines.
+    const inRange = (date: any) => {
+      if (!dateFrom && !dateTo) return true;
+      const d = dayjs(date);
+      const wholeDay = d.hour() === 0 && d.minute() === 0 && d.second() === 0;
+      if (dateFrom && d.isBefore(wholeDay ? dateFrom.startOf('day') : dateFrom)) return false;
+      if (dateTo && d.isAfter(wholeDay ? dateTo.endOf('day') : dateTo)) return false;
+      return true;
+    };
+    const matchesSearch = (...parts: any[]) => {
+      if (!terms.length) return true;
+      const haystack = parts.join(' ').toLowerCase().replace(/,/g, '');
+      return terms.every((t) => haystack.includes(t));
+    };
+    const lineText = (line: any) => [line.description, line.reference, amountText(line.amount)];
+    const journalText = (journal: any) => [
+      journal.description,
+      journal.voucher_no,
+      journal.counterparty,
+      amountText(journal.comparable_amount ?? journal.amount),
+    ];
+
+    const unmatched_lines = allUnmatchedLines.filter((i) => inRange(i.line.line_date) && matchesSearch(...lineText(i.line)));
+    const unmatched_journals = allUnmatchedJournals.filter((j) => inRange(j.journal_date) && matchesSearch(...journalText(j)));
+    const matched_lines = allMatchedLines.filter(
+      (g) =>
+        inRange(g.line.line_date) &&
+        matchesSearch(...lineText(g.line), ...(g.matches ?? []).flatMap((m: any) => (m.journal ? journalText(m.journal) : [])))
+    );
+    const ignored_lines = allIgnoredLines.filter((l) => inRange(l.line_date) && matchesSearch(...lineText(l)));
+    const outstanding_journals = allOutstandingJournals.filter((j) => inRange(j.journal_date) && matchesSearch(...journalText(j)));
+    // Tab label: "shown/total" while a filter is hiding rows, plain count otherwise.
+    const count = (shown: any[], total: any[]) => (filtersActive ? `${shown.length}/${total.length}` : `${total.length}`);
     const tolerance = amount_tolerance ?? 0.01;
-    const isBalanced = Math.abs(difference) <= tolerance;
+    const isBalanced = Math.abs(Math.round(difference * 100) / 100) <= tolerance;
     const isCompleted = statement.status === 'completed';
 
     mainContent = (
@@ -167,7 +266,7 @@ export default function BankReconciliationWorkspace({ bankAccountId }: Props) {
                   setSelectedStatementId(Number(e.target.value));
                   setTab(0);
                 }}
-                sx={{ mt: 0.5, minWidth: 260 }}
+                sx={{ mt: 0.5, minWidth: { xs: 0, sm: 260 }, maxWidth: '100%' }}
               >
                 {statements.map((s: any) => (
                   <MenuItem key={s.id} value={s.id}>
@@ -185,14 +284,27 @@ export default function BankReconciliationWorkspace({ bankAccountId }: Props) {
               </Typography>
             )}
           </Box>
-          <Box sx={{ display: 'flex', gap: 1 }}>
-            {!isCompleted && checkOrganizationPermission(PERMISSIONS.BANK_RECONCILIATION_CREATE) && (
-              <Button variant='outlined' startIcon={<UploadOutlined />} onClick={() => setImportDialogOpen(true)}>
+          <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', flexWrap: 'wrap' }}>
+            {/* Opens the report for this account and statement, like the Stock Report on a store */}
+            <Tooltip title='Reconciliation Statement'>
+              <IconButton size={compactHeader ? 'small' : 'medium'} onClick={() => setStatementReportOpen(true)}>
+                <PrintOutlined />
+              </IconButton>
+            </Tooltip>
+            {/* Also offered on a completed statement: that's exactly when the next period's statement is imported */}
+            {checkOrganizationPermission(PERMISSIONS.BANK_RECONCILIATION_CREATE) && (
+              <Button
+                size={compactHeader ? 'small' : 'medium'}
+                variant='outlined'
+                startIcon={<UploadOutlined />}
+                onClick={() => setImportDialogOpen(true)}
+              >
                 Import New Statement
               </Button>
             )}
             {checkOrganizationPermission(PERMISSIONS.BANK_RECONCILIATION_DELETE) && (
               <LoadingButton
+                size={compactHeader ? 'small' : 'medium'}
                 variant='outlined'
                 color='error'
                 startIcon={<DeleteOutlined />}
@@ -205,15 +317,31 @@ export default function BankReconciliationWorkspace({ bankAccountId }: Props) {
           </Box>
         </Box>
 
-        <DifferenceSummary closingBalance={statement.closing_balance} bookBalance={book_balance} difference={difference} />
+        <DifferenceSummary closingBalance={statement.closing_balance} bookBalance={book_balance} difference={difference} tolerance={tolerance} isCompleted={isCompleted} />
+
+        {isCompleted && checkOrganizationPermission(PERMISSIONS.BANK_RECONCILIATION_DELETE) && (
+          <Box sx={{ mb: 2 }}>
+            <LoadingButton
+              fullWidth={mobile}
+              variant='outlined'
+              startIcon={<LockOpenOutlined />}
+              disabled={busy}
+              loading={reopenMutation.isPending}
+              onClick={confirmReopen}
+            >
+              Reopen
+            </LoadingButton>
+          </Box>
+        )}
 
         {!isCompleted && checkOrganizationPermission(PERMISSIONS.BANK_RECONCILIATION_EDIT) && (
           <Box sx={{ mb: 2 }}>
             <LoadingButton
+              fullWidth={mobile}
               variant='contained'
               color='success'
               startIcon={<CheckCircleOutlined />}
-              disabled={!isBalanced}
+              disabled={!isBalanced || busy}
               loading={completeMutation.isPending}
               onClick={() => completeMutation.mutate()}
             >
@@ -222,7 +350,62 @@ export default function BankReconciliationWorkspace({ bankAccountId }: Props) {
           </Box>
         )}
 
-        <Paper variant='outlined'>
+        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', alignItems: 'center', mb: 1 }}>
+          {/* On mobile the two pickers share one row (half width each, shorter format). */}
+          <DateTimePicker
+            label='From'
+            value={dateFrom}
+            format={mobile ? 'DD/MM/YY HH:mm' : undefined}
+            onChange={(newValue: Dayjs | null) => setDateFrom(newValue)}
+            sx={{ flex: { xs: '1 1 0', sm: '0 0 auto' }, minWidth: 0 }}
+            slotProps={{ textField: { size: 'small' }, field: { clearable: true } }}
+          />
+          <DateTimePicker
+            label='To'
+            value={dateTo}
+            minDateTime={dateFrom ?? undefined}
+            format={mobile ? 'DD/MM/YY HH:mm' : undefined}
+            onChange={(newValue: Dayjs | null) => setDateTo(newValue)}
+            sx={{ flex: { xs: '1 1 0', sm: '0 0 auto' }, minWidth: 0 }}
+            slotProps={{ textField: { size: 'small' }, field: { clearable: true } }}
+          />
+          <TextField
+            size='small'
+            label='Search'
+            placeholder='Description, reference, voucher, amount…'
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            sx={{ minWidth: { xs: '100%', sm: 280 }, flexGrow: 1, maxWidth: 480 }}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position='start'>
+                  <SearchOutlined fontSize='small' />
+                </InputAdornment>
+              ),
+            }}
+          />
+          {filtersActive && (
+            <Button
+              size='small'
+              onClick={() => {
+                setDateFrom(null);
+                setDateTo(null);
+                setSearch('');
+              }}
+            >
+              Clear filters
+            </Button>
+          )}
+        </Box>
+
+        <Paper
+          variant='outlined'
+          aria-busy={busy}
+          sx={{ position: 'relative', ...(busy && { pointerEvents: 'none', opacity: 0.6, transition: 'opacity 0.15s' }) }}
+          // `inert` also blocks keyboard focus, which pointer-events alone doesn't.
+          {...(busy ? { inert: true } : {})}
+        >
+          {busy && <LinearProgress sx={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 1 }} />}
           <Tabs
             value={tab}
             onChange={(e, v) => setTab(v)}
@@ -231,17 +414,17 @@ export default function BankReconciliationWorkspace({ bankAccountId }: Props) {
             allowScrollButtonsMobile
             sx={{ borderBottom: 1, borderColor: 'divider' }}
           >
-            <Tab label={`Unmatched Statement Lines (${unmatched_lines.length})`} />
-            <Tab label={`Unmatched Book Entries (${unmatched_journals.length})`} />
-            <Tab label={`Matched (${matched_lines.length})`} />
-            <Tab label={`Ignored (${ignored_lines.length})`} />
-            <Tab label={`Outstanding (${outstanding_journals.length})`} />
+            <Tab label={`Unmatched Statement Lines (${count(unmatched_lines, allUnmatchedLines)})`} />
+            <Tab label={`Unmatched Book Entries (${count(unmatched_journals, allUnmatchedJournals)})`} />
+            <Tab label={`Matched (${count(matched_lines, allMatchedLines)})`} />
+            <Tab label={`Ignored (${count(ignored_lines, allIgnoredLines)})`} />
+            <Tab label={`Outstanding (${count(outstanding_journals, allOutstandingJournals)})`} />
           </Tabs>
 
           {tab === 0 && (
             <Box sx={{ p: 2 }}>
               {unmatched_lines.length === 0 && (
-                <Typography color='text.secondary'>No unmatched statement lines.</Typography>
+                <Typography color='text.secondary'>{filtersActive ? 'Nothing matches the current filters.' : 'No unmatched statement lines.'}</Typography>
               )}
               {unmatched_lines.map((item: any) => (
                 <UnmatchedLineRow
@@ -249,11 +432,12 @@ export default function BankReconciliationWorkspace({ bankAccountId }: Props) {
                   bankAccountId={bankAccountId}
                   line={item.line}
                   suggestions={item.suggestions}
-                  allUnmatchedJournals={unmatched_journals}
+                  allUnmatchedJournals={allUnmatchedJournals}
                   bankAccountLedgerId={bankAccount?.ledger_id}
                   existingMatches={item.existing_matches}
                   remainingAmount={item.remaining_amount}
                   tolerance={tolerance}
+                  locked={isCompleted}
                 />
               ))}
             </Box>
@@ -262,18 +446,19 @@ export default function BankReconciliationWorkspace({ bankAccountId }: Props) {
           {tab === 1 && (
             <Box sx={{ p: 2 }}>
               {unmatched_journals.length === 0 && (
-                <Typography color='text.secondary'>No unmatched book entries.</Typography>
+                <Typography color='text.secondary'>{filtersActive ? 'Nothing matches the current filters.' : 'No unmatched book entries.'}</Typography>
               )}
               {unmatched_journals.map((journal: any) => (
                 <UnmatchedJournalRow
                   key={journal.id}
                   bankAccountId={bankAccountId}
                   journal={journal}
-                  allUnmatchedLines={unmatched_lines}
+                  allUnmatchedLines={allUnmatchedLines}
                   bankAccountLedgerId={bankAccount?.ledger_id}
                   existingMatches={journal.existing_matches}
                   remainingAmount={journal.remaining_amount}
                   tolerance={tolerance}
+                  locked={isCompleted}
                 />
               ))}
             </Box>
@@ -282,7 +467,7 @@ export default function BankReconciliationWorkspace({ bankAccountId }: Props) {
           {tab === 2 && (
             <Box sx={{ p: 2 }}>
               {matched_lines.length === 0 && (
-                <Typography color='text.secondary'>No matched lines yet.</Typography>
+                <Typography color='text.secondary'>{filtersActive ? 'Nothing matches the current filters.' : 'No matched lines yet.'}</Typography>
               )}
               {matched_lines.map((matchedLine: any) => (
                 <MatchedLineGroup
@@ -290,6 +475,7 @@ export default function BankReconciliationWorkspace({ bankAccountId }: Props) {
                   bankAccountId={bankAccountId}
                   matchedLine={matchedLine}
                   suggestionDayTolerance={suggestion_day_tolerance}
+                  locked={isCompleted}
                 />
               ))}
             </Box>
@@ -298,7 +484,7 @@ export default function BankReconciliationWorkspace({ bankAccountId }: Props) {
           {tab === 3 && (
             <Box sx={{ p: 2 }}>
               {ignored_lines.length === 0 && (
-                <Typography color='text.secondary'>No ignored lines.</Typography>
+                <Typography color='text.secondary'>{filtersActive ? 'Nothing matches the current filters.' : 'No ignored lines.'}</Typography>
               )}
               {ignored_lines.map((line: any) => (
                 <Box key={line.id} sx={{ py: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1, flexWrap: 'wrap' }}>
@@ -307,13 +493,18 @@ export default function BankReconciliationWorkspace({ bankAccountId }: Props) {
                     {formatDate(line.line_date)} — {line.description} — {formatAmount(line.amount)}
                   </Typography>
                   {checkOrganizationPermission(PERMISSIONS.BANK_RECONCILIATION_EDIT) && (
-                    <LoadingButton
-                      size='small'
-                      loading={unignoreMutation.isPending && unignoreMutation.variables === line.id}
-                      onClick={() => unignoreMutation.mutate(line.id)}
-                    >
-                      Restore
-                    </LoadingButton>
+                    <Tooltip title={isCompleted ? LOCKED_HINT : ''}>
+                      <span>
+                        <LoadingButton
+                          size='small'
+                          disabled={isCompleted}
+                          loading={unignoreMutation.isPending && unignoreMutation.variables === line.id}
+                          onClick={() => unignoreMutation.mutate(line.id)}
+                        >
+                          Restore
+                        </LoadingButton>
+                      </span>
+                    </Tooltip>
                   )}
                 </Box>
               ))}
@@ -326,7 +517,7 @@ export default function BankReconciliationWorkspace({ bankAccountId }: Props) {
                 Book entries acknowledged as genuine timing differences (e.g. a cheque not yet presented, a deposit not yet credited) — excluded from the difference above until they clear on a future statement.
               </Typography>
               {outstanding_journals.length === 0 && (
-                <Typography color='text.secondary'>No outstanding book entries.</Typography>
+                <Typography color='text.secondary'>{filtersActive ? 'Nothing matches the current filters.' : 'No outstanding book entries.'}</Typography>
               )}
               {outstanding_journals.map((journal: any) => (
                 <Box key={journal.id} sx={{ py: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1, flexWrap: 'wrap' }}>
@@ -341,13 +532,18 @@ export default function BankReconciliationWorkspace({ bankAccountId }: Props) {
                     </Typography>
                   </Box>
                   {checkOrganizationPermission(PERMISSIONS.BANK_RECONCILIATION_EDIT) && (
-                    <LoadingButton
-                      size='small'
-                      loading={unmarkOutstandingMutation.isPending && unmarkOutstandingMutation.variables === journal.outstanding_item_id}
-                      onClick={() => unmarkOutstandingMutation.mutate(journal.outstanding_item_id)}
-                    >
-                      Unmark
-                    </LoadingButton>
+                    <Tooltip title={isCompleted ? LOCKED_HINT : ''}>
+                      <span>
+                        <LoadingButton
+                          size='small'
+                          disabled={isCompleted}
+                          loading={unmarkOutstandingMutation.isPending && unmarkOutstandingMutation.variables === journal.outstanding_item_id}
+                          onClick={() => unmarkOutstandingMutation.mutate(journal.outstanding_item_id)}
+                        >
+                          Unmark
+                        </LoadingButton>
+                      </span>
+                    </Tooltip>
                   )}
                 </Box>
               ))}
@@ -368,6 +564,18 @@ export default function BankReconciliationWorkspace({ bankAccountId }: Props) {
   return (
     <>
       {mainContent}
+      {/* The report for this account and the statement being worked on, already generated. */}
+      <Dialog open={statementReportOpen} fullWidth scroll='paper' maxWidth='xl' fullScreen={belowLargeScreen}>
+        {statementReportOpen && data?.statement && (
+          <ReconciliationStatementReport
+            setOpenDialog={setStatementReportOpen}
+            bankAccountId={bankAccountId}
+            from={data.statement.statement_date_from}
+            to={data.statement.statement_date_to}
+            standalone
+          />
+        )}
+      </Dialog>
       <Dialog open={importDialogOpen} fullWidth maxWidth='sm' fullScreen={belowLargeScreen}>
         {importDialogOpen && (
           <ImportStatementDialog

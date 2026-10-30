@@ -36,6 +36,8 @@ import customerInvoiceServices from '../../accounts/invoices/customerInvoice-ser
 import purchaseBillServices from '../../procurement/grns/purchaseBill-services';
 import financialReportsServices from '../../accounts/reports/financial-reports-services';
 import { useDashboardSettings } from '../Dashboard';
+import FinancialSummaryStrip from './FinancialSummaryStrip';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface DueInvoice {
   id: number;
@@ -68,6 +70,7 @@ function DueInvoiceRow({
   invoice: DueInvoice;
   isIncoming: boolean;
 }) {
+  const dictionary = useDictionary();
   const { enqueueSnackbar } = useSnackbar();
   const { showDialog, hideDialog } = useJumboDialog();
   const { checkOrganizationPermission } = useJumboAuth();
@@ -121,7 +124,7 @@ function DueInvoiceRow({
       }}
     >
       <Grid size={{ xs: 12, md: 6 }}>
-        <Tooltip title={'Name'}>
+        <Tooltip title={dictionary.tooltips.name}>
           <Typography noWrap>{invoice.name}</Typography>
         </Tooltip>
         <Typography
@@ -141,7 +144,7 @@ function DueInvoiceRow({
         size={canMarkPaid ? { xs: 8, md: 4 } : { xs: 12, md: 6 }}
         textAlign={'end'}
       >
-        <Tooltip title={'Amount'}>
+        <Tooltip title={dictionary.tooltips.amount}>
           <Chip
             label={invoice.amount?.toLocaleString('en-US', {
               style: 'currency',
@@ -152,7 +155,7 @@ function DueInvoiceRow({
       </Grid>
       {canMarkPaid && (
         <Grid size={{ xs: 4, md: 2 }} textAlign={'end'}>
-          <Tooltip title='Mark as Paid'>
+          <Tooltip title={dictionary.tooltips.markAsPaid}>
             <LoadingButton
               size='small'
               color='success'
@@ -169,6 +172,7 @@ function DueInvoiceRow({
 }
 
 function DueInvoices() {
+  const dictionary = useDictionary();
   const { theme } = useJumboTheme();
   const smallScreen = useMediaQuery(theme.breakpoints.down('md'));
   const midScreen = useMediaQuery(theme.breakpoints.down('lg'));
@@ -204,7 +208,7 @@ function DueInvoices() {
 
   if (isFetching && !data) {
     return (
-      <JumboCardQuick title={'Due Invoices'} sx={{ height: 360 }}>
+      <JumboCardQuick title={dictionary.dashboardCards.dueInvoices} sx={{ height: 360 }}>
         <LinearProgress />
       </JumboCardQuick>
     );
@@ -213,7 +217,7 @@ function DueInvoices() {
   return (
     <div>
       <JumboCardQuick
-        title={'Due Invoices'}
+        title={dictionary.dashboardCards.dueInvoices}
         sx={{
           height:
             smallScreen &&
@@ -225,14 +229,15 @@ function DueInvoices() {
                 : 360,
         }}
       >
+        <FinancialSummaryStrip kind='receivablesPayables' />
         <JumboScrollbar
           autoHeight
           autoHeightMin={
             dueInvoices.incoming.length < 1 && dueInvoices.outgoing.length < 1
-              ? 200
+              ? 150
               : smallScreen
-                ? 300
-                : 250
+                ? 240
+                : 190
           }
           autoHide
           autoHideDuration={200}
@@ -243,8 +248,8 @@ function DueInvoices() {
               <AccordionSummary expandIcon={<ExpandMoreOutlined />}>
                 <Grid container>
                   <Grid size={{ xs: 9 }}>
-                    <Tooltip title={'Name'}>
-                      <Typography variant='h4'>Receivables</Typography>
+                    <Tooltip title={dictionary.tooltips.name}>
+                      <Typography variant='h4'>{dictionary.dashboardCards.receivables}</Typography>
                     </Tooltip>
                   </Grid>
                   <Grid size={{ xs: 2 }} textAlign={'end'}>
@@ -292,8 +297,8 @@ function DueInvoices() {
               <AccordionSummary expandIcon={<ExpandMoreOutlined />}>
                 <Grid container>
                   <Grid size={{ xs: 9 }}>
-                    <Tooltip title={'Name'}>
-                      <Typography variant='h4'>Payables</Typography>
+                    <Tooltip title={dictionary.tooltips.name}>
+                      <Typography variant='h4'>{dictionary.dashboardCards.payables}</Typography>
                     </Tooltip>
                   </Grid>
                   <Grid size={{ xs: 2 }} textAlign={'end'}>

@@ -11,8 +11,10 @@ import {
 } from '@mui/material';
 import { useState } from 'react';
 import LeaveAllocationForm from './LeaveAllocationForm';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const LeaveAllocationActionTail = ({ employeeId }: { employeeId?: number }) => {
+  const dictionary = useDictionary();
   const [openDialog, setOpenDialog] = useState(false);
 
   const { theme } = useJumboTheme();
@@ -29,7 +31,7 @@ const LeaveAllocationActionTail = ({ employeeId }: { employeeId?: number }) => {
         disableElevation
         sx={{ '& .MuiButton-root': { px: 1 } }}
       >
-        <Tooltip title='Add Leave Allocation'>
+        <Tooltip title={dictionary.tooltips.addLeaveAllocation}>
           <IconButton onClick={() => setOpenDialog(true)}>
             <AddOutlined />
           </IconButton>

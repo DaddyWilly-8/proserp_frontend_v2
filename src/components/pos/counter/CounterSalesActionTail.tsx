@@ -3,10 +3,12 @@ import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 import { AddOutlined } from '@mui/icons-material'
 import { Dialog, IconButton, Tooltip, useMediaQuery } from '@mui/material'
 import React, { lazy } from 'react'
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const SaleDialogForm = lazy(() => import('./saleForm/SaleDialogForm'));
 
 function CounterSalesActionTail() {
+    const dictionary = useDictionary();
     const [openDialog, setOpenDialog] = React.useState(false);
 
     //Screen handling constants
@@ -15,7 +17,7 @@ function CounterSalesActionTail() {
 
   return (
     <React.Fragment>
-        <Tooltip title='New Sale'>
+        <Tooltip title={dictionary.tooltips.newSale}>
             <IconButton onClick={() => setOpenDialog(true)}>
                 <AddOutlined/>
             </IconButton>

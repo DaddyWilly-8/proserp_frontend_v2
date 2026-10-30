@@ -2,8 +2,10 @@ import { DisabledByDefault, EditOutlined } from '@mui/icons-material'
 import { Divider, Grid, IconButton, Tooltip, Typography } from '@mui/material'
 import React, { useState } from 'react'
 import MaterialIssuedForm from './MaterialIssuedForm';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function MaterialIssuedRow({ material, index, projectTaskIndex, taskProgressItem, MaterialIssued=[], setMaterialIssued}) {
+    const dictionary = useDictionary();
     const product = material.product;
     const [showForm, setShowForm] = useState(false);
 
@@ -32,32 +34,32 @@ function MaterialIssuedRow({ material, index, projectTaskIndex, taskProgressItem
                             {index+1}.
                         </Grid>
                         <Grid size={{xs: 11, md: 3.5}}>
-                            <Tooltip title="Product">
+                            <Tooltip title={dictionary.tooltips.product}>
                                 <Typography>{product?.name}</Typography>
                             </Tooltip>
                         </Grid>
                         <Grid size={{xs: 6, md: 2.5}}>
-                            <Tooltip title="Store">
+                            <Tooltip title={dictionary.tooltips.store}>
                                 <Typography>{material.store?.name}</Typography>
                             </Tooltip>
                         </Grid>
                         <Grid size={{xs: 6, md: 2}} textAlign={'end'}>
-                            <Tooltip title="Quantity">
+                            <Tooltip title={dictionary.tooltips.quantity}>
                                 <Typography>{material.quantity} {material.unit_symbol || material.measurement_unit?.symbol || ''}</Typography>
                             </Tooltip>
                         </Grid>
                         <Grid size={{xs: 12, md: 2.5}} paddingLeft={3}>
-                            <Tooltip title="Remarks">
+                            <Tooltip title={dictionary.tooltips.remarks}>
                                 <Typography>{material.remarks}</Typography>
                             </Tooltip>
                         </Grid>
                         <Grid size={{xs: 12, md: 1}} textAlign={'end'}>
-                            <Tooltip title='Edit Item'>
+                            <Tooltip title={dictionary.tooltips.editItem}>
                                 <IconButton size='small' onClick={() => {setShowForm(true)}}>
                                     <EditOutlined fontSize='small'/>
                                 </IconButton>
                             </Tooltip>
-                            <Tooltip title='Remove Item'>
+                            <Tooltip title={dictionary.tooltips.removeItem}>
                                 <IconButton size='small' onClick={handleRemoveItem}>
                                     <DisabledByDefault fontSize='small' color='error'/>
                                 </IconButton>

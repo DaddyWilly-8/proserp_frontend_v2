@@ -26,8 +26,10 @@ import UnsubscribedAccess from '@/shared/Information/UnsubscribedAccess';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
 import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
 import UnauthorizedAccess from '@/shared/Information/UnauthorizedAccess';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function PurchasesOrdersList() {
+    const dictionary = useDictionary();
     const params = useParams();
     const searchParams = useSearchParams();
     const listRef = React.useRef();
@@ -178,7 +180,7 @@ function PurchasesOrdersList() {
                                                                 />
                                                             </Grid>
                                                             <Grid size={{xs: 1, md: 0.5}} alignContent={'end'}>
-                                                                <Tooltip title="Filter Dates">
+                                                                <Tooltip title={dictionary.tooltips.filterDates}>
                                                                     <IconButton onClick={() => {
                                                                         setQueryOptions(state => ({
                                                                             ...state,

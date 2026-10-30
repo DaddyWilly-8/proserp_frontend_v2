@@ -66,6 +66,36 @@ storeServices.getStockMovement = async (params, dormantStock = false) => {
     return data;
 };
 
+storeServices.getStockByCostCenter = async (filters) => {
+    const { data } = await axios.post('/api/stores/stockByCostCenter', filters);
+    return data;
+};
+
+storeServices.getStockByCostCenterExcel = async (filters) => {
+    const { data } = await axios.post('/api/stores/stockByCostCenterExcel', filters, {
+        responseType: 'blob',
+    });
+    return data;
+};
+
+// Across all stores (or the main stores in store_ids), not one store.
+storeServices.getStockMovementAllStores = async (params, dormantStock = false) => {
+    const { data } = await axios.get('/api/stores/getStockMovementAllStores', {
+        params: {
+            ...params,
+            dormant: dormantStock,
+        },
+    });
+    return data;
+};
+
+storeServices.getStockMovementAllStoresExcel = async (filters) => {
+    const { data } = await axios.post('/api/stores/getStockMovementAllStoresExcel', filters, {
+        responseType: 'blob',
+    });
+    return data;
+};
+
 storeServices.getStock = async (params) => {
     const { data } = await axios.get(`/api/stores/${params.store_id}/getStock`, {
         params

@@ -22,6 +22,7 @@ import { MODULES } from '@/utilities/constants/modules';
 import productCategoryServices from '../productCategories/productCategoryServices';
 import productServices from './productServices';
 import { useProductApp } from './ProductsProvider';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const PRODUCT_TYPES = [
   { name: 'Inventory' },
@@ -31,6 +32,7 @@ const PRODUCT_TYPES = [
 ];
 
 function ProductQuickAdd({ setOpen, setAddedProduct }) {
+  const dictionary = useDictionary();
   //Screen handling constants
   const { theme } = useJumboTheme();
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
@@ -91,13 +93,13 @@ function ProductQuickAdd({ setOpen, setAddedProduct }) {
         });
         
         // Also show a general error message
-        enqueueSnackbar(errorData.message || 'Please check the information you submitted', {
+        enqueueSnackbar(errorData.message || dictionary.forms.products.form.messages.checkInformation, {
           variant: 'error',
         });
       } else {
         // Handle other errors
         enqueueSnackbar(
-          error?.response?.data?.message || 'Failed to add product',
+          error?.response?.data?.message || dictionary.forms.products.quickAdd.messages.addFailed,
           {
             variant: 'error',
           }
@@ -108,19 +110,19 @@ function ProductQuickAdd({ setOpen, setAddedProduct }) {
 
   const validationSchema = yup.object({
     item_name: yup
-      .string('Enter your Product name')
-      .required('Product name is required'),
+      .string(dictionary.forms.products.quickAdd.errors.validation.productName.typeError)
+      .required(dictionary.forms.products.quickAdd.errors.validation.productName.required),
     product_category_id: yup
-      .number('Choose an Product category')
-      .min(1, 'Product category is required')
-      .required('Product category is required'),
+      .number(dictionary.forms.products.quickAdd.errors.validation.productCategory.typeError)
+      .min(1, dictionary.forms.products.quickAdd.errors.validation.productCategory.required)
+      .required(dictionary.forms.products.quickAdd.errors.validation.productCategory.required),
     measurement_unit_id: yup
-      .number('Choose a measurement unit')
-      .min(1, 'Measurement unit is required')
-      .required('Measurement unit is required'),
+      .number(dictionary.forms.products.quickAdd.errors.validation.measurementUnit.typeError)
+      .min(1, dictionary.forms.products.quickAdd.errors.validation.measurementUnit.required)
+      .required(dictionary.forms.products.quickAdd.errors.validation.measurementUnit.required),
     type: yup
-      .string('Choose an Product type')
-      .required('Product type is required'),
+      .string(dictionary.forms.products.quickAdd.errors.validation.productType.typeError)
+      .required(dictionary.forms.products.quickAdd.errors.validation.productType.required),
   });
 
   const {
@@ -161,7 +163,7 @@ function ProductQuickAdd({ setOpen, setAddedProduct }) {
             renderInput={(params) => (
               <TextField
                 {...params}
-                label='Product Category'
+                label={dictionary.forms.products.quickAdd.labels.productCategory}
                 error={!!errors.product_category_id}
                 helperText={errors.product_category_id?.message}
               />
@@ -183,13 +185,13 @@ function ProductQuickAdd({ setOpen, setAddedProduct }) {
         <Div sx={{ mt: 1, mb: 1 }}>
           <Autocomplete
             size='small'
-            getOptionLabel={(option) => option.name}
+            getOptionLabel={(option) => dictionary.forms.products.form.types[option.name] || option.name}
             isOptionEqualToValue={(option, value) => option.name === value.name}
             options={productTypeOptions}
             renderInput={(params) => (
               <TextField
                 {...params}
-                label='Type'
+                label={dictionary.forms.products.form.labels.type}
                 error={!!errors.type}
                 helperText={errors.type?.message}
               />
@@ -218,7 +220,7 @@ function ProductQuickAdd({ setOpen, setAddedProduct }) {
             renderInput={(params) => (
               <TextField
                 {...params}
-                label='Product Name'
+                label={dictionary.forms.products.quickAdd.labels.productName}
                 error={!!errors.item_name}
                 helperText={errors.item_name?.message}
               />
@@ -255,7 +257,7 @@ function ProductQuickAdd({ setOpen, setAddedProduct }) {
             isOptionEqualToValue={(option, value) => option === value}
             options={brands}
             renderInput={(params) => (
-              <TextField {...params} label='Brand (Optional)' />
+              <TextField {...params} label={dictionary.forms.products.form.labels.brandOptional} />
             )}
             onChange={(event, newValue) => {
               setValue('brand', newValue ? newValue : null, {
@@ -281,7 +283,7 @@ function ProductQuickAdd({ setOpen, setAddedProduct }) {
             isOptionEqualToValue={(option, value) => option === value}
             options={models}
             renderInput={(params) => (
-              <TextField {...params} label='Model (Optional)' />
+              <TextField {...params} label={dictionary.forms.products.form.labels.modelOptional} />
             )}
             onChange={(event, newValue) => {
               setValue('model', newValue, {
@@ -310,7 +312,7 @@ function ProductQuickAdd({ setOpen, setAddedProduct }) {
               <TextField
                 {...params}
                 rows={2}
-                label='Specifications (Optional)'
+                label={dictionary.forms.products.form.labels.specificationsOptional}
               />
             )}
             onChange={(event, newValue) => {
@@ -332,7 +334,7 @@ function ProductQuickAdd({ setOpen, setAddedProduct }) {
         <Div sx={{ mt: 1, mb: 1 }}>
           <MeasurementSelector
             key={`measurement-selector-${formResetKey}`}
-            label='Measurement Unit'
+            label={dictionary.forms.products.quickAdd.labels.measurementUnit}
             value={selectedUnit ? selectedUnit : null}
             frontError={
               errors.measurement_unit_id
@@ -360,7 +362,7 @@ function ProductQuickAdd({ setOpen, setAddedProduct }) {
           <TextField
             size='small'
             fullWidth
-            label='SKU (Optional)'
+            label={dictionary.forms.products.form.labels.skuOptional}
             {...register('sku')}
             error={!!errors.sku}
             helperText={errors.sku?.message}
@@ -374,14 +376,14 @@ function ProductQuickAdd({ setOpen, setAddedProduct }) {
             fullWidth
             multiline={true}
             rows={2}
-            label='Description (Optional)'
+            label={dictionary.forms.products.form.labels.descriptionOptional}
             {...register('description')}
           />
         </Div>
       </Grid>
       <Grid size={12} sx={{ textAlign: 'end' }}>
         <Div sx={{ mt: 1, mb: 1 }}>
-          <Button onClick={() => setOpen(false)}>Cancel</Button>
+          <Button onClick={() => setOpen(false)}>{dictionary.forms.products.quickAdd.buttons.cancel}</Button>
           <LoadingButton
             type='submit'
             loading={addProduct.isPending}
@@ -389,7 +391,7 @@ function ProductQuickAdd({ setOpen, setAddedProduct }) {
             variant='contained'
             size='small'
           >
-            Add
+            {dictionary.forms.products.quickAdd.buttons.add}
           </LoadingButton>
         </Div>
       </Grid>

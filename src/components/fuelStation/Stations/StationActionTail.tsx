@@ -13,8 +13,10 @@ import React, { useState } from 'react';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
 import StationForm from './StationForm';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const StationActionTail = () => {
+  const dictionary = useDictionary();
   const [openDialog, setOpenDialog] = useState(false);
   const { theme } = useJumboTheme();
   const { checkOrganizationPermission } = useJumboAuth();
@@ -27,7 +29,7 @@ const StationActionTail = () => {
       </Dialog>
       <ButtonGroup variant="outlined" size="small" disableElevation sx={{ '& .MuiButton-root': { px: 1 } }}>
         {checkOrganizationPermission([PERMISSIONS.FUEL_STATIONS_CREATE]) && (
-          <Tooltip title="New Fuel Station">
+          <Tooltip title={dictionary.tooltips.newFuelStation}>
             <IconButton onClick={() => setOpenDialog(true)}>
               <AddOutlined />
             </IconButton>

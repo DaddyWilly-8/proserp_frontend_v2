@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import TransactionItemForm from './TransactionItemForm';
 import { Ledger } from '../ledgers/LedgerType';
 import { useLedgerSelect } from '../ledgers/forms/LedgerSelectProvider';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 type TransactionItem = {
   debit_ledger?: Ledger;
@@ -52,6 +53,7 @@ const TransactionItemRow: React.FC<TransactionItemRowProps> = ({
   items = [],
   setItems
 }) => {
+  const dictionary = useDictionary();
   const [showForm, setShowForm] = useState(false);
   const { ungroupedLedgerOptions } = useLedgerSelect();
 
@@ -85,7 +87,7 @@ const TransactionItemRow: React.FC<TransactionItemRowProps> = ({
           {/* Debit Ledger Display */}
           {(isPayment || isTransfer) && (
             <Grid size={{xs: 6, md: 4}}>
-              <Tooltip title="Debit">
+              <Tooltip title={dictionary.tooltips.debit}>
                 <Typography>{debit_ledger?.name || item.debitLedgerName}</Typography>
               </Tooltip>
             </Grid>
@@ -94,7 +96,7 @@ const TransactionItemRow: React.FC<TransactionItemRowProps> = ({
           {/* Credit Ledger Display */}
           {isReceipt && (
             <Grid size={{xs: 6, md: 4}}>
-              <Tooltip title="Credit">
+              <Tooltip title={dictionary.tooltips.credit}>
                 <Typography>{credit_ledger?.name || item.creditLedgerName}</Typography>
               </Tooltip>
             </Grid>
@@ -102,16 +104,16 @@ const TransactionItemRow: React.FC<TransactionItemRowProps> = ({
           
           {/* Description Display */}
           <Grid size={{xs: 6, md: 4, lg: 4.3}}>
-            <Tooltip title="Description">
+            <Tooltip title={dictionary.tooltips.description}>
               <Typography>
                 {item.description}
                 {(isPayment || isReceipt) && item.relatableNo && (
                   <Typography component="span" variant="caption" color="text.secondary" sx={{ display: 'block' }}>
                     {item.relatable_type === 'bill'
-                      ? 'Bill'
+                      ? dictionary.forms.transactions.itemRow.labels.bill
                       : item.relatable_type === 'invoice'
-                        ? 'Invoice'
-                        : 'P.O'}: {item.relatableNo}
+                        ? dictionary.forms.transactions.itemRow.labels.invoice
+                        : dictionary.forms.transactions.itemRow.labels.purchaseOrder}: {item.relatableNo}
                   </Typography>
                 )}
               </Typography>
@@ -120,19 +122,19 @@ const TransactionItemRow: React.FC<TransactionItemRowProps> = ({
           
           {/* Amount Display */}
           <Grid size={{xs: 6, md: 3, lg: 2}}>
-            <Tooltip title="Amount">
+            <Tooltip title={dictionary.tooltips.amount}>
               <Typography textAlign={'right'}>{item.amount?.toLocaleString()}</Typography>
             </Tooltip>
           </Grid>
           
           {/* Action Buttons */}
           <Grid textAlign={'end'} size={{xs: 12, md: 12, lg: 1}}>
-            <Tooltip title='Edit Item'>
+            <Tooltip title={dictionary.tooltips.editItem}>
               <IconButton size='small' onClick={() => setShowForm(true)}>
                 <EditOutlined fontSize='small' />
               </IconButton>
             </Tooltip>
-            <Tooltip title='Remove Item'>
+            <Tooltip title={dictionary.tooltips.removeItem}>
               <IconButton size='small' onClick={handleRemoveItem}>
                 <DisabledByDefault fontSize='small' color='error' />
               </IconButton>

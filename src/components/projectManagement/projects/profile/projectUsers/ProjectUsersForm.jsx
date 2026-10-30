@@ -17,9 +17,12 @@ import axios from "@/lib/services/config";
 import UsersSelector from "@/components/sharedComponents/UsersSelector";
 import { Div } from "@jumbo/shared";
 import { LoadingButton } from "@mui/lab";
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import { useProjectProfile } from "../ProjectProfileProvider";
 
 const ProjectUsersForm = ({ setOpenDialog }) => {
+  const dictionary = useDictionary();
+  const t = dictionary.forms.projects.projectUsers;
   const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
   const { project } = useProjectProfile();
@@ -49,7 +52,7 @@ const ProjectUsersForm = ({ setOpenDialog }) => {
 
     onSuccess: () => {
       enqueueSnackbar(
-         "Users attached successfully",
+         t.messages.attached,
         { variant: "success" }
       );
 
@@ -57,7 +60,7 @@ const ProjectUsersForm = ({ setOpenDialog }) => {
       queryClient.invalidateQueries({ queryKey: ["cost-center-users"] });
       setOpenDialog(false);
     },
-    onError: () => enqueueSnackbar("Operation failed", { variant: "error" }),
+    onError: () => enqueueSnackbar(t.messages.failed, { variant: "error" }),
   });
 
   return (
@@ -68,14 +71,14 @@ const ProjectUsersForm = ({ setOpenDialog }) => {
           component="div"
           textAlign="center"
         >
-          {"Attach Users"}
+          {t.titles.attachUsers}
         </Typography>
       </DialogTitle>
 
       <DialogContent>
         <Div sx={{ mt: 1 }}>
           <UsersSelector
-            label="Select Users"
+            label={t.labels.selectUsers}
             multiple
             excludeUsers={costCenterUsersQuery?.data || []}
             onChange={(newValue) =>
@@ -87,7 +90,7 @@ const ProjectUsersForm = ({ setOpenDialog }) => {
 
       <DialogActions>
         <Button variant="outlined" size="small" onClick={() => setOpenDialog(false)}>
-          Cancel
+          {t.buttons.cancel}
         </Button>
 
         <LoadingButton
@@ -98,7 +101,7 @@ const ProjectUsersForm = ({ setOpenDialog }) => {
           disabled={selectedUserIds.length === 0}
           onClick={() => mutation.mutate()}
         >
-          {"Attach"}
+          {t.buttons.attach}
         </LoadingButton>
       </DialogActions>
     </>

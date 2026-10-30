@@ -1,0 +1,791 @@
+{
+  "products": {
+    "form": {
+      "title": "Bidhaa/Huduma Mpya",
+      "labels": {
+        "category": "Kategoria",
+        "type": "Aina",
+        "itemName": "Jina la Kipengee",
+        "brandOptional": "Chapa (Si lazima)",
+        "modelOptional": "Modeli (Si lazima)",
+        "skuOptional": "SKU (Si lazima)",
+        "specificationsOptional": "Vipimo na Sifa (Si lazima)",
+        "primaryMeasurementUnit": "Kipimo Kikuu",
+        "vatExempted": "Imesamehewa VAT",
+        "descriptionOptional": "Maelezo (Si lazima)",
+        "openingBalanceDetails": "Maelezo ya Salio la Mwanzo",
+        "costCenter": "Kituo cha Gharama",
+        "stockComplementLedger": "Leja ya Kukamilisha Hisa",
+        "asOf": "Kufikia",
+        "store": "Stoo",
+        "openingBalance": "Salio la Mwanzo",
+        "unitCost": "Gharama ya Kipimo"
+      },
+      "types": {
+        "Inventory": "Bidhaa",
+        "Non-Inventory": "Isiyo ya Bidhaa",
+        "Service": "Huduma",
+        "Asset": "Mali"
+      },
+      "buttons": {
+        "cancel": "Ghairi",
+        "save": "Hifadhi"
+      },
+      "messages": {
+        "checkInformation": "Tafadhali kagua taarifa ulizowasilisha"
+      },
+      "errors": {
+        "validation": {
+          "itemName": {
+            "required": "Jina la kipengee linahitajika"
+          },
+          "productCategory": {
+            "required": "Kategoria ya bidhaa inahitajika"
+          },
+          "measurementUnit": {
+            "required": "Kipimo kinahitajika"
+          },
+          "type": {
+            "required": "Aina ya kipengee inahitajika"
+          },
+          "costCenter": {
+            "required": "Kituo cha gharama kinahitajika"
+          },
+          "stockComplementLedger": {
+            "required": "Leja ya Kukamilisha Hisa inahitajika"
+          },
+          "unitCost": {
+            "required": "Gharama ya kipimo inahitajika",
+            "positive": "Gharama ya kipimo lazima iwe chanya"
+          },
+          "openingBalanceDate": {
+            "required": "Tarehe ya salio la mwanzo inahitajika"
+          }
+        }
+      }
+    },
+    "secondaryUnits": {
+      "messages": {
+        "addFailed": "Imeshindwa kuongeza kipimo",
+        "updateFailed": "Imeshindwa kusasisha kipimo"
+      },
+      "errors": {
+        "validation": {
+          "unitExists": "Kipimo tayari kipo",
+          "conversionFactor": "Kigawe cha ubadilishaji"
+        }
+      }
+    },
+    "quickAdd": {
+      "labels": {
+        "productCategory": "Kategoria ya Bidhaa",
+        "productName": "Jina la Bidhaa",
+        "measurementUnit": "Kipimo"
+      },
+      "buttons": {
+        "cancel": "Ghairi",
+        "add": "Ongeza"
+      },
+      "messages": {
+        "addFailed": "Imeshindwa kuongeza bidhaa"
+      },
+      "errors": {
+        "validation": {
+          "productName": {
+            "typeError": "Weka jina la bidhaa",
+            "required": "Jina la bidhaa linahitajika"
+          },
+          "productCategory": {
+            "typeError": "Chagua kategoria ya bidhaa",
+            "required": "Kategoria ya bidhaa inahitajika"
+          },
+          "measurementUnit": {
+            "typeError": "Chagua kipimo",
+            "required": "Kipimo kinahitajika"
+          },
+          "productType": {
+            "typeError": "Chagua aina ya bidhaa",
+            "required": "Aina ya bidhaa inahitajika"
+          }
+        }
+      }
+    },
+    "excelImport": {
+      "labels": {
+        "productsExcel": "Excel ya Bidhaa",
+        "asAt": "Kufikia (MM/DD/YYYY)",
+        "store": "Stoo"
+      },
+      "messages": {
+        "templateDownloadFailed": "Hitilafu wakati wa kupakua kiolezo cha Excel"
+      },
+      "errors": {
+        "validation": {
+          "stockDate": {
+            "required": "Tarehe ya Hisa inahitajika"
+          },
+          "complementLedger": {
+            "required": "Leja ya Kukamilisha inahitajika"
+          },
+          "store": {
+            "required": "Stoo inahitajika"
+          },
+          "costCenter": {
+            "required": "Kituo cha Gharama kinahitajika"
+          }
+        }
+      }
+    }
+  },
+  "productCategories": {
+    "form": {
+      "errors": {
+        "cannotBeOwnParent": "Haiwezi kuwa mzazi wa yenyewe"
+      }
+    }
+  },
+  "stores": {
+    "form": {
+      "titleSubStore": "Ongeza Stoo Ndogo",
+      "errors": {
+        "validation": {
+          "parentStore": {
+            "required": "Stoo kuu inahitajika"
+          }
+        },
+        "cannotBeOwnParent": "Haiwezi kuwa mzazi wa yenyewe"
+      }
+    },
+    "selectionMobile": {
+      "labels": {
+        "subStoreSelect": "Chagua Stoo Ndogo"
+      },
+      "buttons": {
+        "subStore": "Stoo Ndogo"
+      }
+    },
+    "convertToAsset": {
+      "title": "Badilisha kuwa Mali",
+      "labels": {
+        "quantityToConvert": "Kiasi cha Kubadilisha",
+        "conversionDate": "Tarehe ya Ubadilishaji",
+        "receivingAssetProduct": "Bidhaa ya Mali Inayopokea",
+        "costCenter": "Kituo cha Gharama",
+        "identificationSerialNumbers": "Utambulisho / Namba za Mfululizo (si lazima)",
+        "unitN": "Kipimo {n}",
+        "remarks": "Maoni"
+      },
+      "messages": {
+        "availableUnits": "{name} — {balance} {symbol} zinapatikana",
+        "atAverageCost": " kwa gharama ya wastani ya {cost} kwa kipimo"
+      },
+      "buttons": {
+        "cancel": "Ghairi",
+        "convert": "Badilisha"
+      },
+      "errors": {
+        "validation": {
+          "quantity": {
+            "required": "Kiasi kinahitajika",
+            "integer": "Kiasi lazima kiwe namba kamili",
+            "positive": "Kiasi lazima kiwe kubwa kuliko 0",
+            "max": "Vipimo {count} pekee vinapatikana"
+          },
+          "assetProduct": {
+            "required": "Chagua bidhaa ya mali itakayopokea hisa hii"
+          },
+          "costCenter": {
+            "required": "Chagua kituo cha gharama ambacho hisa hii inatolewa"
+          },
+          "conversionDate": {
+            "required": "Tarehe ya ubadilishaji inahitajika"
+          }
+        }
+      }
+    },
+    "lowStockThreshold": {
+      "labels": {
+        "product": "Bidhaa",
+        "threshold": "Kiwango cha Chini"
+      },
+      "buttons": {
+        "submit": "Wasilisha",
+        "close": "Funga"
+      },
+      "errors": {
+        "validation": {
+          "product": {
+            "required": "Bidhaa inahitajika"
+          },
+          "quantity": {
+            "required": "Kiasi kinahitajika"
+          }
+        }
+      }
+    },
+    "stockAdjustment": {
+      "titles": {
+        "edit": "Hariri: {adjustmentNo}",
+        "new": "Marekebisho Mapya ya Hisa"
+      },
+      "labels": {
+        "adjustmentDate": "Tarehe ya Marekebisho (MM/DD/YYYY)",
+        "reason": "Sababu",
+        "reference": "Rejea",
+        "costCenter": "Kituo cha Gharama",
+        "stockComplementLedger": "Leja ya Kukamilisha Hisa",
+        "importExcel": "Ingiza Excel",
+        "description": "Maelezo",
+        "currentStock": "Hisa ya Sasa",
+        "actualStock": "Hisa Halisi",
+        "changeInStock": "Mabadiliko ya Hisa",
+        "averageCost": "Gharama ya Wastani",
+        "stockExcel": "Excel ya Hisa",
+        "narration": "Maelezo ya Muamala"
+      },
+      "reasons": {
+        "Opening balance": "Salio la mwanzo",
+        "Stock-taking": "Ukaguzi wa hisa",
+        "Returned goods": "Bidhaa zilizorudishwa",
+        "Write-offs": "Kufuta bidhaa",
+        "Internal": "Ndani",
+        "Waste": "Upotevu",
+        "Others": "Nyinginezo"
+      },
+      "buttons": {
+        "add": "Ongeza",
+        "cancel": "Ghairi",
+        "submit": "Wasilisha"
+      },
+      "errors": {
+        "validation": {
+          "reason": {
+            "required": "Sababu inahitajika"
+          },
+          "adjustmentDate": {
+            "required": "Tarehe ya Marekebisho inahitajika"
+          },
+          "costCenter": {
+            "required": "Kituo cha gharama kinahitajika"
+          },
+          "stockComplementLedger": {
+            "required": "Leja ya Kukamilisha Hisa inahitajika"
+          },
+          "narration": {
+            "required": "Maelezo ya Muamala yanahitajika"
+          },
+          "product": {
+            "required": "Bidhaa inahitajika"
+          },
+          "actualStock": {
+            "required": "Hisa halisi inahitajika"
+          },
+          "averageCost": {
+            "required": "Gharama ya wastani inahitajika"
+          }
+        }
+      }
+    },
+    "inventoryTransfer": {
+      "titles": {
+        "newExternal": "Uhamisho Mpya wa Nje wa Bidhaa",
+        "newInternal": "Uhamisho Mpya wa Ndani wa Bidhaa",
+        "newCostCenters": "Uhamisho Mpya wa Bidhaa kati ya Vituo vya Gharama",
+        "edit": "Hariri {transferNo}",
+        "receive": "Pokea {transferNo}",
+        "unsavedChanges": "Mabadiliko Yasiyohifadhiwa",
+        "addItem": "Ongeza Kipengee"
+      },
+      "tabs": {
+        "items": "VIPENGEE"
+      },
+      "labels": {
+        "transferDate": "Tarehe ya Uhamisho",
+        "destinationStore": "Stoo ya Mwisho",
+        "destination": "Mahali pa Mwisho",
+        "sourceCostCenter": "Kituo cha Gharama cha Chanzo",
+        "costCenter": "Kituo cha Gharama",
+        "destinationCostCenter": "Kituo cha Gharama cha Mwisho",
+        "receivableAccount": "Akaunti ya Zinazodaiwa",
+        "changeCostCenter": "Badilisha Kituo cha Gharama",
+        "vehicleInformation": "Taarifa za Gari",
+        "driverInformation": "Taarifa za Dereva",
+        "narration": "Maelezo ya Muamala",
+        "receiveDate": "Tarehe ya Kupokea",
+        "receive": "Pokea",
+        "remarks": "Maoni",
+        "availableBalance": "Salio Linalopatikana",
+        "quantity": "Kiasi"
+      },
+      "messages": {
+        "lastItemNotAdded": "Kipengee cha mwisho hakijaongezwa kwenye orodha",
+        "negativeBalance": "Kiasi hiki kitasababisha salio hasi. Salio la sasa leo ni {balance}"
+      },
+      "buttons": {
+        "addAndSubmit": "Ongeza na Wasilisha",
+        "submitWithoutAdd": "Wasilisha bila kuongeza",
+        "cancel": "Ghairi",
+        "submit": "Wasilisha",
+        "done": "Imekamilika",
+        "add": "Ongeza"
+      },
+      "errors": {
+        "validation": {
+          "transferDate": {
+            "required": "Tarehe ya Uhamisho inahitajika"
+          },
+          "narration": {
+            "required": "Maelezo ya Muamala yanahitajika"
+          },
+          "destinationStore": {
+            "required": "Stoo ya Mwisho inahitajika"
+          },
+          "ledger": {
+            "required": "Leja inahitajika"
+          },
+          "items": {
+            "min": "Lazima uongeze angalau kipengee kimoja"
+          },
+          "receiveDate": {
+            "required": "Tarehe ya Kupokea inahitajika"
+          },
+          "remarks": {
+            "required": "Maoni yanahitajika"
+          },
+          "quantity": {
+            "required": "Kiasi kinahitajika",
+            "max": "Kiasi hakiwezi kuzidi kiasi ambacho hakijapokelewa",
+            "wholeUnit": "Bidhaa hii huuzwa kwa vipimo kamili — kiasi hakiwezi kuwa sehemu ya kipimo",
+            "positive": "Kiasi lazima kiwe namba chanya",
+            "number": "Kiasi lazima kiwe namba",
+            "exceedsBalance": "Kiasi kinazidi salio linalopatikana"
+          },
+          "product": {
+            "required": "Bidhaa inahitajika"
+          }
+        }
+      }
+    }
+  },
+  "purchases": {
+    "orderForm": {
+      "labels": {
+        "orderDate": "Tarehe ya Agizo",
+        "vendor": "Muuzaji",
+        "reference": "Rejea",
+        "dateRequired": "Tarehe Inayohitajika",
+        "exchangeRate": "Kiwango cha Ubadilishaji",
+        "costCenters": "Vituo vya Gharama",
+        "cashPurchase": "Ununuzi wa Fedha Taslimu",
+        "costName": "Jina la gharama",
+        "amount": "Kiasi",
+        "vatExempted": "Imesamehewa VAT"
+      },
+      "buttons": {
+        "done": "Imekamilika",
+        "add": "Ongeza"
+      },
+      "errors": {
+        "validation": {
+          "costName": {
+            "required": "Jina la gharama linahitajika"
+          },
+          "amount": {
+            "required": "Kiasi kinahitajika"
+          }
+        }
+      },
+      "summary": {
+        "title": "Muhtasari wa Agizo",
+        "itemsTotal": "Jumla ya Vipengee:",
+        "additionalCosts": "Gharama za Ziada:",
+        "vat": "VAT:",
+        "grandTotal": "Jumla Kuu:",
+        "suggestRecentPrice": "Pendekeza Bei ya Hivi Karibuni:"
+      }
+    },
+    "itemForm": {
+      "titles": {
+        "addItem": "Ongeza Kipengee",
+        "quickProductRegistration": "Usajili wa Haraka wa Bidhaa"
+      },
+      "labels": {
+        "productOrService": "Bidhaa/Huduma",
+        "quantity": "Kiasi",
+        "vat": "VAT",
+        "price": "Bei",
+        "priceVatInclusive": "Bei (Pamoja na VAT)",
+        "amount": "Kiasi"
+      },
+      "buttons": {
+        "done": "Imekamilika",
+        "add": "Ongeza"
+      },
+      "errors": {
+        "validation": {
+          "product": {
+            "required": "Bidhaa inahitajika"
+          },
+          "quantity": {
+            "required": "Kiasi kinahitajika"
+          },
+          "price": {
+            "required": "Bei inahitajika"
+          }
+        }
+      }
+    },
+    "orderDialog": {
+      "titles": {
+        "new": "Agizo Jipya la Ununuzi",
+        "edit": "Hariri Agizo: {orderNo}",
+        "unsavedChanges": "Mabadiliko Yasiyohifadhiwa"
+      },
+      "tabs": {
+        "items": "Vipengee",
+        "additionalCosts": "Gharama za Ziada",
+        "termsAndRemarks": "Masharti na Maoni"
+      },
+      "messages": {
+        "lastItemNotAdded": "Kipengee cha mwisho hakijaongezwa kwenye orodha"
+      },
+      "buttons": {
+        "addAndSubmit": "Ongeza na Wasilisha",
+        "submitWithoutAdd": "Wasilisha bila kuongeza",
+        "cancel": "Ghairi",
+        "prev": "< Iliyotangulia",
+        "next": "Inayofuata >",
+        "submit": "Wasilisha"
+      },
+      "errors": {
+        "validation": {
+          "orderDate": {
+            "required": "Tarehe ya agizo inahitajika"
+          },
+          "currency": {
+            "required": "Sarafu inahitajika"
+          },
+          "costCenters": {
+            "min": "Angalau kituo kimoja cha gharama lazima kichaguliwe",
+            "required": "Kituo cha Gharama kinahitajika"
+          },
+          "exchangeRate": {
+            "required": "Kiwango cha ubadilishaji kinahitajika"
+          },
+          "creditLedger": {
+            "required": "Akaunti ya Mkopo (Kutoka) inahitajika"
+          },
+          "store": {
+            "required": "Stoo ya kupokelea inahitajika"
+          },
+          "supplierLedger": {
+            "required": "Akaunti ya msambazaji inahitajika"
+          },
+          "items": {
+            "min": "Lazima uongeze angalau kipengee kimoja"
+          }
+        }
+      }
+    },
+    "orderPayment": {
+      "labels": {
+        "paymentTerms": "Masharti ya Malipo",
+        "remarks": "Maoni",
+        "instantPayment": "Malipo ya Papo Hapo",
+        "payFrom": "Lipa kutoka",
+        "instantReceive": "Upokeaji wa Papo Hapo"
+      }
+    },
+    "closeOrReopen": {
+      "titles": {
+        "reopen": "Fungua Upya Agizo: {orderNo}",
+        "close": "Funga Agizo: {orderNo}"
+      },
+      "labels": {
+        "reopeningDate": "Tarehe ya Kufungua Upya",
+        "closingDate": "Tarehe ya Kufunga",
+        "remarks": "Maoni"
+      },
+      "buttons": {
+        "cancel": "Ghairi",
+        "submit": "Wasilisha"
+      },
+      "errors": {
+        "validation": {
+          "closingDate": {
+            "required": "Tarehe ya kufunga inahitajika"
+          },
+          "reopeningDate": {
+            "required": "Tarehe ya kufungua upya inahitajika"
+          }
+        }
+      }
+    },
+    "receive": {
+      "itemsTab": {
+        "buttons": {
+          "autofillAll": "Jaza Vyote",
+          "clearAll": "Futa Vyote",
+          "resetItems": "Weka Upya Vipengee"
+        },
+        "labels": {
+          "receive": "Pokea",
+          "remarks": "Maoni",
+          "unitN": "Kipimo {n}"
+        },
+        "messages": {
+          "identificationHint": "Utambulisho / Namba ya Mfululizo kwa kila kipimo (si lazima — namba ya mali hupewa kiotomatiki ikiachwa wazi)"
+        }
+      },
+      "titles": {
+        "edit": "Hariri {grnNo}",
+        "receive": "Pokea {orderNo}",
+        "unsavedAdditionalCost": "Gharama ya Ziada Isiyohifadhiwa"
+      },
+      "tabs": {
+        "items": "Vipengee",
+        "additionalCosts": "Gharama za Ziada",
+        "summaryPreview": "Hakiki ya Muhtasari"
+      },
+      "labels": {
+        "receiveDate": "Tarehe ya Kupokea",
+        "orderReference": "Rejea ya Agizo",
+        "costFactor": "Kigezo cha Gharama",
+        "changeCostCenter": "Badilisha Kituo cha Gharama",
+        "destinationCostCenter": "Kituo cha Gharama cha Mwisho",
+        "receivableLedger": "Leja ya Zinazodaiwa",
+        "orderCurrency": "Sarafu ya Agizo:",
+        "orderExchangeRate": "Kiwango cha Ubadilishaji cha Agizo"
+      },
+      "messages": {
+        "grnUpdated": "GRN imesasishwa kwa mafanikio",
+        "grnUpdateFailed": "Imeshindwa kusasisha GRN",
+        "prepopulatedCostsWarning": "Kiasi cha Gharama za Ziada kilichojazwa awali kinaweza kutofautiana na kiasi halisi, tafadhali hakiki kutoka kwa kiasi halisi na urekebishe pale inapohitajika",
+        "unsavedCostConfirm": "Una Gharama ya Ziada ambayo haijahifadhiwa. Je, una uhakika unataka kuondoka bila kuhifadhi?"
+      },
+      "buttons": {
+        "cancel": "Ghairi",
+        "discard": "Tupa",
+        "save": "Hifadhi",
+        "prev": "Iliyotangulia",
+        "next": "Inayofuata",
+        "submit": "Wasilisha"
+      },
+      "errors": {
+        "validation": {
+          "receiveDate": {
+            "required": "Tarehe ya Kupokea inahitajika"
+          },
+          "store": {
+            "required": "Stoo inahitajika"
+          },
+          "exchangeRate": {
+            "required": "Kiwango cha ubadilishaji kinahitajika"
+          },
+          "destinationCostCenter": {
+            "required": "Kituo cha Gharama cha Mwisho kinahitajika"
+          },
+          "receivableLedger": {
+            "required": "Leja ya Zinazodaiwa inahitajika"
+          },
+          "quantity": {
+            "required": "Kiasi kinahitajika",
+            "max": "Kiasi hakiwezi kuzidi kiasi ambacho hakijapokelewa",
+            "wholeUnit": "Bidhaa hii huuzwa kwa vipimo kamili — kiasi hakiwezi kuwa sehemu ya kipimo"
+          },
+          "amount": {
+            "required": "Kiasi kinahitajika",
+            "positive": "Kiasi lazima kiwe chanya"
+          },
+          "currency": {
+            "required": "Sarafu inahitajika"
+          }
+        }
+      },
+      "summary": {
+        "titles": {
+          "receivedItems": "Vipengee Vilivyopokelewa",
+          "additionalCosts": "Gharama za Ziada"
+        },
+        "headers": {
+          "serialNo": "Na.",
+          "productOrService": "Bidhaa/Huduma",
+          "unit": "Kipimo",
+          "quantity": "Kiasi",
+          "unitPrice": "Bei ya Kipimo",
+          "amount": "Kiasi",
+          "costPerUnit": "Gharama kwa Kipimo ({currency})",
+          "amountWithCurrency": "Kiasi ({currency})",
+          "exchangeRate": "Kiwango cha Ubadilishaji",
+          "totalAdditionalCosts": "JUMLA ya Gharama za Ziada ({currency})",
+          "totalValueOfGoods": "JUMLA ya Thamani ya Bidhaa ({currency})"
+        }
+      },
+      "additionalCosts": {
+        "labels": {
+          "costName": "Jina la gharama",
+          "reference": "Rejea",
+          "exchangeRate": "Kiwango cha Ubadilishaji",
+          "amount": "Kiasi",
+          "owedToSupplier": "Anayodaiwa Msambazaji",
+          "vatExempt": "Imesamehewa VAT"
+        },
+        "buttons": {
+          "done": "Imekamilika",
+          "add": "Ongeza"
+        },
+        "errors": {
+          "validation": {
+            "costName": {
+              "required": "Jina la gharama linahitajika"
+            },
+            "currency": {
+              "required": "Sarafu inahitajika"
+            },
+            "exchangeRate": {
+              "required": "Kiwango cha ubadilishaji kinahitajika"
+            },
+            "amount": {
+              "required": "Kiasi kinahitajika"
+            }
+          }
+        }
+      }
+    }
+  },
+  "inventoryConsumptions": {
+    "form": {
+      "titles": {
+        "new": "Matumizi Mapya ya Bidhaa",
+        "edit": "Hariri {consumptionNo}"
+      },
+      "labels": {
+        "consumptionDate": "Tarehe ya Matumizi",
+        "usedIn": "Imetumika Katika",
+        "batchNo": "Namba ya Kundi",
+        "narration": "Maelezo ya Muamala",
+        "product": "Bidhaa",
+        "availableBalance": "Salio Linalopatikana",
+        "quantity": "Kiasi",
+        "correspondingLedger": "Leja Husika",
+        "description": "Maelezo"
+      },
+      "messages": {
+        "lastItemNotAdded": "Kipengee cha mwisho hakijaongezwa kwenye orodha",
+        "negativeBalance": "Kiasi hiki kitasababisha salio hasi. Salio la sasa leo ni {balance}"
+      },
+      "buttons": {
+        "addAndSubmit": "Ongeza na Wasilisha",
+        "submitWithoutAdd": "Wasilisha bila kuongeza",
+        "cancel": "Ghairi",
+        "submit": "Wasilisha",
+        "done": "Imekamilika",
+        "add": "Ongeza"
+      },
+      "errors": {
+        "validation": {
+          "consumptionDate": {
+            "required": "Tarehe ya Matumizi inahitajika"
+          },
+          "narration": {
+            "required": "Maelezo ya Muamala yanahitajika"
+          },
+          "costCenter": {
+            "required": "Kituo cha Gharama kinahitajika"
+          },
+          "items": {
+            "min": "Lazima uongeze angalau kipengee kimoja"
+          },
+          "product": {
+            "required": "Bidhaa inahitajika"
+          },
+          "quantity": {
+            "required": "Kiasi kinahitajika",
+            "positive": "Kiasi lazima kiwe namba chanya",
+            "number": "Kiasi lazima kiwe namba",
+            "exceedsBalance": "Kiasi kinazidi salio linalopatikana"
+          }
+        }
+      }
+    }
+  },
+  "grns": {
+    "purchaseBillForm": {
+      "titles": {
+        "edit": "Hariri {invoiceNo} ya {documentNo}",
+        "create": "Ankara ya Ununuzi ya {documentNo}"
+      },
+      "sections": {
+        "billDetails": "Maelezo ya Ankara",
+        "itemsToBill": "Vipengee vya Kutozwa",
+        "additionalCostsToBill": "Gharama za Ziada za Kutozwa",
+        "adjustments": "Marekebisho"
+      },
+      "hints": {
+        "itemsToBill": "Kiasi huwa salio lililosalia la kila kipengee — kipunguze ili kutoza sehemu tu ya kipengee. Leja ya debit huwa leja ya gharama ya kategoria ya kipengee ikiachwa wazi.",
+        "additionalCostsToBill": "Usafirishaji, PVOC, usafiri, n.k. vilivyoingizwa kwenye agizo. Kiasi huwa salio lote lililosalia — kipunguze ili kutoza sehemu yake tu sasa.",
+        "adjustments": "Kodi ya zuio, dhamana za kuzuiwa, adhabu, punguzo, n.k."
+      },
+      "labels": {
+        "billDate": "Tarehe ya Ankara",
+        "dueDate": "Tarehe ya Mwisho wa Malipo",
+        "internalRef": "Rejea ya Ndani",
+        "supplierRef": "Rejea ya Msambazaji",
+        "narration": "Maelezo ya Muamala",
+        "goodsServicesAmount": "Kiasi cha Bidhaa/Huduma",
+        "itemsTotal": "Jumla ya Vipengee",
+        "vatPercent": "VAT %",
+        "amountToBill": "Kiasi cha Kutozwa",
+        "debitLedger": "Leja ya Debit",
+        "ledger": "Leja",
+        "type": "Aina",
+        "appliesTo": "Inahusu (si lazima — ankara nzima ikiwa wazi)",
+        "description": "Maelezo",
+        "amount": "Kiasi",
+        "remaining": "Kilichosalia:",
+        "vatExemptParen": "(Imesamehewa VAT)",
+        "netPayableToSupplier": "Jumla Halisi Inayolipwa kwa Msambazaji"
+      },
+      "options": {
+        "addition": "Nyongeza",
+        "subtraction": "Upunguzaji"
+      },
+      "messages": {
+        "vatHelperExcluding": "Kutoka mipangilio ya shirika — inatumika kwenye kiasi kilicho juu, ukiondoa {amount} iliyosamehewa VAT",
+        "vatHelper": "Kutoka mipangilio ya shirika — inatumika kwenye kiasi kilicho juu",
+        "saveFailedUpdate": "Imeshindwa kusasisha Ankara ya Ununuzi",
+        "saveFailedCreate": "Imeshindwa kuunda Ankara ya Ununuzi"
+      },
+      "buttons": {
+        "addAdjustment": "Ongeza Marekebisho",
+        "cancel": "Ghairi",
+        "updateBill": "Sasisha Ankara",
+        "createBill": "Unda Ankara"
+      },
+      "errors": {
+        "validation": {
+          "billDate": {
+            "required": "Tarehe ya ankara inahitajika"
+          },
+          "maxChars": "Herufi 20 kwa upeo",
+          "vat": {
+            "min": "Lazima iwe angalau 0",
+            "max": "Haipaswi kuzidi 100"
+          },
+          "ledger": {
+            "required": "Leja inahitajika"
+          },
+          "description": {
+            "required": "Maelezo yanahitajika"
+          },
+          "amount": {
+            "required": "Kiasi kinahitajika",
+            "positive": "Kiasi lazima kiwe kubwa kuliko 0",
+            "maxRemainingItem": "Kiasi kinazidi salio lililosalia la kipengee hiki",
+            "maxRemainingCost": "Kiasi kinazidi salio lililosalia la gharama hii"
+          }
+        }
+      }
+    }
+  }
+}

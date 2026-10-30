@@ -10,6 +10,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { PROS_CONTROL_PERMISSIONS } from '@/utilities/constants/prosControlPermissions';
 import { JumboDdMenu } from '@jumbo/components';
 import { MenuItemProps } from '@jumbo/types';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface Role {
   id: number;
@@ -33,6 +34,7 @@ interface DetachActionData {
 }
 
 const ProsAfricansListItemAction: React.FC<ProsAfricansListItemActionProps> = ({ user }) => {
+  const dictionary = useDictionary();
   const { showDialog, hideDialog } = useJumboDialog();
   const { authUser, checkPermission } = useJumboAuth();
   const queryClient = useQueryClient();
@@ -140,7 +142,7 @@ const ProsAfricansListItemAction: React.FC<ProsAfricansListItemActionProps> = ({
   return (
     <JumboDdMenu
       icon={
-        <Tooltip title="Actions">
+        <Tooltip title={dictionary.tooltips.actions}>
           <MoreHorizOutlined fontSize="small" />
         </Tooltip>
       }

@@ -38,4 +38,14 @@ depreciationRunsServices.exportExcel = async (id) => {
   return response.data;
 };
 
+depreciationRunsServices.getTemplate = async () => {
+  const { data } = await axios.get('/api/assets/depreciation-template');
+  return data;
+};
+
+depreciationRunsServices.saveTemplate = async (template) => {
+  const { data } = await axios.put('/api/assets/depreciation-template', template);
+  return data;
+};
+
 export default depreciationRunsServices;

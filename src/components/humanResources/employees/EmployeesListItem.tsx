@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation';
 import EmployeeItemAction from './EmployeeItemAction';
 import EmployeePhotoUpload from './EmployeePhotoUpload';
 import { Employee } from './EmployeesType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const formatEmploymentType = (value?: string) =>
   (value || '')
@@ -15,6 +16,7 @@ const formatEmploymentType = (value?: string) =>
     .replace(/\b\w/g, (char) => char.toUpperCase());
 
 const EmployeesListItem = ({ employee }: { employee: Employee }) => {
+  const dictionary = useDictionary();
   const router = useRouter();
   const lang = useLanguage();
   const { checkOrganizationPermission } = useJumboAuth();
@@ -46,7 +48,7 @@ const EmployeesListItem = ({ employee }: { employee: Employee }) => {
         container
       >
         <Grid size={{ xs: 12, md: 3.5 }}>
-          <Tooltip title='View Employee Profile'>
+          <Tooltip title={dictionary.tooltips.viewEmployeeProfile}>
             <Stack
               direction='row'
               spacing={1}
@@ -86,7 +88,7 @@ const EmployeesListItem = ({ employee }: { employee: Employee }) => {
                   {employee.is_active === false && (
                     <Chip
                       size='small'
-                      label='Deactivated'
+                      label={dictionary.humanResources.employees.list.status.inactive}
                       color='warning'
                       variant='outlined'
                       sx={{ height: 18, fontSize: 11 }}
@@ -99,7 +101,7 @@ const EmployeesListItem = ({ employee }: { employee: Employee }) => {
         </Grid>
 
         <Grid size={{ xs: 12, md: 2.5 }}>
-          <Tooltip title='Department and Designation'>
+          <Tooltip title={dictionary.tooltips.departmentAndDesignation}>
             <div>
               <Typography noWrap>{employee.department?.name}</Typography>
               <Typography variant='body2' color='text.secondary' noWrap>
@@ -110,7 +112,7 @@ const EmployeesListItem = ({ employee }: { employee: Employee }) => {
         </Grid>
 
         <Grid size={{ xs: 12, md: 3 }}>
-          <Tooltip title='Contact'>
+          <Tooltip title={dictionary.tooltips.contact}>
             <div>
               <Typography noWrap>{employee.email}</Typography>
               <Typography variant='body2' color='text.secondary' noWrap>
@@ -121,16 +123,19 @@ const EmployeesListItem = ({ employee }: { employee: Employee }) => {
         </Grid>
 
         <Grid size={{ xs: 12, md: 2 }}>
-          <Tooltip title='Employment'>
+          <Tooltip title={dictionary.tooltips.employment}>
             <div>
               <Chip
                 size='small'
-                label={formatEmploymentType(employee.employment_type)}
+                label={
+                  (dictionary.humanResources.employees.employmentTypes as Record<string, string>)?.[employee.employment_type as string] ||
+                  formatEmploymentType(employee.employment_type)
+                }
                 color='default'
                 sx={{ textTransform: 'capitalize', mb: 0.5 }}
               />
               <Typography variant='body2' color='text.secondary' noWrap>
-                Joined:{' '}
+                {dictionary.humanResources.employees.list.labels.joined}:{' '}
                 {employee.join_date
                   ? new Date(employee.join_date).toLocaleDateString()
                   : '-'}

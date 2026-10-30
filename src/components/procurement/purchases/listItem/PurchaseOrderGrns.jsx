@@ -7,8 +7,10 @@ import { readableDate } from '@/app/helpers/input-sanitization-helpers';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
 import PurchaseBillFormDialog from '../../grns/PurchaseBillFormDialog';
 import PurchaseBillDetailsDialog from '../../../accounts/purchaseBills/PurchaseBillDetailsDialog';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function PurchaseOrderGrns({order}) {
+    const dictionary = useDictionary();
     const { setOpenEditReceive, setAttachDialog, setSelectedOrderGrn, setOpenDialog, setOpenDocumentDialog, purchaseOrderGrns } = useContext(listItemContext);
     const {checkOrganizationPermission, authOrganization: { organization }} = useJumboAuth();
     const deferGrnBilling = !!organization?.settings?.defer_grn_billing;
@@ -38,7 +40,7 @@ function PurchaseOrderGrns({order}) {
                 alignItems="center"
             >
                 <Grid size={{xs: 6, md: 3}}>
-                    <Tooltip title={'Date Received'}>
+                    <Tooltip title={dictionary.tooltips.dateReceived}>
                         <Typography>
                             {readableDate(orderGrn?.date_received)}
                         </Typography>
@@ -46,12 +48,12 @@ function PurchaseOrderGrns({order}) {
                 </Grid>
                 <Grid size={{xs: 6, md: 3}}>
                     <Stack direction="row" spacing={0.5} alignItems="center">
-                        <Tooltip title={'Grn No.'}>
+                        <Tooltip title={dictionary.tooltips.grnNo2}>
                             <Typography>{orderGrn?.grnNo}</Typography>
                         </Tooltip>
                         {deferGrnBilling && orderGrn.billed && (
                             canViewBills && orderGrn.bill_id ? (
-                                <Tooltip title='View the Purchase Bill created for this GRN'>
+                                <Tooltip title={dictionary.tooltips.viewThePurchaseBillCreatedFor}>
                                     <Chip
                                         size='small'
                                         variant='outlined'
@@ -62,25 +64,25 @@ function PurchaseOrderGrns({order}) {
                                     />
                                 </Tooltip>
                             ) : (
-                                <Tooltip title='A Purchase Bill has been created for this GRN'>
+                                <Tooltip title={dictionary.tooltips.aPurchaseBillHasBeenCreated}>
                                     <Chip size='small' variant='outlined' color='success' label='Billed' />
                                 </Tooltip>
                             )
                         )}
                         {deferGrnBilling && orderGrn.billed === false && orderGrn.unbilled_amount > 0 && (
-                            <Tooltip title='Not yet billed to the supplier'>
+                            <Tooltip title={dictionary.tooltips.notYetBilledToTheSupplier}>
                                 <Chip size='small' variant='outlined' color='warning' label='Unbilled' />
                             </Tooltip>
                         )}
                     </Stack>
-                        <Tooltip title={'Reference'}>
+                        <Tooltip title={dictionary.tooltips.reference}>
                             <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
                                 {orderGrn?.reference}
                             </Typography>
                         </Tooltip>
                 </Grid>
                 <Grid size={{xs: 6, md: 4}}>
-                    <Tooltip title={'Store'}>
+                    <Tooltip title={dictionary.tooltips.store}>
                         <Typography>{orderGrn?.store.name}</Typography>
                     </Tooltip>
                 </Grid>

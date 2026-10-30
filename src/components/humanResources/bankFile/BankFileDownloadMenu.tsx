@@ -26,6 +26,7 @@ import { useMemo, useState } from 'react';
 import humanResourcesServices from '../humanResourcesServices';
 import BankFileFormatSettingsDialog from './BankFileFormatSettingsDialog';
 import { BankFileFormatDetail, BankFileFormatOption } from './BankFileFormatType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface BankFileDownloadMenuProps {
   /** Fetches + saves the file for the chosen format code — endpoint differs
@@ -46,6 +47,8 @@ const BankFileDownloadMenu = ({
   onDownload,
   disabled,
 }: BankFileDownloadMenuProps) => {
+  const dictionary = useDictionary();
+  const t = dictionary.humanResources.bankFile;
   const { enqueueSnackbar } = useSnackbar();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [search, setSearch] = useState('');
@@ -94,7 +97,7 @@ const BankFileDownloadMenu = ({
 
   return (
     <>
-      <Tooltip title='Download Bank File'>
+      <Tooltip title={dictionary.tooltips.downloadBankFile}>
         <span>
           <IconButton
             size='small'
@@ -125,7 +128,7 @@ const BankFileDownloadMenu = ({
               size='small'
               fullWidth
               autoFocus
-              placeholder='Search bank format...'
+              placeholder={t.menu.searchPlaceholder}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               InputProps={{
@@ -144,7 +147,7 @@ const BankFileDownloadMenu = ({
                 color='text.secondary'
                 sx={{ px: 2, py: 1 }}
               >
-                No matching bank formats
+                {t.menu.noMatch}
               </Typography>
             )}
             {filteredFormats.map((format) => (
@@ -154,7 +157,7 @@ const BankFileDownloadMenu = ({
               >
                 <ListItemText>{format.label}</ListItemText>
                 <ListItemIcon sx={{ minWidth: 'auto', ml: 2 }}>
-                  <Tooltip title={`Configure ${format.label}`}>
+                  <Tooltip title={t.menu.configure.replace('{name}', format.label)}>
                     <IconButton
                       size='small'
                       onClick={(e) => {

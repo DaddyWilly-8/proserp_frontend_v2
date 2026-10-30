@@ -23,6 +23,7 @@ import LedgerForm from '../forms/LedgerForm';
 import LedgerSelect from '../forms/LedgerSelect';
 import LedgerSelectProvider from '../forms/LedgerSelectProvider';
 import userLedgerServices from '../user-ledger-services';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 type User = {
   id: number;
@@ -58,6 +59,7 @@ const QuickAddLegder = ({
 };
 
 export default function UserLedgerLinksActionTail() {
+  const dictionary = useDictionary();
   const { checkOrganizationPermission } = useJumboAuth();
   const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
@@ -117,7 +119,7 @@ export default function UserLedgerLinksActionTail() {
 
   return (
     <>
-      <Tooltip title='Link User to Ledger'>
+      <Tooltip title={dictionary.tooltips.linkUserToLedger}>
         <IconButton size='small' onClick={() => setOpenDialog(true)}>
           <LinkOutlined />
         </IconButton>
@@ -154,7 +156,7 @@ export default function UserLedgerLinksActionTail() {
                   }}
                   startAdornment={
                     <Tooltip
-                      title={'Quick Add Ledger'}
+                      title={dictionary.tooltips.quickAddLedger}
                       onClick={() => setOpenQuickAdd(true)}
                     >
                       <AddOutlined sx={{ cursor: 'pointer' }} />

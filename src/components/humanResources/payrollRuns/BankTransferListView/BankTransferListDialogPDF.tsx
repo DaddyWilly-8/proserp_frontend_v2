@@ -8,27 +8,19 @@ import { SalarySheetType } from '../salarySheetType';
 interface BankTransferListDialogPDFProps {
   organization: Organization;
   bankTransfer: SalarySheetType;
+  // react-pdf renders in its own tree, so React context (useDictionary)
+  // isn't available here — the caller passes the dictionary in.
+  dictionary: any;
 }
 
-const monthNames = [
-  'January',
-  'February',
-  'March',
-  'April',
-  'May',
-  'June',
-  'July',
-  'August',
-  'September',
-  'October',
-  'November',
-  'December',
-];
 
 function BankTransferListDialogPDF({
   organization,
   bankTransfer,
+  dictionary,
 }: BankTransferListDialogPDFProps) {
+  const t = dictionary.humanResources.payrollRuns.bankTransfer;
+  const monthNames: string[] = dictionary.humanResources.payrollRuns.months;
   const mainColor = organization.settings?.main_color || '#2113AD';
   const lightColor = organization.settings?.light_color || '#bec5da';
   const contrastText = organization.settings?.contrast_text || '#FFFFFF';
@@ -45,8 +37,8 @@ function BankTransferListDialogPDF({
 
   return (
     <Document
-      title={`Salary Sheet - ${payrollPeriod}`}
-      subject='Bank Transfer List'
+      title={t.docTitle.replace('{period}', payrollPeriod)}
+      subject={t.docSubject}
       creator='ProsERP'
       producer='ProsERP'
     >
@@ -60,7 +52,7 @@ function BankTransferListDialogPDF({
           </View>
           <View style={{ flex: 1, textAlign: 'right' }}>
             <Text style={{ ...pdfStyles.majorInfo, color: mainColor }}>
-              Bank Transfer List
+              {t.title}
             </Text>
             <Text style={{ ...pdfStyles.minInfo }}>{payrollPeriod}</Text>
           </View>
@@ -71,7 +63,7 @@ function BankTransferListDialogPDF({
           {costCenter && (
             <View style={{ flex: 1, padding: 2 }}>
               <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>
-                Cost Center
+                {t.costCenter}
               </Text>
               <Text style={{ ...pdfStyles.minInfo }}>
                 {costCenter.name || '-'}
@@ -80,21 +72,25 @@ function BankTransferListDialogPDF({
           )}
           <View style={{ flex: 1, padding: 2 }}>
             <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>
-              Payroll Period
+              {t.payrollPeriod}
             </Text>
             <Text style={{ ...pdfStyles.minInfo }}>{payrollPeriod}</Text>
           </View>
           <View style={{ flex: 1, padding: 2 }}>
             <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>
-              Payroll Status
+              {t.payrollStatus}
             </Text>
             <Text style={{ ...pdfStyles.minInfo }}>
-              {payrollRun?.status || '-'}
+              {(dictionary.humanResources.payrollRuns.status as Record<string, string>)[
+                String(payrollRun?.status || '').toLowerCase()
+              ] ||
+                payrollRun?.status ||
+                '-'}
             </Text>
           </View>
           <View style={{ flex: 1, padding: 2 }}>
             <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>
-              No Bank Account
+              {t.noBankAccount}
             </Text>
             <Text style={{ ...pdfStyles.minInfo }}>
               {bankTransfer?.employees_without_bank_account ?? 0}
@@ -102,7 +98,7 @@ function BankTransferListDialogPDF({
           </View>
           <View style={{ flex: 1, padding: 2 }}>
             <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>
-              Total Employees
+              {t.totalEmployees}
             </Text>
             <Text style={{ ...pdfStyles.minInfo }}>
               {bankTransfer?.total_employees ?? 0}
@@ -110,7 +106,7 @@ function BankTransferListDialogPDF({
           </View>
           <View style={{ flex: 1, padding: 2 }}>
             <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>
-              Net Salary
+              {t.netSalary}
             </Text>
             <Text style={{ ...pdfStyles.minInfo }}>
               {bankTransfer?.total_net_salary?.toLocaleString('en-US', {
@@ -133,7 +129,7 @@ function BankTransferListDialogPDF({
                 flex: 0.4,
               }}
             >
-              S/N
+              {t.sn}
             </Text>
             <Text
               style={{
@@ -143,7 +139,7 @@ function BankTransferListDialogPDF({
                 flex: 1.2,
               }}
             >
-              Emp No.
+              {t.empNo}
             </Text>
             <Text
               style={{
@@ -153,7 +149,7 @@ function BankTransferListDialogPDF({
                 flex: 2,
               }}
             >
-              Employee Name
+              {t.employeeName}
             </Text>
             <Text
               style={{
@@ -163,7 +159,7 @@ function BankTransferListDialogPDF({
                 flex: 1.5,
               }}
             >
-              Bank Name
+              {t.bankName}
             </Text>
             <Text
               style={{
@@ -173,7 +169,7 @@ function BankTransferListDialogPDF({
                 flex: 1.5,
               }}
             >
-              Branch
+              {t.branch}
             </Text>
             <Text
               style={{
@@ -183,7 +179,7 @@ function BankTransferListDialogPDF({
                 flex: 1.2,
               }}
             >
-              Bank Code
+              {t.bankCode}
             </Text>
             <Text
               style={{
@@ -193,7 +189,7 @@ function BankTransferListDialogPDF({
                 flex: 1.5,
               }}
             >
-              Account Number
+              {t.accountNumber}
             </Text>
             <Text
               style={{
@@ -203,7 +199,7 @@ function BankTransferListDialogPDF({
                 flex: 2,
               }}
             >
-              Account Name
+              {t.accountName}
             </Text>
             <Text
               style={{
@@ -214,7 +210,7 @@ function BankTransferListDialogPDF({
                 textAlign: 'right',
               }}
             >
-              Net Pay
+              {t.netPay}
             </Text>
           </View>
 
@@ -325,7 +321,7 @@ function BankTransferListDialogPDF({
               textAlign: 'left',
             }}
           >
-            Total Net Pay
+            {t.totalNetPay}
           </Text>
           <Text
             style={{
@@ -349,7 +345,7 @@ function BankTransferListDialogPDF({
             {/* Section Header */}
             <View style={{ ...pdfStyles.tableRow, marginBottom: 5 }}>
               <Text style={{ ...pdfStyles.majorInfo, color: mainColor }}>
-                Employees Excluded from Transfer (Zero Pay)
+                {t.zeroPayHeader}
               </Text>
             </View>
 
@@ -364,7 +360,7 @@ function BankTransferListDialogPDF({
                     flex: 0.5,
                   }}
                 >
-                  S/N
+                  {t.sn}
                 </Text>
                 <Text
                   style={{
@@ -374,7 +370,7 @@ function BankTransferListDialogPDF({
                     flex: 2,
                   }}
                 >
-                  Employee Number
+                  {t.employeeNumber}
                 </Text>
                 <Text
                   style={{
@@ -384,7 +380,7 @@ function BankTransferListDialogPDF({
                     flex: 5,
                   }}
                 >
-                  Employee Name
+                  {t.employeeName}
                 </Text>
                 <Text
                   style={{
@@ -395,7 +391,7 @@ function BankTransferListDialogPDF({
                     textAlign: 'right',
                   }}
                 >
-                  Net Pay
+                  {t.netPay}
                 </Text>
               </View>
 

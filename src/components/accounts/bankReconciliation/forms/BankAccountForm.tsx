@@ -22,6 +22,7 @@ import { Controller, useForm } from 'react-hook-form';
 import * as yup from 'yup';
 import bankReconciliationServices from '../bank-reconciliation-services';
 import QuickAddBank from './QuickAddBank';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface EligibleLedger {
   id: number;
@@ -64,6 +65,7 @@ interface BankAccountFormProps {
 }
 
 export default function BankAccountForm({ bankAccount, toggleOpen }: BankAccountFormProps) {
+  const dictionary = useDictionary();
   const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
   const [serverError, setServerError] = useState<Record<string, string[]> | null>(null);
@@ -88,7 +90,7 @@ export default function BankAccountForm({ bankAccount, toggleOpen }: BankAccount
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['bank-accounts-list'] });
       queryClient.invalidateQueries({ queryKey: ['bank-account-eligible-ledgers'] });
-      enqueueSnackbar('Bank account created successfully', { variant: 'success' });
+      enqueueSnackbar(dictionary.forms.bankReconciliation.accountForm.messages.createSuccess, { variant: 'success' });
       toggleOpen(false);
     },
     onError: (err: any) => {
@@ -104,7 +106,7 @@ export default function BankAccountForm({ bankAccount, toggleOpen }: BankAccount
     mutationFn: (data: FormValues) => bankReconciliationServices.updateBankAccount(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['bank-accounts-list'] });
-      enqueueSnackbar('Bank account updated successfully', { variant: 'success' });
+      enqueueSnackbar(dictionary.forms.bankReconciliation.accountForm.messages.updateSuccess, { variant: 'success' });
       toggleOpen(false);
     },
     onError: (err: any) => {
@@ -119,7 +121,7 @@ export default function BankAccountForm({ bankAccount, toggleOpen }: BankAccount
   const saveMutation = bankAccount?.id ? updateMutation : addMutation;
 
   const validationSchema = yup.object({
-    ledger_id: yup.mixed().required('Ledger is required'),
+    ledger_id: yup.mixed().required(dictionary.forms.bankReconciliation.accountForm.errors.validation.ledgerRequired),
     bank_id: yup.number().nullable(),
     account_number: yup.string().nullable(),
     iban: yup.string().nullable(),
@@ -159,7 +161,7 @@ export default function BankAccountForm({ bankAccount, toggleOpen }: BankAccount
   return (
     <>
       <Typography textAlign='center' variant='h4' marginTop={2}>
-        {bankAccount ? `Edit ${bankAccount.ledger?.name ?? 'Bank Account'}` : 'Create Bank Account'}
+        {bankAccount ? dictionary.forms.bankReconciliation.accountForm.title.edit.replace('{name}', bankAccount.ledger?.name ?? dictionary.forms.bankReconciliation.accountForm.title.defaultName) : dictionary.forms.bankReconciliation.accountForm.title.create}
       </Typography>
       <DialogContent>
         <form autoComplete='off'>
@@ -188,7 +190,7 @@ export default function BankAccountForm({ bankAccount, toggleOpen }: BankAccount
                       renderInput={(params) => (
                         <TextField
                           {...params}
-                          label='Bank / Cash Ledger'
+                          label={dictionary.forms.bankReconciliation.accountForm.labels.ledger}
                           error={!!errors.ledger_id || !!serverError?.ledger_id}
                           helperText={errors.ledger_id?.message || serverError?.ledger_id?.[0]}
                         />
@@ -222,11 +224,11 @@ export default function BankAccountForm({ bankAccount, toggleOpen }: BankAccount
                         renderInput={(params) => (
                           <TextField
                             {...params}
-                            label='Bank (Optional)'
+                            label={dictionary.forms.bankReconciliation.accountForm.labels.bank}
                             InputProps={{
                               ...params.InputProps,
                               startAdornment: (
-                                <Tooltip title='Quick Add Bank'>
+                                <Tooltip title={dictionary.tooltips.quickAddBank}>
                                   <AddOutlined
                                     onClick={() => setOpenQuickAddBank(true)}
                                     sx={{ cursor: 'pointer' }}
@@ -259,7 +261,7 @@ export default function BankAccountForm({ bankAccount, toggleOpen }: BankAccount
               <Div sx={{ mt: 1 }}>
                 <TextField
                   fullWidth
-                  label='Account Number (Optional)'
+                  label={dictionary.forms.bankReconciliation.accountForm.labels.accountNumber}
                   size='small'
                   error={!!serverError?.account_number}
                   helperText={serverError?.account_number?.[0]}
@@ -271,7 +273,7 @@ export default function BankAccountForm({ bankAccount, toggleOpen }: BankAccount
               <Div sx={{ mt: 1 }}>
                 <TextField
                   fullWidth
-                  label='IBAN (Optional)'
+                  label={dictionary.forms.bankReconciliation.accountForm.labels.iban}
                   size='small'
                   error={!!serverError?.iban}
                   helperText={serverError?.iban?.[0]}
@@ -283,7 +285,7 @@ export default function BankAccountForm({ bankAccount, toggleOpen }: BankAccount
               <Div sx={{ mt: 1 }}>
                 <TextField
                   fullWidth
-                  label='SWIFT Code (Optional)'
+                  label={dictionary.forms.bankReconciliation.accountForm.labels.swiftCode}
                   size='small'
                   error={!!serverError?.swift_code}
                   helperText={serverError?.swift_code?.[0]}
@@ -296,14 +298,14 @@ export default function BankAccountForm({ bankAccount, toggleOpen }: BankAccount
                 <TextField
                   fullWidth
                   type='number'
-                  label='Auto-Match Day Tolerance'
+                  label={dictionary.forms.bankReconciliation.accountForm.labels.autoMatchTolerance}
                   size='small'
                   inputProps={{ min: 0, max: 60 }}
                   error={!!errors.auto_match_day_tolerance || !!serverError?.auto_match_day_tolerance}
                   helperText={
                     errors.auto_match_day_tolerance?.message ||
                     serverError?.auto_match_day_tolerance?.[0] ||
-                    'How many days before/after a statement line’s date to search for a matching book entry when auto-matching on import. 0 = same day only. Raise this if this bank tends to settle a day or two after the transaction.'
+                    dictionary.forms.bankReconciliation.accountForm.helperText.autoMatchTolerance
                   }
                   {...register('auto_match_day_tolerance', { valueAsNumber: true })}
                 />
@@ -314,7 +316,7 @@ export default function BankAccountForm({ bankAccount, toggleOpen }: BankAccount
       </DialogContent>
       <DialogActions>
         <Button size='small' variant='outlined' onClick={() => toggleOpen(false)}>
-          Cancel
+          {dictionary.forms.bankReconciliation.accountForm.buttons.cancel}
         </Button>
         <LoadingButton
           type='submit'
@@ -324,7 +326,7 @@ export default function BankAccountForm({ bankAccount, toggleOpen }: BankAccount
           sx={{ display: 'flex' }}
           loading={isSubmitting || saveMutation.isPending}
         >
-          Submit
+          {dictionary.forms.bankReconciliation.accountForm.buttons.submit}
         </LoadingButton>
       </DialogActions>
     </>

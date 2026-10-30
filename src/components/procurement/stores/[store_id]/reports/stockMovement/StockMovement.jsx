@@ -1,5 +1,6 @@
 'use client';
 import { readableDate, reportCostCentersToShow } from '@/app/helpers/input-sanitization-helpers';
+import { getEmptyMovementKeys } from '@/app/helpers/stock-movement-helpers';
 import useProsERPStyles from '@/app/helpers/style-helpers';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import CostCenterSelector from '@/components/masters/costCenters/CostCenterSelector';
@@ -34,8 +35,6 @@ import {
   Skeleton,
   Stack,
   Switch,
-  Tab,
-  Tabs,
   TextField,
   Tooltip,
   Typography,
@@ -52,7 +51,9 @@ import * as yup from 'yup';
 import storeServices from '../../../store-services';
 import StoreSelector from '../../../StoreSelector';
 import { useStoreProfile } from '../../StoreProfileProvider';
+import { FileExportGrid } from '@/components/sharedComponents/FileExportGrid';
 import StockMovementOnScreen from './StockMovementOnScreen';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const ReportDocument = ({
   productCategories,
@@ -63,7 +64,10 @@ const ReportDocument = ({
   checkOrganizationPermission,
   store,
   reportTitle,
+  dictionary,
+  emptyKeys = new Set(),
 }) => {
+  const dict = dictionary.reports.storeReports.stockMovementReport;
   const mainColor =
     authOrganization.organization.settings?.main_color || '#2113AD';
   const lightColor =
@@ -79,7 +83,7 @@ const ReportDocument = ({
     <Document
       creator={`${user.name} | Powered by ProsERP`}
       producer='ProsERP'
-      title={`${store.name} ${reportTitle} ${readableDate(movementsData.filters.from, true)} to ${readableDate(movementsData.filters.to, true)}`}
+      title={dict.pdfDocumentTitle.replace('{store}', store.name).replace('{title}', reportTitle).replace('{from}', readableDate(movementsData.filters.from, true)).replace('{to}', readableDate(movementsData.filters.to, true))}
     >
       <Page size='A3' orientation={'landscape'} style={pdfStyles.page}>
         <View style={pdfStyles.table}>
@@ -104,7 +108,7 @@ const ReportDocument = ({
           {costCenters.length > 0 && (
             <View style={{ flex: 2, padding: 2 }}>
               <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>
-                Cost Centers
+                {dict.costCenters}
               </Text>
               <Text style={{ ...pdfStyles.minInfo }}>
                 {costCenters
@@ -116,7 +120,7 @@ const ReportDocument = ({
           {productCategories?.length > 0 && (
             <View style={{ flex: 1, padding: 2 }}>
               <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>
-                Categories
+                {dict.categories}
               </Text>
               <Text style={{ ...pdfStyles.minInfo }}>
                 {productCategories.map((category) => category.name).join(', ')}
@@ -126,7 +130,7 @@ const ReportDocument = ({
           {checkOrganizationPermission([PERMISSIONS.ACCOUNTS_REPORTS, PERMISSIONS.STORE_VALUES]) && (
             <View style={{ flex: 2, padding: 2 }}>
               <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>
-                Estimated Closing Value
+                {dict.estimatedClosingValue}
               </Text>
               <Text style={{ ...pdfStyles.minInfo }}>
                 {movementsData.movements
@@ -150,13 +154,13 @@ const ReportDocument = ({
           )}
           <View style={{ flex: 1, padding: 2 }}>
             <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>
-              Printed By
+              {dict.printedBy}
             </Text>
             <Text style={{ ...pdfStyles.minInfo }}>{user.name}</Text>
           </View>
           <View style={{ flex: 1, padding: 2 }}>
             <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>
-              Printed On
+              {dict.printedOn}
             </Text>
             <Text style={{ ...pdfStyles.minInfo }}>
               {readableDate(undefined, true)}
@@ -173,7 +177,7 @@ const ReportDocument = ({
                 flex: 0.5,
               }}
             >
-              S/N
+              {dict.sn}
             </Text>
             <Text
               style={{
@@ -183,7 +187,7 @@ const ReportDocument = ({
                 flex: 4,
               }}
             >
-              Product
+              {dict.product}
             </Text>
             <Text
               style={{
@@ -193,7 +197,7 @@ const ReportDocument = ({
                 flex: 0.5,
               }}
             >
-              Unit
+              {dict.unit}
             </Text>
             <Text
               style={{
@@ -203,8 +207,9 @@ const ReportDocument = ({
                 flex: 1.25,
               }}
             >
-              Opening Balance
+              {dict.openingBalance}
             </Text>
+            {!emptyKeys.has('purchaseReceived') && (
             <Text
               style={{
                 ...pdfStyles.tableHeader,
@@ -213,11 +218,12 @@ const ReportDocument = ({
                 flex: 1.5,
               }}
             >
-              Purchase Received
+              {dict.purchaseReceived}
             </Text>
+            )}
             {organizationHasSubscribed(
               MODULES.MANUFACTURING_AND_PROCESSING
-            ) && (
+            ) && !emptyKeys.has('produced') && (
               <Text
                 style={{
                   ...pdfStyles.tableHeader,
@@ -226,8 +232,80 @@ const ReportDocument = ({
                   flex: 1.5,
                 }}
               >
-                Produced Quantity
+                {dict.producedQuantity}
               </Text>
+            )}
+            {!emptyKeys.has('transferIn') && (
+            <Text
+              style={{
+                ...pdfStyles.tableHeader,
+                backgroundColor: mainColor,
+                color: contrastText,
+                flex: 1.25,
+              }}
+            >
+              {dict.transferIn}
+            </Text>
+            )}
+            {!emptyKeys.has('transferOut') && (
+            <Text
+              style={{
+                ...pdfStyles.tableHeader,
+                backgroundColor: mainColor,
+                color: contrastText,
+                flex: 1.25,
+              }}
+            >
+              {dict.transferOut}
+            </Text>
+            )}
+            {!emptyKeys.has('stockGain') && (
+            <Text
+              style={{
+                ...pdfStyles.tableHeader,
+                backgroundColor: mainColor,
+                color: contrastText,
+                flex: 1,
+              }}
+            >
+              {dict.stockGain}
+            </Text>
+            )}
+            {!emptyKeys.has('stockLoss') && (
+            <Text
+              style={{
+                ...pdfStyles.tableHeader,
+                backgroundColor: mainColor,
+                color: contrastText,
+                flex: 1,
+              }}
+            >
+              {dict.stockLoss}
+            </Text>
+            )}
+            {!emptyKeys.has('consumed') && (
+            <Text
+              style={{
+                ...pdfStyles.tableHeader,
+                backgroundColor: mainColor,
+                color: contrastText,
+                flex: 1.25,
+              }}
+            >
+              {dict.consumed}
+            </Text>
+            )}
+            {!emptyKeys.has('sold') && (
+            <Text
+              style={{
+                ...pdfStyles.tableHeader,
+                backgroundColor: mainColor,
+                color: contrastText,
+                flex: 1,
+              }}
+            >
+              {dict.sold}
+            </Text>
             )}
             <Text
               style={{
@@ -237,67 +315,7 @@ const ReportDocument = ({
                 flex: 1.25,
               }}
             >
-              Transfer In
-            </Text>
-            <Text
-              style={{
-                ...pdfStyles.tableHeader,
-                backgroundColor: mainColor,
-                color: contrastText,
-                flex: 1.25,
-              }}
-            >
-              Transfer Out
-            </Text>
-            <Text
-              style={{
-                ...pdfStyles.tableHeader,
-                backgroundColor: mainColor,
-                color: contrastText,
-                flex: 1,
-              }}
-            >
-              Stock Gain
-            </Text>
-            <Text
-              style={{
-                ...pdfStyles.tableHeader,
-                backgroundColor: mainColor,
-                color: contrastText,
-                flex: 1,
-              }}
-            >
-              Stock Loss
-            </Text>
-            <Text
-              style={{
-                ...pdfStyles.tableHeader,
-                backgroundColor: mainColor,
-                color: contrastText,
-                flex: 1.25,
-              }}
-            >
-              Consumed
-            </Text>
-            <Text
-              style={{
-                ...pdfStyles.tableHeader,
-                backgroundColor: mainColor,
-                color: contrastText,
-                flex: 1,
-              }}
-            >
-              Sold
-            </Text>
-            <Text
-              style={{
-                ...pdfStyles.tableHeader,
-                backgroundColor: mainColor,
-                color: contrastText,
-                flex: 1.25,
-              }}
-            >
-              Closing Balance
+              {dict.closingBalance}
             </Text>
             {checkOrganizationPermission([PERMISSIONS.ACCOUNTS_REPORTS, PERMISSIONS.STORE_VALUES]) && (
               <React.Fragment>
@@ -309,7 +327,7 @@ const ReportDocument = ({
                     flex: 1.5,
                   }}
                 >
-                  Latest Rate
+                  {dict.latestRate}
                 </Text>
                 <Text
                   style={{
@@ -319,7 +337,7 @@ const ReportDocument = ({
                     flex: 1.5,
                   }}
                 >
-                  Est. Closing Value
+                  {dict.estClosingValue}
                 </Text>
               </React.Fragment>
             )}
@@ -377,6 +395,7 @@ const ReportDocument = ({
                 >
                   {movement.opening_balance}
                 </Text>
+                {!emptyKeys.has('purchaseReceived') && (
                 <Text
                   style={{
                     ...pdfStyles.tableCell,
@@ -387,9 +406,10 @@ const ReportDocument = ({
                 >
                   {movement.quantity_received}
                 </Text>
+                )}
                 {organizationHasSubscribed(
                   MODULES.MANUFACTURING_AND_PROCESSING
-                ) && (
+                ) && !emptyKeys.has('produced') && (
                   <Text
                     style={{
                       ...pdfStyles.tableCell,
@@ -401,6 +421,7 @@ const ReportDocument = ({
                     {movement.quantity_produced}
                   </Text>
                 )}
+                {!emptyKeys.has('transferIn') && (
                 <Text
                   style={{
                     ...pdfStyles.tableCell,
@@ -411,6 +432,8 @@ const ReportDocument = ({
                 >
                   {movement.quantity_transferred_in}
                 </Text>
+                )}
+                {!emptyKeys.has('transferOut') && (
                 <Text
                   style={{
                     ...pdfStyles.tableCell,
@@ -421,6 +444,8 @@ const ReportDocument = ({
                 >
                   {movement.quantity_transferred_out}
                 </Text>
+                )}
+                {!emptyKeys.has('stockGain') && (
                 <Text
                   style={{
                     ...pdfStyles.tableCell,
@@ -431,6 +456,8 @@ const ReportDocument = ({
                 >
                   {movement.stock_gain}
                 </Text>
+                )}
+                {!emptyKeys.has('stockLoss') && (
                 <Text
                   style={{
                     ...pdfStyles.tableCell,
@@ -441,6 +468,8 @@ const ReportDocument = ({
                 >
                   {movement.stock_loss}
                 </Text>
+                )}
+                {!emptyKeys.has('consumed') && (
                 <Text
                   style={{
                     ...pdfStyles.tableCell,
@@ -451,6 +480,8 @@ const ReportDocument = ({
                 >
                   {movement.quantity_consumed}
                 </Text>
+                )}
+                {!emptyKeys.has('sold') && (
                 <Text
                   style={{
                     ...pdfStyles.tableCell,
@@ -461,6 +492,7 @@ const ReportDocument = ({
                 >
                   {movement.quantity_sold}
                 </Text>
+                )}
                 <Text
                   style={{
                     ...pdfStyles.tableCell,
@@ -515,6 +547,8 @@ const ReportDocument = ({
 };
 
 function StockMovement({ toggleOpen, dormantStock = false, isFromDashboard }) {
+  const dictionary = useDictionary();
+  const dict = dictionary.reports.storeReports.stockMovementReport;
   const classes = useProsERPStyles();
   const {
     authOrganization,
@@ -523,7 +557,7 @@ function StockMovement({ toggleOpen, dormantStock = false, isFromDashboard }) {
     organizationHasSubscribed,
   } = useJumboAuth();
   const { activeStore } = useStoreProfile();
-  const [selectedTab, setSelectedTab] = useState(0);
+  const [showPdf, setShowPdf] = useState(false);
   const { enqueueSnackbar } = useSnackbar();
   const [isDownloadingTemplate, setIsDownloadingTemplate] =
     React.useState(false);
@@ -533,18 +567,13 @@ function StockMovement({ toggleOpen, dormantStock = false, isFromDashboard }) {
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
   const [includeChildren, setIncludeChildren] = useState(true);
   const [withDetails, setWithDetails] = useState(false);
+  const [hideEmptyColumns, setHideEmptyColumns] = useState(true);
 
   // Validation schema
   const validationSchema = yup.object({
     isFromDashboard: yup.boolean(),
-    store_id: yup
-      .number()
-      .nullable()
-      .when('isFromDashboard', (isFromDashboard, schema) => {
-        return isFromDashboard
-          ? schema.required('Store is required').typeError('Store is required')
-          : schema;
-      }),
+    // From the dashboard no store means every store.
+    store_id: yup.number().nullable(),
     include_children: yup.boolean(),
   });
 
@@ -577,13 +606,10 @@ function StockMovement({ toggleOpen, dormantStock = false, isFromDashboard }) {
   }, [includeChildren, setValue]);
 
   const getMovements = async (filters) => {
-    if (!filters?.store_id) {
-      enqueueSnackbar('Please select a store first', { variant: 'warning' });
-      return;
-    }
-
     setisFetching(true);
-    const data = await storeServices.getStockMovement(filters, dormantStock);
+    const data = filters?.store_id
+      ? await storeServices.getStockMovement(filters, dormantStock)
+      : await storeServices.getStockMovementAllStores(filters, dormantStock);
     setMovements(data);
     setisFetching(false);
   };
@@ -607,7 +633,9 @@ function StockMovement({ toggleOpen, dormantStock = false, isFromDashboard }) {
       const filters = buildFilters();
 
       // Pass all filters to the service
-      const responseData = await storeServices.getStockMovementExcel(filters);
+      const responseData = filters.store_id
+        ? await storeServices.getStockMovementExcel(filters)
+        : await storeServices.getStockMovementAllStoresExcel(filters);
 
       const blob = new Blob([responseData], {
         type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
@@ -619,17 +647,25 @@ function StockMovement({ toggleOpen, dormantStock = false, isFromDashboard }) {
       link.click();
       setIsDownloadingTemplate(false);
     } catch (error) {
-      enqueueSnackbar('Error downloading Excel template', { variant: 'error' });
+      enqueueSnackbar(dict.excelTemplateError, { variant: 'error' });
       setIsDownloadingTemplate(false);
     }
   };
 
-  const handleTabChange = (event, newValue) => {
-    setSelectedTab(newValue);
-  };
+  // With no store picked on the dashboard the report covers every store.
+  const reportStore = isFromDashboard
+    ? (watch('store') ?? { id: null, name: dict.allStores })
+    : activeStore;
 
   const reportTitle = dormantStock ? 'Dormant Stock' : 'Stock Movement';
-  document.title = `${isFromDashboard ? 'Store' : activeStore?.name} - ${reportTitle} Report`;
+  const displayReportTitle = dormantStock ? dict.dormantStock : dict.stockMovement;
+  document.title = dict.documentTitle
+    .replace('{store}', isFromDashboard ? dict.store : activeStore?.name)
+    .replace('{title}', displayReportTitle);
+
+  const emptyKeys = hideEmptyColumns
+    ? getEmptyMovementKeys(movements?.movements)
+    : new Set();
 
   const exportedData = {
     organizationHasSubscribed: organizationHasSubscribed(
@@ -643,9 +679,10 @@ function StockMovement({ toggleOpen, dormantStock = false, isFromDashboard }) {
       PERMISSIONS.ACCOUNTS_REPORTS,
       PERMISSIONS.STORE_VALUES,
     ]),
-    store: isFromDashboard ? watch('store') : activeStore,
+    store: reportStore,
     reportTitle: reportTitle,
     withDetails: withDetails,
+    hideEmptyColumns: hideEmptyColumns,
   };
 
   const handlExcelExport = async (exportedData) => {
@@ -661,10 +698,10 @@ function StockMovement({ toggleOpen, dormantStock = false, isFromDashboard }) {
       a.download = `${!dormantStock ? 'Stock-Movement' : 'Dormant-Stock'} ${readableDate(filters.as_at, true)}.xlsx`;
       a.click();
       window.URL.revokeObjectURL(url);
-      enqueueSnackbar('Excel exported successfully!', { variant: 'success' });
+      enqueueSnackbar(dict.excelExported, { variant: 'success' });
     } catch (e) {
       console.log('error exporting: ', e);
-      enqueueSnackbar('Error exporting Excel', { variant: 'error' });
+      enqueueSnackbar(dict.excelExportError, { variant: 'error' });
     } finally {
       setIsDownloadingTemplate(false);
     }
@@ -696,12 +733,12 @@ function StockMovement({ toggleOpen, dormantStock = false, isFromDashboard }) {
               <Grid container size={12}>
                 <Grid size={belowLargeScreen ? 11 : 12}>
                   <Typography variant='h3'>
-                    {dormantStock ? 'Dormant Stock' : 'Stock Movement'}
+                    {displayReportTitle}
                   </Typography>
                 </Grid>
                 {belowLargeScreen && (
                   <Grid size={1}>
-                    <Tooltip title='Close'>
+                    <Tooltip title={dictionary.tooltips.close}>
                       <IconButton
                         size='small'
                         sx={{ mb: 1 }}
@@ -718,12 +755,12 @@ function StockMovement({ toggleOpen, dormantStock = false, isFromDashboard }) {
                   <Div sx={{ mt: 0.3 }}>
                     <StoreSelector
                       allowSubStores={true}
-                      label='Store'
+                      label={dict.storeOrAll}
                       proposedOptions={authOrganization?.stores}
                       frontError={errors.store_id}
                       onChange={(newValue) => {
                         setValue(`store`, newValue);
-                        setValue(`store_id`, newValue ? newValue.id : '', {
+                        setValue(`store_id`, newValue ? newValue.id : null, {
                           shouldValidate: true,
                           shouldDirty: true,
                         });
@@ -735,7 +772,7 @@ function StockMovement({ toggleOpen, dormantStock = false, isFromDashboard }) {
               <Grid size={{ xs: 12, md: 6 }}>
                 <Div sx={{ mt: 0.3 }}>
                   <CostCenterSelector
-                    label='Cost and Profit Centers (leave empty for all)'
+                    label={dict.costAndProfitCenters}
                     multiple={true}
                     allowSameType={true}
                     onChange={(cost_centers) => {
@@ -793,7 +830,7 @@ function StockMovement({ toggleOpen, dormantStock = false, isFromDashboard }) {
                     renderInput={(params) => (
                       <TextField
                         {...params}
-                        label='Product Categories'
+                        label={dict.productCategories}
                         size='small'
                         fullWidth
                       />
@@ -812,7 +849,7 @@ function StockMovement({ toggleOpen, dormantStock = false, isFromDashboard }) {
               <Grid size={{ xs: 12, md: isFromDashboard ? 3 : 6 }}>
                 <Div sx={{ mt: 0.3 }}>
                   <DateTimePicker
-                    label='From (MM/DD/YYYY)'
+                    label={dict.fromDate}
                     fullWidth
                     minDate={dayjs(
                       authOrganization.organization.recording_start_date
@@ -841,7 +878,7 @@ function StockMovement({ toggleOpen, dormantStock = false, isFromDashboard }) {
               <Grid size={{ xs: 12, md: isFromDashboard ? 3 : 6 }}>
                 <Div sx={{ mt: 0.3 }}>
                   <DateTimePicker
-                    label='To (MM/DD/YYYY)'
+                    label={dict.toDate}
                     fullWidth
                     minDate={dayjs(
                       authOrganization.organization.recording_start_date
@@ -864,7 +901,7 @@ function StockMovement({ toggleOpen, dormantStock = false, isFromDashboard }) {
                 </Div>
               </Grid>
               <Grid container size={{ xs: 12, md: 12 }} textAlign={'right'}>
-                <Grid size={{ xs: 6, md: 4 }} textAlign={'left'}>
+                <Grid size={{ xs: 6, md: 3 }} textAlign={'left'}>
                   <Div sx={{ mt: 0.3 }}>
                     <FormControlLabel
                       control={
@@ -882,12 +919,12 @@ function StockMovement({ toggleOpen, dormantStock = false, isFromDashboard }) {
                           }}
                         />
                       }
-                      label='Include Substores'
+                      label={dict.includeSubstores}
                     />
                   </Div>
                 </Grid>
                 {checkOrganizationPermission([PERMISSIONS.ACCOUNTS_REPORTS, PERMISSIONS.STORE_VALUES]) && (
-                  <Grid size={{ xs: 6, md: 4 }} textAlign={'left'}>
+                  <Grid size={{ xs: 6, md: 3 }} textAlign={'left'}>
                     <Div sx={{ mt: 0.3 }}>
                       <FormControlLabel
                         control={
@@ -897,9 +934,9 @@ function StockMovement({ toggleOpen, dormantStock = false, isFromDashboard }) {
                               const newValue = e.target.checked;
                               setWithDetails(newValue);
 
-                              // Reset to On-Screen tab when withDetails is enabled
+                              // Detailed view is Excel only, so leave the PDF preview
                               if (newValue) {
-                                setSelectedTab(0);
+                                setShowPdf(false);
                               }
 
                               // Fetch data with the new withDetails value
@@ -910,12 +947,25 @@ function StockMovement({ toggleOpen, dormantStock = false, isFromDashboard }) {
                             }}
                           />
                         }
-                        label='With more details'
+                        label={dict.withMoreDetails}
                       />
                     </Div>
                   </Grid>
                 )}
-                <Grid size={{ xs: 12, md: 4 }} textAlign={'right'}>
+                <Grid size={{ xs: 6, md: 3 }} textAlign={'left'}>
+                  <Div sx={{ mt: 0.3 }}>
+                    <FormControlLabel
+                      control={
+                        <Switch
+                          checked={hideEmptyColumns}
+                          onChange={(e) => setHideEmptyColumns(e.target.checked)}
+                        />
+                      }
+                      label={dict.hideEmptyColumns}
+                    />
+                  </Div>
+                </Grid>
+                <Grid size={{ xs: 12, md: 3 }} textAlign={'right'}>
                   <Stack
                     direction='row'
                     spacing={0.5}
@@ -923,22 +973,24 @@ function StockMovement({ toggleOpen, dormantStock = false, isFromDashboard }) {
                     alignItems='center'
                   >
                     <>
-                      <LoadingButton
-                        size='small'
-                        onClick={() => handlExcelExport(exportedData)}
-                        loading={isDownloadingTemplate}
-                        variant='contained'
-                        color='success'
-                      >
-                        Excel
-                      </LoadingButton>
+                      {movements?.movements?.length > 0 && (
+                        <FileExportGrid
+                          exportExcel
+                          exportPdf={!withDetails}
+                          handlePdf={() => setShowPdf((shown) => !shown)}
+                          handlExcelExport={() =>
+                            handlExcelExport(exportedData)
+                          }
+                          exportingExcel={isDownloadingTemplate}
+                        />
+                      )}
                       <LoadingButton
                         loading={isFetching}
                         type='submit'
                         size='small'
                         variant='contained'
                       >
-                        Filter
+                        {dict.filter}
                       </LoadingButton>
                     </>
                   </Stack>
@@ -946,21 +998,6 @@ function StockMovement({ toggleOpen, dormantStock = false, isFromDashboard }) {
               </Grid>
             </Grid>
           </form>
-          {/* Tabs - hidden when withDetails is true on below large screens */}
-          {belowLargeScreen &&
-            !isFetching &&
-            movements?.movements?.length > 0 &&
-            !withDetails && (
-              <Tabs
-                value={selectedTab}
-                onChange={handleTabChange}
-                indicatorColor='primary'
-                textColor='primary'
-              >
-                <Tab label='On-Screen' />
-                <Tab label='PDF' />
-              </Tabs>
-            )}
         </Span>
       </DialogTitle>
       <DialogContent>
@@ -988,34 +1025,8 @@ function StockMovement({ toggleOpen, dormantStock = false, isFromDashboard }) {
         )}
         {!isFetching && movements?.movements?.length > 0 && (
           <React.Fragment>
-            {withDetails ? (
-              // Show this message on ALL screens when withDetails is true
-              <Box
-                sx={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  minHeight: 200,
-                  p: 4,
-                  textAlign: 'center',
-                }}
-              >
-                <Typography variant='h2' sx={{ fontSize: 40, mb: 2 }}>
-                  📊
-                </Typography>
-                <Typography variant='h6' color='text.secondary' gutterBottom>
-                  Download Excel to view more details
-                </Typography>
-                <Typography variant='body2' color='text.secondary'>
-                  The detailed view is only available in Excel format. Please
-                  click the Excel button above to download the complete report.
-                </Typography>
-              </Box>
-            ) : (
-              // Show normal content when withDetails is false
               <React.Fragment>
-                {belowLargeScreen && selectedTab === 0 ? (
+                {!showPdf || withDetails ? (
                   <StockMovementOnScreen
                     movementsData={movements}
                     authOrganization={authOrganization}
@@ -1023,7 +1034,9 @@ function StockMovement({ toggleOpen, dormantStock = false, isFromDashboard }) {
                     productCategories={watch('product_categories')}
                     checkOrganizationPermission={checkOrganizationPermission}
                     organizationHasSubscribed={organizationHasSubscribed}
-                    store={isFromDashboard ? watch('store') : activeStore}
+                    emptyKeys={emptyKeys}
+                    withDetails={withDetails}
+                    store={reportStore}
                     reportTitle={reportTitle}
                   />
                 ) : (
@@ -1038,19 +1051,20 @@ function StockMovement({ toggleOpen, dormantStock = false, isFromDashboard }) {
                         checkOrganizationPermission={
                           checkOrganizationPermission
                         }
-                        store={isFromDashboard ? watch('store') : activeStore}
-                        reportTitle={reportTitle}
+                        store={reportStore}
+                        reportTitle={displayReportTitle}
+                        dictionary={dictionary}
+                        emptyKeys={emptyKeys}
                       />
                     }
                     fileName={
                       isFromDashboard
-                        ? watch('store')?.name
+                        ? `${reportStore.name} ${dormantStock ? 'Dormant Stock' : 'Stock Movement'} ${readableDate(watch('from'))}-${readableDate(watch('to'))}`
                         : `${activeStore?.name} ${dormantStock ? 'Dormant Stock' : 'Stock Movement'} ${readableDate(watch('from'))}-${readableDate(watch('to'))}`
                     }
                   />
                 )}
               </React.Fragment>
-            )}
           </React.Fragment>
         )}
       </DialogContent>
@@ -1061,7 +1075,7 @@ function StockMovement({ toggleOpen, dormantStock = false, isFromDashboard }) {
           variant='outlined'
           onClick={() => toggleOpen(false)}
         >
-          Close
+          {dict.close}
         </Button>
       </DialogActions>
     </React.Fragment>

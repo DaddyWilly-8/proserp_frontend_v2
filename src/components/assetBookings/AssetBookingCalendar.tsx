@@ -92,7 +92,7 @@ const AssetBookingCalendar = () => {
     // then which asset it actually is, since the code alone doesn't say
     // "Africana Hall" vs "Bahari Beach Hall" at a glance in the all-assets view.
     const identifier = b.stakeholder?.name ?? b.cost_center?.name
-      ?? dictionary.bookings.calendar.event[b.booking_type];
+      ?? (dictionary.bookings.calendar.event as Record<string, string>)[b.booking_type];
     const assetName = b.asset_detail?.product_item?.identification
       ?? b.asset_detail?.product_item?.product?.item_name;
     const title = assetName ? `${assetName} · ${identifier} (${b.code})` : `${identifier} · ${b.code}`;

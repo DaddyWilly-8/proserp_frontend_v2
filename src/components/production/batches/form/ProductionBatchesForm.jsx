@@ -42,12 +42,14 @@ import OutputsItemRow from './OutputsItemRow';
 import PBSummary from './PBSummary';
 import OtherExpenses from './otherExpenses/OtherExpenses';
 import OtherExpensesItemRow from './otherExpenses/OtherExpensesItemRow';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function ProductionBatchesForm({
   toggleOpen,
   production,
   setIsConsumptionDeletedInside,
 }) {
+  const dictionary = useDictionary();
   const { activeWorkCenter } = useContext(ProductionBatchesContext);
   const [activeTab, setActiveTab] = useState(0);
   const { enqueueSnackbar } = useSnackbar();
@@ -87,8 +89,8 @@ function ProductionBatchesForm({
   const validationSchema = yup.object({
     start_date: yup
       .string()
-      .required('Start Date is required')
-      .typeError('Start Date is required'),
+      .required(dictionary.forms.batches.validation.startDateRequired)
+      .typeError(dictionary.forms.batches.validation.startDateRequired),
     end_date: yup
       .string()
       .nullable()
@@ -96,8 +98,8 @@ function ProductionBatchesForm({
         is: 'close',
         then: (schema) =>
           schema
-            .required('Ending date is required')
-            .typeError('Ending date is required'),
+            .required(dictionary.forms.batches.validation.endingDateRequired)
+            .typeError(dictionary.forms.batches.validation.endingDateRequired),
         otherwise: (schema) => schema.notRequired().nullable(),
       }),
     outputs: yup
@@ -106,41 +108,41 @@ function ProductionBatchesForm({
         yup.object().shape({
           product: yup
             .object()
-            .required('Product is required')
-            .typeError('Product is required'),
+            .required(dictionary.forms.batches.validation.productRequired)
+            .typeError(dictionary.forms.batches.validation.productRequired),
           store_id: yup
             .number()
-            .required('Store is required')
-            .typeError('Store is required'),
+            .required(dictionary.forms.batches.validation.storeRequired)
+            .typeError(dictionary.forms.batches.validation.storeRequired),
           quantity: yup
             .number()
-            .required('Quantity is required')
-            .positive('Quantity must be positive')
-            .typeError('Quantity is required'),
+            .required(dictionary.forms.batches.validation.quantityRequired)
+            .positive(dictionary.forms.batches.validation.quantityPositive)
+            .typeError(dictionary.forms.batches.validation.quantityRequired),
           measurement_unit_id: yup
             .number()
-            .required('Measurement Unit is required')
-            .typeError('Measurement Unit is required'),
+            .required(dictionary.forms.batches.validation.measurementUnitRequired)
+            .typeError(dictionary.forms.batches.validation.measurementUnitRequired),
           value_percentage: yup
             .number()
-            .min(0, 'Value Percentage must be greater or equal to 0')
-            .max(100, 'Value Percentage must be less than or equal to 100')
-            .required('Value Percentage is required')
-            .typeError('Value Percentage is required'),
+            .min(0, dictionary.forms.batches.validation.valuePercentageMin)
+            .max(100, dictionary.forms.batches.validation.valuePercentageMax)
+            .required(dictionary.forms.batches.validation.valuePercentageRequired)
+            .typeError(dictionary.forms.batches.validation.valuePercentageRequired),
         })
       )
       .when('submit_type', {
         is: 'close',
         then: (schema) =>
           schema
-            .min(1, 'You must add at least one Output when closing')
+            .min(1, dictionary.forms.batches.validation.atLeastOneOutputClosing)
             .test(
               'sum-check',
-              'Total Value Percentage must be exactly 100%',
+              dictionary.forms.batches.validation.totalValuePercentage100,
               function (value) {
                 if (!value || value.length === 0)
                   return this.createError({
-                    message: 'At least one output is required when closing',
+                    message: dictionary.forms.batches.validation.atLeastOneOutputRequired,
                   });
                 const totalPercentage = value.reduce(
                   (total, it) => total + (Number(it.value_percentage) || 0),
@@ -149,7 +151,7 @@ function ProductionBatchesForm({
                 return (
                   totalPercentage === 100 ||
                   this.createError({
-                    message: 'Total Value Percentage must be exactly 100%',
+                    message: dictionary.forms.batches.validation.totalValuePercentage100,
                   })
                 );
               }
@@ -324,7 +326,9 @@ function ProductionBatchesForm({
       <DialogTitle>
         <Grid container spacing={2}>
           <Grid size={12} textAlign='center' mb={2}>
-            {production ? `Edit ${production.batchNo}` : 'New Production Batch'}
+            {production
+              ? dictionary.forms.batches.titles.edit.replace('{batchNo}', production.batchNo)
+              : dictionary.forms.batches.titles.new}
           </Grid>
           <Grid size={12} mb={2}>
             <form autoComplete='off'>
@@ -333,7 +337,7 @@ function ProductionBatchesForm({
                   <Div sx={{ mt: 0.3 }}>
                     <DateTimePicker
                       fullWidth
-                      label='Start Date (MM/DD/YYYY)'
+                      label={dictionary.forms.batches.labels.startDate}
                       minDate={dayjs(
                         authOrganization.organization.recording_start_date
                       )}
@@ -364,7 +368,7 @@ function ProductionBatchesForm({
                   <Div sx={{ mt: 0.3 }}>
                     <DateTimePicker
                       fullWidth
-                      label='End Date (MM/DD/YYYY)'
+                      label={dictionary.forms.batches.labels.endDate}
                       defaultValue={
                         production?.end_date && dayjs(watch(`end_date`))
                       }
@@ -394,7 +398,7 @@ function ProductionBatchesForm({
                 <Grid size={{ xs: 12, md: 6 }}>
                   <Div sx={{ mt: 0.3 }}>
                     <TextField
-                      label='Remarks'
+                      label={dictionary.forms.batches.labels.remarks}
                       size='small'
                       fullWidth
                       {...register('remarks')}
@@ -427,11 +431,11 @@ function ProductionBatchesForm({
           scrollButtons='auto'
           allowScrollButtonsMobile
         >
-          <Tab label='INVENTORY INPUTS' />
-          <Tab label='OTHER EXPENSES' />
-          <Tab label='BY PRODUCTS' />
-          <Tab label='OUTPUTS' />
-          <Tab label='SUMMARY' />
+          <Tab label={dictionary.forms.batches.tabs.inventoryInputs} />
+          <Tab label={dictionary.forms.batches.tabs.otherExpenses} />
+          <Tab label={dictionary.forms.batches.tabs.byProducts} />
+          <Tab label={dictionary.forms.batches.tabs.outputs} />
+          <Tab label={dictionary.forms.batches.tabs.summary} />
         </Tabs>
 
         <Box hidden={activeTab !== 0} sx={{ mt: 2 }}>
@@ -465,7 +469,7 @@ function ProductionBatchesForm({
             {production && production?.inventory_consumptions.length > 0 && (
               <>
                 <Typography paddingTop={2} variant='h5'>
-                  Consumptions
+                  {dictionary.forms.batches.titles.consumptions}
                 </Typography>
                 {production &&
                   production?.inventory_consumptions.map((item, index) => (
@@ -577,9 +581,9 @@ function ProductionBatchesForm({
         <Dialog open={showWarning} onClose={() => setShowWarning(false)}>
           <DialogTitle>
             <Grid container alignItems='center' justifyContent='space-between'>
-              <Grid size={11}>Unsaved Changes</Grid>
+              <Grid size={11}>{dictionary.forms.batches.dialogs.unsavedChanges}</Grid>
               <Grid size={1} textAlign='right'>
-                <Tooltip title='Close'>
+                <Tooltip title={dictionary.tooltips.close}>
                   <IconButton
                     size='small'
                     onClick={() => setShowWarning(false)}
@@ -590,7 +594,7 @@ function ProductionBatchesForm({
               </Grid>
             </Grid>
           </DialogTitle>
-          <DialogContent>Last item was not added to the list</DialogContent>
+          <DialogContent>{dictionary.forms.batches.dialogs.lastItemNotAdded}</DialogContent>
           <DialogActions>
             <Button
               size='small'
@@ -599,14 +603,14 @@ function ProductionBatchesForm({
                 setShowWarning(false);
               }}
             >
-              Add and Submit
+              {dictionary.forms.batches.buttons.addAndSubmit}
             </Button>
             <Button
               size='small'
               onClick={handleConfirmSubmitWithoutAdd}
               color='secondary'
             >
-              Submit without add
+              {dictionary.forms.batches.buttons.submitWithoutAdd}
             </Button>
           </DialogActions>
         </Dialog>
@@ -614,7 +618,7 @@ function ProductionBatchesForm({
 
       <DialogActions>
         <Button size='small' onClick={() => toggleOpen(false)}>
-          Cancel
+          {dictionary.forms.batches.buttons.cancel}
         </Button>
         {activeTab > 0 && (
           <Button
@@ -623,7 +627,7 @@ function ProductionBatchesForm({
             onClick={() => setActiveTab((activeTab) => activeTab - 1)}
           >
             <KeyboardArrowLeftOutlined />
-            Previous
+            {dictionary.forms.batches.buttons.previous}
           </Button>
         )}
         {activeTab < 4 && (
@@ -632,7 +636,7 @@ function ProductionBatchesForm({
             variant='outlined'
             onClick={() => setActiveTab((activeTab) => activeTab + 1)}
           >
-            Next
+            {dictionary.forms.batches.buttons.next}
             <KeyboardArrowRightOutlined />
           </Button>
         )}
@@ -645,7 +649,7 @@ function ProductionBatchesForm({
             onSubmit();
           }}
         >
-          Initiate
+          {dictionary.forms.batches.buttons.initiate}
         </LoadingButton>
         <LoadingButton
           loading={addProduction.isPending || updateProduction.isPending}
@@ -657,7 +661,7 @@ function ProductionBatchesForm({
             onSubmit();
           }}
         >
-          Close
+          {dictionary.forms.batches.buttons.close}
         </LoadingButton>
       </DialogActions>
     </React.Fragment>

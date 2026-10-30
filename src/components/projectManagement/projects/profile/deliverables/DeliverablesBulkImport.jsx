@@ -32,14 +32,15 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSnackbar } from 'notistack';
 import React, { useState } from 'react';
 import projectsServices from '../../project-services';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
-const getErrorMessage = (error) => {
+const getErrorMessage = (error, fallback) => {
   const validationErrors = error?.response?.data?.validation_errors;
   if (validationErrors && typeof validationErrors === 'object') {
     const first = Object.values(validationErrors)[0];
     return Array.isArray(first) ? first[0] : String(first);
   }
-  return error?.response?.data?.message || error?.message || 'Something went wrong';
+  return error?.response?.data?.message || error?.message || fallback;
 };
 
 const TabPanel = ({ children, value, index }) => (
@@ -49,6 +50,7 @@ const TabPanel = ({ children, value, index }) => (
 );
 
 const DeliverablesBulkImport = ({ project, setOpenDialog }) => {
+  const dictionary = useDictionary();
   const theme = useTheme();
   const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
@@ -66,12 +68,12 @@ const DeliverablesBulkImport = ({ project, setOpenDialog }) => {
       const url = window.URL.createObjectURL(blob);
       const anchor = document.createElement('a');
       anchor.href = url;
-      anchor.download = `${project?.name ?? 'Project'} Deliverables.xlsx`;
+      anchor.download = `${project?.name ?? dictionary.projectManagement.deliverables.bulkImport.projectFallback} ${dictionary.projectManagement.deliverables.title}.xlsx`;
       anchor.click();
       window.URL.revokeObjectURL(url);
-      enqueueSnackbar('Template downloaded successfully', { variant: 'success' });
+      enqueueSnackbar(dictionary.projectManagement.deliverables.bulkImport.templateDownloaded, { variant: 'success' });
     },
-    onError: (error) => enqueueSnackbar(getErrorMessage(error), { variant: 'error' }),
+    onError: (error) => enqueueSnackbar(getErrorMessage(error, dictionary.projectManagement.deliverables.bulkImport.somethingWentWrong), { variant: 'error' }),
   });
 
   const { mutate: importDeliverables, isPending: isImporting } = useMutation({
@@ -89,18 +91,18 @@ const DeliverablesBulkImport = ({ project, setOpenDialog }) => {
 
       if (response.errors && response.errors.length > 0) {
         enqueueSnackbar(
-          `${response.message}. ${response.errors.length} error(s) found. Check the details below.`,
+          dictionary.projectManagement.deliverables.bulkImport.errorsFound.replace('{message}', response.message).replace('{count}', response.errors.length),
           { variant: 'warning' }
         );
       } else if (response.imported > 0 && response.skipped === 0) {
-        enqueueSnackbar(response.message || 'Deliverables imported successfully', { variant: 'success' });
+        enqueueSnackbar(response.message || dictionary.projectManagement.deliverables.bulkImport.importedSuccess, { variant: 'success' });
       } else if (response.imported > 0 && response.skipped > 0) {
-        enqueueSnackbar(`${response.message}. ${response.imported} imported, ${response.skipped} skipped.`, { variant: 'warning' });
+        enqueueSnackbar(dictionary.projectManagement.deliverables.bulkImport.importedSkipped.replace('{message}', response.message).replace('{imported}', response.imported).replace('{skipped}', response.skipped), { variant: 'warning' });
       } else {
-        enqueueSnackbar(response.message || 'Nothing was imported. Please check the errors below.', { variant: 'error' });
+        enqueueSnackbar(response.message || dictionary.projectManagement.deliverables.bulkImport.nothingImported, { variant: 'error' });
       }
     },
-    onError: (error) => enqueueSnackbar(getErrorMessage(error), { variant: 'error' }),
+    onError: (error) => enqueueSnackbar(getErrorMessage(error, dictionary.projectManagement.deliverables.bulkImport.somethingWentWrong), { variant: 'error' }),
   });
 
   const handleFileChange = (event) => {
@@ -126,7 +128,7 @@ const DeliverablesBulkImport = ({ project, setOpenDialog }) => {
   return (
     <React.Fragment>
       <DialogTitle sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        Bulk Import Deliverables
+        {dictionary.projectManagement.deliverables.bulkImport.title}
         <IconButton onClick={handleClose}>
           <Close />
         </IconButton>
@@ -134,8 +136,7 @@ const DeliverablesBulkImport = ({ project, setOpenDialog }) => {
       <Divider />
       <DialogContent>
         <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-          Import deliverable groups and their line items for {project?.name} using Excel. Downloading the
-          template again later also exports whatever is currently in this project.
+          {dictionary.projectManagement.deliverables.bulkImport.intro.replace('{project}', project?.name)}
         </Typography>
 
         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
@@ -144,8 +145,8 @@ const DeliverablesBulkImport = ({ project, setOpenDialog }) => {
             onChange={handleTabChange}
             sx={{ '& .MuiTab-root': { textTransform: 'none', fontWeight: 500, py: 1.5, minHeight: 40 } }}
           >
-            <Tab icon={<DownloadOutlined />} label="Download Template" iconPosition="start" />
-            <Tab icon={<UploadOutlined />} label="Upload Excel" iconPosition="start" />
+            <Tab icon={<DownloadOutlined />} label={dictionary.projectManagement.deliverables.bulkImport.downloadTemplate} iconPosition="start" />
+            <Tab icon={<UploadOutlined />} label={dictionary.projectManagement.deliverables.bulkImport.uploadExcel} iconPosition="start" />
           </Tabs>
         </Box>
 
@@ -168,12 +169,10 @@ const DeliverablesBulkImport = ({ project, setOpenDialog }) => {
               }}
             >
               <Typography variant="body2" fontWeight={600} gutterBottom color={isDark ? 'inherit' : undefined}>
-                Getting Started
+                {dictionary.projectManagement.deliverables.bulkImport.gettingStarted}
               </Typography>
               <Typography variant="body2" color={isDark ? alpha(theme.palette.common.white, 0.8) : 'text.secondary'}>
-                Download the Excel template below. Fill in one row per deliverable group/line item
-                following the format in the Instructions sheet. If this project already has
-                deliverables, the download comes pre-filled with them.
+                {dictionary.projectManagement.deliverables.bulkImport.gettingStartedText}
               </Typography>
             </Alert>
 
@@ -203,10 +202,10 @@ const DeliverablesBulkImport = ({ project, setOpenDialog }) => {
                 <DescriptionOutlined sx={{ fontSize: 32, color: theme.palette.primary.main }} />
               </Box>
               <Typography variant="h6" fontWeight={600}>
-                Deliverables Template
+                {dictionary.projectManagement.deliverables.bulkImport.templateName}
               </Typography>
               <Typography variant="body2" color="text.secondary" align="center">
-                Groups, nested groups and deliverable line items in one sheet
+                {dictionary.projectManagement.deliverables.bulkImport.templateDesc}
               </Typography>
               <Button
                 variant="contained"
@@ -216,7 +215,7 @@ const DeliverablesBulkImport = ({ project, setOpenDialog }) => {
                 size="large"
                 sx={{ minWidth: 200, borderRadius: 2, textTransform: 'none', fontWeight: 600 }}
               >
-                {isDownloading ? 'Downloading...' : 'Download Template'}
+                {isDownloading ? dictionary.projectManagement.deliverables.bulkImport.downloading : dictionary.projectManagement.deliverables.bulkImport.downloadTemplate}
               </Button>
             </Paper>
           </Stack>
@@ -238,12 +237,10 @@ const DeliverablesBulkImport = ({ project, setOpenDialog }) => {
               }}
             >
               <Typography variant="body2" fontWeight={600} gutterBottom color={isDark ? 'inherit' : undefined}>
-                Upload Instructions
+                {dictionary.projectManagement.deliverables.bulkImport.uploadInstructions}
               </Typography>
               <Typography variant="body2" color={isDark ? alpha(theme.palette.common.white, 0.8) : 'text.secondary'}>
-                Upload the filled Excel file. Groups whose code already exists are reused, and
-                deliverables whose description already exists in their group are skipped - so
-                re-uploading a corrected file is safe.
+                {dictionary.projectManagement.deliverables.bulkImport.uploadInstructionsText}
               </Typography>
             </Alert>
 
@@ -283,11 +280,11 @@ const DeliverablesBulkImport = ({ project, setOpenDialog }) => {
                     {file.name}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    {(file.size / 1024).toFixed(1)} KB &bull; Ready to upload
+                    {(file.size / 1024).toFixed(1)} KB &bull; {dictionary.projectManagement.deliverables.bulkImport.readyToUpload}
                   </Typography>
                   <Stack direction="row" spacing={2}>
                     <Button variant="outlined" color="error" size="small" onClick={() => setFile(null)} sx={{ borderRadius: 2, textTransform: 'none' }}>
-                      Remove File
+                      {dictionary.projectManagement.deliverables.bulkImport.removeFile}
                     </Button>
                     <Button
                       variant="contained"
@@ -297,17 +294,17 @@ const DeliverablesBulkImport = ({ project, setOpenDialog }) => {
                       size="large"
                       sx={{ minWidth: 200, borderRadius: 2, textTransform: 'none', fontWeight: 600 }}
                     >
-                      {isImporting ? 'Uploading...' : 'Upload & Import'}
+                      {isImporting ? dictionary.projectManagement.deliverables.bulkImport.uploading : dictionary.projectManagement.deliverables.bulkImport.uploadAndImport}
                     </Button>
                   </Stack>
                 </React.Fragment>
               ) : (
                 <React.Fragment>
                   <Typography variant="body2" color="text.secondary">
-                    No file selected
+                    {dictionary.projectManagement.deliverables.bulkImport.noFileSelected}
                   </Typography>
                   <Button variant="outlined" component="label" startIcon={<UploadOutlined />} sx={{ minWidth: 200, borderRadius: 2, textTransform: 'none', fontWeight: 500 }}>
-                    Select Excel File
+                    {dictionary.projectManagement.deliverables.bulkImport.selectExcelFile}
                     <input hidden type="file" accept=".xlsx,.xls" onChange={handleFileChange} />
                   </Button>
                 </React.Fragment>
@@ -335,13 +332,13 @@ const DeliverablesBulkImport = ({ project, setOpenDialog }) => {
                     }}
                   >
                     <Typography variant="body2" fontWeight={600} gutterBottom color={isDark ? 'inherit' : undefined}>
-                      Import Summary
+                      {dictionary.projectManagement.deliverables.bulkImport.importSummary}
                     </Typography>
 
                     <Grid container spacing={2} sx={{ width: '100%', mt: 1 }}>
                       <Grid size={{ xs: 6, md: 3 }}>
                         <Typography variant="caption" color={isDark ? alpha(theme.palette.common.white, 0.7) : 'text.secondary'} display="block">
-                          Imported
+                          {dictionary.projectManagement.deliverables.bulkImport.imported}
                         </Typography>
                         <Typography variant="h6" color={isDark ? theme.palette.success.light : 'success.main'} fontWeight={700}>
                           {importResult.imported ?? 0}
@@ -349,7 +346,7 @@ const DeliverablesBulkImport = ({ project, setOpenDialog }) => {
                       </Grid>
                       <Grid size={{ xs: 6, md: 3 }}>
                         <Typography variant="caption" color={isDark ? alpha(theme.palette.common.white, 0.7) : 'text.secondary'} display="block">
-                          Skipped
+                          {dictionary.projectManagement.deliverables.bulkImport.skipped}
                         </Typography>
                         <Typography variant="h6" color={isDark ? theme.palette.warning.light : 'warning.main'} fontWeight={700}>
                           {importResult.skipped ?? 0}
@@ -357,7 +354,7 @@ const DeliverablesBulkImport = ({ project, setOpenDialog }) => {
                       </Grid>
                       <Grid size={{ xs: 6, md: 3 }}>
                         <Typography variant="caption" color={isDark ? alpha(theme.palette.common.white, 0.7) : 'text.secondary'} display="block">
-                          Errors
+                          {dictionary.projectManagement.deliverables.bulkImport.errors}
                         </Typography>
                         <Typography variant="h6" color={isDark ? theme.palette.error.light : 'error.main'} fontWeight={700}>
                           {importResult.errors?.length ?? 0}
@@ -365,7 +362,7 @@ const DeliverablesBulkImport = ({ project, setOpenDialog }) => {
                       </Grid>
                       <Grid size={{ xs: 6, md: 3 }}>
                         <Typography variant="caption" color={isDark ? alpha(theme.palette.common.white, 0.7) : 'text.secondary'} display="block">
-                          Total Processed
+                          {dictionary.projectManagement.deliverables.bulkImport.totalProcessed}
                         </Typography>
                         <Typography variant="h6" fontWeight={700} color={isDark ? 'inherit' : undefined}>
                           {(importResult.imported ?? 0) + (importResult.skipped ?? 0)}
@@ -384,7 +381,7 @@ const DeliverablesBulkImport = ({ project, setOpenDialog }) => {
                     <Box sx={{ width: '100%' }}>
                       <Typography variant="subtitle2" gutterBottom fontWeight={600} color="text.secondary" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                         <ErrorOutline fontSize="small" color="warning" />
-                        Skipped Rows ({importResult.errors.length} row{importResult.errors.length > 1 ? 's' : ''})
+                        {(importResult.errors.length > 1 ? dictionary.projectManagement.deliverables.bulkImport.skippedRowsMany : dictionary.projectManagement.deliverables.bulkImport.skippedRowsOne).replace('{count}', importResult.errors.length)}
                       </Typography>
 
                       <Box
@@ -413,10 +410,10 @@ const DeliverablesBulkImport = ({ project, setOpenDialog }) => {
                           }}
                         >
                           <Typography variant="caption" fontWeight={700}>
-                            Row No.
+                            {dictionary.projectManagement.deliverables.bulkImport.rowNo}
                           </Typography>
                           <Typography variant="caption" fontWeight={700}>
-                            Error Description
+                            {dictionary.projectManagement.deliverables.bulkImport.errorDescription}
                           </Typography>
                         </Box>
 
@@ -435,13 +432,13 @@ const DeliverablesBulkImport = ({ project, setOpenDialog }) => {
                   {(!importResult.errors || importResult.errors.length === 0) && importResult.imported > 0 && (
                     <Alert severity="success" sx={{ width: '100%' }}>
                       <Typography variant="body2">
-                        All {importResult.imported} row{importResult.imported > 1 ? 's were' : ' was'} imported successfully!
+                        {(importResult.imported > 1 ? dictionary.projectManagement.deliverables.bulkImport.allImportedMany : dictionary.projectManagement.deliverables.bulkImport.allImportedOne).replace('{count}', importResult.imported)}
                       </Typography>
                     </Alert>
                   )}
 
                   <Button variant="outlined" startIcon={<Refresh />} onClick={handleReset} size="small" sx={{ alignSelf: 'flex-start' }}>
-                    Import Another File
+                    {dictionary.projectManagement.deliverables.bulkImport.importAnother}
                   </Button>
                 </Stack>
               </Box>

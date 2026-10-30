@@ -1,0 +1,540 @@
+{
+  "leaveTypes": {
+    "list": {
+      "title": "Aina za Likizo"
+    },
+    "actions": {
+      "edit": "Hariri",
+      "delete": "Futa",
+      "confirmDeleteTitle": "Thibitisha Kufuta",
+      "confirmDeleteContent": "Una uhakika unataka kufuta aina hii ya likizo?",
+      "deleteSuccess": "Aina ya Likizo Imefutwa Kikamilifu",
+      "somethingWrong": "Kuna hitilafu imetokea"
+    },
+    "form": {
+      "titles": {
+        "add": "Ongeza Aina ya Likizo",
+        "edit": "Hariri Aina ya Likizo {name}",
+        "confirmBulk": "Thibitisha Ugawaji wa Likizo kwa Wingi"
+      },
+      "labels": {
+        "name": "Jina",
+        "daysPerYear": "Siku kwa Mwaka",
+        "cycleMonths": "Mzunguko (Miezi)",
+        "carryForwardMonths": "Kuhamishia Mbele (Miezi)",
+        "excludesSaturday": "Haihesabu Jumamosi",
+        "excludesSunday": "Haihesabu Jumapili",
+        "applyToEmployees": "Tumia kwa Wafanyakazi",
+        "gender": "Jinsia",
+        "startDate": "Tarehe ya Kuanza"
+      },
+      "placeholders": {
+        "name": "Jina la Aina ya Likizo",
+        "daysPerYear": "Siku kwa Mwaka",
+        "cycleMonths": "Mzunguko (Miezi)",
+        "carryForwardMonths": "Kuhamishia Mbele (Miezi)"
+      },
+      "hints": {
+        "cycleMonths": "Acha 12 kwa aina ya kawaida ya likizo ya mwaka — weka 36 kwa likizo inayoweza kutumika mara moja kila baada ya miaka 3 (mf. Uzazi). Kubadilisha hili baadaye kutabadilisha ugawaji wote uliopo wa aina hii.",
+        "carryForwardMonths": "Si lazima — ni miezi mingapi salio lisilotumika la mzunguko mmoja linaweza kutumika katika mzunguko unaofuata. Acha wazi kuzima kuhamishia mbele.",
+        "excludesSaturday": "Imewashwa — Jumamosi ndani ya kipindi kilichoombwa hazihesabiwi kama siku za likizo. Imezimwa — Jumamosi zinahesabiwa kama siku nyingine yoyote.",
+        "excludesSunday": "Imewashwa — Jumapili ndani ya kipindi kilichoombwa hazihesabiwi kama siku za likizo (mf. Likizo ya Mwaka katika wiki ya kazi ya siku 5 au 6). Imezimwa — Jumapili zinahesabiwa kama siku nyingine yoyote (mf. sera za Likizo ya Ugonjwa).",
+        "applyAll": "Hii itagawa siku za likizo kwa wafanyakazi wote waliopo",
+        "applyEditNone": "Mabadiliko ya hapo juu (mf. Siku kwa Mwaka) hayatawafikia wafanyakazi ambao tayari wana aina hii ya likizo isipokuwa uchague wigo hapa",
+        "applyNewNone": "Chagua chaguo ili kugawa siku za likizo kwa wingi",
+        "gender": "Si lazima — punguza wigo ulio hapo juu kwa wafanyakazi wa kiume au wa kike pekee (mf. Uzazi)",
+        "startDate": "Si lazima — hubatilisha tarehe ya kiotomatiki (Januari 1 kwa aina za mwaka, leo kwa mizunguko mirefu) kwa ugawaji mpya wowote."
+      },
+      "options": {
+        "excluded": "Haihesabiwi",
+        "counted": "Inahesabiwa kama siku ya likizo",
+        "none": "Hakuna",
+        "allEmployees": "Wafanyakazi Wote",
+        "activeContracts": "Wafanyakazi Wenye Mikataba Hai",
+        "any": "Yeyote",
+        "female": "Mwanamke",
+        "male": "Mwanaume"
+      },
+      "messages": {
+        "addSuccess": "Aina ya Likizo Imeongezwa Kikamilifu",
+        "updateSuccess": "Aina ya Likizo Imesasishwa Kikamilifu"
+      },
+      "validation": {
+        "nameRequired": "jina linahitajika",
+        "nameMax": "Jina haliwezi kuzidi herufi 255",
+        "daysRequired": "siku kwa mwaka zinahitajika",
+        "daysMin": "Siku kwa mwaka lazima ziwe zaidi ya 0",
+        "cycleMin": "Mzunguko lazima uwe angalau mwezi 1",
+        "cycleMax": "Mzunguko hauwezi kuzidi miezi 240",
+        "carryMin": "Kuhamishia mbele hakuwezi kuwa hasi",
+        "carryMax": "Kuhamishia mbele hakuwezi kuzidi miezi 60"
+      },
+      "buttons": {
+        "cancel": "Ghairi",
+        "submit": "Wasilisha",
+        "continue": "Endelea"
+      },
+      "bulk": {
+        "intro": "Kitendo hiki kitagawa siku {days} za likizo kwa wafanyakazi kadhaa:",
+        "willUpdate": "Itasasisha:",
+        "employeesCount": "wafanyakazi {count}",
+        "updateNote": "(Wafanyakazi ambao tayari wana aina hii ya likizo watasasishiwa ugawaji wao)",
+        "willCreate": "Itaunda:",
+        "newEmployeesCount": "wafanyakazi wapya {count}",
+        "createNote": "(Wafanyakazi ambao hawana aina hii ya likizo watagawiwa)",
+        "willSkip": "Itaruka (tayari katikati ya mzunguko):",
+        "skipNote": "(Wafanyakazi ambao tayari wako katikati ya mzunguko wa miaka mingi hawatabadilishwa — hariri ugawaji wao mmoja mmoja ukihitaji kubadilisha)",
+        "warning": "Kitendo hiki hakiwezi kutenguliwa. Endelea?"
+      }
+    }
+  },
+  "deductionTypes": {
+    "list": {
+      "title": "Aina za Makato",
+      "statutory": "Ya Kisheria",
+      "voluntary": "Ya Hiari",
+      "preTax": "Kabla ya Kodi",
+      "postTax": "Baada ya Kodi",
+      "computationMethods": {
+        "fixed": "Kiasi Maalum",
+        "percentage_of_basic": "Asilimia ya Mshahara wa Msingi",
+        "percentage_of_gross": "Asilimia ya Mshahara Ghafi"
+      }
+    },
+    "actions": {
+      "edit": "Hariri",
+      "delete": "Futa",
+      "confirmDeleteTitle": "Thibitisha Kufuta",
+      "confirmDeleteContent": "Una uhakika unataka kufuta aina hii ya makato?",
+      "deleteSuccess": "Aina ya Makato Imefutwa Kikamilifu",
+      "somethingWrong": "Kuna hitilafu imetokea",
+      "inUseTitle": "Aina ya makato bado inatumika",
+      "inUseContent": "{message} Iondoe kwa wote na ufute aina hii?"
+    },
+    "form": {
+      "titles": {
+        "add": "Ongeza Aina ya Makato",
+        "edit": "Hariri Aina ya Makato",
+        "confirmBulk": "Thibitisha Utumiaji kwa Wingi",
+        "quickAddLedger": "Ongeza Leja Haraka"
+      },
+      "labels": {
+        "name": "Jina",
+        "code": "Msimbo",
+        "category": "Kundi",
+        "computationMethod": "Njia ya Ukokotoaji",
+        "defaultValue": "Thamani ya Msingi",
+        "isPreTax": "Ni Kabla ya Kodi",
+        "receivableLedger": "Leja ya Mapokezi",
+        "expenseLedger": "Leja ya Gharama (inarudishwa)",
+        "payableLedger": "Leja ya Malipo",
+        "applyToEmployees": "Tumia kwa Wafanyakazi",
+        "description": "Maelezo"
+      },
+      "helpers": {
+        "applyAll": "Hii itatumika kwa wafanyakazi wote waliopo",
+        "applyNone": "Chagua chaguo ili kutumia makato haya kwa wingi",
+        "reservedAlert": "Hii ni aina ya makato iliyowekwa na mfumo — mishahara huilinganisha kwa Msimbo wake, hivyo Jina, Msimbo, Kundi, Njia ya Ukokotoaji, Thamani ya Msingi, na Ni Kabla ya Kodi vimefungwa. Ni mpangilio wa leja na maelezo pekee vinavyoweza kubadilishwa hapa.",
+        "staffLoan": "Mikopo ya wafanyakazi hurejeshwa na wafanyakazi, kwa hivyo hii ni fedha inayodaiwa na kampuni — chagua leja ya mapokezi, si ya malipo.",
+        "absence": "Makato ya kutohudhuria hayadaiwi na mtu yeyote — saa hizo hazikupatikana kamwe. Si lazima: acha hii wazi na uchapishaji utarudisha kiotomatiki kwenye akaunti ya Gharama ya Mishahara iliyotumika kwa mshahara wa msingi wa mfanyakazi huyo (ya idara yake, au mbadala uliochaguliwa wakati wa uchapishaji). Weka leja hapa tu ikiwa unataka makato ya kutohudhuria yachapishwe kwenye akaunti yake tofauti."
+      },
+      "options": {
+        "statutory": "Ya Kisheria",
+        "voluntary": "Ya Hiari",
+        "fixed": "Kiasi Maalum",
+        "percentageOfBasic": "Asilimia ya Mshahara wa Msingi",
+        "percentageOfGross": "Asilimia ya Mshahara Ghafi",
+        "none": "Hakuna",
+        "allEmployees": "Wafanyakazi Wote",
+        "activeContracts": "Wafanyakazi Wenye Mikataba Hai"
+      },
+      "messages": {
+        "addSuccess": "Aina ya Makato Imeongezwa Kikamilifu",
+        "updateSuccess": "Aina ya Makato Imesasishwa Kikamilifu"
+      },
+      "validation": {
+        "nameRequired": "Jina linahitajika",
+        "nameMax": "Jina haliwezi kuzidi herufi 255",
+        "codeMax": "Msimbo hauwezi kuzidi herufi 50",
+        "categoryRequired": "Kundi linahitajika",
+        "methodRequired": "Njia ya ukokotoaji inahitajika",
+        "defaultValueNumber": "Thamani ya msingi lazima iwe nambari",
+        "defaultValueRequired": "Thamani ya msingi inahitajika",
+        "defaultValueMin": "Thamani ya msingi lazima iwe 0 au zaidi",
+        "fieldRequired": "Sehemu hii inahitajika",
+        "descriptionMax": "Maelezo hayawezi kuzidi herufi 500"
+      },
+      "buttons": {
+        "cancel": "Ghairi",
+        "submit": "Wasilisha",
+        "continue": "Endelea"
+      },
+      "bulk": {
+        "intro": "Kitendo hiki kitatumia aina hii ya makato kwa wafanyakazi kadhaa:",
+        "willUpdate": "Itasasisha:",
+        "employeesCount": "wafanyakazi {count}",
+        "updateNote": "(Wafanyakazi ambao tayari wana makato haya watasasishwa kwa kiwango kipya)",
+        "willCreate": "Itaunda:",
+        "newEmployeesCount": "wafanyakazi wapya {count}",
+        "createNote": "(Wafanyakazi ambao hawana makato haya wataongezewa)",
+        "warning": "Kitendo hiki hakiwezi kutenguliwa. Endelea?"
+      }
+    }
+  },
+  "employerContributionTypes": {
+    "list": {
+      "title": "Aina za Michango ya Mwajiri",
+      "statutory": "Ya Kisheria",
+      "voluntary": "Ya Hiari",
+      "computationMethods": {
+        "fixed": "Kiasi Maalum",
+        "percentage_of_basic": "Asilimia ya Mshahara wa Msingi",
+        "percentage_of_gross": "Asilimia ya Mshahara Ghafi"
+      }
+    },
+    "actions": {
+      "edit": "Hariri",
+      "delete": "Futa",
+      "confirmDeleteTitle": "Thibitisha Kufuta",
+      "confirmDeleteContent": "Una uhakika unataka kufuta aina hii ya mchango wa mwajiri?",
+      "deleteSuccess": "Aina ya Mchango wa Mwajiri Imefutwa Kikamilifu",
+      "somethingWrong": "Kuna hitilafu imetokea",
+      "inUseTitle": "Aina ya mchango wa mwajiri bado inatumika",
+      "inUseContent": "{message} Iondoe kwa wote na ufute aina hii?"
+    },
+    "form": {
+      "titles": {
+        "add": "Ongeza Aina ya Mchango wa Mwajiri",
+        "edit": "Hariri Aina ya Mchango wa Mwajiri",
+        "confirmBulk": "Thibitisha Utumiaji kwa Wingi",
+        "quickAddLedger": "Ongeza Leja Haraka"
+      },
+      "labels": {
+        "name": "Jina",
+        "code": "Msimbo",
+        "category": "Kundi",
+        "computationMethod": "Njia ya Ukokotoaji",
+        "defaultValue": "Thamani ya Msingi",
+        "payableLedger": "Leja ya Malipo",
+        "applyToEmployees": "Tumia kwa Wafanyakazi",
+        "description": "Maelezo"
+      },
+      "helpers": {
+        "applyAll": "Hii itatumika kwa wafanyakazi wote waliopo",
+        "applyNone": "Chagua chaguo ili kutumia mchango huu kwa wingi"
+      },
+      "options": {
+        "statutory": "Ya Kisheria",
+        "voluntary": "Ya Hiari",
+        "fixed": "Kiasi Maalum",
+        "percentageOfBasic": "Asilimia ya Mshahara wa Msingi",
+        "percentageOfGross": "Asilimia ya Mshahara Ghafi",
+        "none": "Hakuna",
+        "allEmployees": "Wafanyakazi Wote",
+        "activeContracts": "Wafanyakazi Wenye Mikataba Hai"
+      },
+      "messages": {
+        "addSuccess": "Aina ya Mchango wa Mwajiri Imeongezwa Kikamilifu",
+        "updateSuccess": "Aina ya Mchango wa Mwajiri Imesasishwa Kikamilifu"
+      },
+      "validation": {
+        "nameRequired": "Jina linahitajika",
+        "nameMax": "Jina haliwezi kuzidi herufi 255",
+        "codeMax": "Msimbo hauwezi kuzidi herufi 50",
+        "categoryRequired": "Kundi linahitajika",
+        "methodRequired": "Njia ya ukokotoaji inahitajika",
+        "defaultValueNumber": "Thamani ya msingi lazima iwe nambari",
+        "defaultValueRequired": "Thamani ya msingi inahitajika",
+        "defaultValueMin": "Thamani ya msingi lazima iwe 0 au zaidi",
+        "fieldRequired": "Sehemu hii inahitajika",
+        "descriptionMax": "Maelezo hayawezi kuzidi herufi 500"
+      },
+      "buttons": {
+        "cancel": "Ghairi",
+        "submit": "Wasilisha",
+        "continue": "Endelea"
+      },
+      "bulk": {
+        "intro": "Kitendo hiki kitatumia mchango huu wa mwajiri kwa wafanyakazi kadhaa:",
+        "willUpdate": "Itasasisha:",
+        "employeesCount": "wafanyakazi {count}",
+        "updateNote": "(Wafanyakazi ambao tayari wana mchango huu watasasishwa kwa kiwango kipya)",
+        "willCreate": "Itaunda:",
+        "newEmployeesCount": "wafanyakazi wapya {count}",
+        "createNote": "(Wafanyakazi ambao hawana mchango huu wataongezewa)",
+        "warning": "Kitendo hiki hakiwezi kutenguliwa. Endelea?"
+      }
+    }
+  },
+  "allowanceTypes": {
+    "list": {
+      "title": "Aina za Posho",
+      "taxable": "Inatozwa Kodi",
+      "nonTaxable": "Haitozwi Kodi"
+    },
+    "actions": {
+      "edit": "Hariri",
+      "delete": "Futa",
+      "confirmDeleteTitle": "Thibitisha Kufuta",
+      "confirmDeleteContent": "Una uhakika unataka kufuta aina hii ya posho?",
+      "deleteSuccess": "Aina ya Posho Imefutwa Kikamilifu",
+      "somethingWrong": "Kuna hitilafu imetokea",
+      "inUseTitle": "Aina ya posho bado inatumika",
+      "inUseContent": "{message} Iondoe kwa wote na ufute aina hii?"
+    },
+    "form": {
+      "titles": {
+        "add": "Ongeza Aina ya Posho",
+        "edit": "Hariri Aina ya Posho",
+        "confirmBulk": "Thibitisha Utumiaji kwa Wingi",
+        "quickAddLedger": "Ongeza Leja Haraka"
+      },
+      "labels": {
+        "name": "Jina",
+        "code": "Msimbo",
+        "defaultValue": "Thamani ya Msingi",
+        "applyToEmployees": "Tumia kwa Wafanyakazi",
+        "description": "Maelezo",
+        "isTaxable": "Inatozwa Kodi"
+      },
+      "helpers": {
+        "applyAll": "Hii itatumika kwa wafanyakazi wote waliopo",
+        "applyNone": "Chagua chaguo ili kutumia posho hii kwa wingi",
+        "reservedAlert": "Hii ni aina ya posho iliyowekwa na mfumo — mishahara huilinganisha kwa Msimbo wake, hivyo Jina, Msimbo, Thamani ya Msingi, na Inatozwa Kodi vimefungwa. Ni mpangilio wa leja na maelezo pekee vinavyoweza kubadilishwa hapa."
+      },
+      "options": {
+        "none": "Hakuna",
+        "allEmployees": "Wafanyakazi Wote",
+        "activeContracts": "Wafanyakazi Wenye Mikataba Hai"
+      },
+      "messages": {
+        "addSuccess": "Aina ya Posho Imeongezwa Kikamilifu",
+        "updateSuccess": "Aina ya Posho Imesasishwa Kikamilifu"
+      },
+      "validation": {
+        "nameRequired": "Jina linahitajika",
+        "nameMax": "Jina haliwezi kuzidi herufi 255",
+        "codeMax": "Msimbo hauwezi kuzidi herufi 50",
+        "defaultValueNumber": "Thamani ya msingi lazima iwe nambari",
+        "defaultValueRequired": "Thamani ya msingi inahitajika",
+        "defaultValueMin": "Thamani ya msingi lazima iwe 0 au zaidi",
+        "descriptionMax": "Maelezo hayawezi kuzidi herufi 500"
+      },
+      "buttons": {
+        "cancel": "Ghairi",
+        "submit": "Wasilisha",
+        "continue": "Endelea"
+      },
+      "bulk": {
+        "intro": "Kitendo hiki kitatumia aina hii ya posho kwa wafanyakazi kadhaa:",
+        "willUpdate": "Itasasisha:",
+        "employeesCount": "wafanyakazi {count}",
+        "updateNote": "(Wafanyakazi ambao tayari wana posho hii watasasishwa kwa kiasi kipya)",
+        "willCreate": "Itaunda:",
+        "newEmployeesCount": "wafanyakazi wapya {count}",
+        "createNote": "(Wafanyakazi ambao hawana posho hii wataongezewa)",
+        "warning": "Kitendo hiki hakiwezi kutenguliwa. Endelea?"
+      }
+    }
+  },
+  "payeTaxBands": {
+    "list": {
+      "title": "Madaraja ya Kodi ya PAYE",
+      "openEnded": "Bila kikomo",
+      "minToMax": "Mapato yanayotozwa kodi kutoka chini hadi juu",
+      "fixedTax": "Kodi maalum",
+      "excessOver": "Ziada ya zaidi ya",
+      "to": "hadi {date}",
+      "status": {
+        "upcoming": "Inayokuja",
+        "expired": "Imeisha Muda",
+        "active": "Inatumika"
+      }
+    },
+    "actions": {
+      "edit": "Hariri",
+      "delete": "Futa",
+      "confirmDeleteTitle": "Thibitisha Kufuta",
+      "confirmDeleteContent": "Una uhakika unataka kufuta daraja hili la kodi ya PAYE?",
+      "deleteSuccess": "Daraja la Kodi ya PAYE Limefutwa Kikamilifu",
+      "somethingWrong": "Kuna hitilafu imetokea"
+    },
+    "form": {
+      "titles": {
+        "add": "Ongeza Daraja la Kodi ya PAYE",
+        "edit": "Hariri Daraja la Kodi ya PAYE"
+      },
+      "labels": {
+        "minIncome": "Mapato ya Chini",
+        "maxIncome": "Mapato ya Juu",
+        "rate": "Kiwango (desimali, mf. 0.30 = 30%)",
+        "fixedTax": "Kodi Maalum",
+        "excessOver": "Ziada ya Zaidi ya",
+        "effectiveFrom": "Inaanza Kutumika *",
+        "effectiveTo": "Inaisha Kutumika"
+      },
+      "messages": {
+        "addSuccess": "Daraja la Kodi ya PAYE Limeongezwa Kikamilifu",
+        "updateSuccess": "Daraja la Kodi ya PAYE Limesasishwa Kikamilifu"
+      },
+      "validation": {
+        "minIncomeNumber": "Mapato ya chini lazima yawe nambari",
+        "minIncomeRequired": "Mapato ya chini yanahitajika",
+        "minIncomeMin": "Mapato ya chini lazima yawe 0 au zaidi",
+        "maxIncomeMin": "Mapato ya juu lazima yawe 0 au zaidi",
+        "rateNumber": "Kiwango lazima kiwe nambari",
+        "rateRequired": "Kiwango kinahitajika",
+        "rateMin": "Kiwango lazima kiwe 0 au zaidi",
+        "rateMax": "Kiwango lazima kiwe desimali (mf. 0.30 kwa 30%)",
+        "fixedTaxNumber": "Kodi maalum lazima iwe nambari",
+        "fixedTaxRequired": "Kodi maalum inahitajika",
+        "fixedTaxMin": "Kodi maalum lazima iwe 0 au zaidi",
+        "excessOverNumber": "Ziada ya zaidi ya lazima iwe nambari",
+        "excessOverRequired": "Ziada ya zaidi ya inahitajika",
+        "excessOverMin": "Ziada ya zaidi ya lazima iwe 0 au zaidi",
+        "effectiveFromRequired": "Tarehe ya kuanza kutumika inahitajika"
+      },
+      "buttons": {
+        "cancel": "Ghairi",
+        "submit": "Wasilisha"
+      }
+    }
+  },
+  "departments": {
+    "list": {
+      "title": "Idara"
+    },
+    "selector": {
+      "label": "Chagua Idara"
+    },
+    "actions": {
+      "edit": "Hariri",
+      "delete": "Futa",
+      "confirmDeleteTitle": "Thibitisha Kufuta",
+      "confirmDeleteContent": "Una uhakika unataka kufuta idara hii?",
+      "deleteSuccess": "Idara Imefutwa Kikamilifu",
+      "somethingWrong": "Kuna hitilafu imetokea"
+    },
+    "form": {
+      "titles": {
+        "add": "Ongeza Idara",
+        "edit": "Hariri Idara ya {name}"
+      },
+      "labels": {
+        "name": "Jina",
+        "code": "Msimbo",
+        "salaryExpenseLedger": "Leja ya Gharama ya Mishahara",
+        "description": "Maelezo"
+      },
+      "placeholders": {
+        "name": "Jina la Idara",
+        "code": "Msimbo wa Idara",
+        "description": "Maelezo ya Idara"
+      },
+      "messages": {
+        "addSuccess": "Idara Imeongezwa Kikamilifu",
+        "updateSuccess": "Idara Imesasishwa Kikamilifu"
+      },
+      "validation": {
+        "nameRequired": "Jina linahitajika",
+        "fieldRequired": "Sehemu hii inahitajika",
+        "invalidLedger": "Leja iliyochaguliwa si sahihi"
+      },
+      "buttons": {
+        "cancel": "Ghairi",
+        "submit": "Wasilisha"
+      }
+    }
+  },
+  "designations": {
+    "list": {
+      "title": "Vyeo"
+    },
+    "selector": {
+      "label": "Chagua Cheo"
+    },
+    "actions": {
+      "edit": "Hariri",
+      "delete": "Futa",
+      "confirmDeleteTitle": "Thibitisha Kufuta",
+      "confirmDeleteContent": "Una uhakika unataka kufuta cheo hiki?",
+      "deleteSuccess": "Cheo Kimefutwa Kikamilifu",
+      "somethingWrong": "Kuna hitilafu imetokea"
+    },
+    "form": {
+      "titles": {
+        "add": "Ongeza Cheo",
+        "edit": "Hariri Cheo {title}"
+      },
+      "labels": {
+        "title": "Jina la Cheo",
+        "code": "Msimbo",
+        "description": "Maelezo"
+      },
+      "placeholders": {
+        "title": "Jina la Cheo",
+        "code": "Msimbo wa Cheo",
+        "description": "Maelezo ya Cheo"
+      },
+      "messages": {
+        "addSuccess": "Cheo Kimeongezwa Kikamilifu",
+        "updateSuccess": "Cheo Kimesasishwa Kikamilifu"
+      },
+      "validation": {
+        "titleRequired": "Jina la cheo linahitajika"
+      },
+      "buttons": {
+        "cancel": "Ghairi",
+        "submit": "Wasilisha"
+      }
+    }
+  },
+  "overtimeTypes": {
+    "list": {
+      "title": "Aina za Saa za Ziada",
+      "taxable": "Inatozwa Kodi",
+      "nonTaxable": "Haitozwi Kodi"
+    },
+    "actions": {
+      "edit": "Hariri",
+      "delete": "Futa",
+      "confirmDeleteTitle": "Thibitisha Kufuta",
+      "confirmDeleteContent": "Una uhakika unataka kufuta aina hii ya saa za ziada?",
+      "deleteSuccess": "Aina ya Saa za Ziada Imefutwa Kikamilifu",
+      "somethingWrong": "Kuna hitilafu imetokea"
+    },
+    "form": {
+      "titles": {
+        "add": "Ongeza Aina ya Saa za Ziada",
+        "edit": "Hariri Aina ya Saa za Ziada"
+      },
+      "labels": {
+        "name": "Jina",
+        "code": "Msimbo",
+        "multiplier": "Kizidisho",
+        "description": "Maelezo",
+        "isTaxable": "Inatozwa Kodi"
+      },
+      "helpers": {
+        "multiplier": "mf. 1.5 kwa saa moja na nusu"
+      },
+      "messages": {
+        "addSuccess": "Aina ya Saa za Ziada Imeongezwa Kikamilifu",
+        "updateSuccess": "Aina ya Saa za Ziada Imesasishwa Kikamilifu"
+      },
+      "validation": {
+        "nameRequired": "Jina linahitajika",
+        "nameMax": "Jina haliwezi kuzidi herufi 255",
+        "codeMax": "Msimbo hauwezi kuzidi herufi 50",
+        "multiplierNumber": "Kizidisho lazima kiwe nambari",
+        "multiplierRequired": "Kizidisho kinahitajika",
+        "multiplierMin": "Kizidisho lazima kiwe angalau 1",
+        "descriptionMax": "Maelezo hayawezi kuzidi herufi 500"
+      },
+      "buttons": {
+        "cancel": "Ghairi",
+        "submit": "Wasilisha"
+      }
+    }
+  }
+}

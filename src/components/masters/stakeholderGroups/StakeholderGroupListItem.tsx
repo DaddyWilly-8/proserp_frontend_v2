@@ -21,6 +21,7 @@ import stakeholderGroupServices from './stakeholderGroup-services';
 import StakeholderGroupForm from './StakeholderGroupForm';
 import StakeholderGroupMembersDialog from './StakeholderGroupMembersDialog';
 import { getErrorMessage } from '@/utilities/helpers/errorHandler';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface StakeholderGroup {
   id: number;
@@ -30,6 +31,7 @@ interface StakeholderGroup {
 }
 
 const StakeholderGroupListItem = ({ group }: { group: StakeholderGroup }) => {
+  const dictionary = useDictionary();
   const { checkOrganizationPermission } = useJumboAuth();
   const { theme } = useJumboTheme();
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
@@ -72,20 +74,20 @@ const StakeholderGroupListItem = ({ group }: { group: StakeholderGroup }) => {
           <Chip size='small' label={`${group.stakeholders_count} member(s)`} />
         </Grid>
         <Grid size={{ xs: 6, md: 2 }} textAlign='end'>
-          <Tooltip title='Manage members'>
+          <Tooltip title={dictionary.tooltips.manageMembers}>
             <IconButton size='small' onClick={() => setOpenMembers(true)}>
               <GroupsOutlined fontSize='small' />
             </IconButton>
           </Tooltip>
           {checkOrganizationPermission(PERMISSIONS.STAKEHOLDER_GROUPS_EDIT) && (
-            <Tooltip title='Edit'>
+            <Tooltip title={dictionary.tooltips.edit}>
               <IconButton size='small' onClick={() => setOpenEdit(true)}>
                 <EditOutlined fontSize='small' />
               </IconButton>
             </Tooltip>
           )}
           {checkOrganizationPermission(PERMISSIONS.STAKEHOLDER_GROUPS_DELETE) && (
-            <Tooltip title='Delete'>
+            <Tooltip title={dictionary.tooltips.delete}>
               <IconButton size='small' onClick={() => deleteGroup()}>
                 <DeleteOutlined fontSize='small' />
               </IconButton>

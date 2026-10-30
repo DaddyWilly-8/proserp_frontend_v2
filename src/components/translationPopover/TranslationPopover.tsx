@@ -59,7 +59,7 @@ const TranslationPopover = () => {
   };
 
   return (
-    <Span sx={{ mr: 2.5 }}>
+    <Span>
       <JumboIconButton onClick={handleClick} elevation={23}>
         <ReactCountryFlag
           countryCode={currentFlag}

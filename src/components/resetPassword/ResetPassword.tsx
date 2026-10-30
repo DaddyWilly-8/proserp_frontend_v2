@@ -16,8 +16,10 @@ import {
 import Link from 'next/link';
 import { useSnackbar } from 'notistack';
 import ResetPasswordForm from '@/components/forgotPassword/ResetPasswordForm';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 export default function ResetPassword() {
+  const dictionary = useDictionary();
   const { enqueueSnackbar } = useSnackbar();
   const searchParams = useSearchParams();
   const [email, setEmail] = useState('');
@@ -38,20 +40,20 @@ export default function ResetPassword() {
         });
     },
     onSuccess: (data) => {
-      enqueueSnackbar(data?.message || 'Recovery link sent successfully!', {
+      enqueueSnackbar(data?.message || dictionary.forms.resetPassword.recover.success, {
         variant: 'success',
       });
     },
     onError: (error: any) => {
       const message =
-        error?.response?.data?.message || 'Failed to send recovery link.';
+        error?.response?.data?.message || dictionary.forms.resetPassword.recover.failed;
       enqueueSnackbar(message, { variant: 'error' });
     },
   });
 
   const handleSubmit = async () => {
     if (!email.trim()) {
-      enqueueSnackbar('Please enter your email address.', { variant: 'warning' });
+      enqueueSnackbar(dictionary.forms.resetPassword.recover.emailRequired, { variant: 'warning' });
       return;
     }
     mutation.mutate(email);
@@ -80,13 +82,13 @@ export default function ResetPassword() {
       <Card sx={{ maxWidth: 400, width: '100%' }}>
         <CardContent>
           <Typography variant="h5" align="center" mb={2}>
-            Provide your email
+            {dictionary.forms.resetPassword.recover.title}
           </Typography>
 
           <TextField
             fullWidth
             id="email"
-            label="Email"
+            label={dictionary.forms.resetPassword.recover.emailLabel}
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -101,20 +103,20 @@ export default function ResetPassword() {
             size="large"
             sx={{ mb: 3 }}
           >
-            Send Password Recovery Token
+            {dictionary.forms.resetPassword.recover.submit}
           </LoadingButton>
 
           <Typography align="center" variant="body2" mb={1}>
-            Have the password?{' '}
+            {dictionary.forms.resetPassword.links.havePassword}{' '}
             <Link href="/auth/signin" style={{ color: '#0267a0', fontWeight: 600 }}>
-              Proceed to Sign In
+              {dictionary.forms.resetPassword.links.proceedToSignIn}
             </Link>
           </Typography>
 
           <Typography align="center" variant="body2">
-            Don’t remember your email?{' '}
+            {dictionary.forms.resetPassword.links.forgotEmail}{' '}
             <Link href="/support" style={{ color: '#00a8ff' }}>
-              Contact Support
+              {dictionary.forms.resetPassword.links.contactSupport}
             </Link>
           </Typography>
         </CardContent>

@@ -5,6 +5,7 @@ import { Accordion, AccordionDetails, AccordionSummary, Grid, Tooltip, Typograph
 import { readableDate } from '@/app/helpers/input-sanitization-helpers';
 import BudgetsItemAction from '@/components/projectManagement/projects/profile/budgets/BudgetsItemAction';
 import BudgetsAccordionDetails from '@/components/projectManagement/projects/profile/budgets/BudgetsAccordionDetails';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 type BudgetId = number | string;
 
@@ -21,6 +22,7 @@ interface BudgetsListItemInMatersProps {
 }
 
 function BudgetsListItemInMaters({ budgetItem }: BudgetsListItemInMatersProps) {
+    const dictionary = useDictionary();
     const [expanded, setExpanded] = useState<Record<BudgetId, boolean>>({});
 
     const handleChange = (id: BudgetId) => {
@@ -78,21 +80,21 @@ function BudgetsListItemInMaters({ budgetItem }: BudgetsListItemInMatersProps) {
         >
             <Grid container width={'100%'} columnSpacing={2} alignItems="center">
                 <Grid size={{ xs: 12, md: 5 }}>
-                    <Tooltip title="Name">
+                    <Tooltip title={dictionary.tooltips.name}>
                         <Typography variant="h5" fontSize={14} lineHeight={1.25} mb={0} noWrap>
                             {budgetItem.name}
                         </Typography>
                     </Tooltip>
                 </Grid>
                 <Grid size={{ xs: 6, md: 3.5 }}>
-                    <Tooltip title="Start Date">
+                    <Tooltip title={dictionary.tooltips.startDate}>
                     <Typography variant="h5" fontSize={14} lineHeight={1.25} mb={0} noWrap>
                         {readableDate(budgetItem.start_date, false)}
                     </Typography>
                     </Tooltip>
                 </Grid>
                 <Grid size={{ xs: 6, md: 3.5 }}>
-                    <Tooltip title="End Date">
+                    <Tooltip title={dictionary.tooltips.endDate}>
                     <Typography variant="h5" fontSize={14} lineHeight={1.25} mb={0} noWrap>
                         {readableDate(budgetItem.end_date, false)}
                     </Typography>

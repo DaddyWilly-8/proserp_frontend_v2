@@ -17,6 +17,7 @@ import React, { useState } from 'react';
 import { SalesOrder } from '../SalesOrderType';
 import CounterSalesListItemAction from './CounterSalesListItemAction';
 import SalesListItemTabs from './SalesListItemTabs';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface CounterSalesListItemProps {
   sale: SalesOrder;
@@ -25,6 +26,7 @@ interface CounterSalesListItemProps {
 const CounterSalesListItem: React.FC<CounterSalesListItemProps> = ({
   sale,
 }) => {
+  const dictionary = useDictionary();
   const [expanded, setExpanded] = useState(false);
   const [openDispatchDialog, setOpenDispatchDialog] = useState(false);
   const [activeTab, setActiveTab] = useState(0);
@@ -94,21 +96,21 @@ const CounterSalesListItem: React.FC<CounterSalesListItemProps> = ({
           width={'100%'}
         >
           <Grid size={{ xs: 5.5, md: 2.5 }}>
-            <Tooltip title='Sale No.'>
+            <Tooltip title={dictionary.tooltips.saleNo}>
               <Typography>{sale.saleNo}</Typography>
             </Tooltip>
-            <Tooltip title='Sale Date'>
+            <Tooltip title={dictionary.tooltips.saleDate}>
               <Typography variant='caption'>
                 {readableDate(sale.transaction_date)}
               </Typography>
             </Tooltip>
           </Grid>
           <Grid size={{ xs: 6.5, md: 3 }}>
-            <Tooltip title='Customer'>
+            <Tooltip title={dictionary.tooltips.customer}>
               <Typography>{sale.stakeholder.name}</Typography>
             </Tooltip>
             {sale?.debit_ledger && sale.payment_method === 'Instant' && (
-              <Tooltip title='Instantly Paid To'>
+              <Tooltip title={dictionary.tooltips.instantlyPaidTo}>
                 <Chip size='small' label={sale.debit_ledger.name} />
               </Tooltip>
             )}
@@ -127,10 +129,10 @@ const CounterSalesListItem: React.FC<CounterSalesListItemProps> = ({
             )}
           </Grid>
           <Grid size={{ xs: 12, md: 2.5 }}>
-            <Tooltip title='Reference'>
+            <Tooltip title={dictionary.tooltips.reference}>
               <Typography>{sale.reference}</Typography>
             </Tooltip>
-            <Tooltip title='Remarks'>
+            <Tooltip title={dictionary.tooltips.remarks}>
               <Typography variant='caption'>{sale.remarks}</Typography>
             </Tooltip>
           </Grid>
@@ -140,16 +142,16 @@ const CounterSalesListItem: React.FC<CounterSalesListItemProps> = ({
             alignItems={'center'}
             justifyContent={'space-between'}
           >
-            <Tooltip title='Status'>
+            <Tooltip title={dictionary.tooltips.status}>
               <Chip size='small' label={sale.status} color={getStatusColor()} />
             </Tooltip>
             {sale.is_fully_paid && (
-              <Tooltip title='Fully Paid'>
+              <Tooltip title={dictionary.tooltips.fullyPaid}>
                 <VerifiedRounded fontSize='small' color='success' />
               </Tooltip>
             )}
 
-            <Tooltip title='Amount'>
+            <Tooltip title={dictionary.tooltips.amount}>
               <Typography>
                 {(sale.amount + sale.vat_amount).toLocaleString('en-US', {
                   style: 'currency',
@@ -162,7 +164,7 @@ const CounterSalesListItem: React.FC<CounterSalesListItemProps> = ({
           <Grid size={{ xs: 1 }} textAlign={'right'}>
             {sale.attachments_count !== undefined &&
               sale.attachments_count > 0 && (
-                <Tooltip title='Attachments Count'>
+                <Tooltip title={dictionary.tooltips.attachmentsCount}>
                   <Badge badgeContent={sale.attachments_count} color='info'>
                     <Attachment fontSize='small' />
                   </Badge>

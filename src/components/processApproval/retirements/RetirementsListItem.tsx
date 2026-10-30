@@ -18,6 +18,7 @@ import {
 import React from 'react';
 import ImprestRetirementItemAction from '../approvedRequisitions/imprestRetirement/ImprestRetirementItemAction';
 import RetirementApprovalsTab from '../approvedRequisitions/imprestRetirement/tabs/RetirementApprovalsTab';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface RetirementsListItemProp {
   retirement: any;
@@ -48,6 +49,7 @@ const getStatusChipColor = (status: string, statusLabel?: string) => {
 };
 
 const RetirementsListItem = ({ retirement }: RetirementsListItemProp) => {
+  const dictionary = useDictionary();
   const [expanded, setExpanded] = React.useState<Record<number, boolean>>({});
   const [activeTabs, setActiveTabs] = React.useState<Record<number, number>>(
     {}
@@ -148,12 +150,12 @@ const RetirementsListItem = ({ retirement }: RetirementsListItemProp) => {
       >
         <Grid container spacing={1} alignItems='center' width='100%' px={1} sx={{ minWidth: 0 }}>
           <Grid size={{ xs: 12, md: 3 }}>
-            <Tooltip title='Retirement Number'>
+            <Tooltip title={dictionary.tooltips.retirementNumber}>
               <Typography lineHeight={1.25} noWrap fontWeight={600}>
                 {retirement?.retirementNo}
               </Typography>
             </Tooltip>
-            <Tooltip title='Reference Requisition'>
+            <Tooltip title={dictionary.tooltips.referenceRequisition}>
               <Typography variant='caption' lineHeight={1.2} noWrap>
                 {retirement?.requisition?.requisitionNo}
               </Typography>
@@ -161,7 +163,7 @@ const RetirementsListItem = ({ retirement }: RetirementsListItemProp) => {
           </Grid>
 
           <Grid size={{ xs: 6, md: 2 }} sx={{ minWidth: 0 }}>
-            <Tooltip title='Retirement Date'>
+            <Tooltip title={dictionary.tooltips.retirementDate}>
               <Typography lineHeight={1.25} noWrap>
                 {readableDate(retirement?.retirement_date)}
               </Typography>
@@ -186,7 +188,7 @@ const RetirementsListItem = ({ retirement }: RetirementsListItemProp) => {
           </Grid>
 
           <Grid size={{ xs: 6, md: 2 }}>
-            <Tooltip title='Remarks'>
+            <Tooltip title={dictionary.tooltips.remarks}>
               <Typography lineHeight={1.25} noWrap>
                 {retirement?.remarks}
               </Typography>
@@ -194,7 +196,7 @@ const RetirementsListItem = ({ retirement }: RetirementsListItemProp) => {
           </Grid>
 
           <Grid size={{ xs: 6, md: 2 }}>
-            <Tooltip title='Status'>
+            <Tooltip title={dictionary.tooltips.status}>
               <Chip
                 size='small'
                 label={displayStatus || '-'}
@@ -210,7 +212,7 @@ const RetirementsListItem = ({ retirement }: RetirementsListItemProp) => {
           </Grid>
 
           <Grid size={{ xs: 6, md: 3 }} textAlign={{ md: 'right' }}>
-            <Tooltip title='Amount'>
+            <Tooltip title={dictionary.tooltips.amount}>
               <Typography>{formattedAmount}</Typography>
             </Tooltip>
           </Grid>

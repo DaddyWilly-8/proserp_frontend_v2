@@ -137,6 +137,13 @@ financialReportsServices.exportDebtorsOrCreditorsToExcel = async (params) => {
   return data;
 }
 
+financialReportsServices.exportReconciliationStatementToExcel = async (params) => {
+  const { data } = await axios.post(`/api/exports/excel/reconciliationStatement/`, params, {
+    responseType: 'blob',
+  })
+  return data;
+}
+
 financialReportsServices.exportApArAgingToExcel = async (params) => {
   const { data } = await axios.post(`/api/exports/excel/apArAging/`, params, {
     responseType: 'blob',
@@ -343,6 +350,13 @@ financialReportsServices.incomeFigures = async (params) => {
 
 financialReportsServices.profitAndLossFigures = async (params) => {
   const { data } = await axios.get(`/api/financialReports/profitAndLossFigures`, {
+    params
+  });
+  return data;
+}
+
+financialReportsServices.dashboardSummary = async (params) => {
+  const { data } = await axios.get(`/api/financialReports/dashboardSummary`, {
     params
   });
   return data;

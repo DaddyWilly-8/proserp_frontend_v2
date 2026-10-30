@@ -42,6 +42,7 @@ import RequisitionLedgerItemRow from './RequisitionLedgerItemRow';
 import RequisitionProductItemForm from './RequisitionProductItemForm';
 import RequisitionProductItemRow from './RequisitionProductItemRow';
 import RequisitionSummary from './RequisitionSummary';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const extractList = (payload: any) => {
   if (Array.isArray(payload)) return payload;
@@ -125,6 +126,7 @@ function RequisitionsForm({
   requisition,
   isDuplicate = false,
 }: RequisitionsFormProps) {
+  const dictionary = useDictionary();
   const [requisition_date] = useState(
     isDuplicate
       ? dayjs()
@@ -197,17 +199,17 @@ function RequisitionsForm({
   const validationSchema = yup.object({
     requisition_date: yup
       .string()
-      .required('Requisition Date is required')
-      .typeError('Requisition Date is required'),
+      .required(dictionary.forms.requisitions.form.validation.requisitionDate)
+      .typeError(dictionary.forms.requisitions.form.validation.requisitionDate),
     process_type: yup
       .string()
-      .required('Process is required')
-      .typeError('Process is required'),
+      .required(dictionary.forms.requisitions.form.validation.process)
+      .typeError(dictionary.forms.requisitions.form.validation.process),
     cost_center_id: yup
       .number()
-      .min(-1, 'Cost center is required')
-      .required('Cost center is required')
-      .typeError('Cost center is required'),
+      .min(-1, dictionary.forms.requisitions.form.validation.costCenter)
+      .required(dictionary.forms.requisitions.form.validation.costCenter)
+      .typeError(dictionary.forms.requisitions.form.validation.costCenter),
     imprest_ledger_id: yup
       .number()
       .nullable()
@@ -215,8 +217,8 @@ function RequisitionsForm({
         is: 'IMPREST',
         then: (schema) =>
           schema
-            .required('Imprest Ledger is required')
-            .typeError('Imprest Ledger is required'),
+            .required(dictionary.forms.requisitions.form.validation.imprestLedger)
+            .typeError(dictionary.forms.requisitions.form.validation.imprestLedger),
       }),
   });
 
@@ -341,7 +343,10 @@ function RequisitionsForm({
       return Number(optionId) === Number(watch('imprest_ledger_id'));
     });
     return selected?.ledger?.balance
-      ? `Current Balance: ${formatLedgerBalance(selected.ledger.balance)}`
+      ? dictionary.forms.requisitions.form.currentBalance.replace(
+          '{balance}',
+          String(formatLedgerBalance(selected.ledger.balance))
+        )
       : '';
   }, [imprestLedgerOptions, watch('imprest_ledger_id')]);
   
@@ -405,7 +410,7 @@ function RequisitionsForm({
                 ...item,
                 relatable: null,
               },
-              error: `Row ${itemIndex + 1}: Linked transaction is no longer available.`,
+              error: dictionary.forms.requisitions.form.rowLinkedUnavailable.replace('{row}', String(itemIndex + 1)),
             };
           }
 
@@ -423,7 +428,9 @@ function RequisitionsForm({
                 relatableNo:
                   latestRelated?.relatableNo || latestRelated?.certificateNo,
               },
-              error: `Row ${itemIndex + 1}: Amount exceeds latest unapproved amount (${latestUnapprovedAmount.toLocaleString()}).`,
+              error: dictionary.forms.requisitions.form.rowAmountExceeds
+                .replace('{row}', String(itemIndex + 1))
+                .replace('{amount}', latestUnapprovedAmount.toLocaleString()),
             };
           }
 
@@ -439,7 +446,7 @@ function RequisitionsForm({
         } catch {
           return {
             item,
-            error: `Row ${itemIndex + 1}: Failed to refresh linked transaction.`,
+            error: dictionary.forms.requisitions.form.rowLinkedRefreshFailed.replace('{row}', String(itemIndex + 1)),
           };
         }
       })
@@ -571,10 +578,10 @@ function RequisitionsForm({
         <Grid container columnSpacing={2} width={'100%'}>
           <Grid size={{ xs: 12 }} textAlign={'center'} mb={2}>
             {requisition && !isDuplicate
-              ? 'Edit Requisition'
+              ? dictionary.forms.requisitions.form.titleEdit
               : requisition && isDuplicate
-                ? 'Duplicate Requisition'
-                : 'New Requisition'}
+                ? dictionary.forms.requisitions.form.titleDuplicate
+                : dictionary.forms.requisitions.form.titleNew}
           </Grid>
           <Grid size={{ xs: 12, md: 8, lg: 9 }} mb={2}>
             <form autoComplete='off'>
@@ -582,7 +589,7 @@ function RequisitionsForm({
                 <Grid size={{ xs: 12, md: 4, lg: 4 }}>
                   <Div sx={{ mt: 0.3 }}>
                     <DateTimePicker
-                      label='Requisition Date'
+                      label={dictionary.forms.requisitions.form.requisitionDate}
                       defaultValue={requisition_date}
                       minDate={
                         checkOrganizationPermission(
@@ -636,7 +643,7 @@ function RequisitionsForm({
                       renderInput={(params) => (
                         <TextField
                           {...params}
-                          label='Process'
+                          label={dictionary.forms.requisitions.form.process}
                           size='small'
                           fullWidth
                           error={!!errors.process_type}
@@ -684,7 +691,7 @@ function RequisitionsForm({
                         getOptionLabel={(option) =>
                           option.ledger?.name ||
                           option.name ||
-                          'Unknown Imprest Ledger'
+                          dictionary.forms.requisitions.form.unknownImprestLedger
                         }
                         renderOption={(props, option) => (
                           <li {...props} key={option.ledger?.id || option.id}>
@@ -692,14 +699,14 @@ function RequisitionsForm({
                               <Typography variant='body2'>
                                 {option.ledger?.name ||
                                   option.name ||
-                                  'Unknown Imprest Ledger'}
+                                  dictionary.forms.requisitions.form.unknownImprestLedger}
                               </Typography>
                               {option.ledger?.balance && (
                                 <Typography
                                   variant='caption'
                                   color='text.secondary'
                                 >
-                                  Balance:{' '}
+                                  {dictionary.forms.requisitions.form.balance}{' '}
                                   {formatLedgerBalance(option.ledger.balance)}
                                 </Typography>
                               )}
@@ -721,7 +728,7 @@ function RequisitionsForm({
                         renderInput={(params) => (
                           <TextField
                             {...params}
-                            label='Imprest Ledger'
+                            label={dictionary.forms.requisitions.form.imprestLedger}
                             size='small'
                             fullWidth
                             error={!!(errors as any).imprest_ledger_id}
@@ -754,7 +761,7 @@ function RequisitionsForm({
                       frontError={errors.cost_center_id}
                       withNotSpecified={true}
                       defaultValue={requisition?.cost_center}
-                      label='Cost Center'
+                      label={dictionary.forms.requisitions.form.costCenter}
                       onChange={(newValue: any) => {
                         setValue(
                           'cost_center_id',
@@ -798,7 +805,7 @@ function RequisitionsForm({
                   <Grid size={{ xs: 12, md: 4 }}>
                     <Div sx={{ mt: 0.3 }}>
                       <TextField
-                        label='Exchange Rate'
+                        label={dictionary.forms.requisitions.form.exchangeRate}
                         fullWidth
                         size='small'
                         error={!!errors?.exchange_rate}
@@ -827,7 +834,7 @@ function RequisitionsForm({
                 <Grid size={{ xs: 12, md: 4, lg: 4 }}>
                   <Div sx={{ mt: 0.3 }}>
                     <DatePicker
-                      label='Date Required'
+                      label={dictionary.forms.requisitions.form.dateRequired}
                       defaultValue={date_required}
                       minDate={
                         checkOrganizationPermission(
@@ -905,8 +912,8 @@ function RequisitionsForm({
                     allowScrollButtonsMobile
                     sx={{ mt: 1 }}
                   >
-                    <Tab label='Products' />
-                    <Tab label='Additional Costs' />
+                    <Tab label={dictionary.forms.requisitions.form.tabProducts} />
+                    <Tab label={dictionary.forms.requisitions.form.tabAdditionalCosts} />
                   </Tabs>
                 )}
                 {activeTab === 0 && (
@@ -992,7 +999,7 @@ function RequisitionsForm({
         <Grid size={{ xs: 12 }} paddingTop={2}>
           <Div sx={{ mt: 0.3 }}>
             <TextField
-              label='Remarks'
+              label={dictionary.forms.requisitions.common.remarks}
               size='small'
               multiline={true}
               minRows={2}
@@ -1005,9 +1012,9 @@ function RequisitionsForm({
         <Dialog open={showWarning} onClose={() => setShowWarning(false)}>
           <DialogTitle>
             <Grid container alignItems='center' justifyContent='space-between'>
-              <Grid size={{ xs: 11 }}>Unsaved Changes</Grid>
+              <Grid size={{ xs: 11 }}>{dictionary.forms.requisitions.form.unsavedChanges}</Grid>
               <Grid size={{ xs: 1 }} textAlign='right'>
-                <Tooltip title='Close'>
+                <Tooltip title={dictionary.tooltips.close}>
                   <IconButton
                     size='small'
                     onClick={() => setShowWarning(false)}
@@ -1018,7 +1025,7 @@ function RequisitionsForm({
               </Grid>
             </Grid>
           </DialogTitle>
-          <DialogContent>Last item was not added to the list</DialogContent>
+          <DialogContent>{dictionary.forms.requisitions.form.lastItemNotAdded}</DialogContent>
           <DialogActions>
             <Button
               size='small'
@@ -1027,14 +1034,14 @@ function RequisitionsForm({
                 setShowWarning(false);
               }}
             >
-              Add and Submit
+              {dictionary.forms.requisitions.form.addAndSubmit}
             </Button>
             <Button
               size='small'
               onClick={handleConfirmSubmitWithoutAdd}
               color='secondary'
             >
-              Submit without add
+              {dictionary.forms.requisitions.form.submitWithoutAdd}
             </Button>
           </DialogActions>
         </Dialog>
@@ -1048,7 +1055,7 @@ function RequisitionsForm({
             setIsEditAction(false);
           }}
         >
-          Cancel
+          {dictionary.forms.requisitions.form.cancel}
         </Button>
         {isPurchaseType && !isPurchaseLastTab ? (
           <>
@@ -1058,7 +1065,7 @@ function RequisitionsForm({
               onClick={() => setActiveTab((prev) => Math.min(prev + 1, 1))}
               disabled={activeTab >= 1}
             >
-              Next &gt;
+              {dictionary.forms.requisitions.form.next}
             </Button>
           </>
         ) : isPurchaseType && isPurchaseLastTab ? (
@@ -1068,7 +1075,7 @@ function RequisitionsForm({
               variant='outlined'
               onClick={() => setActiveTab((prev) => Math.max(prev - 1, 0))}
             >
-              &lt; Prev
+              {dictionary.forms.requisitions.form.prev}
             </Button>
             <LoadingButton
               loading={addRequisition.isPending || updateRequisition.isPending}
@@ -1080,7 +1087,7 @@ function RequisitionsForm({
                 handleSubmit(onSubmit)(e);
               }}
             >
-              Suspend
+              {dictionary.forms.requisitions.form.suspend}
             </LoadingButton>
             <LoadingButton
               loading={addRequisition.isPending || updateRequisition.isPending}
@@ -1093,7 +1100,7 @@ function RequisitionsForm({
               }}
               size='small'
             >
-              Submit
+              {dictionary.forms.requisitions.form.submit}
             </LoadingButton>
           </>
         ) : (
@@ -1108,7 +1115,7 @@ function RequisitionsForm({
                 handleSubmit(onSubmit)(e);
               }}
             >
-              Suspend
+              {dictionary.forms.requisitions.form.suspend}
             </LoadingButton>
             <LoadingButton
               loading={addRequisition.isPending || updateRequisition.isPending}
@@ -1121,7 +1128,7 @@ function RequisitionsForm({
               }}
               size='small'
             >
-              Submit
+              {dictionary.forms.requisitions.form.submit}
             </LoadingButton>
           </>
         )}

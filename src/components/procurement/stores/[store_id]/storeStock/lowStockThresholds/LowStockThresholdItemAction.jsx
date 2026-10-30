@@ -6,8 +6,10 @@ import { useJumboDialog } from '@jumbo/components/JumboDialog/hooks/useJumboDial
 import lowStockAlertServices from './lowStockThreshold-services'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { JumboDdMenu } from '@jumbo/components'
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const LowStockThresholdItemAction = ({lowStockAlert}) => {
+    const dictionary = useDictionary();
     const {showDialog,hideDialog} = useJumboDialog();
     const { enqueueSnackbar } = useSnackbar();
     const queryClient = useQueryClient();
@@ -50,7 +52,7 @@ const LowStockThresholdItemAction = ({lowStockAlert}) => {
         <>
             <JumboDdMenu
                 icon={
-                    <Tooltip title='Actions'>
+                    <Tooltip title={dictionary.tooltips.actions}>
                         <MoreHorizOutlined/>
                     </Tooltip>
                 }

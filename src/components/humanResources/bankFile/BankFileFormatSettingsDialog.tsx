@@ -18,6 +18,7 @@ import { useSnackbar } from 'notistack';
 import { useEffect, useState } from 'react';
 import humanResourcesServices from '../humanResourcesServices';
 import { BankFileFormatDetail } from './BankFileFormatType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface BankFileFormatSettingsDialogProps {
   open: boolean;
@@ -40,6 +41,8 @@ const BankFileFormatSettingsDialog = ({
   onClose,
   onSaved,
 }: BankFileFormatSettingsDialogProps) => {
+  const dictionary = useDictionary();
+  const t = dictionary.humanResources.bankFile.settings;
   const { enqueueSnackbar } = useSnackbar();
   const [values, setValues] = useState<Record<string, string>>({});
 
@@ -57,7 +60,7 @@ const BankFileFormatSettingsDialog = ({
     mutationFn: () =>
       humanResourcesServices.saveBankFileFormatSettings(format.code, values),
     onSuccess: () => {
-      enqueueSnackbar('Bank file settings saved', { variant: 'success' });
+      enqueueSnackbar(t.saved, { variant: 'success' });
       onSaved();
     },
     onError: (error: any) => {
@@ -71,16 +74,15 @@ const BankFileFormatSettingsDialog = ({
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth='xs'>
-      <DialogTitle>{format.label} Settings</DialogTitle>
+      <DialogTitle>{t.title.replace('{name}', format.label)}</DialogTitle>
       <DialogContent>
         <Stack spacing={2} sx={{ mt: 1 }}>
           <Alert severity='info' variant='outlined'>
-            These values come from your organization&apos;s own account at{' '}
-            {format.label} — set once, reused on every export.
+            {t.info1} {format.label} {t.info2}
           </Alert>
           {format.fields.length === 0 && (
             <Typography variant='body2' color='text.secondary'>
-              This format needs no extra configuration.
+              {t.noConfig}
             </Typography>
           )}
           {format.fields.map((field) => (
@@ -100,7 +102,7 @@ const BankFileFormatSettingsDialog = ({
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose} disabled={isPending}>
-          Cancel
+          {t.cancel}
         </Button>
         <LoadingButton
           loading={isPending}
@@ -108,7 +110,7 @@ const BankFileFormatSettingsDialog = ({
           disabled={missingRequired}
           onClick={() => save()}
         >
-          Save &amp; Download
+          {t.saveAndDownload}
         </LoadingButton>
       </DialogActions>
     </Dialog>

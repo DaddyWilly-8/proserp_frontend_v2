@@ -1,5 +1,6 @@
 import React from 'react';
 import { Autocomplete, TextField } from '@mui/material';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface SubContractTask {
   project_task_id?: number;
@@ -25,6 +26,7 @@ function SubContratorTasksFilter({
   value = [],
   onChange,
 }: SubContratorTasksFilterProps) {
+  const dictionary = useDictionary();
   const options = React.useMemo<TaskOption[]>(() => {
     const taskMap = new Map<number, TaskOption>();
 
@@ -35,13 +37,13 @@ function SubContratorTasksFilter({
       if (!taskMap.has(taskId)) {
         taskMap.set(taskId, {
           id: taskId,
-          name: task?.project_task?.name || `Task ${taskId}`,
+          name: task?.project_task?.name || dictionary.projectManagement.materialIssued.task.replace('{id}', String(taskId)),
         });
       }
     });
 
     return Array.from(taskMap.values());
-  }, [tasks]);
+  }, [tasks, dictionary]);
 
   const selectedOptions = React.useMemo(
     () => options.filter((option) => (value || []).includes(option.id)),
@@ -60,7 +62,7 @@ function SubContratorTasksFilter({
       renderInput={(params) => (
         <TextField
           {...params}
-          label='Filter by tasks'
+          label={dictionary.projectManagement.materialIssued.filterByTasks}
           size='small'
           fullWidth
         />

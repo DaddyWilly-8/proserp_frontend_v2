@@ -37,7 +37,8 @@
         "type": {
           "required": "Stakeholder type  is required",
           "typeError": "Stakeholder type is required"
-        }
+        },
+        "email": "A valid email is required"
       },
        "messages": {
         "deleteResponse": " Failed tp delete Stakeholder",

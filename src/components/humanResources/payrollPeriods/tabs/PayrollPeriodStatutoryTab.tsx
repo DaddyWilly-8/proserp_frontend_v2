@@ -1,5 +1,6 @@
 'use client';
 
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import { getErrorMessage } from '@/utilities/helpers/errorHandler';
 import {
   AccountBalanceWalletOutlined,
@@ -39,20 +40,19 @@ interface PayrollPeriodStatutoryTabProps {
   month: number;
 }
 
-const MONTH_NAMES = [
-  '',
-  'January',
-  'February',
-  'March',
-  'April',
-  'May',
-  'June',
-  'July',
-  'August',
-  'September',
-  'October',
-  'November',
-  'December',
+const MONTH_KEYS = [
+  'january',
+  'february',
+  'march',
+  'april',
+  'may',
+  'june',
+  'july',
+  'august',
+  'september',
+  'october',
+  'november',
+  'december',
 ];
 
 const getErrMsg = (error: any) => getErrorMessage(error);
@@ -72,6 +72,8 @@ const SummaryCard = ({
   total: number;
   color: SummaryColor;
 }) => {
+  const dictionary = useDictionary();
+  const t = dictionary.humanResources.payrollPeriods;
   const theme = useTheme();
   const isDark = theme.type === 'dark';
   const paletteColor = theme.palette[color].main;
@@ -108,7 +110,10 @@ const SummaryCard = ({
               {total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </Typography>
             <Typography variant='caption' color='text.secondary'>
-              {count} line{count === 1 ? '' : 's'}
+              {(count === 1
+                ? t.statutoryTab.lineSingular
+                : t.statutoryTab.linePlural
+              ).replace('{count}', String(count))}
             </Typography>
           </Box>
         </Stack>
@@ -131,10 +136,13 @@ const PayrollPeriodStatutoryTab = ({
   year,
   month,
 }: PayrollPeriodStatutoryTabProps) => {
+  const dictionary = useDictionary();
+  const t = dictionary.humanResources.payrollPeriods;
   const theme = useTheme();
   const isDark = theme.type === 'dark';
   const { enqueueSnackbar } = useSnackbar();
-  const monthName = MONTH_NAMES[month] || month;
+  const monthName =
+    (MONTH_KEYS[month - 1] && (t.common.months as Record<string, string>)[MONTH_KEYS[month - 1]]) || month;
   const [downloadingKey, setDownloadingKey] = useState<string | null>(null);
 
   const { data, isLoading } = useQuery({
@@ -158,7 +166,7 @@ const PayrollPeriodStatutoryTab = ({
       humanResourcesServices.statutoryScheduleExcel(payrollPeriodId, { section, typeId }),
     onSuccess: (blob: Blob, variables) => {
       triggerDownload(blob, `Statutory Schedule - ${variables.section} - ${monthName} ${year}.xlsx`);
-      enqueueSnackbar('Downloaded successfully', { variant: 'success' });
+      enqueueSnackbar(t.statutoryTab.messages.downloaded, { variant: 'success' });
     },
     onError: (error: any) => enqueueSnackbar(getErrMsg(error), { variant: 'error' }),
     onSettled: () => setDownloadingKey(null),
@@ -168,7 +176,7 @@ const PayrollPeriodStatutoryTab = ({
     mutationFn: () => humanResourcesServices.statutoryScheduleExcel(payrollPeriodId, { section: 'all' }),
     onSuccess: (blob: Blob) => {
       triggerDownload(blob, `Statutory Schedule - ${monthName} ${year}.xlsx`);
-      enqueueSnackbar('Statutory schedule downloaded successfully', { variant: 'success' });
+      enqueueSnackbar(t.statutoryTab.messages.scheduleDownloaded, { variant: 'success' });
     },
     onError: (error: any) => enqueueSnackbar(getErrMsg(error), { variant: 'error' }),
   });
@@ -187,7 +195,7 @@ const PayrollPeriodStatutoryTab = ({
   if (schedule?.paye?.length) {
     downloadRows.push({
       key: 'paye',
-      label: 'PAYE',
+      label: t.statutoryTab.paye,
       count: schedule.paye.length,
       total: schedule.totals?.paye || 0,
       section: 'paye',
@@ -225,12 +233,12 @@ const PayrollPeriodStatutoryTab = ({
           }}
         >
           <Typography variant='body2' fontWeight={600} gutterBottom>
-            Statutory Schedule — {monthName} {year}
+            {t.statutoryTab.heading
+              .replace('{month}', String(monthName))
+              .replace('{year}', String(year))}
           </Typography>
           <Typography variant='body2' color='text.secondary'>
-            Download exactly what you need — PAYE, or any single deduction/
-            contribution scheme (e.g. NSSF only) — one clean sheet per
-            download, ready for statutory filing.
+            {t.statutoryTab.intro}
           </Typography>
         </Alert>
 
@@ -240,8 +248,7 @@ const PayrollPeriodStatutoryTab = ({
           </Box>
         ) : totalLines === 0 ? (
           <Alert severity='info' sx={{ borderRadius: 2 }}>
-            No payslips generated for this period yet — the schedule will
-            populate once payroll runs in this period have been processed.
+            {t.statutoryTab.empty}
           </Alert>
         ) : (
           <>
@@ -249,7 +256,7 @@ const PayrollPeriodStatutoryTab = ({
               <Grid size={{ xs: 12, md: 4 }}>
                 <SummaryCard
                   icon={<ReceiptLongOutlined />}
-                  label='PAYE'
+                  label={t.statutoryTab.paye}
                   count={schedule?.paye?.length || 0}
                   total={schedule?.totals?.paye || 0}
                   color='primary'
@@ -258,7 +265,7 @@ const PayrollPeriodStatutoryTab = ({
               <Grid size={{ xs: 12, md: 4 }}>
                 <SummaryCard
                   icon={<AccountBalanceWalletOutlined />}
-                  label='Deductions'
+                  label={t.statutoryTab.deductions}
                   count={schedule?.deductions?.length || 0}
                   total={schedule?.totals?.deductions || 0}
                   color='warning'
@@ -267,7 +274,7 @@ const PayrollPeriodStatutoryTab = ({
               <Grid size={{ xs: 12, md: 4 }}>
                 <SummaryCard
                   icon={<SavingsOutlined />}
-                  label='Employer Contributions'
+                  label={t.statutoryTab.employerContributions}
                   count={schedule?.contributions?.length || 0}
                   total={schedule?.totals?.contributions || 0}
                   color='success'
@@ -285,7 +292,7 @@ const PayrollPeriodStatutoryTab = ({
                 sx={{ px: 2, py: 1.5 }}
               >
                 <Typography variant='subtitle1' fontWeight={600}>
-                  Download individually
+                  {t.statutoryTab.downloadIndividually}
                 </Typography>
                 <Button
                   variant='outlined'
@@ -295,7 +302,9 @@ const PayrollPeriodStatutoryTab = ({
                   disabled={isDownloadingAll}
                   sx={{ borderRadius: 2, textTransform: 'none', fontWeight: 600 }}
                 >
-                  {isDownloadingAll ? 'Downloading...' : 'Download All (3 sheets)'}
+                  {isDownloadingAll
+                    ? t.statutoryTab.downloading
+                    : t.statutoryTab.downloadAll}
                 </Button>
               </Stack>
               <Divider />
@@ -304,7 +313,7 @@ const PayrollPeriodStatutoryTab = ({
                   <Box key={row.key}>
                     <ListItem
                       secondaryAction={
-                        <Tooltip title={`Download ${row.label}`}>
+                        <Tooltip title={t.statutoryTab.downloadRow.replace('{label}', row.label)}>
                           <span>
                             <IconButton
                               edge='end'
@@ -332,7 +341,10 @@ const PayrollPeriodStatutoryTab = ({
                       </ListItemIcon>
                       <ListItemText
                         primary={row.label}
-                        secondary={`${row.count} line${row.count === 1 ? '' : 's'} — ${row.total.toLocaleString(
+                        secondary={`${(row.count === 1
+                          ? t.statutoryTab.lineSingular
+                          : t.statutoryTab.linePlural
+                        ).replace('{count}', String(row.count))} — ${row.total.toLocaleString(
                           'en-US',
                           { minimumFractionDigits: 2, maximumFractionDigits: 2 }
                         )}`}

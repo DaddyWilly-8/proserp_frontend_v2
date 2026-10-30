@@ -1,5 +1,6 @@
 'use client';
 
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { getErrorMessage } from '@/utilities/helpers/errorHandler';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -53,6 +54,8 @@ const PayrollPeriodForm = ({
   setOpenDialog,
   payrollPeriod = null,
 }: PayrollPeriodFormProps) => {
+  const dictionary = useDictionary();
+  const t = dictionary.humanResources.payrollPeriods;
   const queryClient = useQueryClient();
   const { enqueueSnackbar } = useSnackbar();
   const { authOrganization } = useJumboAuth();
@@ -78,20 +81,20 @@ const PayrollPeriodForm = ({
 
   const monthOptions = useMemo(
     () => [
-      { label: 'January', value: 1 },
-      { label: 'February', value: 2 },
-      { label: 'March', value: 3 },
-      { label: 'April', value: 4 },
-      { label: 'May', value: 5 },
-      { label: 'June', value: 6 },
-      { label: 'July', value: 7 },
-      { label: 'August', value: 8 },
-      { label: 'September', value: 9 },
-      { label: 'October', value: 10 },
-      { label: 'November', value: 11 },
-      { label: 'December', value: 12 },
+      { label: t.common.months.january, value: 1 },
+      { label: t.common.months.february, value: 2 },
+      { label: t.common.months.march, value: 3 },
+      { label: t.common.months.april, value: 4 },
+      { label: t.common.months.may, value: 5 },
+      { label: t.common.months.june, value: 6 },
+      { label: t.common.months.july, value: 7 },
+      { label: t.common.months.august, value: 8 },
+      { label: t.common.months.september, value: 9 },
+      { label: t.common.months.october, value: 10 },
+      { label: t.common.months.november, value: 11 },
+      { label: t.common.months.december, value: 12 },
     ],
-    []
+    [t]
   );
 
   const {
@@ -102,7 +105,7 @@ const PayrollPeriodForm = ({
     mutationFn: humanResourcesServices.addPayrollPeriod,
     onSuccess: () => {
       setOpenDialog(false);
-      enqueueSnackbar('Payroll Period Added Successfully', {
+      enqueueSnackbar(t.form.messages.added, {
         variant: 'success',
       });
       queryClient.invalidateQueries({ queryKey: ['payrollPeriods'] });
@@ -132,7 +135,7 @@ const PayrollPeriodForm = ({
     mutationFn: humanResourcesServices.updatePayrollPeriod,
     onSuccess: () => {
       setOpenDialog(false);
-      enqueueSnackbar('Payroll Period Updated Successfully', {
+      enqueueSnackbar(t.form.messages.updated, {
         variant: 'success',
       });
       queryClient.invalidateQueries({ queryKey: ['payrollPeriods'] });
@@ -158,21 +161,21 @@ const PayrollPeriodForm = ({
     id: yup.number().optional(),
     year: yup
       .number()
-      .typeError('Year must be a number')
-      .required('Year is required')
-      .min(recordingStartYear, `Year must be ${recordingStartYear} or greater`)
-      .max(currentYear, `Year cannot be greater than ${currentYear}`),
+      .typeError(t.form.errors.yearNumber)
+      .required(t.form.errors.yearRequired)
+      .min(recordingStartYear, t.form.errors.yearMin.replace('{year}', String(recordingStartYear)))
+      .max(currentYear, t.form.errors.yearMax.replace('{year}', String(currentYear))),
     month: yup
       .number()
-      .typeError('Month must be a number')
-      .required('Month is required')
-      .min(1, 'Month must be between 1 and 12')
-      .max(12, 'Month must be between 1 and 12'),
+      .typeError(t.form.errors.monthNumber)
+      .required(t.form.errors.monthRequired)
+      .min(1, t.form.errors.monthRange)
+      .max(12, t.form.errors.monthRange),
     remarks: yup
       .string()
       .nullable()
       .transform((value) => (value === '' ? null : value))
-      .max(500, 'Remarks cannot exceed 500 characters')
+      .max(500, t.form.errors.remarksMax)
       .optional(),
   });
 
@@ -228,7 +231,7 @@ const PayrollPeriodForm = ({
     <>
       <DialogTitle>
         <Grid size={12} textAlign={'center'}>
-          {!payrollPeriod?.id ? 'Add Payroll Period' : 'Edit Payroll Period'}
+          {!payrollPeriod?.id ? t.form.titleAdd : t.form.titleEdit}
         </Grid>
       </DialogTitle>
       <DialogContent>
@@ -242,7 +245,7 @@ const PayrollPeriodForm = ({
                   render={({ field }) => (
                     <TextField
                       select
-                      label='Year'
+                      label={t.common.year}
                       size='small'
                       fullWidth
                       value={field.value ?? ''}
@@ -277,7 +280,7 @@ const PayrollPeriodForm = ({
                   render={({ field }) => (
                     <TextField
                       select
-                      label='Month'
+                      label={t.common.month}
                       size='small'
                       fullWidth
                       value={field.value ?? ''}
@@ -307,7 +310,7 @@ const PayrollPeriodForm = ({
             <Grid size={{ xs: 12 }}>
               <Div sx={{ mt: 1, mb: 1 }}>
                 <TextField
-                  label='Remarks'
+                  label={t.common.remarks}
                   size='small'
                   fullWidth
                   multiline
@@ -328,7 +331,7 @@ const PayrollPeriodForm = ({
 
           <DialogActions>
             <Button size='small' onClick={() => setOpenDialog(false)}>
-              Cancel
+              {t.common.cancel}
             </Button>
             <LoadingButton
               type='submit'
@@ -337,7 +340,7 @@ const PayrollPeriodForm = ({
               sx={{ display: 'flex' }}
               loading={isPending || updateIsPending}
             >
-              Submit
+              {t.common.submit}
             </LoadingButton>
           </DialogActions>
         </form>

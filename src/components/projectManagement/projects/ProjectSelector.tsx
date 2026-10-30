@@ -1,6 +1,7 @@
 import { Autocomplete, CircularProgress, TextField } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
 import React, { useEffect, useState } from 'react';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import projectsServices from './project-services';
 
 export interface ProjectOption {
@@ -19,11 +20,12 @@ interface ProjectSelectorProps {
 
 const ProjectSelector: React.FC<ProjectSelectorProps> = ({
   onChange,
-  label = 'Project',
+  label,
   defaultValue = null,
   frontError = null,
   disabled = false,
 }) => {
+  const dictionary = useDictionary();
   const [keyword, setKeyword] = useState('');
   const [debouncedKeyword, setDebouncedKeyword] = useState('');
   const [selected, setSelected] = useState<ProjectOption | null>(
@@ -66,7 +68,7 @@ const ProjectSelector: React.FC<ProjectSelectorProps> = ({
       renderInput={(params) => (
         <TextField
           {...params}
-          label={label}
+          label={label ?? dictionary.projectManagement.projects.project}
           size='small'
           fullWidth
           error={!!frontError}

@@ -11,6 +11,7 @@ import {
   getLoanApprovalDecision,
   getNextPendingLoanLevel,
 } from './loanApprovalUtils';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface LoanApprovalItemActionProps {
   loanRequest: LoanRequestType;
@@ -23,6 +24,7 @@ const LoanApprovalItemAction = ({
   approval,
   approvals,
 }: LoanApprovalItemActionProps) => {
+  const dictionary = useDictionary();
   const [openDialog, setOpenDialog] = useState(false);
   const { theme } = useJumboTheme();
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
@@ -55,7 +57,7 @@ const LoanApprovalItemAction = ({
       />
 
       {canNextApprove && (
-        <Tooltip title='Approve'>
+        <Tooltip title={dictionary.tooltips.approve}>
           <IconButton size='small' onClick={() => setOpenDialog(true)}>
             <FactCheckOutlined />
           </IconButton>

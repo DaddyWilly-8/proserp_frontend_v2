@@ -1,5 +1,6 @@
 'use client';
 
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 import { ReceiptLongOutlined } from '@mui/icons-material';
 import AddIcon from '@mui/icons-material/Add';
@@ -23,20 +24,20 @@ import { PayrollRunType } from '../payrollRuns/PayrollRunType';
 import { PayrollPeriodType } from './PayrollPeriodType';
 import PayrollPeriodDetails from './PayrollPeriodDetails';
 
-const MONTH_NAMES = [
+const MONTH_KEYS = [
   '',
-  'January',
-  'February',
-  'March',
-  'April',
-  'May',
-  'June',
-  'July',
-  'August',
-  'September',
-  'October',
-  'November',
-  'December',
+  'january',
+  'february',
+  'march',
+  'april',
+  'may',
+  'june',
+  'july',
+  'august',
+  'september',
+  'october',
+  'november',
+  'december',
 ];
 
 const statusColor = (
@@ -65,6 +66,8 @@ interface PayrollPeriodsListItemProps {
 const PayrollPeriodsListItem = ({
   payrollPeriod,
 }: PayrollPeriodsListItemProps) => {
+  const dictionary = useDictionary();
+  const t = dictionary.humanResources.payrollPeriods;
   const queryClient = useQueryClient();
   const { theme } = useJumboTheme();
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
@@ -86,7 +89,10 @@ const PayrollPeriodsListItem = ({
 
   const runs: PayrollRunType[] = runsData?.data || [];
   const runCount = payrollPeriod.runs_count ?? runs.length ?? 0;
-  const monthName = MONTH_NAMES[payrollPeriod.month] || payrollPeriod.month;
+  const monthName =
+    (t.common.months as Record<string, string>)[MONTH_KEYS[payrollPeriod.month]] || payrollPeriod.month;
+  const statusValue = payrollPeriod.status || 'active';
+  const statusLabel = (t.common.status as Record<string, string>)[statusValue.toLowerCase()] || statusValue;
 
   const handleRunCreated = () => {
     setOpenCreateRunDialog(false);
@@ -147,7 +153,7 @@ const PayrollPeriodsListItem = ({
               {monthName} {payrollPeriod.year}
             </Typography>
             <Chip
-              label={payrollPeriod.status || 'active'}
+              label={statusLabel}
               color={statusColor(payrollPeriod.status || '')}
               size='small'
               sx={{ textTransform: 'capitalize' }}

@@ -7,13 +7,16 @@ interface FuelVouchersReportPDFProps {
   reportData: any;
   organization: any;
   filters: any;
+  dictionary: any;
 }
 
 function FuelVouchersReportPDF({
   reportData,
   organization,
   filters,
+  dictionary,
 }: FuelVouchersReportPDFProps) {
+  const t = dictionary.reports.fuelStationReports.fuelVouchers;
   const mainColor = organization.settings?.main_color || '#2113AD';
   const lightColor = organization.settings?.light_color || '#bec5da';
   const contrastText = organization.settings?.contrast_text || '#FFFFFF';
@@ -45,9 +48,9 @@ function FuelVouchersReportPDF({
   }
   return (
     <Document
-      title={`Fuel Vouchers Report | ${organization.name}`}
+      title={`${t.title} | ${organization.name}`}
       author={filters.stationName}
-      subject={'Fuel Vouchers Report'}
+      subject={t.title}
       creator={`Powered By ProsERP`}
       producer='ProsERP'
     >
@@ -65,9 +68,7 @@ function FuelVouchersReportPDF({
           <View style={{ ...pdfStyles.tableRow }}>
             {filters.stationName && (
               <View style={{ ...pdfStyles.tableCell, flex: 1 }}>
-                <Text style={{ ...pdfStyles.majorInfo, color: mainColor }}>
-                  Station Name
-                </Text>
+                <Text style={{ ...pdfStyles.majorInfo, color: mainColor }}>{t.stationName}</Text>
               </View>
             )}
             {((filters.stakeholder_name && filters.stakeholder_name !== '') ||
@@ -77,18 +78,16 @@ function FuelVouchersReportPDF({
                 <Text style={{ ...pdfStyles.majorInfo, color: mainColor }}>
                   {filters.stakeholder_name &&
                     filters.stakeholder_name !== '' &&
-                    'Client Name'}
+                    t.clientName}
                   {filters.expense_ledger_ids &&
                     filters.expense_ledger_ids?.length === 1 &&
-                    'Expense'}
+                    t.expense}
                 </Text>
               </View>
             )}
             {filters.from && filters.to && (
               <View style={{ ...pdfStyles.tableCell, flex: 1 }}>
-                <Text style={{ ...pdfStyles.majorInfo, color: mainColor }}>
-                  Date Range
-                </Text>
+                <Text style={{ ...pdfStyles.majorInfo, color: mainColor }}>{t.dateRange}</Text>
               </View>
             )}
           </View>
@@ -140,9 +139,7 @@ function FuelVouchersReportPDF({
                       ? '7%'
                       : '13%',
                 }}
-              >
-                Date
-              </Text>
+              >{t.date}</Text>
               <Text
                 style={{
                   ...pdfStyles.tableHeader,
@@ -153,9 +150,7 @@ function FuelVouchersReportPDF({
                       ? '9%'
                       : '17%',
                 }}
-              >
-                Voucher No
-              </Text>
+              >{t.voucherNo}</Text>
               {filters.stakeholder_name === '' &&
                 (filters.expense_ledger_ids?.length !== 1 ||
                   !filters.expense_ledger_ids) && (
@@ -173,11 +168,11 @@ function FuelVouchersReportPDF({
                     {!filters.stakeholder_name &&
                       (filters.expense_ledger_ids?.length < 1 ||
                         !filters.expense_ledger_ids) &&
-                      'Client/Expense'}
+                      t.clientExpense}
                     {(!filters.stakeholder_name ||
                       filters.stakeholder_name === '') &&
                       filters.expense_ledger_ids?.length > 1 &&
-                      'Expense'}
+                      t.expense}
                   </Text>
                 )}
               <Text
@@ -187,9 +182,7 @@ function FuelVouchersReportPDF({
                   color: contrastText,
                   width: '11%',
                 }}
-              >
-                Reference
-              </Text>
+              >{t.reference}</Text>
               <Text
                 style={{
                   ...pdfStyles.tableHeader,
@@ -200,9 +193,7 @@ function FuelVouchersReportPDF({
                       ? '17%'
                       : '16%',
                 }}
-              >
-                Product
-              </Text>
+              >{t.product}</Text>
               <Text
                 style={{
                   ...pdfStyles.tableHeader,
@@ -217,9 +208,7 @@ function FuelVouchersReportPDF({
                         ? '17%'
                         : '16%',
                 }}
-              >
-                Narration
-              </Text>
+              >{t.narration}</Text>
               <Text
                 style={{
                   ...pdfStyles.tableHeader,
@@ -230,9 +219,7 @@ function FuelVouchersReportPDF({
                       ? '5%'
                       : '7%',
                 }}
-              >
-                Lts
-              </Text>
+              >{t.lts}</Text>
               <Text
                 style={{
                   ...pdfStyles.tableHeader,
@@ -240,9 +227,7 @@ function FuelVouchersReportPDF({
                   color: contrastText,
                   width: '9%',
                 }}
-              >
-                Price
-              </Text>
+              >{t.price}</Text>
               <Text
                 style={{
                   ...pdfStyles.tableHeader,
@@ -251,7 +236,7 @@ function FuelVouchersReportPDF({
                   width: '11%',
                 }}
               >
-                {`${filters.with_receipts == 1 && filters.stakeholder_name ? 'Debit' : 'Amount'}`}
+                {`${filters.with_receipts == 1 && filters.stakeholder_name ? t.debit : t.amount}`}
               </Text>
               {filters.with_receipts == 1 && filters.stakeholder_name && (
                 <Text
@@ -261,9 +246,7 @@ function FuelVouchersReportPDF({
                     color: contrastText,
                     width: '10%',
                   }}
-                >
-                  Credit
-                </Text>
+                >{t.credit}</Text>
               )}
               {filters.with_receipts == 1 && filters.stakeholder_name && (
                 <Text
@@ -273,9 +256,7 @@ function FuelVouchersReportPDF({
                     color: contrastText,
                     width: '14%',
                   }}
-                >
-                  Running Balance
-                </Text>
+                >{t.runningBalance}</Text>
               )}
             </View>
             {reportData.length &&
@@ -481,9 +462,7 @@ function FuelVouchersReportPDF({
                         color: contrastText,
                         width: '100%',
                       }}
-                    >
-                      TOTAL
-                    </Text>
+                    >{t.totalCaps}</Text>
                   )}
                 {((filters.stakeholder_name != '' &&
                   filters.stakeholder_name) ||
@@ -499,9 +478,7 @@ function FuelVouchersReportPDF({
                           ? '61.5%'
                           : '73.5%',
                     }}
-                  >
-                    TOTAL
-                  </Text>
+                  >{t.totalCaps}</Text>
                 )}
                 <Text
                   style={{

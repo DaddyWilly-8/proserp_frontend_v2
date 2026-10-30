@@ -11,6 +11,7 @@ import {
   TableRow,
   Typography,
 } from '@mui/material';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import { readableDate } from '@/app/helpers/input-sanitization-helpers';
 
 export interface ApprovalHistoryEntry {
@@ -43,22 +44,23 @@ const DECISION_CHIP_COLOR: Record<string, 'success' | 'warning' | 'error' | 'inf
 // see this before deciding whether to approve, hold, reject, or reverse their own prior decision
 // (see CertificateApprovalsActionTail/ProjectClaimApprovalsActionTail's "Reverse My Approval").
 const ApprovalHistoryTable: React.FC<ApprovalHistoryTableProps> = ({ approvals }) => {
+  const dictionary = useDictionary();
   if (!approvals?.length) return null;
 
   return (
     <Box sx={{ mb: 8 }}>
       <Typography variant="h5" sx={{ mb: 4, textAlign: 'center' }}>
-        Approval History
+        {dictionary.projectManagement.approvals.approvalHistory}
       </Typography>
       <TableContainer component={Paper} elevation={4}>
         <Table size="small">
           <TableHead>
             <TableRow>
-              <TableCell>Level</TableCell>
-              <TableCell>Decision</TableCell>
-              <TableCell>Remarks</TableCell>
-              <TableCell>Date</TableCell>
-              <TableCell>By</TableCell>
+              <TableCell>{dictionary.projectManagement.approvals.level}</TableCell>
+              <TableCell>{dictionary.projectManagement.approvals.decision}</TableCell>
+              <TableCell>{dictionary.projectManagement.approvals.remarks}</TableCell>
+              <TableCell>{dictionary.projectManagement.approvals.date}</TableCell>
+              <TableCell>{dictionary.projectManagement.approvals.by}</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -75,8 +77,8 @@ const ApprovalHistoryTable: React.FC<ApprovalHistoryTableProps> = ({ approvals }
                     <Chip
                       label={
                         approval.is_superseded
-                          ? `${approval.status} (superseded)`
-                          : approval.status || '-'
+                          ? dictionary.projectManagement.approvals.superseded.replace('{status}', (dictionary.projectManagement.approvals.status as Record<string, string>)[status] ?? String(approval.status))
+                          : ((dictionary.projectManagement.approvals.status as Record<string, string>)[status] ?? approval.status) || '-'
                       }
                       size="small"
                       color={DECISION_CHIP_COLOR[status] || 'default'}

@@ -71,6 +71,7 @@ interface PurchasesManifestPDFProps {
   // hide their own cost-centers line when unfiltered, instead of printing
   // every cost center (often a dozen-plus auto-generated Project ones) by name.
   accessibleCostCenters?: Array<{ id: number }>;
+  dictionary: any;
 }
 
 const styles = StyleSheet.create({
@@ -200,7 +201,9 @@ const PurchasesManifestPDF = ({
   organization,
   user,
   accessibleCostCenters,
+  dictionary,
 }: PurchasesManifestPDFProps) => {
+  const dict = dictionary.reports.procurementReports.purchasesManifest;
   const mainColor = (organization as any)?.settings?.main_color || '#2113AD';
   const lightColor = (organization as any)?.settings?.light_color || '#d9dfef';
   const contrastText =
@@ -271,9 +274,9 @@ const PurchasesManifestPDF = ({
 
   return (
     <Document
-      title='Purchases Manifest Report'
+      title={dict.documentTitle}
       author={(organization as any)?.name}
-      subject='Purchases Manifest'
+      subject={dict.title}
     >
       <Page size='A4' orientation='landscape' style={styles.page}>
         {/* ---- Logo + Title header ---- */}
@@ -283,7 +286,7 @@ const PurchasesManifestPDF = ({
           </View>
           <View style={styles.titleBlock}>
             <Text style={{ ...styles.title, color: mainColor }}>
-              PURCHASES MANIFEST REPORT
+              {dict.onScreenTitle}
             </Text>
             <Text style={styles.subtitle}>
               {readableDate(filters.from)} — {readableDate(filters.to)}
@@ -294,20 +297,20 @@ const PurchasesManifestPDF = ({
         {/* ---- Filter info band ---- */}
         <View style={styles.filterBand}>
           <View style={styles.filterItem}>
-            <Text style={styles.filterLabel}>Reporting Period</Text>
+            <Text style={styles.filterLabel}>{dict.reportingPeriod}</Text>
             <Text style={styles.filterValue}>
               {readableDate(filters.from)} — {readableDate(filters.to)}
             </Text>
           </View>
 
           <View style={styles.filterItem}>
-            <Text style={styles.filterLabel}>Status Filter</Text>
-            <Text style={styles.filterValue}>{filters.status || 'All'}</Text>
+            <Text style={styles.filterLabel}>{dict.statusFilter}</Text>
+            <Text style={styles.filterValue}>{dict.statusOptions[filters.status || 'All'] ?? (filters.status || 'All')}</Text>
           </View>
 
           {costCentersToShow.length > 0 && (
             <View style={styles.filterItem}>
-              <Text style={styles.filterLabel}>Cost Centers</Text>
+              <Text style={styles.filterLabel}>{dict.costCenters}</Text>
               <Text style={styles.filterValue}>
                 {costCentersToShow.map((cc) => cc.name).join(', ')}
               </Text>
@@ -316,7 +319,7 @@ const PurchasesManifestPDF = ({
 
           {filters.suppliers && filters.suppliers.length > 0 && (
             <View style={styles.filterItem}>
-              <Text style={styles.filterLabel}>Suppliers / Vendors</Text>
+              <Text style={styles.filterLabel}>{dict.suppliersVendors}</Text>
               <Text style={styles.filterValue}>
                 {filters.suppliers.map((s) => s.name).join(', ')}
               </Text>
@@ -324,7 +327,7 @@ const PurchasesManifestPDF = ({
           )}
 
           <View style={styles.filterItem}>
-            <Text style={styles.filterLabel}>Printed By</Text>
+            <Text style={styles.filterLabel}>{dict.printedBy}</Text>
             <Text style={styles.filterValue}>{getUserName(user)}</Text>
           </View>
         </View>
@@ -341,7 +344,7 @@ const PurchasesManifestPDF = ({
                 flex: snFlex,
               }}
             >
-              S/N
+              {dict.sn}
             </Text>
             <Text
               style={{
@@ -351,7 +354,7 @@ const PurchasesManifestPDF = ({
                 flex: orderNoFlex,
               }}
             >
-              Order No.
+              {dict.orderNo}
             </Text>
             <Text
               style={{
@@ -361,7 +364,7 @@ const PurchasesManifestPDF = ({
                 flex: datesFlex,
               }}
             >
-              Dates
+              {dict.dates}
             </Text>
             <Text
               style={{
@@ -371,7 +374,7 @@ const PurchasesManifestPDF = ({
                 flex: productFlex,
               }}
             >
-              Product Details
+              {dict.productDetails}
             </Text>
             <Text
               style={{
@@ -381,7 +384,7 @@ const PurchasesManifestPDF = ({
                 flex: statusFlex,
               }}
             >
-              Status
+              {dict.status}
             </Text>
             <Text
               style={{
@@ -391,7 +394,7 @@ const PurchasesManifestPDF = ({
                 flex: vendorFlex,
               }}
             >
-              Supplier / Vendor
+              {dict.supplierVendor}
             </Text>
             <Text
               style={{
@@ -402,7 +405,7 @@ const PurchasesManifestPDF = ({
                 textAlign: 'right',
               }}
             >
-              Qty Ordered
+              {dict.qtyOrdered}
             </Text>
             <Text
               style={{
@@ -413,7 +416,7 @@ const PurchasesManifestPDF = ({
                 textAlign: 'right',
               }}
             >
-              Qty Received
+              {dict.qtyReceived}
             </Text>
             <Text
               style={{
@@ -424,7 +427,7 @@ const PurchasesManifestPDF = ({
                 textAlign: 'right',
               }}
             >
-              Qty Pending
+              {dict.qtyPending}
             </Text>
             <Text
               style={{
@@ -435,7 +438,7 @@ const PurchasesManifestPDF = ({
                 textAlign: 'right',
               }}
             >
-              Rate
+              {dict.rate}
             </Text>
             <Text
               style={{
@@ -446,7 +449,7 @@ const PurchasesManifestPDF = ({
                 textAlign: 'right',
               }}
             >
-              Ordered Amount
+              {dict.orderedAmount}
             </Text>
             <Text
               style={{
@@ -457,7 +460,7 @@ const PurchasesManifestPDF = ({
                 textAlign: 'right',
               }}
             >
-              Received Amount
+              {dict.receivedAmount}
             </Text>
             <Text
               style={{
@@ -468,7 +471,7 @@ const PurchasesManifestPDF = ({
                 textAlign: 'right',
               }}
             >
-              Pending Amount
+              {dict.pendingAmount}
             </Text>
           </View>
 
@@ -511,10 +514,10 @@ const PurchasesManifestPDF = ({
                 </Text>
 
                 <View style={{ ...styles.cell, flex: datesFlex }}>
-                  <Text>Ordered: {readableDate(item.order_date)}</Text>
+                  <Text>{dict.ordered}: {readableDate(item.order_date)}</Text>
                   {item.date_required && (
                     <Text style={styles.cellSecondary}>
-                      Required: {readableDate(item.date_required)}
+                      {dict.required}: {readableDate(item.date_required)}
                     </Text>
                   )}
                 </View>
@@ -531,7 +534,7 @@ const PurchasesManifestPDF = ({
                     fontWeight: 'bold',
                   }}
                 >
-                  {item.status}
+                  {dict.statusOptions[item.status] ?? item.status}
                 </Text>
 
                 <Text style={{ ...styles.cell, flex: vendorFlex }}>
@@ -628,7 +631,7 @@ const PurchasesManifestPDF = ({
               }}
             >
               <Text style={{ ...styles.totalsLabel, color: contrastText }}>
-                Total Ordered Amount
+                {dict.totalOrderedAmount}
               </Text>
             </View>
             {Object.entries(currencyTotals).map(([code, { symbol, total }]) => (
@@ -656,7 +659,7 @@ const PurchasesManifestPDF = ({
               }}
             >
               <Text style={{ ...styles.totalsLabel, color: contrastText }}>
-                Total Received Amount
+                {dict.totalReceivedAmount}
               </Text>
             </View>
             {Object.entries(totalreceivedAmt).map(
@@ -686,7 +689,7 @@ const PurchasesManifestPDF = ({
               }}
             >
               <Text style={{ ...styles.totalsLabel, color: contrastText }}>
-                Total Pending Amount
+                {dict.totalPendingAmount}
               </Text>
             </View>
             {Object.entries(totalPendingAmt).map(

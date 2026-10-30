@@ -11,8 +11,10 @@ import {
 } from '@mui/material';
 import { useState } from 'react';
 import PublicH0lidayForm from './PublicH0lidayForm';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const PublicHolidaysActionTail = () => {
+  const dictionary = useDictionary();
   const [openDialog, setOpenDialog] = useState(false);
 
   //Screen handling constants
@@ -29,7 +31,7 @@ const PublicHolidaysActionTail = () => {
         disableElevation
         sx={{ '& .MuiButton-root': { px: 1 } }}
       >
-        <Tooltip title='Add Public Holiday'>
+        <Tooltip title={dictionary.tooltips.addPublicHoliday}>
           <IconButton onClick={() => setOpenDialog(true)}>
             <AddOutlined />
           </IconButton>

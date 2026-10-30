@@ -1,6 +1,7 @@
 // payrollPeriods/SalarySheetDialog.tsx
 'use client';
 
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import { useLanguage } from '@/app/[lang]/contexts/LanguageContext';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import PDFContent from '@/components/pdf/PDFContent';
@@ -116,18 +117,57 @@ interface SelectOption<T extends string> {
   shortLabel: string;
 }
 
-const GROUP_VIEW_OPTIONS: SelectOption<GroupView>[] = [
-  { value: 'detailed', label: 'Detailed (default)', shortLabel: 'Detailed' },
-  { value: 'merged', label: 'Merged', shortLabel: 'Merged' },
-  { value: 'hidden', label: 'Hidden', shortLabel: 'Hidden' },
+const MONTH_KEYS = [
+  'january',
+  'february',
+  'march',
+  'april',
+  'may',
+  'june',
+  'july',
+  'august',
+  'september',
+  'october',
+  'november',
+  'december',
+];
+
+const getGroupViewOptions = (t: any): SelectOption<GroupView>[] => [
+  {
+    value: 'detailed',
+    label: t.salarySheet.groupView.detailedDefault,
+    shortLabel: t.salarySheet.groupView.detailed,
+  },
+  {
+    value: 'merged',
+    label: t.salarySheet.groupView.merged,
+    shortLabel: t.salarySheet.groupView.merged,
+  },
+  {
+    value: 'hidden',
+    label: t.salarySheet.groupView.hidden,
+    shortLabel: t.salarySheet.groupView.hidden,
+  },
 ];
 
 type GroupByOption = 'none' | 'department' | 'cost_center';
 
-const GROUP_BY_OPTIONS: SelectOption<GroupByOption>[] = [
-  { value: 'none', label: 'One table (default)', shortLabel: 'One table' },
-  { value: 'department', label: 'Department', shortLabel: 'Department' },
-  { value: 'cost_center', label: 'Cost Center', shortLabel: 'Cost Center' },
+const getGroupByOptions = (t: any): SelectOption<GroupByOption>[] => [
+  {
+    value: 'none',
+    label: t.salarySheet.groupBy.oneTableDefault,
+    shortLabel: t.salarySheet.groupBy.oneTable,
+  },
+  {
+    value: 'department',
+    label: t.salarySheet.groupBy.department,
+    shortLabel: t.salarySheet.groupBy.department,
+  },
+  {
+    value: 'cost_center',
+    label: t.salarySheet.groupBy.costCenter,
+    shortLabel: t.salarySheet.groupBy.costCenter,
+  },
 ];
 
 /**
@@ -177,6 +217,10 @@ const SalarySheetDialog = ({
   isLoading = false,
   selectedPayrollPeriod,
 }: SalarySheetDialogProps) => {
+  const dictionary = useDictionary();
+  const t = dictionary.humanResources.payrollPeriods;
+  const GROUP_VIEW_OPTIONS = getGroupViewOptions(t);
+  const GROUP_BY_OPTIONS = getGroupByOptions(t);
   const router = useRouter();
   const lang = useLanguage();
   const authObject = useJumboAuth() as any;
@@ -211,14 +255,10 @@ const SalarySheetDialog = ({
   // monthName isn't a backend field — some callers compute and attach it
   // themselves, but not all (e.g. an initial URL-driven period selection),
   // so it's derived here from `month` directly rather than trusted as-is.
-  const MONTH_NAMES = [
-    'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December',
-  ];
   const periodMonth = selectedPayrollPeriod?.month;
   const monthName =
     periodMonth && periodMonth >= 1 && periodMonth <= 12
-      ? MONTH_NAMES[periodMonth - 1]
+      ? (t.common.months as Record<string, string>)[MONTH_KEYS[periodMonth - 1]]
       : selectedPayrollPeriod?.monthName || '';
   const selectedPeriod = selectedPayrollPeriod?.year
     ? `${selectedPayrollPeriod.year} - ${monthName}`
@@ -290,10 +330,10 @@ const SalarySheetDialog = ({
   } else if (allowancesView === 'merged') {
     employeeAllowance = employeeAllowance.map((itm: any) => ({
       ...itm,
-      label: 'Allowances',
+      label: t.salarySheet.labels.allowances,
     }));
     unique_allowances_types = employeeAllowance.length
-      ? [{ label: 'Allowances', allowance_type_id: null }]
+      ? [{ label: t.salarySheet.labels.allowances, allowance_type_id: null }]
       : [];
   }
 
@@ -303,9 +343,15 @@ const SalarySheetDialog = ({
   } else if (deductionsView === 'merged') {
     employeeDeductions = employeeDeductions
       .filter((itm: any) => itm.category !== 'tax')
-      .map((itm: any) => ({ ...itm, label: 'Deductions' }));
+      .map((itm: any) => ({ ...itm, label: t.salarySheet.labels.deductions }));
     unique_deductions_types = employeeDeductions.length
-      ? [{ label: 'Deductions', deduction_type_id: null, category: 'voluntary' }]
+      ? [
+          {
+            label: t.salarySheet.labels.deductions,
+            deduction_type_id: null,
+            category: 'voluntary',
+          },
+        ]
       : [];
   }
 
@@ -320,11 +366,16 @@ const SalarySheetDialog = ({
     // add up instead of silently summing to 0.
     employeecontributions = employeecontributions.map((itm: any) => ({
       ...itm,
-      label: 'Contributions',
+      label: t.salarySheet.labels.contributions,
       employer_contribution_type_id: null,
     }));
     unique_contributions_types = employeecontributions.length
-      ? [{ label: 'Contributions', employer_contribution_type_id: null }]
+      ? [
+          {
+            label: t.salarySheet.labels.contributions,
+            employer_contribution_type_id: null,
+          },
+        ]
       : [];
   }
 
@@ -417,10 +468,10 @@ const SalarySheetDialog = ({
   // dropped from the sheet.
   const getGroupLabel = (run: PayrollRunType): string => {
     if (groupBy === 'department') {
-      return (run.employee as any)?.department?.name || 'Unassigned';
+      return (run.employee as any)?.department?.name || t.salarySheet.labels.unassigned;
     }
     if (groupBy === 'cost_center') {
-      return (run.employee as any)?.cost_center?.name || 'Unassigned';
+      return (run.employee as any)?.cost_center?.name || t.salarySheet.labels.unassigned;
     }
     return '';
   };
@@ -539,10 +590,10 @@ const SalarySheetDialog = ({
               >
                 <Box>
                   <Typography variant='h6'>
-                    {organization?.name || 'Company'}
+                    {organization?.name || t.salarySheet.labels.company}
                   </Typography>
                   <Typography variant='body2' color='text.secondary'>
-                    Salary Payroll - {periodLabel}
+                    {t.salarySheet.labels.salaryPayroll} - {periodLabel}
                   </Typography>
                   {!!selectedPeriod && (
                     <Typography variant='body1' fontWeight={400}>
@@ -567,7 +618,7 @@ const SalarySheetDialog = ({
                         setAllowancesView(newValue.value)
                       }
                       renderInput={(params) => (
-                        <TextField {...params} label='Allowances' />
+                        <TextField {...params} label={t.salarySheet.labels.allowances} />
                       )}
                     />
                     <Autocomplete
@@ -585,7 +636,7 @@ const SalarySheetDialog = ({
                         setDeductionsView(newValue.value)
                       }
                       renderInput={(params) => (
-                        <TextField {...params} label='Deductions' />
+                        <TextField {...params} label={t.salarySheet.labels.deductions} />
                       )}
                     />
                     <Autocomplete
@@ -603,7 +654,7 @@ const SalarySheetDialog = ({
                         setContributionsView(newValue.value)
                       }
                       renderInput={(params) => (
-                        <TextField {...params} label='Contributions' />
+                        <TextField {...params} label={t.salarySheet.labels.contributions} />
                       )}
                     />
                     <Autocomplete
@@ -621,32 +672,32 @@ const SalarySheetDialog = ({
                         setGroupBy(newValue.value)
                       }
                       renderInput={(params) => (
-                        <TextField {...params} label='Group By' />
+                        <TextField {...params} label={t.salarySheet.labels.groupBy} />
                       )}
                     />
                   </Stack>
                 ) : (
                   <Stack direction='row' spacing={3} flexWrap='wrap' useFlexGap>
                     <GroupViewToggle
-                      label='Allowances'
+                      label={t.salarySheet.labels.allowances}
                       options={GROUP_VIEW_OPTIONS}
                       value={allowancesView}
                       onChange={setAllowancesView}
                     />
                     <GroupViewToggle
-                      label='Deductions'
+                      label={t.salarySheet.labels.deductions}
                       options={GROUP_VIEW_OPTIONS}
                       value={deductionsView}
                       onChange={setDeductionsView}
                     />
                     <GroupViewToggle
-                      label='Contributions'
+                      label={t.salarySheet.labels.contributions}
                       options={GROUP_VIEW_OPTIONS}
                       value={contributionsView}
                       onChange={setContributionsView}
                     />
                     <GroupViewToggle
-                      label='Group By'
+                      label={t.salarySheet.labels.groupBy}
                       options={GROUP_BY_OPTIONS}
                       value={groupBy}
                       onChange={setGroupBy}
@@ -678,12 +729,12 @@ const SalarySheetDialog = ({
                     color='text.secondary'
                     sx={{ ml: 2 }}
                   >
-                    Generating salary sheet...
+                    {t.salarySheet.messages.generating}
                   </Typography>
                 </Box>
               ) : rows.length === 0 ? (
                 <Alert severity='info'>
-                  No employees found for this payroll run.
+                  {t.salarySheet.messages.noEmployees}
                 </Alert>
               ) : (
                 <TableContainer sx={{ maxHeight: '80vh' }}>
@@ -701,7 +752,7 @@ const SalarySheetDialog = ({
                             fontSize: '0.9rem',
                           }}
                         >
-                          RECRUITMENT
+                          {t.salarySheet.columns.recruitment}
                         </TableCell>
                         <TableCell
                           colSpan={
@@ -719,7 +770,7 @@ const SalarySheetDialog = ({
                             fontSize: '0.9rem',
                           }}
                         >
-                          EMPLOYEE
+                          {t.salarySheet.columns.employee}
                         </TableCell>
                         <TableCell
                           colSpan={
@@ -736,7 +787,7 @@ const SalarySheetDialog = ({
                             fontSize: '0.9rem',
                           }}
                         >
-                          EMPLOYER
+                          {t.salarySheet.columns.employer}
                         </TableCell>
                       </TableRow>
 
@@ -749,7 +800,7 @@ const SalarySheetDialog = ({
                             borderColor: 'divider',
                           }}
                         >
-                          S/N
+                          {t.salarySheet.columns.serialNumber}
                         </TableCell>
                         <TableCell
                           sx={{
@@ -758,7 +809,7 @@ const SalarySheetDialog = ({
                             borderColor: 'divider',
                           }}
                         >
-                          Employee
+                          {t.salarySheet.columns.employeeName}
                         </TableCell>
                         <TableCell
                           sx={{
@@ -767,7 +818,7 @@ const SalarySheetDialog = ({
                             borderColor: 'divider',
                           }}
                         >
-                          Designation
+                          {t.salarySheet.columns.designation}
                         </TableCell>
                         <TableCell
                           align='right'
@@ -777,7 +828,7 @@ const SalarySheetDialog = ({
                             borderColor: 'divider',
                           }}
                         >
-                          Basic
+                          {t.salarySheet.columns.basic}
                         </TableCell>
 
                         {hasAllowances && (
@@ -790,7 +841,7 @@ const SalarySheetDialog = ({
                               borderColor: 'divider',
                             }}
                           >
-                            Allowances
+                            {t.salarySheet.columns.allowances}
                           </TableCell>
                         )}
 
@@ -802,7 +853,7 @@ const SalarySheetDialog = ({
                             borderColor: 'divider',
                           }}
                         >
-                          Gross
+                          {t.salarySheet.columns.gross}
                         </TableCell>
 
                         <TableCell
@@ -813,7 +864,7 @@ const SalarySheetDialog = ({
                             borderColor: 'divider',
                           }}
                         >
-                          Taxable Salary
+                          {t.salarySheet.columns.taxableSalary}
                         </TableCell>
 
                         {hasDeductions && (
@@ -826,7 +877,7 @@ const SalarySheetDialog = ({
                               borderColor: 'divider',
                             }}
                           >
-                            Deductions
+                            {t.salarySheet.columns.deductions}
                           </TableCell>
                         )}
 
@@ -838,7 +889,7 @@ const SalarySheetDialog = ({
                             borderColor: 'divider',
                           }}
                         >
-                          PAYE
+                          {t.salarySheet.columns.paye}
                         </TableCell>
 
                         <TableCell
@@ -849,7 +900,7 @@ const SalarySheetDialog = ({
                             borderColor: 'divider',
                           }}
                         >
-                          Total Deductions
+                          {t.salarySheet.columns.totalDeductions}
                         </TableCell>
 
                         <TableCell
@@ -860,7 +911,7 @@ const SalarySheetDialog = ({
                             borderColor: 'divider',
                           }}
                         >
-                          Net Payable
+                          {t.salarySheet.columns.netPayable}
                         </TableCell>
 
                         {hasContributions ? (
@@ -873,7 +924,7 @@ const SalarySheetDialog = ({
                               borderColor: 'divider',
                             }}
                           >
-                            Employer Contributions
+                            {t.salarySheet.columns.employerContributions}
                           </TableCell>
                         ) : (
                           <TableCell
@@ -915,7 +966,7 @@ const SalarySheetDialog = ({
                               fontWeight: 450,
                             }}
                           >
-                            {type?.label || 'Allowance'}
+                            {type?.label || t.salarySheet.labels.allowance}
                           </TableCell>
                         ))}
 
@@ -942,7 +993,7 @@ const SalarySheetDialog = ({
                               fontWeight: 450,
                             }}
                           >
-                            {type?.label || 'Deduction'}
+                            {type?.label || t.salarySheet.labels.deduction}
                           </TableCell>
                         ))}
 
@@ -977,7 +1028,7 @@ const SalarySheetDialog = ({
                               borderColor: 'divider',
                             }}
                           >
-                            {type?.label || 'Contribution'}
+                            {type?.label || t.salarySheet.labels.contribution}
                           </TableCell>
                         ))}
 
@@ -988,7 +1039,7 @@ const SalarySheetDialog = ({
                             borderColor: 'divider',
                           }}
                         >
-                          Total Empr. Cost
+                          {t.salarySheet.columns.totalEmployerCost}
                         </TableCell>
                       </TableRow>
                     </TableHead>
@@ -1023,8 +1074,12 @@ const SalarySheetDialog = ({
                                   borderColor: 'divider',
                                 }}
                               >
-                                {group.label} ({group.rows.length} employee
-                                {group.rows.length === 1 ? '' : 's'})
+                                {group.label} (
+                                {(group.rows.length === 1
+                                  ? t.salarySheet.labels.employeeCountOne
+                                  : t.salarySheet.labels.employeeCountMany
+                                ).replace('{count}', String(group.rows.length))}
+                                )
                               </TableCell>
                             </TableRow>
                           )}
@@ -1106,7 +1161,10 @@ const SalarySheetDialog = ({
                                 >
                                   {computed.proration ? (
                                     <Tooltip
-                                      title={`Prorated for ${computed.proration.active_days}/${computed.proration.total_days} days — full basic salary is ${fmt(computed.fullBasicSalary ?? computed.basicSalary)}`}
+                                      title={t.salarySheet.messages.proratedTooltip
+                                        .replace('{activeDays}', String(computed.proration.active_days))
+                                        .replace('{totalDays}', String(computed.proration.total_days))
+                                        .replace('{amount}', fmt(computed.fullBasicSalary ?? computed.basicSalary))}
                                     >
                                       <span>{fmt(computed.basicSalary)} *</span>
                                     </Tooltip>
@@ -1318,7 +1376,7 @@ const SalarySheetDialog = ({
                                       borderColor: 'divider',
                                     }}
                                   >
-                                    Subtotal — {group.label}
+                                    {t.salarySheet.labels.subtotal} — {group.label}
                                   </TableCell>
                                   <TableCell
                                     align='right'
@@ -1477,7 +1535,7 @@ const SalarySheetDialog = ({
                             borderColor: 'divider',
                           }}
                         >
-                          TOTALS
+                          {t.salarySheet.columns.totals}
                         </TableCell>
                         <TableCell
                           align='right'
@@ -1637,9 +1695,7 @@ const SalarySheetDialog = ({
                   display='block'
                   mt={1}
                 >
-                  * Basic Salary prorated — the employee&apos;s contract didn&apos;t
-                  cover the full payroll month. Hover a marked figure for the
-                  full configured amount.
+                  {t.salarySheet.messages.proratedNote}
                 </Typography>
               )}
             </DialogContent>
@@ -1671,6 +1727,7 @@ const SalarySheetDialog = ({
                     selectedPeriod={selectedPeriod}
                     userName={userName}
                     allDetailed={allDetailed}
+                    dictionary={dictionary}
                   />
                 }
                 fileName={`Salary-Sheet-${periodLabel}`}
@@ -1679,7 +1736,7 @@ const SalarySheetDialog = ({
           </>
         )}
         <DialogActions>
-          {!smallScreen && <Button onClick={onClose}>Close</Button>}
+          {!smallScreen && <Button onClick={onClose}>{t.common.close}</Button>}
         </DialogActions>
       </Dialog>
     </>

@@ -11,8 +11,10 @@ import {
 } from '@mui/material';
 import { useState } from 'react';
 import OvertimeTypeForm from './OvertimeTypeForm';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const OvertimeTypeActionTail = () => {
+  const dictionary = useDictionary();
   const [openDialog, setOpenDialog] = useState(false);
 
   const { theme } = useJumboTheme();
@@ -29,7 +31,7 @@ const OvertimeTypeActionTail = () => {
         disableElevation
         sx={{ '& .MuiButton-root': { px: 1 } }}
       >
-        <Tooltip title='Add Overtime Type'>
+        <Tooltip title={dictionary.tooltips.addOvertimeType}>
           <IconButton onClick={() => setOpenDialog(true)}>
             <AddOutlined />
           </IconButton>

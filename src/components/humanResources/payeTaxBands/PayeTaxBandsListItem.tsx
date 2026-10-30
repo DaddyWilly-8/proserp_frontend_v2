@@ -3,6 +3,7 @@
 import { Chip, Divider, Grid, Stack, Tooltip, Typography } from '@mui/material';
 import { PayeTaxBandType } from './PayeTaxBandType';
 import PayeTaxBandItemAction from './PayeTaxBandItemAction';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const formatMoney = (value?: number | null) =>
   Number(value || 0).toLocaleString('en-US', {
@@ -25,14 +26,14 @@ const getBandStatus = (effectiveFrom?: string, effectiveTo?: string | null) => {
   const toDate = effectiveTo ? new Date(effectiveTo) : null;
 
   if (fromDate && fromDate > now) {
-    return { label: 'Upcoming', color: 'info' as const };
+    return { key: 'upcoming' as const, color: 'info' as const };
   }
 
   if (toDate && toDate < now) {
-    return { label: 'Expired', color: 'default' as const };
+    return { key: 'expired' as const, color: 'default' as const };
   }
 
-  return { label: 'Active', color: 'success' as const };
+  return { key: 'active' as const, color: 'success' as const };
 };
 
 const PayeTaxBandsListItem = ({
@@ -40,6 +41,7 @@ const PayeTaxBandsListItem = ({
 }: {
   payeTaxBand: PayeTaxBandType;
 }) => {
+  const dictionary = useDictionary();
   const status = getBandStatus(
     payeTaxBand.effective_from,
     payeTaxBand.effective_to
@@ -65,24 +67,24 @@ const PayeTaxBandsListItem = ({
         container
       >
         <Grid size={{ xs: 12, md: 4 }}>
-          <Tooltip title='Income Band'>
+          <Tooltip title={dictionary.tooltips.incomeBand}>
             <Stack spacing={0.25}>
               <Typography variant='h6' fontSize={14} lineHeight={1.25}>
                 {formatMoney(payeTaxBand.min_income)}
                 {' - '}
                 {payeTaxBand.max_income != null
                   ? formatMoney(payeTaxBand.max_income)
-                  : 'Open-ended'}
+                  : dictionary.humanResources.payeTaxBands.list.openEnded}
               </Typography>
               <Typography variant='caption' color='text.secondary'>
-                Min to max taxable income
+                {dictionary.humanResources.payeTaxBands.list.minToMax}
               </Typography>
             </Stack>
           </Tooltip>
         </Grid>
 
         <Grid size={{ xs: 6, md: 1.4 }}>
-          <Tooltip title='Rate'>
+          <Tooltip title={dictionary.tooltips.rate}>
             <Chip
               label={`${payeTaxBand.rate}%`}
               size='small'
@@ -93,35 +95,38 @@ const PayeTaxBandsListItem = ({
         </Grid>
 
         <Grid size={{ xs: 6, md: 1.7 }}>
-          <Tooltip title='Fixed Tax'>
+          <Tooltip title={dictionary.tooltips.fixedTax}>
             <Stack spacing={0.25}>
               <Typography>{formatMoney(payeTaxBand.fixed_tax)}</Typography>
               <Typography variant='caption' color='text.secondary'>
-                Fixed tax
+                {dictionary.humanResources.payeTaxBands.list.fixedTax}
               </Typography>
             </Stack>
           </Tooltip>
         </Grid>
 
         <Grid size={{ xs: 6, md: 1.7 }}>
-          <Tooltip title='Excess Over'>
+          <Tooltip title={dictionary.tooltips.excessOver}>
             <Stack spacing={0.25}>
               <Typography>{formatMoney(payeTaxBand.excess_over)}</Typography>
               <Typography variant='caption' color='text.secondary'>
-                Excess over
+                {dictionary.humanResources.payeTaxBands.list.excessOver}
               </Typography>
             </Stack>
           </Tooltip>
         </Grid>
 
         <Grid size={{ xs: 12, md: 1.8 }}>
-          <Tooltip title='Effective Dates'>
+          <Tooltip title={dictionary.tooltips.effectiveDates}>
             <Stack spacing={0.25}>
               <Typography variant='body2'>
                 {formatDate(payeTaxBand.effective_from)}
               </Typography>
               <Typography variant='caption' color='text.secondary'>
-                to {formatDate(payeTaxBand.effective_to)}
+                {dictionary.humanResources.payeTaxBands.list.to.replace(
+                  '{date}',
+                  formatDate(payeTaxBand.effective_to)
+                )}
               </Typography>
             </Stack>
           </Tooltip>
@@ -129,7 +134,7 @@ const PayeTaxBandsListItem = ({
 
         <Grid size={{ xs: 8, md: 0.9 }}>
           <Chip
-            label={status.label}
+            label={dictionary.humanResources.payeTaxBands.list.status[status.key]}
             size='small'
             color={status.color}
             variant='outlined'

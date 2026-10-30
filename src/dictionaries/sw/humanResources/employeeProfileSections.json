@@ -1,0 +1,457 @@
+{
+  "profileSectionsCommon": {
+    "cancel": "Ghairi",
+    "submit": "Wasilisha",
+    "somethingWentWrong": "Kuna hitilafu imetokea",
+    "edit": "Hariri",
+    "delete": "Futa",
+    "confirmDelete": "Thibitisha Kufuta"
+  },
+  "nextOfKins": {
+    "list": {
+      "primary": "Mkuu",
+      "secondary": "Wa Ziada"
+    },
+    "messages": {
+      "added": "Ndugu wa Karibu Ameongezwa Kikamilifu",
+      "updated": "Ndugu wa Karibu Amesasishwa Kikamilifu",
+      "deleted": "Ndugu wa Karibu Amefutwa Kikamilifu",
+      "deleteConfirm": "Una uhakika unataka kumfuta Ndugu huyu wa Karibu?"
+    },
+    "form": {
+      "addTitle": "Ongeza Ndugu wa Karibu wa Mfanyakazi",
+      "editTitle": "Hariri Ndugu wa Karibu wa Mfanyakazi",
+      "labels": {
+        "name": "Jina",
+        "relationship": "Uhusiano",
+        "phone": "Simu",
+        "email": "Barua pepe",
+        "address": "Anwani",
+        "setPrimary": "Weka kama Mwasiliani Mkuu"
+      },
+      "validation": {
+        "employeeRequired": "Mfanyakazi anahitajika",
+        "nameRequired": "Jina linahitajika",
+        "nameMax": "Jina haliwezi kuzidi herufi 200",
+        "relationshipRequired": "Uhusiano unahitajika",
+        "relationshipMax": "Uhusiano hauwezi kuzidi herufi 50",
+        "phoneMax": "Simu haiwezi kuzidi herufi 20",
+        "emailInvalid": "Barua pepe si sahihi",
+        "emailMax": "Barua pepe haiwezi kuzidi herufi 150",
+        "addressMax": "Anwani haiwezi kuzidi herufi 500"
+      }
+    }
+  },
+  "leaveAllocations": {
+    "list": {
+      "leaveType": "Aina ya Likizo",
+      "period": "Kipindi",
+      "allocated": "Zilizotengwa",
+      "used": "Zilizotumika",
+      "remaining": "Zilizobaki",
+      "typeFallback": "Aina #{id}",
+      "carryForwardNote": "Inajumuisha siku {days} zilizohamishwa kutoka kipindi kilichopita",
+      "carryForwardUntil": ", zinaweza kutumika hadi {date}"
+    },
+    "messages": {
+      "added": "Mgao wa Likizo Umeongezwa Kikamilifu",
+      "updated": "Mgao wa Likizo Umesasishwa Kikamilifu",
+      "deleted": "Mgao wa Likizo Umefutwa Kikamilifu",
+      "deleteConfirm": "Una uhakika unataka kufuta Mgao huu wa Likizo?"
+    },
+    "form": {
+      "addTitle": "Ongeza Mgao wa Likizo",
+      "editTitle": "Hariri Mgao wa Likizo",
+      "labels": {
+        "leaveType": "Aina ya Likizo",
+        "startDate": "Tarehe ya Kuanza",
+        "allocatedDays": "Siku Zilizotengwa"
+      },
+      "helper": {
+        "cannotChange": "Haiwezi kubadilishwa baada ya kuundwa",
+        "startDate": "Mwanzo wa mzunguko — mwisho wake hukokotolewa kutokana na urefu wa mzunguko wa aina ya likizo"
+      },
+      "validation": {
+        "leaveTypeRequired": "Aina ya likizo inahitajika",
+        "startDateRequired": "Tarehe ya kuanza inahitajika",
+        "allocatedDaysNumber": "Siku zilizotengwa lazima iwe namba",
+        "allocatedDaysRequired": "Siku zilizotengwa zinahitajika",
+        "allocatedDaysMin": "Siku zilizotengwa lazima ziwe angalau 0.5"
+      }
+    }
+  },
+  "employeesContracts": {
+    "contractTypes": {
+      "permanent": "Ya Kudumu",
+      "fixed_term": "Ya Muda Maalum",
+      "specific_task": "Ya Kazi Maalum",
+      "probation": "Ya Majaribio"
+    },
+    "payBasis": {
+      "monthly": "Kila Mwezi",
+      "daily": "Kila Siku",
+      "hourly": "Kila Saa"
+    },
+    "status": {
+      "active": "hai",
+      "terminated": "imesitishwa",
+      "expired": "imeisha muda"
+    },
+    "actions": {
+      "terminate": "Sitisha"
+    },
+    "messages": {
+      "added": "Mkataba wa Mfanyakazi Umeongezwa Kikamilifu",
+      "updated": "Mkataba wa Mfanyakazi Umesasishwa Kikamilifu",
+      "deleted": "Mkataba wa Mfanyakazi Umefutwa Kikamilifu",
+      "deleteConfirm": "Una uhakika unataka kufuta Mkataba huu?",
+      "terminated": "Mkataba wa Mfanyakazi Umesitishwa Kikamilifu",
+      "terminateError": "Hitilafu Imetokea Wakati wa Kusitisha Mkataba wa Mfanyakazi",
+      "cannotEditTerminated": "Mkataba huu umesitishwa na hauwezi kuhaririwa."
+    },
+    "terminate": {
+      "title": "Sitisha Mkataba",
+      "intro": "Unakaribia kusitisha mkataba wa",
+      "introSuffix": ". Tafadhali toa maelezo ya kusitisha hapa chini.",
+      "terminationDate": "Tarehe ya Kusitisha",
+      "remarks": "Maoni",
+      "button": "Sitisha Mkataba",
+      "remarksMax": "Maoni hayapaswi kuzidi herufi 1000"
+    },
+    "form": {
+      "addTitle": "Ongeza Mkataba",
+      "editTitle": "Hariri Mkataba",
+      "labels": {
+        "designation": "Cheo",
+        "contractType": "Aina ya Mkataba",
+        "dailyRate": "Kiwango cha Kila Siku",
+        "hourlyRate": "Kiwango cha Kila Saa",
+        "basicSalary": "Mshahara wa Msingi",
+        "payBasis": "Msingi wa Malipo",
+        "standardHoursMonth": "Saa za Kawaida kwa Mwezi",
+        "payeExempt": "Amesamehewa PAYE",
+        "standardHoursDay": "Saa za Kawaida kwa Siku",
+        "overtimeMultiplier": "Kigezo cha Saa za Ziada",
+        "holidayWorkMultiplier": "Kigezo cha Kazi ya Sikukuu",
+        "startDate": "Tarehe ya Kuanza",
+        "endDate": "Tarehe ya Kuisha",
+        "probationEndDate": "Tarehe ya Kuisha kwa Majaribio",
+        "remarks": "Maoni"
+      },
+      "helper": {
+        "orgDefault": "Acha wazi kutumia chaguo-msingi la shirika"
+      },
+      "validation": {
+        "employeeRequired": "Mfanyakazi anahitajika",
+        "designationRequired": "Cheo kinahitajika",
+        "contractTypeRequired": "Aina ya mkataba inahitajika",
+        "startDateRequired": "Tarehe ya kuanza inahitajika",
+        "endDateRequired": "Tarehe ya kuisha inahitajika",
+        "endAfterStart": "Tarehe ya kuisha lazima iwe baada ya tarehe ya kuanza",
+        "probationAfterStart": "Tarehe ya kuisha kwa majaribio lazima iwe baada ya tarehe ya kuanza",
+        "basicSalaryRequired": "Mshahara wa msingi unahitajika",
+        "basicSalaryMin": "Mshahara wa msingi hauwezi kuwa chini ya 0",
+        "number": "Thamani hii inapaswa kuwa namba",
+        "remarksMax": "Maoni hayapaswi kuzidi herufi 1000"
+      }
+    }
+  },
+  "employeeBankAccounts": {
+    "list": {
+      "code": "Msimbo: {code}",
+      "primary": "Mkuu",
+      "secondary": "Wa Ziada"
+    },
+    "messages": {
+      "added": "Akaunti ya Benki Imeongezwa Kikamilifu",
+      "updated": "Akaunti ya Benki Imesasishwa Kikamilifu",
+      "deleted": "Akaunti ya Benki Imefutwa Kikamilifu",
+      "deleteConfirm": "Una uhakika unataka kufuta Akaunti hii ya Benki?"
+    },
+    "form": {
+      "addTitle": "Ongeza Akaunti ya Benki",
+      "editTitle": "Hariri Akaunti ya Benki",
+      "labels": {
+        "bank": "Benki",
+        "branch": "Tawi",
+        "bankCode": "Msimbo wa Benki",
+        "accountNumber": "Namba ya Akaunti",
+        "accountName": "Jina la Akaunti",
+        "setPrimary": "Weka kama Akaunti Kuu"
+      },
+      "helper": {
+        "bankCode": "Si lazima — inahitajika tu ikiwa benki yako inahitaji msimbo wa tawi/uelekezaji kwa uhamisho"
+      },
+      "validation": {
+        "bankRequired": "Benki inahitajika",
+        "branchMax": "Tawi haliwezi kuzidi herufi 100",
+        "bankCodeMax": "Msimbo wa benki hauwezi kuzidi herufi 50",
+        "accountNumberRequired": "Namba ya akaunti inahitajika",
+        "accountNumberMax": "Namba ya akaunti haiwezi kuzidi herufi 50",
+        "accountNameRequired": "Jina la akaunti linahitajika",
+        "accountNameMax": "Jina la akaunti haliwezi kuzidi herufi 200"
+      }
+    }
+  },
+  "leaveRequests": {
+    "dayCountOne": "siku {n}",
+    "dayCountMany": "siku {n}",
+    "status": {
+      "in_review": "Inakaguliwa",
+      "approved": "Imeidhinishwa",
+      "rejected": "Imekataliwa",
+      "cancelled": "Imeghairiwa",
+      "pending": "Inasubiri",
+      "on hold": "Imesimamishwa"
+    },
+    "messages": {
+      "added": "Ombi la Likizo Limeongezwa Kikamilifu",
+      "updated": "Ombi la Likizo Limesasishwa Kikamilifu",
+      "deleted": "Ombi la Likizo Limefutwa Kikamilifu",
+      "cancelled": "Ombi la Likizo Limeghairiwa Kikamilifu",
+      "deleteConfirm": "Una uhakika unataka kufuta Ombi hili la Likizo?",
+      "confirmCancelTitle": "Thibitisha Kughairi",
+      "cancelConfirm": "Una uhakika unataka kughairi Ombi hili la Likizo?",
+      "approved": "Ombi la likizo limeidhinishwa",
+      "rejected": "Ombi la likizo limekataliwa",
+      "approvalRecorded": "Idhini ya likizo imerekodiwa",
+      "approvalUpdated": "Idhini ya likizo imesasishwa",
+      "approvalNotFound": "Idhini haikupatikana",
+      "pendingLevelNotFound": "Ngazi ya idhini inayosubiri haikupatikana",
+      "approvalDeleteTitle": "Thibitisha Kufuta?",
+      "approvalDeleteContent": "Ukibofya ndiyo, Idhini hii itafutwa"
+    },
+    "list": {
+      "typeFallback": "Aina #{id}",
+      "close": "Funga",
+      "approvalHistory": "Historia ya Idhini",
+      "noApprovals": "Hakuna Idhini Zilizopatikana",
+      "applicationTitle": "Ombi la Likizo"
+    },
+    "decision": {
+      "title": "Idhini ya Likizo",
+      "editTitle": "Hariri Idhini ya Likizo",
+      "daysApproved": "Siku Zilizoidhinishwa",
+      "approvalDateTime": "Tarehe na Saa ya Idhini",
+      "rejectionDateTime": "Tarehe na Saa ya Kukataa",
+      "remarks": "Maoni",
+      "cancel": "Ghairi",
+      "approve": "Idhinisha",
+      "reject": "Kataa",
+      "remarksRequired": "Maoni yanahitajika",
+      "daysRequired": "Siku zilizoidhinishwa zinahitajika"
+    },
+    "approvalDialog": {
+      "approvedStartDate": "Tarehe ya Kuanza Iliyoidhinishwa",
+      "approvedEndDate": "Tarehe ya Kuisha Iliyoidhinishwa",
+      "datesRequired": "Tarehe ya kuanza na ya kuisha zinahitajika",
+      "endBeforeStart": "Tarehe ya kuisha haiwezi kuwa kabla ya tarehe ya kuanza",
+      "noDaysGranted": "Tarehe zilizochaguliwa hazitoi siku zozote za likizo",
+      "exceedsMax": "Siku zilizoidhinishwa haziwezi kuzidi {max}",
+      "balance": "Salio la {period}: {remaining} zimebaki (zimetumika {used} kati ya {allocated} zilizotengwa), kabla ya ombi hili.",
+      "carryIncludes": "Inajumuisha {days} zilizohamishwa kutoka kipindi kilichopita",
+      "carryUntil": ", zinaweza kutumika hadi {date}",
+      "noAllocation": "Hakuna mgao wa likizo uliopatikana unaojumuisha {date} — hakuna cha kutoa.",
+      "exceedsBalance": "Kuidhinisha {days} kunazidi salio lililobaki la mwombaji la {remaining}.",
+      "daysHint": "{days} — kiwango cha juu {max}"
+    },
+    "form": {
+      "addTitle": "Ongeza Ombi la Likizo",
+      "editTitle": "Hariri Ombi la Likizo",
+      "labels": {
+        "leaveType": "Aina ya Likizo",
+        "daysRequested": "Siku Zilizoombwa",
+        "startDate": "Tarehe ya Kuanza",
+        "endDate": "Tarehe ya Kuisha",
+        "reason": "Sababu"
+      },
+      "hint": {
+        "saturdays": "Jumamosi",
+        "sundays": "Jumapili",
+        "and": " na ",
+        "excluded": " ({excluded} hazijajumuishwa)",
+        "summary": "{days}{excluded} kati ya tarehe zilizochaguliwa{match}",
+        "differs": " — inatofautiana na siku zilizoombwa",
+        "matches": " — inalingana na siku zilizoombwa"
+      },
+      "validation": {
+        "employeeRequired": "Mfanyakazi anahitajika",
+        "leaveTypeRequired": "Aina ya likizo inahitajika",
+        "startDateRequired": "Tarehe ya kuanza inahitajika",
+        "endDateRequired": "Tarehe ya kuisha inahitajika",
+        "daysNumber": "Siku zilizoombwa lazima iwe namba",
+        "daysRequired": "Siku zilizoombwa zinahitajika",
+        "daysMin": "Siku zilizoombwa lazima ziwe angalau 0.5",
+        "reasonMax": "Sababu haiwezi kuzidi herufi 1000"
+      }
+    },
+    "preview": {
+      "employeeFallback": "Mfanyakazi #{id}",
+      "startDate": "Tarehe ya Kuanza",
+      "endDate": "Tarehe ya Kuisha",
+      "days": "Siku",
+      "daysGranted": "siku {granted} / {requested}",
+      "approvalStages": "Hatua za Idhini",
+      "decidedDirectly": "Imeamuliwa moja kwa moja tarehe {date}",
+      "noChain": "Hakuna mnyororo wa idhini uliosanidiwa kwa ombi hili — linasubiri uamuzi wa moja kwa moja.",
+      "approved": "Imeidhinishwa",
+      "rejected": "Imekataliwa",
+      "putOnHold": "Imesimamishwa",
+      "decisionRecorded": "Uamuzi umerekodiwa",
+      "actionBy": "{action} na {name}",
+      "unknownReviewer": "Mkaguzi asiyejulikana",
+      "approvedDays": "Zimeidhinishwa siku {n}",
+      "waitingFor": "Inasubiri {role}",
+      "nextReviewer": "mkaguzi anayefuata",
+      "pending": "Inasubiri",
+      "notReached": "Bado haijafikiwa"
+    },
+    "pdf": {
+      "title": "Fomu ya Ombi la Likizo",
+      "applicationTitle": "Ombi la Likizo",
+      "employee": "Mfanyakazi",
+      "leaveType": "Aina ya Likizo",
+      "status": "Hali",
+      "printedOn": "Imechapishwa Tarehe",
+      "startDate": "Tarehe ya Kuanza",
+      "endDate": "Tarehe ya Kuisha",
+      "daysRequested": "Siku Zilizoombwa",
+      "daysGranted": "Siku Zilizotolewa",
+      "reason": "Sababu",
+      "allocated": "Zilizotengwa",
+      "used": "Zilizotumika",
+      "carriedForward": "Zilizohamishwa",
+      "remaining": "Zilizobaki",
+      "approvalHistory": "Historia ya Idhini",
+      "noApprovalAction": "Hakuna hatua ya idhini iliyorekodiwa bado.",
+      "date": "Tarehe",
+      "by": "Na",
+      "remarks": "Maoni",
+      "employeeSignature": "Sahihi ya Mfanyakazi",
+      "dateLine": "Tarehe: ______________",
+      "approverSignature": "Sahihi ya Mwidhinishaji",
+      "signature": "Sahihi ya {role}",
+      "approver": "Mwidhinishaji"
+    }
+  },
+  "employeeAllowances": {
+    "list": {
+      "typeFallback": "Aina #{id}",
+      "openEnded": "Haina tarehe ya mwisho"
+    },
+    "messages": {
+      "added": "Posho ya Mfanyakazi Imeongezwa Kikamilifu",
+      "updated": "Posho ya Mfanyakazi Imesasishwa Kikamilifu",
+      "deleted": "Posho ya Mfanyakazi Imefutwa Kikamilifu",
+      "deleteConfirm": "Una uhakika unataka kufuta Posho hii ya Mfanyakazi?"
+    },
+    "form": {
+      "addTitle": "Ongeza Posho",
+      "editTitle": "Hariri Posho",
+      "labels": {
+        "allowanceType": "Aina ya Posho",
+        "amount": "Kiasi",
+        "effectiveFrom": "Inaanza Kutumika",
+        "effectiveTo": "Inaisha Kutumika"
+      },
+      "validation": {
+        "allowanceTypeRequired": "Aina ya posho inahitajika",
+        "amountNumber": "Kiasi lazima kiwe namba",
+        "amountRequired": "Kiasi kinahitajika",
+        "amountMin": "Kiasi lazima kiwe 0 au zaidi",
+        "effectiveFromRequired": "Tarehe ya kuanza kutumika inahitajika"
+      }
+    }
+  },
+  "employeeDeductions": {
+    "list": {
+      "typeFallback": "Aina #{id}",
+      "openEnded": "Haina tarehe ya mwisho",
+      "memberNo": "Na: {no}"
+    },
+    "messages": {
+      "added": "Makato ya Mfanyakazi Yameongezwa Kikamilifu",
+      "updated": "Makato ya Mfanyakazi Yamesasishwa Kikamilifu",
+      "deleted": "Makato ya Mfanyakazi Yamefutwa Kikamilifu",
+      "deleteConfirm": "Una uhakika unataka kufuta Makato haya ya Mfanyakazi?",
+      "addFailed": "Imeshindwa kuongeza makato",
+      "updateFailed": "Imeshindwa kusasisha makato"
+    },
+    "form": {
+      "addTitle": "Ongeza Makato ya Mfanyakazi",
+      "editTitle": "Hariri Makato ya Mfanyakazi",
+      "labels": {
+        "deductionType": "Aina ya Makato",
+        "memberNo": "Namba ya Mwanachama",
+        "value": "Thamani",
+        "effectiveFrom": "Inaanza Kutumika",
+        "effectiveTo": "Inaisha Kutumika"
+      },
+      "placeholders": {
+        "memberNo": "mf. Namba ya NSSF, Namba ya WCF"
+      },
+      "validation": {
+        "deductionTypeRequired": "Aina ya makato inahitajika",
+        "valueNumber": "Thamani lazima iwe namba",
+        "valueRequired": "Thamani inahitajika",
+        "valueMin": "Thamani lazima iwe 0 au zaidi",
+        "effectiveFromRequired": "Tarehe ya kuanza kutumika inahitajika"
+      }
+    }
+  },
+  "employeeEmployerContributions": {
+    "list": {
+      "typeFallback": "Aina #{id}",
+      "openEnded": "Haina tarehe ya mwisho",
+      "memberNo": "Na: {no}"
+    },
+    "messages": {
+      "added": "Mchango wa Mwajiri kwa Mfanyakazi Umeongezwa Kikamilifu",
+      "updated": "Mchango wa Mwajiri kwa Mfanyakazi Umesasishwa Kikamilifu",
+      "deleted": "Mchango wa Mwajiri kwa Mfanyakazi Umefutwa Kikamilifu",
+      "deleteConfirm": "Una uhakika unataka kufuta Mchango huu wa Mwajiri kwa Mfanyakazi?"
+    },
+    "form": {
+      "addTitle": "Ongeza Mchango wa Mwajiri kwa Mfanyakazi",
+      "editTitle": "Hariri Mchango wa Mwajiri kwa Mfanyakazi",
+      "labels": {
+        "contributionType": "Aina ya Mchango",
+        "memberNo": "Namba ya Mwanachama",
+        "value": "Thamani",
+        "effectiveFrom": "Inaanza Kutumika",
+        "effectiveTo": "Inaisha Kutumika"
+      },
+      "placeholders": {
+        "memberNo": "mf. Namba ya NSSF, Namba ya WCF"
+      },
+      "validation": {
+        "employeeRequired": "Mfanyakazi anahitajika",
+        "contributionTypeRequired": "Aina ya mchango inahitajika",
+        "valueNumber": "Thamani lazima iwe namba",
+        "valueRequired": "Thamani inahitajika",
+        "valueMin": "Thamani lazima iwe 0 au zaidi",
+        "effectiveFromRequired": "Tarehe ya kuanza kutumika inahitajika"
+      }
+    }
+  },
+  "auditTrail": {
+    "headers": {
+      "date": "Tarehe",
+      "from": "Kutoka",
+      "to": "Kwenda",
+      "reason": "Sababu"
+    },
+    "movementTypes": {
+      "all": "Mabadiliko Yote",
+      "cost_center": "Mabadiliko ya Kituo cha Gharama",
+      "department": "Mabadiliko ya Idara",
+      "manager": "Mabadiliko ya Meneja"
+    },
+    "movementType": "Aina ya Mabadiliko",
+    "kinds": {
+      "costCenter": "Kituo cha Gharama",
+      "manager": "Meneja",
+      "department": "Idara"
+    }
+  }
+}

@@ -24,8 +24,10 @@ import { EmployeesProvider } from './EmployeesProvider';
 import EmployeesListItem from './EmployeesListItem';
 import { Employee } from './EmployeesType';
 import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const Employees = () => {
+  const dictionary = useDictionary();
   const listRef = useRef<any>(null);
   const params = useParams<{ id?: string; keyword?: string }>();
   const searchParams = useSearchParams();
@@ -132,7 +134,7 @@ const Employees = () => {
           <DepartmentsProvider>
             <EmployeesProvider>
             <Typography variant={'h4'} mb={2}>
-              Employees
+              {dictionary.humanResources.employees.list.title}
             </Typography>
             <JumboRqList
               ref={listRef}
@@ -159,7 +161,7 @@ const Employees = () => {
                           select
                           fullWidth
                           size='small'
-                          label='Status'
+                          label={dictionary.humanResources.employees.list.labels.status}
                           value={status}
                           onChange={(e) =>
                             setStatus(
@@ -167,9 +169,9 @@ const Employees = () => {
                             )
                           }
                         >
-                          <MenuItem value='active'>Active</MenuItem>
-                          <MenuItem value='inactive'>Deactivated</MenuItem>
-                          <MenuItem value='all'>All</MenuItem>
+                          <MenuItem value='active'>{dictionary.humanResources.employees.list.status.active}</MenuItem>
+                          <MenuItem value='inactive'>{dictionary.humanResources.employees.list.status.inactive}</MenuItem>
+                          <MenuItem value='all'>{dictionary.humanResources.employees.list.status.all}</MenuItem>
                         </TextField>
                       </Grid>
                       <Grid size={{ xs: 12, md: 3 }} textAlign={'center'}>
@@ -204,7 +206,7 @@ const Employees = () => {
                       </Grid>
                       <Grid size={{ xs: 12, md: 3 }}>
                         <CostCenterSelector
-                          label='Cost Centers'
+                          label={dictionary.humanResources.employees.list.labels.costCenters}
                           allowSameType={true}
                           multiple
                           defaultValue={selectedCostCenter}

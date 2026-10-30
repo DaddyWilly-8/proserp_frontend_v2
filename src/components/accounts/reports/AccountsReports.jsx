@@ -14,6 +14,7 @@ import {
   BalanceOutlined,
   DeckOutlined,
   Money,
+  FactCheckOutlined,
   QueryStatsOutlined,
   ReceiptLongOutlined,
   ViewTimelineOutlined,
@@ -33,12 +34,15 @@ import BalanceSheet from './balance sheet/BalanceSheet';
 import CashierReport from './cashierReport/CashierReport';
 import DebtorCreditorReport from './debtorCreditor/DebtorCreditorReport';
 import ApArAgingReport from './agingReport/ApArAgingReport';
+import ReconciliationStatementReport from './reconciliationStatement/ReconciliationStatementReport';
 import IncomeStatement from './incomeStatement/IncomeStatement';
 import TrialBalance from './trial balance/TrialBalance';
 import XReport from './zReport/ZReport';
 import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function AccountsReports() {
+  const dictionary = useDictionary();
   const searchParams = useSearchParams();
   const css = useProsERPStyles();
   const [openDialog, setOpenDialog] = useState(false);
@@ -87,6 +91,9 @@ function AccountsReports() {
     } else if (reportParam === 'ap-ar-aging') {
       setReport(<ApArAgingReport setOpenDialog={setOpenDialog} />);
       setOpenDialog(true);
+    } else if (reportParam === 'reconciliation-statement') {
+      setReport(<ReconciliationStatementReport setOpenDialog={setOpenDialog} />);
+      setOpenDialog(true);
     } else if (reportParam === 'z-report') {
       setReport(<XReport />);
       setOpenReceiptDialog(true);
@@ -103,19 +110,18 @@ function AccountsReports() {
   if (!checkOrganizationPermission(PERMISSIONS.ACCOUNTS_REPORTS)) {
     return <UnauthorizedAccess />;
   }
+  const wideReport = openBalanceSheet || openTrialBalance || openDialog;
   return (
     <React.Fragment>
       <LedgerSelectProvider>
         <Dialog
           scroll={belowLargeScreen ? 'body' : 'paper'}
           fullWidth
+          // Balance Sheet, Trial Balance and Debtors/Creditors share one wide
+          // size (Opening/Current/Closing x Debit/Credit/Net needs the room);
+          // below the large breakpoint they go full screen instead.
           maxWidth={
-            openCashierReport ||
-            openIncomeStatement ||
-            openDialog ||
-            openTrialBalance
-              ? 'lg'
-              : 'md'
+            wideReport ? 'xl' : openCashierReport || openIncomeStatement ? 'lg' : 'md'
           }
           fullScreen={
             (openBalanceSheet ||
@@ -151,14 +157,14 @@ function AccountsReports() {
                     setOpenIncomeStatement(false);
                   }}
                 >
-                  Close
+                  {dictionary.reports.accountsReports.common.close}
                 </Button>
               )}
             </DialogActions>
           }
         </Dialog>
         <Typography variant={'h4'} mb={2}>
-          Financial Reports
+          {dictionary.reports.accountsReports.main.financialReports}
         </Typography>
         <JumboCardQuick sx={{ height: '100%' }}>
           <Grid container textAlign={'center'} columnSpacing={2} rowSpacing={2}>
@@ -184,7 +190,9 @@ function AccountsReports() {
                 icon={faMoneyBill1}
                 style={{ fontSize: '48px' }}
               />
-              <Typography>Cashier Report</Typography>
+              <Typography>
+                {dictionary.reports.accountsReports.cashierReport.title}
+              </Typography>
             </Grid>
             <Grid
               sx={{
@@ -206,7 +214,9 @@ function AccountsReports() {
               }}
             >
               <ViewTimelineOutlined sx={{ fontSize: '40px' }} />
-              <Typography>Income Statement</Typography>
+              <Typography>
+                {dictionary.reports.accountsReports.incomeStatement.title}
+              </Typography>
             </Grid>
             <Grid
               sx={{
@@ -228,7 +238,9 @@ function AccountsReports() {
               }}
             >
               <DeckOutlined sx={{ fontSize: '40px' }} />
-              <Typography>Trial Balance</Typography>
+              <Typography>
+                {dictionary.reports.accountsReports.trialBalance.title}
+              </Typography>
             </Grid>
             <Grid
               sx={{
@@ -250,7 +262,9 @@ function AccountsReports() {
               }}
             >
               <BalanceOutlined sx={{ fontSize: '40px' }} />
-              <Typography>Balance Sheet</Typography>
+              <Typography>
+                {dictionary.reports.accountsReports.balanceSheet.title}
+              </Typography>
             </Grid>
             {authOrganization?.organization?.tra_serial_number && (
               <React.Fragment>
@@ -270,7 +284,9 @@ function AccountsReports() {
                   }}
                 >
                   <ReceiptLongOutlined sx={{ fontSize: '40px' }} />
-                  <Typography>Z Report</Typography>
+                  <Typography>
+                    {dictionary.reports.accountsReports.zReport.title}
+                  </Typography>
                 </Grid>
               </React.Fragment>
             )}
@@ -294,7 +310,9 @@ function AccountsReports() {
               }}
             >
               <Money sx={{ fontSize: '40px' }} />
-              <Typography>Debtors & Creditors</Typography>
+              <Typography>
+                {dictionary.reports.accountsReports.debtorCreditor.title}
+              </Typography>
             </Grid>
             <Grid
               sx={{
@@ -312,8 +330,32 @@ function AccountsReports() {
               }}
             >
               <QueryStatsOutlined sx={{ fontSize: '40px' }} />
-              <Typography>A/P &amp; A/R Aging</Typography>
+              <Typography>
+                {dictionary.reports.accountsReports.agingReport.title}
+              </Typography>
             </Grid>
+            {checkOrganizationPermission(PERMISSIONS.BANK_RECONCILIATION_READ) && (
+              <Grid
+                sx={{
+                  cursor: 'pointer',
+                  '&:hover': {
+                    bgcolor: 'action.hover',
+                  },
+                }}
+                size={{ xs: 6, md: 3, lg: 2 }}
+                p={1}
+                textAlign={'center'}
+                onClick={() => {
+                  setReport(
+                    <ReconciliationStatementReport setOpenDialog={setOpenDialog} />
+                  );
+                  setOpenDialog(true);
+                }}
+              >
+                <FactCheckOutlined sx={{ fontSize: '40px' }} />
+                <Typography>Reconciliation Statement</Typography>
+              </Grid>
+            )}
           </Grid>
         </JumboCardQuick>
       </LedgerSelectProvider>

@@ -17,6 +17,7 @@ import StoreSelector from '@/components/procurement/stores/StoreSelector';
 import { sanitizedNumber } from '@/app/helpers/input-sanitization-helpers';
 import { unitAllowsFractional, wholeUnitQuantityTest } from '@/app/helpers/measurement-unit-helpers';
 import CommaSeparatedField from '@/shared/Inputs/CommaSeparatedField';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function SaleItemForm({
     setClearFormKey,
@@ -35,6 +36,7 @@ function SaleItemForm({
     getLastPriceItems,
     checkedForSuggestPrice
 }) {
+    const dictionary = useDictionary();
     const {outlet} = useCounter();//From counter provider
     const { stores, cost_center } = outlet; //Destructure outlet to get needed content
     const [storeBalances, setStoreBalances] = useState(null);
@@ -61,21 +63,21 @@ function SaleItemForm({
     const [quantityFieldKey, setQuantityFieldKey] = useState(0);
 
     const baseSchema = {
-        product: yup.object().required("Product is required").typeError('Product is required'),
-        rate: yup.number().required("Price is required").positive("Price must be positive").typeError('Price is required'),
+        product: yup.object().required(dictionary.forms.counter.saleItem.validation.productRequired).typeError(dictionary.forms.counter.saleItem.validation.productRequired),
+        rate: yup.number().required(dictionary.forms.counter.saleItem.validation.priceRequired).positive(dictionary.forms.counter.saleItem.validation.pricePositive).typeError(dictionary.forms.counter.saleItem.validation.priceRequired),
     };
 
     // Inventory-specific validations
     const inventoryValidations = {
-        store_id: yup.number().required("Store is required").typeError('Store is required'),
+        store_id: yup.number().required(dictionary.forms.counter.saleItem.validation.storeRequired).typeError(dictionary.forms.counter.saleItem.validation.storeRequired),
         quantity: yup.number()
-            .required("Quantity is required")
-            .positive("Quantity must be positive")
-            .typeError('Quantity is required')
+            .required(dictionary.forms.counter.saleItem.validation.quantityRequired)
+            .positive(dictionary.forms.counter.saleItem.validation.quantityPositive)
+            .typeError(dictionary.forms.counter.saleItem.validation.quantityRequired)
             .test(wholeUnitQuantityTest)
             .test(
                 'balance-check',
-                'Quantity exceeds available balance',
+                dictionary.forms.counter.saleItem.validation.quantityExceedsBalance,
                 function (value) {
                     const availableBalance = this.parent.available_balance;
                     return availableBalance === 'N/A' || !value || value <= availableBalance;
@@ -90,7 +92,7 @@ function SaleItemForm({
                         return true;
                     }
                     return value <= currentBalance || this.createError({
-                        message: `This quantity will lead to negative balance. Current balance today is ${currentBalance.toLocaleString()}`
+                        message: dictionary.forms.counter.saleItem.validation.negativeBalance.replace('{balance}', currentBalance.toLocaleString())
                     });
                 }
             )
@@ -99,8 +101,8 @@ function SaleItemForm({
     // Non-inventory validations
     const nonInventoryValidations = {
         quantity: yup.number()
-            .positive("Quantity must be positive")
-            .typeError('Quantity is required')
+            .positive(dictionary.forms.counter.saleItem.validation.quantityPositive)
+            .typeError(dictionary.forms.counter.saleItem.validation.quantityRequired)
             .test(wholeUnitQuantityTest)
     };
 
@@ -112,7 +114,7 @@ function SaleItemForm({
             ...baseSchema,
             ...(requiresInventoryValidation ? inventoryValidations : nonInventoryValidations),
             store_id: requiresInventoryValidation
-                ? yup.number().required('Store is required').typeError('Store is required')
+                ? yup.number().required(dictionary.forms.counter.saleItem.validation.storeRequired).typeError(dictionary.forms.counter.saleItem.validation.storeRequired)
                 : yup.mixed().notRequired().nullable()
         });
     });
@@ -343,7 +345,7 @@ function SaleItemForm({
     <>
         {!item && (
             <Typography variant='h4' textAlign={'center'} mt={1} mb={1}>
-                Add Item
+                {dictionary.forms.counter.saleItem.addItem}
             </Typography>
         )}
         { !belowLargeScreen && !item && 
@@ -408,7 +410,7 @@ function SaleItemForm({
                                 {
                                     isRetrieving ? <LinearProgress/> :
                                         <TextField
-                                            label="Available Balance"
+                                            label={dictionary.forms.counter.saleItem.labels.availableBalance}
                                             fullWidth
                                             size='small'
                                             value={watch('available_balance')}
@@ -425,7 +427,7 @@ function SaleItemForm({
                 }
                 <Grid size={{xs: 12, md: 6, lg: !!checkedForInstantSale && isInventory && !!product ? 2.5 : 2}}>
                     <TextField
-                        label="Quantity"
+                        label={dictionary.forms.counter.saleItem.labels.quantity}
                         fullWidth
                         size='small'
                         key={quantityFieldKey}
@@ -485,7 +487,7 @@ function SaleItemForm({
                     {
                         isRetrieving ? <LinearProgress/> : 
                             <TextField
-                                label="Price"
+                                label={dictionary.forms.counter.saleItem.labels.price}
                                 fullWidth
                                 key={priceFieldKey}
                                 size='small'
@@ -514,7 +516,7 @@ function SaleItemForm({
                     !!vat_factor &&
                     <Grid size={{xs: 12, md: 6, lg: !!checkedForInstantSale && isInventory ? 3 : 2}}>
                         <TextField
-                            label="Price (VAT Inclusive)"
+                            label={dictionary.forms.counter.saleItem.labels.priceVatInclusive}
                             fullWidth
                             key={vatPriceFieldKey}
                             size='small'
@@ -544,7 +546,7 @@ function SaleItemForm({
                 }
                 <Grid size={{xs: 12, md: 6, lg: !!checkedForInstantSale && isInventory ? 3 : (!vat_factor ? 3 : 2)}}>
                     <TextField
-                        label="Amount"
+                        label={dictionary.forms.counter.saleItem.labels.amount}
                         fullWidth
                         size='small'
                         key={amountFieldKey}
@@ -585,7 +587,7 @@ function SaleItemForm({
                 </Grid>
                 <Grid size={{xs: 12, md: vat_factor ? 6 : 12, lg: 11}}>
                     <TextField
-                        label="Description"
+                        label={dictionary.forms.counter.saleItem.labels.description}
                         fullWidth
                         size="small"
                         defaultValue={item?.description ?? ''}
@@ -601,15 +603,15 @@ function SaleItemForm({
                     >
                         {
                             item ? (
-                                <><CheckOutlined fontSize='small' /> Done</>
+                                <><CheckOutlined fontSize='small' /> {dictionary.forms.counter.saleItem.buttons.done}</>
                             ) : (
-                                <><AddOutlined fontSize='small' /> Add</>
+                                <><AddOutlined fontSize='small' /> {dictionary.forms.counter.saleItem.buttons.add}</>
                             )
                         }
                     </Button>
                     {
                         item && 
-                        <Tooltip title='Close Edit'>
+                        <Tooltip title={dictionary.tooltips.closeEdit}>
                             <IconButton size='small' 
                                 onClick={() => {
                                     setShowForm(false);

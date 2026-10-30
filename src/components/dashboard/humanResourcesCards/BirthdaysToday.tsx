@@ -21,6 +21,7 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import { useRouter } from 'next/navigation';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const DETAIL_CARD_HEIGHT = 360;
 
@@ -65,6 +66,7 @@ const MobileRowCard = ({
 // Shares the `hrDashboard` query key with HrDashboard.tsx so react-query
 // dedupes the fetch when both are mounted.
 const BirthdaysToday = () => {
+  const dictionary = useDictionary();
   const router = useRouter();
   const lang = useLanguage();
   const { theme } = useJumboTheme();
@@ -82,7 +84,7 @@ const BirthdaysToday = () => {
 
   return (
     <JumboCardQuick
-      title='Upcoming Birthdays (30 Days)'
+      title={dictionary.dashboardCards.upcomingBirthdays}
       sx={{ height: DETAIL_CARD_HEIGHT, display: 'flex', flexDirection: 'column' }}
       wrapperSx={{ overflowY: 'auto', flex: 1 }}
     >

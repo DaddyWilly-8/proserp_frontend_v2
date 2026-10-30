@@ -1,0 +1,314 @@
+{
+  "myHr": {
+    "page": {
+      "somethingWentWrong": "Something went wrong",
+      "notLinked": "Your account is not linked to an employee record. Contact HR.",
+      "tabs": {
+        "profile": "Profile",
+        "payslips": "Payslips",
+        "leave": "Leave",
+        "contracts": "Contracts",
+        "nextOfKin": "Next of Kin",
+        "loans": "Loans",
+        "accountStatement": "Account Statement"
+      }
+    },
+    "loans": {
+      "status": "Status",
+      "statusOptions": {
+        "inReview": "In Review",
+        "approved": "Approved",
+        "rejected": "Rejected",
+        "onHold": "On Hold"
+      },
+      "form": {
+        "messages": {
+          "updated": "Loan request updated successfully",
+          "added": "Loan request added successfully",
+          "somethingWentWrong": "Something went wrong"
+        },
+        "errors": {
+          "required": "This field is required",
+          "amountMin": "Amount must be >= 0",
+          "amountNumber": "Amount must be a number",
+          "installmentsRequired": "Please enter an installments count",
+          "fixedAmountRequired": "Please enter the flat amount to deduct per period",
+          "exceedsLoanAmount": "Cannot exceed the requested loan amount"
+        },
+        "editTitle": "Edit Loan",
+        "createTitle": "Create Loan Request",
+        "labels": {
+          "amount": "Amount",
+          "recoveryMode": "Recovery Mode",
+          "byInstallmentCount": "By Installment Count",
+          "byFixedAmount": "By Fixed Amount",
+          "amountPerPeriod": "Amount To Deduct Per Period",
+          "installments": "Installments",
+          "reason": "Reason"
+        },
+        "helpers": {
+          "installmentsDerived": "Installments are derived automatically from this"
+        },
+        "buttons": {
+          "cancel": "Cancel",
+          "update": "Update",
+          "create": "Create"
+        }
+      },
+      "item": {
+        "statuses": {
+          "inReview": "In Review",
+          "approved": "Approved",
+          "rejected": "Rejected",
+          "cancelled": "Cancelled",
+          "onHold": "On Hold",
+          "pending": "Pending"
+        },
+        "disbursedOn": "Disbursed {date}",
+        "yourLoanRequest": "Your Loan Request",
+        "close": "Close",
+        "tabs": {
+          "summary": "Summary",
+          "approvals": "Approvals"
+        },
+        "sections": {
+          "loanDetails": "Loan Details",
+          "approvalDecision": "Approval Decision",
+          "disbursementPayment": "Disbursement & Payment"
+        },
+        "fields": {
+          "department": "Department",
+          "amountRequested": "Amount Requested",
+          "installmentsRequested": "Installments Requested",
+          "reason": "Reason",
+          "status": "Status",
+          "amountApproved": "Amount Approved",
+          "installmentsApproved": "Installments Approved",
+          "installmentAmount": "Installment Amount",
+          "reviewedAt": "Reviewed At",
+          "reviewRemarks": "Review Remarks",
+          "disbursedAt": "Disbursed At",
+          "disbursedBy": "Disbursed By",
+          "disbursementReference": "Disbursement Reference",
+          "paymentVoucher": "Payment Voucher",
+          "paymentNarration": "Payment Narration"
+        },
+        "monthsCount": "{count} months",
+        "noApprovals": "No Approvals Found"
+      }
+    },
+    "profile": {
+      "sections": {
+        "identity": "Identity",
+        "contact": "Contact",
+        "employment": "Employment",
+        "currentContract": "Current Contract",
+        "primaryBankAccount": "Primary Bank Account"
+      },
+      "fields": {
+        "employeeNumber": "Employee Number",
+        "gender": "Gender",
+        "dateOfBirth": "Date of Birth",
+        "nationalId": "National ID",
+        "passportNumber": "Passport Number",
+        "phoneNumber": "Phone Number",
+        "email": "Email",
+        "address": "Address",
+        "department": "Department",
+        "costCenter": "Cost Center",
+        "employmentType": "Employment Type",
+        "joinDate": "Join Date",
+        "designation": "Designation",
+        "contractType": "Contract Type",
+        "startDate": "Start Date",
+        "basicSalary": "Basic Salary",
+        "bank": "Bank",
+        "accountName": "Account Name",
+        "accountNumber": "Account Number",
+        "contractStatus": "Contract Status"
+      },
+      "noContract": "No Contract",
+      "noActiveContract": "No active contract on file yet.",
+      "noPrimaryBank": "No primary bank account on file. Contact HR to have one added."
+    },
+    "nextOfKin": {
+      "primary": "Primary",
+      "secondary": "Secondary"
+    },
+    "contracts": {
+      "present": "Present",
+      "probationEnds": "Probation ends {date}"
+    },
+    "leaves": {
+      "leaveBalances": "Leave Balances",
+      "leaveRequests": "Leave Requests",
+      "balances": {
+        "selectYear": "Select Year",
+        "leaveType": "Leave Type",
+        "period": "Period",
+        "allocated": "Allocated",
+        "used": "Used",
+        "remaining": "Remaining",
+        "carryForwardNote": "Includes {days} carried-forward day(s)",
+        "carryForwardUsableUntil": ", usable until {date}",
+        "typeNumber": "Type #{id}"
+      },
+      "requests": {
+        "status": "Status",
+        "statusOptions": {
+          "inReview": "In Review",
+          "approved": "Approved",
+          "rejected": "Rejected",
+          "onHold": "On Hold"
+        },
+        "statuses": {
+          "inReview": "In Review",
+          "approved": "Approved",
+          "cancelled": "Cancelled",
+          "rejected": "Rejected",
+          "pending": "Pending"
+        },
+        "typeNumber": "Type #{id}",
+        "yourLeaveRequest": "Your Leave Request",
+        "close": "Close",
+        "form": {
+          "messages": {
+            "created": "Leave Request Created Successfully",
+            "updated": "Leave Request Updated Successfully",
+            "somethingWentWrong": "Something went wrong"
+          },
+          "errors": {
+            "leaveTypeRequired": "Leave type is required",
+            "startDateRequired": "Start date is required",
+            "endDateRequired": "End date is required",
+            "daysNumber": "Days requested must be a number",
+            "daysRequired": "Days requested is required",
+            "daysMin": "Days requested must be at least 0.5",
+            "reasonMax": "Reason cannot exceed 1000 characters"
+          },
+          "hint": {
+            "saturdays": "Saturdays",
+            "sundays": "Sundays",
+            "and": " and ",
+            "day": "day",
+            "days": "days",
+            "excluded": " ({label} excluded)",
+            "matches": "{days}{excluded} between selected dates — matches days requested",
+            "differs": "{days}{excluded} between selected dates — differs from days requested"
+          },
+          "createTitle": "Create Leave Request",
+          "editTitle": "Edit Leave Request",
+          "labels": {
+            "leaveType": "Leave Type",
+            "daysRequested": "Days Requested",
+            "startDate": "Start Date",
+            "endDate": "End Date",
+            "reason": "Reason"
+          },
+          "buttons": {
+            "cancel": "Cancel",
+            "submit": "Submit"
+          }
+        }
+      }
+    },
+    "payslips": {
+      "payrollPeriod": "Payroll Period",
+      "months": [
+        "January",
+        "February",
+        "March",
+        "April",
+        "May",
+        "June",
+        "July",
+        "August",
+        "September",
+        "October",
+        "November",
+        "December"
+      ],
+      "status": {
+        "paid": "Paid",
+        "partiallyPaid": "Partially Paid",
+        "unpaid": "Unpaid"
+      }
+    },
+    "accountStatement": {
+      "costCenters": "Cost Centers",
+      "from": "From",
+      "to": "To",
+      "filter": "Filter",
+      "statementTitle": "{name} - Statement",
+      "totalDebits": "Total Debits",
+      "totalCredits": "Total Credits",
+      "noTransactions": "No transactions found for this period.",
+      "total": "TOTAL",
+      "date": "Date",
+      "reference": "Reference",
+      "description": "Description",
+      "debit": "Debit",
+      "credit": "Credit",
+      "balance": "Balance"
+    },
+    "imprest": {
+      "noAccounts": "No imprest accounts linked to your account.",
+      "statementTitle": "{name} — Statement",
+      "defaultName": "Imprest Account",
+      "cancel": "Cancel"
+    }
+  },
+  "hrDashboard": {
+    "alerts": {
+      "noPayrollRun": "No payroll run has been started yet for {period}.",
+      "payrollInDraft": "Payroll for {period} is still in draft/awaiting approval."
+    },
+    "tiles": {
+      "activeEmployees": "Active Employees",
+      "newThisMonth": "{count} new this month",
+      "onLeaveToday": "On Leave Today",
+      "activeLoans": "Active Loans",
+      "owed": "{amount} owed",
+      "contractsExpiring": "Contracts Expiring (30d)",
+      "birthdays": "Birthdays (30d)",
+      "pendingApprovals": "Pending Approvals",
+      "pendingSub": "{leave} leave, {loan} loan"
+    },
+    "cards": {
+      "onLeaveTitle": "Employees On Leave Today",
+      "activeLoansTitle": "Employees With Active Loans",
+      "contractsTitle": "Contracts Expiring Within 30 Days",
+      "birthdaysTitle": "Upcoming Birthdays (30 Days)"
+    },
+    "empty": {
+      "noOneOnLeave": "No one is on leave today",
+      "noLoans": "No employees currently repaying a loan",
+      "noContracts": "No contracts expiring soon",
+      "noBirthdays": "No upcoming birthdays"
+    },
+    "today": "Today",
+    "tomorrow": "Tomorrow",
+    "inDaysShort": "In {count}d",
+    "inDays": "In {count} days",
+    "daysShort": "{count}d",
+    "ends": "Ends",
+    "outstandingLabel": "Outstanding",
+    "installmentLabel": "Installment",
+    "columns": {
+      "employee": "Employee",
+      "leaveType": "Leave Type",
+      "returns": "Returns",
+      "outstanding": "Outstanding",
+      "installment": "Installment",
+      "designation": "Designation",
+      "ends": "Ends",
+      "date": "Date"
+    }
+  },
+  "orgChart": {
+    "title": "Organization Chart",
+    "titleWithOrganization": "{name} Organization Chart",
+    "noEmployees": "No employees yet.",
+    "employees": "Employees"
+  }
+}

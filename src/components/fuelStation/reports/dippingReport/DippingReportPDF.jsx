@@ -11,7 +11,9 @@ function DippingReportPDF({
   activeStation,
   showCumulativeDeviation = true,
   showCalculatedStock = true,
+  dictionary,
 }) {
+  const t = dictionary.reports.fuelStationReports.dipping;
   const mainColor = organization.settings?.main_color || '#2113AD';
   const lightColor = organization.settings?.light_color || '#bec5da';
   const contrastText = organization.settings?.contrast_text || '#FFFFFF';
@@ -161,9 +163,9 @@ function DippingReportPDF({
 
   return (
     <Document
-      title={`Dipping Report | ${organization.name}`}
+      title={`${t.title} | ${organization.name}`}
       author={reportData.creator?.name}
-      subject='Dipping Report'
+      subject={t.title}
       creator='Powered By ProsERP'
       producer='ProsERP'
     >
@@ -178,9 +180,7 @@ function DippingReportPDF({
             <Text style={{ ...pdfStyles.majorInfo, color: mainColor }}>
               {activeStation.name}
             </Text>
-            <Text style={{ ...pdfStyles.midInfo, color: mainColor }}>
-              Dipping Report
-            </Text>
+            <Text style={{ ...pdfStyles.midInfo, color: mainColor }}>{t.title}</Text>
             <Text style={{ ...pdfStyles.midInfo }}>
               {`${readableDate(filters.from, true)} - ${readableDate(filters.to, true)}`}
             </Text>
@@ -201,9 +201,7 @@ function DippingReportPDF({
                     color: contrastText,
                     width: '6%',
                   }}
-                >
-                  Period
-                </Text>
+                >{t.period}</Text>
                 <Text
                   style={{
                     ...pdfStyles.tableHeader,
@@ -214,9 +212,7 @@ function DippingReportPDF({
                     width: `${detailsWidth}%`,
                     textAlign: 'center',
                   }}
-                >
-                  Details
-                </Text>
+                >{t.details}</Text>
                 <Text
                   style={{
                     ...pdfStyles.tableHeader,
@@ -226,9 +222,7 @@ function DippingReportPDF({
                     color: contrastText,
                     width: '7%',
                   }}
-                >
-                  Opening
-                </Text>
+                >{t.opening}</Text>
                 <Text
                   style={{
                     ...pdfStyles.tableHeader,
@@ -238,9 +232,7 @@ function DippingReportPDF({
                     color: contrastText,
                     width: '7%',
                   }}
-                >
-                  Stock In
-                </Text>
+                >{t.stockIn}</Text>
                 <Text
                   style={{
                     ...pdfStyles.tableHeader,
@@ -250,9 +242,7 @@ function DippingReportPDF({
                     color: contrastText,
                     width: '9%',
                   }}
-                >
-                  Stock Out
-                </Text>
+                >{t.stockOut}</Text>
                 <Text
                   style={{
                     ...pdfStyles.tableHeader,
@@ -262,9 +252,7 @@ function DippingReportPDF({
                     color: contrastText,
                     width: '7%',
                   }}
-                >
-                  Closing
-                </Text>
+                >{t.closing}</Text>
                 <Text
                   wrap
                   style={{
@@ -275,9 +263,7 @@ function DippingReportPDF({
                     color: contrastText,
                     width: '10%',
                   }}
-                >
-                  Tank Difference
-                </Text>
+                >{t.tankDifference}</Text>
                 <Text
                   style={{
                     ...pdfStyles.tableHeader,
@@ -287,9 +273,7 @@ function DippingReportPDF({
                     color: contrastText,
                     width: '6%',
                   }}
-                >
-                  Deviation
-                </Text>
+                >{t.deviation}</Text>
                 {showCumulativeDeviation && (
                   <Text
                     style={{
@@ -300,9 +284,7 @@ function DippingReportPDF({
                       color: contrastText,
                       width: `${headerWidths.cumulativeDeviation}%`,
                     }}
-                  >
-                    Cumulative Deviation
-                  </Text>
+                  >{t.cumulativeDeviation}</Text>
                 )}
                 {showCalculatedStock && (
                   <Text
@@ -314,9 +296,7 @@ function DippingReportPDF({
                       color: contrastText,
                       width: `${headerWidths.calculatedStock}%`,
                     }}
-                  >
-                    Calculated Stock
-                  </Text>
+                  >{t.calculatedStock}</Text>
                 )}
                 {showCumulativeDeviation && (
                   <Text
@@ -328,16 +308,14 @@ function DippingReportPDF({
                       color: contrastText,
                       width: `${headerWidths.stockDeviation}%`,
                     }}
-                  >
-                    Stock Deviation
-                  </Text>
+                  >{t.stockDeviation}</Text>
                 )}
               </View>
 
               <View style={pdfStyles.tableRow}>
                 <View style={{ ...pdfStyles.tableCell, flex: 2, width: '6%' }}>
                   <Text style={{ textAlign: 'center' }}>
-                    {`\n\n\n${readableDate(dipping.from, true)}\nTo\n${readableDate(dipping.to, true)}\n\n${dipping.dippingNo}`}
+                    {`\n\n\n${readableDate(dipping.from, true)}\n${t.toWord}\n${readableDate(dipping.to, true)}\n\n${dipping.dippingNo}`}
                   </Text>
                 </View>
 
@@ -612,9 +590,7 @@ function DippingReportPDF({
                                   width: `${tankNameWidth}%`,
                                   fontWeight: 'bold',
                                 }}
-                              >
-                                TOTAL
-                              </Text>
+                              >{t.totalCaps}</Text>
                               <Text
                                 style={{
                                   ...pdfStyles.tableCell,
@@ -810,9 +786,7 @@ function DippingReportPDF({
                 width: '100%',
                 textAlign: 'center',
               }}
-            >
-              Summary
-            </Text>
+            >{t.summary}</Text>
           </View>
           <View style={pdfStyles.tableRow}>
             <Text
@@ -825,9 +799,7 @@ function DippingReportPDF({
                 // flex: 1.35,
                 width: '6%',
               }}
-            >
-              Period
-            </Text>
+            >{t.period}</Text>
             <Text
               style={{
                 ...pdfStyles.tableHeader,
@@ -838,9 +810,7 @@ function DippingReportPDF({
                 // flex: 2.15,
                 width: `${detailsWidth}%`,
               }}
-            >
-              Details
-            </Text>
+            >{t.details}</Text>
             <Text
               style={{
                 ...pdfStyles.tableHeader,
@@ -851,9 +821,7 @@ function DippingReportPDF({
                 // flex: 1,
                 width: '7%',
               }}
-            >
-              Opening
-            </Text>
+            >{t.opening}</Text>
             <Text
               style={{
                 ...pdfStyles.tableHeader,
@@ -864,9 +832,7 @@ function DippingReportPDF({
                 // flex: 1,
                 width: '7%',
               }}
-            >
-              Stock In
-            </Text>
+            >{t.stockIn}</Text>
             <Text
               style={{
                 ...pdfStyles.tableHeader,
@@ -877,9 +843,7 @@ function DippingReportPDF({
                 // flex: 1,
                 width: '9%',
               }}
-            >
-              Stock Out
-            </Text>
+            >{t.stockOut}</Text>
             <Text
               style={{
                 ...pdfStyles.tableHeader,
@@ -890,9 +854,7 @@ function DippingReportPDF({
                 // flex: 1,
                 width: '7%',
               }}
-            >
-              Closing
-            </Text>
+            >{t.closing}</Text>
             <Text
               style={{
                 ...pdfStyles.tableHeader,
@@ -903,9 +865,7 @@ function DippingReportPDF({
                 // flex: 1,
                 width: '10%',
               }}
-            >
-              Tank Difference
-            </Text>
+            >{t.tankDifference}</Text>
             <Text
               style={{
                 ...pdfStyles.tableHeader,
@@ -916,9 +876,7 @@ function DippingReportPDF({
                 // flex: 0.9,
                 width: '6%',
               }}
-            >
-              Deviation
-            </Text>
+            >{t.deviation}</Text>
             {showCumulativeDeviation && (
               <Text
                 style={{
@@ -930,9 +888,7 @@ function DippingReportPDF({
                   // flex: 1,
                   width: `${headerWidths.cumulativeDeviation}%`,
                 }}
-              >
-                Cumulative Deviation
-              </Text>
+              >{t.cumulativeDeviation}</Text>
             )}
             {showCalculatedStock && (
               <Text
@@ -945,9 +901,7 @@ function DippingReportPDF({
                   // flex: 0.9,
                   width: `${headerWidths.calculatedStock}%`,
                 }}
-              >
-                Calculated Stock
-              </Text>
+              >{t.calculatedStock}</Text>
             )}
             {showCumulativeDeviation && (
               <Text
@@ -960,9 +914,7 @@ function DippingReportPDF({
                   // flex: 0.9,
                   width: `${headerWidths.stockDeviation}%`,
                 }}
-              >
-                Stock Deviation
-              </Text>
+              >{t.stockDeviation}</Text>
             )}
           </View>
 
@@ -974,7 +926,7 @@ function DippingReportPDF({
               }}
             >
               <Text style={{ textAlign: 'center' }}>
-                {`\n${readableDate(filters.from, true)}\nTo\n${readableDate(filters.to, true)}\n\nSUMMARY`}
+                {`\n${readableDate(filters.from, true)}\n${t.toWord}\n${readableDate(filters.to, true)}\n\nSUMMARY`}
               </Text>
             </View>
 
@@ -1233,9 +1185,7 @@ function DippingReportPDF({
                             width: `${tankNameWidth}%`,
                             fontWeight: 'bold',
                           }}
-                        >
-                          TOTAL
-                        </Text>
+                        >{t.totalCaps}</Text>
                         <Text
                           style={{
                             ...pdfStyles.tableCell,

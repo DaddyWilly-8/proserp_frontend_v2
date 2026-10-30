@@ -3,8 +3,10 @@ import { ButtonGroup, Tooltip,IconButton, Dialog, useMediaQuery } from '@mui/mat
 import React, { useState } from 'react'
 import InventoryTransferForm from './form/InventoryTransferForm'
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks'
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const InventoryTransferActionTail = ({type}) => {
+    const dictionary = useDictionary();
     const [openDialog, setOpenDialog] = useState(false);
 
     //Screen handling constants
@@ -18,7 +20,7 @@ const InventoryTransferActionTail = ({type}) => {
             </Dialog>
             <ButtonGroup variant="outlined" size="small" disableElevation sx={{ '& .MuiButton-root': { px: 1 } }}>
                 {
-                    <Tooltip title={'New Inventory Transfer'}>
+                    <Tooltip title={dictionary.tooltips.newInventoryTransfer}>
                         <IconButton onClick={() => setOpenDialog(true)}>
                             <AddOutlined/>
                         </IconButton>

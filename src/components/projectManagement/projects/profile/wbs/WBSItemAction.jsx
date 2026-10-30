@@ -11,8 +11,10 @@ import projectsServices from '../../project-services'
 import { JumboDdMenu } from '@jumbo/components'
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider'
 import { PERMISSIONS } from '@/utilities/constants/permissions'
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function WBSItemAction({activity, isAccDetails}) {
+    const dictionary = useDictionary();
     const {showDialog,hideDialog} = useJumboDialog();
     const {enqueueSnackbar} = useSnackbar();
     const [openEditDialog, setOpenEditDialog] = useState(false);
@@ -37,9 +39,9 @@ function WBSItemAction({activity, isAccDetails}) {
     });
 
     const menuItems = [
-        checkOrganizationPermission(PERMISSIONS.PROJECTS_EDIT) && {icon: <EditOutlined/>, title: 'Edit', action: 'edit'},
+        checkOrganizationPermission(PERMISSIONS.PROJECTS_EDIT) && {icon: <EditOutlined/>, title: dictionary.projectManagement.wbs.common.edit, action: 'edit'},
         checkOrganizationPermission(PERMISSIONS.PROJECTS_DELETE) &&
-          !(activity.children.length > 0 || activity.tasks.length > 0) &&{icon: <DeleteOutlined color='error'/>, title: 'Delete', action: 'delete'}
+          !(activity.children.length > 0 || activity.tasks.length > 0) &&{icon: <DeleteOutlined color='error'/>, title: dictionary.projectManagement.wbs.common.delete, action: 'delete'}
     ].filter(Boolean);
 
     const handleItemAction = (menuItem) => {
@@ -49,8 +51,8 @@ function WBSItemAction({activity, isAccDetails}) {
             break;
           case 'delete':
             showDialog({
-                title: 'Confirm Delete',
-                content: 'Are you sure you want to delete this Timeline Activity?',
+                title: dictionary.projectManagement.wbs.common.confirmDelete,
+                content: dictionary.projectManagement.wbs.activity.confirmDeleteText,
                 onYes: () =>{ 
                     hideDialog();
                     deleteTimelineActivity.mutate(activity);
@@ -80,7 +82,7 @@ function WBSItemAction({activity, isAccDetails}) {
         {!isAccDetails &&
             <JumboDdMenu
                 icon={
-                    <Tooltip title='Actions'>
+                    <Tooltip title={dictionary.tooltips.actions}>
                         <MoreHorizOutlined/>
                     </Tooltip>
                 }
@@ -90,7 +92,7 @@ function WBSItemAction({activity, isAccDetails}) {
         }
 
         {!!isAccDetails && checkOrganizationPermission(PERMISSIONS.PROJECTS_EDIT) &&
-            <Tooltip title={"Add Sub Activity"}>
+            <Tooltip title={dictionary.tooltips.addSubActivity}>
                 <IconButton onClick={() => setOpenDialog(true)}>
                     <PlaylistAddCheck/>
                 </IconButton>

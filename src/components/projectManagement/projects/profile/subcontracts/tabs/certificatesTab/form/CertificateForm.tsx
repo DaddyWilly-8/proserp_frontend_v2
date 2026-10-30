@@ -29,6 +29,7 @@ import { useSnackbar } from 'notistack';
 import React, { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as yup from 'yup';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import CertifiedAdjustments from './tab/adjustments/CertifiedAdjustments';
 import CertifiedAdjustmentsRow from './tab/adjustments/CertifiedAdjustmentsRow';
 import CertifiedTasksItemForm from './tab/certifiedTasks/CertifiedTasksItemForm';
@@ -102,16 +103,19 @@ interface FormValues {
   supplier_reference?: string;
 }
 
-const validationSchema = yup.object({
-  remarks: yup.string().required('Remarks is required'),
-  certificate_date: yup.string().required('Certificate date is required'),
-});
+const getValidationSchema = (t: any) =>
+  yup.object({
+    remarks: yup.string().required(t.errors.remarksRequired),
+    certificate_date: yup.string().required(t.errors.dateRequired),
+  });
 
 const CertificateForm: React.FC<CertificateFormProps> = ({
   setOpenDialog,
   certificate,
   subContract,
 }) => {
+  const dictionary = useDictionary();
+  const t = dictionary.forms.projects.certificates;
   const queryClient = useQueryClient();
   const { enqueueSnackbar } = useSnackbar();
   const { authOrganization } = useJumboAuth();
@@ -141,7 +145,7 @@ const CertificateForm: React.FC<CertificateFormProps> = ({
   const addCertificate = useMutation({
     mutationFn: projectsServices.addCertificates,
     onSuccess: (data: any) => {
-      enqueueSnackbar(data?.message || 'Certificate created', {
+      enqueueSnackbar(data?.message || t.messages.created, {
         variant: 'success',
       });
       queryClient.invalidateQueries({ queryKey: ['Certificates'] });
@@ -155,7 +159,7 @@ const CertificateForm: React.FC<CertificateFormProps> = ({
   const updateCertificate = useMutation({
     mutationFn: projectsServices.updateCertificates,
     onSuccess: (data: any) => {
-      enqueueSnackbar(data?.message || 'Certificate updated', {
+      enqueueSnackbar(data?.message || t.messages.updated, {
         variant: 'success',
       });
       queryClient.invalidateQueries({ queryKey: ['Certificates'] });
@@ -174,7 +178,7 @@ const CertificateForm: React.FC<CertificateFormProps> = ({
     watch,
     formState: { errors },
   } = useForm<FormValues>({
-    resolver: yupResolver(validationSchema),
+    resolver: yupResolver(getValidationSchema(t)),
     defaultValues: {
       id: certificate?.id,
       project_subcontract_id:
@@ -237,7 +241,7 @@ const CertificateForm: React.FC<CertificateFormProps> = ({
     if (tasksItems.length === 0) {
       setError('certified_tasks' as any, {
         type: 'manual',
-        message: 'You must add at least one Certified Task',
+        message: t.errors.atLeastOneTask,
       });
       return;
     }
@@ -284,8 +288,8 @@ const CertificateForm: React.FC<CertificateFormProps> = ({
     <>
       <DialogTitle textAlign='center'>
         {certificate
-          ? `Edit ${certificate.certificateNo}`
-          : 'New Certificate Form'}
+          ? t.titles.edit.replace('{no}', certificate.certificateNo as string)
+          : t.titles.new}
       </DialogTitle>
 
       <DialogContent dividers>
@@ -295,7 +299,7 @@ const CertificateForm: React.FC<CertificateFormProps> = ({
               <Grid container spacing={2} mb={3}>
                 <Grid size={{ xs: 12, md: 4 }}>
                   <DateTimePicker
-                    label='Certificate Date'
+                    label={t.labels.certificateDate}
                     value={dayjs(certificateDate)}
                     slotProps={{
                       textField: {
@@ -315,7 +319,7 @@ const CertificateForm: React.FC<CertificateFormProps> = ({
                 <Grid size={{ xs: 12, md: 8 }}>
                   <TextField
                     size='small'
-                    label='Remarks'
+                    label={t.labels.remarks}
                     fullWidth
                     multiline
                     rows={2}
@@ -329,14 +333,13 @@ const CertificateForm: React.FC<CertificateFormProps> = ({
                   <>
                     <Grid size={12}>
                       <Alert severity='info' sx={{ py: 0 }}>
-                        This will post straight to a Supplier Bill — fill in its due date and any
-                        reference now.
+                        {t.messages.postsToBill}
                       </Alert>
                     </Grid>
 
                     <Grid size={{ xs: 12, md: 6 }}>
                       <DateTimePicker
-                        label='Bill Due Date'
+                        label={t.labels.billDueDate}
                         minDate={dayjs(certificateDate)}
                         value={watch('due_date') ? dayjs(watch('due_date')) : null}
                         slotProps={{
@@ -358,7 +361,7 @@ const CertificateForm: React.FC<CertificateFormProps> = ({
                     <Grid size={{ xs: 12, md: 6 }}>
                       <TextField
                         size='small'
-                        label='Supplier Reference'
+                        label={t.labels.supplierReference}
                         fullWidth
                         inputProps={{ maxLength: 20 }}
                         {...register('supplier_reference')}
@@ -388,12 +391,12 @@ const CertificateForm: React.FC<CertificateFormProps> = ({
                 gutterBottom
                 fontWeight='bold'
               >
-                Summary
+                {t.labels.summary}
               </Typography>
               <Divider sx={{ my: 2 }} />
               <Grid container spacing={1.5}>
                 <Grid size={7}>
-                  <Typography variant='body2'>Gross Amount:</Typography>
+                  <Typography variant='body2'>{t.labels.grossAmount}</Typography>
                 </Grid>
                 <Grid size={5}>
                   <Typography
@@ -410,7 +413,7 @@ const CertificateForm: React.FC<CertificateFormProps> = ({
                 {adjustments.length > 0 && (
                   <>
                     <Grid size={7}>
-                      <Typography variant='body2'>Net Adjustments:</Typography>
+                      <Typography variant='body2'>{t.labels.netAdjustments}</Typography>
                     </Grid>
                     <Grid size={5}>
                       <Typography
@@ -432,7 +435,7 @@ const CertificateForm: React.FC<CertificateFormProps> = ({
 
                 <Grid size={7}>
                   <Typography variant='body2' fontWeight='bold'>
-                    Subtotal:
+                    {t.labels.subtotal}
                   </Typography>
                 </Grid>
                 <Grid size={5}>
@@ -450,7 +453,10 @@ const CertificateForm: React.FC<CertificateFormProps> = ({
 
                 <Grid size={7}>
                   <Typography variant='body2'>
-                    VAT ({organization?.settings?.vat_percentage ?? 0}%):
+                    {t.labels.vat.replace(
+                      '{percentage}',
+                      String(organization?.settings?.vat_percentage ?? 0)
+                    )}
                     <Checkbox
                       size='small'
                       checked={vatPercentage > 0}
@@ -477,7 +483,7 @@ const CertificateForm: React.FC<CertificateFormProps> = ({
 
                 <Grid size={7}>
                   <Typography variant='h6' fontWeight='bold'>
-                    Grand Total:
+                    {t.labels.grandTotal}
                   </Typography>
                 </Grid>
                 <Grid size={5}>
@@ -508,8 +514,8 @@ const CertificateForm: React.FC<CertificateFormProps> = ({
           variant='fullWidth'
           sx={{ mb: 3 }}
         >
-          <Tab label='Certified Tasks' />
-          <Tab label='Adjustments' />
+          <Tab label={t.tabs.certifiedTasks} />
+          <Tab label={t.tabs.adjustments} />
         </Tabs>
 
         <Box>
@@ -588,40 +594,40 @@ const CertificateForm: React.FC<CertificateFormProps> = ({
         </Box>
 
         <Dialog open={showWarning} onClose={() => setShowWarning(false)}>
-          <DialogTitle>Unsaved Changes</DialogTitle>
+          <DialogTitle>{t.titles.unsavedChanges}</DialogTitle>
           <DialogContent>
             <Typography>
-              The last item has not been added to the list.
+              {t.messages.lastItemNotAdded}
             </Typography>
           </DialogContent>
           <DialogActions>
-            <Button onClick={() => setShowWarning(false)}>Cancel</Button>
+            <Button onClick={() => setShowWarning(false)}>{t.buttons.cancel}</Button>
             <Button
               onClick={() => {
                 setSubmitItemForm(true);
                 setShowWarning(false);
               }}
             >
-              Add & Submit
+              {t.buttons.addAndSubmit}
             </Button>
             <Button onClick={handleConfirmSubmitWithoutAdd} color='primary'>
-              Submit Without Adding
+              {t.buttons.submitWithoutAdding}
             </Button>
           </DialogActions>
         </Dialog>
       </DialogContent>
 
       <DialogActions>
-        <Button onClick={() => setOpenDialog(false)}>Cancel</Button>
+        <Button onClick={() => setOpenDialog(false)}>{t.buttons.cancel}</Button>
         <Box display='flex' gap={1}>
           {activeTab === 1 && (
             <Button variant='outlined' onClick={() => setActiveTab(0)}>
-              Previous
+              {t.buttons.previous}
             </Button>
           )}
           {activeTab === 0 && (
             <Button variant='outlined' onClick={() => setActiveTab(1)}>
-              Next
+              {t.buttons.next}
             </Button>
           )}
           {activeTab === 1 && (
@@ -631,7 +637,7 @@ const CertificateForm: React.FC<CertificateFormProps> = ({
               color='success'
               onClick={handleSubmit(onSubmit)}
             >
-              {certificate ? 'Update' : 'Submit'} Certificate
+              {certificate ? t.buttons.updateCertificate : t.buttons.submitCertificate}
             </LoadingButton>
           )}
         </Box>

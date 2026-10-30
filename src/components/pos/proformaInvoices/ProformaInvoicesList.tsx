@@ -14,6 +14,7 @@ import { getSanitizedSearchKeyword } from '@/utilities/getSanitizedSearchKeyword
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { OutletType, useSalesOutlet } from '../outlet/OutletProvider';
 import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface FilterDate {
   from?: string | null;
@@ -38,6 +39,7 @@ interface RqListProps {
 }
 
 const RqList: React.FC<RqListProps> = ({ activeOutlet }) => {
+  const dictionary = useDictionary();
   const params = useParams();
   const listRef = useRef<any>(null);
   const [openFilters, setOpenFilters] = useState(false);
@@ -158,7 +160,7 @@ const RqList: React.FC<RqListProps> = ({ activeOutlet }) => {
                     />
                   </Grid>
                   <Grid size={{ xs: 0.5, lg: 0.5 }} alignContent={'end'}>
-                    <Tooltip title="Filter Dates">
+                    <Tooltip title={dictionary.tooltips.filterDates}>
                       <IconButton onClick={() => {
                         setQueryOptions(state => ({
                           ...state,

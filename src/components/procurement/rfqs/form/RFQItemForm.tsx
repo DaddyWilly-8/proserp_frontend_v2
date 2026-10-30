@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   Button,
   Divider,
@@ -25,6 +25,7 @@ import CommaSeparatedField from '@/shared/Inputs/CommaSeparatedField';
 import { sanitizedNumber } from '@/app/helpers/input-sanitization-helpers';
 import { wholeUnitQuantityTest } from '@/app/helpers/measurement-unit-helpers';
 import { RFQItem } from '../rfq-types';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface RFQItemFormProps {
   setClearFormKey?: React.Dispatch<React.SetStateAction<number>>;
@@ -69,11 +70,20 @@ interface FormValues {
   unit_symbol?: string;
 }
 
-const validationSchema = yup.object({
-  product: yup.object().required('Product is required').typeError('Product is required'),
-  quantity: yup.number().required('Quantity is required').positive('Quantity is required').typeError('Quantity is required').test(wholeUnitQuantityTest),
-  remarks: yup.string().nullable(),
-});
+const getValidationSchema = (dictionary: any) =>
+  yup.object({
+    product: yup
+      .object()
+      .required(dictionary.forms.rfqs.item.validation.product)
+      .typeError(dictionary.forms.rfqs.item.validation.product),
+    quantity: yup
+      .number()
+      .required(dictionary.forms.rfqs.item.validation.quantity)
+      .positive(dictionary.forms.rfqs.item.validation.quantity)
+      .typeError(dictionary.forms.rfqs.item.validation.quantity)
+      .test(wholeUnitQuantityTest),
+    remarks: yup.string().nullable(),
+  });
 
 const RFQItemForm: React.FC<RFQItemFormProps> = ({
   setClearFormKey,
@@ -86,6 +96,11 @@ const RFQItemForm: React.FC<RFQItemFormProps> = ({
   item = null,
   index = -1,
 }) => {
+  const dictionary = useDictionary();
+  const validationSchema = useMemo(
+    () => getValidationSchema(dictionary),
+    [dictionary]
+  );
   const [isAdding, setIsAdding] = useState(false);
   const [productUnits, setProductUnits] = useState<Unit[]>([]);
   const [selectedUnit, setSelectedUnit] = useState<number | undefined>(item?.measurement_unit_id);
@@ -333,14 +348,14 @@ const RFQItemForm: React.FC<RFQItemFormProps> = ({
       <Grid container columnSpacing={1} rowSpacing={1} mb={1} mt={1}>
         {!isEditing && (
           <Grid size={12} textAlign={'center'}>
-            <Typography variant='h5'>Add RFQ Item</Typography>
+            <Typography variant='h5'>{dictionary.forms.rfqs.item.addTitle}</Typography>
           </Grid>
         )}
 
         <Grid size={{ xs: 12, md: productUnits?.length > 0 ? 4 : 5 }}>
           <ProductSelect
             key={`product-select-${resetKey}`}
-            label='Product'
+            label={dictionary.forms.rfqs.common.product}
             frontError={errors.product}
             defaultValue={defaultProduct}
             onChange={(newValue: any) => {
@@ -365,7 +380,7 @@ const RFQItemForm: React.FC<RFQItemFormProps> = ({
         {productUnits?.length > 0 && selectedUnit && (
           <Grid size={{ xs: 12, md: 2 }}>
             <FormControl fullWidth size='small'>
-              <InputLabel>Unit</InputLabel>
+              <InputLabel>{dictionary.forms.rfqs.common.unit}</InputLabel>
               <Controller
                 name="measurement_unit_id"
                 control={control}
@@ -388,7 +403,7 @@ const RFQItemForm: React.FC<RFQItemFormProps> = ({
                         });
                       }
                     }}
-                    label="Unit"
+                    label={dictionary.forms.rfqs.common.unit}
                   >
                     {productUnits.map((unit) => (
                       <MenuItem key={unit.id} value={unit.id}>
@@ -404,7 +419,7 @@ const RFQItemForm: React.FC<RFQItemFormProps> = ({
 
         <Grid size={{ xs: 6, md: productUnits?.length > 0 ? 2 : 3 }}>
           <TextField
-            label="Quantity"
+            label={dictionary.forms.rfqs.common.quantity}
             fullWidth
             size='small'
             InputProps={{
@@ -425,7 +440,7 @@ const RFQItemForm: React.FC<RFQItemFormProps> = ({
 
         <Grid size={{ xs: 10, md: 3 }}>
           <TextField
-            label="Remarks"
+            label={dictionary.forms.rfqs.common.remarks}
             fullWidth
             size='small'
             value={watch('remarks') || ''}
@@ -443,17 +458,17 @@ const RFQItemForm: React.FC<RFQItemFormProps> = ({
           >
             {isEditing ? (
               <>
-                <CheckOutlined fontSize='small' /> Update
+                <CheckOutlined fontSize='small' /> {dictionary.forms.rfqs.common.update}
               </>
             ) : (
               <>
-                <AddOutlined fontSize='small' /> Add
+                <AddOutlined fontSize='small' /> {dictionary.forms.rfqs.common.add}
               </>
             )}
           </Button>
 
           {isEditing && (
-            <Tooltip title='Cancel Edit'>
+            <Tooltip title={dictionary.tooltips.cancelEdit}>
               <IconButton
                 size='small'
                 onClick={() => {

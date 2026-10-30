@@ -31,6 +31,7 @@ interface StaffLoanReportDocumentProps {
   organization: any;
   userName: string;
   filtersLabel: string;
+  dictionary: any;
 }
 
 function formatNumber(value: number | string | null | undefined) {
@@ -38,17 +39,17 @@ function formatNumber(value: number | string | null | undefined) {
   return numeric.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
-const columns = [
-  { label: 'Employee No.', flex: 1.1 },
-  { label: 'Name', flex: 1.6 },
-  { label: 'Department', flex: 1.3 },
-  { label: 'Status', flex: 1.1 },
-  { label: 'Requested', flex: 1 },
-  { label: 'Approved', flex: 1, align: 'right' as const },
-  { label: 'Installment', flex: 1, align: 'right' as const },
-  { label: 'Disbursed', flex: 0.8, align: 'center' as const },
-  { label: 'Recovered', flex: 1, align: 'right' as const },
-  { label: 'Outstanding', flex: 1, align: 'right' as const },
+const buildColumns = (dictionary: any) => [
+  { label: dictionary.humanResources.reports.common.employeeNo, flex: 1.1 },
+  { label: dictionary.humanResources.reports.common.name, flex: 1.6 },
+  { label: dictionary.humanResources.reports.common.department, flex: 1.3 },
+  { label: dictionary.humanResources.reports.common.status, flex: 1.1 },
+  { label: dictionary.humanResources.reports.staffLoans.columns.requested, flex: 1 },
+  { label: dictionary.humanResources.reports.staffLoans.columns.approved, flex: 1, align: 'right' as const },
+  { label: dictionary.humanResources.reports.staffLoans.columns.installment, flex: 1, align: 'right' as const },
+  { label: dictionary.humanResources.reports.staffLoans.columns.disbursed, flex: 0.8, align: 'center' as const },
+  { label: dictionary.humanResources.reports.staffLoans.columns.recovered, flex: 1, align: 'right' as const },
+  { label: dictionary.humanResources.reports.staffLoans.columns.outstanding, flex: 1, align: 'right' as const },
 ];
 
 export default function StaffLoanReportDocument({
@@ -56,7 +57,9 @@ export default function StaffLoanReportDocument({
   organization,
   userName,
   filtersLabel,
+  dictionary,
 }: StaffLoanReportDocumentProps) {
+  const columns = buildColumns(dictionary);
   const mainColor = organization?.settings?.main_color || '#2113AD';
   const lightColor = organization?.settings?.light_color || '#bec5da';
   const contrastText = organization?.settings?.contrast_text || '#FFFFFF';
@@ -66,7 +69,7 @@ export default function StaffLoanReportDocument({
 
   return (
     <Document
-      title='Staff Loans Report'
+      title={dictionary.humanResources.reports.staffLoans.pdfTitle}
       creator={` ${userName} | Powered By ProsERP`}
       producer='ProsERP'
     >
@@ -76,17 +79,17 @@ export default function StaffLoanReportDocument({
             <PdfLogo organization={organization} />
           </View>
           <View style={{ flex: 1, textAlign: 'right' }}>
-            <Text style={{ ...pdfStyles.majorInfo, color: mainColor }}>Staff Loans Report</Text>
+            <Text style={{ ...pdfStyles.majorInfo, color: mainColor }}>{dictionary.humanResources.reports.staffLoans.pdfTitle}</Text>
           </View>
         </View>
 
         <View style={{ ...pdfStyles.tableRow, marginBottom: 12 }}>
           <View style={{ flex: 2 }}>
-            <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>Filters</Text>
+            <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>{dictionary.humanResources.reports.common.filters}</Text>
             <Text style={pdfStyles.minInfo}>{filtersLabel}</Text>
           </View>
           <View style={{ flex: 1 }}>
-            <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>Printed On</Text>
+            <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>{dictionary.humanResources.reports.common.printedOn}</Text>
             <Text style={pdfStyles.minInfo}>{readableDate(undefined, true)}</Text>
           </View>
         </View>
@@ -125,7 +128,7 @@ export default function StaffLoanReportDocument({
                   {formatNumber(row.installment_amount)}
                 </Text>
                 <Text style={{ ...pdfStyles.tableCell, backgroundColor: bg, flex: 0.8, textAlign: 'center' }}>
-                  {row.disbursed ? 'Yes' : 'No'}
+                  {row.disbursed ? dictionary.humanResources.reports.common.yes : dictionary.humanResources.reports.common.no}
                 </Text>
                 <Text style={{ ...pdfStyles.tableCell, backgroundColor: bg, flex: 1, textAlign: 'right' }}>
                   {formatNumber(row.amount_recovered)}
@@ -140,7 +143,7 @@ export default function StaffLoanReportDocument({
           {totals && (
             <View style={pdfStyles.tableRow}>
               <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 6.9 }}>
-                Total ({totals.count})
+                {dictionary.humanResources.reports.common.totalWithCount.replace('{count}', String(totals.count))}
               </Text>
               <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 1, textAlign: 'right' }}>
                 {formatNumber(totals.amount_approved)}

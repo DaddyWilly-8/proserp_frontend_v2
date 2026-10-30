@@ -1,3 +1,4 @@
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import { useCurrencySelect } from '@/components/masters/Currencies/CurrencySelectProvider';
 import ProjectLiabilityDocumentDialog from '@/components/projectManagement/projects/profile/dashboard/ProjectLiabilityDocumentDialog';
 import { KeyboardArrowDown, KeyboardArrowRight } from '@mui/icons-material';
@@ -14,14 +15,11 @@ import {
 } from '@mui/material';
 import dayjs from 'dayjs';
 import React, { useState } from 'react';
+import { PeriodCells, PeriodTableHead, pruneZeroNetTree } from '../periodColumns';
 
-const formatAmount = (amount) =>
-  (amount ?? 0).toLocaleString('en-US', {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  });
-
-const DebtorCreditorOnScreen = ({ reportData, authOrganization, user }) => {
+const DebtorCreditorOnScreen = ({ reportData, authOrganization, user, netOnly, closingOnly }) => {
+  const dictionary = useDictionary();
+  const t = dictionary.reports.accountsReports;
   const { currencies } = useCurrencySelect();
   const baseCurrency = currencies?.find((c) => c.is_base === 1);
   const organization = authOrganization?.organization;
@@ -35,7 +33,11 @@ const DebtorCreditorOnScreen = ({ reportData, authOrganization, user }) => {
   const [openRows, setOpenRows] = useState([]);
   const [liabilitiesPayload, setLiabilitiesPayload] = useState(null);
 
-  const rootGroup = reportData?.debtors || reportData?.creditors;
+  const rawRootGroup = reportData?.debtors || reportData?.creditors;
+  const rootGroup =
+    rawRootGroup && netOnly
+      ? pruneZeroNetTree(rawRootGroup, closingOnly)
+      : rawRootGroup;
   // debtors are rooted at the Accounts Receivable group (increases with
   // debit), creditors at Accounts Payable (increases with credit) — fixed
   // per report type, so this doesn't need to travel per-ledger anymore.
@@ -54,9 +56,11 @@ const DebtorCreditorOnScreen = ({ reportData, authOrganization, user }) => {
     reportData?.filters?.cost_centers?.map((itm) => cost_center_id.push(itm?.id));
 
     setLiabilitiesPayload({
-      from: dayjs(organization?.recording_start_date).toISOString(),
-      to: reportData?.filters?.as_at
-        ? dayjs(reportData?.filters?.as_at).toISOString()
+      from: reportData?.filters?.from
+        ? dayjs(reportData.filters.from).toISOString()
+        : dayjs(organization?.recording_start_date).toISOString(),
+      to: reportData?.filters?.to
+        ? dayjs(reportData.filters.to).toISOString()
         : dayjs().toISOString(),
       cost_center_ids: cost_center_id,
       with_item_description: true,
@@ -88,15 +92,10 @@ const DebtorCreditorOnScreen = ({ reportData, authOrganization, user }) => {
             {level > 0 && hasChildren && (isOpen ? <KeyboardArrowDown /> : <KeyboardArrowRight />)}
             <span style={{ marginLeft: 5 }}>{group.name}</span>
           </TableCell>
-          <TableCell
-            align='right'
-            sx={{
-              color: level === 0 ? contrastText : group.amount < 0 ? 'error.main' : undefined,
-              fontWeight: 'bold',
-            }}
-          >
-            {formatAmount(group.amount)}
-          </TableCell>
+          <PeriodCells netOnly={netOnly} closingOnly={closingOnly}
+            node={group}
+            sx={{ color: level === 0 ? contrastText : undefined, fontWeight: 'bold' }}
+          />
         </TableRow>
         {isOpen && group.children?.map((child) => renderGroup(child, level + 1))}
         {isOpen && group.ledgers?.map((ledger, index) => (
@@ -108,17 +107,14 @@ const DebtorCreditorOnScreen = ({ reportData, authOrganization, user }) => {
             }}
           >
             <TableCell style={{ paddingLeft: (level + 1) * 20 }}>{ledger.name}</TableCell>
-            <TableCell
-              align='right'
-              onClick={() => handleViewLedger(ledger)}
+            <PeriodCells netOnly={netOnly} closingOnly={closingOnly}
+              node={ledger}
               sx={{
                 cursor: 'pointer',
-                color: ledger.amount < 0 ? 'error.main' : undefined,
                 '&:hover': { color: 'primary.main' },
               }}
-            >
-              {formatAmount(ledger.amount)}
-            </TableCell>
+              onClick={() => handleViewLedger(ledger)}
+            />
           </TableRow>
         ))}
       </React.Fragment>
@@ -131,24 +127,24 @@ const DebtorCreditorOnScreen = ({ reportData, authOrganization, user }) => {
         <TableContainer component={TablePaper}>
           <Table>
             <TableHead>
-              <TableRow>
-                <TableCell sx={{ backgroundColor: mainColor, color: contrastText }}>
-                  Name
-                </TableCell>
-                <TableCell align='right' sx={{ backgroundColor: mainColor, color: contrastText }}>
-                  Amount
-                </TableCell>
-              </TableRow>
+              <PeriodTableHead netOnly={netOnly} closingOnly={closingOnly}
+                leadingLabels={[t.debtorCreditor.name]}
+                labels={t.common}
+                backgroundColor={mainColor}
+                color={contrastText}
+                filters={reportData.filters}
+              />
             </TableHead>
             <TableBody>
               {renderGroup(rootGroup, 0)}
               <TableRow>
                 <TableCell sx={{ backgroundColor: mainColor, color: contrastText, borderBottom: 'none' }}>
-                  Total
+                  {t.common.total}
                 </TableCell>
-                <TableCell align='right' sx={{ backgroundColor: mainColor, color: contrastText, borderBottom: 'none' }}>
-                  {formatAmount(reportData.total)}
-                </TableCell>
+                <PeriodCells netOnly={netOnly} closingOnly={closingOnly}
+                  node={reportData.total}
+                  sx={{ backgroundColor: mainColor, color: contrastText, borderBottom: 'none', fontWeight: 'bold' }}
+                />
               </TableRow>
             </TableBody>
           </Table>

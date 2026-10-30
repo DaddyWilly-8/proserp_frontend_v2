@@ -28,6 +28,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSnackbar } from 'notistack';
 import { ChangeEvent, useState } from 'react';
 import humanResourcesServices from '../humanResourcesServices';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -46,6 +47,7 @@ const EmployeeAttendanceDialog = ({
 }: {
   setOpenDialog: (open: boolean) => void;
 }) => {
+  const dictionary = useDictionary();
   const theme = useTheme();
   const [tabValue, setTabValue] = useState(0);
   const [settingTab, setSettingTab] = useState(0);
@@ -64,7 +66,7 @@ const EmployeeAttendanceDialog = ({
       anchor.download = 'employees-attendance-template.xlsx';
       anchor.click();
       window.URL.revokeObjectURL(url);
-      enqueueSnackbar('Template downloaded successfully', {
+      enqueueSnackbar(dictionary.humanResources.employeesAttendance.dialog.messages.templateDownloaded, {
         variant: 'success',
       });
     },
@@ -80,12 +82,14 @@ const EmployeeAttendanceDialog = ({
 
       if (response.errors && response.errors.length > 0) {
         enqueueSnackbar(
-          `${response.message}. ${response.errors.length} error(s) found. Check the details below.`,
+          dictionary.humanResources.employeesAttendance.dialog.messages.importErrors
+            .replace('{message}', response.message)
+            .replace('{count}', String(response.errors.length)),
           { variant: 'warning' }
         );
       } else if (response.imported > 0 && response.skipped === 0) {
         enqueueSnackbar(
-          response.message || 'Employees Attendance imported successfully',
+          response.message || dictionary.humanResources.employeesAttendance.dialog.messages.importedSuccessfully,
           {
             variant: 'success',
           }
@@ -93,13 +97,16 @@ const EmployeeAttendanceDialog = ({
         setOpenDialog(false);
       } else if (response.imported > 0 && response.skipped > 0) {
         enqueueSnackbar(
-          `${response.message}. ${response.imported} imported, ${response.skipped} skipped.`,
+          dictionary.humanResources.employeesAttendance.dialog.messages.importedAndSkipped
+            .replace('{message}', response.message)
+            .replace('{imported}', String(response.imported))
+            .replace('{skipped}', String(response.skipped)),
           { variant: 'warning' }
         );
       } else {
         enqueueSnackbar(
           response.message ||
-            'No employees attendance were imported. Please check the errors below.',
+            dictionary.humanResources.employeesAttendance.dialog.messages.noneImported,
           { variant: 'error' }
         );
       }
@@ -144,7 +151,7 @@ const EmployeeAttendanceDialog = ({
         fontWeight={600}
         sx={{ textAlign: 'center', pb: 1 }}
       >
-        Employee Attendance
+        {dictionary.humanResources.employeesAttendance.dialog.title}
       </DialogTitle>
 
       <DialogContent>
@@ -171,12 +178,12 @@ const EmployeeAttendanceDialog = ({
           >
             <Tab
               icon={<DownloadOutlined />}
-              label='Download Template'
+              label={dictionary.humanResources.employeesAttendance.dialog.tabs.downloadTemplate}
               iconPosition='start'
             />
             <Tab
               icon={<UploadOutlined />}
-              label='Upload Excel'
+              label={dictionary.humanResources.employeesAttendance.dialog.tabs.uploadExcel}
               iconPosition='start'
             />
           </Tabs>
@@ -203,11 +210,10 @@ const EmployeeAttendanceDialog = ({
               }}
             >
               <Typography variant='body2' fontWeight={600} gutterBottom>
-                Getting Started
+                {dictionary.humanResources.employeesAttendance.dialog.gettingStarted}
               </Typography>
               <Typography variant='body2' color='text.secondary'>
-                Download the Excel template below. Fill in employee attendance
-                details following the format provided.
+                {dictionary.humanResources.employeesAttendance.dialog.gettingStartedText}
               </Typography>
             </Alert>
 
@@ -254,10 +260,10 @@ const EmployeeAttendanceDialog = ({
                 />
               </Box>
               <Typography variant='h6' fontWeight={600}>
-                Employee Attendance Template
+                {dictionary.humanResources.employeesAttendance.dialog.templateTitle}
               </Typography>
               <Typography variant='body2' color='text.secondary' align='center'>
-                Excel file with pre-defined columns and dropdown validation
+                {dictionary.humanResources.employeesAttendance.dialog.templateDescription}
               </Typography>
             </Paper>
           </Stack>
@@ -279,12 +285,10 @@ const EmployeeAttendanceDialog = ({
               }}
             >
               <Typography variant='body2' fontWeight={600} gutterBottom>
-                Upload Instructions
+                {dictionary.humanResources.employeesAttendance.dialog.uploadInstructions}
               </Typography>
               <Typography variant='body2' color='text.secondary'>
-                Upload the filled Excel file. Employees with existing IDs or
-                duplicate entries will be skipped. If a row has Basic Salary, an
-                active contract will be created automatically.
+                {dictionary.humanResources.employeesAttendance.dialog.uploadInstructionsText}
               </Typography>
             </Alert>
 
@@ -349,7 +353,10 @@ const EmployeeAttendanceDialog = ({
                     {file.name}
                   </Typography>
                   <Typography variant='body2' color='text.secondary'>
-                    {(file.size / 1024).toFixed(1)} KB • Ready to upload
+                    {dictionary.humanResources.employeesAttendance.dialog.readyToUpload.replace(
+                      '{size}',
+                      (file.size / 1024).toFixed(1)
+                    )}
                   </Typography>
                   <Button
                     variant='outlined'
@@ -358,13 +365,13 @@ const EmployeeAttendanceDialog = ({
                     onClick={() => setFile(null)}
                     sx={{ borderRadius: 2, textTransform: 'none' }}
                   >
-                    Remove File
+                    {dictionary.humanResources.employeesAttendance.dialog.removeFile}
                   </Button>
                 </>
               ) : (
                 <>
                   <Typography variant='body2' color='text.secondary'>
-                    No file selected
+                    {dictionary.humanResources.employeesAttendance.dialog.noFileSelected}
                   </Typography>
                   <Button
                     variant='outlined'
@@ -377,7 +384,7 @@ const EmployeeAttendanceDialog = ({
                       fontWeight: 500,
                     }}
                   >
-                    Select Excel File
+                    {dictionary.humanResources.employeesAttendance.dialog.selectExcelFile}
                     <input
                       hidden
                       type='file'
@@ -428,7 +435,7 @@ const EmployeeAttendanceDialog = ({
                       color={isDark ? theme.palette.text.primary : 'primary'}
                       gutterBottom
                     >
-                      Import Summary
+                      {dictionary.humanResources.employeesAttendance.dialog.importSummary}
                     </Typography>
                     <Box
                       sx={{ display: 'flex', gap: 4, mt: 1, flexWrap: 'wrap' }}
@@ -439,7 +446,7 @@ const EmployeeAttendanceDialog = ({
                           color='text.secondary'
                           display='block'
                         >
-                          Imported
+                          {dictionary.humanResources.employeesAttendance.dialog.imported}
                         </Typography>
                         <Typography
                           variant='h6'
@@ -455,7 +462,7 @@ const EmployeeAttendanceDialog = ({
                           color='text.secondary'
                           display='block'
                         >
-                          Skipped
+                          {dictionary.humanResources.employeesAttendance.dialog.skipped}
                         </Typography>
                         <Typography
                           variant='h6'
@@ -471,7 +478,7 @@ const EmployeeAttendanceDialog = ({
                           color='text.secondary'
                           display='block'
                         >
-                          Errors
+                          {dictionary.humanResources.employeesAttendance.dialog.errors}
                         </Typography>
                         <Typography
                           variant='h6'
@@ -487,7 +494,7 @@ const EmployeeAttendanceDialog = ({
                           color='text.secondary'
                           display='block'
                         >
-                          Total Processed
+                          {dictionary.humanResources.employeesAttendance.dialog.totalProcessed}
                         </Typography>
                         <Typography
                           variant='h6'
@@ -521,8 +528,10 @@ const EmployeeAttendanceDialog = ({
                         sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
                       >
                         <ErrorOutline fontSize='small' color='warning' />
-                        Skipped Rows ({importResult.errors.length} row
-                        {importResult.errors.length > 1 ? 's' : ''})
+                        {dictionary.humanResources.employeesAttendance.dialog.skippedRows.replace(
+                          '{count}',
+                          String(importResult.errors.length)
+                        )}
                       </Typography>
 
                       <Box
@@ -580,7 +589,7 @@ const EmployeeAttendanceDialog = ({
                             color={isDark ? 'text.primary' : 'text.secondary'}
                             sx={{ letterSpacing: 0.5 }}
                           >
-                            Row No.
+                            {dictionary.humanResources.employeesAttendance.dialog.rowNo}
                           </Typography>
                           <Typography
                             variant='caption'
@@ -588,7 +597,7 @@ const EmployeeAttendanceDialog = ({
                             color={isDark ? 'text.primary' : 'text.secondary'}
                             sx={{ letterSpacing: 0.5 }}
                           >
-                            Error Description
+                            {dictionary.humanResources.employeesAttendance.dialog.errorDescription}
                           </Typography>
                         </Box>
 
@@ -657,7 +666,10 @@ const EmployeeAttendanceDialog = ({
                                     fontSize: '0.7rem',
                                   }}
                                 >
-                                  Row data: {JSON.stringify(item.rowData)}
+                                  {dictionary.humanResources.employeesAttendance.dialog.rowData.replace(
+                                    '{data}',
+                                    JSON.stringify(item.rowData)
+                                  )}
                                 </Typography>
                               )}
                             </Box>
@@ -685,8 +697,7 @@ const EmployeeAttendanceDialog = ({
                           sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
                         >
                           <span style={{ fontSize: '1.2rem' }}>💡</span>
-                          <strong>Tip:</strong> Correct the errors above and
-                          re-upload the Excel file to import these employees.
+                          <strong>{dictionary.humanResources.employeesAttendance.dialog.tipLabel}</strong> {dictionary.humanResources.employeesAttendance.dialog.tipText}
                         </Typography>
                       </Box>
                     </Box>
@@ -705,9 +716,10 @@ const EmployeeAttendanceDialog = ({
                         }}
                       >
                         <Typography variant='body2'>
-                          ✅ All {importResult.imported} employee
-                          {importResult.imported > 1 ? 's' : ''} were imported
-                          successfully!
+                          {dictionary.humanResources.employeesAttendance.dialog.allImported.replace(
+                            '{count}',
+                            String(importResult.imported)
+                          )}
                         </Typography>
                       </Alert>
                     )}
@@ -749,7 +761,7 @@ const EmployeeAttendanceDialog = ({
             },
           }}
         >
-          Close
+          {dictionary.humanResources.employeesAttendance.dialog.buttons.close}
         </Button>
 
         {tabValue === 0 && (
@@ -766,7 +778,9 @@ const EmployeeAttendanceDialog = ({
               fontWeight: 600,
             }}
           >
-            {isDownloading ? 'Downloading...' : 'Download Template'}
+            {isDownloading
+              ? dictionary.humanResources.employeesAttendance.dialog.buttons.downloading
+              : dictionary.humanResources.employeesAttendance.dialog.buttons.downloadTemplate}
           </Button>
         )}
         {file && tabValue === 1 && (
@@ -784,7 +798,9 @@ const EmployeeAttendanceDialog = ({
               fontWeight: 600,
             }}
           >
-            {isImporting ? 'Uploading...' : 'Upload & Import'}
+            {isImporting
+              ? dictionary.humanResources.employeesAttendance.dialog.buttons.uploading
+              : dictionary.humanResources.employeesAttendance.dialog.buttons.uploadAndImport}
           </Button>
         )}
       </DialogActions>

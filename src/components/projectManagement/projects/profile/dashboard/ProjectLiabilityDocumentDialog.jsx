@@ -1,3 +1,4 @@
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import { readableDate } from '@/app/helpers/input-sanitization-helpers';
 import ledgerServices from '@/components/accounts/ledgers/ledger-services';
 import LedgerStatementOnScreen from '@/components/accounts/ledgers/list/ledgerStatement/LedgerStatementOnScreen';
@@ -31,6 +32,7 @@ const ProjectLiabilityDocumentDialog = ({
   user,
   liabilitiesPaylod,
 }) => {
+  const dictionary = useDictionary();
   const [isExporting, setIsExporting] = useState(false);
   const [showOnScreen, setShowOnScreen] = useState(true);
   const { theme } = useJumboTheme();
@@ -78,7 +80,7 @@ const ProjectLiabilityDocumentDialog = ({
     >
       <DialogTitle>
         <Typography textAlign={'center'}>
-          {liabilitiesPaylod?.liabilityName ?? 'Liability'} Statement
+          {dictionary.projectManagement.dashboard.liabilityStatement.replace('{name}', liabilitiesPaylod?.liabilityName ?? dictionary.projectManagement.dashboard.liability)}
         </Typography>
         <PreviewTopBar
           fileExportGrid={
@@ -137,7 +139,7 @@ const ProjectLiabilityDocumentDialog = ({
           />
         ) : (
           <PDFContent
-            fileName='Liability report'
+            fileName={dictionary.projectManagement.dashboard.liabilityReport}
             document={
               <ProjectLiabilityDocumentPDF
                 transactionsData={transactions}
@@ -145,6 +147,7 @@ const ProjectLiabilityDocumentDialog = ({
                 user={user}
                 ledgerName={liabilitiesPaylod?.liabilityName}
                 increasesWith={liabilitiesPaylod?.increasesWith}
+                dictionary={dictionary}
               />
             }
           />
@@ -163,7 +166,7 @@ const ProjectLiabilityDocumentDialog = ({
             color='primary'
             onClick={() => onClose(false)}
           >
-            Close
+            {dictionary.projectManagement.dashboard.close}
           </Button>
         </Box>
       </DialogActions>

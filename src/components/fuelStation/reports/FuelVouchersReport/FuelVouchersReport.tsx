@@ -38,6 +38,7 @@ import PDFContent from '../../../pdf/PDFContent';
 import fuelStationServices from '../../fuelStationServices';
 import FuelVoucherReportOnScreen from './FuelVoucherReportOnScreen';
 import FuelVouchersReportPDF from './FuelVouchersReportPDF';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 dayjs.extend(isSameOrAfter);
 
 interface Station {
@@ -84,18 +85,18 @@ interface FilterFormValues {
   with_receipts: boolean;
 }
 
-const filterSchema = yup.object({
+const buildFilterSchema = (t: any) => yup.object({
   from: yup
     .mixed<Dayjs>()
-    .required('From date is required')
-    .test('is-dayjs', 'Invalid date', dayjs.isDayjs),
+    .required(t.fromDateRequired)
+    .test('is-dayjs', t.invalidDate, dayjs.isDayjs),
   to: yup
     .mixed<Dayjs>()
-    .required('To date is required')
-    .test('is-dayjs', 'Invalid date', dayjs.isDayjs)
+    .required(t.toDateRequired)
+    .test('is-dayjs', t.invalidDate, dayjs.isDayjs)
     .test(
       'after-or-same',
-      'To date must be after or same as From date',
+      t.toDateAfterFrom,
       function (value) {
         const { from } = this.parent;
         return !from || !value || dayjs(value).isSameOrAfter(dayjs(from));
@@ -108,6 +109,9 @@ const filterSchema = yup.object({
 }) as yup.ObjectSchema<FilterFormValues>;
 
 const FuelVouchersReport: React.FC<fvPdfDialog> = ({ closeDialog }) => {
+  const dictionary = useDictionary();
+  const t = dictionary.reports.fuelStationReports.fuelVouchers;
+  const filterSchema = React.useMemo(() => buildFilterSchema(t), [t]);
   const css = useProsERPStyles();
   const { authUser, authOrganization } = useJumboAuth();
   const organization = authOrganization?.organization;
@@ -308,11 +312,9 @@ const FuelVouchersReport: React.FC<fvPdfDialog> = ({ closeDialog }) => {
           alignItems='center'
           position='relative'
         >
-          <Typography variant='h4' fontWeight={600}>
-            Fuel Vouchers Report
-          </Typography>
+          <Typography variant='h4' fontWeight={600}>{t.title}</Typography>
           {belowLargeScreen && (
-            <Tooltip title='Close'>
+            <Tooltip title={dictionary.tooltips.close}>
               <IconButton
                 size='small'
                 sx={{ position: 'absolute', right: 20, top: 0 }}
@@ -339,7 +341,7 @@ const FuelVouchersReport: React.FC<fvPdfDialog> = ({ closeDialog }) => {
                   control={control}
                   render={({ field, fieldState: { error } }) => (
                     <DateTimePicker
-                      label='From'
+                      label={t.from}
                       value={field.value}
                       minDate={dayjs(organization?.recording_start_date)}
                       ampm={false}
@@ -363,7 +365,7 @@ const FuelVouchersReport: React.FC<fvPdfDialog> = ({ closeDialog }) => {
                   control={control}
                   render={({ field, fieldState: { error } }) => (
                     <DateTimePicker
-                      label='To'
+                      label={t.to}
                       value={field.value}
                       minDate={dayjs(organization?.recording_start_date)}
                       ampm={false}
@@ -398,7 +400,7 @@ const FuelVouchersReport: React.FC<fvPdfDialog> = ({ closeDialog }) => {
                       renderInput={(params) => (
                         <TextField
                           {...params}
-                          label='Station'
+                          label={t.station}
                           error={!!error}
                           helperText={error?.message}
                         />
@@ -415,7 +417,7 @@ const FuelVouchersReport: React.FC<fvPdfDialog> = ({ closeDialog }) => {
                     control={control}
                     render={({ field }) => (
                       <StakeholderSelector
-                        label='Client'
+                        label={t.client}
                         defaultValue={0}
                         onChange={field.onChange}
                       />
@@ -437,7 +439,7 @@ const FuelVouchersReport: React.FC<fvPdfDialog> = ({ closeDialog }) => {
                             onChange={(e) => field.onChange(e.target.checked)}
                           />
                         }
-                        label='With Receipts'
+                        label={t.withReceipts}
                       />
                     )}
                   />
@@ -452,7 +454,7 @@ const FuelVouchersReport: React.FC<fvPdfDialog> = ({ closeDialog }) => {
                       control={control}
                       render={({ field }) => (
                         <LedgerSelect
-                          label='Expense'
+                          label={t.expense}
                           allowedGroups={['Expenses']}
                           multiple={true}
                           defaultValue={[]}
@@ -492,9 +494,7 @@ const FuelVouchersReport: React.FC<fvPdfDialog> = ({ closeDialog }) => {
                   type='submit'
                   loading={isFetchingReport}
                   variant='contained'
-                >
-                  Filter
-                </LoadingButton>
+                >{t.filter}</LoadingButton>
               </Grid>
             </Grid>
           </form>
@@ -534,6 +534,7 @@ const FuelVouchersReport: React.FC<fvPdfDialog> = ({ closeDialog }) => {
                     reportData={reportData}
                     organization={organization}
                     filters={pdfFilters!}
+                    dictionary={dictionary}
                   />
                 }
               />
@@ -550,8 +551,8 @@ const FuelVouchersReport: React.FC<fvPdfDialog> = ({ closeDialog }) => {
         ) : (
           <Alert variant='outlined' severity='info'>
             {queryParams
-              ? 'No fuel vouchers present for the selected filters'
-              : 'Please select filters and click "Filter" to generate the report'}
+              ? t.noVouchers
+              : t.selectFilters}
           </Alert>
         )}
       </DialogContent>

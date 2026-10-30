@@ -10,8 +10,10 @@ import ProductSelect from '@/components/productAndServices/products/ProductSelec
 import StoreSelector from '@/components/procurement/stores/StoreSelector';
 import CommaSeparatedField from '@/shared/Inputs/CommaSeparatedField';
 import { sanitizedNumber } from '@/app/helpers/input-sanitization-helpers';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function ByProductsItemForm({setClearFormKey, submitMainForm, submitItemForm, setSubmitItemForm, setIsDirty, item = null, index = -1, setBy_products, by_products = [], setShowForm = null}) {
+  const dictionary = useDictionary();
   const { productOptions } = useProductsSelect();
   const { activeWorkCenter } = useContext(ProductionBatchesContext);
   const nonInventoryIds = productOptions?.filter(product => product.type !== 'Inventory').map(product => product.id);
@@ -20,11 +22,11 @@ function ByProductsItemForm({setClearFormKey, submitMainForm, submitItemForm, se
   const validationSchema = yup.object({
     product_id: yup
       .number()
-      .required("Product is required")
-      .typeError("Product is required")
+      .required(dictionary.forms.batches.validation.productRequired)
+      .typeError(dictionary.forms.batches.validation.productRequired)
       .test(
         'unique-product',
-        'Product already exists',
+        dictionary.forms.batches.validation.productExists,
         (value) => {
           // Exclude the current product being edited
           const isEditing = index > -1 && by_products[index]?.product_id === value;
@@ -32,9 +34,9 @@ function ByProductsItemForm({setClearFormKey, submitMainForm, submitItemForm, se
           return isEditing || !isDuplicate;
         }
       ),
-    store_id: yup.number().required("Store is required").typeError('Store is required'),
-    quantity: yup.number().required("Quantity is required").positive("Quantity is required").typeError('Quantity is required'),
-    measurement_unit_id: yup.number().required("Measurement Unit is required").typeError('Measurement Unit is required'),
+    store_id: yup.number().required(dictionary.forms.batches.validation.storeRequired).typeError(dictionary.forms.batches.validation.storeRequired),
+    quantity: yup.number().required(dictionary.forms.batches.validation.quantityRequired).positive(dictionary.forms.batches.validation.quantityRequired).typeError(dictionary.forms.batches.validation.quantityRequired),
+    measurement_unit_id: yup.number().required(dictionary.forms.batches.validation.measurementUnitRequired).typeError(dictionary.forms.batches.validation.measurementUnitRequired),
   })
 
   const {setValue, handleSubmit, register, watch, reset, formState: {errors}} = useForm({
@@ -102,7 +104,7 @@ function ByProductsItemForm({setClearFormKey, submitMainForm, submitItemForm, se
       <Grid container columnSpacing={1} rowSpacing={1} mt={1}>
         <Grid size={{xs: 12, md: 4}}>
           <ProductSelect
-            label='Product'
+            label={dictionary.forms.batches.labels.product}
             frontError={errors.product_id}
             defaultValue={item && item.product}
             excludeIds={nonInventoryIds}
@@ -154,7 +156,7 @@ function ByProductsItemForm({setClearFormKey, submitMainForm, submitItemForm, se
         </Grid>
         <Grid size={{xs: 12, md: 4}}>
           <TextField
-            label="Quantity"
+            label={dictionary.forms.batches.labels.quantity}
             fullWidth
             size='small'
             defaultValue={item && item.quantity}
@@ -217,7 +219,7 @@ function ByProductsItemForm({setClearFormKey, submitMainForm, submitItemForm, se
             size="small"
             fullWidth
             defaultValue={item && item.market_value}
-            label="Market Value"
+            label={dictionary.forms.batches.labels.marketValue}
             InputProps={{
               inputComponent: CommaSeparatedField
             }}
@@ -231,7 +233,7 @@ function ByProductsItemForm({setClearFormKey, submitMainForm, submitItemForm, se
         </Grid>
         <Grid size={{xs: 12, md: 7}}>
           <TextField
-            label="Remarks"
+            label={dictionary.forms.batches.labels.remarks}
             fullWidth
             size="small"
             {...register('remarks')}
@@ -245,15 +247,15 @@ function ByProductsItemForm({setClearFormKey, submitMainForm, submitItemForm, se
           >
             {
               item ? (
-                <><CheckOutlined fontSize='small' /> Done</>
+                <><CheckOutlined fontSize='small' /> {dictionary.forms.batches.buttons.done}</>
               ) : (
-                <><AddOutlined fontSize='small' /> Add</>
+                <><AddOutlined fontSize='small' /> {dictionary.forms.batches.buttons.add}</>
               )
             }
           </Button>
           {
             item && 
-            <Tooltip title='Close Edit'>
+            <Tooltip title={dictionary.tooltips.closeEdit}>
               <IconButton size='small' 
                 onClick={() => {
                   setShowForm(false);

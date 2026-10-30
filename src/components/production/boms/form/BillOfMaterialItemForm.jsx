@@ -28,6 +28,7 @@ import { sanitizedNumber } from '@/app/helpers/input-sanitization-helpers';
 import { wholeUnitQuantityTest } from '@/app/helpers/measurement-unit-helpers';
 import ProductQuickAdd from '@/components/productAndServices/products/ProductQuickAdd';
 import { useProductsSelect } from '@/components/productAndServices/products/ProductsSelectProvider';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function BillOfMaterialItemForm({
   setClearFormKey,
@@ -41,6 +42,7 @@ function BillOfMaterialItemForm({
   items = [],
   setShowForm = null,
 }) {
+  const dictionary = useDictionary();
   const { productOptions } = useProductsSelect();
   const { checkOrganizationPermission } = useJumboAuth();
 
@@ -60,15 +62,15 @@ function BillOfMaterialItemForm({
   const validationSchema = yup.object({
     product: yup
       .object()
-      .required('Material is required')
-      .typeError('Material is required'),
+      .required(dictionary.forms.boms.validation.materialRequired)
+      .typeError(dictionary.forms.boms.validation.materialRequired),
     quantity: yup.number().when('product', {
       is: (product) => !!product && product.type === 'Inventory',
       then: (schema) =>
         schema
-          .required('Quantity is required')
-          .positive('Quantity must be positive')
-          .typeError('Quantity is required')
+          .required(dictionary.forms.boms.validation.quantityRequired)
+          .positive(dictionary.forms.boms.validation.quantityPositiveShort)
+          .typeError(dictionary.forms.boms.validation.quantityRequired)
           .test(wholeUnitQuantityTest),
     }),
   });
@@ -163,7 +165,7 @@ function BillOfMaterialItemForm({
         {openProductQuickAdd && !item && (
           <Grid size={12} textAlign="center">
             <Typography variant="h5">
-              Quick Input Product Registration
+              {dictionary.forms.boms.titles.quickInput}
             </Typography>
           </Grid>
         )}
@@ -173,7 +175,7 @@ function BillOfMaterialItemForm({
           <>
             <Grid size={{xs: 12, md: 8}}>
               <ProductSelect
-                label="Input Product"
+                label={dictionary.forms.boms.labels.inputProduct}
                 frontError={errors.product}
                 addedProduct={addedProduct}
                 defaultValue={item && item.product}
@@ -203,7 +205,7 @@ function BillOfMaterialItemForm({
                 }}
                 startAdornment={
                   checkOrganizationPermission([PERMISSIONS.PRODUCTS_CREATE]) && (
-                    <Tooltip title="Add New Input Product">
+                    <Tooltip title={dictionary.tooltips.addNewInputProduct}>
                       <AddOutlined
                         onClick={() => setOpenProductQuickAdd(true)}
                         sx={{ cursor: 'pointer' }}
@@ -216,7 +218,7 @@ function BillOfMaterialItemForm({
 
             <Grid size={{xs: 12, md: 4}}>
               <TextField
-                label="Quantity"
+                label={dictionary.forms.boms.labels.quantity}
                 fullWidth
                 size="small"
                 defaultValue={item?.quantity}
@@ -288,17 +290,17 @@ function BillOfMaterialItemForm({
               >
                 {item ? (
                   <>
-                    <CheckOutlined fontSize="small" /> Done
+                    <CheckOutlined fontSize="small" /> {dictionary.forms.boms.buttons.done}
                   </>
                 ) : (
                   <>
-                    <AddOutlined fontSize="small" /> Add
+                    <AddOutlined fontSize="small" /> {dictionary.forms.boms.buttons.add}
                   </>
                 )}
               </Button>
 
               {item && (
-                <Tooltip title="Close Edit">
+                <Tooltip title={dictionary.tooltips.closeEdit}>
                   <IconButton
                     size="small"
                     onClick={() => {

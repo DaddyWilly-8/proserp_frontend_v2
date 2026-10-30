@@ -193,6 +193,38 @@ projectsServices.addSubcontractCertificateApproval = async (approval) => {
     return data;
 }
 
+// The requester pulling their own claim/certificate back before any approver has acted on it.
+projectsServices.withdrawClaim = async (id) => {
+    const { data } = await axios.post(`/api/projectManagement/project/${id}/withdrawClaim`)
+    return data;
+}
+
+projectsServices.withdrawCertificate = async (id) => {
+    const { data } = await axios.post(`/api/projectManagement/project/${id}/withdrawCertificate`)
+    return data;
+}
+
+// Change / take back your own latest decision (e.g. release a hold).
+projectsServices.updateProjectPaymentClaimApproval = async (id, payload) => {
+    const { data } = await axios.put(`/api/projectManagement/project/claimApprovals/${id}`, payload)
+    return data;
+}
+
+projectsServices.deleteProjectPaymentClaimApproval = async (id) => {
+    const { data } = await axios.delete(`/api/projectManagement/project/claimApprovals/${id}`)
+    return data;
+}
+
+projectsServices.updateSubcontractCertificateApproval = async (id, payload) => {
+    const { data } = await axios.put(`/api/projectManagement/project/certificateApprovals/${id}`, payload)
+    return data;
+}
+
+projectsServices.deleteSubcontractCertificateApproval = async (id) => {
+    const { data } = await axios.delete(`/api/projectManagement/project/certificateApprovals/${id}`)
+    return data;
+}
+
 projectsServices.addProjectPaymentClaimApproval = async (approval) => {
     const { data } = await axios.post('/api/projectManagement/project/claimApprovals', approval)
     return data;

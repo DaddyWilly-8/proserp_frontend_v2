@@ -27,6 +27,7 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import React, { useState } from 'react';
 import dynamic from 'next/dynamic';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface ApprovedIssueItemActionProps {
   issue: any;
@@ -36,6 +37,7 @@ const PreviewDialog: React.FC<{ issue: any; toggleOpen: (open: boolean) => void 
   issue,
   toggleOpen,
 }) => {
+  const dictionary = useDictionary();
   const isTransfer = issue?.issue_type === 'transfer';
   const { authOrganization } = useJumboAuth();
   const authObject = useJumboAuth();
@@ -82,7 +84,7 @@ const PreviewDialog: React.FC<{ issue: any; toggleOpen: (open: boolean) => void 
               </Tabs>
             </Grid>
             <Grid size={1} textAlign='right'>
-              <Tooltip title='Close'>
+              <Tooltip title={dictionary.tooltips.close}>
                 <IconButton size='small' onClick={() => toggleOpen(false)}>
                   <HighlightOff color='primary' />
                 </IconButton>
@@ -115,6 +117,7 @@ const PreviewDialog: React.FC<{ issue: any; toggleOpen: (open: boolean) => void 
 };
 
 function ApprovedIssueItemAction({ issue }: ApprovedIssueItemActionProps) {
+  const dictionary = useDictionary();
   const [openDocumentDialog, setOpenDocumentDialog] = useState(false);
   const { theme } = useJumboTheme();
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
@@ -134,7 +137,7 @@ function ApprovedIssueItemAction({ issue }: ApprovedIssueItemActionProps) {
         )}
       </Dialog>
 
-      <Tooltip title='View'>
+      <Tooltip title={dictionary.tooltips.view}>
         <IconButton size='small' onClick={() => setOpenDocumentDialog(true)}>
           <VisibilityOutlined fontSize='small' />
         </IconButton>

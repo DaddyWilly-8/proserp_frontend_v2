@@ -35,6 +35,7 @@ import {
 } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
 import { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import { useForm } from 'react-hook-form';
 import * as yup from 'yup';
 import requisitionsServices from '../../requisitionsServices';
@@ -71,6 +72,7 @@ function RequisitionLedgerItemForm({
   costCenterId,
   notAllowedLedgers = [],
 }: RequisitionLedgerItemFormProps) {
+  const dictionary = useDictionary();
   //Screen handling constants
   const { theme } = useJumboTheme();
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
@@ -123,15 +125,15 @@ function RequisitionLedgerItemForm({
   const relatableTypes = [
     {
       value: 'purchase',
-      label: 'Purchase',
+      label: dictionary.forms.requisitions.ledgerItem.relatableTypes.purchase,
     },
     {
       value: 'subcontract_certificate',
-      label: 'Subcontract Certificate',
+      label: dictionary.forms.requisitions.ledgerItem.relatableTypes.subcontractCertificate,
     },
     {
       value: 'bill',
-      label: 'Bill',
+      label: dictionary.forms.requisitions.ledgerItem.relatableTypes.bill,
     },
   ];
 
@@ -179,16 +181,16 @@ function RequisitionLedgerItemForm({
   const validationSchema = yup.object({
     ledger_id: yup
       .number()
-      .required('Expense name is required')
-      .typeError('Expense name is required'),
+      .required(dictionary.forms.requisitions.ledgerItem.validation.expenseName)
+      .typeError(dictionary.forms.requisitions.ledgerItem.validation.expenseName),
     quantity: yup
       .number()
-      .required('Quantity is required')
-      .positive('Quantity must be positive')
-      .typeError('Quantity is required')
+      .required(dictionary.forms.requisitions.ledgerItem.validation.quantity)
+      .positive(dictionary.forms.requisitions.ledgerItem.validation.quantityPositive)
+      .typeError(dictionary.forms.requisitions.ledgerItem.validation.quantity)
       .test(
         'whole-unit',
-        'This unit is whole-units-only — quantity cannot be a fraction',
+        dictionary.forms.requisitions.ledgerItem.validation.wholeUnit,
         function (value) {
           const unit = measurementUnits?.find((u: any) => u.id === this.parent.measurement_unit_id);
           return unit?.allows_fractional !== false || !value || Number.isInteger(value);
@@ -196,19 +198,19 @@ function RequisitionLedgerItemForm({
       ),
     rate: yup
       .number()
-      .required('Rate is required')
-      .positive('Rate must be positive')
-      .typeError('Rate is required'),
+      .required(dictionary.forms.requisitions.ledgerItem.validation.rate)
+      .positive(dictionary.forms.requisitions.ledgerItem.validation.ratePositive)
+      .typeError(dictionary.forms.requisitions.ledgerItem.validation.rate),
     amount: yup
       .number()
       .nullable()
       .when('relatable', (relatable: any, schema) =>
         (Array.isArray(relatable) ? relatable[0] : relatable)?.id
           ? schema
-              .required('Amount is required')
+              .required(dictionary.forms.requisitions.ledgerItem.validation.amount)
               .test(
                 'max-amount',
-                'Amount should not exceed unapproved amount of selected relatable',
+                dictionary.forms.requisitions.ledgerItem.amountExceedsUnapprovedShort,
                 function (value) {
                   const currentRelatable = this.parent?.relatable;
                   const maxAmount = Number(
@@ -225,18 +227,23 @@ function RequisitionLedgerItemForm({
 
                   return this.createError({
                     message: currentRelatable?.capped_by_purchase_order
-                      ? `Amount should not exceed unapproved amount (${maxAmount.toLocaleString()}) — capped against ${currentRelatable?.purchase_order_no}, not this Bill itself`
-                      : `Amount should not exceed unapproved amount (${maxAmount.toLocaleString()}) of selected relatable`,
+                      ? dictionary.forms.requisitions.ledgerItem.amountExceedsUnapprovedCapped
+                          .replace('{amount}', maxAmount.toLocaleString())
+                          .replace('{orderNo}', String(currentRelatable?.purchase_order_no))
+                      : dictionary.forms.requisitions.ledgerItem.amountExceedsUnapproved.replace(
+                          '{amount}',
+                          maxAmount.toLocaleString()
+                        ),
                   });
                 }
               )
           : schema.nullable()
       )
-      .typeError('Amount is Required'),
+      .typeError(dictionary.forms.requisitions.ledgerItem.validation.amount),
     measurement_unit_id: yup
       .number()
-      .required('Measurement Unit is required')
-      .typeError('Measurement Unit is required'),
+      .required(dictionary.forms.requisitions.ledgerItem.validation.measurementUnit)
+      .typeError(dictionary.forms.requisitions.ledgerItem.validation.measurementUnit),
   });
 
   const {
@@ -310,7 +317,10 @@ function RequisitionLedgerItemForm({
     if (data?.relatable?.id && calculated > maxUnapprovedAmount) {
       setError('amount', {
         type: 'manual',
-        message: `Amount should not exceed unapproved amount (${maxUnapprovedAmount.toLocaleString()}) of selected relatable`,
+        message: dictionary.forms.requisitions.ledgerItem.amountExceedsUnapproved.replace(
+          '{amount}',
+          maxUnapprovedAmount.toLocaleString()
+        ),
       });
       setIsAdding(false);
       return;
@@ -412,8 +422,13 @@ function RequisitionLedgerItemForm({
                 setError('amount', {
                   type: 'manual',
                   message: latestRelated?.capped_by_purchase_order
-                    ? `Amount should not exceed unapproved amount (${maxUnapprovedAmount.toLocaleString()}) — capped against ${latestRelated?.purchase_order_no}, not this Bill itself`
-                    : `Amount should not exceed unapproved amount (${maxUnapprovedAmount.toLocaleString()}) of selected relatable`,
+                    ? dictionary.forms.requisitions.ledgerItem.amountExceedsUnapprovedCapped
+                        .replace('{amount}', maxUnapprovedAmount.toLocaleString())
+                        .replace('{orderNo}', String(latestRelated?.purchase_order_no))
+                    : dictionary.forms.requisitions.ledgerItem.amountExceedsUnapproved.replace(
+                        '{amount}',
+                        maxUnapprovedAmount.toLocaleString()
+                      ),
                 });
               } else {
                 clearErrors('amount');
@@ -434,7 +449,7 @@ function RequisitionLedgerItemForm({
             setError('amount', {
               type: 'manual',
               message:
-                'Linked transaction is no longer available. Please select another relatable.',
+                dictionary.forms.requisitions.ledgerItem.linkedTransactionUnavailable,
             });
             await trigger('amount');
           }
@@ -482,7 +497,7 @@ function RequisitionLedgerItemForm({
               <LedgerSelect
                 key={`ledger-select-${formResetKey}`}
                 multiple={false}
-                label='Ledger Name'
+                label={dictionary.forms.requisitions.ledgerItem.ledgerName}
                 notAllowedLedgers={notAllowedLedgers}
                 allowedGroups={[
                         'Assets',
@@ -517,8 +532,8 @@ function RequisitionLedgerItemForm({
                 <Tooltip
                   title={
                     hasCostCenter
-                      ? `${selectedLedger?.name} Budget check`
-                      : 'Select cost center first'
+                      ? dictionary.forms.requisitions.ledgerItem.budgetCheck.replace('{name}', String(selectedLedger?.name))
+                      : dictionary.forms.requisitions.ledgerItem.selectCostCenterFirst
                   }
                 >
                   <span>
@@ -547,7 +562,7 @@ function RequisitionLedgerItemForm({
             <Div sx={{ mt: 0.3 }}>
               <MeasurementSelector
                 key={`measurement-selector-${formResetKey}`}
-                label='Unit'
+                label={dictionary.forms.requisitions.common.unit}
                 value={selectedUnit ? selectedUnit : null}
                 frontError={
                   errors.measurement_unit_id
@@ -575,7 +590,7 @@ function RequisitionLedgerItemForm({
             <Div sx={{ mt: 0.3 }}>
               <TextField
                 key={`quantity-${formResetKey}`}
-                label='Quantity'
+                label={dictionary.forms.requisitions.common.quantity}
                 fullWidth
                 size='small'
                 defaultValue={ledger_item?.quantity}
@@ -601,7 +616,7 @@ function RequisitionLedgerItemForm({
             <Div sx={{ mt: 0.3 }}>
               <TextField
                 key={`rate-${formResetKey}`}
-                label='Rate'
+                label={dictionary.forms.requisitions.common.rate}
                 fullWidth
                 size='small'
                 defaultValue={ledger_item?.rate}
@@ -626,7 +641,7 @@ function RequisitionLedgerItemForm({
           <Grid size={{ xs: 12, md: 2.5 }}>
             <Div sx={{ mt: 0.3 }}>
               <TextField
-                label='Amount'
+                label={dictionary.forms.requisitions.common.amount}
                 fullWidth
                 size='small'
                 value={calculatedAmount}
@@ -662,7 +677,7 @@ function RequisitionLedgerItemForm({
                 renderInput={(params) => (
                   <TextField
                     {...params}
-                    label='Linked To'
+                    label={dictionary.forms.requisitions.ledgerItem.linkedTo}
                     size='small'
                     fullWidth
                   />
@@ -687,7 +702,7 @@ function RequisitionLedgerItemForm({
             <Grid size={{ xs: 12, md: 4 }}>
               <Div sx={{ mt: 0.3 }}>
                 <BillPicker
-                  label='Relatable To'
+                  label={dictionary.forms.requisitions.ledgerItem.relatableTo}
                   value={selectedRelated as any}
                   stakeholder={selectedLedger?.stakeholders?.[0] ?? null}
                   currencyId={currencyDetails?.id ?? null}
@@ -730,7 +745,7 @@ function RequisitionLedgerItemForm({
                   renderInput={(params) => (
                     <TextField
                       {...params}
-                      label='Relatable To'
+                      label={dictionary.forms.requisitions.ledgerItem.relatableTo}
                       size='small'
                       fullWidth
                     />
@@ -752,7 +767,7 @@ function RequisitionLedgerItemForm({
             <Div sx={{ mt: 0.3 }}>
               <TextField
                 key={`remarks-${formResetKey}`}
-                label='Remarks'
+                label={dictionary.forms.requisitions.common.remarks}
                 fullWidth
                 size='small'
                 {...register('remarks')}
@@ -763,11 +778,11 @@ function RequisitionLedgerItemForm({
             <Button variant='contained' size='small' type='submit'>
               {ledger_item ? (
                 <>
-                  <CheckOutlined fontSize='small' /> Done
+                  <CheckOutlined fontSize='small' /> {dictionary.forms.requisitions.common.done}
                 </>
               ) : (
                 <>
-                  <AddOutlined fontSize='small' /> Add
+                  <AddOutlined fontSize='small' /> {dictionary.forms.requisitions.common.add}
                 </>
               )}
             </Button>
@@ -775,8 +790,8 @@ function RequisitionLedgerItemForm({
               <Tooltip
                 title={
                   hasValidationErrors
-                    ? 'Resolve validation errors before closing edit'
-                    : 'Close Edit'
+                    ? dictionary.forms.requisitions.ledgerItem.resolveValidationErrors
+                    : dictionary.forms.requisitions.ledgerItem.closeEdit
                 }
               >
                 <span>

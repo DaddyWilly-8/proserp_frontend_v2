@@ -29,6 +29,7 @@ import { useForm } from 'react-hook-form';
 import * as yup from 'yup';
 import { useProjectProfile } from '../../../ProjectProfileProvider';
 import { useUpdateFormContext } from '../../UpdatesForm';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function TaskProgress({
   taskProgressItem = null,
@@ -36,6 +37,7 @@ function TaskProgress({
   setShowForm = null,
   setIsFormDirty = (value) => {},
 }) {
+  const dictionary = useDictionary();
   const { taskProgressItems, setTaskProgressItems, removedTaskProgressItems } =
     useUpdateFormContext();
   const { projectTimelineActivities, project } = useProjectProfile();
@@ -51,13 +53,13 @@ function TaskProgress({
     project_task_id: yup
       .number()
       .nullable()
-      .required('Project Task is required'),
+      .required(dictionary.projectManagement.taskProgress.projectTaskRequired),
 
     quantity_executed: yup
       .number()
-      .typeError('Quantity is required')
-      .positive('Quantity must be greater than zero')
-      .required('Quantity is required')
+      .typeError(dictionary.projectManagement.taskProgress.quantityRequired)
+      .positive(dictionary.projectManagement.taskProgress.quantityPositive)
+      .required(dictionary.projectManagement.taskProgress.quantityRequired)
       .test('balance-check', function (value) {
         const {
           unexcuted_task_quantity = 0,
@@ -97,7 +99,7 @@ function TaskProgress({
 
         if (value > remainingProject) {
           return this.createError({
-            message: `Quantity should not exceed remaining project balance: ${remainingProject} ${unit}.`,
+            message: dictionary.projectManagement.taskProgress.exceedProjectBalance.replace('{remaining}', remainingProject).replace(/\{unit\}/g, unit),
           });
         }
 
@@ -133,7 +135,7 @@ function TaskProgress({
 
           if (value > remainingSubcontract) {
             return this.createError({
-              message: `Quantity should not exceed subcontract balance: ${remainingSubcontract} ${unit}. Project balance: ${remainingProject} ${unit}.`,
+              message: dictionary.projectManagement.taskProgress.exceedSubcontractBalance.replace('{remainingSub}', remainingSubcontract).replace('{remaining}', remainingProject).replace(/\{unit\}/g, unit),
             });
           }
         }
@@ -322,7 +324,7 @@ function TaskProgress({
           <Div sx={{ mt: 1 }}>
             <DateTimePicker
               fullWidth={true}
-              label='Execution Date'
+              label={dictionary.projectManagement.taskProgress.executionDate}
               defaultValue={
                 taskProgressItem
                   ? dayjs(taskProgressItem.execution_date)
@@ -368,7 +370,7 @@ function TaskProgress({
               renderInput={(params) => (
                 <TextField
                   {...params}
-                  label='Subcontract (Optional)'
+                  label={dictionary.projectManagement.taskProgress.subcontractOptional}
                   size='small'
                   fullWidth
                 />
@@ -401,7 +403,7 @@ function TaskProgress({
               renderInput={(params) => (
                 <TextField
                   {...params}
-                  label='Project Task'
+                  label={dictionary.projectManagement.taskProgress.projectTask}
                   size='small'
                   fullWidth
                   error={!!errors?.project_task_id}
@@ -451,7 +453,7 @@ function TaskProgress({
               <LinearProgress />
             ) : (
               <TextField
-                label='Quantity Executed'
+                label={dictionary.projectManagement.taskProgress.quantityExecuted}
                 fullWidth
                 size='small'
                 defaultValue={watch(`quantity_executed`)}
@@ -483,7 +485,7 @@ function TaskProgress({
         <Grid size={{ xs: 12, md: 8 }}>
           <Div sx={{ mt: 1 }}>
             <TextField
-              label='Remarks'
+              label={dictionary.projectManagement.taskProgress.remarks}
               size='small'
               multiline={true}
               minRows={2}
@@ -505,7 +507,7 @@ function TaskProgress({
             )}
           </Button>
           {taskProgressItem && (
-            <Tooltip title='Close Edit'>
+            <Tooltip title={dictionary.tooltips.closeEdit}>
               <IconButton
                 size='small'
                 onClick={() => {

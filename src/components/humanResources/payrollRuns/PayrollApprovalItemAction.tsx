@@ -18,6 +18,7 @@ import PayrollApprovalDialog, {
   getPayrollApprovalDecision,
 } from './PayrollApprovalDialog';
 import { PayrollRunType } from './PayrollRunType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface PayrollApprovalItemActionProps {
   payrollRun: PayrollRunType;
@@ -32,6 +33,7 @@ const PayrollApprovalItemAction = ({
   approvals,
   selectedPayrollPeriod,
 }: PayrollApprovalItemActionProps) => {
+  const dictionary = useDictionary();
   const [openDialog, setOpenDialog] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
 
@@ -62,8 +64,9 @@ const PayrollApprovalItemAction = ({
 
   const handleDelete = () => {
     showDialog({
-      title: 'Confirm Delete?',
-      content: 'If you click yes, this Approval will be deleted',
+      title: dictionary.humanResources.payrollRuns.approvalItem.confirmDeleteTitle,
+      content:
+        dictionary.humanResources.payrollRuns.approvalItem.confirmDeleteContent,
       onYes: () => {
         hideDialog();
         deleteApproval(approval.id!);
@@ -102,7 +105,7 @@ const PayrollApprovalItemAction = ({
       />
 
       {canNextApprove && (
-        <Tooltip title='Approve'>
+        <Tooltip title={dictionary.tooltips.approve}>
           <IconButton
             onClick={() => {
               setIsEditMode(false);
@@ -115,7 +118,7 @@ const PayrollApprovalItemAction = ({
       )}
 
       {canEdit && (
-        <Tooltip title='Edit'>
+        <Tooltip title={dictionary.tooltips.edit}>
           <IconButton
             onClick={() => {
               setIsEditMode(true);
@@ -128,7 +131,7 @@ const PayrollApprovalItemAction = ({
       )}
 
       {canDelete && (
-        <Tooltip title='Delete'>
+        <Tooltip title={dictionary.tooltips.delete}>
           <IconButton onClick={handleDelete} disabled={isDeleting}>
             <DeleteOutlined color='error' />
           </IconButton>

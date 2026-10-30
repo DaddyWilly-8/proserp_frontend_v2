@@ -9,8 +9,10 @@ import {
 } from '@mui/material';
 import { useState } from 'react';
 import DesignationForm from './DesignationForm';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const DesignationActionTail = () => {
+  const dictionary = useDictionary();
   const [openDialog, setOpenDialog] = useState(false);
 
   //Screen handling constants
@@ -28,7 +30,7 @@ const DesignationActionTail = () => {
         sx={{ '& .MuiButton-root': { px: 1 } }}
       >
         {/* {( */}
-        <Tooltip title='Add Designation'>
+        <Tooltip title={dictionary.tooltips.addDesignation}>
           <IconButton onClick={() => setOpenDialog(true)}>
             <AddOutlined />
           </IconButton>

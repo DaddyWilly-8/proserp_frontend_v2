@@ -19,6 +19,7 @@ import {
   calculateTotalAllowances,
   calculateTotalDeductions,
 } from '../../payrollRuns/payrollUtils';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface MyHrPayslipItemActionProps {
   payslipId: number;
@@ -60,6 +61,7 @@ function mapPayslipForDialog(raw: any, profile?: any) {
 }
 
 const MyHrPayslipItemAction = ({ payslipId }: MyHrPayslipItemActionProps) => {
+  const dictionary = useDictionary();
   const { theme } = useJumboTheme();
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
   const [open, setOpen] = useState(false);
@@ -75,7 +77,7 @@ const MyHrPayslipItemAction = ({ payslipId }: MyHrPayslipItemActionProps) => {
 
   return (
     <>
-      <Tooltip title='View Payslip'>
+      <Tooltip title={dictionary.tooltips.viewPayslip}>
         <IconButton size='small' onClick={() => setOpen(true)}>
           <VisibilityOutlined fontSize='small' />
         </IconButton>

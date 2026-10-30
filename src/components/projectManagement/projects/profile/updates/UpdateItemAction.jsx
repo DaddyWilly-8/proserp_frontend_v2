@@ -8,6 +8,7 @@ import UpdatesForm from './UpdatesForm';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import projectsServices from '../../project-services';
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const EditUpdate = ({update, setOpenDialog, setIsUpdateFormOpen}) => {
   const {data:updateDetails, isFetching} = useQuery({
@@ -31,6 +32,7 @@ const EditUpdate = ({update, setOpenDialog, setIsUpdateFormOpen}) => {
 }
 
 const UpdateItemAction = ({ update, setIsUpdateFormOpen }) => {
+  const dictionary = useDictionary();
   const [openEditDialog, setOpenEditDialog] = React.useState(false);
   const {showDialog,hideDialog} = useJumboDialog();
   const { enqueueSnackbar } = useSnackbar();
@@ -54,8 +56,8 @@ const UpdateItemAction = ({ update, setIsUpdateFormOpen }) => {
 
   const handleDelete = () => {
     showDialog({
-      title: 'Confirm Delete',
-      content: 'Are you sure you want to delete this Update?',
+      title: dictionary.projectManagement.common.confirmDelete,
+      content: dictionary.projectManagement.updates.confirmDeleteText,
       onYes: () => {
         hideDialog();
         deleteUpdate(update.id);
@@ -77,7 +79,7 @@ const UpdateItemAction = ({ update, setIsUpdateFormOpen }) => {
         <EditUpdate update={update} setOpenDialog={setOpenEditDialog} setIsUpdateFormOpen={setIsUpdateFormOpen} />
       </Dialog>
       <Stack textAlign={'end'} direction="row" spacing={1} sx={{ mb: 1 }} justifyContent="flex-end">
-        <Tooltip title="Edit">
+        <Tooltip title={dictionary.tooltips.edit}>
           <IconButton
             color="primary"
             size="small"
@@ -89,7 +91,7 @@ const UpdateItemAction = ({ update, setIsUpdateFormOpen }) => {
           <EditOutlined />
         </IconButton>
         </Tooltip>
-        <Tooltip title="Delete">
+        <Tooltip title={dictionary.tooltips.delete}>
           <IconButton color="error" size="small" onClick={handleDelete}>
             <DeleteOutlined />
           </IconButton>

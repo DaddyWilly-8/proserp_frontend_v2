@@ -9,6 +9,7 @@ import React, { useEffect, useState } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import * as yup from "yup";
 import { ApprovalChainItem } from '../ApprovalChainType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface Role {
   id: number;
@@ -50,13 +51,14 @@ function ApprovalChainsItemForm({
   items = [],
   setShowForm
 }: ApprovalChainsItemFormProps) {
+  const dictionary = useDictionary();
   const { authOrganization } = useJumboAuth();
   const [can_finalize, setCan_finalize] = useState(item?.can_finalize === 1);
   const [can_override, setCan_override] = useState(item?.can_override === 1);
 
   const validationSchema = yup.object({
-    label: yup.string().required('Label is required').typeError('Label is required'),
-    role_id: yup.number().required('Role is required').typeError('Role is required'),
+    label: yup.string().required(dictionary.forms.approvalChains.itemForm.errors.validation.labelRequired).typeError(dictionary.forms.approvalChains.itemForm.errors.validation.labelRequired),
+    role_id: yup.number().required(dictionary.forms.approvalChains.itemForm.errors.validation.roleRequired).typeError(dictionary.forms.approvalChains.itemForm.errors.validation.roleRequired),
   });
 
   const { 
@@ -142,7 +144,7 @@ function ApprovalChainsItemForm({
     <form autoComplete='off' onSubmit={handleSubmit(updateItems)}>
       <Grid container columnSpacing={1} mb={1} mt={1}>
         <Grid size={12} textAlign={"center"}>
-          {'Add Levels'}
+          {dictionary.forms.approvalChains.itemForm.title}
         </Grid>
         <Grid size={{xs: 12, md: 4}}>
           {(isFetchingRoles || isLoadingRoles) ? (
@@ -158,7 +160,7 @@ function ApprovalChainsItemForm({
                 renderInput={(params) => (
                   <TextField
                     {...params}
-                    label="Role"
+                    label={dictionary.forms.approvalChains.itemForm.labels.role}
                     size="small"
                     fullWidth
                     error={!!errors.role_id}
@@ -179,7 +181,7 @@ function ApprovalChainsItemForm({
         <Grid size={{xs: 12, md: 4}}>
           <Div sx={{ mt: 1 }}>
             <TextField
-              label="Label"
+              label={dictionary.forms.approvalChains.itemForm.labels.label}
               size="small"
               fullWidth
               error={!!errors?.label}
@@ -191,7 +193,7 @@ function ApprovalChainsItemForm({
         <Grid size={{xs: 12, md: 4}}>
           <Div sx={{ mt: 1 }}>
             <TextField
-              label="Remarks"
+              label={dictionary.forms.approvalChains.itemForm.labels.remarks}
               size="small"
               multiline={true}
               minRows={2}
@@ -214,7 +216,7 @@ function ApprovalChainsItemForm({
                 });
               }}
             />
-            Can Finalize
+            {dictionary.forms.approvalChains.itemForm.labels.canFinalize}
           </Div>
         </Grid>
         <Grid size={{xs: 6, md: 2}}>
@@ -231,7 +233,7 @@ function ApprovalChainsItemForm({
                 });
               }}
             />
-            Can Override
+            {dictionary.forms.approvalChains.itemForm.labels.canOverride}
           </Div>
         </Grid>
         <Grid size={{xs: 12, md: 8}} mt={0.3} textAlign={'end'}>
@@ -242,13 +244,13 @@ function ApprovalChainsItemForm({
               type='submit'
             >
               {item ? (
-                <><CheckOutlined fontSize='small' /> Done</>
+                <><CheckOutlined fontSize='small' /> {dictionary.forms.approvalChains.itemForm.buttons.done}</>
               ) : (
-                <><AddOutlined fontSize='small' /> Add</>
+                <><AddOutlined fontSize='small' /> {dictionary.forms.approvalChains.itemForm.buttons.add}</>
               )}
             </Button>
             {item && (
-              <Tooltip title='Close Edit'>
+              <Tooltip title={dictionary.tooltips.closeEdit}>
                 <IconButton 
                   size='small'
                   onClick={() => {

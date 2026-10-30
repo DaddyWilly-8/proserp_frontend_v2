@@ -8,6 +8,7 @@ import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { PROS_CONTROL_PERMISSIONS } from '@/utilities/constants/prosControlPermissions';
 import UnauthorizedAccess from '@/shared/Information/UnauthorizedAccess';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface Role {
   id: number;
@@ -26,6 +27,7 @@ interface ChangeProsAfricanRoleProps {
 }
 
 function ChangeProsAfricanRole({ user }: ChangeProsAfricanRoleProps) {
+  const dictionary = useDictionary();
   const { checkPermission } = useJumboAuth();
   const [userIsNotTouched, setUserIsNotTouched] = useState(true);
   const [selectedRoles, setSelectedRoles] = useState<number[]>(user.roles.map(role => role.id));
@@ -93,9 +95,9 @@ function ChangeProsAfricanRole({ user }: ChangeProsAfricanRoleProps) {
           color='primary'
           sx={{ mr: 1 }}
         >
-          Save
+          {dictionary.forms.prosAfricans.form.buttons.save}
         </LoadingButton>
-        <Button size='small' onClick={hideDialog}>Cancel</Button>
+        <Button size='small' onClick={hideDialog}>{dictionary.forms.prosAfricans.form.buttons.cancel}</Button>
       </Box>
     </>
   );

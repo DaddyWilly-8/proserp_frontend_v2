@@ -35,6 +35,7 @@ import { useSnackbar } from 'notistack';
 import { useState } from 'react';
 import humanResourcesServices from '../humanResourcesServices';
 import { getPayslipCalculations } from './payslipCalculations';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 type PayslipDialogProps = {
   open: boolean;
@@ -69,6 +70,8 @@ const PayslipDialog = ({
   runId,
   periodId,
 }: PayslipDialogProps) => {
+  const dictionary = useDictionary();
+  const t = dictionary.humanResources.payrollRuns.payslipDialog;
   const authObject = useJumboAuth() as any;
   const { theme } = useJumboTheme();
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
@@ -94,10 +97,10 @@ const PayslipDialog = ({
           queryKey: ['payrollRunsForPeriod', String(periodId)],
         });
       }
-      enqueueSnackbar('Payslip finalized', { variant: 'success' });
+      enqueueSnackbar(t.finalized, { variant: 'success' });
     },
     onError: () =>
-      enqueueSnackbar('Error finalizing payslip', { variant: 'error' }),
+      enqueueSnackbar(t.errorFinalizing, { variant: 'error' }),
   });
 
   const name = run
@@ -119,7 +122,11 @@ const PayslipDialog = ({
     netSalary,
     totalEmployerContributions,
     totalEmployerCost,
-  } = getPayslipCalculations(run);
+  } = getPayslipCalculations(run, {
+    basicSalary: dictionary.humanResources.payrollRuns.payslipCalc.basicSalary,
+    employerContribution:
+      dictionary.humanResources.payrollRuns.payslipCalc.employerContribution,
+  });
 
   const deductionsTableRows = [
     { label: 'PAYE', category: 'tax', amount: paye },
@@ -142,9 +149,9 @@ const PayslipDialog = ({
         <DialogTitle>
           <Stack direction='row' alignItems='center' spacing={2}>
             <Box flex={1}>
-              <Typography variant='h6'>Payslip</Typography>
+              <Typography variant='h6'>{t.title}</Typography>
               <Typography variant='body2' color='text.secondary'>
-                {run?.payroll_period?.period_name || 'Payroll Period'}
+                {run?.payroll_period?.period_name || t.payrollPeriod}
               </Typography>
             </Box>
             <Chip
@@ -179,7 +186,7 @@ const PayslipDialog = ({
                       useFlexGap
                     >
                       <Box>
-                        <Typography variant='h5'>PAYSLIP</Typography>
+                        <Typography variant='h5'>{t.titleUpper}</Typography>
                         <Typography variant='body1'>
                           {run?.payroll_period?.period_name || '-'}
                         </Typography>
@@ -187,7 +194,7 @@ const PayslipDialog = ({
                       <Box textAlign='right'>
                         <Typography variant='subtitle1'>
                           {authObject?.authOrganization?.organization?.name ||
-                            'Organization'}
+                            t.organization}
                         </Typography>
                         <Typography variant='body2' color='text.secondary'>
                           {name || ''}
@@ -205,13 +212,13 @@ const PayslipDialog = ({
                     >
                       <Box minWidth={220}>
                         <Typography variant='body2' color='text.secondary'>
-                          Employee
+                          {t.employee}
                         </Typography>
                         <Typography variant='body1'>{name || '-'}</Typography>
                       </Box>
                       <Box minWidth={180}>
                         <Typography variant='body2' color='text.secondary'>
-                          Employee No.
+                          {t.employeeNo}
                         </Typography>
                         <Typography variant='body1'>
                           {run?.employee?.employee_number || '-'}
@@ -219,7 +226,7 @@ const PayslipDialog = ({
                       </Box>
                       <Box minWidth={220}>
                         <Typography variant='body2' color='text.secondary'>
-                          Designation
+                          {t.designation}
                         </Typography>
                         <Typography variant='body1'>
                           {run?.contract?.designation?.title || '-'}
@@ -229,14 +236,14 @@ const PayslipDialog = ({
 
                     <Divider />
 
-                    <Typography variant='h6'>Earnings</Typography>
+                    <Typography variant='h6'>{t.earnings}</Typography>
                     <Table size='small'>
                       <TableBody>
                         {earningsRows.map((row) => (
                           <TableRow key={`${row.label}-${row.amount}`}>
                             <TableCell>
                               {row.label}
-                              {!row.taxable ? ' (Non-Taxable)' : ''}
+                              {!row.taxable ? ` ${t.nonTaxable}` : ''}
                             </TableCell>
                             <TableCell align='right'>
                               {fmt(row.amount)}
@@ -245,7 +252,7 @@ const PayslipDialog = ({
                         ))}
                         <TableRow>
                           <TableCell sx={{ fontWeight: 700 }}>
-                            Gross Salary
+                            {t.grossSalary}
                           </TableCell>
                           <TableCell align='right' sx={{ fontWeight: 700 }}>
                             {fmt(grossSalary)}
@@ -256,13 +263,13 @@ const PayslipDialog = ({
 
                     <Divider />
 
-                    <Typography variant='h6'>Deductions</Typography>
+                    <Typography variant='h6'>{t.deductions}</Typography>
                     <Table size='small'>
                       <TableHead>
                         <TableRow>
-                          <TableCell>Description</TableCell>
-                          <TableCell>Category</TableCell>
-                          <TableCell align='right'>Amount</TableCell>
+                          <TableCell>{t.description}</TableCell>
+                          <TableCell>{t.category}</TableCell>
+                          <TableCell align='right'>{t.amount}</TableCell>
                         </TableRow>
                       </TableHead>
                       <TableBody>
@@ -279,7 +286,7 @@ const PayslipDialog = ({
                         ))}
                         <TableRow>
                           <TableCell sx={{ fontWeight: 700 }}>
-                            Total Deductions
+                            {t.totalDeductions}
                           </TableCell>
                           <TableCell />
                           <TableCell align='right' sx={{ fontWeight: 700 }}>
@@ -296,7 +303,7 @@ const PayslipDialog = ({
                       alignItems='center'
                       justifyContent='space-between'
                     >
-                      <Typography variant='h6'>Net Pay</Typography>
+                      <Typography variant='h6'>{t.netPay}</Typography>
                       <Typography variant='h5'>{fmt(netSalary)}</Typography>
                     </Stack>
 
@@ -308,7 +315,7 @@ const PayslipDialog = ({
                           justifyContent='space-between'
                         >
                           <Typography variant='subtitle1'>
-                            Taxable Income Breakdown
+                            {t.taxableIncomeBreakdown}
                           </Typography>
                           <IconButton
                             size='small'
@@ -327,13 +334,13 @@ const PayslipDialog = ({
                           <Table size='small'>
                             <TableBody>
                               <TableRow>
-                                <TableCell>Basic Salary</TableCell>
+                                <TableCell>{t.basicSalary}</TableCell>
                                 <TableCell align='right'>
                                   {fmt(run?.basic_salary || 0)}
                                 </TableCell>
                               </TableRow>
                               <TableRow>
-                                <TableCell>Taxable Allowances</TableCell>
+                                <TableCell>{t.taxableAllowances}</TableCell>
                                 <TableCell align='right'>
                                   {fmt(
                                     earningsRows
@@ -344,14 +351,14 @@ const PayslipDialog = ({
                                 </TableCell>
                               </TableRow>
                               <TableRow>
-                                <TableCell>Pre-Tax Deductions</TableCell>
+                                <TableCell>{t.preTaxDeductions}</TableCell>
                                 <TableCell align='right'>
                                   - {fmt(preTaxDeductions)}
                                 </TableCell>
                               </TableRow>
                               <TableRow>
                                 <TableCell sx={{ fontWeight: 700 }}>
-                                  Taxable Income
+                                  {t.taxableIncome}
                                 </TableCell>
                                 <TableCell
                                   align='right'
@@ -369,21 +376,21 @@ const PayslipDialog = ({
                     <Divider />
 
                     <Typography variant='h6'>
-                      Employer Contributions (for reference only)
+                      {t.employerContributionsRef}
                     </Typography>
                     <Table size='small'>
                       <TableHead>
                         <TableRow>
-                          <TableCell>Description</TableCell>
-                          <TableCell>Category</TableCell>
-                          <TableCell align='right'>Amount</TableCell>
+                          <TableCell>{t.description}</TableCell>
+                          <TableCell>{t.category}</TableCell>
+                          <TableCell align='right'>{t.amount}</TableCell>
                         </TableRow>
                       </TableHead>
                       <TableBody>
                         {employerContributionRows.length === 0 ? (
                           <TableRow>
                             <TableCell colSpan={3} align='center'>
-                              No employer contributions
+                              {t.noEmployerContributions}
                             </TableCell>
                           </TableRow>
                         ) : (
@@ -401,7 +408,7 @@ const PayslipDialog = ({
                         )}
                         <TableRow>
                           <TableCell sx={{ fontWeight: 700 }}>
-                            Total Employer Contributions
+                            {t.totalEmployerContributions}
                           </TableCell>
                           <TableCell />
                           <TableCell align='right' sx={{ fontWeight: 700 }}>
@@ -410,7 +417,7 @@ const PayslipDialog = ({
                         </TableRow>
                         <TableRow>
                           <TableCell sx={{ fontWeight: 700 }}>
-                            Total Employer Cost
+                            {t.totalEmployerCost}
                           </TableCell>
                           <TableCell />
                           <TableCell align='right' sx={{ fontWeight: 700 }}>
@@ -433,7 +440,7 @@ const PayslipDialog = ({
               variant='contained'
               onClick={() => finalize()}
             >
-              Finalize
+              {t.finalize}
             </LoadingButton>
           )}
           <Button
@@ -441,9 +448,9 @@ const PayslipDialog = ({
             onClick={() => setOpenPdfDialog(true)}
             disabled={!run}
           >
-            Print Payslip
+            {t.printPayslip}
           </Button>
-          <Button onClick={onClose}>Close</Button>
+          <Button onClick={onClose}>{t.close}</Button>
         </DialogActions>
       </Dialog>
 
@@ -454,7 +461,7 @@ const PayslipDialog = ({
         maxWidth='lg'
       >
         <DialogActions>
-          <Button onClick={() => setOpenPdfDialog(false)}>Close</Button>
+          <Button onClick={() => setOpenPdfDialog(false)}>{t.close}</Button>
         </DialogActions>
       </Dialog>
     </>

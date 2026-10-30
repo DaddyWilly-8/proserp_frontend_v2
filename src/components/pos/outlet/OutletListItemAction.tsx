@@ -11,8 +11,10 @@ import { JumboDdMenu } from '@jumbo/components';
 import OutletForm from './OutletFormDialog';
 import { Outlet } from './OutletType';
 import outletServices from './outlet-services';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const OutletListItemActions = ({ outlet }: { outlet: Outlet }) => {
+  const dictionary = useDictionary();
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const { showDialog, hideDialog } = useJumboDialog();
   const { enqueueSnackbar } = useSnackbar();
@@ -76,7 +78,7 @@ const OutletListItemActions = ({ outlet }: { outlet: Outlet }) => {
       </Dialog>
       <JumboDdMenu
         icon={
-          <Tooltip title="Actions">
+          <Tooltip title={dictionary.tooltips.actions}>
             <MoreHorizOutlined fontSize="small" />
           </Tooltip>
         }

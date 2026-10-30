@@ -70,7 +70,7 @@ console.log(dictionary.userManagement.form)
   >({
     mutationFn: (data) => userManagementServices.verify(data),
     onSuccess: (data) => {
-      enqueueSnackbar(dictionary.userManagement.form.errors.messages.verifySuccess, {
+      enqueueSnackbar(dictionary.userManagement.form.messages.verifySuccess, {
         variant: 'success',
       });
       queryClient.invalidateQueries({ queryKey: ['userManagement'] });

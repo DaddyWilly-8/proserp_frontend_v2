@@ -39,6 +39,7 @@ interface PayrollSalarySummaryReportDocumentProps {
   selectedCostCenters: CostCenter[];
   organization: any;
   userName: string;
+  dictionary: any;
 }
 
 function formatCurrency(value: number | string | null | undefined) {
@@ -63,7 +64,9 @@ export default function PayrollSalarySummaryReportDocument({
   selectedCostCenters,
   organization,
   userName,
+  dictionary,
 }: PayrollSalarySummaryReportDocumentProps) {
+  const t = dictionary.humanResources.payrollPeriods;
   const mainColor = organization?.settings?.main_color || '#2113AD';
   const lightColor = organization?.settings?.light_color || '#bec5da';
   const contrastText = organization?.settings?.contrast_text || '#FFFFFF';
@@ -74,11 +77,11 @@ export default function PayrollSalarySummaryReportDocument({
   const summary = data?.summary;
   const costCentersLabel = selectedCostCenters.length
     ? selectedCostCenters.map((cc) => cc.name).join(', ')
-    : `${organization?.name || 'All'} (company wide)`;
+    : `${organization?.name || t.salaryComponents.all} (${t.salaryComponents.companyWide})`;
 
   return (
     <Document
-      title={`Payroll Components Summary ${periodLabel}`}
+      title={`${t.salaryComponents.reportTitle} ${periodLabel}`}
       creator={` ${userName} | Powered By ProsERP`}
       producer='ProsERP'
     >
@@ -89,37 +92,37 @@ export default function PayrollSalarySummaryReportDocument({
           </View>
           <View style={{ flex: 1, textAlign: 'right' }}>
             <Text style={{ ...pdfStyles.majorInfo, color: mainColor }}>
-              Payroll Components Summary
+              {t.salaryComponents.reportTitle}
             </Text>
           </View>
         </View>
 
         <View style={{ ...pdfStyles.tableRow, marginBottom: 10 }}>
           <View style={{ flex: 1.5 }}>
-            <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>Period</Text>
+            <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>{t.salaryComponents.period}</Text>
             <Text style={{ ...pdfStyles.minInfo }}>{periodLabel}</Text>
           </View>
           <View style={{ flex: 1 }}>
-            <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>Cost Centers</Text>
+            <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>{t.salaryComponents.costCenters}</Text>
             <Text style={{ ...pdfStyles.minInfo }}>{costCentersLabel}</Text>
           </View>
           <View style={{ flex: 1 }}>
-            <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>Printed On</Text>
+            <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>{t.salaryComponents.printedOn}</Text>
             <Text style={{ ...pdfStyles.minInfo }}>{readableDate(undefined, true)}</Text>
           </View>
         </View>
 
         <View style={{ ...pdfStyles.tableRow, marginBottom: 12 }}>
           <View style={{ flex: 1 }}>
-            <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>Employees</Text>
+            <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>{t.salaryComponents.employees}</Text>
             <Text style={{ ...pdfStyles.minInfo }}>{formatNumber(summary?.total_employees)}</Text>
           </View>
           <View style={{ flex: 1 }}>
-            <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>Payroll Runs</Text>
+            <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>{t.salaryComponents.payrollRuns}</Text>
             <Text style={{ ...pdfStyles.minInfo }}>{formatNumber(summary?.total_payroll_runs)}</Text>
           </View>
           <View style={{ flex: 1 }}>
-            <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>Total Employer Cost</Text>
+            <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>{t.salaryComponents.totalEmployerCost}</Text>
             <Text style={{ ...pdfStyles.minInfo }}>{formatCurrency(summary?.total_employer_cost)}</Text>
           </View>
         </View>
@@ -135,23 +138,23 @@ export default function PayrollSalarySummaryReportDocument({
                 textAlign: 'center',
               }}
             >
-              Summary
+              {t.salaryComponents.summary}
             </Text>
           </View>
           <View style={pdfStyles.tableRow}>
-            <Text style={{ ...pdfStyles.tableCell, backgroundColor: '#FFFFFF', flex: 1 }}>Basic Salary</Text>
+            <Text style={{ ...pdfStyles.tableCell, backgroundColor: '#FFFFFF', flex: 1 }}>{t.salaryComponents.basicSalary}</Text>
             <Text style={{ ...pdfStyles.tableCell, backgroundColor: '#FFFFFF', flex: 1, textAlign: 'right' }}>
               {formatCurrency(data?.salary_components?.basic_salary?.total)}
             </Text>
           </View>
           <View style={pdfStyles.tableRow}>
-            <Text style={{ ...pdfStyles.tableCell, backgroundColor: lightColor, flex: 1 }}>Gross Salary</Text>
+            <Text style={{ ...pdfStyles.tableCell, backgroundColor: lightColor, flex: 1 }}>{t.salaryComponents.grossSalary}</Text>
             <Text style={{ ...pdfStyles.tableCell, backgroundColor: lightColor, flex: 1, textAlign: 'right' }}>
               {formatCurrency(data?.salary_components?.gross_salary)}
             </Text>
           </View>
           <View style={pdfStyles.tableRow}>
-            <Text style={{ ...pdfStyles.tableCell, backgroundColor: '#FFFFFF', flex: 1 }}>Net Salary</Text>
+            <Text style={{ ...pdfStyles.tableCell, backgroundColor: '#FFFFFF', flex: 1 }}>{t.salaryComponents.netSalary}</Text>
             <Text style={{ ...pdfStyles.tableCell, backgroundColor: '#FFFFFF', flex: 1, textAlign: 'right' }}>
               {formatCurrency(data?.net_salary?.total)}
             </Text>
@@ -159,9 +162,9 @@ export default function PayrollSalarySummaryReportDocument({
         </View>
 
         {[
-          { title: 'Allowances', rows: allowances },
-          { title: 'Deductions', rows: deductions },
-          { title: 'Employer Contributions', rows: employerContributions },
+          { title: t.salaryComponents.allowances, rows: allowances },
+          { title: t.salaryComponents.deductions, rows: deductions },
+          { title: t.salaryComponents.employerContributions, rows: employerContributions },
         ]
           .filter((section) => section.rows.length > 0)
           .map((section) => {
@@ -174,7 +177,7 @@ export default function PayrollSalarySummaryReportDocument({
                 </View>
                 <View style={pdfStyles.tableRow}>
                   <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 1 }}>
-                    Name
+                    {t.salaryComponents.name}
                   </Text>
                   <Text
                     style={{
@@ -185,7 +188,7 @@ export default function PayrollSalarySummaryReportDocument({
                       textAlign: 'right',
                     }}
                   >
-                    Value
+                    {t.salaryComponents.value}
                   </Text>
                 </View>
                 {section.rows.map((row, index) => (
@@ -213,7 +216,7 @@ export default function PayrollSalarySummaryReportDocument({
                 ))}
                 <View style={pdfStyles.tableRow}>
                   <Text style={{ ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 1 }}>
-                    Total
+                    {t.salaryComponents.total}
                   </Text>
                   <Text
                     style={{

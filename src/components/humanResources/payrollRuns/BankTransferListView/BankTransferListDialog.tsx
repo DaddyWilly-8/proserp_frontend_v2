@@ -29,6 +29,7 @@ import humanResourcesServices from '../../humanResourcesServices';
 import BankFileDownloadMenu from '../../bankFile/BankFileDownloadMenu';
 import { SalarySheetType } from '../salarySheetType';
 import BankTransferListDialogPDF from './BankTransferListDialogPDF';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface BankTransferListDialogProps {
   bankTransfer: SalarySheetType;
@@ -41,6 +42,8 @@ const BankTransferListDialog = ({
   open = false,
   setOpen,
 }: BankTransferListDialogProps) => {
+  const dictionary = useDictionary();
+  const t = dictionary.humanResources.payrollRuns.bankTransfer;
   const theme = useTheme();
   const { theme: jumboTheme } = useJumboTheme();
   const belowLargeScreen = useMediaQuery(jumboTheme.breakpoints.down('lg'));
@@ -58,20 +61,7 @@ const BankTransferListDialog = ({
   const [pdfKey, setPdfKey] = useState(0);
 
   const payrollRun = bankTransfer.run;
-  const monthNames = [
-    'January',
-    'February',
-    'March',
-    'April',
-    'May',
-    'June',
-    'July',
-    'August',
-    'September',
-    'October',
-    'November',
-    'December',
-  ];
+  const monthNames: string[] = dictionary.humanResources.payrollRuns.months;
   const monthNo = bankTransfer.run.period.month;
   const year = bankTransfer.run.period.year;
   const monthName = monthNames[monthNo - 1];
@@ -148,7 +138,7 @@ const BankTransferListDialog = ({
                   }}
                 >
                   <Typography variant='h4' sx={{ color: headerColor }}>
-                    Bank Transfer List
+                    {t.title}
                   </Typography>
                 </Box>
               </Grid>
@@ -158,7 +148,7 @@ const BankTransferListDialog = ({
                 <Grid size={{ xs: 12, md: 4 }}>
                   <Box>
                     <Typography variant='subtitle2' sx={{ color: headerColor }}>
-                      Cost Center
+                      {t.costCenter}
                     </Typography>
                     <Typography variant='body1'>
                       {costCenter?.name ?? '-'}
@@ -170,7 +160,7 @@ const BankTransferListDialog = ({
               <Grid size={{ xs: 12, md: 4 }}>
                 <Box>
                   <Typography variant='subtitle2' sx={{ color: headerColor }}>
-                    Payroll Period
+                    {t.payrollPeriod}
                   </Typography>
                   <Typography variant='body1'>{payrollPeriod}</Typography>
                 </Box>
@@ -179,16 +169,20 @@ const BankTransferListDialog = ({
               <Grid size={{ xs: 12, md: 4 }}>
                 <Box>
                   <Typography variant='subtitle2' sx={{ color: headerColor }}>
-                    Payroll Status
+                    {t.payrollStatus}
                   </Typography>
-                  <Typography variant='body1'>{payrollRun.status}</Typography>
+                  <Typography variant='body1'>
+                    {(dictionary.humanResources.payrollRuns.status as Record<string, string>)[
+                      String(payrollRun.status || '').toLowerCase()
+                    ] || payrollRun.status}
+                  </Typography>
                 </Box>
               </Grid>
 
               <Grid size={{ xs: 12, md: 4 }}>
                 <Box>
                   <Typography variant='subtitle2' sx={{ color: headerColor }}>
-                    Employees without bank accounts
+                    {t.employeesWithoutBank}
                   </Typography>
                   <Typography variant='body1'>
                     {bankTransfer.employees_without_bank_account}
@@ -199,7 +193,7 @@ const BankTransferListDialog = ({
               <Grid size={{ xs: 12, md: 4 }}>
                 <Box>
                   <Typography variant='subtitle2' sx={{ color: headerColor }}>
-                    Total EMployess
+                    {t.totalEmployees}
                   </Typography>
                   <Typography variant='body1'>
                     {bankTransfer.total_employees}
@@ -210,7 +204,7 @@ const BankTransferListDialog = ({
               <Grid size={{ xs: 12, md: 4 }}>
                 <Box>
                   <Typography variant='subtitle2' sx={{ color: headerColor }}>
-                    Net Salary
+                    {t.netSalary}
                   </Typography>
                   <Typography variant='body1'>
                     {bankTransfer.total_net_salary.toLocaleString('en-US', {
@@ -248,7 +242,7 @@ const BankTransferListDialog = ({
                                   textWrap: 'nowrap',
                                 }}
                               >
-                                S/N
+                                {t.sn}
                               </TableCell>
                               <TableCell
                                 colSpan={3}
@@ -258,7 +252,7 @@ const BankTransferListDialog = ({
                                   textWrap: 'nowrap',
                                 }}
                               >
-                                Employee No.
+                                {t.employeeNo}
                               </TableCell>
                               <TableCell
                                 colSpan={3}
@@ -268,7 +262,7 @@ const BankTransferListDialog = ({
                                   textWrap: 'nowrap',
                                 }}
                               >
-                                Employee Name
+                                {t.employeeName}
                               </TableCell>
                               <TableCell
                                 colSpan={1}
@@ -279,7 +273,7 @@ const BankTransferListDialog = ({
                                 }}
                                 align='left'
                               >
-                                Bank Name
+                                {t.bankName}
                               </TableCell>
                               <TableCell
                                 colSpan={1}
@@ -290,7 +284,7 @@ const BankTransferListDialog = ({
                                 }}
                                 align='left'
                               >
-                                Branch
+                                {t.branch}
                               </TableCell>
                               <TableCell
                                 colSpan={1}
@@ -301,7 +295,7 @@ const BankTransferListDialog = ({
                                 }}
                                 align='left'
                               >
-                                Bank Code
+                                {t.bankCode}
                               </TableCell>
                               <TableCell
                                 colSpan={1}
@@ -312,7 +306,7 @@ const BankTransferListDialog = ({
                                 }}
                                 align='left'
                               >
-                                Account Number
+                                {t.accountNumber}
                               </TableCell>
                               <TableCell
                                 colSpan={1}
@@ -323,7 +317,7 @@ const BankTransferListDialog = ({
                                 }}
                                 align='left'
                               >
-                                Account Name
+                                {t.accountName}
                               </TableCell>
                               <TableCell
                                 colSpan={1}
@@ -334,7 +328,7 @@ const BankTransferListDialog = ({
                                 }}
                                 align='right'
                               >
-                                Net Pay
+                                {t.netPay}
                               </TableCell>
                             </TableRow>
                           </TableHead>
@@ -397,11 +391,12 @@ const BankTransferListDialog = ({
         <DialogContent>
           <PDFContent
             key={`salary-sheet-${pdfKey}`}
-            fileName={`Salary-sheet`}
+            fileName={t.fileName}
             document={
               <BankTransferListDialogPDF
                 organization={organization}
                 bankTransfer={bankTransfer}
+                dictionary={dictionary}
               />
             }
           />

@@ -10,6 +10,7 @@ import {
 } from '@mui/material';
 import { DisabledByDefault, EditOutlined } from '@mui/icons-material';
 import CertifiedTasksItemForm from './CertifiedTasksItemForm';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface MeasurementUnit {
   symbol?: string;
@@ -72,6 +73,7 @@ const CertifiedTasksItemRow: React.FC<CertifiedTasksItemRowProps> = ({
   certificate,
   vat_percentage = 0,
 }) => {
+  const dictionary = useDictionary();
   const [showForm, setShowForm] = useState(false);
 
   const taskName =
@@ -130,7 +132,7 @@ const CertifiedTasksItemRow: React.FC<CertifiedTasksItemRowProps> = ({
           </Grid>
 
           <Grid size={{ xs: 11, md: 4 }}>
-            <Tooltip title="Project Task" arrow>
+            <Tooltip title={dictionary.tooltips.projectTask} arrow>
               <Typography variant="body2" noWrap>
                 {taskName}
               </Typography>
@@ -151,7 +153,7 @@ const CertifiedTasksItemRow: React.FC<CertifiedTasksItemRowProps> = ({
             size={{ xs: 6, md: 1.5 }}
             sx={{ pl: { xs: 3, md: 0 } }}
           >
-            <Tooltip title="Quantity" arrow>
+            <Tooltip title={dictionary.tooltips.quantity} arrow>
               <Typography variant="body2">
                 {quantityDisplay || '0'}
               </Typography>
@@ -163,7 +165,7 @@ const CertifiedTasksItemRow: React.FC<CertifiedTasksItemRowProps> = ({
             sx={{ pl: { xs: 3, md: 0 } }}
             textAlign={{xs: 'end', md: 'end'}}
           >
-            <Tooltip title="Rate" arrow>
+            <Tooltip title={dictionary.tooltips.rate} arrow>
               <Typography variant="body2">
                 {rate?.toLocaleString() || '0'}
               </Typography>
@@ -175,7 +177,7 @@ const CertifiedTasksItemRow: React.FC<CertifiedTasksItemRowProps> = ({
               size={{ xs: 6, md: 1.5 }}
               textAlign="end"
             >
-              <Tooltip title="VAT" arrow>
+              <Tooltip title={dictionary.tooltips.vat} arrow>
                 <Typography>
                   {vatAmount.toLocaleString(undefined, {
                     minimumFractionDigits: 2,
@@ -191,7 +193,7 @@ const CertifiedTasksItemRow: React.FC<CertifiedTasksItemRowProps> = ({
             size={{ xs: 6, md: vatFactor ? 2 : 3 }}
             textAlign={{ xs: 'end', md: 'end' }}
           >
-            <Tooltip title="Line Total" arrow>
+            <Tooltip title={dictionary.tooltips.lineTotal} arrow>
               <Typography>
                 {lineTotal.toLocaleString(undefined, {
                   minimumFractionDigits: 2,
@@ -206,7 +208,7 @@ const CertifiedTasksItemRow: React.FC<CertifiedTasksItemRowProps> = ({
             size={{ xs: vatFactor ? 12 : 6, md: 1 }}
             textAlign="end"
           >
-            <Tooltip title="Edit Task">
+            <Tooltip title={dictionary.tooltips.editTask}>
               <IconButton
                 size="small"
                 onClick={() => setShowForm(true)}
@@ -215,7 +217,7 @@ const CertifiedTasksItemRow: React.FC<CertifiedTasksItemRowProps> = ({
               </IconButton>
             </Tooltip>
 
-            <Tooltip title="Remove Task">
+            <Tooltip title={dictionary.tooltips.removeTask}>
               <IconButton
                 size="small"
                 onClick={handleRemoveItem}

@@ -33,12 +33,14 @@ import LoanReceiptForm from './LoanReceiptForm';
 import LoanRepaymentInitiateForm from './LoanRepaymentInitiateForm';
 import LoanRequestsForm from './LoanRequestsForm';
 import { LoanRequestType } from './LoanRequestType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const LoanRequestItemAction = ({
   loanRequest,
 }: {
   loanRequest: LoanRequestType;
 }) => {
+  const dictionary = useDictionary();
   const { theme } = useJumboTheme();
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
   const { organizationHasSubscribed, checkOrganizationPermission, authUser } =
@@ -167,11 +169,11 @@ const LoanRequestItemAction = ({
         queryKey: ['showLoanRequest', loanRequest.id],
       });
       queryClient.invalidateQueries({ queryKey: ['loanRequests'] });
-      enqueueSnackbar('Loan request cancelled', { variant: 'success' });
+      enqueueSnackbar(dictionary.humanResources.loanRequests.itemAction.messages.cancelled, { variant: 'success' });
     },
     onError: (error: any) => {
       enqueueSnackbar(
-        error?.response?.data?.message || 'Something went wrong',
+        error?.response?.data?.message || dictionary.humanResources.loanRequests.common.somethingWentWrong,
         { variant: 'error' }
       );
     },
@@ -185,11 +187,11 @@ const LoanRequestItemAction = ({
           queryKey: ['showLoanRequest', loanRequest.id],
         });
         queryClient.invalidateQueries({ queryKey: ['loanRequests'] });
-        enqueueSnackbar('Loan approval reversed', { variant: 'success' });
+        enqueueSnackbar(dictionary.humanResources.loanRequests.itemAction.messages.approvalReversed, { variant: 'success' });
       },
       onError: (error: any) => {
         enqueueSnackbar(
-          error?.response?.data?.message || 'Something went wrong',
+          error?.response?.data?.message || dictionary.humanResources.loanRequests.common.somethingWentWrong,
           { variant: 'error' }
         );
       },
@@ -203,11 +205,11 @@ const LoanRequestItemAction = ({
           queryKey: ['showLoanRequest', loanRequest.id],
         });
         queryClient.invalidateQueries({ queryKey: ['loanRequests'] });
-        enqueueSnackbar('Loan rejection reversed', { variant: 'success' });
+        enqueueSnackbar(dictionary.humanResources.loanRequests.itemAction.messages.rejectionReversed, { variant: 'success' });
       },
       onError: (error: any) => {
         enqueueSnackbar(
-          error?.response?.data?.message || 'Something went wrong',
+          error?.response?.data?.message || dictionary.humanResources.loanRequests.common.somethingWentWrong,
           { variant: 'error' }
         );
       },
@@ -221,11 +223,11 @@ const LoanRequestItemAction = ({
           queryKey: ['showLoanRequest', loanRequest.id],
         });
         queryClient.invalidateQueries({ queryKey: ['loanRequests'] });
-        enqueueSnackbar('Loan cancellation reversed', { variant: 'success' });
+        enqueueSnackbar(dictionary.humanResources.loanRequests.itemAction.messages.cancellationReversed, { variant: 'success' });
       },
       onError: (error: any) => {
         enqueueSnackbar(
-          error?.response?.data?.message || 'Something went wrong',
+          error?.response?.data?.message || dictionary.humanResources.loanRequests.common.somethingWentWrong,
           { variant: 'error' }
         );
       },
@@ -240,11 +242,11 @@ const LoanRequestItemAction = ({
         });
         queryClient.invalidateQueries({ queryKey: ['loanRequests'] });
         queryClient.invalidateQueries({ queryKey: ['transactions'] });
-        enqueueSnackbar('Loan disbursement reversed', { variant: 'success' });
+        enqueueSnackbar(dictionary.humanResources.loanRequests.itemAction.messages.disbursementReversed, { variant: 'success' });
       },
       onError: (error: any) => {
         enqueueSnackbar(
-          error?.response?.data?.message || 'Something went wrong',
+          error?.response?.data?.message || dictionary.humanResources.loanRequests.common.somethingWentWrong,
           { variant: 'error' }
         );
       },
@@ -257,11 +259,11 @@ const LoanRequestItemAction = ({
         queryKey: ['showLoanRequest', loanRequest.id],
       });
       queryClient.invalidateQueries({ queryKey: ['loanRequests'] });
-      enqueueSnackbar('Loan request deleted', { variant: 'success' });
+      enqueueSnackbar(dictionary.humanResources.loanRequests.itemAction.messages.deleted, { variant: 'success' });
     },
     onError: (error: any) => {
       enqueueSnackbar(
-        error?.response?.data?.message || 'Something went wrong',
+        error?.response?.data?.message || dictionary.humanResources.loanRequests.common.somethingWentWrong,
         { variant: 'error' }
       );
     },
@@ -269,11 +271,11 @@ const LoanRequestItemAction = ({
 
   const handleCancel = () => {
     showDialog({
-      title: 'Cancel Loan Request',
+      title: dictionary.humanResources.loanRequests.itemAction.dialog.cancelTitle,
       content:
         loanRequest.status === 'approved'
-          ? 'This stops all future recovery from payroll. Installments already deducted are not refunded. Continue?'
-          : 'Are you sure you want to cancel this loan request?',
+          ? dictionary.humanResources.loanRequests.itemAction.dialog.cancelContentApproved
+          : dictionary.humanResources.loanRequests.itemAction.dialog.cancelContent,
       onYes: () => {
         hideDialog();
         cancelLoanRequest({ id: loanRequest.id });
@@ -285,9 +287,8 @@ const LoanRequestItemAction = ({
 
   const handleReverseApproval = () => {
     showDialog({
-      title: 'Reverse Approval',
-      content:
-        'This stops recovery and puts the request back to In Review so it can be re-decided. Continue?',
+      title: dictionary.humanResources.loanRequests.itemAction.dialog.reverseApprovalTitle,
+      content: dictionary.humanResources.loanRequests.itemAction.dialog.reverseApprovalContent,
       onYes: () => {
         hideDialog();
         reverseApproval(loanRequest.id);
@@ -299,9 +300,8 @@ const LoanRequestItemAction = ({
 
   const handleReverseRejection = () => {
     showDialog({
-      title: 'Reverse Rejection',
-      content:
-        'This puts the request back to In Review so it can be re-decided. Continue?',
+      title: dictionary.humanResources.loanRequests.itemAction.dialog.reverseRejectionTitle,
+      content: dictionary.humanResources.loanRequests.itemAction.dialog.reverseRejectionContent,
       onYes: () => {
         hideDialog();
         reverseRejection(loanRequest.id);
@@ -313,9 +313,8 @@ const LoanRequestItemAction = ({
 
   const handleReverseCancellation = () => {
     showDialog({
-      title: 'Reverse Cancellation',
-      content:
-        'This restores the request to what it was before it was cancelled. Continue?',
+      title: dictionary.humanResources.loanRequests.itemAction.dialog.reverseCancellationTitle,
+      content: dictionary.humanResources.loanRequests.itemAction.dialog.reverseCancellationContent,
       onYes: () => {
         hideDialog();
         reverseCancellation(loanRequest.id);
@@ -327,10 +326,10 @@ const LoanRequestItemAction = ({
 
   const handleReverseDisbursement = () => {
     showDialog({
-      title: 'Reverse Disbursement',
+      title: dictionary.humanResources.loanRequests.itemAction.dialog.reverseDisbursementTitle,
       content: loanRequest.payment_id
-        ? 'This deletes the disbursement payment and its journals, and marks the loan as not yet disbursed so it can be corrected and re-disbursed. Continue?'
-        : 'This clears the disbursement record so the loan can be corrected and re-disbursed. Continue?',
+        ? dictionary.humanResources.loanRequests.itemAction.dialog.reverseDisbursementContentPayment
+        : dictionary.humanResources.loanRequests.itemAction.dialog.reverseDisbursementContent,
       onYes: () => {
         hideDialog();
         reverseDisbursement(loanRequest.id);
@@ -342,8 +341,8 @@ const LoanRequestItemAction = ({
 
   const handleDelete = () => {
     showDialog({
-      title: 'Delete Loan Request',
-      content: 'This action cannot be undone',
+      title: dictionary.humanResources.loanRequests.itemAction.dialog.deleteTitle,
+      content: dictionary.humanResources.loanRequests.itemAction.dialog.deleteContent,
       onYes: () => {
         hideDialog();
         deleteLoanRequest(loanRequest.id);
@@ -407,7 +406,7 @@ const LoanRequestItemAction = ({
       </Dialog>
 
       {canEdit && (
-        <Tooltip title='Edit'>
+        <Tooltip title={dictionary.tooltips.edit}>
           <IconButton size='small' onClick={() => setOpenEditDialog(true)}>
             <EditOutlined color='primary' />
           </IconButton>
@@ -416,12 +415,12 @@ const LoanRequestItemAction = ({
 
       {canDirectDecide && (
         <>
-          <Tooltip title='Approve'>
+          <Tooltip title={dictionary.tooltips.approve}>
             <IconButton size='small' onClick={() => setDecisionMode('approve')}>
               <CheckCircleOutlined color='success' />
             </IconButton>
           </Tooltip>
-          <Tooltip title='Reject'>
+          <Tooltip title={dictionary.tooltips.reject}>
             <IconButton size='small' onClick={() => setDecisionMode('reject')}>
               <HighlightOffOutlined color='error' />
             </IconButton>
@@ -430,7 +429,7 @@ const LoanRequestItemAction = ({
       )}
 
       {canDisburseWithLedger && (
-        <Tooltip title='Disburse'>
+        <Tooltip title={dictionary.tooltips.disburse}>
           <IconButton size='small' color='success' onClick={() => setOpenDisburseDialog(true)}>
             <FontAwesomeIcon icon={faMoneyBill1} size='lg' />
           </IconButton>
@@ -438,7 +437,7 @@ const LoanRequestItemAction = ({
       )}
 
       {canMarkDisbursed && (
-        <Tooltip title='Mark as Disbursed'>
+        <Tooltip title={dictionary.tooltips.markAsDisbursed}>
           <IconButton
             size='small'
             onClick={() => setOpenMarkDisbursedDialog(true)}
@@ -449,7 +448,7 @@ const LoanRequestItemAction = ({
       )}
 
       {canInitiateRepayment && (
-        <Tooltip title='Initiate Repayment'>
+        <Tooltip title={dictionary.tooltips.initiateRepayment}>
           <IconButton
             size='small'
             onClick={() => setOpenRepaymentInitiateDialog(true)}
@@ -460,7 +459,7 @@ const LoanRequestItemAction = ({
       )}
 
       {canReceiptRepayment && (
-        <Tooltip title='Receipt Repayment'>
+        <Tooltip title={dictionary.tooltips.receiptRepayment}>
           <IconButton size='small' onClick={() => setOpenReceiptDialog(true)}>
             <ReceiptLongOutlined color='success' />
           </IconButton>
@@ -468,7 +467,7 @@ const LoanRequestItemAction = ({
       )}
 
       {canReverseApproval && (
-        <Tooltip title='Reverse Approval'>
+        <Tooltip title={dictionary.tooltips.reverseApproval}>
           <IconButton
             size='small'
             disabled={isReversingApproval}
@@ -480,7 +479,7 @@ const LoanRequestItemAction = ({
       )}
 
       {canReverseRejection && (
-        <Tooltip title='Reverse Rejection'>
+        <Tooltip title={dictionary.tooltips.reverseRejection}>
           <IconButton
             size='small'
             disabled={isReversingRejection}
@@ -492,7 +491,7 @@ const LoanRequestItemAction = ({
       )}
 
       {canReverseCancellation && (
-        <Tooltip title='Reverse Cancellation'>
+        <Tooltip title={dictionary.tooltips.reverseCancellation}>
           <IconButton
             size='small'
             disabled={isReversingCancellation}
@@ -504,7 +503,7 @@ const LoanRequestItemAction = ({
       )}
 
       {canReverseDisbursement && (
-        <Tooltip title='Reverse Disbursement'>
+        <Tooltip title={dictionary.tooltips.reverseDisbursement}>
           <IconButton
             size='small'
             disabled={isReversingDisbursement}
@@ -516,7 +515,7 @@ const LoanRequestItemAction = ({
       )}
 
       {canCancel && (
-        <Tooltip title='Cancel'>
+        <Tooltip title={dictionary.tooltips.cancel}>
           <IconButton
             size='small'
             disabled={isCancelling}
@@ -528,7 +527,7 @@ const LoanRequestItemAction = ({
       )}
 
       {canDelete && (
-        <Tooltip title='Delete'>
+        <Tooltip title={dictionary.tooltips.delete}>
           <IconButton size='small' disabled={isDeleting} onClick={handleDelete}>
             <DeleteForeverOutlined color='error' />
           </IconButton>

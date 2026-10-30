@@ -1,6 +1,7 @@
 import { Stakeholder } from '@/components/masters/stakeholders/StakeholderType';
 import { Grid, Tooltip, Typography } from '@mui/material';
 import React from 'react';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface Vendor {
   id?: number;
@@ -16,6 +17,7 @@ interface VendorsRowProps {
 }
 
 function VendorsRow({ index, vendor }: VendorsRowProps) {
+    const dictionary = useDictionary();
     const client = vendor.stakeholder;
 
     return (
@@ -33,12 +35,12 @@ function VendorsRow({ index, vendor }: VendorsRowProps) {
                     {index + 1}.
                 </Grid>
                 <Grid size={{xs: 5, md: 8}}>
-                    <Tooltip title="Vendor">
+                    <Tooltip title={dictionary.tooltips.vendor}>
                         <Typography>{client?.name || vendor?.name}</Typography>
                     </Tooltip>
                 </Grid>
                 <Grid size={{xs: 6, md: 3.5}}>
-                    <Tooltip title="Remarks">
+                    <Tooltip title={dictionary.tooltips.remarks}>
                         <Typography>{vendor.remarks}</Typography>
                     </Tooltip>
                 </Grid>

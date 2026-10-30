@@ -2,6 +2,7 @@ import { DisabledByDefault, EditOutlined } from '@mui/icons-material'
 import { Divider, Grid, IconButton, ListItemText, Tooltip, Typography } from '@mui/material'
 import React, { useState } from 'react'
 import SubContractTasksTab from './SubContractTasksTab';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function SubContractTasksRow({ 
   subContractItem,
@@ -15,6 +16,7 @@ function SubContractTasksRow({
   allTasks,
   selectedCostCenter
 }) {
+  const dictionary = useDictionary();
   const [showForm, setShowForm] = useState(false);
 
   const handleDelete = () => {
@@ -56,29 +58,29 @@ function SubContractTasksRow({
           <Grid size={{xs: 11, md: 3}}>
             <ListItemText
               primary={
-                <Tooltip title="Task name">
+                <Tooltip title={dictionary.tooltips.taskName2}>
                   <Typography component="span">{formatTaskLabel(subContractItem.project_task)}</Typography>
                 </Tooltip>
               }
               secondary={
-                <Tooltip title="Description">
+                <Tooltip title={dictionary.tooltips.description}>
                   <Typography component="span">{subContractItem.description}</Typography>
                 </Tooltip>
               }
             />
           </Grid>
           <Grid size={{xs: 9, md: 2.5}}>
-            <Tooltip title="Expense name">
+            <Tooltip title={dictionary.tooltips.expenseName2}>
               <Typography>{subContractItem.expense_ledger?.name}</Typography>
             </Tooltip>
           </Grid>
           <Grid size={{xs: 3, md: 1.5}} textAlign={{md: 'right'}}>
-            <Tooltip title="Quantity">
+            <Tooltip title={dictionary.tooltips.quantity}>
               <Typography>{subContractItem.quantity.toLocaleString()} {subContractItem.project_task?.measurement_unit?.symbol}</Typography>
             </Tooltip>
           </Grid>
           <Grid size={{xs: 5.5, md: 1.5}} textAlign={{md: 'right'}}>
-            <Tooltip title="Rate">
+            <Tooltip title={dictionary.tooltips.rate}>
               <span>
                 <Typography>{subContractItem.rate.toLocaleString('en-US', 
                   {
@@ -95,7 +97,7 @@ function SubContractTasksRow({
             </Tooltip>
           </Grid>
           <Grid size={{xs: 5.5, md: 2}} textAlign={{md: 'right'}}>
-            <Tooltip title="Amount">
+            <Tooltip title={dictionary.tooltips.amount}>
               <Typography>{(subContractItem.quantity * subContractItem.rate).toLocaleString('en-US', 
                 {
                   style: 'currency',
@@ -105,12 +107,12 @@ function SubContractTasksRow({
             </Tooltip>
           </Grid>
           <Grid size={{xs: 12, md: 1}} textAlign={'end'}>
-            <Tooltip title='Edit SubContract Task'>
+            <Tooltip title={dictionary.tooltips.editSubcontractTask}>
               <IconButton size='small' onClick={() => setShowForm(true)}>
                 <EditOutlined fontSize='small' />
               </IconButton>
             </Tooltip>
-            <Tooltip title='Remove SubContract Task'>
+            <Tooltip title={dictionary.tooltips.removeSubcontractTask}>
               <IconButton size='small' 
                 onClick={() => {
                   handleDelete();

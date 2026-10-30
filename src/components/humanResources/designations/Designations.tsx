@@ -11,8 +11,10 @@ import DesignationActionTail from './DesignationActionTail';
 import DesignationsListItem from './DesignationsListItem';
 import { Designation } from './DesignationsType';
 import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const Designations = () => {
+  const dictionary = useDictionary();
   const params = useParams<{ id?: string; keyword?: string }>();
   const listRef = useRef<any>(null);
   const [mounted, setMounted] = useState(false);
@@ -54,7 +56,7 @@ const Designations = () => {
   return (
     <>
       <Typography variant={'h4'} mb={2}>
-        Designations
+        {dictionary.humanResources.designations.list.title}
       </Typography>
       <JumboRqList
         ref={listRef}

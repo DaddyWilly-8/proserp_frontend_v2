@@ -16,6 +16,7 @@ import ProductQuickAdd from '@/components/productAndServices/products/ProductQui
 import ProductBudgetCheckDetails from '../listItem/tabs/form/ProductBudgetCheckDetails';
 import { Currency } from '@/utilities/constants/countries';
 import { wholeUnitQuantityTest } from '@/app/helpers/measurement-unit-helpers';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 export interface RequisitionProductItem {
   product_id?: number;
@@ -55,6 +56,7 @@ function RequisitionProductItemForm({
   requisition_product_items = [],
   setShowForm,
 }: RequisitionProductItemFormProps) {
+    const dictionary = useDictionary();
     const { productOptions } = useProductsSelect();
     const { checkOrganizationPermission, authOrganization } = useJumboAuth();
     const [openProductQuickAdd, setOpenProductQuickAdd] = useState(false);
@@ -78,15 +80,15 @@ function RequisitionProductItemForm({
     } | null>(null);
 
     const validationSchema = yup.object({
-        product: yup.object().required('Product is required').typeError('Product is required'),
+        product: yup.object().required(dictionary.forms.requisitions.productItem.validation.product).typeError(dictionary.forms.requisitions.productItem.validation.product),
         quantity: yup
             .number()
             .when('product', {
             is: (product: Product) => !!product && product.type === 'Inventory',
             then: (schema) => schema
-                .required('Quantity is required')
-                .positive('Quantity must be a positive number')
-                .typeError('Quantity is required')
+                .required(dictionary.forms.requisitions.productItem.validation.quantity)
+                .positive(dictionary.forms.requisitions.productItem.validation.quantityPositive)
+                .typeError(dictionary.forms.requisitions.productItem.validation.quantity)
                 .test(wholeUnitQuantityTest),
             }),
     });
@@ -198,14 +200,14 @@ function RequisitionProductItemForm({
         </Grid>
         {openProductQuickAdd && !product_item && (
           <Grid size={12} textAlign={'center'}>
-            <Typography variant='h5'>Quick Product Registration</Typography>
+            <Typography variant='h5'>{dictionary.forms.requisitions.productItem.quickProductRegistration}</Typography>
           </Grid>
         )}
         {!openProductQuickAdd && (
           <>
             <Grid size={{ xs: 12, md: product && canSeeBudget ? 2.5 : 3 }}>
               <ProductSelect
-                label='Product'
+                label={dictionary.forms.requisitions.common.product}
                 frontError={errors.product}
                 addedProduct={addedProduct}
                 defaultValue={product_item?.product}
@@ -234,7 +236,7 @@ function RequisitionProductItemForm({
                 }}
                 startAdornment={
                   checkOrganizationPermission([PERMISSIONS.PRODUCTS_CREATE]) && (
-                    <Tooltip title={'Add New Product'}>
+                    <Tooltip title={dictionary.tooltips.addNewProduct}>
                       <AddOutlined
                         onClick={() => setOpenProductQuickAdd(true)}
                         sx={{
@@ -277,7 +279,7 @@ function RequisitionProductItemForm({
             )}
             <Grid size={{xs: 12, md: 2}}>
               <TextField
-                label='Quantity'
+                label={dictionary.forms.requisitions.common.quantity}
                 fullWidth
                 size='small'
                 defaultValue={product_item?.quantity}
@@ -354,7 +356,7 @@ function RequisitionProductItemForm({
             </Grid>
             <Grid size={{xs: 12, md: vat_factor ? 2 : 3}}>
               <TextField
-                label='Price'
+                label={dictionary.forms.requisitions.common.price}
                 fullWidth
                 key={priceFieldKey}
                 size='small'
@@ -378,7 +380,7 @@ function RequisitionProductItemForm({
             {!!vat_factor && (
               <Grid size={{xs: 12, md: 2}}>
                 <TextField
-                  label='Price (VAT Inclusive)'
+                  label={dictionary.forms.requisitions.productItem.priceVatInclusive}
                   fullWidth
                   key={vatPriceFieldKey}
                   size='small'
@@ -407,7 +409,7 @@ function RequisitionProductItemForm({
             )}
             <Grid size={{xs: 12, md: vat_factor ? (product && !canSeeBudget ? 1.5 : 2) : ((product && !canSeeBudget) ? 2.5 : 3)}}>
               <TextField
-                label='Amount'
+                label={dictionary.forms.requisitions.common.amount}
                 fullWidth
                 size='small'
                 value={calculatedAmount}
@@ -419,7 +421,7 @@ function RequisitionProductItemForm({
             </Grid>
             <Grid size={{xs: 12, md: 6}}>
               <TextField
-                label='Remarks'
+                label={dictionary.forms.requisitions.common.remarks}
                 fullWidth
                 size='small'
                 {...register('remarks')}
@@ -437,16 +439,16 @@ function RequisitionProductItemForm({
               >
                 {product_item ? (
                   <>
-                    <CheckOutlined fontSize='small' /> Done
+                    <CheckOutlined fontSize='small' /> {dictionary.forms.requisitions.common.done}
                   </>
                 ) : (
                   <>
-                    <AddOutlined fontSize='small' /> Add
+                    <AddOutlined fontSize='small' /> {dictionary.forms.requisitions.common.add}
                   </>
                 )}
               </Button>
               {product_item && (
-                <Tooltip title='Close Edit'>
+                <Tooltip title={dictionary.tooltips.closeEdit}>
                   <IconButton
                     size='small'
                     onClick={() => {

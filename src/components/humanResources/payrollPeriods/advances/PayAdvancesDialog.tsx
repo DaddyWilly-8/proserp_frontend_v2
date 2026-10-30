@@ -1,5 +1,6 @@
 'use client';
 
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import LedgerSelect from '@/components/accounts/ledgers/forms/LedgerSelect';
 import { getErrorMessage } from '@/utilities/helpers/errorHandler';
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
@@ -32,6 +33,8 @@ const PayAdvancesDialog = ({
   payrollPeriodId: number;
   onSuccess?: () => void;
 }) => {
+  const dictionary = useDictionary();
+  const t = dictionary.humanResources.payrollPeriods;
   const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
   const { theme } = useJumboTheme();
@@ -53,7 +56,7 @@ const PayAdvancesDialog = ({
         date: date || undefined,
       }),
     onSuccess: (response: any) => {
-      enqueueSnackbar(response?.message || 'Advances paid', {
+      enqueueSnackbar(response?.message || t.advances.pay.paid, {
         variant: 'success',
       });
       queryClient.invalidateQueries({ queryKey: ['periodAdvances', String(payrollPeriodId)] });
@@ -75,23 +78,22 @@ const PayAdvancesDialog = ({
     >
       <DialogTitle>
         <Typography variant='h6' component='div' fontWeight={600}>
-          Pay Advances
+          {t.advances.pay.title}
         </Typography>
       </DialogTitle>
       <DialogContent>
         <Stack spacing={2} mt={1}>
           <Typography variant='body2' color='text.secondary'>
-            This pays every not-yet-paid advance uploaded for this period in
-            one batch — one payment, crediting the account below.
+            {t.advances.pay.intro}
           </Typography>
 
           <LedgerSelect
-            label='Bank or Cash Account'
+            label={t.advances.pay.bankOrCash}
             onChange={(ledger: any) => setCreditLedgerId(ledger?.id || 0)}
           />
 
           <DateTimePicker
-            label='Payment Date & Time'
+            label={t.advances.paymentDateTime}
             value={date ? dayjs(date) : null}
             onChange={(val) => setDate(val?.toISOString() || '')}
             slotProps={{
@@ -102,7 +104,7 @@ const PayAdvancesDialog = ({
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose} disabled={isPending}>
-          Cancel
+          {t.common.cancel}
         </Button>
         <LoadingButton
           loading={isPending}
@@ -111,7 +113,7 @@ const PayAdvancesDialog = ({
           disabled={creditLedgerId <= 0}
           onClick={() => pay()}
         >
-          Pay
+          {t.advances.pay.pay}
         </LoadingButton>
       </DialogActions>
     </Dialog>

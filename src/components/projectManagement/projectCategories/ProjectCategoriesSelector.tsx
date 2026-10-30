@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import {
   Autocomplete,
   Chip,
@@ -18,10 +19,11 @@ interface ProjectCategoriesSelectorProps {
 
 const ProjectCategoriesSelector: React.FC<ProjectCategoriesSelectorProps> = ({
   onChange,
-  label = "Project Category",
+  label,
   defaultValue = null,
   frontError = null,
 }) => {
+  const dictionary = useDictionary();
   const { data: categories, isLoading } = useQuery<ProjectCategory[], Error>({
     queryKey: ["projectCategories"],
     queryFn: () => projectCategoryServices.getAll(),
@@ -55,7 +57,7 @@ const ProjectCategoriesSelector: React.FC<ProjectCategoriesSelectorProps> = ({
       renderInput={(params) => (
         <TextField
           {...params}
-          label={label}
+          label={label ?? dictionary.projectManagement.projectCategories.projectCategory}
           size="small"
           fullWidth
           error={!!frontError}

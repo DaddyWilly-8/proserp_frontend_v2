@@ -5,6 +5,7 @@ import { Box, Typography, useTheme, useMediaQuery } from '@mui/material';
 import { BarChart } from '@mui/x-charts/BarChart';
 import { useDrawingArea } from '@mui/x-charts/hooks';
 import { styled } from '@mui/material/styles';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function CustomBarWithBackground(props) {
   const { ownerState, id, dataIndex, xOrigin, yOrigin, skipAnimation, ...other } = props;
@@ -61,6 +62,7 @@ function BarLabelAtEnd(props) {
 const getBarColor = () => '#1976d2';
 
 function DeliverableSummary({ deliverableDetails }) {
+  const dictionary = useDictionary();
   const theme = useTheme();
   const isXs = useMediaQuery(theme.breakpoints.down('sm'));
   const isSm = useMediaQuery(theme.breakpoints.between('sm', 'md'));
@@ -68,7 +70,7 @@ function DeliverableSummary({ deliverableDetails }) {
   if (!deliverableDetails) {
     return (
       <Box sx={{ width: '100%', p: 2, textAlign: 'center' }}>
-        <Typography color="text.secondary">No deliverable data available</Typography>
+        <Typography color="text.secondary">{dictionary.projectManagement.deliverables.noData}</Typography>
       </Box>
     );
   }
@@ -78,12 +80,12 @@ function DeliverableSummary({ deliverableDetails }) {
 
   const dataset = [
     { 
-      label: isXs ? 'Cert.' : 'Certification', 
+      label: isXs ? dictionary.projectManagement.deliverables.certificationShort : dictionary.projectManagement.deliverables.certification, 
       value: certified,
       color: getBarColor(),
     },
     { 
-      label: isXs ? 'Exec.' : 'Execution', 
+      label: isXs ? dictionary.projectManagement.deliverables.executionShort : dictionary.projectManagement.deliverables.execution, 
       value: executed,
       color: getBarColor(),
     },

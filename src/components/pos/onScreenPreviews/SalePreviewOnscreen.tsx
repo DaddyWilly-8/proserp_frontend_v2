@@ -20,6 +20,7 @@ import {
   useTheme,
 } from '@mui/material';
 import React from 'react';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface SalesOutlet {
   name: string;
@@ -89,6 +90,7 @@ const SalePreviewOnscreen: React.FC<SalePreviewOnscreenProps> = ({
   saleReceipts,
   isLoadingStatement = false,
 }) => {
+  const dictionary = useDictionary();
   const theme = useTheme();
   const currencyCode = sale.currency?.code;
   const mainColor = organization.settings?.main_color || '#2113AD';
@@ -408,7 +410,7 @@ const SalePreviewOnscreen: React.FC<SalePreviewOnscreenProps> = ({
                   {`${saleItem.quantity} ${saleItem.measurement_unit.symbol}`}
                 </TableCell>
                 <TableCell align='right' sx={{ fontFamily: 'monospace' }}>
-                  <Tooltip title='Price' arrow>
+                  <Tooltip title={dictionary.tooltips.price} arrow>
                     <Typography variant='body2'>
                       {formatNumber(saleItem.rate)}
                     </Typography>
@@ -416,7 +418,7 @@ const SalePreviewOnscreen: React.FC<SalePreviewOnscreenProps> = ({
                 </TableCell>
                 {sale?.vat_percentage > 0 && (
                   <TableCell align='right' sx={{ fontFamily: 'monospace' }}>
-                    <Tooltip title='VAT' arrow>
+                    <Tooltip title={dictionary.tooltips.vat} arrow>
                       <Typography variant='body2'>
                         {!saleItem.product?.vat_exempted
                           ? formatNumber(
@@ -428,7 +430,7 @@ const SalePreviewOnscreen: React.FC<SalePreviewOnscreenProps> = ({
                   </TableCell>
                 )}
                 <TableCell align='right' sx={{ fontFamily: 'monospace' }}>
-                  <Tooltip title='Amount' arrow>
+                  <Tooltip title={dictionary.tooltips.amount} arrow>
                     <Typography variant='body2'>
                       {formatNumber(
                         saleItem.quantity *

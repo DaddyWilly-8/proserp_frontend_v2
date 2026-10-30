@@ -48,6 +48,10 @@ const JournalOnScreen = dynamic(() => import('./JournalOnScreen'), { ssr: false 
 import JournalPDF from './JournalPDF';
 import journalServices from './journal-services';
 import dynamic from 'next/dynamic';
+import { EventRepeatOutlined } from '@mui/icons-material';
+import RepeatTransactionDialogContent from '@/components/accounts/recurringTransactions/RepeatTransactionDialogContent';
+import { canRepeatTransaction } from '@/components/accounts/recurringTransactions/recurring-utils';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface DocumentDialogProps {
   transaction: Transaction;
@@ -163,6 +167,7 @@ interface JournalItemActionProps {
 const JournalItemAction: React.FC<JournalItemActionProps> = ({
   transaction,
 }) => {
+  const dictionary = useDictionary();
   const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
   const { showDialog, hideDialog } = useJumboDialog();
@@ -174,6 +179,7 @@ const JournalItemAction: React.FC<JournalItemActionProps> = ({
   const [openDocumentDialog, setOpenDocumentDialog] = useState(false);
   const [attachDialog, setAttachDialog] = useState(false);
   const [openCancelDialog, setOpenCancelDialog] = useState(false);
+  const [openRepeatDialog, setOpenRepeatDialog] = useState(false);
 
   const { data: journalData, isFetching } = useQuery({
     queryKey: ['journal', transaction.id],
@@ -371,6 +377,14 @@ const JournalItemAction: React.FC<JournalItemActionProps> = ({
     );
   };
 
+  // Scheduling posts automatically, so it has its own permission on top of
+  // the transaction's; the server checks both again.
+  const repeatMenuItems: MenuItemProps[] =
+    checkPermission([PERMISSIONS.RECURRING_TRANSACTIONS_CREATE]) &&
+    canRepeatTransaction(transaction)
+      ? [{ icon: <EventRepeatOutlined />, title: 'Repeat', action: 'repeat' }]
+      : [];
+
   const handleItemAction = (menuItem: MenuItemProps) => {
     switch (menuItem.action) {
       case 'delete':
@@ -396,6 +410,9 @@ const JournalItemAction: React.FC<JournalItemActionProps> = ({
         break;
       case 'open':
         setOpenDocumentDialog(true);
+        break;
+      case 'repeat':
+        setOpenRepeatDialog(true);
         break;
       case 'cancel':
         setOpenCancelDialog(true);
@@ -550,13 +567,30 @@ const JournalItemAction: React.FC<JournalItemActionProps> = ({
         )}
       </Dialog>
 
+      <Dialog
+        open={openRepeatDialog}
+        scroll='paper'
+        fullScreen={belowLargeScreen}
+        fullWidth
+        maxWidth='sm'
+        onClose={() => setOpenRepeatDialog(false)}
+      >
+        {openRepeatDialog && (
+          <RepeatTransactionDialogContent
+            type='journal_voucher'
+            transaction={transaction}
+            onClose={() => setOpenRepeatDialog(false)}
+          />
+        )}
+      </Dialog>
+
       <JumboDdMenu
         icon={
-          <Tooltip title='Actions'>
+          <Tooltip title={dictionary.tooltips.actions}>
             <MoreHorizOutlined />
           </Tooltip>
         }
-        menuItems={menuItems}
+        menuItems={[...menuItems, ...repeatMenuItems]}
         onClickCallback={handleItemAction}
       />
     </>

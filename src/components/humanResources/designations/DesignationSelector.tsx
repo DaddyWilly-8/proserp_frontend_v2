@@ -10,6 +10,7 @@ import {
 import React, { useEffect } from 'react';
 import { useDesignations } from './DesignationsProvider';
 import { Designation } from './DesignationsType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface DesignationSelector {
   onChange: (value: Designation | Designation[] | null) => void;
@@ -28,10 +29,11 @@ interface DesignationSelector {
 }
 
 const DesignationSelector = (props: DesignationSelector) => {
+  const dictionary = useDictionary();
   const {
     onChange,
     frontError = null,
-    label = 'Select Designation',
+    label = dictionary.humanResources.designations.selector.label,
     defaultValue = null,
     value = null,
     addedDeignation = null,

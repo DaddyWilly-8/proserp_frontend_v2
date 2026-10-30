@@ -17,6 +17,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Div } from '@jumbo/shared';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { MODULES } from '@/utilities/constants/modules';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface ApprovalChainFormValues {
   process_type: string;
@@ -31,6 +32,7 @@ interface ApprovalChainFormProps {
 }
 
 function ApprovalChainForm({ toggleOpen }: ApprovalChainFormProps) {
+  const dictionary = useDictionary();
   const [items, setItems] = useState<any[]>([]);
   const [selectedProcessType, setSelectedProcessType] = useState<string>('');
   const [serverError, setServerError] = useState<{ process_type?: string[] } | null>(null);
@@ -44,7 +46,7 @@ function ApprovalChainForm({ toggleOpen }: ApprovalChainFormProps) {
   const [submitItemForm, setSubmitItemForm] = useState(false);
 
   const validationSchema = yup.object({
-    process_type: yup.string().required('Process Type is required').typeError('Process Type is required'),
+    process_type: yup.string().required(dictionary.forms.approvalChains.chainForm.errors.validation.processTypeRequired).typeError(dictionary.forms.approvalChains.chainForm.errors.validation.processTypeRequired),
   });
 
   const processTypeOptions = React.useMemo(
@@ -97,7 +99,7 @@ function ApprovalChainForm({ toggleOpen }: ApprovalChainFormProps) {
     if (items.length === 0) {
       setError('levels', {
         type: "manual",
-        message: "You must add at least one item",
+        message: dictionary.forms.approvalChains.chainForm.errors.validation.itemsRequired,
       });
       return;
     }
@@ -125,7 +127,7 @@ function ApprovalChainForm({ toggleOpen }: ApprovalChainFormProps) {
       <DialogTitle>
         <Grid container columnSpacing={2}>
           <Grid size={12} textAlign={"center"} mb={2}>
-            {'New Approval Chain'}
+            {dictionary.forms.approvalChains.chainForm.title.new}
           </Grid>
           <Grid size={12}>
             <form autoComplete='off'>
@@ -140,7 +142,7 @@ function ApprovalChainForm({ toggleOpen }: ApprovalChainFormProps) {
                       renderInput={(params) => (
                         <TextField
                           {...params}
-                          label="Process Type"
+                          label={dictionary.forms.approvalChains.chainForm.labels.processType}
                           size="small"
                           fullWidth
                           error={!!errors.process_type}
@@ -169,7 +171,7 @@ function ApprovalChainForm({ toggleOpen }: ApprovalChainFormProps) {
                       <CostCenterSelector
                         multiple={false}
                         withNotSpecified={true}
-                        label="Cost Center"
+                        label={dictionary.forms.approvalChains.chainForm.labels.costCenter}
                         onChange={(newValue) => {
                           setServerError(null);
                           if (!Array.isArray(newValue)) {
@@ -188,7 +190,7 @@ function ApprovalChainForm({ toggleOpen }: ApprovalChainFormProps) {
                     <Div sx={{ mt: 0.3 }}>
                       <DepartmentSelector
                         multiple={false}
-                        label="Department"
+                        label={dictionary.forms.approvalChains.chainForm.labels.department}
                         onChange={(newValue) => {
                           setServerError(null);
                           if (newValue && !Array.isArray(newValue)) {
@@ -204,7 +206,7 @@ function ApprovalChainForm({ toggleOpen }: ApprovalChainFormProps) {
                 <Grid size={{xs: 12, md: 3}}>
                   <Div sx={{ mt: 0.3 }}>
                     <TextField
-                      label="Remarks"
+                      label={dictionary.forms.approvalChains.chainForm.labels.remarks}
                       size="small"
                       multiline={true}
                       minRows={2}
@@ -261,10 +263,10 @@ function ApprovalChainForm({ toggleOpen }: ApprovalChainFormProps) {
           <DialogTitle>            
             <Grid container alignItems="center" justifyContent="space-between">
               <Grid size={11}>
-                Unsaved Changes
+                {dictionary.forms.approvalChains.chainForm.dialogs.unsavedChanges.title}
               </Grid>
               <Grid size={1} textAlign="right">
-                <Tooltip title="Close">
+                <Tooltip title={dictionary.tooltips.close}>
                   <IconButton size="small" onClick={() => setShowWarning(false)}>
                     <HighlightOff color="primary" />
                   </IconButton>
@@ -273,21 +275,21 @@ function ApprovalChainForm({ toggleOpen }: ApprovalChainFormProps) {
             </Grid>
           </DialogTitle>
           <DialogContent>
-            Last item was not added to the list
+            {dictionary.forms.approvalChains.chainForm.dialogs.unsavedChanges.message}
           </DialogContent>
           <DialogActions>
             <Button size="small" onClick={() => { setSubmitItemForm(true); setShowWarning(false); }}>
-              Add and Submit
+              {dictionary.forms.approvalChains.chainForm.dialogs.unsavedChanges.addAndSubmit}
             </Button>
             <Button size="small" onClick={handleConfirmSubmitWithoutAdd} color="secondary">
-              Submit without add
+              {dictionary.forms.approvalChains.chainForm.dialogs.unsavedChanges.submitWithoutAdd}
             </Button>
           </DialogActions>
         </Dialog>
       </DialogContent>
       <DialogActions>
         <Button size='small' onClick={() => toggleOpen(false)}>
-          Cancel
+          {dictionary.forms.approvalChains.chainForm.buttons.cancel}
         </Button>
         <LoadingButton
           loading={addApprovalChains.isPending}
@@ -295,7 +297,7 @@ function ApprovalChainForm({ toggleOpen }: ApprovalChainFormProps) {
           onClick={handleSubmit(onSubmit)}
           size='small'
         >
-          Submit
+          {dictionary.forms.approvalChains.chainForm.buttons.submit}
         </LoadingButton>
       </DialogActions>
     </DepartmentsProvider>

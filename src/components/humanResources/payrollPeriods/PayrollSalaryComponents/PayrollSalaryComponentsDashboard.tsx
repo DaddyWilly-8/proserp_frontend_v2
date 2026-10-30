@@ -27,20 +27,21 @@ import { useSnackbar } from 'notistack';
 import humanResourcesServices from '../../humanResourcesServices';
 import PayrollSalarySummaryReportDocument from '../PayrollSalaryComponents/PayrollSalarySummaryReportDocument';
 import PayrollSalarySummaryReportOnScreen from '../PayrollSalaryComponents/PayrollSalarySummaryReportOnScreen';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
-const monthNames = [
-  'January',
-  'February',
-  'March',
-  'April',
-  'May',
-  'June',
-  'July',
-  'August',
-  'September',
-  'October',
-  'November',
-  'December',
+const MONTH_KEYS = [
+  'january',
+  'february',
+  'march',
+  'april',
+  'may',
+  'june',
+  'july',
+  'august',
+  'september',
+  'october',
+  'november',
+  'december',
 ];
 
 type GroupedSummaryItem = {
@@ -86,6 +87,9 @@ type AppliedFilters = {
 };
 
 export default function PayrollSalaryComponentsDashboard({ onClose }: { onClose?: () => void } = {}) {
+  const dictionary = useDictionary();
+  const t = dictionary.humanResources.payrollPeriods;
+  const monthNames = MONTH_KEYS.map((key) => (t.common.months as Record<string, string>)[key]);
   const { authOrganization, authUser } = useJumboAuth() as any;
   const { enqueueSnackbar } = useSnackbar();
   const now = new Date();
@@ -139,7 +143,7 @@ export default function PayrollSalaryComponentsDashboard({ onClose }: { onClose?
 
   const handleFilter = () => {
     if (fromYear * 100 + fromMonth > toYear * 100 + toMonth) {
-      enqueueSnackbar('The "From" period must not be after the "To" period', { variant: 'warning' });
+      enqueueSnackbar(t.salaryComponents.errors.fromAfterTo, { variant: 'warning' });
       return;
     }
 
@@ -173,7 +177,7 @@ export default function PayrollSalaryComponentsDashboard({ onClose }: { onClose?
       link.remove();
       window.URL.revokeObjectURL(url);
     } catch (err: any) {
-      enqueueSnackbar(err?.response?.data?.message || 'Unable to export payroll components summary', { variant: 'error' });
+      enqueueSnackbar(err?.response?.data?.message || t.salaryComponents.errors.exportFailed, { variant: 'error' });
     } finally {
       setIsExportingExcel(false);
     }
@@ -188,7 +192,7 @@ export default function PayrollSalaryComponentsDashboard({ onClose }: { onClose?
   const appliedCostCentersLabel =
     appliedCostCenters.length > 0
       ? appliedCostCenters.map((cc) => cc.name).join(', ')
-      : `${authOrganization?.organization?.name || 'All'} (company wide)`;
+      : `${authOrganization?.organization?.name || t.salaryComponents.all} (${t.salaryComponents.companyWide})`;
 
   const appliedFrom = `${monthNames[appliedFilters.fromMonth - 1]} ${appliedFilters.fromYear}`;
   const appliedTo = `${monthNames[appliedFilters.toMonth - 1]} ${appliedFilters.toYear}`;
@@ -198,7 +202,7 @@ export default function PayrollSalaryComponentsDashboard({ onClose }: { onClose?
     <>
       <DialogTitle sx={{ pb: 1 }}>
         {onClose && (
-          <Tooltip title='Close'>
+          <Tooltip title={dictionary.tooltips.close}>
             <IconButton onClick={() => onClose()} sx={{ position: 'absolute', right: 12, top: 12 }}>
               <CloseOutlined />
             </IconButton>
@@ -206,9 +210,9 @@ export default function PayrollSalaryComponentsDashboard({ onClose }: { onClose?
         )}
         <Grid container spacing={1.5} alignItems='center'>
           <Grid size={{ xs: 12, md: 12 }} textAlign={'center'} marginBottom={2} sx={onClose ? { px: 4 } : undefined}>
-            <Typography variant='h3'>Payroll Components Summary</Typography>
+            <Typography variant='h3'>{t.salaryComponents.reportTitle}</Typography>
             <Typography variant='body2' color='text.secondary'>
-              Summary for {appliedPeriodLabel}
+              {t.salaryComponents.summaryFor.replace('{period}', appliedPeriodLabel)}
             </Typography>
             <Typography variant='body2' color='text.secondary'>
               {appliedCostCentersLabel}
@@ -218,7 +222,7 @@ export default function PayrollSalaryComponentsDashboard({ onClose }: { onClose?
           <Grid size={{ xs: 6, md: 3 }}>
             <TextField
               select
-              label='From Year'
+              label={t.salaryComponents.fromYear}
               size='small'
               value={fromYear}
               onChange={(event) => setFromYear(Number(event.target.value))}
@@ -235,7 +239,7 @@ export default function PayrollSalaryComponentsDashboard({ onClose }: { onClose?
           <Grid size={{ xs: 6, md: 3 }}>
             <TextField
               select
-              label='From Month'
+              label={t.salaryComponents.fromMonth}
               size='small'
               value={fromMonth}
               onChange={(event) => setFromMonth(Number(event.target.value))}
@@ -252,7 +256,7 @@ export default function PayrollSalaryComponentsDashboard({ onClose }: { onClose?
           <Grid size={{ xs: 6, md: 3 }}>
             <TextField
               select
-              label='To Year'
+              label={t.salaryComponents.toYear}
               size='small'
               value={toYear}
               onChange={(event) => setToYear(Number(event.target.value))}
@@ -269,7 +273,7 @@ export default function PayrollSalaryComponentsDashboard({ onClose }: { onClose?
           <Grid size={{ xs: 6, md: 3 }}>
             <TextField
               select
-              label='To Month'
+              label={t.salaryComponents.toMonth}
               size='small'
               value={toMonth}
               onChange={(event) => setToMonth(Number(event.target.value))}
@@ -287,7 +291,7 @@ export default function PayrollSalaryComponentsDashboard({ onClose }: { onClose?
             <CostCenterSelector
               multiple
               allowSameType={true}
-              label='Cost Centers'
+              label={t.salaryComponents.costCenters}
               defaultValue={selectedCostCenters}
               onChange={(value) => {
                 setSelectedCostCenters(Array.isArray(value) ? value : []);
@@ -305,7 +309,7 @@ export default function PayrollSalaryComponentsDashboard({ onClose }: { onClose?
             }}
           >
             <Button variant='contained' size='small' onClick={handleFilter}>
-              Filter
+              {t.salaryComponents.filter}
             </Button>
             <FileExportGrid
               exportExcel
@@ -327,12 +331,12 @@ export default function PayrollSalaryComponentsDashboard({ onClose }: { onClose?
 
         {isError && (
           <Alert severity='error' sx={{ mb: 2 }}>
-            {(error as Error)?.message || 'Unable to load payroll summary.'}
+            {(error as Error)?.message || t.salaryComponents.errors.loadFailed}
           </Alert>
         )}
 
         {!isFetching && !data && !isError && (
-          <Alert severity='info'>No payroll summary data is available for the selected filters.</Alert>
+          <Alert severity='info'>{t.salaryComponents.noSummaryData}</Alert>
         )}
 
         {data && (
@@ -346,6 +350,7 @@ export default function PayrollSalaryComponentsDashboard({ onClose }: { onClose?
                     selectedCostCenters={appliedCostCenters}
                     organization={authOrganization?.organization}
                     userName={authUser?.user?.name || 'ProsERP'}
+                    dictionary={dictionary}
                   />
                 }
                 fileName={`Payroll Components Summary ${appliedPeriodLabel}`}
@@ -364,7 +369,7 @@ export default function PayrollSalaryComponentsDashboard({ onClose }: { onClose?
       {onClose && (
         <DialogActions>
           <Button sx={{ m: 1 }} size='small' variant='outlined' onClick={() => onClose()}>
-            Close
+            {t.common.close}
           </Button>
         </DialogActions>
       )}

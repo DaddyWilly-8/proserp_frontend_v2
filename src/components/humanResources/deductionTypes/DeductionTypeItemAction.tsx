@@ -16,6 +16,7 @@ import { useSnackbar } from 'notistack';
 import { useState } from 'react';
 import humanResourcesServices from '../humanResourcesServices';
 import { DeductionType } from './DeductionType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const EditDeductionType = ({
   deductionType,
@@ -52,6 +53,7 @@ const DeductionTypeItemAction = ({
 }: {
   deductionType: DeductionType;
 }) => {
+  const dictionary = useDictionary();
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const { showDialog, hideDialog } = useJumboDialog();
   const { enqueueSnackbar } = useSnackbar();
@@ -63,7 +65,7 @@ const DeductionTypeItemAction = ({
     mutationFn: humanResourcesServices.deleteDeductionType,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['deductionTypes'] });
-      enqueueSnackbar('Deduction Type Deleted Successfully', {
+      enqueueSnackbar(dictionary.humanResources.deductionTypes.actions.deleteSuccess, {
         variant: 'success',
       });
     },
@@ -74,11 +76,14 @@ const DeductionTypeItemAction = ({
       // and delete the type, instead of just failing here.
       if (data?.confirm_required) {
         showDialog({
-          title: 'Deduction type still in use',
-          content: `${data.message.replace(
-            ' Remove it from their deductions, or confirm to remove it from all of them and delete the type.',
-            ''
-          )} Remove it from all of them and delete the type?`,
+          title: dictionary.humanResources.deductionTypes.actions.inUseTitle,
+          content: dictionary.humanResources.deductionTypes.actions.inUseContent.replace(
+            '{message}',
+            data.message.replace(
+              ' Remove it from their deductions, or confirm to remove it from all of them and delete the type.',
+              ''
+            )
+          ),
           onYes: () => {
             hideDialog();
             deleteDeductionType({ id: deductionType.id, force: true });
@@ -89,7 +94,7 @@ const DeductionTypeItemAction = ({
         return;
       }
 
-      let message = 'Something went wrong';
+      let message = dictionary.humanResources.deductionTypes.actions.somethingWrong;
 
       if (typeof data?.message === 'string') {
         message = data.message;
@@ -103,12 +108,12 @@ const DeductionTypeItemAction = ({
   const menuItems = [
     {
       icon: <EditOutlined />,
-      title: 'Edit',
+      title: dictionary.humanResources.deductionTypes.actions.edit,
       action: 'edit',
     },
     {
       icon: <DeleteOutlined color='error' />,
-      title: 'Delete',
+      title: dictionary.humanResources.deductionTypes.actions.delete,
       action: 'delete',
     },
   ];
@@ -120,8 +125,8 @@ const DeductionTypeItemAction = ({
         break;
       case 'delete':
         showDialog({
-          title: 'Confirm Delete',
-          content: 'Are you sure you want to delete this Deduction Type?',
+          title: dictionary.humanResources.deductionTypes.actions.confirmDeleteTitle,
+          content: dictionary.humanResources.deductionTypes.actions.confirmDeleteContent,
           onYes: () => {
             hideDialog();
             deleteDeductionType({ id: deductionType.id });
@@ -152,7 +157,7 @@ const DeductionTypeItemAction = ({
       </Dialog>
       <JumboDdMenu
         icon={
-          <Tooltip title='Actions'>
+          <Tooltip title={dictionary.tooltips.actions}>
             <MoreHorizOutlined fontSize='small' />
           </Tooltip>
         }

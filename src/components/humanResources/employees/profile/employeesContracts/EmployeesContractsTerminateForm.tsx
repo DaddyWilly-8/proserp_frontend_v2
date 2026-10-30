@@ -19,6 +19,7 @@ import { Controller, useForm } from 'react-hook-form';
 import * as yup from 'yup';
 import humanResourcesServices from '../../../humanResourcesServices';
 import { ContractType } from './ContractType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface TerminateFormData {
   termination_date: string;
@@ -30,15 +31,17 @@ interface EmployeesContractsTerminateFormProps {
   setOpenDialog: (open: boolean) => void;
 }
 
-const validationSchema = yup.object({
-  termination_date: yup.string(),
-  remarks: yup.string().max(1000, 'Remarks should not exceed 1000 characters'),
-});
-
 const EmployeesContractsTerminateForm = ({
   contract,
   setOpenDialog,
 }: EmployeesContractsTerminateFormProps) => {
+  const dictionary = useDictionary();
+  const validationSchema = yup.object({
+    termination_date: yup.string(),
+    remarks: yup
+      .string()
+      .max(1000, dictionary.humanResources.employeesContracts.terminate.remarksMax),
+  });
   const queryClient = useQueryClient();
   const { enqueueSnackbar } = useSnackbar();
   const [terminationDate, setTerminationDate] = useState<string | undefined>(
@@ -68,13 +71,13 @@ const EmployeesContractsTerminateForm = ({
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['employeesContracts'] });
-      enqueueSnackbar('Employee Contract Terminated Successfully', {
+      enqueueSnackbar(dictionary.humanResources.employeesContracts.messages.terminated, {
         variant: 'success',
       });
       setOpenDialog(false);
     },
     onError: (error: any) => {
-      enqueueSnackbar('Error Terminating Employee Contract', {
+      enqueueSnackbar(dictionary.humanResources.employeesContracts.messages.terminateError, {
         variant: 'error',
       });
       console.log('error terminating employee contract: ', error);
@@ -89,16 +92,16 @@ const EmployeesContractsTerminateForm = ({
     <>
       <DialogTitle>
         <Grid size={12} textAlign='center'>
-          Terminate Contract
+          {dictionary.humanResources.employeesContracts.terminate.title}
         </Grid>
       </DialogTitle>
       <DialogContent>
         <Typography variant='body2' color='text.secondary' mb={2}>
-          You are about to terminate the contract for{' '}
+          {dictionary.humanResources.employeesContracts.terminate.intro}{' '}
           <strong>
             {contract.employee?.first_name} {contract.employee?.last_name}
           </strong>
-          . Please provide the termination details below.
+          {dictionary.humanResources.employeesContracts.terminate.introSuffix}
         </Typography>
         <form autoComplete='off' onSubmit={handleSubmit(onSubmit)}>
           <Grid container spacing={2} mt={1}>
@@ -108,7 +111,7 @@ const EmployeesContractsTerminateForm = ({
                 control={control}
                 render={({ field, fieldState }) => (
                   <DatePicker
-                    label='Termination Date'
+                    label={dictionary.humanResources.employeesContracts.terminate.terminationDate}
                     value={
                       terminationDate !== undefined
                         ? dayjs(terminationDate)
@@ -135,7 +138,7 @@ const EmployeesContractsTerminateForm = ({
             </Grid>
             <Grid size={{ xs: 12, md: 6 }}>
               <TextField
-                label='Remarks'
+                label={dictionary.humanResources.employeesContracts.terminate.remarks}
                 size='small'
                 fullWidth
                 multiline
@@ -148,7 +151,7 @@ const EmployeesContractsTerminateForm = ({
           </Grid>
           <DialogActions sx={{ mt: 2 }}>
             <Button size='small' onClick={() => setOpenDialog(false)}>
-              Cancel
+              {dictionary.humanResources.profileSectionsCommon.cancel}
             </Button>
             <LoadingButton
               type='submit'
@@ -157,7 +160,7 @@ const EmployeesContractsTerminateForm = ({
               color='error'
               loading={isPending}
             >
-              Terminate Contract
+              {dictionary.humanResources.employeesContracts.terminate.button}
             </LoadingButton>
           </DialogActions>
         </form>

@@ -8,7 +8,7 @@ export async function GET(req: NextRequest) {
   if (response) return response;
 
   const { searchParams } = new URL(req.url);
-  const url = new URL(`${API_BASE}/fuel-stations/stock-sales-summary-report`);
+  const url = new URL(`${API_BASE}/fuel-stations/tank-stock-report`);
 
   Array.from(searchParams.entries()).forEach(([key, value]) => {
     url.searchParams.append(key, value);

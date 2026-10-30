@@ -1,4 +1,7 @@
 import { sanitizedNumber } from '@/app/helpers/input-sanitization-helpers';
+import ScheduleModeSection from '@/components/accounts/recurringTransactions/ScheduleModeSection';
+import recurringTransactionServices from '@/components/accounts/recurringTransactions/recurringTransactions-services';
+import { buildScheduleBody, emptyScheduleForm, isScheduleFormComplete, ScheduleForm } from '@/components/accounts/recurringTransactions/recurring-utils';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import CostCenterSelector from '@/components/masters/costCenters/CostCenterSelector';
 import { CostCenter } from '@/components/masters/costCenters/CostCenterType';
@@ -39,6 +42,7 @@ import TransactionItemForm from '../TransactionItemForm';
 import TransactionItemRow from '../TransactionItemRow';
 import ReconciledCostCentersForm from '../ReconciledCostCentersForm';
 import fundTransferServices from './fund-transfer-services';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface TransferItem {
   debit_ledger_id?: number;
@@ -107,6 +111,7 @@ function TransferFormDialogContent({
   defaultAmount,
   defaultCreditLedgerId,
 }: TransferFormDialogContentProps) {
+  const dictionary = useDictionary();
   const { authOrganization, checkOrganizationPermission } = useJumboAuth();
   const costCenters = authOrganization?.costCenters || [];
   const queryClient = useQueryClient();
@@ -126,6 +131,8 @@ function TransferFormDialogContent({
   const [clearFormKey, setClearFormKey] = useState(0);
   const [prevKey, setPrevKey] = useState(0);
   const [submitItemForm, setSubmitItemForm] = useState(false);
+  const [scheduleMode, setScheduleMode] = useState(false);
+  const [scheduleForm, setScheduleForm] = useState<ScheduleForm>(() => emptyScheduleForm(''));
 
   const getExchangeRateByCurrencyId = (currencyId?: number) => {
     if (!currencyId) return 1;
@@ -180,7 +187,11 @@ function TransferFormDialogContent({
   const [items, setItems] = useState<TransferItem[]>(getInitialItems());
 
   const addTransfer = useMutation<TransferResponse, Error, TransferFormValues>({
-    mutationFn: fundTransferServices.add,
+    // In schedule mode the same form saves a schedule instead of posting now.
+    mutationFn: (values: any) =>
+      scheduleMode
+        ? recurringTransactionServices.create(buildScheduleBody('fund_transfer', values, scheduleForm))
+        : fundTransferServices.add(values),
     onSuccess: (data) => {
       data?.message && enqueueSnackbar(data.message, { variant: 'success' });
       setOpen(false);
@@ -218,40 +229,40 @@ function TransferFormDialogContent({
   });
 
   const validationSchema = yup.object({
-    transactionDate: yup.string().required('Transfer Date is required'),
-    narration: yup.string().required('Narration is required'),
+    transactionDate: yup.string().required(dictionary.forms.transfers.form.errors.validation.dateRequired),
+    narration: yup.string().required(dictionary.forms.transfers.form.errors.validation.narrationRequired),
     currency_id: yup
       .number()
-      .positive('Currency is required')
-      .required('Currency is required')
-      .typeError('Currency is required'),
+      .positive(dictionary.forms.transfers.form.errors.validation.currencyRequired)
+      .required(dictionary.forms.transfers.form.errors.validation.currencyRequired)
+      .typeError(dictionary.forms.transfers.form.errors.validation.currencyRequired),
     exchange_rate: yup
       .number()
-      .positive('Exchange rate is required')
-      .required('Exchange rate is required')
-      .typeError('Exchange rate is required'),
+      .positive(dictionary.forms.transfers.form.errors.validation.exchangeRateRequired)
+      .required(dictionary.forms.transfers.form.errors.validation.exchangeRateRequired)
+      .typeError(dictionary.forms.transfers.form.errors.validation.exchangeRateRequired),
     credit_ledger_id: yup
       .number()
-      .required('Transfer from (credit) Ledger is required')
-      .positive('Transfer from (credit) Ledger is required')
-      .typeError('Transfer from (credit) Ledger is required'),
+      .required(dictionary.forms.transfers.form.errors.validation.fromLedgerRequired)
+      .positive(dictionary.forms.transfers.form.errors.validation.fromLedgerRequired)
+      .typeError(dictionary.forms.transfers.form.errors.validation.fromLedgerRequired),
     items: yup.array().of(
       yup.object().shape({
         debit_ledger_id: yup
           .number()
-          .required('Transfer to (Debit) account is required'),
-        description: yup.string().required('Description is required'),
+          .required(dictionary.forms.transfers.form.errors.validation.toAccountRequired),
+        description: yup.string().required(dictionary.forms.transfers.form.errors.validation.descriptionRequired),
         amount: yup
           .number()
-          .required('Amount is required')
-          .positive('Amount must be greater than 0'),
+          .required(dictionary.forms.transfers.form.errors.validation.amountRequired)
+          .positive(dictionary.forms.transfers.form.errors.validation.amountPositive),
       })
     ),
     cost_centers: yup
       .array()
       .test(
         'cost-center-required',
-        'At least one cost center is required',
+        dictionary.forms.transfers.form.errors.validation.costCenterRequired,
         (value) => haveAllCostCenters || (value && value.length > 0)
       ),
   });
@@ -306,7 +317,7 @@ function TransferFormDialogContent({
       clearErrors('items');
       setError('items', {
         type: 'manual',
-        message: 'You must add at least one item',
+        message: dictionary.forms.transfers.form.errors.validation.itemsRequired,
       });
       return;
     }
@@ -339,7 +350,7 @@ function TransferFormDialogContent({
       setError('currency_id', {
         type: 'manual',
         message:
-          'Transfers between two different foreign currencies are not supported directly. Post through a base-currency clearing entry instead.',
+          dictionary.forms.transfers.form.errors.validation.foreignCurrencies,
       });
       return;
     }
@@ -372,7 +383,7 @@ function TransferFormDialogContent({
   return (
     <>
       <DialogTitle textAlign={'center'}>
-        {transfer ? `Edit ${transfer.voucherNo}` : `New Transfer Form`}
+        {transfer ? dictionary.forms.transfers.form.title.edit.replace('{voucherNo}', transfer.voucherNo ?? '') : dictionary.forms.transfers.form.title.new}
       </DialogTitle>
       <DialogContent>
         <form onSubmit={handleSubmit(onSubmit)}>
@@ -380,7 +391,8 @@ function TransferFormDialogContent({
             <Grid size={{ xs: 12, md: 4 }}>
               <Div sx={{ mt: 1, mb: 1 }}>
                 <DateTimePicker
-                  label='Transfer Date (MM/DD/YYYY)'
+                  label={dictionary.forms.transfers.form.labels.date}
+                disabled={scheduleMode}
                   minDate={
                     checkOrganizationPermission([
                       PERMISSIONS.ACCOUNTS_TRANSACTIONS_BACKDATE,
@@ -445,7 +457,7 @@ function TransferFormDialogContent({
                       shouldDirty: true,
                     });
                   }}
-                  label='Transfer From (Credit)'
+                  label={dictionary.forms.transfers.form.labels.transferFromCredit}
                 />
               </Div>
             </Grid>
@@ -453,7 +465,7 @@ function TransferFormDialogContent({
               <Div sx={{ mt: 1, mb: 1 }}>
                 <TextField
                   size='small'
-                  label='Reference'
+                  label={dictionary.forms.transfers.form.labels.reference}
                   fullWidth
                   defaultValue={transfer?.reference}
                   {...register('reference')}
@@ -492,7 +504,7 @@ function TransferFormDialogContent({
               <Grid size={{ xs: 12, md: 4 }}>
                 <Div sx={{ mt: 1, mb: 1 }}>
                   <TextField
-                    label='Exchange Rate'
+                    label={dictionary.forms.transfers.form.labels.exchangeRate}
                     fullWidth
                     size='small'
                     error={!!errors?.exchange_rate}
@@ -519,7 +531,7 @@ function TransferFormDialogContent({
             <Grid size={{ xs: 12, md: watch('currency_id') !== 1 ? 4 : 8 }}>
               <Div sx={{ mt: 1, mb: 1 }}>
                 <CostCenterSelector
-                  label='Cost Centers'
+                  label={dictionary.forms.transfers.form.labels.costCenters}
                   frontError={errors.cost_centers}
                   defaultValue={
                     transfer?.cost_centers ||
@@ -597,7 +609,7 @@ function TransferFormDialogContent({
             <Grid size={12}>
               <Div sx={{ mt: 1, mb: 1 }}>
                 <TextField
-                  label='Narration'
+                  label={dictionary.forms.transfers.form.labels.narration}
                   multiline={true}
                   rows={2}
                   fullWidth
@@ -611,12 +623,21 @@ function TransferFormDialogContent({
           </Grid>
         </form>
 
+        <ScheduleModeSection
+          hidden={!!transfer}
+          enabled={scheduleMode}
+          onEnabledChange={setScheduleMode}
+          form={scheduleForm}
+          setForm={setScheduleForm}
+          narration={watch('narration')}
+        />
+
         <Dialog open={showWarning} onClose={() => setShowWarning(false)}>
           <DialogTitle>
             <Grid container alignItems='center' justifyContent='space-between'>
-              <Grid size={11}>Unsaved Changes</Grid>
+              <Grid size={11}>{dictionary.forms.transfers.form.dialogs.unsavedChanges.title}</Grid>
               <Grid size={1} textAlign='right'>
-                <Tooltip title='Close'>
+                <Tooltip title={dictionary.tooltips.close}>
                   <IconButton
                     size='small'
                     onClick={() => setShowWarning(false)}
@@ -627,7 +648,7 @@ function TransferFormDialogContent({
               </Grid>
             </Grid>
           </DialogTitle>
-          <DialogContent>Last item was not added to the list</DialogContent>
+          <DialogContent>{dictionary.forms.transfers.form.dialogs.unsavedChanges.message}</DialogContent>
           <DialogActions>
             <Button
               size='small'
@@ -636,30 +657,31 @@ function TransferFormDialogContent({
                 setShowWarning(false);
               }}
             >
-              Add and Submit
+              {dictionary.forms.transfers.form.dialogs.unsavedChanges.addAndSubmit}
             </Button>
             <Button
               size='small'
               onClick={() => handleConfirmSubmitWithoutAdd(watch())}
               color='secondary'
             >
-              Submit without add
+              {dictionary.forms.transfers.form.dialogs.unsavedChanges.submitWithoutAdd}
             </Button>
           </DialogActions>
         </Dialog>
       </DialogContent>
       <DialogActions>
         <Button size='small' onClick={() => setOpen(false)}>
-          Cancel
+          {dictionary.forms.transfers.form.buttons.cancel}
         </Button>
         <LoadingButton
           type='submit'
           onClick={handleSubmit(onSubmit)}
           loading={addTransfer.isPending || updateTransfer.isPending}
+          disabled={scheduleMode && !isScheduleFormComplete(scheduleForm)}
           size='small'
           variant='contained'
         >
-          Submit
+          {scheduleMode ? dictionary.forms.transfers.form.buttons.createSchedule : dictionary.forms.transfers.form.buttons.submit}
         </LoadingButton>
       </DialogActions>
     </>

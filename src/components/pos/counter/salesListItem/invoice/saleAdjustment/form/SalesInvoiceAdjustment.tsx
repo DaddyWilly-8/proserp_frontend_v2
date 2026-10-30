@@ -28,6 +28,7 @@ import { Stakeholder } from '@/components/masters/stakeholders/StakeholderType';
 import { CostCenter } from '@/components/masters/costCenters/CostCenterType';
 import SaleAdjustmentItemForm from './SaleAdjustmentItemForm';
 import SaleAdjustmentItemRow from './SaleAdjustmentItemRow';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface InvoiceItem {
   id?: number;
@@ -91,6 +92,7 @@ interface SalesInvoiceAdjustmentProps {
 }
 
 function SalesInvoiceAdjustment({ isEdit, invoiceData, toggleOpen }: SalesInvoiceAdjustmentProps) {
+  const dictionary = useDictionary();
   const [transaction_date] = useState<Dayjs>(
     isEdit ? dayjs(invoiceData.transaction_date) : dayjs()
   );
@@ -106,8 +108,8 @@ function SalesInvoiceAdjustment({ isEdit, invoiceData, toggleOpen }: SalesInvoic
   const currencyCode = invoiceData.currency.code;
 
   const noteType: NoteTypeOption[] = [
-    { name: 'Debit Note', value: 'debit' },
-    { name: 'Credit Note', value: 'credit' },
+    { name: dictionary.forms.counter.adjustment.noteTypes.debit, value: 'debit' },
+    { name: dictionary.forms.counter.adjustment.noteTypes.credit, value: 'credit' },
   ];
 
   const invoiceAdjustment = useMutation({
@@ -148,38 +150,38 @@ function SalesInvoiceAdjustment({ isEdit, invoiceData, toggleOpen }: SalesInvoic
   );
 
   const validationSchema = yup.object({
-    transaction_date: yup.string().required('Invoice Date is required').typeError('Invoice Date is required'),
-    note_type: yup.string().required('Note Type is required').typeError('Note Type is required'),
-    narration: yup.string().required('Narration is required').typeError('Narration is required'),
+    transaction_date: yup.string().required(dictionary.forms.counter.adjustment.validation.invoiceDateRequired).typeError(dictionary.forms.counter.adjustment.validation.invoiceDateRequired),
+    note_type: yup.string().required(dictionary.forms.counter.adjustment.validation.noteTypeRequired).typeError(dictionary.forms.counter.adjustment.validation.noteTypeRequired),
+    narration: yup.string().required(dictionary.forms.counter.adjustment.validation.narrationRequired).typeError(dictionary.forms.counter.adjustment.validation.narrationRequired),
     items: yup.array().of(
       yup.object({
-        complement_ledger_id: yup.number().required('Complement Ledger is required').min(1, 'Select a valid Complement Ledger').typeError('Complement Ledger is required'),
+        complement_ledger_id: yup.number().required(dictionary.forms.counter.adjustment.validation.complementLedgerRequired).min(1, dictionary.forms.counter.adjustment.validation.complementLedgerInvalid).typeError(dictionary.forms.counter.adjustment.validation.complementLedgerRequired),
         measurement_unit_id: yup
           .number()
           .nullable()
           .when(['product_id', 'description'], {
             is: (product_id: number | null, description: string) => !product_id && !!description,
-            then: (schema) => schema.required('Measurement Unit is required').typeError('Measurement Unit is required'),
+            then: (schema) => schema.required(dictionary.forms.counter.adjustment.validation.measurementUnitRequired).typeError(dictionary.forms.counter.adjustment.validation.measurementUnitRequired),
             otherwise: (schema) => schema.notRequired().nullable(),
           }),
         product_id: yup.number().nullable().notRequired(),
         quantity: yup
           .number()
-          .required('Quantity is required')
-          .typeError('Quantity must be a number')
-          .positive('Quantity must be positive')
-          .typeError('Quantity is required'),
+          .required(dictionary.forms.counter.adjustment.validation.quantityRequired)
+          .typeError(dictionary.forms.counter.adjustment.validation.quantityNumber)
+          .positive(dictionary.forms.counter.adjustment.validation.quantityPositive)
+          .typeError(dictionary.forms.counter.adjustment.validation.quantityRequired),
         rate: yup
           .number()
-          .required('Rate is required')
-          .typeError('Rate must be a number')
-          .positive('Rate must be positive')
-          .typeError('Rate is required'),
+          .required(dictionary.forms.counter.adjustment.validation.rateRequired)
+          .typeError(dictionary.forms.counter.adjustment.validation.rateNumber)
+          .positive(dictionary.forms.counter.adjustment.validation.ratePositive)
+          .typeError(dictionary.forms.counter.adjustment.validation.rateRequired),
         description: yup.string().nullable().notRequired(),
         isSelected: yup.boolean().required(),
       }).test(
         'product-or-description',
-        'Either Product or Description must be provided',
+        dictionary.forms.counter.adjustment.validation.productOrDescription,
         (value) => !!(value.product_id || value.description)
       )
     ),
@@ -248,7 +250,7 @@ function SalesInvoiceAdjustment({ isEdit, invoiceData, toggleOpen }: SalesInvoic
   const onSubmit = async (data: FormData) => {
     const isValid = await trigger();
     if (!isValid || Object.keys(errors).length > 0) {
-      enqueueSnackbar('Please fix the validation errors before submitting.', {
+      enqueueSnackbar(dictionary.forms.counter.adjustment.messages.fixValidationErrors, {
         variant: 'error',
       });
       return;
@@ -287,13 +289,13 @@ function SalesInvoiceAdjustment({ isEdit, invoiceData, toggleOpen }: SalesInvoic
   const selectedNoteType = watch('note_type');
   let headerText: string;
   if (invoiceData.voucherNo) {
-    headerText = `Edit ${invoiceData.voucherNo}`;
+    headerText = dictionary.forms.counter.adjustment.title.edit.replace('{voucherNo}', invoiceData.voucherNo);
   } else if (selectedNoteType === 'debit') {
-    headerText = `Debit Note to ${invoiceData.invoiceNo}`;
+    headerText = dictionary.forms.counter.adjustment.title.debit.replace('{invoiceNo}', invoiceData.invoiceNo);
   } else if (selectedNoteType === 'credit') {
-    headerText = `Credit Note to ${invoiceData.invoiceNo}`;
+    headerText = dictionary.forms.counter.adjustment.title.credit.replace('{invoiceNo}', invoiceData.invoiceNo);
   } else {
-    headerText = `Note For ${invoiceData.invoiceNo}`;
+    headerText = dictionary.forms.counter.adjustment.title.note.replace('{invoiceNo}', invoiceData.invoiceNo);
   }
 
   const vat_registered = !!organization?.settings?.vat_registered;
@@ -312,7 +314,7 @@ function SalesInvoiceAdjustment({ isEdit, invoiceData, toggleOpen }: SalesInvoic
                 <Grid size={{xs: 12, md: 4}}>
                   <Div sx={{ mt: 0.3 }}>
                     <DateTimePicker
-                      label="Note Date"
+                      label={dictionary.forms.counter.adjustment.labels.noteDate}
                       minDate={dayjs(organization?.recording_start_date)}
                       defaultValue={transaction_date}
                       slotProps={{
@@ -352,7 +354,7 @@ function SalesInvoiceAdjustment({ isEdit, invoiceData, toggleOpen }: SalesInvoic
                       renderInput={(params) => (
                         <TextField
                           {...params}
-                          label="Note Type"
+                          label={dictionary.forms.counter.adjustment.labels.noteType}
                           size="small"
                           fullWidth
                           error={!!errors.note_type}
@@ -372,7 +374,7 @@ function SalesInvoiceAdjustment({ isEdit, invoiceData, toggleOpen }: SalesInvoic
                   <Div sx={{ mt: 0.3 }}>
                     <TextField
                       size="small"
-                      label="Narration"
+                      label={dictionary.forms.counter.adjustment.labels.narration}
                       fullWidth
                       multiline
                       minRows={2}
@@ -390,13 +392,13 @@ function SalesInvoiceAdjustment({ isEdit, invoiceData, toggleOpen }: SalesInvoic
             <Grid container columnSpacing={1}>
               <Grid size={12}>
                 <Typography align="center" variant="h3">
-                  Summary
+                  {dictionary.forms.counter.adjustment.labels.summary}
                 </Typography>
                 <Divider />
               </Grid>
               <Grid size={6}>
                 <Typography align="left" variant="body2">
-                  Total:
+                  {dictionary.forms.counter.adjustment.labels.total}:
                 </Typography>
               </Grid>
               <Grid size={6}>
@@ -411,7 +413,7 @@ function SalesInvoiceAdjustment({ isEdit, invoiceData, toggleOpen }: SalesInvoic
                 <>
                   <Grid size={6}>
                     <Typography align="left" variant="body2">
-                      VAT Amount:
+                      {dictionary.forms.counter.adjustment.labels.vatAmount}:
                     </Typography>
                   </Grid>
                   <Grid size={6}>
@@ -424,7 +426,7 @@ function SalesInvoiceAdjustment({ isEdit, invoiceData, toggleOpen }: SalesInvoic
                   </Grid>
                   <Grid size={6}>
                     <Typography align="left" variant="body2">
-                      Grand Total:
+                      {dictionary.forms.counter.adjustment.labels.grandTotal}:
                     </Typography>
                   </Grid>
                   <Grid size={6}>
@@ -465,7 +467,7 @@ function SalesInvoiceAdjustment({ isEdit, invoiceData, toggleOpen }: SalesInvoic
 
       <DialogActions>
         <Button size="small" onClick={() => toggleOpen(false)}>
-          Cancel
+          {dictionary.forms.counter.adjustment.buttons.cancel}
         </Button>
         <LoadingButton
           loading={invoiceAdjustment.isPending || updateInvoiceAdjustment.isPending}
@@ -475,7 +477,7 @@ function SalesInvoiceAdjustment({ isEdit, invoiceData, toggleOpen }: SalesInvoic
           onClick={handleSubmit(onSubmit)}
           disabled={formValues.items?.filter((item) => item?.isSelected).length === 0}
         >
-          Submit
+          {dictionary.forms.counter.adjustment.buttons.submit}
         </LoadingButton>
       </DialogActions>
     </>

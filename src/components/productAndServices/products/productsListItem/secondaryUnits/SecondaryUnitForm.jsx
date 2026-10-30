@@ -38,7 +38,7 @@ const SecondaryUnitForm = ({ product, setOpenDialog }) => {
       queryClient.invalidateQueries({ queryKey: ['secondaryUnits'] });
     },
     onError: (error) => {
-      enqueueSnackbar(error?.response?.data?.message || 'Failed to add unit', {
+      enqueueSnackbar(error?.response?.data?.message || dictionary.forms.products.secondaryUnits.messages.addFailed, {
         variant: 'error',
       });
     },
@@ -121,7 +121,7 @@ const SecondaryUnitForm = ({ product, setOpenDialog }) => {
                                   });
                                   setError(`secondary_units.${index}.measurement_unit_id`,{
                                     type: 'manual',
-                                    message: 'Unit already exists',
+                                    message: dictionary.forms.products.secondaryUnits.errors.validation.unitExists,
                                   });
                                   } else {
                                   await clearErrors(`secondary_units.${index}.measurement_unit_id`)
@@ -157,7 +157,7 @@ const SecondaryUnitForm = ({ product, setOpenDialog }) => {
                   {fields.length > 1 && (
                     <Grid size={1}>
                       <Div sx={{ mt: 1}}>
-                        <Tooltip title="Remove Group">
+                        <Tooltip title={dictionary.tooltips.removeGroup}>
                           <IconButton size="small" onClick={() => remove(index)}>
                             <DisabledByDefault fontSize="small" color="error" />
                           </IconButton>
@@ -169,7 +169,7 @@ const SecondaryUnitForm = ({ product, setOpenDialog }) => {
               ))}
               <Grid size={12} sx={{ display: 'flex', direction: 'row', justifyContent: 'flex-end' }}>
                 <Div sx={{ mt: 1}}>
-                  <Tooltip title="Add Group">
+                  <Tooltip title={dictionary.tooltips.addGroup}>
                     <Button size="small" variant="outlined" onClick={() => append({measurement_unit_id: '', conversion_factor: ''})}>
                       <AddOutlined fontSize="10" /> {dictionary.products.list.secondaryForm.buttons.add}
                     </Button>

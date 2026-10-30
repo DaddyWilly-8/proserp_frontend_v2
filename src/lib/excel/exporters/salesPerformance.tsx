@@ -8,6 +8,7 @@ export async function exportSalesPerformanceExcel(exportedData: any) {
       organization,
       rows,
       groupBy,
+      includesFuelVouchers = false,
       from,
       to,
       baseCurrencyCode,
@@ -47,6 +48,9 @@ export async function exportSalesPerformanceExcel(exportedData: any) {
     ]);
     if (baseCurrencyCode) {
       ws.addRow([' ', ' ', ' ', ' ', ' ', `Amounts in base currency (${baseCurrencyCode})`]);
+    }
+    if (includesFuelVouchers) {
+      ws.addRow([' ', ' ', ' ', ' ', ' ', 'Fuel vouchers included; collections on them are not tracked, so Amount Collected excludes them']);
     }
     ws.getCell('A1').font = { bold: true, size: 12 };
     ws.getCell('F1').font = { bold: true, size: 12 };

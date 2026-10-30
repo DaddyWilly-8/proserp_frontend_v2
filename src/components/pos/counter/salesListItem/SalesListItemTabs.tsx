@@ -1,5 +1,6 @@
 'use client';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import UnauthorizedAccess from '@/shared/Information/UnauthorizedAccess';
 import { BackdropSpinner } from '@/shared/ProgressIndicators/BackdropSpinner';
 import { Organization } from '@/types/auth-types';
@@ -58,6 +59,7 @@ const DispatchReport: React.FC<DispatchReportProps> = ({
   sale,
   setOpenDispatchReport,
 }) => {
+  const dictionary = useDictionary();
   const { data: saleDispatchReport, isFetching } = useQuery({
     queryKey: ['saleDispatchReport', { saleId: sale.id }],
     queryFn: () => posServices.saleDispatchReport(sale.id),
@@ -104,6 +106,7 @@ const DispatchReport: React.FC<DispatchReportProps> = ({
                 <SalesDispatchReport
                   organization={organization}
                   dispatchReport={saleDispatchReport}
+                  dictionary={dictionary}
                 />
               }
             />

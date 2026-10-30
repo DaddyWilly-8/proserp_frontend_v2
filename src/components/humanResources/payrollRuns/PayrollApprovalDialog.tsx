@@ -28,6 +28,7 @@ import { PeriodProvider } from './PayrollRuns';
 import { PayrollRunType } from './PayrollRunType';
 import { getPayslipCalculations } from './payslipCalculations';
 import SummaryTab from './SummaryTab';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 export type ApprovalDecision = 'approved' | 'rejected' | 'on hold';
 
@@ -207,6 +208,8 @@ const PayrollApprovalDialog = ({
   onClose,
   selectedPayrollPeriod,
 }: PayrollApprovalDialogProps) => {
+  const dictionary = useDictionary();
+  const t = dictionary.humanResources.payrollRuns.approvalDialog;
   const [remarks, setRemarks] = useState('');
   const [remarksError, setRemarksError] = useState('');
   const [approvalDate, setApprovalDate] = useState(DEFAULT_APPROVAL_DATE());
@@ -239,12 +242,12 @@ const PayrollApprovalDialog = ({
         queryKey: ['payrollRunDetails', payrollRun.id],
       });
       queryClient.invalidateQueries({ queryKey: ['payrollRuns'] });
-      enqueueSnackbar('Payroll approval recorded', { variant: 'success' });
+      enqueueSnackbar(t.recorded, { variant: 'success' });
       onClose();
     },
     onError: (error: any) => {
       enqueueSnackbar(
-        error?.response?.data?.message || 'Something went wrong',
+        error?.response?.data?.message || t.somethingWentWrong,
         { variant: 'error' }
       );
     },
@@ -283,23 +286,11 @@ const PayrollApprovalDialog = ({
         };
       });
 
-      let periodLabel = payrollRun.cost_center?.name || 'Company-wide Run';
+      let periodLabel = payrollRun.cost_center?.name || t.companyWideRun;
 
       if (payrollRun?.period) {
-        const monthNames = [
-          'January',
-          'February',
-          'March',
-          'April',
-          'May',
-          'June',
-          'July',
-          'August',
-          'September',
-          'October',
-          'November',
-          'December',
-        ];
+        const monthNames: string[] =
+          dictionary.humanResources.payrollRuns.months;
         const monthIndex = payrollRun.period.month;
         const monthName =
           monthIndex && monthIndex >= 1 && monthIndex <= 12
@@ -316,7 +307,7 @@ const PayrollApprovalDialog = ({
       setIsLoadingSalarySheet(false);
     } catch (error: any) {
       enqueueSnackbar(
-        error?.response?.data?.message || 'Something went wrong',
+        error?.response?.data?.message || t.somethingWentWrong,
         {
           variant: 'error',
         }
@@ -328,7 +319,7 @@ const PayrollApprovalDialog = ({
 
   const handleDecision = (status: ApprovalDecision) => {
     if (status === 'rejected' && !remarks.trim()) {
-      setRemarksError('Remarks are required');
+      setRemarksError(t.remarksRequired);
       return;
     }
 
@@ -337,7 +328,7 @@ const PayrollApprovalDialog = ({
       : Number(pendingLevel?.id);
 
     if (!chainLevelId) {
-      enqueueSnackbar('Unable to resolve approval chain level', {
+      enqueueSnackbar(t.unableToResolveLevel, {
         variant: 'error',
       });
       return;
@@ -365,14 +356,14 @@ const PayrollApprovalDialog = ({
         scroll={belowLargeScreen ? 'body' : 'paper'}
       >
         <DialogTitle textAlign='center'>
-          {isEditMode ? 'Edit' : ''} Payroll Approval
+          {isEditMode ? t.editTitle : t.title}
         </DialogTitle>
         <DialogContent>
           <Stack spacing={2} sx={{ mt: 1 }}>
             <Grid container justifyContent={'center'}>
               <Grid size={{ xs: 12, md: 4 }}>
                 <DateTimePicker
-                  label='Approval Date'
+                  label={t.approvalDate}
                   value={approvalDate ? dayjs(approvalDate) : null}
                   slotProps={{
                     textField: {
@@ -412,7 +403,7 @@ const PayrollApprovalDialog = ({
                   contribution_breakdown={summary.contribution_breakdown}
                 />
               </Stack>
-              <Tooltip title='Preview Salary Sheet'>
+              <Tooltip title={dictionary.tooltips.previewSalarySheet}>
                 <IconButton
                   onClick={handleOpenSalarySheet}
                   disabled={isLoadingSalarySheet}
@@ -429,7 +420,7 @@ const PayrollApprovalDialog = ({
               </Tooltip>
             </Stack>
             <TextField
-              label='Remarks'
+              label={t.remarks}
               size='small'
               fullWidth
               multiline
@@ -446,7 +437,7 @@ const PayrollApprovalDialog = ({
         </DialogContent>
         <DialogActions>
           <Button onClick={onClose} disabled={isSubmitting}>
-            Cancel
+            {t.cancel}
           </Button>
           <LoadingButton
             loading={isSubmitting}
@@ -455,7 +446,7 @@ const PayrollApprovalDialog = ({
             size='small'
             onClick={() => handleDecision('rejected')}
           >
-            Reject
+            {t.reject}
           </LoadingButton>
           <LoadingButton
             loading={isSubmitting}
@@ -464,7 +455,7 @@ const PayrollApprovalDialog = ({
             size='small'
             onClick={() => handleDecision('approved')}
           >
-            Approve
+            {t.approve}
           </LoadingButton>
         </DialogActions>
       </Dialog>

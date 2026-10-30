@@ -11,6 +11,7 @@ import projectsServices from '../project-services';
 import StakeholderSelectProvider from '@/components/masters/stakeholders/StakeholderSelectProvider';
 import CurrencySelectProvider from '@/components/masters/Currencies/CurrencySelectProvider';
 import ProjectClaims from './claims/ProjectClaims';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
 
 const AttachmentForm = lazy(() => import('@/components/filesShelf/attachments/AttachmentForm'));
@@ -53,6 +54,7 @@ const TABS_NEEDING_TIMELINE: TabKey[] = [
 ];
 
 function ProfileContent() {
+  const dictionary = useDictionary();
   const { project, updateProjectProfile, setIsDashboardTab }: any = useProjectProfile();
   const { authUser, checkOrganizationPermission } = useJumboAuth();
   const isAdministrator = authUser?.user?.organization_roles?.some(
@@ -258,16 +260,16 @@ function ProfileContent() {
             scrollButtons="auto"
             allowScrollButtonsMobile
           >
-            <Tab label="Dashboard" value="dashboard" />
-            <Tab label="Deliverables" value="deliverables" />
-            <Tab label="WBS" value="wbs" />
-            <Tab label="Budgets" value="budgets" />
-            <Tab label="Updates" value="updates" />
-            <Tab label="Subcontracts" value="subcontracts" />
-            {project?.client_id && <Tab label="Claims" value="claims" />}
-            {showUsersTab && <Tab label="Users" value="users" />}
-            <Tab label="Stores" value="stores" />
-            <Tab label="Attachments" value="attachments" />
+            <Tab label={dictionary.projectManagement.profile.tabs.dashboard} value="dashboard" />
+            <Tab label={dictionary.projectManagement.profile.tabs.deliverables} value="deliverables" />
+            <Tab label={dictionary.projectManagement.profile.tabs.wbs} value="wbs" />
+            <Tab label={dictionary.projectManagement.profile.tabs.budgets} value="budgets" />
+            <Tab label={dictionary.projectManagement.profile.tabs.updates} value="updates" />
+            <Tab label={dictionary.projectManagement.profile.tabs.subcontracts} value="subcontracts" />
+            {project?.client_id && <Tab label={dictionary.projectManagement.profile.tabs.claims} value="claims" />}
+            {showUsersTab && <Tab label={dictionary.projectManagement.profile.tabs.users} value="users" />}
+            <Tab label={dictionary.projectManagement.profile.tabs.stores} value="stores" />
+            <Tab label={dictionary.projectManagement.profile.tabs.attachments} value="attachments" />
           </Tabs>
 
           {isLoading ? (

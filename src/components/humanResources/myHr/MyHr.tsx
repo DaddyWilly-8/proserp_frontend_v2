@@ -1,5 +1,6 @@
 'use client';
 
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { getErrorMessage } from '@/utilities/helpers/errorHandler';
 import JumboContentLayout from '@jumbo/components/JumboContentLayout';
@@ -44,6 +45,8 @@ const VALID_TABS: TabKey[] = [
 ];
 
 const MyHr = () => {
+  const dictionary = useDictionary();
+  const t = dictionary.humanResources.myHr.page;
   const { authUser } = useJumboAuth();
   const user = authUser?.user;
   const { enqueueSnackbar } = useSnackbar();
@@ -136,7 +139,7 @@ const MyHr = () => {
       setProfileLoading(false);
     }
     if (axios.isAxiosError(profileError)) {
-      enqueueSnackbar(getErrorMessage(profileError) || 'Something went wrong', {
+      enqueueSnackbar(getErrorMessage(profileError) || t.somethingWentWrong, {
         variant: 'error',
       });
       setErrStatus(profileError?.status);
@@ -173,9 +176,7 @@ const MyHr = () => {
     >
       {errStatus && errStatus === 404 ? (
         <Card sx={{ height: '100%', p: 3 }}>
-          <Typography>
-            Your account is not linked to an employee record. Contact HR.
-          </Typography>
+          <Typography>{t.notLinked}</Typography>
         </Card>
       ) : (
         <Card sx={{ height: '100%', p: 1 }}>
@@ -187,13 +188,13 @@ const MyHr = () => {
               scrollButtons='auto'
               allowScrollButtonsMobile
             >
-              <Tab label='Profile' value='profile' />
-              <Tab label='Payslips' value='payslips' />
-              <Tab label='Leave' value='leave' />
-              <Tab label='contracts' value='contracts' />
-              <Tab label='Next of Kin' value='nextOfKins' />
-              <Tab label='Loans' value='loans' />
-              <Tab label='Account Statement' value='accountStatement' />
+              <Tab label={t.tabs.profile} value='profile' />
+              <Tab label={t.tabs.payslips} value='payslips' />
+              <Tab label={t.tabs.leave} value='leave' />
+              <Tab label={t.tabs.contracts} value='contracts' />
+              <Tab label={t.tabs.nextOfKin} value='nextOfKins' />
+              <Tab label={t.tabs.loans} value='loans' />
+              <Tab label={t.tabs.accountStatement} value='accountStatement' />
             </Tabs>
 
             {renderTabContent()}

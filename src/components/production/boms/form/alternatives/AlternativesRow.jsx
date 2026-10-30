@@ -2,8 +2,10 @@ import { DisabledByDefault, EditOutlined } from '@mui/icons-material'
 import { Divider, Grid, IconButton, Tooltip, Typography } from '@mui/material'
 import React, { useState } from 'react'
 import AlternativesForm from './AlternativesForm';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function AlternativesRow({ index, setClearFormKey, setIsDirty, alternative, alternatives=[], setAlternatives}) {
+    const dictionary = useDictionary();
     const product = alternative.product;
     const [showForm, setShowForm] = useState(false);
 
@@ -25,22 +27,22 @@ function AlternativesRow({ index, setClearFormKey, setIsDirty, alternative, alte
                             {index+1}.
                         </Grid>
                         <Grid size={{xs: 11, md: 7}}>
-                            <Tooltip title="Alternative Input Product">
+                            <Tooltip title={dictionary.tooltips.alternativeInputProduct}>
                                 <Typography>{product?.name}</Typography>
                             </Tooltip>
                         </Grid>
                         <Grid size={{xs: 6, md: 3}}>
-                            <Tooltip title="Quantity">
+                            <Tooltip title={dictionary.tooltips.quantity}>
                                 <Typography>{alternative.quantity} {alternative?.unit_symbol ? alternative.unit_symbol : (alternative.measurement_unit?.symbol ? alternative.measurement_unit?.symbol : alternative.product.unit_symbol)}</Typography>
                             </Tooltip>
                         </Grid>
                         <Grid textAlign={'end'} size={{xs: 6, md: 1.5}}>
-                            <Tooltip title='Edit Alternative Input Product'>
+                            <Tooltip title={dictionary.tooltips.editAlternativeInputProduct}>
                                 <IconButton size='small' onClick={() => {setShowForm(true)}}>
                                     <EditOutlined fontSize='small'/>
                                 </IconButton>
                             </Tooltip>
-                            <Tooltip title='Remove Alternative Input Product'>
+                            <Tooltip title={dictionary.tooltips.removeAlternativeInputProduct}>
                                 <IconButton size='small' 
                                     onClick={() => setAlternatives(alternatives => {
                                         const newItems = [...alternatives];

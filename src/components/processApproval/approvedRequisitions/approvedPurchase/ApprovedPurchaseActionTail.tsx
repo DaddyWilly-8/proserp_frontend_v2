@@ -14,6 +14,7 @@ import React, { useState } from 'react';
 import requisitionsServices from '../../requisitionsServices';
 import { PurchaseApprovalRequisition } from '../ApprovalRequisitionType';
 import ApprovedPurchaseForm from './form/ApprovedPurchaseForm';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface ApprovedPurchaseActionTailProps {
   approvedRequisition: PurchaseApprovalRequisition;
@@ -24,6 +25,7 @@ const ApprovedPurchaseActionTail: React.FC<ApprovedPurchaseActionTailProps> = ({
   approvedRequisition,
   isExpanded,
 }) => {
+  const dictionary = useDictionary();
   const { theme } = useJumboTheme();
   const [openDialog, setOpenDialog] = useState(false);
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
@@ -75,7 +77,7 @@ const ApprovedPurchaseActionTail: React.FC<ApprovedPurchaseActionTailProps> = ({
         disableElevation
         sx={{ '& .MuiButton-root': { px: 1 } }}
       >
-        <Tooltip title='Order'>
+        <Tooltip title={dictionary.tooltips.order}>
           <IconButton onClick={() => setOpenDialog(true)}>
             <ShoppingCartOutlined />
           </IconButton>

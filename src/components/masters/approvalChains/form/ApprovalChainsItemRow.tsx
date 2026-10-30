@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import ApprovalChainsItemForm from './ApprovalChainsItemForm';
 import { SubmitHandler } from 'react-hook-form';
 import { ApprovalChainItem } from '../ApprovalChainType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface ApprovalChainsItemRowProps {
   setClearFormKey: React.Dispatch<React.SetStateAction<number>>;
@@ -28,6 +29,7 @@ const ApprovalChainsItemRow: React.FC<ApprovalChainsItemRowProps> = ({
   item,
   index
 }) => {
+  const dictionary = useDictionary();
   const role = item.role;
   const [showForm, setShowForm] = useState(false);
 
@@ -49,27 +51,27 @@ const ApprovalChainsItemRow: React.FC<ApprovalChainsItemRowProps> = ({
             {index + 1}.
           </Grid>
           <Grid size={{xs: 4, md: 3}}>
-            <Tooltip title={'Label'}>
+            <Tooltip title={dictionary.tooltips.label}>
               <Typography>{item.label}</Typography>
             </Tooltip>
           </Grid>
           <Grid size={{xs: 7, md: 4}}>
-            <Tooltip title={'Role'}>
+            <Tooltip title={dictionary.tooltips.role}>
               <Typography>{role?.name}</Typography>
             </Tooltip>
           </Grid>
           <Grid size={{xs: 6, md: 3}}>
-            <Tooltip title={'Remarks'}>
+            <Tooltip title={dictionary.tooltips.remarks}>
               <Typography>{item.remarks}</Typography>
             </Tooltip>
           </Grid>
           <Grid size={{xs: 6, md: 1.5}} textAlign={'end'}>
-            <Tooltip title='Edit Item'>
+            <Tooltip title={dictionary.tooltips.editItem}>
               <IconButton size='small' onClick={() => setShowForm(true)}>
                 <EditOutlined fontSize='small' />
               </IconButton>
             </Tooltip>
-            <Tooltip title='Remove Item'>
+            <Tooltip title={dictionary.tooltips.removeItem}>
               <IconButton
                 size='small'
                 onClick={() =>

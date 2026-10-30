@@ -363,7 +363,7 @@ const AssetFormDialogContent: React.FC<AssetFormDialogContentProps> = ({
               {...register('depreciation_method')}
             >
               {METHODS.map((m) => (
-                <MenuItem key={m} value={m}>{dictionary.register.form.methods[m]}</MenuItem>
+                <MenuItem key={m} value={m}>{(dictionary.register.form.methods as Record<string, string>)[m]}</MenuItem>
               ))}
             </TextField>
           </Grid>

@@ -26,6 +26,7 @@ import { SelectedTab } from "../troubleshooting/Troubleshooting";
 import PermissionModulesSelector from "./PermissionModulesSelector";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Div } from "@jumbo/shared";
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 // ---- Types ----
 export interface Permission {
@@ -57,6 +58,7 @@ const PermissionsForm: React.FC<PermissionsFormProps> = ({
   permission,
   setOpenDialog,
 }) => {
+  const dictionary = useDictionary();
   const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
   const { activeTab } = useContext(SelectedTab);
@@ -106,16 +108,16 @@ const PermissionsForm: React.FC<PermissionsFormProps> = ({
       yup.object().shape({
         name: yup
           .string()
-          .required("Name is required")
-          .typeError("Name is required"),
+          .required(dictionary.forms.support.permissions.errors.nameRequired)
+          .typeError(dictionary.forms.support.permissions.errors.nameRequired),
         is_core: yup.boolean(),
         module_ids: yup.array().when(["is_core"], {
           is: (is_core: boolean) => isOrganizationPermission && !is_core,
           then: (schema) =>
             schema
-              .required("Please Select Module(s) for this Permission")
-              .min(1, "Please Select Module(s) for this Permission")
-              .typeError("Please Select Module(s) for this Permission"),
+              .required(dictionary.forms.support.permissions.errors.modulesRequired)
+              .min(1, dictionary.forms.support.permissions.errors.modulesRequired)
+              .typeError(dictionary.forms.support.permissions.errors.modulesRequired),
           otherwise: (schema) => schema.nullable(),
         }),
       })
@@ -180,9 +182,9 @@ const PermissionsForm: React.FC<PermissionsFormProps> = ({
         <Grid size={{ xs: 12 }} textAlign="center">
           {!permission
             ? isOrganizationPermission
-              ? "New Organization Permission"
-              : "New Pros Permission"
-            : `Edit ${permission.name}`}
+              ? dictionary.forms.support.permissions.titles.newOrganization
+              : dictionary.forms.support.permissions.titles.newPros
+            : dictionary.forms.support.permissions.titles.edit.replace('{name}', String(permission.name))}
         </Grid>
       </DialogTitle>
       <DialogContent>
@@ -202,7 +204,7 @@ const PermissionsForm: React.FC<PermissionsFormProps> = ({
                     >
                       <Div sx={{ mt: 1, mb: 1 }}>
                         <TextField
-                          label="Name"
+                          label={dictionary.forms.support.permissions.labels.name}
                           fullWidth
                           size="small"
                           error={!!errors?.permissions?.[index]?.name}
@@ -227,7 +229,7 @@ const PermissionsForm: React.FC<PermissionsFormProps> = ({
                           justifyContent="center"
                           alignItems="center"
                         >
-                          <Typography>Core</Typography>
+                          <Typography>{dictionary.forms.support.permissions.labels.core}</Typography>
                           <Checkbox
                             size="small"
                             checked={watch(`permissions.${index}.is_core`)}
@@ -248,7 +250,7 @@ const PermissionsForm: React.FC<PermissionsFormProps> = ({
                         {!watch(`permissions.${index}.is_core`) && (
                           <Div sx={{ mt: 1, mb: 1 }}>
                             <PermissionModulesSelector
-                              label="Modules"
+                              label={dictionary.forms.support.permissions.labels.modules}
                               multiple
                               defaultValue={watch(`permissions.${index}.module_ids`)}
                               frontError={
@@ -289,7 +291,7 @@ const PermissionsForm: React.FC<PermissionsFormProps> = ({
                     >
                       <Div sx={{ mt: 1, mb: 1 }}>
                         <TextField
-                          label="Description"
+                          label={dictionary.forms.support.permissions.labels.description}
                           fullWidth
                           size="small"
                           {...register(`permissions.${index}.description`)}
@@ -301,7 +303,7 @@ const PermissionsForm: React.FC<PermissionsFormProps> = ({
                     {fields.length > 1 && (
                       <Grid size={{ xs: 2, md: 1 }} textAlign="right">
                         <Div sx={{ mt: 1, mb: 1 }}>
-                          <Tooltip title="Remove Item">
+                          <Tooltip title={dictionary.tooltips.removeItem}>
                             <IconButton size="small" onClick={() => remove(index)}>
                               <DisabledByDefault fontSize="small" color="error" />
                             </IconButton>
@@ -321,7 +323,7 @@ const PermissionsForm: React.FC<PermissionsFormProps> = ({
                   sx={{ display: "flex", justifyContent: "flex-end" }}
                 >
                   <Div sx={{ mt: 1, mb: 1 }}>
-                    <Tooltip title="Add Permission">
+                    <Tooltip title={dictionary.tooltips.addPermission}>
                       <Button
                         size="small"
                         variant="outlined"
@@ -333,7 +335,7 @@ const PermissionsForm: React.FC<PermissionsFormProps> = ({
                           )
                         }
                       >
-                        <AddOutlined fontSize="small" /> Add
+                        <AddOutlined fontSize="small" /> {dictionary.forms.support.permissions.buttons.add}
                       </Button>
                     </Tooltip>
                   </Div>
@@ -348,7 +350,7 @@ const PermissionsForm: React.FC<PermissionsFormProps> = ({
       <Grid size={{ xs: 12 }} textAlign="end">
         <DialogActions>
           <Button size="small" onClick={() => setOpenDialog(false)}>
-            Cancel
+            {dictionary.forms.support.permissions.buttons.cancel}
           </Button>
           <LoadingButton
             loading={addPermission.isPending || updatePermission.isPending}
@@ -357,7 +359,7 @@ const PermissionsForm: React.FC<PermissionsFormProps> = ({
             type="submit"
             form="permissions-form"
           >
-            Submit
+            {dictionary.forms.support.permissions.buttons.submit}
           </LoadingButton>
         </DialogActions>
       </Grid>

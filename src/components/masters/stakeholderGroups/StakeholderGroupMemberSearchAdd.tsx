@@ -7,6 +7,7 @@ import { Autocomplete, CircularProgress, TextField } from '@mui/material';
 import stakeholderServices from '@/components/masters/stakeholders/stakeholder-services';
 import stakeholderGroupServices from './stakeholderGroup-services';
 import { getErrorMessage } from '@/utilities/helpers/errorHandler';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface StakeholderOption {
   id: number;
@@ -22,6 +23,7 @@ interface StakeholderOption {
  */
 const StakeholderGroupMemberSearchAdd = ({ groupId }: { groupId: number }) => {
   const queryClient = useQueryClient();
+  const dictionary = useDictionary();
   const { enqueueSnackbar } = useSnackbar();
   const [inputValue, setInputValue] = useState('');
   const [debouncedKeyword, setDebouncedKeyword] = useState('');
@@ -43,7 +45,7 @@ const StakeholderGroupMemberSearchAdd = ({ groupId }: { groupId: number }) => {
     mutationFn: (stakeholderId: number) =>
       stakeholderGroupServices.addStakeholders({ id: groupId, stakeholder_ids: [stakeholderId] }),
     onSuccess: () => {
-      enqueueSnackbar('Stakeholder added to group', { variant: 'success' });
+      enqueueSnackbar(dictionary.forms.stakeholderGroups.members.messages.added, { variant: 'success' });
       queryClient.invalidateQueries({ queryKey: ['stakeholder-group-members', groupId] });
       queryClient.invalidateQueries({ queryKey: ['stakeholder-groups'] });
     },
@@ -66,11 +68,11 @@ const StakeholderGroupMemberSearchAdd = ({ groupId }: { groupId: number }) => {
       }}
       getOptionLabel={(option) => `${option.name}${option.phone ? ' (' + option.phone + ')' : ''}`}
       isOptionEqualToValue={(option, value) => option.id === value.id}
-      noOptionsText={debouncedKeyword.length < 2 ? 'Type at least 2 characters to search' : 'No stakeholders found'}
+      noOptionsText={debouncedKeyword.length < 2 ? dictionary.forms.stakeholderGroups.members.search.typeMore : dictionary.forms.stakeholderGroups.members.search.noResults}
       renderInput={(params) => (
         <TextField
           {...params}
-          label='Search stakeholders to add'
+          label={dictionary.forms.stakeholderGroups.members.search.label}
           size='small'
           fullWidth
           InputProps={{

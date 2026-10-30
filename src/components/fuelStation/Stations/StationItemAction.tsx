@@ -12,12 +12,14 @@ import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 import StationForm from './StationForm';
 import stationServices from './station-services';
 import { Station } from './StationType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface StationItemActionProps {
   station: Station;
 }
 
 const StationItemAction = ({ station }: StationItemActionProps) => {
+  const dictionary = useDictionary();
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const { showDialog, hideDialog } = useJumboDialog();
   const { enqueueSnackbar } = useSnackbar();
@@ -79,7 +81,7 @@ const StationItemAction = ({ station }: StationItemActionProps) => {
       </Dialog>
       <JumboDdMenu
         icon={
-          <Tooltip title="Actions">
+          <Tooltip title={dictionary.tooltips.actions}>
             <MoreHorizOutlined fontSize="small" />
           </Tooltip>
         }

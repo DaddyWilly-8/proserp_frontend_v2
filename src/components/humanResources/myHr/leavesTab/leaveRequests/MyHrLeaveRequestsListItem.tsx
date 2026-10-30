@@ -23,12 +23,15 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import { useState } from 'react';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const MyHrLeaveRequestsListItem = ({
   leaveRequest,
 }: {
   leaveRequest: LeaveRequestType;
 }) => {
+  const dictionary = useDictionary();
+  const t = dictionary.humanResources.myHr.leaves.requests;
   const [openPrint, setOpenPrint] = useState(false);
   const [openPreview, setOpenPreview] = useState(false);
   const { authOrganization, authUser } = useJumboAuth() as any;
@@ -58,14 +61,14 @@ const MyHrLeaveRequestsListItem = ({
   const formattedStatus =
     leaveRequest.status_label ||
     (leaveRequest.status === 'in_review'
-      ? 'In Review'
+      ? t.statuses.inReview
       : leaveRequest.status === 'approved'
-        ? 'Approved'
+        ? t.statuses.approved
         : leaveRequest.status === 'cancelled'
-          ? 'Cancelled'
+          ? t.statuses.cancelled
           : leaveRequest.status === 'rejected'
-            ? 'Rejected'
-            : leaveRequest.status || 'Pending');
+            ? t.statuses.rejected
+            : leaveRequest.status || t.statuses.pending);
 
   return (
     <>
@@ -80,16 +83,16 @@ const MyHrLeaveRequestsListItem = ({
         my={1}
       >
         <Grid size={{ xs: 12, md: 3.2 }}>
-          <Tooltip title='Leave Type'>
+          <Tooltip title={dictionary.tooltips.leaveType}>
             <Typography>
               {leaveRequest.leave_type?.name ||
-                `Type #${leaveRequest.leave_type_id}`}
+                t.typeNumber.replace('{id}', String(leaveRequest.leave_type_id))}
             </Typography>
           </Tooltip>
         </Grid>
 
         <Grid size={{ xs: 12, md: 1.8 }}>
-          <Tooltip title='Start Date'>
+          <Tooltip title={dictionary.tooltips.startDate}>
             <Typography>
               {dayjs(leaveRequest.start_date).format('YYYY-MM-DD')}
             </Typography>
@@ -97,7 +100,7 @@ const MyHrLeaveRequestsListItem = ({
         </Grid>
 
         <Grid size={{ xs: 12, md: 1.8 }}>
-          <Tooltip title='End Date'>
+          <Tooltip title={dictionary.tooltips.endDate}>
             <Typography>
               {dayjs(leaveRequest.end_date).format('YYYY-MM-DD')}
             </Typography>
@@ -105,7 +108,7 @@ const MyHrLeaveRequestsListItem = ({
         </Grid>
 
         <Grid size={{ xs: 12, md: 2.2 }}>
-          <Tooltip title='Days'>
+          <Tooltip title={dictionary.tooltips.days}>
             <Typography>
               {leaveRequest.days_granted != null
                 ? `${leaveRequest.days_granted}/${leaveRequest.days_requested}`
@@ -125,12 +128,12 @@ const MyHrLeaveRequestsListItem = ({
         </Grid>
 
         <Grid size={{ xs: 4, md: 1 }} textAlign='end'>
-          <Tooltip title='Preview'>
+          <Tooltip title={dictionary.tooltips.preview}>
             <IconButton size='small' onClick={() => setOpenPreview(true)}>
               <PreviewOutlined color='primary' fontSize='small' />
             </IconButton>
           </Tooltip>
-          <Tooltip title='Print Leave Application Form'>
+          <Tooltip title={dictionary.tooltips.printLeaveApplicationForm}>
             <IconButton size='small' onClick={() => setOpenPrint(true)}>
               <PrintOutlined color='primary' fontSize='small' />
             </IconButton>
@@ -147,11 +150,11 @@ const MyHrLeaveRequestsListItem = ({
         onClose={() => setOpenPreview(false)}
       >
         <DialogContent>
-          <LeaveRequestPreview leaveRequest={details} title='Your Leave Request' />
+          <LeaveRequestPreview leaveRequest={details} title={t.yourLeaveRequest} />
         </DialogContent>
         <DialogActions>
           <Button size='small' onClick={() => setOpenPreview(false)}>
-            Close
+            {t.close}
           </Button>
         </DialogActions>
       </Dialog>
@@ -169,6 +172,7 @@ const MyHrLeaveRequestsListItem = ({
               document={
                 <LeaveRequestPDF
                   data={details}
+                  dictionary={dictionary}
                   organization={organization}
                   userName={authUser?.user?.name || 'ProsERP'}
                   employeeName={authUser?.user?.name}

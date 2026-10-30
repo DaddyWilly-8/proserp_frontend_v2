@@ -16,6 +16,7 @@ import { useState } from 'react';
 import humanResourcesServices from '../../../humanResourcesServices';
 import EmployeeBankAccountForm from './EmployeeBankAccountForm';
 import { EmployeeBankAccountType } from './EmployeeBankAccountType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const EditEmployeeBank = ({
   account,
@@ -52,6 +53,7 @@ const EmployeeBankItemAction = ({
 }: {
   account: EmployeeBankAccountType;
 }) => {
+  const dictionary = useDictionary();
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const { showDialog, hideDialog } = useJumboDialog();
   const { enqueueSnackbar } = useSnackbar();
@@ -63,12 +65,12 @@ const EmployeeBankItemAction = ({
     mutationFn: humanResourcesServices.deleteEmployeeBankAccount,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['employeeBankAccounts'] });
-      enqueueSnackbar('Bank Account Deleted Successfully', {
+      enqueueSnackbar(dictionary.humanResources.employeeBankAccounts.messages.deleted, {
         variant: 'success',
       });
     },
     onError: (error: any) => {
-      let message = 'Something went wrong';
+      let message = dictionary.humanResources.profileSectionsCommon.somethingWentWrong;
 
       if (
         typeof error === 'object' &&
@@ -87,12 +89,12 @@ const EmployeeBankItemAction = ({
   const menuItems = [
     {
       icon: <EditOutlined />,
-      title: 'Edit',
+      title: dictionary.humanResources.profileSectionsCommon.edit,
       action: 'edit',
     },
     {
       icon: <DeleteOutlined color='error' />,
-      title: 'Delete',
+      title: dictionary.humanResources.profileSectionsCommon.delete,
       action: 'delete',
     },
   ];
@@ -104,8 +106,8 @@ const EmployeeBankItemAction = ({
         break;
       case 'delete':
         showDialog({
-          title: 'Confirm Delete',
-          content: 'Are you sure you want to delete this Bank Account?',
+          title: dictionary.humanResources.profileSectionsCommon.confirmDelete,
+          content: dictionary.humanResources.employeeBankAccounts.messages.deleteConfirm,
           onYes: () => {
             hideDialog();
             deleteEmployeeBankAccount(account.id);
@@ -136,7 +138,7 @@ const EmployeeBankItemAction = ({
       </Dialog>
       <JumboDdMenu
         icon={
-          <Tooltip title='Actions'>
+          <Tooltip title={dictionary.tooltips.actions}>
             <MoreHorizOutlined fontSize='small' />
           </Tooltip>
         }

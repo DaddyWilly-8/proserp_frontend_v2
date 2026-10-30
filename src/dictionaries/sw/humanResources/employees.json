@@ -1,0 +1,293 @@
+{
+  "employees": {
+    "common": {
+      "add": "ongeza",
+      "scope": "Wigo",
+      "scopeAll": "Wote",
+      "scopeActiveContracts": "Mikataba Inayoendelea",
+      "somethingWentWrong": "Kuna hitilafu imetokea"
+    },
+    "employmentTypes": {
+      "full_time": "Muda Wote",
+      "part_time": "Muda Nusu",
+      "casual": "Kibarua"
+    },
+    "residenceStatuses": {
+      "resident": "Mkazi",
+      "non_resident": "Si Mkazi"
+    },
+    "contractTypes": {
+      "permanent": "Wa Kudumu",
+      "fixed_term": "Wa Muda Maalum",
+      "probation": "Wa Majaribio",
+      "specific_task": "Wa Kazi Maalum"
+    },
+    "options": {
+      "gender": {
+        "male": "Mwanaume",
+        "female": "Mwanamke"
+      }
+    },
+    "selector": {
+      "label": "Chagua Mfanyakazi"
+    },
+    "list": {
+      "title": "Wafanyakazi",
+      "labels": {
+        "status": "Hali",
+        "costCenters": "Vituo vya Gharama",
+        "joined": "Alijiunga"
+      },
+      "status": {
+        "active": "Hai",
+        "inactive": "Aliyezimwa",
+        "all": "Wote"
+      },
+      "actions": {
+        "edit": "Hariri",
+        "deactivate": "Zima",
+        "reactivate": "Washa Tena",
+        "delete": "Futa"
+      },
+      "dialogs": {
+        "deactivateTitle": "Zima Mfanyakazi",
+        "deactivateContent": "Hataonekana tena kwenye orodha za kuchagua wafanyakazi na mishahara, na atapoteza ufikiaji wa My HR. Historia yake itabaki salama na unaweza kumwasha tena wakati wowote. Endelea?",
+        "reactivateTitle": "Washa Mfanyakazi Tena",
+        "reactivateContent": "Ataonekana tena kwenye orodha za kuchagua wafanyakazi na mishahara, na atarudishiwa ufikiaji wa My HR. Endelea?",
+        "deleteTitle": "Thibitisha Kufuta",
+        "deleteContent": "Una uhakika unataka kumfuta Mfanyakazi huyu?"
+      },
+      "messages": {
+        "deleted": "Mfanyakazi Amefutwa Kikamilifu",
+        "deleteError": "Hitilafu Wakati wa Kumfuta Mfanyakazi",
+        "deactivateError": "Hitilafu wakati wa kumzima mfanyakazi",
+        "reactivateError": "Hitilafu wakati wa kumwasha mfanyakazi tena"
+      }
+    },
+    "photo": {
+      "updated": "Picha imesasishwa kikamilifu",
+      "removed": "Picha imeondolewa kikamilifu",
+      "removeTitle": "Ondoa Picha",
+      "removeContent": "Una uhakika unataka kuondoa picha ya mfanyakazi huyu?",
+      "replace": "Badilisha picha",
+      "upload": "Pakia picha",
+      "remove": "Ondoa picha"
+    },
+    "contributions": {
+      "labels": {
+        "contributionType": "Aina ya Mchango"
+      },
+      "errors": {
+        "typeRequired": "Aina ya Mchango inahitajika",
+        "scopeRequired": "Wigo unahitajika"
+      }
+    },
+    "deductions": {
+      "labels": {
+        "deductionType": "Aina ya Makato"
+      },
+      "errors": {
+        "typeRequired": "Aina ya Makato inahitajika",
+        "scopeRequired": "Wigo unahitajika"
+      }
+    },
+    "leaveAllocations": {
+      "labels": {
+        "leaveType": "Aina ya Likizo",
+        "allocationAmount": "Kiasi cha Mgao"
+      },
+      "errors": {
+        "leaveTypeRequired": "Aina ya Likizo inahitajika",
+        "amountRequired": "Kiasi cha Mgao kinahitajika"
+      }
+    },
+    "form": {
+      "titleAdd": "Ongeza Mfanyakazi",
+      "titleEdit": "Hariri {firstName} {lastName}",
+      "sections": {
+        "personal": "Taarifa Binafsi",
+        "contact": "Taarifa za Mawasiliano",
+        "identification": "Utambulisho",
+        "employment": "Maelezo ya Ajira",
+        "payrollContract": "Mipangilio ya Mishahara na Mkataba",
+        "accounting": "Mipangilio ya Uhasibu",
+        "linkedUser": "Akaunti ya Mtumiaji Iliyounganishwa"
+      },
+      "labels": {
+        "firstName": "Jina la Kwanza *",
+        "middleName": "Jina la Kati",
+        "lastName": "Jina la Mwisho *",
+        "employeeNumber": "Namba ya Mfanyakazi",
+        "gender": "Jinsia *",
+        "dateOfBirth": "Tarehe ya Kuzaliwa",
+        "email": "Barua Pepe",
+        "phoneNumber": "Namba ya Simu",
+        "address": "Anwani",
+        "nationalId": "Kitambulisho cha Taifa",
+        "passportNumber": "Namba ya Pasipoti",
+        "tin": "TIN",
+        "residenceStatus": "Hali ya Ukazi",
+        "department": "Idara",
+        "employmentType": "Aina ya Ajira",
+        "joinDate": "Tarehe ya Kujiunga",
+        "costCenter": "Kituo cha Gharama",
+        "lineManager": "Msimamizi wa Moja kwa Moja",
+        "reasonForChange": "Sababu ya Mabadiliko",
+        "designation": "Cheo",
+        "basicSalary": "Mshahara wa Msingi",
+        "contractStartDate": "Tarehe ya Kuanza kwa Mkataba",
+        "contractType": "Aina ya Mkataba",
+        "customAccountName": "Ingiza jina la akaunti maalum",
+        "payableAccount": "Akaunti ya Malipo",
+        "payableLedgerName": "Jina la Leja ya Malipo",
+        "linkedUser": "Akaunti ya Mtumiaji Iliyounganishwa"
+      },
+      "placeholders": {
+        "reasonForChange": "mf., Kuhamishwa kwa eneo la kazi, Kupanga upya timu, Kupandishwa cheo, Uhamisho wa idara...",
+        "payableLedgerName": "mf., Malipo - Jane Doe"
+      },
+      "helpers": {
+        "suggestedNumber": "Inapendekezwa — hariri ili kubadilisha",
+        "reasonForChange": "Tafadhali toa sababu ya mabadiliko haya kwa ajili ya ufuatiliaji wa ukaguzi"
+      },
+      "errors": {
+        "firstNameRequired": "Jina la kwanza linahitajika",
+        "lastNameRequired": "Jina la mwisho linahitajika",
+        "genderRequired": "Jinsia inahitajika",
+        "invalidEmail": "Muundo wa barua pepe si sahihi",
+        "fieldRequired": "Sehemu hii inahitajika",
+        "designationRequired": "Cheo kinahitajika",
+        "salaryMin": "Mshahara wa msingi lazima uwe >= 0",
+        "salaryNumber": "Mshahara wa msingi lazima uwe nambari"
+      },
+      "messages": {
+        "added": "Mfanyakazi ameongezwa kikamilifu",
+        "updated": "Mfanyakazi amesasishwa kikamilifu"
+      },
+      "buttons": {
+        "cancel": "Ghairi",
+        "update": "Sasisha",
+        "create": "Unda"
+      }
+    },
+    "onboarding": {
+      "title": "Usajili wa Wafanyakazi Wapya",
+      "tabs": {
+        "download": "Pakua Kiolezo",
+        "upload": "Pakia Excel"
+      },
+      "settingTabs": {
+        "deductions": "Makato",
+        "contributions": "Michango",
+        "leaveAllocations": "Mgao wa Likizo"
+      },
+      "download": {
+        "gettingStarted": "Kuanza",
+        "instructions": "Pakua kiolezo cha Excel hapa chini. Jaza taarifa za wafanyakazi kwa kufuata muundo uliotolewa. Kiolezo kina uthibitishaji wa orodha za kuchagua kwa sehemu kama Jinsia, Idara, na Aina ya Ajira.",
+        "templateTitle": "Kiolezo cha Usajili wa Wafanyakazi",
+        "templateDescription": "Faili la Excel lenye safu zilizofafanuliwa awali na uthibitishaji wa orodha za kuchagua"
+      },
+      "upload": {
+        "instructionsTitle": "Maelekezo ya Kupakia",
+        "instructions": "Pakia faili la Excel lililojazwa. Wafanyakazi wenye vitambulisho vilivyopo au maingizo yanayojirudia wataruka. Ikiwa safu ina Mshahara wa Msingi, mkataba unaoendelea utaundwa kiotomatiki.",
+        "readyToUpload": "Tayari kupakiwa",
+        "removeFile": "Ondoa Faili",
+        "noFileSelected": "Hakuna faili lililochaguliwa",
+        "selectFile": "Chagua Faili la Excel",
+        "autoCreateLedger": "Unda kiotomatiki leja ya malipo",
+        "updateExisting": "Sasisha wafanyakazi waliopo (jaza sehemu zilizokosekana tu, mf. kupakia upya ukiwa umeongeza taarifa za benki)"
+      },
+      "results": {
+        "summary": "Muhtasari wa Uingizaji",
+        "imported": "Walioingizwa",
+        "updated": "Waliosasishwa",
+        "skipped": "Walioruka",
+        "errors": "Hitilafu",
+        "totalProcessed": "Jumla Iliyochakatwa",
+        "skippedRowsOne": "Safu Zilizoruka (safu {count})",
+        "skippedRowsMany": "Safu Zilizoruka (safu {count})",
+        "rowNo": "Safu Na.",
+        "errorDescription": "Maelezo ya Hitilafu",
+        "rowData": "Data ya safu",
+        "tipLabel": "Kidokezo",
+        "tip": "Sahihisha hitilafu zilizo hapo juu kisha pakia upya faili la Excel ili kuingiza wafanyakazi hawa.",
+        "importedOne": "mfanyakazi {count} ameingizwa",
+        "importedMany": "wafanyakazi {count} wameingizwa",
+        "updatedOne": "mfanyakazi {count} amesasishwa",
+        "updatedMany": "wafanyakazi {count} wamesasishwa",
+        "successfully": "kikamilifu!"
+      },
+      "messages": {
+        "templateDownloaded": "Kiolezo kimepakuliwa kikamilifu",
+        "errorsFound": "Hitilafu {count} zimepatikana. Angalia maelezo hapa chini.",
+        "imported": "Wafanyakazi wameingizwa kikamilifu",
+        "processedSkipped": "{processed} wamechakatwa, {skipped} wameruka.",
+        "noneImported": "Hakuna mfanyakazi aliyeingizwa. Tafadhali angalia hitilafu zilizo hapa chini."
+      },
+      "buttons": {
+        "close": "Funga",
+        "downloadTemplate": "Pakua Kiolezo",
+        "downloading": "Inapakua...",
+        "uploadImport": "Pakia na Ingiza",
+        "uploading": "Inapakia..."
+      }
+    },
+    "profile": {
+      "reportsTo": "Anaripoti kwa",
+      "joinedOn": "Alijiunga {date}",
+      "attachmentName": "Mfanyakazi",
+      "buttons": {
+        "edit": "Hariri",
+        "delete": "Futa"
+      },
+      "messages": {
+        "deleted": "Mfanyakazi amefutwa kikamilifu",
+        "deleteError": "Hitilafu wakati wa kumfuta mfanyakazi",
+        "loadError": "Hitilafu wakati wa kupakia taarifa za mfanyakazi"
+      },
+      "dialogs": {
+        "deleteTitle": "Futa Mfanyakazi",
+        "deleteContent": "Una uhakika unataka kumfuta mfanyakazi huyu?"
+      },
+      "tabs": {
+        "personalInfo": "Taarifa Binafsi",
+        "contracts": "Mikataba",
+        "bankAccounts": "Akaunti za Benki",
+        "nextOfKin": "Ndugu wa Karibu",
+        "allowances": "Posho",
+        "deductions": "Makato",
+        "employerContributions": "Michango ya Mwajiri",
+        "leave": "Likizo",
+        "attachments": "Viambatisho",
+        "movements": "Mienendo",
+        "salaryHistory": "Historia ya Mshahara",
+        "leaveAllocations": "Mgao wa Likizo",
+        "leaveRequests": "Maombi ya Likizo"
+      },
+      "personal": {
+        "sections": {
+          "identity": "Utambulisho",
+          "contact": "Mawasiliano",
+          "work": "Kazi"
+        },
+        "labels": {
+          "firstName": "Jina la Kwanza",
+          "middleName": "Jina la Kati",
+          "lastName": "Jina la Mwisho",
+          "gender": "Jinsia",
+          "dateOfBirth": "Tarehe ya Kuzaliwa",
+          "nationalId": "Kitambulisho cha Taifa",
+          "passportNumber": "Namba ya Pasipoti",
+          "tin": "TIN",
+          "residenceStatus": "Hali ya Ukazi",
+          "phoneNumber": "Namba ya Simu",
+          "email": "Barua Pepe",
+          "address": "Anwani",
+          "department": "Idara",
+          "employmentType": "Aina ya Ajira",
+          "joinDate": "Tarehe ya Kujiunga"
+        }
+      }
+    }
+  }
+}

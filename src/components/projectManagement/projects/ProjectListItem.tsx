@@ -12,12 +12,14 @@ import { useLanguage } from '@/app/[lang]/contexts/LanguageContext';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { useQuery } from '@tanstack/react-query';
 import projectsServices from './project-services';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface ProjectItemProps {
   project: Project;
 }
 
 const ProjectListItem: React.FC<ProjectItemProps> = ({ project }) => {
+  const dictionary = useDictionary();
   const router = useRouter();
   const lang = useLanguage();
   
@@ -39,14 +41,14 @@ const ProjectListItem: React.FC<ProjectItemProps> = ({ project }) => {
         }}
       >
         <Grid size={{xs: 12, md: 4}}>
-          <Tooltip title="Project Name" onClick={() => router.push(`/${lang}/projectManagement/projects/${project.id}`)}>
+          <Tooltip title={dictionary.tooltips.projectName} onClick={() => router.push(`/${lang}/projectManagement/projects/${project.id}`)}>
             <Typography variant="subtitle1" fontSize={14} noWrap>
               {project.name}
             </Typography>
           </Tooltip>
         </Grid>
         <Grid size={{xs: 12, md: 6}}>
-          <Tooltip title="Description">
+          <Tooltip title={dictionary.tooltips.description}>
             <Typography variant="body2" color="text.secondary" noWrap>
               {project.description || '—'}
             </Typography>

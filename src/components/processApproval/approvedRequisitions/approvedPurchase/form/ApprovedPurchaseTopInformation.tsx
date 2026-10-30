@@ -17,6 +17,7 @@ import { CostCenter } from '@/components/masters/costCenters/CostCenterType';
 import { Product } from '@/components/productAndServices/products/ProductType';
 import { MeasurementUnit } from '@/components/masters/measurementUnits/MeasurementUnitType';
 import { Vendor } from '@/components/processApproval/RequisitionType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface Order {
   id?: number;
@@ -71,9 +72,10 @@ function ApprovedPurchaseTopInformation({
   register,
   errors
 }: ApprovedPurchaseTopInformationProps) {
+  const dictionary = useDictionary();
 
   const { authOrganization, checkOrganizationPermission } = useJumboAuth();
-  const cp = { id: null, name: 'Cash Purchase' };
+  const cp = { id: null, name: dictionary.forms.approvedRequisitions.approvedPurchase.top.cashPurchase };
   const canCashPurchase = checkOrganizationPermission(PERMISSIONS.PURCHASES_INSTANT_PAY);
 
   // Set values from addedStakeholder
@@ -135,7 +137,7 @@ function ApprovedPurchaseTopInformation({
       <Grid size={{xs: 12, md: 4}}>
         <Div sx={{ mt: 0.3 }}>
           <DateTimePicker
-            label="Order Date"
+            label={dictionary.forms.approvedRequisitions.approvedPurchase.top.orderDate}
             minDate={
               checkOrganizationPermission(PERMISSIONS.PURCHASES_BACKDATE) 
                 ? dayjs(authOrganization?.organization.recording_start_date) 
@@ -167,7 +169,7 @@ function ApprovedPurchaseTopInformation({
         <Grid size={{xs: 12, md: 8}}>
           <Div sx={{ mt: 0.3 }}>
             <StakeholderSelector
-              label='Supplier'
+              label={dictionary.forms.approvedRequisitions.approvedPurchase.top.supplier}
               frontError={errors?.stakeholder_id as any}
               initialOptions={(canCashPurchase ? [cp] : []) as any}
               defaultValue={order?.stakeholder?.id}
@@ -175,7 +177,7 @@ function ApprovedPurchaseTopInformation({
               onChange={handleStakeholderChange}
               startAdornment= {
                 checkOrganizationPermission(PERMISSIONS.STAKEHOLDERS_CREATE) && (
-                  <Tooltip title="Add Supplier">
+                  <Tooltip title={dictionary.tooltips.addSupplier}>
                     <AddOutlined
                         onClick={() => setStakeholderQuickAddDisplay(true)}
                         sx={{ cursor: 'pointer' }}
@@ -202,7 +204,7 @@ function ApprovedPurchaseTopInformation({
             <Div sx={{ mt: 0.3 }}>
               <TextField
                 size='small'
-                label='Reference'
+                label={dictionary.forms.approvedRequisitions.common.reference}
                 fullWidth
                 error={!!errors?.reference}
                 helperText={errors?.reference?.message}
@@ -214,7 +216,7 @@ function ApprovedPurchaseTopInformation({
           <Grid size={{xs: 12, md: 4}}>
             <Div sx={{ mt: 0.3 }}>
               <DateTimePicker
-                label="Date required"
+                label={dictionary.forms.approvedRequisitions.approvedPurchase.top.dateRequired}
                 defaultValue={order?.date_required ? dayjs(order.date_required) : null}
                 minDate={dayjs(order_date)}
                 slotProps={{
@@ -246,7 +248,7 @@ function ApprovedPurchaseTopInformation({
             <Grid size={{xs: 12, md: 4}}>
               <Div sx={{ mt: 0.3 }}>
                 <TextField
-                  label="Exchange Rate"
+                  label={dictionary.forms.approvedRequisitions.common.exchangeRate}
                   fullWidth
                   size='small'
                   InputProps={{

@@ -8,6 +8,7 @@ import { useState } from 'react';
 import LoanApprovalForm from './LoanApprovalForm';
 import { LoanRequestType } from './LoanRequestType';
 import { getNextPendingLoanLevel } from './loanApprovalUtils';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface LoanApprovalsActionTailProps {
   loanRequest: LoanRequestType;
@@ -16,6 +17,7 @@ interface LoanApprovalsActionTailProps {
 const LoanApprovalsActionTail = ({
   loanRequest,
 }: LoanApprovalsActionTailProps) => {
+  const dictionary = useDictionary();
   const [openDialog, setOpenDialog] = useState(false);
   const { hasOrganizationRole } = useJumboAuth();
   const { theme } = useJumboTheme();
@@ -51,7 +53,7 @@ const LoanApprovalsActionTail = ({
         disableElevation
         sx={{ '& .MuiButton-root': { px: 1 } }}
       >
-        <Tooltip title='Approve Loan Request'>
+        <Tooltip title={dictionary.tooltips.approveLoanRequest}>
           <IconButton onClick={() => setOpenDialog(true)}>
             <FactCheckOutlined />
           </IconButton>

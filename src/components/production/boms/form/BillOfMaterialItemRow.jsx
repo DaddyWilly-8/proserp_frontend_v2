@@ -17,6 +17,7 @@ import RemoveIcon from '@mui/icons-material/Remove';
 import AlternativesForm from './alternatives/AlternativesForm';
 import AlternativesRow from './alternatives/AlternativesRow';
 import BillOfMaterialItemForm from './BillOfMaterialItemForm';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function BillOfMaterialItemRow({
   setSubmitItemForm,
@@ -28,6 +29,7 @@ function BillOfMaterialItemRow({
   item,
   index,
 }) {
+  const dictionary = useDictionary();
   const [expanded, setExpanded] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [alternatives, setAlternatives] = useState(
@@ -98,7 +100,7 @@ function BillOfMaterialItemRow({
             <Grid size={{ xs: 12, md: 7 }}>
               <ListItemText
                 primary={
-                  <Tooltip title="Product">
+                  <Tooltip title={dictionary.tooltips.product}>
                     <Typography
                       variant="h5"
                       fontSize={14}
@@ -114,7 +116,7 @@ function BillOfMaterialItemRow({
             </Grid>
 
             <Grid size={{ xs: 6, md: 3 }} textAlign={'end'}>
-              <Tooltip title="Quantity">
+              <Tooltip title={dictionary.tooltips.quantity}>
                 <Typography>
                   {item.quantity.toLocaleString()}{' '}
                   {item?.unit_symbol
@@ -127,7 +129,7 @@ function BillOfMaterialItemRow({
             </Grid>
 
             <Grid size={{ xs: 6, md: 2 }} textAlign="end">
-              <Tooltip title="Edit Item">
+              <Tooltip title={dictionary.tooltips.editItem}>
                 <IconButton
                   component="span"
                   size="small"
@@ -139,7 +141,7 @@ function BillOfMaterialItemRow({
                   <EditOutlined fontSize="small" />
                 </IconButton>
               </Tooltip>
-              <Tooltip title="Remove Item">
+              <Tooltip title={dictionary.tooltips.removeItem}>
                 <IconButton
                   component="span"
                   size="small"
@@ -175,7 +177,7 @@ function BillOfMaterialItemRow({
       </AccordionSummary>
 
       <AccordionDetails>
-        <Typography variant="h4">Alternative Input Products</Typography>
+        <Typography variant="h4">{dictionary.forms.boms.titles.alternativeInputProducts}</Typography>
 
         <AlternativesForm
           submitMainForm={submitMainForm}

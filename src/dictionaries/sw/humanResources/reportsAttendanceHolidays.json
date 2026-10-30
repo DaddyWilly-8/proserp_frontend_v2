@@ -1,0 +1,236 @@
+{
+  "reports": {
+    "page": {
+      "title": "Ripoti za Rasilimali Watu",
+      "noPermission": "Bado huna ruhusa ya kuona ripoti zozote za Rasilimali Watu.",
+      "close": "Funga"
+    },
+    "cards": {
+      "salaryComponentsSummary": "Muhtasari wa Vipengele vya Mshahara",
+      "payrollComparison": "Ulinganisho wa Mishahara",
+      "leaveBalances": "Salio la Likizo",
+      "leaveRenewals": "Uhuishaji wa Likizo",
+      "staffLoans": "Mikopo ya Wafanyakazi"
+    },
+    "common": {
+      "employeeNo": "Namba ya Mfanyakazi",
+      "name": "Jina",
+      "department": "Idara",
+      "status": "Hali",
+      "employee": "Mfanyakazi",
+      "leaveType": "Aina ya Likizo",
+      "filter": "Chuja",
+      "close": "Funga",
+      "total": "Jumla",
+      "totalWithCount": "Jumla ({count})",
+      "filters": "Vichujio",
+      "printedOn": "Imechapishwa Tarehe",
+      "year": "Mwaka",
+      "yes": "Ndiyo",
+      "no": "Hapana"
+    },
+    "leaveBalances": {
+      "title": "Salio la Likizo",
+      "subtitle": "Siku za likizo zilizotengwa, zilizotumika na zilizobaki kwa kila mfanyakazi kwa mwaka {year}",
+      "allLeaveTypes": "Aina Zote za Likizo",
+      "allEmployees": "Wafanyakazi wote",
+      "columns": {
+        "allocated": "Zilizotengwa",
+        "used": "Zilizotumika",
+        "remaining": "Zilizobaki"
+      },
+      "messages": {
+        "exportError": "Imeshindwa kusafirisha salio la likizo",
+        "loadError": "Imeshindwa kupakia salio la likizo.",
+        "noRecords": "Hakuna mgao wa likizo uliopatikana kwa vichujio vilivyochaguliwa."
+      }
+    },
+    "leaveRenewals": {
+      "title": "Uhuishaji wa Likizo",
+      "subtitle": "Angalia wafanyakazi wanaohitaji mgao mpya wa likizo, na utenge kwa wingi bila kubadilisha mipangilio ya aina ya likizo",
+      "labels": {
+        "scope": "Wigo",
+        "gender": "Jinsia",
+        "startDateOptional": "Tarehe ya Kuanza (si lazima)",
+        "currentStartDate": "Tarehe ya Kuanza ya Sasa",
+        "priorCycleEnd": "Mwisho wa Mzunguko Uliopita"
+      },
+      "options": {
+        "selectLeaveType": "Chagua aina ya likizo",
+        "allEmployees": "Wafanyakazi Wote",
+        "activeContracts": "Wafanyakazi Wenye Mikataba Hai",
+        "any": "Yoyote",
+        "female": "Kike",
+        "male": "Kiume"
+      },
+      "status": {
+        "needsRenewal": "Inahitaji Uhuishaji",
+        "active": "Hai",
+        "midCycle": "Katikati ya Mzunguko"
+      },
+      "buttons": {
+        "preview": "Hakiki",
+        "apply": "Tekeleza",
+        "setStartDate": "Weka Tarehe ya Kuanza",
+        "delete": "Futa",
+        "cancel": "Ghairi",
+        "continue": "Endelea"
+      },
+      "summary": {
+        "newCyclesStart": "Mizunguko mipya itaanza tarehe",
+        "automatic": "(kiotomatiki)",
+        "needRenewal": "{count} wanahitaji uhuishaji",
+        "active": "{count} hai",
+        "midCycleSkipped": "{count} katikati ya mzunguko (wameruka)",
+        "selected": "Mgao {count} umechaguliwa",
+        "pickStartDateHint": "— chagua Tarehe ya Kuanza hapo juu ili kuwezesha \"Weka Tarehe ya Kuanza\"",
+        "neverAllocated": "Hajawahi kutengewa"
+      },
+      "messages": {
+        "pickLeaveType": "Chagua aina ya likizo kisha bofya Hakiki ili kuona wanaohitaji uhuishaji.",
+        "noEmployeesInScope": "Hakuna wafanyakazi katika wigo kwa aina hii ya likizo.",
+        "loadError": "Imeshindwa kupakia hakiki ya uhuishaji.",
+        "applied": "Imetekelezwa — {created} imeundwa, {updated} imesasishwa, {skipped} imerukwa",
+        "applyError": "Imeshindwa kutekeleza mgao wa likizo",
+        "allocationsDeleted": "Migao imefutwa",
+        "deleteError": "Imeshindwa kufuta migao",
+        "startDateUpdated": "Tarehe ya kuanza imesasishwa",
+        "startDateError": "Imeshindwa kusasisha tarehe ya kuanza"
+      },
+      "dialogs": {
+        "confirmTitle": "Thibitisha Mgao wa Likizo",
+        "confirmContent": "Hii itaunda migao mipya {created}, kusasisha migao {updated} iliyopo, na kuacha migao {skipped} ya katikati ya mzunguko bila kuguswa.",
+        "cannotUndo": "Kitendo hiki hakiwezi kutenduliwa. Endelea?",
+        "deleteTitle": "Futa Migao {count}?",
+        "deleteContent": "Mgao wowote uliokwisha guswa na ombi la likizo (siku zilizotumika > 0) utarukwa badala ya kufutwa, na utaripotiwa.",
+        "setStartDateTitle": "Weka Tarehe ya Kuanza kwa Migao {count}?",
+        "setStartDateContentBefore": "Inahamisha tarehe ya kuanza (na tarehe ya mwisho wa mzunguko) ya migao iliyochaguliwa hadi",
+        "setStartDateContentAfter": ". Mgao wowote uliokwisha guswa na ombi la likizo (siku zilizotumika > 0) utarukwa badala yake, na utaripotiwa."
+      }
+    },
+    "staffLoans": {
+      "title": "Mikopo ya Wafanyakazi",
+      "pdfTitle": "Ripoti ya Mikopo ya Wafanyakazi",
+      "subtitle": "Hali ya mkopo, masharti yaliyoidhinishwa, na kiasi kilichorejeshwa kupitia mishahara hadi sasa",
+      "allLoans": "Mikopo yote",
+      "onlyOutstanding": "Ambayo haijalipwa tu",
+      "fullyRecovered": "Imerejeshwa Kikamilifu",
+      "statusOptions": {
+        "all": "Hali Zote",
+        "in_review": "Inakaguliwa",
+        "approved": "Imeidhinishwa",
+        "rejected": "Imekataliwa",
+        "cancelled": "Imeghairiwa"
+      },
+      "columns": {
+        "requested": "Iliyoombwa",
+        "amountApproved": "Kiasi Kilichoidhinishwa",
+        "approved": "Kilichoidhinishwa",
+        "installment": "Awamu",
+        "disbursed": "Imetolewa",
+        "recovered": "Kilichorejeshwa",
+        "outstanding": "Kilichobaki"
+      },
+      "messages": {
+        "exportError": "Imeshindwa kusafirisha ripoti ya mikopo ya wafanyakazi",
+        "loadError": "Imeshindwa kupakia mikopo ya wafanyakazi.",
+        "noRecords": "Hakuna mikopo ya wafanyakazi iliyopatikana kwa vichujio vilivyochaguliwa."
+      }
+    }
+  },
+  "employeesAttendance": {
+    "title": "Mahudhurio ya Wafanyakazi",
+    "list": {
+      "labels": {
+        "status": "Hali",
+        "from": "Kuanzia",
+        "to": "Hadi"
+      },
+      "types": {
+        "present": "Yupo",
+        "absent": "Hayupo",
+        "on leave": "Likizoni"
+      }
+    },
+    "dialog": {
+      "title": "Mahudhurio ya Mfanyakazi",
+      "tabs": {
+        "downloadTemplate": "Pakua Kiolezo",
+        "uploadExcel": "Pakia Excel"
+      },
+      "gettingStarted": "Kuanza",
+      "gettingStartedText": "Pakua kiolezo cha Excel hapa chini. Jaza maelezo ya mahudhurio ya wafanyakazi kwa kufuata muundo uliotolewa.",
+      "templateTitle": "Kiolezo cha Mahudhurio ya Mfanyakazi",
+      "templateDescription": "Faili ya Excel yenye safu zilizoainishwa awali na uthibitishaji wa orodha ya kuchagua",
+      "uploadInstructions": "Maelekezo ya Kupakia",
+      "uploadInstructionsText": "Pakia faili ya Excel iliyojazwa. Wafanyakazi wenye vitambulisho vilivyopo au maingizo yanayojirudia wataruka. Ikiwa safu ina Mshahara wa Msingi, mkataba hai utaundwa kiotomatiki.",
+      "readyToUpload": "{size} KB • Tayari kupakiwa",
+      "removeFile": "Ondoa Faili",
+      "noFileSelected": "Hakuna faili iliyochaguliwa",
+      "selectExcelFile": "Chagua Faili ya Excel",
+      "importSummary": "Muhtasari wa Uingizaji",
+      "imported": "Zilizoingizwa",
+      "skipped": "Zilizorukwa",
+      "errors": "Makosa",
+      "totalProcessed": "Jumla Iliyochakatwa",
+      "skippedRows": "Safu Zilizorukwa (safu {count})",
+      "rowNo": "Namba ya Safu",
+      "errorDescription": "Maelezo ya Kosa",
+      "rowData": "Data ya safu: {data}",
+      "tipLabel": "Kidokezo:",
+      "tipText": "Sahihisha makosa yaliyo hapo juu kisha pakia upya faili ya Excel ili kuingiza wafanyakazi hawa.",
+      "allImported": "✅ Wafanyakazi wote {count} wameingizwa kwa mafanikio!",
+      "buttons": {
+        "close": "Funga",
+        "downloadTemplate": "Pakua Kiolezo",
+        "downloading": "Inapakua...",
+        "uploadAndImport": "Pakia na Ingiza",
+        "uploading": "Inapakia..."
+      },
+      "messages": {
+        "templateDownloaded": "Kiolezo kimepakuliwa kwa mafanikio",
+        "importErrors": "{message}. Makosa {count} yamepatikana. Angalia maelezo hapa chini.",
+        "importedSuccessfully": "Mahudhurio ya Wafanyakazi yameingizwa kwa mafanikio",
+        "importedAndSkipped": "{message}. {imported} zimeingizwa, {skipped} zimerukwa.",
+        "noneImported": "Hakuna mahudhurio ya wafanyakazi yaliyoingizwa. Tafadhali angalia makosa hapa chini."
+      }
+    }
+  },
+  "publicHolidays": {
+    "title": "Sikukuu za Umma",
+    "list": {
+      "selectYear": "Chagua Mwaka",
+      "isPaid": "Imelipwa",
+      "notPaid": "Haijalipwa"
+    },
+    "form": {
+      "addTitle": "Ongeza Sikukuu ya Umma",
+      "editTitle": "Hariri Sikukuu ya Umma",
+      "labels": {
+        "name": "Jina la Sikukuu ya Umma",
+        "date": "Tarehe",
+        "isPaid": "Imelipwa"
+      },
+      "buttons": {
+        "cancel": "Ghairi",
+        "submit": "Wasilisha"
+      },
+      "messages": {
+        "added": "Sikukuu ya Umma imeongezwa kwa mafanikio",
+        "updated": "Sikukuu ya Umma imesasishwa kwa mafanikio"
+      },
+      "errors": {
+        "nameRequired": "Jina linahitajika",
+        "dateRequired": "Tarehe inahitajika",
+        "fieldRequired": "Sehemu hii inahitajika"
+      }
+    },
+    "actions": {
+      "edit": "Hariri",
+      "delete": "Futa",
+      "confirmDeleteTitle": "Thibitisha Kufuta",
+      "confirmDeleteContent": "Una uhakika unataka kufuta Sikukuu hii ya Umma?",
+      "deleted": "Sikukuu ya Umma imefutwa kwa mafanikio"
+    }
+  }
+}

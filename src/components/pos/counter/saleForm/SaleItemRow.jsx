@@ -2,6 +2,7 @@ import { DisabledByDefault, EditOutlined } from '@mui/icons-material'
 import { Divider, Grid, IconButton, ListItemText, Tooltip, Typography } from '@mui/material'
 import React, { useState } from 'react'
 import SaleItemForm from './SaleItemForm';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function SaleItemRow({
     salesDate,
@@ -19,6 +20,7 @@ function SaleItemRow({
     checkedForSuggestPrice,
     checkedForInstantSale
 }) {
+    const dictionary = useDictionary();
     const product = item.product;
     const [showForm, setShowForm] = useState(false);
     const vat_factor = vat_percentage*0.01;
@@ -39,17 +41,17 @@ function SaleItemRow({
                             {index+1}.
                         </Grid>
                         <Grid size={{xs: 11, md: 5, lg: 4}}>
-                            <Tooltip title="Product">
+                            <Tooltip title={dictionary.tooltips.product}>
                                 <ListItemText
                                     primary={
-                                        <Tooltip title={'Product'}>
+                                        <Tooltip title={dictionary.tooltips.product}>
                                             <Typography variant={"h5"} fontSize={14} lineHeight={1.25} mb={0} noWrap>
                                                 {product.name}
                                             </Typography>
                                         </Tooltip>
                                     }
                                     secondary={
-                                        <Tooltip title={'Description'}>
+                                        <Tooltip title={dictionary.tooltips.description}>
                                             <Typography component="span" variant="body2" fontSize={14} lineHeight={1.25} mb={0}>
                                                 {item.description}
                                             </Typography>
@@ -59,40 +61,40 @@ function SaleItemRow({
                             </Tooltip>
                         </Grid>
                         <Grid size={{xs: 1, lg: vat_factor ? 0.5 : 1}}>
-                            <Tooltip title="Unit">
+                            <Tooltip title={dictionary.tooltips.unit}>
                                 <Typography>{item?.unit_symbol ? item.unit_symbol : (item.measurement_unit?.symbol ? item.measurement_unit?.symbol : item.product.unit_symbol)}</Typography>
                             </Tooltip>
                         </Grid>
                         <Grid textAlign={'end'} size={{xs: 12, md: 1, lg: vat_factor ? 0.5 : 1}}>
-                            <Tooltip title="Quantity">
+                            <Tooltip title={dictionary.tooltips.quantity}>
                                 <Typography>{item.quantity}</Typography>
                             </Tooltip>
                         </Grid>
                         <Grid textAlign={'end'} size={{xs: 4, md: 2, lg: vat_factor ? 1.5 : 2 }}>
-                            <Tooltip title="Price">
+                            <Tooltip title={dictionary.tooltips.price}>
                                 <Typography>{item.rate.toLocaleString()}</Typography>
                             </Tooltip>
                         </Grid>
                         {
                             !!vat_factor &&
                             <Grid textAlign={'end'} size={{xs: 4, md: 2, lg: vat_factor ? 1.5 : 2}}>
-                                <Tooltip title="VAT">
+                                <Tooltip title={dictionary.tooltips.vat}>
                                     <Typography>{(item.rate*(product?.vat_exempted !== 1 ? vat_factor : 0)).toLocaleString()}</Typography>
                                 </Tooltip>
                             </Grid>
                         }
                         <Grid textAlign={'end'} size={{xs: 4, md: 2, lg: 2.5}}>
-                            <Tooltip title="Line Total">
+                            <Tooltip title={dictionary.tooltips.lineTotal}>
                                 <Typography>{(item.quantity*item.rate*((1+(product?.vat_exempted !== 1 ? vat_factor : 0)))).toLocaleString()}</Typography>
                             </Tooltip>
                         </Grid>
                         <Grid textAlign={'end'} size={{xs: 12, md: 12, lg: 1}}>
-                            <Tooltip title='Edit Item'>
+                            <Tooltip title={dictionary.tooltips.editItem}>
                                 <IconButton size='small' onClick={() => {setShowForm(true)}}>
                                     <EditOutlined fontSize='small'/>
                                 </IconButton>
                             </Tooltip>
-                            <Tooltip title='Remove Item'>
+                            <Tooltip title={dictionary.tooltips.removeItem}>
                                 <IconButton size='small' 
                                     onClick={() => setItems(items => {
                                         const newItems = [...items];

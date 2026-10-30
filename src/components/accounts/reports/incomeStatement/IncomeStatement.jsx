@@ -34,6 +34,7 @@ import PDFContent from '../../../pdf/PDFContent';
 import financialReportsServices from '../financial-reports-services';
 import IncomeStatementOnScreen from './IncomeStatementOnScreen';
 import IncomeStatementPDF from './IncomeStatementPDF';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 // Utility to safely trim values
 function safeTrim(value) {
   return typeof value === 'string' ? value.trim() : '';
@@ -46,7 +47,8 @@ function IncomeStatement({
   aggregate_by,
   setOpenIncomeStatementDialog,
 }) {
-  document.title = 'Income Statement';
+  const dictionary = useDictionary();
+  document.title = dictionary.reports.accountsReports.incomeStatement.title;
   const css = useProsERPStyles();
   const [today] = useState(dayjs());
   const {
@@ -65,8 +67,8 @@ function IncomeStatement({
     from: yup
       .string()
       .transform((value) => safeTrim(value))
-      .required('Start Date is required')
-      .typeError('Start Date is required'),
+      .required(dictionary.reports.accountsReports.incomeStatement.startDateRequired)
+      .typeError(dictionary.reports.accountsReports.incomeStatement.startDateRequired),
   });
 
   const { setValue, watch, handleSubmit, getValues } = useForm({
@@ -155,10 +157,12 @@ function IncomeStatement({
       <DialogTitle textAlign={'center'}>
         <Grid container>
           <Grid size={{ xs: 12 }}>
-            <Typography variant='h3'>Income Statement</Typography>
+            <Typography variant='h3'>
+              {dictionary.reports.accountsReports.incomeStatement.title}
+            </Typography>
           </Grid>
           {belowLargeScreen && (
-            <Tooltip title='Close'>
+            <Tooltip title={dictionary.tooltips.close}>
               <IconButton
                 size='small'
                 sx={{ position: 'absolute', top: 10, right: 10 }}
@@ -180,7 +184,10 @@ function IncomeStatement({
             >
               <Grid size={{ xs: 12, md: 5, lg: 5 }}>
                 <CostCenterSelector
-                  label='Cost and Profit Centers (leave empty for all)'
+                  label={
+                    dictionary.reports.accountsReports.incomeStatement
+                      .costCenterLabel
+                  }
                   multiple={true}
                   allowSameType={true}
                   onChange={(cost_centers) => {
@@ -209,7 +216,7 @@ function IncomeStatement({
               <Grid size={{ xs: 12, md: 3.5, lg: 3.5 }}>
                 <Div sx={{ mt: 1, mb: 1 }}>
                   <DateTimePicker
-                    label='From (MM/DD/YYYY)'
+                    label={dictionary.reports.accountsReports.incomeStatement.from}
                     minDate={dayjs(
                       authOrganization?.organization.recording_start_date
                     )}
@@ -236,7 +243,7 @@ function IncomeStatement({
               <Grid size={{ xs: 12, md: 3.5, lg: 3.5 }}>
                 <Div sx={{ mt: 1, mb: 1 }}>
                   <DateTimePicker
-                    label='To (MM/DD/YYYY)'
+                    label={dictionary.reports.accountsReports.incomeStatement.to}
                     defaultValue={to ? dayjs(to) : dayjs().endOf('day')}
                     minDate={dayjs(
                       authOrganization?.organization.recording_start_date
@@ -260,7 +267,10 @@ function IncomeStatement({
                 <Div sx={{ mt: 1, mb: 1, display: 'flex' }}>
                   <TextField
                     select
-                    label='Aggregate By'
+                    label={
+                      dictionary.reports.accountsReports.incomeStatement
+                        .aggregateBy
+                    }
                     size='small'
                     fullWidth
                     value={watch('aggregate_by') ?? ''}
@@ -270,10 +280,10 @@ function IncomeStatement({
                     }}
                     InputProps={{
                       endAdornment: watch('aggregate_by') ? (
-                        <Tooltip title='Clear aggregate option'>
+                        <Tooltip title={dictionary.tooltips.clearAggregateOption}>
                           <IconButton
                             size='small'
-                            aria-label='clear aggregate by'
+                            aria-label={dictionary.tooltips.clearAggregateOption}
                             onClick={() => {
                               setValue('aggregate_by', '', {
                                 shouldValidate: true,
@@ -332,10 +342,18 @@ function IncomeStatement({
                       }
                     }}
                   >
-                    <MenuItem value='day'>Day</MenuItem>
-                    <MenuItem value='week'>Week</MenuItem>
-                    <MenuItem value='month'>Month</MenuItem>
-                    <MenuItem value='year'>Year</MenuItem>
+                    <MenuItem value='day'>
+                      {dictionary.reports.accountsReports.common.day}
+                    </MenuItem>
+                    <MenuItem value='week'>
+                      {dictionary.reports.accountsReports.common.week}
+                    </MenuItem>
+                    <MenuItem value='month'>
+                      {dictionary.reports.accountsReports.common.month}
+                    </MenuItem>
+                    <MenuItem value='year'>
+                      {dictionary.reports.accountsReports.common.year}
+                    </MenuItem>
                   </TextField>
                 </Div>
               </Grid>
@@ -367,7 +385,7 @@ function IncomeStatement({
                       size='small'
                       variant='contained'
                     >
-                      Filter
+                      {dictionary.reports.accountsReports.common.filter}
                     </LoadingButton>
                   </>
                 </Stack>
@@ -389,6 +407,7 @@ function IncomeStatement({
                   reportData={reportData}
                   authOrganization={authOrganization}
                   user={user}
+                  dictionary={dictionary}
                 />
               }
               fileName={downloadFileName}
@@ -398,7 +417,7 @@ function IncomeStatement({
           )
         ) : (
           <Alert variant='outlined' severity='info'>
-            No data found for the selected filters
+            {dictionary.reports.accountsReports.common.noDataFound}
           </Alert>
         )}
       </DialogContent>

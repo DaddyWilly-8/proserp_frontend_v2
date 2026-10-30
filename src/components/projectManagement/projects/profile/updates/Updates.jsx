@@ -14,8 +14,10 @@ import projectsServices from '../../project-services';
 import UpdatesListItem from './UpdatesListItem';
 import UpdatesActionTail from './UpdatesActionTail';
 import ProductsSelectProvider from '@/components/productAndServices/products/ProductsSelectProvider';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const Updates = () => {
+  const dictionary = useDictionary();
   const params = useParams();
   const { project } = useProjectProfile();
   const listRef = React.useRef();
@@ -123,7 +125,7 @@ const Updates = () => {
                     <Grid container spacing={1} alignItems={'center'} width={'100%'}>
                       <Grid size={{xs: 11, md: 5}}>
                         <DateTimePicker
-                          label="From Date"
+                          label={dictionary.projectManagement.updates.fromDate}
                           value={filterDate.from ? dayjs(filterDate.from) : null}
                           slotProps={{
                             textField: {
@@ -136,7 +138,7 @@ const Updates = () => {
                       </Grid>
                       <Grid size={{xs: 11, md: 5}}>
                         <DateTimePicker
-                          label="To Date"
+                          label={dictionary.projectManagement.updates.toDate}
                           value={filterDate.to ? dayjs(filterDate.to) : null}
                           minDate={filterDate.from ? dayjs(filterDate.from) : undefined}
                           slotProps={{
@@ -149,7 +151,7 @@ const Updates = () => {
                         />
                       </Grid>
                       <Grid size={{xs: 1, md: 2}} textAlign={'center'}>
-                        <Tooltip title="Apply Date Filters">
+                        <Tooltip title={dictionary.tooltips.applyDateFilters}>
                           <IconButton onClick={applyDateFilters} size="small">
                             <EventAvailableOutlined/>
                           </IconButton> 
@@ -161,7 +163,7 @@ const Updates = () => {
                 
                 {/* Main Actions Row */}
                 <Grid size={{xs: 1}}>
-                  <Tooltip title={!openFilters ? 'Show Filters' : 'Clear and Hide Filters'}>
+                  <Tooltip title={!openFilters ? dictionary.projectManagement.updates.showFilters : dictionary.projectManagement.updates.clearAndHideFilters}>
                     <IconButton 
                       size='small' 
                       onClick={!openFilters ? () => setOpenFilters(true) : resetFilters}

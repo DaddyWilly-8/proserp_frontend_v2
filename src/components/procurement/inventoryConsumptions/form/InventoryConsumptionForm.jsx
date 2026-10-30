@@ -36,12 +36,14 @@ import ConsumptionableSelector from '../ConsumptionableSelector';
 import inventoryConsumptionsServices from '../inventoryConsumptionsServices';
 import InventoryConsumptionItemForm from './InventoryConsumptionItemForm';
 import InventoryConsumptionItemRow from './InventoryConsumptionItemRow';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const InventoryConsumptionForm = ({
   setOpenDialog,
   inventoryConsumption = null,
   consumptionTab = false,
 }) => {
+  const dictionary = useDictionary();
   const [items, setItems] = useState(() => {
     if (!inventoryConsumption) return [];
 
@@ -109,12 +111,12 @@ const InventoryConsumptionForm = ({
   ]);
 
   const validationSchema = yup.object({
-    consumption_date: yup.string().required('Consumption Date is required'),
-    narration: yup.string().required('Narration is required'),
+    consumption_date: yup.string().required(dictionary.forms.inventoryConsumptions.form.errors.validation.consumptionDate.required),
+    narration: yup.string().required(dictionary.forms.inventoryConsumptions.form.errors.validation.narration.required),
     cost_center_id: yup
       .string()
-      .required('Cost Center is required')
-      .typeError('Cost Center is required'),
+      .required(dictionary.forms.inventoryConsumptions.form.errors.validation.costCenter.required)
+      .typeError(dictionary.forms.inventoryConsumptions.form.errors.validation.costCenter.required),
   });
 
   const {
@@ -215,7 +217,7 @@ const InventoryConsumptionForm = ({
     if (items.length === 0) {
       setError(`items`, {
         type: 'manual',
-        message: 'You must add at least one item',
+        message: dictionary.forms.inventoryConsumptions.form.errors.validation.items.min,
       });
       return;
     } else if (isDirty) {
@@ -241,13 +243,13 @@ const InventoryConsumptionForm = ({
           <Grid container spacing={1}>
             <Grid size={12}>
               {!inventoryConsumption
-                ? 'New Inventory Consumption'
-                : `Edit ${inventoryConsumption.consumptionNo}`}
+                ? dictionary.forms.inventoryConsumptions.form.titles.new
+                : dictionary.forms.inventoryConsumptions.form.titles.edit.replace('{consumptionNo}', inventoryConsumption.consumptionNo)}
             </Grid>
             <Grid size={{ xs: 12, md: 4 }}>
               <DateTimePicker
                 fullWidth
-                label='Consumption Date'
+                label={dictionary.forms.inventoryConsumptions.form.labels.consumptionDate}
                 defaultValue={consumption_date}
                 minDate={
                   checkOrganizationPermission(
@@ -342,7 +344,7 @@ const InventoryConsumptionForm = ({
                 <>
                   <Grid size={{ xs: 12, md: 4 }}>
                     <ConsumptionableSelector
-                      label='Used In'
+                      label={dictionary.forms.inventoryConsumptions.form.labels.usedIn}
                       // frontError={errors && errors?.consumptionable_type}
                       defaultValue={watch(`consumptionable_type`)}
                       onChange={(newValue) => {
@@ -380,7 +382,7 @@ const InventoryConsumptionForm = ({
                           renderInput={(params) => (
                             <TextField
                               {...params}
-                              label='Batch No'
+                              label={dictionary.forms.inventoryConsumptions.form.labels.batchNo}
                               size='small'
                               fullWidth
                             />
@@ -442,7 +444,7 @@ const InventoryConsumptionForm = ({
           <Grid size={12}>
             <Div sx={{ mt: 1, mb: 1 }}>
               <TextField
-                label='Narration'
+                label={dictionary.forms.inventoryConsumptions.form.labels.narration}
                 fullWidth
                 defaultValue={inventoryConsumption?.narration}
                 multiline={true}
@@ -460,7 +462,7 @@ const InventoryConsumptionForm = ({
             <Grid container alignItems='center' justifyContent='space-between'>
               <Grid size={11}>Unsaved Changes</Grid>
               <Grid size={1} textAlign='right'>
-                <Tooltip title='Close'>
+                <Tooltip title={dictionary.tooltips.close}>
                   <IconButton
                     size='small'
                     onClick={() => setShowWarning(false)}
@@ -471,7 +473,7 @@ const InventoryConsumptionForm = ({
               </Grid>
             </Grid>
           </DialogTitle>
-          <DialogContent>Last item was not added to the list</DialogContent>
+          <DialogContent>{dictionary.forms.inventoryConsumptions.form.messages.lastItemNotAdded}</DialogContent>
           <DialogActions>
             <Button
               size='small'
@@ -480,21 +482,21 @@ const InventoryConsumptionForm = ({
                 setShowWarning(false);
               }}
             >
-              Add and Submit
+              {dictionary.forms.inventoryConsumptions.form.buttons.addAndSubmit}
             </Button>
             <Button
               size='small'
               onClick={handleConfirmSubmitWithoutAdd}
               color='secondary'
             >
-              Submit without add
+              {dictionary.forms.inventoryConsumptions.form.buttons.submitWithoutAdd}
             </Button>
           </DialogActions>
         </Dialog>
       </DialogContent>
       <DialogActions>
         <Button size='small' onClick={() => setOpenDialog(false)}>
-          Cancel
+          {dictionary.forms.inventoryConsumptions.form.buttons.cancel}
         </Button>
         <LoadingButton
           onClick={onSubmit}
@@ -506,7 +508,7 @@ const InventoryConsumptionForm = ({
           size='small'
           type='submit'
         >
-          Submit
+          {dictionary.forms.inventoryConsumptions.form.buttons.submit}
         </LoadingButton>
       </DialogActions>
     </>

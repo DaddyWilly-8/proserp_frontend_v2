@@ -15,6 +15,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { JumboDdMenu } from '@jumbo/components'
 import { MenuItemProps } from '@jumbo/types'
 import TransferFormDialogContent from '../../transactions/tranfers/TransferFormDialogContent'
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface Ledger {
   id: number;
@@ -32,6 +33,7 @@ interface LedgerListItemActionProps {
 }
 
 function LedgerListItemAction({ ledger }: LedgerListItemActionProps) {
+  const dictionary = useDictionary();
   const { showDialog, hideDialog } = useJumboDialog();
   const [openDocumentDialog, setOpenDocumentDialog] = useState(false);
   const { enqueueSnackbar } = useSnackbar();
@@ -130,7 +132,7 @@ function LedgerListItemAction({ ledger }: LedgerListItemActionProps) {
       </Dialog>
       <JumboDdMenu
         icon={
-          <Tooltip title='Actions'>
+          <Tooltip title={dictionary.tooltips.actions}>
             <MoreHorizOutlined fontSize='small' />
           </Tooltip>
         }

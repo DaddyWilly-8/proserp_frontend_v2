@@ -4,6 +4,7 @@ import { readableDate } from '@/app/helpers/input-sanitization-helpers';
 import { Box, Card, Divider, Grid, Stack, Tooltip, Typography } from '@mui/material';
 import LeaveAllocationItemAction from './LeaveAllocationItemAction';
 import { LeaveAllocationType } from './LeaveAllocationType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 export const LEAVE_ALLOCATION_COLUMN_WIDTHS = {
   leaveType: 3,
@@ -19,6 +20,7 @@ const LeaveAllocationsListItem = ({
 }: {
   leaveAllocation: LeaveAllocationType;
 }) => {
+  const dictionary = useDictionary();
   const startYear = leaveAllocation.start_date
     ? new Date(leaveAllocation.start_date).getFullYear()
     : undefined;
@@ -31,9 +33,15 @@ const LeaveAllocationsListItem = ({
       : startYear;
 
   const carryForwardNote = leaveAllocation.carried_forward_days
-    ? `Includes ${leaveAllocation.carried_forward_days} carried-forward day(s)${
+    ? `${dictionary.humanResources.leaveAllocations.list.carryForwardNote.replace(
+        '{days}',
+        String(leaveAllocation.carried_forward_days)
+      )}${
         leaveAllocation.carry_forward_expires_at
-          ? `, usable until ${readableDate(leaveAllocation.carry_forward_expires_at, false)}`
+          ? dictionary.humanResources.leaveAllocations.list.carryForwardUntil.replace(
+              '{date}',
+              readableDate(leaveAllocation.carry_forward_expires_at, false)
+            )
           : ''
       }`
     : null;
@@ -62,7 +70,10 @@ const LeaveAllocationsListItem = ({
           <Grid size={LEAVE_ALLOCATION_COLUMN_WIDTHS.leaveType}>
             <Typography>
               {leaveAllocation.leave_type?.name ||
-                `Type #${leaveAllocation.leave_type_id}`}
+                dictionary.humanResources.leaveAllocations.list.typeFallback.replace(
+                  '{id}',
+                  String(leaveAllocation.leave_type_id)
+                )}
             </Typography>
           </Grid>
 
@@ -113,7 +124,10 @@ const LeaveAllocationsListItem = ({
           >
             <Typography variant='subtitle1' fontWeight={600}>
               {leaveAllocation.leave_type?.name ||
-                `Type #${leaveAllocation.leave_type_id}`}
+                dictionary.humanResources.leaveAllocations.list.typeFallback.replace(
+                  '{id}',
+                  String(leaveAllocation.leave_type_id)
+                )}
             </Typography>
             <LeaveAllocationItemAction leaveAllocation={leaveAllocation} />
           </Stack>
@@ -121,13 +135,13 @@ const LeaveAllocationsListItem = ({
           <Grid container spacing={1}>
             <Grid size={6}>
               <Typography variant='caption' color='text.secondary' display='block'>
-                Period
+                {dictionary.humanResources.leaveAllocations.list.period}
               </Typography>
               <Typography variant='body2'>{period ?? '—'}</Typography>
             </Grid>
             <Grid size={6}>
               <Typography variant='caption' color='text.secondary' display='block'>
-                Allocated
+                {dictionary.humanResources.leaveAllocations.list.allocated}
               </Typography>
               <Typography variant='body2'>
                 {leaveAllocation.allocated_days}
@@ -135,7 +149,7 @@ const LeaveAllocationsListItem = ({
             </Grid>
             <Grid size={6}>
               <Typography variant='caption' color='text.secondary' display='block'>
-                Used
+                {dictionary.humanResources.leaveAllocations.list.used}
               </Typography>
               <Typography variant='body2'>
                 {leaveAllocation.used_days ?? 0}
@@ -143,7 +157,7 @@ const LeaveAllocationsListItem = ({
             </Grid>
             <Grid size={6}>
               <Typography variant='caption' color='text.secondary' display='block'>
-                Remaining
+                {dictionary.humanResources.leaveAllocations.list.remaining}
               </Typography>
               <Typography variant='body2'>{remainingDays}</Typography>
             </Grid>

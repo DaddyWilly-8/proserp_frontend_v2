@@ -10,8 +10,10 @@ import ProductSelect from '@/components/productAndServices/products/ProductSelec
 import StoreSelector from '@/components/procurement/stores/StoreSelector';
 import CommaSeparatedField from '@/shared/Inputs/CommaSeparatedField';
 import { sanitizedNumber } from '@/app/helpers/input-sanitization-helpers';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function OutputsItemForm({setClearFormKey, submitMainForm, submitItemForm, setSubmitItemForm, setIsDirty, item = null, index = -1, setOutputs, outputs = [], setShowForm = null}) {
+  const dictionary = useDictionary();
   const { productOptions } = useProductsSelect();
   const { activeWorkCenter } = useContext(ProductionBatchesContext);
   const nonInventoryIds = productOptions?.filter(product => product.type !== 'Inventory').map(product => product.id);
@@ -20,11 +22,11 @@ function OutputsItemForm({setClearFormKey, submitMainForm, submitItemForm, setSu
   const validationSchema = yup.object({
     product_id: yup
       .number()
-      .required("Product is required")
-      .typeError("Product is required")
+      .required(dictionary.forms.batches.validation.productRequired)
+      .typeError(dictionary.forms.batches.validation.productRequired)
       .test(
         'unique-product',
-        'Product already exists',
+        dictionary.forms.batches.validation.productExists,
         (value) => {
           // Exclude the current product being edited
           const isEditing = index > -1 && outputs[index]?.product_id === value;
@@ -32,15 +34,15 @@ function OutputsItemForm({setClearFormKey, submitMainForm, submitItemForm, setSu
           return isEditing || !isDuplicate;
         }
       ),
-    store_id: yup.number().required("Store is required").typeError('Store is required'),
-    quantity: yup.number().required("Quantity is required").positive("Quantity is required").typeError('Quantity is required'),
-    measurement_unit_id: yup.number().required("Measurement Unit is required").typeError('Measurement Unit is required'),
+    store_id: yup.number().required(dictionary.forms.batches.validation.storeRequired).typeError(dictionary.forms.batches.validation.storeRequired),
+    quantity: yup.number().required(dictionary.forms.batches.validation.quantityRequired).positive(dictionary.forms.batches.validation.quantityRequired).typeError(dictionary.forms.batches.validation.quantityRequired),
+    measurement_unit_id: yup.number().required(dictionary.forms.batches.validation.measurementUnitRequired).typeError(dictionary.forms.batches.validation.measurementUnitRequired),
     value_percentage: yup
     .number()
-    .min(0, 'Value Percentage must be greater or equal to 0')
-    .max(100, "Value Percentage must be less than or equal to 100")
-    .required("Value Percentage is required")
-    .typeError('Value Percentage is required')
+    .min(0, dictionary.forms.batches.validation.valuePercentageMin)
+    .max(100, dictionary.forms.batches.validation.valuePercentageMax)
+    .required(dictionary.forms.batches.validation.valuePercentageRequired)
+    .typeError(dictionary.forms.batches.validation.valuePercentageRequired)
     .test('sum-check', function (value) {
       const context = this.options.context || {};
       const { outputs, item } = context;
@@ -56,7 +58,7 @@ function OutputsItemForm({setClearFormKey, submitMainForm, submitItemForm, setSu
       // Check if the new total exceeds 100%
       if ((totalBeforeValue + value) > 100) {
         return this.createError({
-          message: `Total Value Percentage cannot exceed 100%. Current Outputs are already ${totalBeforeValue}%`,
+          message: dictionary.forms.batches.validation.totalValuePercentageExceed.replace('{total}', totalBeforeValue),
         });
       }
       return true;
@@ -138,7 +140,7 @@ function OutputsItemForm({setClearFormKey, submitMainForm, submitItemForm, setSu
       <Grid container columnSpacing={1} rowSpacing={1} mt={1}>
         <Grid size={{xs: 12, md: 4}}>
           <ProductSelect
-            label='Product'
+            label={dictionary.forms.batches.labels.product}
             frontError={errors.product_id}
             defaultValue={item && item.product}
             excludeIds={nonInventoryIds}
@@ -190,7 +192,7 @@ function OutputsItemForm({setClearFormKey, submitMainForm, submitItemForm, setSu
         </Grid>
         <Grid size={{xs: 12, md: 4}}>
           <TextField
-            label="Quantity"
+            label={dictionary.forms.batches.labels.quantity}
             fullWidth
             size='small'
             defaultValue={item && item.quantity}
@@ -255,7 +257,7 @@ function OutputsItemForm({setClearFormKey, submitMainForm, submitItemForm, setSu
             defaultValue={item && item.value_percentage}
             error={errors && !!errors?.value_percentage}
             helperText={errors && errors.value_percentage?.message}
-            label="Value Percentage"
+            label={dictionary.forms.batches.labels.valuePercentage}
             InputProps={{
               inputComponent: CommaSeparatedField,
               endAdornment: <span>%</span>
@@ -270,7 +272,7 @@ function OutputsItemForm({setClearFormKey, submitMainForm, submitItemForm, setSu
         </Grid>
         <Grid size={{xs: 12, md: 7}}>
           <TextField
-            label="Remarks"
+            label={dictionary.forms.batches.labels.remarks}
             fullWidth
             size="small"
             {...register('remarks')}
@@ -284,15 +286,15 @@ function OutputsItemForm({setClearFormKey, submitMainForm, submitItemForm, setSu
           >
             {
               item ? (
-                <><CheckOutlined fontSize='small' /> Done</>
+                <><CheckOutlined fontSize='small' /> {dictionary.forms.batches.buttons.done}</>
               ) : (
-                <><AddOutlined fontSize='small' /> Add</>
+                <><AddOutlined fontSize='small' /> {dictionary.forms.batches.buttons.add}</>
               )
             }
           </Button>
           {
             item && 
-            <Tooltip title='Close Edit'>
+            <Tooltip title={dictionary.tooltips.closeEdit}>
               <IconButton size='small' 
                 onClick={() => {
                   setShowForm(false);

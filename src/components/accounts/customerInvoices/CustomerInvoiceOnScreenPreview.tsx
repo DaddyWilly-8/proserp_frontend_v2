@@ -5,6 +5,7 @@ import { PERMISSIONS } from '@/utilities/constants/permissions';
 import { CancelOutlined } from '@mui/icons-material';
 import { Box, Chip, Divider, Grid, Stack, Tooltip, Typography, useTheme } from '@mui/material';
 import { useState } from 'react';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const money = (value: number = 0) =>
   value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -13,6 +14,7 @@ const lineDescription = (item: any) => item.description || item.product?.name ||
 const lineAmount = (item: any) => item.amount ?? (item.quantity ?? 0) * (item.rate ?? 0);
 
 function CustomerInvoiceOnScreenPreview({ invoice, organization }: { invoice: any; organization: any }) {
+  const dictionary = useDictionary();
   const theme = useTheme();
   const { checkOrganizationPermission } = useJumboAuth();
   // Seeing this invoice (gated on AccountsTransactions:Read) doesn't imply the viewer can see
@@ -307,7 +309,7 @@ function CustomerInvoiceOnScreenPreview({ invoice, organization }: { invoice: an
                     <td style={{ padding: 8, border: `1px solid ${theme.palette.divider}` }}>
                       <Stack direction='row' spacing={1} alignItems='center'>
                         {canViewReceipts ? (
-                          <Tooltip title='View Receipt'>
+                          <Tooltip title={dictionary.tooltips.viewReceipt}>
                             <Typography
                               component='span'
                               variant='body2'

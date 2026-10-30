@@ -34,8 +34,10 @@ import PurchaseOrderItemRow from './PurchaseOrderItemRow';
 import PurchaseOrderPaymentAndReceive from './PurchaseOrderPaymentAndReceive';
 import PurchaseOrderSummary from './PurchaseOrderSummary';
 import PurchaseOrderTopInformation from './PurchaseOrderTopInformation';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function PurchaseOrderDialogForm({ toggleOpen, order = null }) {
+  const dictionary = useDictionary();
   const { authOrganization, checkOrganizationPermission } = useJumboAuth();
   const costCenters = authOrganization?.costCenters;
   const [totalAmount, setTotalAmount] = useState(0);
@@ -81,22 +83,22 @@ function PurchaseOrderDialogForm({ toggleOpen, order = null }) {
   };
 
   const validationSchema = yup.object({
-    order_date: yup.string().required('Order date is required'),
+    order_date: yup.string().required(dictionary.forms.purchases.orderDialog.errors.validation.orderDate.required),
     currency_id: yup
       .number()
-      .positive('Currency is required')
-      .required('Currency is required')
-      .typeError('Currency is required'),
+      .positive(dictionary.forms.purchases.orderDialog.errors.validation.currency.required)
+      .required(dictionary.forms.purchases.orderDialog.errors.validation.currency.required)
+      .typeError(dictionary.forms.purchases.orderDialog.errors.validation.currency.required),
     cost_centers: yup
       .array()
-      .min(1, 'At least one cost center must be selected')
-      .required('Cost Center is required')
-      .typeError('At least one cost center must be selected'),
+      .min(1, dictionary.forms.purchases.orderDialog.errors.validation.costCenters.min)
+      .required(dictionary.forms.purchases.orderDialog.errors.validation.costCenters.required)
+      .typeError(dictionary.forms.purchases.orderDialog.errors.validation.costCenters.min),
     exchange_rate: yup
       .number()
-      .positive('Exchange rate is required')
-      .required('Exchange rate is required')
-      .typeError('Exchange rate is required'),
+      .positive(dictionary.forms.purchases.orderDialog.errors.validation.exchangeRate.required)
+      .required(dictionary.forms.purchases.orderDialog.errors.validation.exchangeRate.required)
+      .typeError(dictionary.forms.purchases.orderDialog.errors.validation.exchangeRate.required),
     stakeholder_id: yup.number().positive().nullable().notRequired(),
     instant_pay: yup.boolean(),
     instant_receive: yup.boolean(),
@@ -104,9 +106,9 @@ function PurchaseOrderDialogForm({ toggleOpen, order = null }) {
       is: true,
       then: (schema) =>
         schema
-          .positive('Credit Account(From) is required')
-          .required('Credit Account(From) is required')
-          .typeError('Credit Account(From) is required'),
+          .positive(dictionary.forms.purchases.orderDialog.errors.validation.creditLedger.required)
+          .required(dictionary.forms.purchases.orderDialog.errors.validation.creditLedger.required)
+          .typeError(dictionary.forms.purchases.orderDialog.errors.validation.creditLedger.required),
       otherwise: (schema) => schema.nullable(),
     }),
     store_id: yup.number().when(['instant_receive', 'displayStoreSelector'], {
@@ -114,9 +116,9 @@ function PurchaseOrderDialogForm({ toggleOpen, order = null }) {
         instant_receive && displayStoreSelector,
       then: (schema) =>
         schema
-          .positive('Receiving store is required')
-          .required('Receiving store is required')
-          .typeError('Receiving store is required'),
+          .positive(dictionary.forms.purchases.orderDialog.errors.validation.store.required)
+          .required(dictionary.forms.purchases.orderDialog.errors.validation.store.required)
+          .typeError(dictionary.forms.purchases.orderDialog.errors.validation.store.required),
       otherwise: (schema) => schema.nullable(),
     }),
     stakeholder_ledger_id: yup
@@ -130,33 +132,33 @@ function PurchaseOrderDialogForm({ toggleOpen, order = null }) {
 
         then: (schema) =>
           schema
-            .required('Supplier account is required')
-            .positive('Supplier account is required'),
+            .required(dictionary.forms.purchases.orderDialog.errors.validation.supplierLedger.required)
+            .positive(dictionary.forms.purchases.orderDialog.errors.validation.supplierLedger.required),
 
         otherwise: (schema) => schema.notRequired().nullable(),
       }),
 
     items: yup
       .array()
-      .min(1, 'You must add at least one item')
-      .typeError('You must add at least one item')
+      .min(1, dictionary.forms.purchases.orderDialog.errors.validation.items.min)
+      .typeError(dictionary.forms.purchases.orderDialog.errors.validation.items.min)
       .of(
         yup.object().shape({
           product_id: yup
             .number()
-            .required('Product is required')
-            .positive('Product is required')
-            .typeError('Product is required'),
+            .required(dictionary.forms.purchases.itemForm.errors.validation.product.required)
+            .positive(dictionary.forms.purchases.itemForm.errors.validation.product.required)
+            .typeError(dictionary.forms.purchases.itemForm.errors.validation.product.required),
           quantity: yup
             .number()
-            .required('Quantity is required')
-            .positive('Quantity is required')
-            .typeError('Quantity is required'),
+            .required(dictionary.forms.purchases.itemForm.errors.validation.quantity.required)
+            .positive(dictionary.forms.purchases.itemForm.errors.validation.quantity.required)
+            .typeError(dictionary.forms.purchases.itemForm.errors.validation.quantity.required),
           rate: yup
             .number()
-            .required('Price is required')
-            .positive('Price is required')
-            .typeError('Price is required'),
+            .required(dictionary.forms.purchases.itemForm.errors.validation.price.required)
+            .positive(dictionary.forms.purchases.itemForm.errors.validation.price.required)
+            .typeError(dictionary.forms.purchases.itemForm.errors.validation.price.required),
         })
       ),
   });
@@ -435,7 +437,7 @@ function PurchaseOrderDialogForm({ toggleOpen, order = null }) {
     if (instant_receive && displayStoreSelector && !getValues('store_id')) {
       setError('store_id', {
         type: 'manual',
-        message: 'Receiving store is required',
+        message: dictionary.forms.purchases.orderDialog.errors.validation.store.required,
       });
       return;
     }
@@ -475,7 +477,7 @@ function PurchaseOrderDialogForm({ toggleOpen, order = null }) {
     if (items.length === 0) {
       setError(`items`, {
         type: 'manual',
-        message: 'You must add at least one item',
+        message: dictionary.forms.purchases.orderDialog.errors.validation.items.min,
       });
       return;
     }
@@ -524,7 +526,7 @@ function PurchaseOrderDialogForm({ toggleOpen, order = null }) {
       <DialogTitle>
         <Grid container columnSpacing={2}>
           <Grid textAlign={'center'} size={{ xs: 12 }} mb={5}>
-            {!order ? `New Purchase Order` : `Edit Order: ${order.orderNo}`}
+            {!order ? dictionary.forms.purchases.orderDialog.titles.new : dictionary.forms.purchases.orderDialog.titles.edit.replace('{orderNo}', order.orderNo)}
           </Grid>
           <Grid size={{ xs: 12, md: 8, lg: 9 }}>
             <form autoComplete='off'>
@@ -564,9 +566,9 @@ function PurchaseOrderDialogForm({ toggleOpen, order = null }) {
               allowScrollButtonsMobile
               sx={{ mt: 1 }}
             >
-              <Tab label='Items' />
-              <Tab label='Additional Costs' />
-              <Tab label='Terms & Remarks' />
+              <Tab label={dictionary.forms.purchases.orderDialog.tabs.items} />
+              <Tab label={dictionary.forms.purchases.orderDialog.tabs.additionalCosts} />
+              <Tab label={dictionary.forms.purchases.orderDialog.tabs.termsAndRemarks} />
             </Tabs>
             {activeTab === 0 && (
               <PurchaseOrderItemForm
@@ -642,9 +644,9 @@ function PurchaseOrderDialogForm({ toggleOpen, order = null }) {
         <Dialog open={showWarning} onClose={() => setShowWarning(false)}>
           <DialogTitle>
             <Grid container alignItems='center' justifyContent='space-between'>
-              <Grid size={11}>Unsaved Changes</Grid>
+              <Grid size={11}>{dictionary.forms.purchases.orderDialog.titles.unsavedChanges}</Grid>
               <Grid size={1} textAlign='right'>
-                <Tooltip title='Close'>
+                <Tooltip title={dictionary.tooltips.close}>
                   <IconButton
                     size='small'
                     onClick={() => setShowWarning(false)}
@@ -655,7 +657,7 @@ function PurchaseOrderDialogForm({ toggleOpen, order = null }) {
               </Grid>
             </Grid>
           </DialogTitle>
-          <DialogContent>Last item was not added to the list</DialogContent>
+          <DialogContent>{dictionary.forms.purchases.orderDialog.messages.lastItemNotAdded}</DialogContent>
           <DialogActions>
             <Button
               size='small'
@@ -664,21 +666,21 @@ function PurchaseOrderDialogForm({ toggleOpen, order = null }) {
                 setShowWarning(false);
               }}
             >
-              Add and Submit
+              {dictionary.forms.purchases.orderDialog.buttons.addAndSubmit}
             </Button>
             <Button
               size='small'
               onClick={handleConfirmSubmitWithoutAdd}
               color='secondary'
             >
-              Submit without add
+              {dictionary.forms.purchases.orderDialog.buttons.submitWithoutAdd}
             </Button>
           </DialogActions>
         </Dialog>
       </DialogContent>
       <DialogActions>
         <Button size='small' onClick={() => toggleOpen(false)}>
-          Cancel
+          {dictionary.forms.purchases.orderDialog.buttons.cancel}
         </Button>
 
         {/* Show Prev button on any tab except the first */}
@@ -688,7 +690,7 @@ function PurchaseOrderDialogForm({ toggleOpen, order = null }) {
             variant='outlined'
             onClick={() => setActiveTab((prev) => Math.max(prev - 1, 0))}
           >
-            &lt; Prev
+            {dictionary.forms.purchases.orderDialog.buttons.prev}
           </Button>
         )}
 
@@ -699,7 +701,7 @@ function PurchaseOrderDialogForm({ toggleOpen, order = null }) {
             variant='outlined'
             onClick={() => setActiveTab((prev) => Math.min(prev + 1, 2))}
           >
-            Next &gt;
+            {dictionary.forms.purchases.orderDialog.buttons.next}
           </Button>
         )}
 
@@ -711,7 +713,7 @@ function PurchaseOrderDialogForm({ toggleOpen, order = null }) {
             onClick={onSubmit}
             loading={addPurchaseOrder.isPending || updatePurchaseOrder.isPending}
           >
-            Submit
+            {dictionary.forms.purchases.orderDialog.buttons.submit}
           </LoadingButton>
         )}
       </DialogActions>

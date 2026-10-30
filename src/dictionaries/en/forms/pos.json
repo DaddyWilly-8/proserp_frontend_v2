@@ -1,0 +1,497 @@
+{
+  "counter": {
+    "saleDialog": {
+      "title": {
+        "new": "New Sale",
+        "edit": "Edit: {saleNo}"
+      },
+      "buttons": {
+        "attachAssetBooking": "Attach Asset Booking",
+        "addAndSubmit": "Add and Submit",
+        "submitWithoutAdd": "Submit without add",
+        "cancel": "Cancel",
+        "suspend": "Suspend",
+        "checkout": "Checkout"
+      },
+      "dialog": {
+        "lastItemNotAdded": "Last item was not added to the list",
+        "unsavedChanges": "Unsaved Changes"
+      },
+      "messages": {
+        "bookingFailed": "Sale saved, but the attached booking could not be created/linked — add it manually from the Bookings calendar.",
+        "bookingPending": "{code} booking will be created & linked when this sale is saved",
+        "displayConnected": "Connected - Click to disconnect",
+        "displayNotConnected": "Serial Display Not Connected - Click to connect"
+      },
+      "validation": {
+        "salesOutletRequired": "Sales Outlet is required",
+        "currencyRequired": "Currency is required",
+        "salesDateRequired": "Sales Date is required",
+        "paymentMethodRequired": "Payment method is required",
+        "submitTypeRequired": "Submit type is required",
+        "submitTypeInvalid": "Submit type must be either \"complete\" or \"pending\"",
+        "debitAccountRequired": "Debit account is required",
+        "itemMin": "You must add at least one item",
+        "productRequired": "Product is required",
+        "quantityRequired": "Quantity is required",
+        "priceRequired": "Price is required"
+      }
+    },
+    "saleTop": {
+      "walkInCustomer": "Walk-in Customer",
+      "labels": {
+        "transactionDate": "Transaction Date",
+        "exchangeRate": "Exchange Rate",
+        "client": "Client",
+        "reference": "Reference",
+        "paymentMethod": "Payment Method",
+        "account": "Account",
+        "salesPerson": "Sales Person",
+        "remarks": "Remarks"
+      },
+      "paymentMethods": {
+        "instant": "Instant",
+        "onAccount": "On Account"
+      }
+    },
+    "saleItem": {
+      "addItem": "Add Item",
+      "labels": {
+        "availableBalance": "Available Balance",
+        "quantity": "Quantity",
+        "price": "Price",
+        "priceVatInclusive": "Price (VAT Inclusive)",
+        "amount": "Amount",
+        "description": "Description"
+      },
+      "buttons": {
+        "done": "Done",
+        "add": "Add"
+      },
+      "validation": {
+        "productRequired": "Product is required",
+        "priceRequired": "Price is required",
+        "pricePositive": "Price must be positive",
+        "storeRequired": "Store is required",
+        "quantityRequired": "Quantity is required",
+        "quantityPositive": "Quantity must be positive",
+        "quantityExceedsBalance": "Quantity exceeds available balance",
+        "negativeBalance": "This quantity will lead to negative balance. Current balance today is {balance}"
+      }
+    },
+    "quickAdd": {
+      "label": "Quick Add By Product SKU (Product Code)",
+      "productNotFound": "No matching product found",
+      "noPrice": "Selling price is not defined for the found product",
+      "noBalance": "There is no stock balance"
+    },
+    "saleSummary": {
+      "summary": "Summary",
+      "total": "Total",
+      "vat": "VAT",
+      "grandTotal": "Grand Total",
+      "instantSale": "Instant Sale",
+      "suggestRecentPrice": "Suggest Recent Price"
+    },
+    "productSalesReport": {
+      "labels": {
+        "title": "Product Sales Report",
+        "amountsInBaseCurrency": "Amounts in base currency ({code})",
+        "from": "From",
+        "to": "To",
+        "countersAll": "Counters (all if empty)",
+        "clientsAll": "Clients (all if empty)",
+        "productsAll": "Products (all if empty)",
+        "generate": "Generate",
+        "close": "Close",
+        "product": "Product",
+        "qtyOrdered": "Qty Ordered",
+        "qtyDispatched": "Qty Dispatched",
+        "qtyUndispatched": "Qty Undispatched",
+        "amountOrdered": "Amount Ordered",
+        "amountDispatched": "Amount Dispatched",
+        "amountUndispatched": "Amount Undispatched",
+        "paymentReceived": "Payment Received",
+        "total": "Total",
+        "collectionDistribution": "Collection Distribution"
+      },
+      "messages": {
+        "noSales": "No sales found for this period.",
+        "exportFailed": "Could not export the Excel file"
+      }
+    },
+    "dispatch": {
+      "title": {
+        "new": "Dispatch for {saleNo}",
+        "edit": "Edit Dispatch for {deliveryNo}"
+      },
+      "labels": {
+        "dispatchDate": "Dispatch Date",
+        "dispatchFrom": "Dispatch From",
+        "destination": "Destination",
+        "vehicleInformation": "Vehicle Information",
+        "driverInformation": "Driver Information",
+        "remarks": "Remarks",
+        "availableBalance": "Available Balance",
+        "dispatchQuantity": "Dispatch Quantity"
+      },
+      "buttons": {
+        "cancel": "Cancel",
+        "dispatch": "Dispatch"
+      },
+      "validation": {
+        "dispatchDateRequired": "Dispatch Date is required",
+        "deliveryDateRequired": "Delivery Date is required",
+        "dispatchFromRequired": "Dispatch From is required",
+        "dispatchDestinationRequired": "Dispatch Destination is required",
+        "destinationRequired": "Destination is required",
+        "quantityRequired": "Quantity is required",
+        "quantityExceedsBalance": "Quantity cannot exceed Available Balance",
+        "negativeBalance": "This quantity will lead to negative balance. Current balance today is {balance}",
+        "quantityExceedsRequired": "Quantity cannot exceed Quantity Required to Dispatch",
+        "storeRequired": "Store is required"
+      }
+    },
+    "receipt": {
+      "title": "New Receipt",
+      "labels": {
+        "paymentDate": "Payment Date",
+        "receivingAccount": "Receiving Account",
+        "exchangeRate": "Exchange Rate",
+        "amount": "Amount",
+        "reference": "Reference",
+        "narration": "Narration"
+      },
+      "buttons": {
+        "cancel": "Cancel",
+        "receipt": "Receipt"
+      },
+      "messages": {
+        "amountOf": "{message} of {amount}"
+      },
+      "validation": {
+        "paymentDateRequired": "Payment Date is required",
+        "narrationRequired": "Narration is required",
+        "receivingAccountRequired": "Receiving Account is required",
+        "amountGreaterThanZero": "Entered amount must be greater than 0",
+        "amountExceedsReceiptable": "Entered amount exceeds receiptable amount",
+        "amountRequired": "Amount is required"
+      }
+    },
+    "invoice": {
+      "title": "New Invoice",
+      "editTitle": "Edit Invoice {invoiceNo}",
+      "labels": {
+        "invoiceDate": "Invoice Date",
+        "internalReference": "Internal Reference",
+        "customerReference": "Customer Reference",
+        "deliveryNote": "Delivery Note",
+        "dueDate": "Due Date",
+        "termsAndInstructions": "Terms and Instructions",
+        "narration": "Narration",
+        "postVfd": "Post VFD",
+        "summary": "Summary",
+        "total": "Total",
+        "vatAmount": "VAT Amount",
+        "grandTotal": "Grand Total"
+      },
+      "buttons": {
+        "cancel": "Cancel",
+        "invoice": "Invoice",
+        "save": "Save"
+      },
+      "validation": {
+        "invoiceDateRequired": "Invoice Date is required"
+      }
+    },
+    "adjustment": {
+      "title": {
+        "edit": "Edit {voucherNo}",
+        "debit": "Debit Note to {invoiceNo}",
+        "credit": "Credit Note to {invoiceNo}",
+        "note": "Note For {invoiceNo}"
+      },
+      "noteTypes": {
+        "debit": "Debit Note",
+        "credit": "Credit Note"
+      },
+      "labels": {
+        "product": "Product",
+        "description": "Description",
+        "complementLedger": "Complement Ledger",
+        "unit": "Unit",
+        "quantity": "Quantity",
+        "rate": "Rate",
+        "noteDate": "Note Date",
+        "noteType": "Note Type",
+        "narration": "Narration",
+        "summary": "Summary",
+        "total": "Total",
+        "vatAmount": "VAT Amount",
+        "grandTotal": "Grand Total"
+      },
+      "buttons": {
+        "add": "Add",
+        "cancel": "Cancel",
+        "submit": "Submit"
+      },
+      "messages": {
+        "fixValidationErrors": "Please fix the validation errors before submitting."
+      },
+      "validation": {
+        "invoiceDateRequired": "Invoice Date is required",
+        "noteTypeRequired": "Note Type is required",
+        "narrationRequired": "Narration is required",
+        "complementLedgerRequired": "Complement Ledger is required",
+        "complementLedgerInvalid": "Select a valid Complement Ledger",
+        "measurementUnitRequired": "Measurement Unit is required",
+        "quantityRequired": "Quantity is required",
+        "quantityNumber": "Quantity must be a number",
+        "quantityPositive": "Quantity must be positive",
+        "rateRequired": "Rate is required",
+        "rateNumber": "Rate must be a number",
+        "ratePositive": "Rate must be positive",
+        "productOrDescription": "Either Product or Description must be provided"
+      }
+    }
+  },
+  "proformaInvoices": {
+    "title": {
+      "new": "New Proforma",
+      "edit": "Edit {name}"
+    },
+    "labels": {
+      "proformaDate": "Proforma Date",
+      "expiryDate": "Expiry Date",
+      "exchangeRate": "Exchange Rate",
+      "client": "Client",
+      "reference": "Reference",
+      "remarks": "Remarks",
+      "summary": "Summary",
+      "total": "Total",
+      "vat": "VAT",
+      "grandTotal": "Grand Total",
+      "addItem": "Add Item",
+      "quickProductRegistration": "Quick Product Registration",
+      "productService": "Product/Service",
+      "quantity": "Quantity",
+      "price": "Price",
+      "priceVatInclusive": "Price (VAT Inclusive)",
+      "amount": "Amount",
+      "description": "Description"
+    },
+    "dialog": {
+      "unsavedChanges": "Unsaved Changes",
+      "lastItemNotAdded": "Last item was not added to the list"
+    },
+    "buttons": {
+      "addAndSubmit": "Add and Submit",
+      "submitWithoutAdd": "Submit without add",
+      "cancel": "Cancel",
+      "submit": "Submit",
+      "done": "Done",
+      "add": "Add"
+    },
+    "validation": {
+      "proformaDateRequired": "Proforma date is required",
+      "salesDateRequired": "Sales date is required",
+      "clientRequired": "Client is required",
+      "currencyRequired": "Currency is required",
+      "exchangeRateRequired": "Exchange rate is required",
+      "itemMin": "You must add at least one item",
+      "productRequired": "Product is required",
+      "quantityRequired": "Quantity is required",
+      "priceRequired": "Price is required"
+    },
+    "saleForm": {
+      "title": "Sale For {name}",
+      "labels": {
+        "transactionDate": "Transaction Date",
+        "exchangeRate": "Exchange Rate",
+        "client": "Client",
+        "reference": "Reference",
+        "saleCounter": "Sale Counter",
+        "paymentMethod": "Payment Method",
+        "account": "Account",
+        "remarks": "Remarks",
+        "salesPerson": "Sales Person",
+        "summary": "Summary",
+        "total": "Total",
+        "vat": "VAT",
+        "grandTotal": "Grand Total",
+        "instantSale": "Instant Sale",
+        "store": "Store",
+        "availableBalance": "Available Balance",
+        "quantity": "Quantity",
+        "price": "Price"
+      },
+      "paymentMethods": {
+        "instant": "Instant",
+        "onAccount": "On Account"
+      },
+      "buttons": {
+        "cancel": "Cancel",
+        "checkout": "Checkout"
+      },
+      "validation": {
+        "salesOutletRequired": "Sales Outlet is required",
+        "currencyRequired": "Currency is required",
+        "salesDateRequired": "Sales Date is required",
+        "paymentMethodRequired": "Payment method is required",
+        "debitAccountRequired": "Debit account is required",
+        "storeRequired": "Store is required",
+        "quantityRequired": "Quantity is required",
+        "quantityPositive": "Quantity must be positive",
+        "quantityExceedsBalance": "Quantity cannot exceed Available Balance"
+      }
+    }
+  },
+  "reports": {
+    "salesPerformance": {
+      "title": "Sales Performance",
+      "labels": {
+        "from": "From",
+        "to": "To",
+        "groupBy": "Group By",
+        "rankBy": "Rank By",
+        "topN": "Top N",
+        "clientsAll": "Clients (all if empty)",
+        "salesPeopleAll": "Sales People (all if empty)",
+        "customer": "Customer",
+        "salesPerson": "Sales Person",
+        "generate": "Generate",
+        "close": "Close",
+        "rank": "Rank",
+        "transactions": "Transactions",
+        "amountOrdered": "Amount Ordered",
+        "amountCollected": "Amount Collected",
+        "amountDispatched": "Amount Dispatched",
+        "quantity": "Quantity",
+        "product": "Product",
+        "total": "Total",
+        "productsSold": "Products sold",
+        "productsSoldBy": "Products sold by {name}"
+      },
+      "messages": {
+        "noSales": "No sales found for this period.",
+        "exportFailed": "Could not export the Excel file"
+      }
+    },
+    "salesManifest": {
+      "title": "Sales Manifest",
+      "labels": {
+        "counter": "Counter",
+        "clients": "Clients",
+        "recordedBy": "Recorded By",
+        "salesPerson": "Sales Person",
+        "fromDate": "From (MM/DD/YYYY)",
+        "toDate": "To (MM/DD/YYYY)",
+        "separateVat": "Separate VAT",
+        "collectionDistribution": "Collection Distribution",
+        "filter": "Filter",
+        "close": "Close"
+      },
+      "validation": {
+        "startDateRequired": "Start Date is required"
+      }
+    },
+    "salesAndCashSummary": {
+      "title": "Sales And Cash Summary",
+      "labels": {
+        "costCenters": "Cost Center(s) (leave empty for all)",
+        "fromDate": "From (MM/DD/YYYY)",
+        "toDate": "To (MM/DD/YYYY)",
+        "separateCreditSales": "Separate Credit Sales & Receipts",
+        "filter": "Filter",
+        "close": "Close"
+      },
+      "validation": {
+        "fromRequired": "From date is required",
+        "toRequired": "To date is required"
+      }
+    }
+  },
+  "priceLists": {
+    "title": {
+      "new": "New Price List",
+      "edit": "Edit Price List"
+    },
+    "labels": {
+      "effectiveDateTime": "Effective Date & Time",
+      "applicableOutlets": "Applicable Outlets",
+      "costInsights": "Cost Insights",
+      "costCenter": "Cost Center",
+      "narration": "Narration",
+      "productService": "Product/Service",
+      "unit": "Unit",
+      "price": "Price",
+      "bottomCap": "Bottom Cap"
+    },
+    "itemForm": {
+      "addItem": "Add Item",
+      "averageCost": "Average Cost"
+    },
+    "dialog": {
+      "unsavedChanges": "Unsaved Changes",
+      "lastItemNotAdded": "Last item was not added to the list"
+    },
+    "buttons": {
+      "addAndSubmit": "Add and Submit",
+      "submitWithoutAdd": "Submit without add",
+      "cancel": "Cancel",
+      "submit": "Submit",
+      "done": "Done",
+      "add": "Add"
+    },
+    "validation": {
+      "effectiveDateRequired": "Effective Date is required",
+      "outletMin": "You must add at least one outlet",
+      "outletRequired": "Outlet is required",
+      "itemMin": "You must add at least one item",
+      "productRequired": "Product is required",
+      "priceRequired": "Price is required",
+      "invalidBottomCap": "Invalid bottom cap",
+      "bottomCapExceeds": "Bottom cap cannot exceed price",
+      "noAvailableUnit": "No available unit for this product to add price. Please select a different product."
+    }
+  },
+  "outlet": {
+    "title": {
+      "new": "New Outlet Form",
+      "edit": "Edit {name}"
+    },
+    "types": {
+      "workCenter": "Work Center",
+      "shop": "Shop",
+      "fuelStation": "Fuel Station",
+      "manufacturing": "Manufacturing"
+    },
+    "labels": {
+      "name": "Name",
+      "type": "Type",
+      "address": "Address",
+      "project": "Project (optional — sells on the project cost center)",
+      "counters": "Counters",
+      "counterName": "Counter Name",
+      "ledgerAccounts": "Ledger Accounts"
+    },
+    "buttons": {
+      "add": "Add",
+      "cancel": "Cancel",
+      "submit": "Submit"
+    },
+    "messages": {
+      "restrictCategories": "Restrict this outlet to selling only products from selected categories. Leave empty to allow all products.",
+      "usersManagedByProject": "Users are managed via the linked project's cost center, not per outlet."
+    },
+    "validation": {
+      "nameRequired": "Outlet name is required",
+      "typeRequired": "Outlet type is required",
+      "userRequired": "At least one user is required",
+      "storeRequired": "At least one store is required",
+      "counterNameRequired": "Counter name is required",
+      "ledgerRequired": "At least one ledger account is required",
+      "counterRequired": "At least one counter is required"
+    }
+  }
+}

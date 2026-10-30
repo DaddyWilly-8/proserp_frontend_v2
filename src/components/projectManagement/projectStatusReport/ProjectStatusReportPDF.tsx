@@ -13,19 +13,19 @@ const percent = (value?: number | null) => (value == null ? '—' : `${value.toF
 // left off the PDF - it's an engineer's free-text commentary, always blank until filled in
 // by hand, and doesn't fit landscape A4 alongside the rest of these columns.
 const COLUMNS = [
-  { key: 'sn', label: 'S/N', flex: 0.4 },
-  { key: 'project', label: 'Project', flex: 2.4 },
-  { key: 'client', label: 'Client', flex: 1.3 },
-  { key: 'category', label: 'Category', flex: 1.1 },
-  { key: 'contract_value', label: 'Contract Value', flex: 1.3 },
-  { key: 'site_implementation_percentage', label: 'Site Impl. %', flex: 0.9 },
-  { key: 'time_elapsed_percentage', label: 'Time Elapsed %', flex: 0.9 },
-  { key: 'progressive_revenue', label: 'Progressive Revenue', flex: 1.4 },
-  { key: 'billed_revenue', label: 'Billed Revenue', flex: 1.4 },
-  { key: 'unbilled_revenue', label: 'Unbilled Revenue (WIP)', flex: 1.4 },
-  { key: 'received_payments', label: 'Received Payments', flex: 1.4 },
-  { key: 'certified_pending_payment', label: 'Certified Pending Payment', flex: 1.4 },
-  { key: 'outstanding_liabilities', label: 'Outstanding Liabilities', flex: 1.3 },
+  { key: 'sn', label: 'sn', flex: 0.4 },
+  { key: 'project', label: 'project', flex: 2.4 },
+  { key: 'client', label: 'client', flex: 1.3 },
+  { key: 'category', label: 'category', flex: 1.1 },
+  { key: 'contract_value', label: 'contract_value', flex: 1.3 },
+  { key: 'site_implementation_percentage', label: 'site_implementation_percentage', flex: 0.9 },
+  { key: 'time_elapsed_percentage', label: 'time_elapsed_percentage', flex: 0.9 },
+  { key: 'progressive_revenue', label: 'progressive_revenue', flex: 1.4 },
+  { key: 'billed_revenue', label: 'billed_revenue', flex: 1.4 },
+  { key: 'unbilled_revenue', label: 'unbilled_revenue', flex: 1.4 },
+  { key: 'received_payments', label: 'received_payments', flex: 1.4 },
+  { key: 'certified_pending_payment', label: 'certified_pending_payment', flex: 1.4 },
+  { key: 'outstanding_liabilities', label: 'outstanding_liabilities', flex: 1.3 },
 ];
 
 const cellValue = (row: any, key: string): string => {
@@ -74,32 +74,32 @@ const totalValue = (totals: any, key: string): string => {
   }
 };
 
-const ProjectStatusReportPDF = ({ authOrganization, user, rows, totals, asAt }: any) => {
+const ProjectStatusReportPDF = ({ authOrganization, user, rows, totals, asAt, dictionary }: any) => {
   const organization = authOrganization?.organization;
   const mainColor = organization?.settings?.main_color || '#2113AD';
   const lightColor = organization?.settings?.light_color || '#bec5da';
   const contrastText = organization?.settings?.contrast_text || '#FFFFFF';
 
   return (
-    <Document creator={`${user?.name || ''} | Powered By ProsERP`} producer='ProsERP' title='Project Status Report'>
+    <Document creator={`${user?.name || ''} | Powered By ProsERP`} producer='ProsERP' title={dictionary.projectManagement.projectStatusReport.title}>
       <Page size='A4' orientation='landscape' style={pdfStyles.page}>
         <View style={{ ...pdfStyles.tableRow, marginBottom: 20 }}>
           <View style={{ flex: 1, maxWidth: 120 }}>
             <PdfLogo organization={organization} />
           </View>
           <View style={{ flex: 1, textAlign: 'right' }}>
-            <Text style={{ ...pdfStyles.majorInfo, color: mainColor }}>Project Status Report</Text>
-            <Text style={pdfStyles.minInfo}>{`As at: ${readableDate(asAt, true)}`}</Text>
+            <Text style={{ ...pdfStyles.majorInfo, color: mainColor }}>{dictionary.projectManagement.projectStatusReport.title}</Text>
+            <Text style={pdfStyles.minInfo}>{dictionary.projectManagement.projectStatusReport.asAtColon.replace('{date}', readableDate(asAt, true))}</Text>
           </View>
         </View>
 
         <View style={{ ...pdfStyles.tableRow, marginBottom: 10 }}>
           <View style={{ flex: 1, padding: 2 }}>
-            <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>Printed By</Text>
+            <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>{dictionary.projectManagement.projectStatusReport.printedBy}</Text>
             <Text style={pdfStyles.minInfo}>{user?.name || ''}</Text>
           </View>
           <View style={{ flex: 1, padding: 2 }}>
-            <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>Printed On</Text>
+            <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>{dictionary.projectManagement.projectStatusReport.printedOn}</Text>
             <Text style={pdfStyles.minInfo}>{readableDate(undefined, true)}</Text>
           </View>
         </View>
@@ -118,7 +118,7 @@ const ProjectStatusReportPDF = ({ authOrganization, user, rows, totals, asAt }: 
                   textAlign: col.key === 'project' || col.key === 'client' || col.key === 'category' ? 'left' : 'right',
                 }}
               >
-                {col.label}
+                {dictionary.projectManagement.projectStatusReport.columns[col.label]}
               </Text>
             ))}
           </View>
@@ -152,7 +152,7 @@ const ProjectStatusReportPDF = ({ authOrganization, user, rows, totals, asAt }: 
                 fontSize: '8px',
               }}
             >
-              TOTAL
+              {dictionary.projectManagement.projectStatusReport.total}
             </Text>
             {COLUMNS.slice(4).map((col) => (
               <Text

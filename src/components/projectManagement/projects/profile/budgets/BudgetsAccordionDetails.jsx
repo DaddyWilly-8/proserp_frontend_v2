@@ -50,6 +50,7 @@ import { useProjectProfile } from '../ProjectProfileProvider';
 import BudgetPositionDialog from './preview/BudgetPositionDialog';
 import BudgetsOnscreen from './preview/BudgetsOnscreen';
 import BudgetsPDF from './preview/BudgetsPDF';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function BudgetsDocumentDialog({
   openBudgetsDialog,
@@ -59,6 +60,7 @@ function BudgetsDocumentDialog({
   organization,
   forceWithDetails = false,
 }) {
+  const dictionary = useDictionary();
   const { theme } = useJumboTheme();
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
   const [withDetails, setWithDetails] = useState(forceWithDetails);
@@ -193,7 +195,7 @@ function BudgetsDocumentDialog({
           <Box display='flex' alignItems='center'>
             {!forceWithDetails && (
               <>
-                <Typography>Detailed</Typography>
+                <Typography>{dictionary.projectManagement.budgets.details.detailed}</Typography>
                 <Switch
                   checked={withDetails}
                   onChange={handleDetailsChange}
@@ -204,7 +206,7 @@ function BudgetsDocumentDialog({
             {(withDetails || forceWithDetails) && (
               <FormControl size='small' sx={{ ml: 2 }}>
                 <Box display='flex' alignItems='center'>
-                  <Typography>Group By Task</Typography>
+                  <Typography>{dictionary.projectManagement.budgets.details.groupByTask}</Typography>
                   <Switch
                     checked={groupingMode === 'task'}
                     onChange={(e) => {
@@ -235,7 +237,7 @@ function BudgetsDocumentDialog({
               </>
             )}
             {belowLargeScreen && (
-              <Tooltip title='Close'>
+              <Tooltip title={dictionary.tooltips.close}>
                 <IconButton size='small' onClick={onClose}>
                   <HighlightOff color='primary' />
                 </IconButton>
@@ -270,6 +272,7 @@ function BudgetsDocumentDialog({
                   groupingMode={withDetails ? groupingMode : 'default'}
                   hideSummary={forceWithDetails}
                   organization={organization}
+                  dictionary={dictionary}
                 />
               }
             />
@@ -287,6 +290,7 @@ function BudgetsDocumentDialog({
                 groupingMode={withDetails ? groupingMode : 'default'}
                 hideSummary={forceWithDetails}
                 organization={organization}
+                dictionary={dictionary}
               />
             }
           />
@@ -305,7 +309,7 @@ function BudgetsDocumentDialog({
       {!belowLargeScreen && (
         <DialogActions>
           <Button onClick={onClose} variant='outlined' color='primary'>
-            Close
+            {dictionary.projectManagement.budgets.common.close}
           </Button>
         </DialogActions>
       )}
@@ -314,6 +318,7 @@ function BudgetsDocumentDialog({
 }
 
 function BudgetsAccordionDetails({ budget, expanded }) {
+  const dictionary = useDictionary();
   const { currencies } = useCurrencySelect();
   const baseCurrency = currencies?.find((c) => c.is_base === 1);
   const [searchQueryNames, setSearchQueryNames] = useState([]);
@@ -501,7 +506,7 @@ function BudgetsAccordionDetails({ budget, expanded }) {
             <Grid size={{ xs: 12, md: 6 }} textAlign='end'>
               <LedgerSelect
                 multiple
-                label='Filter by Expense'
+                label={dictionary.projectManagement.budgets.details.filterByExpense}
                 allowedGroups={['Expenses']}
                 onChange={(newValue) =>
                   setSearchQueryNames(newValue.map((l) => l.name))
@@ -520,7 +525,7 @@ function BudgetsAccordionDetails({ budget, expanded }) {
           >
             <Grid size={{ xs: 6, md: 2.2 }}>
               <Typography variant='subtitle1' color='textSecondary'>
-                Total Budgeted
+                {dictionary.projectManagement.budgets.details.totalBudgeted}
               </Typography>
               <Typography variant='h5'>
                 {totalBudgetedAmount?.toLocaleString('en-US', {
@@ -531,7 +536,7 @@ function BudgetsAccordionDetails({ budget, expanded }) {
             </Grid>
             <Grid size={{ xs: 6, md: 2.2 }}>
               <Typography variant='subtitle1' color='textSecondary'>
-                Total Committed
+                {dictionary.projectManagement.budgets.details.totalCommitted}
               </Typography>
               <Typography variant='h5'>
                 {totalCommittedAmount?.toLocaleString('en-US', {
@@ -542,7 +547,7 @@ function BudgetsAccordionDetails({ budget, expanded }) {
             </Grid>
             <Grid size={{ xs: 6, md: 2.2 }}>
               <Typography variant='subtitle1' color='textSecondary'>
-                Total Spent
+                {dictionary.projectManagement.budgets.details.totalSpent}
               </Typography>
               <Typography variant='h5'>
                 {totalSpentAmount?.toLocaleString('en-US', {
@@ -553,7 +558,7 @@ function BudgetsAccordionDetails({ budget, expanded }) {
             </Grid>
             <Grid size={{ xs: 6, md: 2.2 }}>
               <Typography variant='subtitle1' color='textSecondary'>
-                Available
+                {dictionary.projectManagement.budgets.details.available}
               </Typography>
               <Typography
                 variant='h5'
@@ -568,7 +573,7 @@ function BudgetsAccordionDetails({ budget, expanded }) {
             <Grid size={{ xs: 12, md: 2.2 }} container alignItems='center'>
               <Grid size={{ xs: 11, md: 11 }}>
                 <Typography variant='subtitle1' color='textSecondary'>
-                  Percentage Spent
+                  {dictionary.projectManagement.budgets.details.percentageSpent}
                 </Typography>
                 <Typography variant='h5'>
                   {totalBudgetedAmount
@@ -586,7 +591,7 @@ function BudgetsAccordionDetails({ budget, expanded }) {
               justifyContent='flex-end'
               gap={0.5}
             >
-              <Tooltip title='View Item-Wise Budget Position'>
+              <Tooltip title={dictionary.tooltips.viewItemWiseBudgetPosition}>
                 <IconButton
                   size='small'
                   sx={{ mt: 1 }}
@@ -595,7 +600,7 @@ function BudgetsAccordionDetails({ budget, expanded }) {
                   <TableChartOutlined fontSize='small' />
                 </IconButton>
               </Tooltip>
-              <Tooltip title='View Budget Details'>
+              <Tooltip title={dictionary.tooltips.viewBudgetDetails}>
                 <IconButton
                   size='small'
                   sx={{ mt: 1 }}
@@ -629,11 +634,11 @@ function BudgetsAccordionDetails({ budget, expanded }) {
                 <Table size='small'>
                   <TableHead>
                     <TableRow>
-                      <TableCell>Name</TableCell>
-                      <TableCell align='right'>Budgeted</TableCell>
-                      <TableCell align='right'>Committed</TableCell>
-                      <TableCell align='right'>Spent</TableCell>
-                      <TableCell align='right'>% Spent</TableCell>
+                      <TableCell>{dictionary.projectManagement.budgets.details.name}</TableCell>
+                      <TableCell align='right'>{dictionary.projectManagement.budgets.details.budgeted}</TableCell>
+                      <TableCell align='right'>{dictionary.projectManagement.budgets.details.committed}</TableCell>
+                      <TableCell align='right'>{dictionary.projectManagement.budgets.details.spent}</TableCell>
+                      <TableCell align='right'>{dictionary.projectManagement.budgets.details.percentSpent}</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -657,7 +662,7 @@ function BudgetsAccordionDetails({ budget, expanded }) {
                               </Typography>
                             </TableCell>
                             <TableCell align='right'>
-                              <Tooltip title='Budgeted, click to view'>
+                              <Tooltip title={dictionary.tooltips.budgetedClickToView}>
                                 <Typography
                                   variant='body1'
                                   onClick={() => handleViewBudgeted(item)}
@@ -674,7 +679,7 @@ function BudgetsAccordionDetails({ budget, expanded }) {
                               </Tooltip>
                             </TableCell>
                             <TableCell align='right'>
-                              <Tooltip title='Committed, click to view'>
+                              <Tooltip title={dictionary.tooltips.committedClickToView}>
                                 <Typography
                                   variant='body1'
                                   onClick={() => handleViewCommitted(item)}
@@ -691,7 +696,7 @@ function BudgetsAccordionDetails({ budget, expanded }) {
                               </Tooltip>
                             </TableCell>
                             <TableCell align='right'>
-                              <Tooltip title='Spent, click to view'>
+                              <Tooltip title={dictionary.tooltips.spentClickToView}>
                                 <Typography
                                   variant='body1'
                                   onClick={() => handleViewLedger(item)}
@@ -711,7 +716,7 @@ function BudgetsAccordionDetails({ budget, expanded }) {
                               <Chip
                                 label={
                                   percentageSpent === Infinity
-                                    ? 'unbudgeted'
+                                    ? dictionary.projectManagement.budgets.details.unbudgeted
                                     : `${percentageSpent.toFixed(2)}%`
                                 }
                                 color={getPercentageColor(percentageSpent)}
@@ -728,7 +733,7 @@ function BudgetsAccordionDetails({ budget, expanded }) {
                             }}
                           >
                             <TableCell colSpan={5} sx={{ pt: 0, pb: 1.5 }}>
-                              <Tooltip title='Percentage Spent'>
+                              <Tooltip title={dictionary.tooltips.percentageSpent}>
                                 <LinearProgress
                                   variant='determinate'
                                   value={
@@ -764,7 +769,7 @@ function BudgetsAccordionDetails({ budget, expanded }) {
               </TableContainer>
             ) : (
               <Alert variant='outlined' severity='info'>
-                No expenses budgeted found
+                {dictionary.projectManagement.budgets.details.noExpenses}
               </Alert>
             )}
           </Grid>
@@ -805,7 +810,7 @@ function BudgetsAccordionDetails({ budget, expanded }) {
         fullScreen={belowLargeScreen}
       >
         <DialogTitle>
-          Committed — {committedDialogItem?.name}
+          {dictionary.projectManagement.budgets.details.committedTitle.replace('{name}', committedDialogItem?.name ?? '')}
         </DialogTitle>
         <DialogContent>
           {isLoadingCommittedItems ? (
@@ -829,7 +834,7 @@ function BudgetsAccordionDetails({ budget, expanded }) {
                     pr={1}
                   >
                     <Typography>
-                      Unreceived Order Amounts (Open Purchase Orders)
+                      {dictionary.projectManagement.budgets.details.unreceivedOrders}
                     </Typography>
                     <Typography fontWeight={600}>
                       {(
@@ -846,7 +851,7 @@ function BudgetsAccordionDetails({ budget, expanded }) {
                     <Box>
                       {(committedItemsDetails?.purchase_orders || [])
                         .length === 0 && (
-                        <Alert severity='info'>No open purchase orders</Alert>
+                        <Alert severity='info'>{dictionary.projectManagement.budgets.details.noOpenPurchaseOrders}</Alert>
                       )}
                       {(committedItemsDetails?.purchase_orders || []).map(
                         (po) => (
@@ -877,7 +882,7 @@ function BudgetsAccordionDetails({ budget, expanded }) {
                                   variant='caption'
                                   color='text.secondary'
                                 >
-                                  Outstanding
+                                  {dictionary.projectManagement.budgets.details.outstanding}
                                 </Typography>
                                 <Typography variant='body2'>
                                   {po.amount_display.toLocaleString('en-US', {
@@ -897,10 +902,10 @@ function BudgetsAccordionDetails({ budget, expanded }) {
                       <Table size='small'>
                         <TableHead>
                           <TableRow>
-                            <TableCell>P.O No</TableCell>
-                            <TableCell>Supplier</TableCell>
-                            <TableCell>Order Date</TableCell>
-                            <TableCell align='right'>Outstanding</TableCell>
+                            <TableCell>{dictionary.projectManagement.budgets.details.poNo}</TableCell>
+                            <TableCell>{dictionary.projectManagement.budgets.details.supplier}</TableCell>
+                            <TableCell>{dictionary.projectManagement.budgets.details.orderDate}</TableCell>
+                            <TableCell align='right'>{dictionary.projectManagement.budgets.details.outstanding}</TableCell>
                           </TableRow>
                         </TableHead>
                         <TableBody>
@@ -908,7 +913,7 @@ function BudgetsAccordionDetails({ budget, expanded }) {
                             .length === 0 && (
                             <TableRow>
                               <TableCell colSpan={4} align='center'>
-                                No open purchase orders
+                                {dictionary.projectManagement.budgets.details.noOpenPurchaseOrders}
                               </TableCell>
                             </TableRow>
                           )}
@@ -958,7 +963,7 @@ function BudgetsAccordionDetails({ budget, expanded }) {
                     pr={1}
                   >
                     <Typography>
-                      Stock In Hand (Received, Not Yet Consumed)
+                      {dictionary.projectManagement.budgets.details.stockInHand}
                     </Typography>
                     <Typography fontWeight={600}>
                       {(
@@ -976,7 +981,7 @@ function BudgetsAccordionDetails({ budget, expanded }) {
                       {(committedItemsDetails?.stock_on_hand || []).length ===
                         0 && (
                         <Alert severity='info'>
-                          No stock currently on hand
+                          {dictionary.projectManagement.budgets.details.noStock}
                         </Alert>
                       )}
                       {(committedItemsDetails?.stock_on_hand || []).map(
@@ -1013,8 +1018,8 @@ function BudgetsAccordionDetails({ budget, expanded }) {
                       <Table size='small'>
                         <TableHead>
                           <TableRow>
-                            <TableCell>Category</TableCell>
-                            <TableCell align='right'>Value</TableCell>
+                            <TableCell>{dictionary.projectManagement.budgets.details.category}</TableCell>
+                            <TableCell align='right'>{dictionary.projectManagement.budgets.details.value}</TableCell>
                           </TableRow>
                         </TableHead>
                         <TableBody>
@@ -1022,7 +1027,7 @@ function BudgetsAccordionDetails({ budget, expanded }) {
                             .length === 0 && (
                             <TableRow>
                               <TableCell colSpan={2} align='center'>
-                                No stock currently on hand
+                                {dictionary.projectManagement.budgets.details.noStock}
                               </TableCell>
                             </TableRow>
                           )}
@@ -1066,7 +1071,7 @@ function BudgetsAccordionDetails({ budget, expanded }) {
                       pr={1}
                     >
                       <Typography>
-                        Unpaid Expenses (Approved, Not Yet Paid)
+                        {dictionary.projectManagement.budgets.details.unpaidExpenses}
                       </Typography>
                       <Typography fontWeight={600}>
                         {(
@@ -1084,7 +1089,7 @@ function BudgetsAccordionDetails({ budget, expanded }) {
                         {(committedItemsDetails?.payments || []).length ===
                           0 && (
                           <Alert severity='info'>
-                            No pending supplier payments
+                            {dictionary.projectManagement.budgets.details.noPendingPayments}
                           </Alert>
                         )}
                         {(committedItemsDetails?.payments || []).map(
@@ -1116,7 +1121,7 @@ function BudgetsAccordionDetails({ budget, expanded }) {
                                     variant='caption'
                                     color='text.secondary'
                                   >
-                                    Unpaid
+                                    {dictionary.projectManagement.budgets.details.unpaid}
                                   </Typography>
                                   <Typography variant='body2'>
                                     {payment.amount.toLocaleString('en-US', {
@@ -1135,10 +1140,10 @@ function BudgetsAccordionDetails({ budget, expanded }) {
                         <Table size='small'>
                           <TableHead>
                             <TableRow>
-                              <TableCell>Requisition No</TableCell>
-                              <TableCell>Requester</TableCell>
-                              <TableCell>Date Required</TableCell>
-                              <TableCell align='right'>Unpaid</TableCell>
+                              <TableCell>{dictionary.projectManagement.budgets.details.requisitionNo}</TableCell>
+                              <TableCell>{dictionary.projectManagement.budgets.details.requester}</TableCell>
+                              <TableCell>{dictionary.projectManagement.budgets.details.dateRequired}</TableCell>
+                              <TableCell align='right'>{dictionary.projectManagement.budgets.details.unpaid}</TableCell>
                             </TableRow>
                           </TableHead>
                           <TableBody>
@@ -1146,7 +1151,7 @@ function BudgetsAccordionDetails({ budget, expanded }) {
                               .length === 0 && (
                               <TableRow>
                                 <TableCell colSpan={4} align='center'>
-                                  No pending supplier payments
+                                  {dictionary.projectManagement.budgets.details.noPendingPayments}
                                 </TableCell>
                               </TableRow>
                             )}
@@ -1184,7 +1189,7 @@ function BudgetsAccordionDetails({ budget, expanded }) {
           )}
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setCommittedDialogItem(null)}>Close</Button>
+          <Button onClick={() => setCommittedDialogItem(null)}>{dictionary.projectManagement.budgets.common.close}</Button>
         </DialogActions>
       </Dialog>
     </>

@@ -2,6 +2,7 @@
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 import { Grid, Tooltip, useMediaQuery } from '@mui/material';
 import React from 'react';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const PreviewTopBar = ({
   fileExportGrid,
@@ -10,6 +11,7 @@ const PreviewTopBar = ({
   fileExportGrid?: React.ReactNode;
   closeButton?: React.ReactElement;
 }) => {
+  const dictionary = useDictionary();
   const { theme } = useJumboTheme();
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
   return (
@@ -26,7 +28,7 @@ const PreviewTopBar = ({
 
       {belowLargeScreen && (
         <Grid size={{ xs: 1 }} textAlign='right'>
-          {closeButton && <Tooltip title='Close'>{closeButton}</Tooltip>}
+          {closeButton && <Tooltip title={dictionary.tooltips.close}>{closeButton}</Tooltip>}
         </Grid>
       )}
     </Grid>

@@ -35,8 +35,10 @@ import { FormProvider, useForm } from 'react-hook-form';
 import * as yup from 'yup';
 import { useSalesOutlet } from '../../outlet/OutletProvider';
 import posServices from '../../pos-services';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function ProformaSaleForm({ proforma, toggleOpen }) {
+  const dictionary = useDictionary();
   const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
   const { activeOutlet } = useSalesOutlet();
@@ -70,41 +72,41 @@ function ProformaSaleForm({ proforma, toggleOpen }) {
   const validationSchema = yup.object({
     sales_outlet_counter_id: yup
       .number()
-      .required('Sales Outlet is required')
-      .typeError('Sales Outlet is required'),
+      .required(dictionary.forms.proformaInvoices.saleForm.validation.salesOutletRequired)
+      .typeError(dictionary.forms.proformaInvoices.saleForm.validation.salesOutletRequired),
     currency_id: yup
       .number()
-      .positive('Currency is required')
-      .required('Currency is required')
-      .typeError('Currency is required'),
+      .positive(dictionary.forms.proformaInvoices.saleForm.validation.currencyRequired)
+      .required(dictionary.forms.proformaInvoices.saleForm.validation.currencyRequired)
+      .typeError(dictionary.forms.proformaInvoices.saleForm.validation.currencyRequired),
     transaction_date: yup
       .string()
-      .required('Sales Date is required')
-      .typeError('Sales Date is required'),
-    payment_method: yup.string().required('Payment method is required'),
+      .required(dictionary.forms.proformaInvoices.saleForm.validation.salesDateRequired)
+      .typeError(dictionary.forms.proformaInvoices.saleForm.validation.salesDateRequired),
+    payment_method: yup.string().required(dictionary.forms.proformaInvoices.saleForm.validation.paymentMethodRequired),
     debit_ledger_id: yup
       .number()
-      .required('Debit account is required')
-      .typeError('Debit account is required'),
+      .required(dictionary.forms.proformaInvoices.saleForm.validation.debitAccountRequired)
+      .typeError(dictionary.forms.proformaInvoices.saleForm.validation.debitAccountRequired),
     items: yup.array().of(
       yup.object().shape({
         store_id: yup
           .number()
           .nullable()
-          .test('required-if-instant', 'Store is required', function (value) {
+          .test('required-if-instant', dictionary.forms.proformaInvoices.saleForm.validation.storeRequired, function (value) {
             const { instant_sale } = this.options.context || {};
             if (!instant_sale) return true;
             return true;
           })
-          .typeError('Store is required'),
+          .typeError(dictionary.forms.proformaInvoices.saleForm.validation.storeRequired),
         quantity: yup
           .number()
-          .required('Quantity is required')
-          .positive('Quantity must be positive')
-          .typeError('Quantity is required')
+          .required(dictionary.forms.proformaInvoices.saleForm.validation.quantityRequired)
+          .positive(dictionary.forms.proformaInvoices.saleForm.validation.quantityPositive)
+          .typeError(dictionary.forms.proformaInvoices.saleForm.validation.quantityRequired)
           .test(
             'maxQuantity',
-            'Quantity cannot exceed Available Balance',
+            dictionary.forms.proformaInvoices.saleForm.validation.quantityExceedsBalance,
             function (value) {
               const { instant_sale } = this.options.context || {};
               const availableBalance = this.parent.available_balance;
@@ -261,7 +263,7 @@ function ProformaSaleForm({ proforma, toggleOpen }) {
       <DialogTitle>
         <Grid container columnSpacing={1}>
           <Grid size={{ xs: 12 }} textAlign={'center'} mb={2}>
-            {`Sale For ${proforma.proformaNo}`}
+            {dictionary.forms.proformaInvoices.saleForm.title.replace('{name}', proforma.proformaNo)}
           </Grid>
           <Grid size={{ xs: 12, md: 9 }} mb={2}>
             <form autoComplete='off'>
@@ -269,7 +271,7 @@ function ProformaSaleForm({ proforma, toggleOpen }) {
                 <Grid size={{ xs: 12, md: 4, lg: 4 }}>
                   <Div sx={{ mt: 0.3 }}>
                     <DateTimePicker
-                      label='Transaction Date'
+                      label={dictionary.forms.proformaInvoices.saleForm.labels.transactionDate}
                       fullWidth
                       minDate={dayjs(organization?.recording_start_date)}
                       defaultValue={transaction_date}
@@ -318,7 +320,7 @@ function ProformaSaleForm({ proforma, toggleOpen }) {
                   <Grid size={{ xs: 12, md: 4, lg: 4 }}>
                     <Div sx={{ mt: 0.3 }}>
                       <TextField
-                        label='Exchange Rate'
+                        label={dictionary.forms.proformaInvoices.saleForm.labels.exchangeRate}
                         fullWidth
                         size='small'
                         error={!!errors?.exchange_rate}
@@ -347,7 +349,7 @@ function ProformaSaleForm({ proforma, toggleOpen }) {
                 >
                   <Div sx={{ mt: 0.3 }}>
                     <StakeholderSelector
-                      label='Client'
+                      label={dictionary.forms.proformaInvoices.saleForm.labels.client}
                       frontError={errors?.stakeholder_id}
                       defaultValue={proforma?.stakeholder?.id ?? proforma?.stakeholder_id}
                       onChange={(newValue) => {
@@ -365,7 +367,7 @@ function ProformaSaleForm({ proforma, toggleOpen }) {
                       <Div sx={{ mt: 0.3 }}>
                         <TextField
                           size='small'
-                          label='Reference'
+                          label={dictionary.forms.proformaInvoices.saleForm.labels.reference}
                           fullWidth
                           {...register('reference')}
                         />
@@ -384,7 +386,7 @@ function ProformaSaleForm({ proforma, toggleOpen }) {
                           renderInput={(params) => (
                             <TextField
                               {...params}
-                              label='Sale Counter'
+                              label={dictionary.forms.proformaInvoices.saleForm.labels.saleCounter}
                               error={!!errors?.sales_outlet_counter_id}
                               helperText={
                                 errors?.sales_outlet_counter_id?.message
@@ -417,7 +419,7 @@ function ProformaSaleForm({ proforma, toggleOpen }) {
                       <Div sx={{ mt: 0.3 }}>
                         <FormControl fullWidth size='small'>
                           <InputLabel id='payment-method-label'>
-                            Payment Method
+                            {dictionary.forms.proformaInvoices.saleForm.labels.paymentMethod}
                           </InputLabel>
                           <Select
                             labelId='payment-method-label'
@@ -428,11 +430,15 @@ function ProformaSaleForm({ proforma, toggleOpen }) {
                               setDebitLedger(null);
                               setValue('debit_ledger_id', null);
                             }}
-                            label='Payment Method'
+                            label={dictionary.forms.proformaInvoices.saleForm.labels.paymentMethod}
                           >
-                            <MenuItem value='instant'>Instant</MenuItem>
+                            <MenuItem value='instant'>
+                              {dictionary.forms.proformaInvoices.saleForm.paymentMethods.instant}
+                            </MenuItem>
                             {watch('stakeholder_id') && (
-                              <MenuItem value='on_account'>On Account</MenuItem>
+                              <MenuItem value='on_account'>
+                                {dictionary.forms.proformaInvoices.saleForm.paymentMethods.onAccount}
+                              </MenuItem>
                             )}
                           </Select>
                         </FormControl>
@@ -458,7 +464,7 @@ function ProformaSaleForm({ proforma, toggleOpen }) {
                             renderInput={(params) => (
                               <TextField
                                 {...params}
-                                label='Account'
+                                label={dictionary.forms.proformaInvoices.saleForm.labels.account}
                                 error={!!errors?.debit_ledger_id}
                                 helperText={errors?.debit_ledger_id?.message}
                               />
@@ -481,7 +487,7 @@ function ProformaSaleForm({ proforma, toggleOpen }) {
                     </Grid>
                     <Grid size={{ xs: 12, md: 8 }}>
                       <TextField
-                        label='Remarks'
+                        label={dictionary.forms.proformaInvoices.saleForm.labels.remarks}
                         fullWidth
                         multiline={true}
                         minRows={1}
@@ -500,7 +506,7 @@ function ProformaSaleForm({ proforma, toggleOpen }) {
                         renderInput={(params) => (
                           <TextField
                             {...params}
-                            label='Sales Person'
+                            label={dictionary.forms.proformaInvoices.saleForm.labels.salesPerson}
                             size='small'
                             fullWidth
                           />
@@ -523,13 +529,13 @@ function ProformaSaleForm({ proforma, toggleOpen }) {
             <Grid container columnSpacing={1}>
               <Grid size={{ xs: 12 }}>
                 <Typography align='center' variant='h3'>
-                  Summary
+                  {dictionary.forms.proformaInvoices.saleForm.labels.summary}
                 </Typography>
                 <Divider />
               </Grid>
               <Grid size={{ xs: 6 }}>
                 <Typography align='left' variant='body2'>
-                  Total:
+                  {dictionary.forms.proformaInvoices.saleForm.labels.total}:
                 </Typography>
               </Grid>
               <Grid size={{ xs: 6 }}>
@@ -541,7 +547,7 @@ function ProformaSaleForm({ proforma, toggleOpen }) {
                 <>
                   <Grid size={{ xs: 6 }}>
                     <Typography align='left' variant='body2'>
-                      VAT:
+                      {dictionary.forms.proformaInvoices.saleForm.labels.vat}:
                       <Checkbox
                         size='small'
                         checked={!!vat_percentage}
@@ -571,7 +577,7 @@ function ProformaSaleForm({ proforma, toggleOpen }) {
                   </Grid>
                   <Grid size={{ xs: 6 }}>
                     <Typography align='left' variant='body2'>
-                      Grand Total:
+                      {dictionary.forms.proformaInvoices.saleForm.labels.grandTotal}:
                     </Typography>
                   </Grid>
                   <Grid
@@ -596,7 +602,7 @@ function ProformaSaleForm({ proforma, toggleOpen }) {
                   </Grid>
                   <Grid size={{ xs: 7 }} marginTop={2} marginBottom={2}>
                     <Typography align='left' variant='body2'>
-                      Instant Sale:
+                      {dictionary.forms.proformaInvoices.saleForm.labels.instantSale}:
                     </Typography>
                   </Grid>
                   <Grid
@@ -645,7 +651,7 @@ function ProformaSaleForm({ proforma, toggleOpen }) {
                   </Grid>
                   <Grid size={{ xs: 9.3, md: 6, lg: 4 }}>
                     <Div sx={{ mt: 1.7, mb: 1.7 }}>
-                      <Tooltip title='Product'>
+                      <Tooltip title={dictionary.tooltips.product}>
                         <Stack direction={'row'} gap={1} alignItems={'center'}>
                           <PhotoThumbnail
                             photo={item?.product?.main_photo}
@@ -658,7 +664,7 @@ function ProformaSaleForm({ proforma, toggleOpen }) {
                   </Grid>
                   <Grid textAlign={'center'} size={{ xs: 2, md: 5.5, lg: 1 }}>
                     <Div sx={{ mt: 1.7, mb: 1.7 }}>
-                      <Tooltip title='Quantity'>
+                      <Tooltip title={dictionary.tooltips.quantity}>
                         <Typography>{`${item.measurement_unit.symbol} ${item.quantity}`}</Typography>
                       </Tooltip>
                     </Div>
@@ -683,7 +689,7 @@ function ProformaSaleForm({ proforma, toggleOpen }) {
                                 helperText={
                                   errors?.items?.[index]?.store_id?.message
                                 }
-                                label='Store'
+                                label={dictionary.forms.proformaInvoices.saleForm.labels.store}
                               />
                             )}
                             onChange={(event, newValue) => {
@@ -716,7 +722,7 @@ function ProformaSaleForm({ proforma, toggleOpen }) {
                               <LinearProgress />
                             ) : (
                               <TextField
-                                label='Available Balance'
+                                label={dictionary.forms.proformaInvoices.saleForm.labels.availableBalance}
                                 fullWidth
                                 size='small'
                                 defaultValue={watch(
@@ -751,7 +757,7 @@ function ProformaSaleForm({ proforma, toggleOpen }) {
                   >
                     <Div sx={{ mt: 0.7, mb: 0.5 }}>
                       <TextField
-                        label='Quantity'
+                        label={dictionary.forms.proformaInvoices.saleForm.labels.quantity}
                         fullWidth
                         size='small'
                         error={!!errors?.items?.[index]?.quantity}
@@ -783,7 +789,7 @@ function ProformaSaleForm({ proforma, toggleOpen }) {
                   >
                     <Div sx={{ mt: 0.7, mb: 0.5 }}>
                       <TextField
-                        label='Price'
+                        label={dictionary.forms.proformaInvoices.saleForm.labels.price}
                         fullWidth
                         size='small'
                         error={
@@ -813,7 +819,7 @@ function ProformaSaleForm({ proforma, toggleOpen }) {
       </DialogTitle>
       <DialogActions>
         <Button size='small' onClick={() => toggleOpen(false)}>
-          Cancel
+          {dictionary.forms.proformaInvoices.saleForm.buttons.cancel}
         </Button>
         <LoadingButton
           loading={addSale.isPending}
@@ -822,7 +828,7 @@ function ProformaSaleForm({ proforma, toggleOpen }) {
           variant='contained'
           onClick={handleSubmit((data) => saveMutation(data))}
         >
-          Checkout
+          {dictionary.forms.proformaInvoices.saleForm.buttons.checkout}
         </LoadingButton>
       </DialogActions>
     </FormProvider>

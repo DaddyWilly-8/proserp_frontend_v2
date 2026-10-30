@@ -11,8 +11,11 @@ import { DateTimePicker } from '@mui/x-date-pickers';
 import productServices from '../../../productAndServices/products/productServices';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { useQuery } from '@tanstack/react-query';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function ProductInsights() {
+  const dictionary = useDictionary();
+  const dict = dictionary.reports.procurementReports.productInsights;
   const {authOrganization} = useJumboAuth();
   const [product, setProduct] = useState(null);
   const [averageCost, setAverageCost] = useState(0);
@@ -93,7 +96,7 @@ function ProductInsights() {
 
   return (
     <React.Fragment>
-      <DialogTitle textAlign={'center'}>{`${product ? product.name : 'Product'} Insights`}</DialogTitle>
+      <DialogTitle textAlign={'center'}>{product ? dict.titleWithProduct.replace('{name}', product.name) : dict.titleDefault}</DialogTitle>
       <DialogContent>
         <ProductsSelectProvider>
           <Grid container columnSpacing={1} rowSpacing={2} mt={1}>
@@ -107,7 +110,7 @@ function ProductInsights() {
             </Grid>
             <Grid size={{xs: 12, md: 6, lg: 3}}>
               <DateTimePicker
-                label="From (MM/DD/YYYY)"
+                label={dict.fromDate}
                 minDate={dayjs(authOrganization.organization.recording_start_date)}
                 defaultValue={dayjs().startOf('month')}
                 slotProps={{
@@ -126,7 +129,7 @@ function ProductInsights() {
             </Grid>
             <Grid size={{xs: 12, md: 6, lg: 3}}>
               <DateTimePicker
-                label="To (MM/DD/YYYY)"
+                label={dict.toDate}
                 minDate={dayjs(watch('from'))}
                 defaultValue={dayjs()}
                 slotProps={{
@@ -156,7 +159,7 @@ function ProductInsights() {
                   renderInput={(params) => (
                     <TextField
                       {...params}
-                      label="Stores"
+                      label={dict.stores}
                       size="small"
                       fullWidth
                     />
@@ -190,7 +193,7 @@ function ProductInsights() {
             }
             <Grid size={{xs: 12, lg: 6}}>
                     <CostCenterSelector
-                        label="Cost Centers"
+                        label={dict.costCenters}
                         defaultValue={Array.isArray(costCenters) && costCenters.length === 1 ? costCenters : []}
                         onChange={(newValue) => {
                             const valueArray = Array.isArray(newValue)
@@ -215,7 +218,7 @@ function ProductInsights() {
                   balances?.stock_balances &&
                   <Grid size={{xs: 12, md: 6, lg: 4}}>
                     <Stack direction="row" spacing={2}>
-                      <Typography sx={{ fontWeight:'bold' }}>Latest Average Cost:</Typography>
+                      <Typography sx={{ fontWeight:'bold' }}>{dict.latestAverageCost}</Typography>
                       <Typography>{averageCost.toLocaleString()}</Typography>
                     </Stack>
                   </Grid>
@@ -224,7 +227,7 @@ function ProductInsights() {
                   balances?.selling_price &&
                   <Grid size={{xs: 12, md: 6, lg: 4}}>
                     <Stack direction="row" spacing={2}>
-                      <Typography sx={{ fontWeight:'bold' }}>Latest Selling Price:</Typography>
+                      <Typography sx={{ fontWeight:'bold' }}>{dict.latestSellingPrice}</Typography>
                       <Typography>{balances.selling_price.bottom_cap.toLocaleString()}</Typography>
                     </Stack>
                   </Grid>
@@ -233,7 +236,7 @@ function ProductInsights() {
                   balances?.stock_balances && balances?.selling_price &&
                   <Grid size={{xs: 12, md: 6, lg: 4}}>
                     <Stack direction="row" spacing={2}>
-                      <Typography sx={{ fontWeight:'bold' }}>Potential Profit:</Typography>
+                      <Typography sx={{ fontWeight:'bold' }}>{dict.potentialProfit}</Typography>
                       <Typography>{(balances.selling_price.bottom_cap-averageCost).toLocaleString()}</Typography>
                     </Stack>
                   </Grid>
@@ -246,7 +249,7 @@ function ProductInsights() {
                   <AccordionSummary
                       expandIcon={<ExpandMoreOutlined/>}
                   >
-                    <Typography sx={{ fontWeight:'bold' }}>Stock Availability</Typography>
+                    <Typography sx={{ fontWeight:'bold' }}>{dict.stockAvailability}</Typography>
                   </AccordionSummary>
                   <AccordionDetails>
                     {
@@ -264,25 +267,25 @@ function ProductInsights() {
                         >
                           <Grid size={{xs: 12, md: 6, lg: 4}}>
                             <Stack direction="row" spacing={1}>
-                              <Typography sx={{ fontWeight:'bold' }}>Store:</Typography>
+                              <Typography sx={{ fontWeight:'bold' }}>{dict.store}</Typography>
                               <Typography>{stores.find(store => store.id === stock_balance.store_id).name}</Typography>
                             </Stack>
                           </Grid>
                           <Grid size={{xs: 12, md: 6, lg: 2.5}}>
                             <Stack direction="row" spacing={1}>
-                              <Typography sx={{ fontWeight:'bold' }}>Stock Balance:</Typography>
+                              <Typography sx={{ fontWeight:'bold' }}>{dict.stockBalance}</Typography>
                               <Typography>{stock_balance.balance}</Typography>
                             </Stack>
                           </Grid>
                           <Grid size={{xs: 12, md: 6, lg: 2.5}}>
                             <Stack direction="row" spacing={1}>
-                              <Typography sx={{ fontWeight:'bold' }}>Avg Cost:</Typography>
+                              <Typography sx={{ fontWeight:'bold' }}>{dict.avgCost}</Typography>
                               <Typography>{averageCost.toLocaleString()}</Typography>
                             </Stack>
                           </Grid>
                           <Grid size={{xs: 12, md: 6, lg: 2.5}}>
                             <Stack direction="row" spacing={1}>
-                              <Typography sx={{ fontWeight:'bold' }}>Value:</Typography>
+                              <Typography sx={{ fontWeight:'bold' }}>{dict.value}</Typography>
                               <Typography>{(stock_balance.balance*averageCost).toLocaleString()}</Typography>
                             </Stack>
                           </Grid>

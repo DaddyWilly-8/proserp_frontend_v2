@@ -6,10 +6,12 @@ import { ButtonGroup, Tooltip, IconButton, Dialog, useMediaQuery } from '@mui/ma
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const StakeholderGroupForm = lazy(() => import('./StakeholderGroupForm'));
 
 const StakeholderGroupActionTail = () => {
+  const dictionary = useDictionary();
   const { checkOrganizationPermission } = useJumboAuth();
   const [openDialog, setOpenDialog] = useState(false);
   const { theme } = useJumboTheme();
@@ -26,7 +28,7 @@ const StakeholderGroupActionTail = () => {
       </Dialog>
 
       <ButtonGroup variant='outlined' size='small' disableElevation sx={{ '& .MuiButton-root': { px: 1 } }}>
-        <Tooltip title='New Stakeholder Group'>
+        <Tooltip title={dictionary.tooltips.newStakeholderGroup}>
           <IconButton onClick={() => setOpenDialog(true)}>
             <AddOutlined />
           </IconButton>

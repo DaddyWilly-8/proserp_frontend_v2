@@ -2,6 +2,7 @@ import { DisabledByDefault, EditOutlined } from '@mui/icons-material';
 import { Divider, Grid, IconButton, Tooltip, Typography } from '@mui/material';
 import React, { useState } from 'react';
 import AdditionalCostsTab from './AdditionalCostsTab';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function AdditionalCostsTabRow({
   additionalCost,
@@ -11,6 +12,7 @@ function AdditionalCostsTabRow({
   additionalCosts = [],
   setAdditionalCosts,
 }) {
+  const dictionary = useDictionary();
   const [showForm, setShowForm] = useState(false);
 
   return (
@@ -28,7 +30,7 @@ function AdditionalCostsTabRow({
         >
           <Grid size={{ xs: 1, md: 0.5 }}>{index + 1}.</Grid>
           <Grid size={{ xs: 7, md: 2.5 }}>
-            <Tooltip title='Cost name'>
+            <Tooltip title={dictionary.tooltips.costName}>
               <Typography>
                 {additionalCost.credit_ledger_name || additionalCost.name}
               </Typography>
@@ -49,19 +51,19 @@ function AdditionalCostsTabRow({
             size={{ xs: 4, md: 2 }}
             textAlign={{ xs: 'right', md: 'start' }}
           >
-            <Tooltip title='Reference'>
+            <Tooltip title={dictionary.tooltips.reference}>
               <Typography>{additionalCost.reference}</Typography>
             </Tooltip>
           </Grid>
           <Grid size={{ xs: 6, md: 3 }}>
-            <Tooltip title='Currency'>
+            <Tooltip title={dictionary.tooltips.currency}>
               <Typography>
                 {additionalCost.currency_name || additionalCost.currency?.name}
               </Typography>
             </Tooltip>
           </Grid>
           <Grid size={{ xs: 6, md: 1.5 }} textAlign={'right'}>
-            <Tooltip title='Exchange Rate'>
+            <Tooltip title={dictionary.tooltips.exchangeRate}>
               <Typography>
                 {parseFloat(additionalCost.exchange_rate).toLocaleString(
                   'en-US',
@@ -71,7 +73,7 @@ function AdditionalCostsTabRow({
             </Tooltip>
           </Grid>
           <Grid size={{ xs: 6, md: 1.5 }} textAlign={{ md: 'right' }}>
-            <Tooltip title='Amount'>
+            <Tooltip title={dictionary.tooltips.amount}>
               <Typography>
                 {parseFloat(additionalCost.amount ?? 0).toLocaleString(
                   'en-US',
@@ -84,7 +86,7 @@ function AdditionalCostsTabRow({
             </Tooltip>
           </Grid>
           <Grid textAlign={'end'} size={{ xs: 6, md: 1 }}>
-            <Tooltip title='Edit Additional Cost'>
+            <Tooltip title={dictionary.tooltips.editAdditionalCost}>
               <IconButton
                 size='small'
                 onClick={() => {
@@ -94,7 +96,7 @@ function AdditionalCostsTabRow({
                 <EditOutlined fontSize='small' />
               </IconButton>
             </Tooltip>
-            <Tooltip title='Remove Additional Cost'>
+            <Tooltip title={dictionary.tooltips.removeAdditionalCost}>
               <IconButton
                 size='small'
                 onClick={() =>

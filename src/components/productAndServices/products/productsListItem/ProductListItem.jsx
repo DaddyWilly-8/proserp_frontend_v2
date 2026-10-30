@@ -117,7 +117,7 @@ function ProductListItem({product}) {
           <Grid size={{xs: 12, md: 2}}>
             <ListItemText
               primary={
-                <Tooltip title={'Description'}>
+                <Tooltip title={dictionary.tooltips.description}>
                   <Typography variant={"span"} mb={0}>
                     {product.description}
                   </Typography>

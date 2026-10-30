@@ -9,6 +9,7 @@ import { useSnackbar } from 'notistack';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
 import userLedgerServices from '../user-ledger-services';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface Props {
   userLedgerId: number;
@@ -17,6 +18,7 @@ interface Props {
 }
 
 export default function UserLedgerUnlinkRowAction({ userLedgerId, userName, ledgerName }: Props) {
+  const dictionary = useDictionary();
   const { checkOrganizationPermission } = useJumboAuth();
   const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
@@ -45,7 +47,7 @@ export default function UserLedgerUnlinkRowAction({ userLedgerId, userName, ledg
 
   return (
     <>
-      <Tooltip title='Unlink user from ledger'>
+      <Tooltip title={dictionary.tooltips.unlinkUserFromLedger}>
         <IconButton size='small' color='error' onClick={() => setOpenConfirm(true)}>
           <LinkOffOutlined fontSize='small' />
         </IconButton>

@@ -13,6 +13,7 @@ import {
 import { useState } from 'react';
 import EmployeeSelector from '../employees/EmployeeSelector';
 import { Employee } from '../employees/EmployeesType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface BreakdownLine {
   label: string;
@@ -132,21 +133,23 @@ const SummaryTab = ({
   onSimulate,
   isSimulating = false,
 }: SummaryTabProps) => {
+  const dictionary = useDictionary();
+  const t = dictionary.humanResources.payrollRuns.summary;
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(
     null
   );
 
   const firstRowCards: Array<{ label: string; value: number | string }> = [
-    { label: 'Employees', value: employees },
-    { label: 'Basic Salary', value: money(basic_salary) },
-    { label: 'Gross Salary', value: money(gross_salary) },
+    { label: t.employees, value: employees },
+    { label: t.basicSalary, value: money(basic_salary) },
+    { label: t.grossSalary, value: money(gross_salary) },
   ];
   const lastRowCards: Array<{ label: string; value: number | string }> = [
-    { label: 'PAYE', value: money(paye) },
-    { label: 'Net Salary', value: money(net_salary) },
+    { label: t.paye, value: money(paye) },
+    { label: t.netSalary, value: money(net_salary) },
     // Gross salary + employer-side statutory contributions — the true cost
     // to the employer, distinct from Gross (employee-facing pay cost only).
-    { label: 'Total Employer Cost', value: money(total_employer_cost) },
+    { label: t.totalEmployerCost, value: money(total_employer_cost) },
   ];
 
   const renderCard = ({
@@ -199,7 +202,7 @@ const SummaryTab = ({
                 selectedEmployee && onSimulate(selectedEmployee.id)
               }
             >
-              Simulate Payslip
+              {t.simulatePayslip}
             </LoadingButton>
           </Stack>
         </Grid>
@@ -207,21 +210,21 @@ const SummaryTab = ({
       {firstRowCards.map(renderCard)}
       <Grid size={{ xs: 12, sm: 6, md: 4 }}>
         <ExpandableSummaryCard
-          label='Total Allowances'
+          label={t.totalAllowances}
           total={total_allowances}
           breakdown={allowance_breakdown}
         />
       </Grid>
       <Grid size={{ xs: 12, sm: 6, md: 4 }}>
         <ExpandableSummaryCard
-          label='Total Deductions'
+          label={t.totalDeductions}
           total={total_deductions}
           breakdown={deduction_breakdown}
         />
       </Grid>
       <Grid size={{ xs: 12, sm: 6, md: 4 }}>
         <ExpandableSummaryCard
-          label='Total Employer Contributions'
+          label={t.totalEmployerContributions}
           total={total_employer_contributions}
           breakdown={contribution_breakdown}
         />

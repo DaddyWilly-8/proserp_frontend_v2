@@ -23,6 +23,7 @@ import * as yup from 'yup';
 import humanResourcesServices from '../../../humanResourcesServices';
 import { LeaveType } from '../../../leaveTypes/LeaveTypesType';
 import { LeaveAllocationType } from './LeaveAllocationType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface LeaveAllocationFormProps {
   setOpenDialog: (open: boolean) => void;
@@ -53,6 +54,7 @@ const LeaveAllocationForm = ({
   leaveAllocation = null,
   employeeId,
 }: LeaveAllocationFormProps) => {
+  const dictionary = useDictionary();
   const queryClient = useQueryClient();
   const { enqueueSnackbar } = useSnackbar();
 
@@ -78,13 +80,13 @@ const LeaveAllocationForm = ({
     mutationFn: humanResourcesServices.addLeaveAllocation,
     onSuccess: () => {
       setOpenDialog(false);
-      enqueueSnackbar('Leave Allocation Added Successfully', {
+      enqueueSnackbar(dictionary.humanResources.leaveAllocations.messages.added, {
         variant: 'success',
       });
       queryClient.invalidateQueries({ queryKey: ['leaveAllocations'] });
     },
     onError: (mutationError) => {
-      let message = 'Something went wrong';
+      let message = dictionary.humanResources.profileSectionsCommon.somethingWentWrong;
 
       if (
         typeof mutationError === 'object' &&
@@ -108,13 +110,13 @@ const LeaveAllocationForm = ({
     mutationFn: humanResourcesServices.updateLeaveAllocation,
     onSuccess: () => {
       setOpenDialog(false);
-      enqueueSnackbar('Leave Allocation Updated Successfully', {
+      enqueueSnackbar(dictionary.humanResources.leaveAllocations.messages.updated, {
         variant: 'success',
       });
       queryClient.invalidateQueries({ queryKey: ['leaveAllocations'] });
     },
     onError: (mutationError) => {
-      let message = 'Something went wrong';
+      let message = dictionary.humanResources.profileSectionsCommon.somethingWentWrong;
 
       if (
         typeof mutationError === 'object' &&
@@ -132,13 +134,13 @@ const LeaveAllocationForm = ({
 
   const validationSchema = yup.object({
     id: yup.number().optional(),
-    leave_type_id: yup.number().required('Leave type is required'),
-    start_date: yup.string().required('Start date is required'),
+    leave_type_id: yup.number().required(dictionary.humanResources.leaveAllocations.form.validation.leaveTypeRequired),
+    start_date: yup.string().required(dictionary.humanResources.leaveAllocations.form.validation.startDateRequired),
     allocated_days: yup
       .number()
-      .typeError('Allocated days must be a number')
-      .required('Allocated days is required')
-      .min(0.5, 'Allocated days must be at least 0.5'),
+      .typeError(dictionary.humanResources.leaveAllocations.form.validation.allocatedDaysNumber)
+      .required(dictionary.humanResources.leaveAllocations.form.validation.allocatedDaysRequired)
+      .min(0.5, dictionary.humanResources.leaveAllocations.form.validation.allocatedDaysMin),
   });
 
   const {
@@ -192,8 +194,8 @@ const LeaveAllocationForm = ({
       <DialogTitle>
         <Grid size={12} textAlign={'center'}>
           {!leaveAllocation?.id
-            ? 'Add Leave Allocation'
-            : 'Edit Leave Allocation'}
+            ? dictionary.humanResources.leaveAllocations.form.addTitle
+            : dictionary.humanResources.leaveAllocations.form.editTitle}
         </Grid>
       </DialogTitle>
       <DialogContent>
@@ -207,7 +209,7 @@ const LeaveAllocationForm = ({
                   <Controller
                     name='leave_type_id'
                     control={control}
-                    rules={{ required: 'Leave type is required' }}
+                    rules={{ required: dictionary.humanResources.leaveAllocations.form.validation.leaveTypeRequired }}
                     render={({ field, fieldState }) => (
                       <Autocomplete
                         size='small'
@@ -226,7 +228,7 @@ const LeaveAllocationForm = ({
                         renderInput={(params) => (
                           <TextField
                             {...params}
-                            label='Leave Type'
+                            label={dictionary.humanResources.leaveAllocations.form.labels.leaveType}
                             error={
                               !!fieldState.error ||
                               !!getValidationMessage(
@@ -257,7 +259,7 @@ const LeaveAllocationForm = ({
                   control={control}
                   render={({ field, fieldState }) => (
                     <DatePicker
-                      label='Start Date'
+                      label={dictionary.humanResources.leaveAllocations.form.labels.startDate}
                       disabled={!!leaveAllocation?.id}
                       value={field.value ? dayjs(field.value) : null}
                       onChange={(val) =>
@@ -280,8 +282,8 @@ const LeaveAllocationForm = ({
                               'start_date'
                             ) ||
                             (leaveAllocation?.id
-                              ? 'Cannot be changed once created'
-                              : "The cycle's start — its end is computed from the leave type's cycle length"),
+                              ? dictionary.humanResources.leaveAllocations.form.helper.cannotChange
+                              : dictionary.humanResources.leaveAllocations.form.helper.startDate),
                         },
                       }}
                     />
@@ -293,7 +295,7 @@ const LeaveAllocationForm = ({
             <Grid size={{ xs: 12, md: 6 }}>
               <Div sx={{ mt: 1, mb: 1 }}>
                 <TextField
-                  label='Allocated Days'
+                  label={dictionary.humanResources.leaveAllocations.form.labels.allocatedDays}
                   size='small'
                   fullWidth
                   error={
@@ -312,7 +314,7 @@ const LeaveAllocationForm = ({
 
           <DialogActions>
             <Button size='small' onClick={() => setOpenDialog(false)}>
-              Cancel
+              {dictionary.humanResources.profileSectionsCommon.cancel}
             </Button>
             <LoadingButton
               type='submit'
@@ -321,7 +323,7 @@ const LeaveAllocationForm = ({
               sx={{ display: 'flex' }}
               loading={isPending || updateIsPending}
             >
-              Submit
+              {dictionary.humanResources.profileSectionsCommon.submit}
             </LoadingButton>
           </DialogActions>
         </form>

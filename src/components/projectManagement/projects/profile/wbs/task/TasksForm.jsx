@@ -30,8 +30,12 @@ import { useFieldArray, useForm } from 'react-hook-form';
 import * as yup from 'yup';
 import projectsServices from '../../../project-services';
 import { useProjectProfile } from '../../ProjectProfileProvider';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const TasksForm = ({ setOpenDialog, task, activity }) => {
+  const dictionary = useDictionary();
+  const t = dictionary.forms.projects.tasks;
+  const sh = dictionary.forms.projects.shared;
   const queryClient = useQueryClient();
   const { enqueueSnackbar } = useSnackbar();
   const {
@@ -121,10 +125,10 @@ const TasksForm = ({ setOpenDialog, task, activity }) => {
     : activity?.tasks;
 
   const positionIndexOptions = [
-    { name: 'At the beginning', position_index: null, id: null },
+    { name: sh.atTheBeginning, position_index: null, id: null },
     ...activityTasks.map((task) => {
       return {
-        name: `After - ${task.name}`,
+        name: sh.afterName.replace('{name}', task.name),
         position_index: task.position_index,
       };
     }),
@@ -157,41 +161,41 @@ const TasksForm = ({ setOpenDialog, task, activity }) => {
   const validationSchema = yup.object({
     name: yup
       .string()
-      .required('Task name is required')
-      .typeError('Task name is required')
+      .required(t.errors.nameRequired)
+      .typeError(t.errors.nameRequired)
       // Matches project_tasks.name's actual column width (varchar(191)) - keeps this in sync
       // with the backend's own max:191 rule instead of failing only after submit.
-      .max(191, 'Task name must not exceed 191 characters'),
+      .max(191, t.errors.nameMax),
     start_date: yup
       .string()
-      .required('Start Date is required')
-      .typeError('Start Date is required'),
+      .required(sh.startDateRequired)
+      .typeError(sh.startDateRequired),
     end_date: yup
       .string()
-      .required('End Date is required')
-      .typeError('End Date is required'),
+      .required(sh.endDateRequired)
+      .typeError(sh.endDateRequired),
     quantity: yup
       .number()
-      .positive('Quantity is required')
-      .required('Quantity is required')
-      .typeError('Quantity is required')
+      .positive(sh.quantityRequired)
+      .required(sh.quantityRequired)
+      .typeError(sh.quantityRequired)
       .test(
         'whole-unit',
-        'This unit is whole-units-only — quantity cannot be a fraction',
+        sh.wholeUnit,
         function (value) {
           return this.parent.measurement_unit?.allows_fractional !== false || !value || Number.isInteger(value);
         }
       ),
     measurement_unit_id: yup
       .number()
-      .required('Measurement Unit is required')
-      .typeError('Measurement Unit is required'),
+      .required(sh.unitRequired)
+      .typeError(sh.unitRequired),
     weighted_percentage: yup
       .number()
-      .required('Weight Percentage is required')
-      .typeError('Weight Percentage is Required')
-      .min(0, 'Weight Percentage must be greater than or Equal to 0')
-      .max(100, 'Weight Percentage must be less than or equal to 100')
+      .required(t.errors.weightRequired)
+      .typeError(t.errors.weightRequired)
+      .min(0, t.errors.weightMin)
+      .max(100, sh.weightMax)
       .test('check-total', function (value) {
         const context = this.options.context || {};
         const { activityTasks, task } = context;
@@ -206,7 +210,7 @@ const TasksForm = ({ setOpenDialog, task, activity }) => {
 
         if (totalWeightPercentages + value > 100) {
           return this.createError({
-            message: `Total percentage should not exceed 100%. You currently have ${totalWeightPercentages}% allocated for this Activity.`,
+            message: t.errors.totalExceedsActivity.replace('{total}', totalWeightPercentages),
           });
         }
         return true;
@@ -221,18 +225,10 @@ const TasksForm = ({ setOpenDialog, task, activity }) => {
             is: (val) => val !== null && val !== undefined,
             then: (schema) =>
               schema
-                .min(
-                  0,
-                  'Contribution Percentage must be greater than or equal to 0'
-                )
-                .max(
-                  100,
-                  'Contribution Percentage must be less than or equal to 100'
-                )
-                .required(
-                  'Contribution Percentage is required when Deliverable is selected'
-                )
-                .typeError('Contribution Percentage is Required'),
+                .min(0, t.errors.contributionMin)
+                .max(100, t.errors.contributionMax)
+                .required(t.errors.contributionRequired)
+                .typeError(t.errors.contributionType),
             otherwise: (schema) => schema.nullable(),
           }),
       })
@@ -299,7 +295,9 @@ const TasksForm = ({ setOpenDialog, task, activity }) => {
   return (
     <>
       <DialogTitle textAlign={'center'}>
-        {task ? `Edit ${task?.name} Task` : `New ${activity?.name} Task`}
+        {task
+          ? t.titles.edit.replace('{name}', task?.name)
+          : t.titles.new.replace('{name}', activity?.name)}
       </DialogTitle>
       <DialogContent>
         <form autoComplete='off'>
@@ -313,7 +311,7 @@ const TasksForm = ({ setOpenDialog, task, activity }) => {
               <Grid size={{ xs: 12, md: 4 }}>
                 <Div sx={{ mt: 1 }}>
                   <TextField
-                    label='Task Name'
+                    label={t.labels.taskName}
                     size='small'
                     fullWidth
                     error={errors && !!errors?.name}
@@ -325,7 +323,7 @@ const TasksForm = ({ setOpenDialog, task, activity }) => {
               <Grid size={{ xs: 12, md: 4 }}>
                 <Div sx={{ mt: 1 }}>
                   <TextField
-                    label='Code'
+                    label={sh.code}
                     size='small'
                     fullWidth
                     {...register('code')}
@@ -364,13 +362,13 @@ const TasksForm = ({ setOpenDialog, task, activity }) => {
                       }
                     }}
                   />
-                  Milestone
+                  {t.labels.milestone}
                 </Div>
               </Grid>
               <Grid size={{ xs: 12, md: 4 }}>
                 <Div sx={{ mt: 1 }}>
                   <TextField
-                    label='Quantity'
+                    label={sh.quantity}
                     size='small'
                     fullWidth
                     error={errors && !!errors?.quantity}
@@ -388,7 +386,7 @@ const TasksForm = ({ setOpenDialog, task, activity }) => {
               <Grid size={{ xs: 12, md: 4 }}>
                 <Div sx={{ mt: 1 }}>
                   <MeasurementSelector
-                    label='Measurement Unit'
+                    label={sh.measurementUnit}
                     frontError={errors && errors?.measurement_unit_id}
                     defaultValue={task?.measurement_unit_id}
                     onChange={(newValue) => {
@@ -425,7 +423,7 @@ const TasksForm = ({ setOpenDialog, task, activity }) => {
                     renderInput={(params) => (
                       <TextField
                         {...params}
-                        label='Dependencies'
+                        label={t.labels.dependencies}
                         size='small'
                         fullWidth
                       />
@@ -448,7 +446,7 @@ const TasksForm = ({ setOpenDialog, task, activity }) => {
               <Grid size={{ xs: 12, md: 4 }}>
                 <Div sx={{ mt: 1 }}>
                   <UsersSelector
-                    label='Handlers'
+                    label={t.labels.handlers}
                     multiple={true}
                     defaultValue={task?.handlers}
                     frontError={errors && errors.handlers_ids}
@@ -468,7 +466,7 @@ const TasksForm = ({ setOpenDialog, task, activity }) => {
               <Grid size={{ xs: 12, md: 4 }}>
                 <Div sx={{ mt: 1 }}>
                   <DateTimePicker
-                    label='Start Date'
+                    label={sh.startDate}
                     fullWidth
                     minDate={dayjs(organization.recording_start_date)}
                     value={startDate ? dayjs(startDate) : null}
@@ -507,7 +505,7 @@ const TasksForm = ({ setOpenDialog, task, activity }) => {
               <Grid size={{ xs: 12, md: 4 }}>
                 <Div sx={{ mt: 1 }}>
                   <DateTimePicker
-                    label='End Date'
+                    label={sh.endDate}
                     fullWidth
                     minDate={
                       startDate
@@ -546,7 +544,7 @@ const TasksForm = ({ setOpenDialog, task, activity }) => {
                     error={errors && !!errors?.weighted_percentage}
                     helperText={errors && errors.weighted_percentage?.message}
                     defaultValue={task?.weighted_percentage}
-                    label='Weight Percentage'
+                    label={t.labels.weightPercentage}
                     InputProps={{
                       endAdornment: <span>%</span>,
                     }}
@@ -581,7 +579,7 @@ const TasksForm = ({ setOpenDialog, task, activity }) => {
                     renderInput={(params) => (
                       <TextField
                         {...params}
-                        label='Position'
+                        label={sh.position}
                         size='small'
                         fullWidth
                       />
@@ -602,7 +600,7 @@ const TasksForm = ({ setOpenDialog, task, activity }) => {
               <Grid size={{ xs: 12, md: 8, lg: 4 }}>
                 <Div sx={{ mt: 1 }}>
                   <TextField
-                    label='Description'
+                    label={sh.description}
                     size='small'
                     fullWidth
                     multiline={true}
@@ -614,7 +612,7 @@ const TasksForm = ({ setOpenDialog, task, activity }) => {
               <Grid size={12}>
                 <Grid size={12} textAlign={'center'}>
                   <Typography variant='h4'>
-                    Deliverable Contributions
+                    {t.titles.deliverableContributions}
                   </Typography>
                 </Grid>
                 <Divider />
@@ -641,7 +639,7 @@ const TasksForm = ({ setOpenDialog, task, activity }) => {
                               renderInput={(params) => (
                                 <TextField
                                   {...params}
-                                  label='Deliverable'
+                                  label={t.labels.deliverable}
                                   size='small'
                                   fullWidth
                                   error={
@@ -681,7 +679,7 @@ const TasksForm = ({ setOpenDialog, task, activity }) => {
                                     `deliverable_contributions.${index}.deliverable_id`,
                                     {
                                       type: 'manual',
-                                      message: `Duplicate deliverable. Select a different Deliverable.`,
+                                      message: t.errors.duplicateDeliverable,
                                     }
                                   );
                                 } else {
@@ -711,7 +709,7 @@ const TasksForm = ({ setOpenDialog, task, activity }) => {
                         <Grid size={{ xs: 12, md: 4 }}>
                           <Div sx={{ mt: 1 }}>
                             <TextField
-                              label='Contribution Percentage'
+                              label={t.labels.contributionPercentage}
                               size='small'
                               fullWidth
                               defaultValue={field.contribution_percentage}
@@ -775,7 +773,7 @@ const TasksForm = ({ setOpenDialog, task, activity }) => {
                                     `deliverable_contributions.${index}.contribution_percentage`,
                                     {
                                       type: 'manual',
-                                      message: `The total contribution for deliverable exceeds 100% with the new task. It sums to ${totalContributions}%.`,
+                                      message: t.errors.contributionExceeds.replace('{total}', totalContributions),
                                     }
                                   );
                                 } else {
@@ -801,7 +799,7 @@ const TasksForm = ({ setOpenDialog, task, activity }) => {
                     {fields.length > 0 && (
                       <Grid size={1}>
                         <Div sx={{ mt: 1 }}>
-                          <Tooltip title='Remove deliverable contribution'>
+                          <Tooltip title={dictionary.tooltips.removeDeliverableContribution}>
                             <IconButton
                               size='small'
                               onClick={() => remove(index)}
@@ -826,7 +824,7 @@ const TasksForm = ({ setOpenDialog, task, activity }) => {
                   }}
                 >
                   <Div sx={{ mt: 1 }}>
-                    <Tooltip title='Add deliverable contribution'>
+                    <Tooltip title={dictionary.tooltips.addDeliverableContribution}>
                       <Button
                         size='small'
                         variant='outlined'
@@ -837,7 +835,7 @@ const TasksForm = ({ setOpenDialog, task, activity }) => {
                           })
                         }
                       >
-                        <AddOutlined fontSize='10' /> Add Contribution
+                        <AddOutlined fontSize='10' /> {t.buttons.addContribution}
                       </Button>
                     </Tooltip>
                   </Div>
@@ -849,7 +847,7 @@ const TasksForm = ({ setOpenDialog, task, activity }) => {
       </DialogContent>
       <DialogActions>
         <Button size='small' onClick={() => setOpenDialog(false)}>
-          Cancel
+          {sh.cancel}
         </Button>
         <LoadingButton
           type='submit'
@@ -859,7 +857,7 @@ const TasksForm = ({ setOpenDialog, task, activity }) => {
           sx={{ display: 'flex' }}
           loading={isPending || isEdit}
         >
-          Submit
+          {sh.submit}
         </LoadingButton>
       </DialogActions>
     </>

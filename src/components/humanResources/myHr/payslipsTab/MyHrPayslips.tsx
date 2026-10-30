@@ -1,5 +1,6 @@
 'use client';
 
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import JumboRqList from '@jumbo/components/JumboReactQuery/JumboRqList';
 import { Autocomplete, Card, Grid, TextField } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
@@ -10,6 +11,8 @@ import MyHrPayslipsListItem from './MyHrPayslipsListItem';
 import { MyHrPayslipListItem } from './payslipsType';
 
 const MyHrPayslips = () => {
+  const dictionary = useDictionary();
+  const t = dictionary.humanResources.myHr.payslips;
   const listRef = useRef<any>(null);
 
   const [selectedPayrollPeriod, setSelectedPayrollPeriod] =
@@ -25,20 +28,7 @@ const MyHrPayslips = () => {
   const payrollPeriods: PayrollPeriodType[] =
     payrollPeriodsResponse?.data || [];
 
-  const monthNames = [
-    'January',
-    'February',
-    'March',
-    'April',
-    'May',
-    'June',
-    'July',
-    'August',
-    'September',
-    'October',
-    'November',
-    'December',
-  ];
+  const monthNames: string[] = t.months;
 
   const periodWithMonthNames = payrollPeriods.map((period) => {
     const selectedMonth = monthNames[period.month - 1];
@@ -91,7 +81,7 @@ const MyHrPayslips = () => {
               }));
             }}
             renderInput={(inputParams) => (
-              <TextField {...inputParams} label='Payroll Period' fullWidth />
+              <TextField {...inputParams} label={t.payrollPeriod} fullWidth />
             )}
           />
         </Grid>

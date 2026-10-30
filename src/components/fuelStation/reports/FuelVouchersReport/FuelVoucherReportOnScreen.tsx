@@ -1,5 +1,6 @@
 'use client';
 
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import {
   Box,
   Grid,
@@ -26,6 +27,8 @@ const FuelVoucherReportOnScreen = ({
   organization,
   filters,
 }: FuelVoucherReportOnScreenProps) => {
+  const dictionary = useDictionary();
+  const t = dictionary.reports.fuelStationReports.fuelVouchers;
   const theme = useTheme();
   const isDark = theme.type === 'dark';
 
@@ -76,9 +79,7 @@ const FuelVoucherReportOnScreen = ({
               fontWeight: 'bold',
               textAlign: 'center',
             }}
-          >
-            Fuel Vouchers Report
-          </Typography>
+          >{t.title}</Typography>
         </Grid>
       </Grid>
 
@@ -86,9 +87,7 @@ const FuelVoucherReportOnScreen = ({
       <Grid container spacing={2} sx={{ mb: 3 }}>
         {filters.stationName && (
           <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-            <Typography variant='subtitle2' sx={{ color: headerColor }}>
-              Station Name
-            </Typography>
+            <Typography variant='subtitle2' sx={{ color: headerColor }}>{t.stationName}</Typography>
             <Typography variant='body1'>{filters.stationName}</Typography>
           </Grid>
         )}
@@ -98,8 +97,8 @@ const FuelVoucherReportOnScreen = ({
           <Grid size={{ xs: 12, sm: 6, md: 4 }}>
             <Typography variant='subtitle2' sx={{ color: headerColor }}>
               {filters.stakeholder_name && filters.stakeholder_name !== ''
-                ? 'Client Name'
-                : 'Expense'}
+                ? t.clientName
+                : t.expense}
             </Typography>
             <Typography variant='body1'>
               {filters.stakeholder_name && filters.stakeholder_name !== ''
@@ -113,9 +112,7 @@ const FuelVoucherReportOnScreen = ({
         )}
         {filters.from && filters.to && (
           <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-            <Typography variant='subtitle2' sx={{ color: headerColor }}>
-              Date Range
-            </Typography>
+            <Typography variant='subtitle2' sx={{ color: headerColor }}>{t.dateRange}</Typography>
             <Typography variant='body1'>
               {`${filters.from} - ${filters.to}`}
             </Typography>
@@ -133,67 +130,49 @@ const FuelVoucherReportOnScreen = ({
                   color: contrastText,
                   fontWeight: 'bold',
                 }}
-              >
-                Date
-              </TableCell>
-              <TableCell sx={{ color: contrastText, fontWeight: 'bold' }}>
-                Voucher No
-              </TableCell>
+              >{t.date}</TableCell>
+              <TableCell sx={{ color: contrastText, fontWeight: 'bold' }}>{t.voucherNo}</TableCell>
               {showStakeholderExpenseColumn && (
                 <TableCell sx={{ color: contrastText, fontWeight: 'bold' }}>
                   {!filters.stakeholder_name &&
                   (filters.expense_ledger_ids?.length < 1 ||
                     !filters.expense_ledger_ids)
-                    ? 'Client/Expense'
+                    ? t.clientExpense
                     : (!filters.stakeholder_name ||
                           filters.stakeholder_name === '') &&
                         filters.expense_ledger_ids?.length > 1
-                      ? 'Expense'
+                      ? t.expense
                       : ''}
                 </TableCell>
               )}
-              <TableCell sx={{ color: contrastText, fontWeight: 'bold' }}>
-                Reference
-              </TableCell>
-              <TableCell sx={{ color: contrastText, fontWeight: 'bold' }}>
-                Product
-              </TableCell>
-              <TableCell sx={{ color: contrastText, fontWeight: 'bold' }}>
-                Narration
-              </TableCell>
+              <TableCell sx={{ color: contrastText, fontWeight: 'bold' }}>{t.reference}</TableCell>
+              <TableCell sx={{ color: contrastText, fontWeight: 'bold' }}>{t.product}</TableCell>
+              <TableCell sx={{ color: contrastText, fontWeight: 'bold' }}>{t.narration}</TableCell>
+              <TableCell
+                align='right'
+                sx={{ color: contrastText, fontWeight: 'bold' }}
+              >{t.lts}</TableCell>
+              <TableCell
+                align='right'
+                sx={{ color: contrastText, fontWeight: 'bold' }}
+              >{t.price}</TableCell>
               <TableCell
                 align='right'
                 sx={{ color: contrastText, fontWeight: 'bold' }}
               >
-                Lts
-              </TableCell>
-              <TableCell
-                align='right'
-                sx={{ color: contrastText, fontWeight: 'bold' }}
-              >
-                Price
-              </TableCell>
-              <TableCell
-                align='right'
-                sx={{ color: contrastText, fontWeight: 'bold' }}
-              >
-                {showReceiptColumns ? 'Debit' : 'Amount'}
+                {showReceiptColumns ? t.debit : t.amount}
               </TableCell>
               {showReceiptColumns && (
                 <TableCell
                   align='right'
                   sx={{ color: contrastText, fontWeight: 'bold' }}
-                >
-                  Credit
-                </TableCell>
+                >{t.credit}</TableCell>
               )}
               {showReceiptColumns && (
                 <TableCell
                   align='right'
                   sx={{ color: contrastText, fontWeight: 'bold' }}
-                >
-                  Running Balance
-                </TableCell>
+                >{t.runningBalance}</TableCell>
               )}
             </TableRow>
           </TableHead>
@@ -255,9 +234,7 @@ const FuelVoucherReportOnScreen = ({
                     (showReceiptColumns ? 2 : 0)
                   }
                   align='center'
-                >
-                  No data available
-                </TableCell>
+                >{t.noDataAvailable}</TableCell>
               </TableRow>
             )}
 
@@ -271,9 +248,7 @@ const FuelVoucherReportOnScreen = ({
                     (showReceiptColumns ? 0 : 0)
                   }
                   sx={{ color: contrastText, fontWeight: 'bold' }}
-                >
-                  TOTAL
-                </TableCell>
+                >{t.totalCaps}</TableCell>
                 <TableCell
                   align='right'
                   sx={{ color: contrastText, fontWeight: 'bold' }}

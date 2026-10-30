@@ -13,8 +13,10 @@ import StoreSelector from '@/components/procurement/stores/StoreSelector';
 import ProductSelect from '@/components/productAndServices/products/ProductSelect';
 import CommaSeparatedField from '@/shared/Inputs/CommaSeparatedField';
 import { sanitizedNumber } from '@/app/helpers/input-sanitization-helpers';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function InventoryInputsItemForm({setClearFormKey, submitMainForm, submitItemForm, setSubmitItemForm, setIsDirty, productionDates, item = null, index = -1, setInventoryInputs, inventoryInputs = [], setShowForm = null}) {
+    const dictionary = useDictionary();
     const { activeWorkCenter } = useContext(ProductionBatchesContext);
     const { productOptions } = useProductsSelect();
     const [isRetrieving, setIsRetrieving] = useState(false);
@@ -24,19 +26,19 @@ function InventoryInputsItemForm({setClearFormKey, submitMainForm, submitItemFor
     const validationSchema = yup.object({
         consumption_date: yup
             .string()
-            .required('Consumption Date is required')
-            .typeError('Consumption Date is required'),
+            .required(dictionary.forms.batches.validation.consumptionDateRequired)
+            .typeError(dictionary.forms.batches.validation.consumptionDateRequired),
         product: yup
             .object()
-            .required('Product is required')
-            .typeError('Product is required'),
+            .required(dictionary.forms.batches.validation.productRequired)
+            .typeError(dictionary.forms.batches.validation.productRequired),
         store_id: yup
             .number()
             .nullable()
             .transform((value) => (isNaN(value) ? null : value))
             .when('product', (product, schema) => {
             return product && product.type === 'Inventory'
-                ? schema.required('Store is required').typeError('Store is required')
+                ? schema.required(dictionary.forms.batches.validation.storeRequired).typeError(dictionary.forms.batches.validation.storeRequired)
                 : schema.nullable();
             }),
         quantity: yup
@@ -46,15 +48,15 @@ function InventoryInputsItemForm({setClearFormKey, submitMainForm, submitItemFor
             .when('product', (product, schema) => {
                 if (!product || product.type !== 'Inventory') {
                     return schema
-                    .positive('Quantity must be a positive number')
-                    .typeError('Quantity must be a number');
+                    .positive(dictionary.forms.batches.validation.quantityPositiveNumber)
+                    .typeError(dictionary.forms.batches.validation.quantityNumber);
                 }
             return schema
-                .required('Quantity is required')
-                .positive('Quantity must be a positive number')
+                .required(dictionary.forms.batches.validation.quantityRequired)
+                .positive(dictionary.forms.batches.validation.quantityPositiveNumber)
                 .test(
                 'not-exceed-current',
-                'This quantity will lead to a negative balance',
+                dictionary.forms.batches.validation.negativeBalance,
                     function (value) {
                         const currentBalance = parseFloat(this.parent.current_balance) || 0;
                         return value == null || value <= currentBalance;
@@ -62,7 +64,7 @@ function InventoryInputsItemForm({setClearFormKey, submitMainForm, submitItemFor
                 )
                 .test(
                 'not-exceed-available',
-                'The quantity exceeds the available balance',
+                dictionary.forms.batches.validation.exceedsAvailable,
                     function (value) {
                         const availableBalance = parseFloat(this.parent.available_balance) || 0;
                         return value == null || availableBalance === 0 || value <= availableBalance;
@@ -74,9 +76,9 @@ function InventoryInputsItemForm({setClearFormKey, submitMainForm, submitItemFor
                 .when('product', (product, schema) => {
                     if (product && product.type === 'Inventory') {
                         return schema
-                        .required('Rate is required')
-                        .positive('Rate must be a positive number')
-                        .typeError('Rate must be a number');
+                        .required(dictionary.forms.batches.validation.rateRequired)
+                        .positive(dictionary.forms.batches.validation.ratePositive)
+                        .typeError(dictionary.forms.batches.validation.rateNumber);
                     }
                     return schema.nullable();
                 }),
@@ -236,7 +238,7 @@ function InventoryInputsItemForm({setClearFormKey, submitMainForm, submitItemFor
         <Grid container columnSpacing={1} rowSpacing={1} mt={1}>
             <Grid size={{xs: 12, md: 6}}>
                 <DateTimePicker
-                    label="Consumption Date (MM/DD/YYYY)"
+                    label={dictionary.forms.batches.labels.consumptionDate}
                     fullWidth
                     defaultValue={item ? dayjs(item.consumption_date) : preservedValues ? dayjs(preservedValues.consumption_date) : null}
                     minDateTime={dayjs(productionDates.start_date)}  
@@ -280,7 +282,7 @@ function InventoryInputsItemForm({setClearFormKey, submitMainForm, submitItemFor
             </Grid>
             <Grid size={{xs: 12, md: 3}}>
                 <ProductSelect
-                    label='Product'
+                    label={dictionary.forms.batches.labels.product}
                     frontError={errors.product}
                     defaultValue={item && item.product}
                     onChange={async(newValue) => {
@@ -322,7 +324,7 @@ function InventoryInputsItemForm({setClearFormKey, submitMainForm, submitItemFor
                     {
                         isRetrieving ? <LinearProgress/> :
                             <TextField
-                                label="Available Balance"
+                                label={dictionary.forms.batches.labels.availableBalance}
                                 fullWidth
                                 size='small'
                                 value={watch('available_balance')}
@@ -336,7 +338,7 @@ function InventoryInputsItemForm({setClearFormKey, submitMainForm, submitItemFor
             }
             <Grid size={{xs: 12, md: 3}}>
                 <TextField
-                    label="Quantity"
+                    label={dictionary.forms.batches.labels.quantity}
                     fullWidth
                     size='small'
                     defaultValue={item && item.quantity}
@@ -398,7 +400,7 @@ function InventoryInputsItemForm({setClearFormKey, submitMainForm, submitItemFor
                 product && !isInventory &&
                 <Grid size={{xs: 12, md: 3}}>
                     <TextField
-                        label="Rate"
+                        label={dictionary.forms.batches.labels.rate}
                         fullWidth
                         size="small"
                         defaultValue={item && item.rate}
@@ -417,7 +419,7 @@ function InventoryInputsItemForm({setClearFormKey, submitMainForm, submitItemFor
             }
             <Grid size={{xs: 12, md: product ? 3 : 6}}>
                 <TextField
-                    label="Remarks"
+                    label={dictionary.forms.batches.labels.remarks}
                     fullWidth
                     size="small"
                     {...register('remarks')}
@@ -431,15 +433,15 @@ function InventoryInputsItemForm({setClearFormKey, submitMainForm, submitItemFor
                 >
                     {
                         item ? (
-                            <><CheckOutlined fontSize='small' /> Done</>
+                            <><CheckOutlined fontSize='small' /> {dictionary.forms.batches.buttons.done}</>
                         ) : (
-                            <><AddOutlined fontSize='small' /> Add</>
+                            <><AddOutlined fontSize='small' /> {dictionary.forms.batches.buttons.add}</>
                         )
                     }
                 </Button>
                 {
                     item && 
-                    <Tooltip title='Close Edit'>
+                    <Tooltip title={dictionary.tooltips.closeEdit}>
                         <IconButton size='small' 
                             onClick={() => {
                                 setShowForm(false);

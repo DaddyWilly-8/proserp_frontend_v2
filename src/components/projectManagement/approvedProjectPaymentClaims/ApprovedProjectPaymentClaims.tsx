@@ -8,6 +8,7 @@ import JumboListToolbar from '@jumbo/components/JumboList/components/JumboListTo
 import { useSearchParams } from 'next/navigation';
 import projectsServices from '@/components/projectManagement/projects/project-services';
 import { getSanitizedSearchKeyword } from '@/utilities/getSanitizedSearchKeyword';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import ApprovedProjectPaymentClaimsListItem from './ApprovedProjectPaymentClaimsListItem';
 import { ProjectClaim } from '@/components/projectManagement/projects/profile/claims/ProjectClaimType';
 
@@ -15,6 +16,7 @@ import { ProjectClaim } from '@/components/projectManagement/projects/profile/cl
 // invoiced) - status is shown per-row via status_label, so there's no need to filter any of
 // them out by default.
 const ApprovedProjectPaymentClaims: React.FC = () => {
+  const dictionary = useDictionary();
   const searchParams = useSearchParams();
   const listRef = React.useRef<any>(null);
 
@@ -60,7 +62,7 @@ const ApprovedProjectPaymentClaims: React.FC = () => {
   return (
     <>
       <Typography variant="h4" mb={2}>
-        Project Payment Claims
+        {dictionary.projectManagement.approvedClaims.title}
       </Typography>
 
       <JumboRqList

@@ -2,8 +2,10 @@ import { DisabledByDefault, EditOutlined } from '@mui/icons-material'
 import { Divider, Grid, IconButton, ListItemText, Tooltip, Typography } from '@mui/material'
 import React, { useState } from 'react'
 import OtherExpensesItemForm from './OtherExpensesItemForm';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function OtherExpensesItemRow({setClearFormKey, submitMainForm, setSubmitItemForm, submitItemForm, setIsDirty, item, index, otherExpenses=[], setOtherExpenses}) {
+    const dictionary = useDictionary();
     const [showForm, setShowForm] = useState(false);
 
   return (
@@ -24,14 +26,14 @@ function OtherExpensesItemRow({setClearFormKey, submitMainForm, setSubmitItemFor
                         <Grid size={{xs: 11.5, md: 4.5}}>
                             <ListItemText
                                 primary={
-                                    <Tooltip title={'Expense'}>
+                                    <Tooltip title={dictionary.tooltips.expense}>
                                         <Typography variant={"h5"} fontSize={14} lineHeight={1.25} mb={0} noWrap>
                                             {item.ledger?.name}
                                         </Typography>
                                     </Tooltip>
                                 }
                                 secondary={
-                                    <Tooltip title={'Remarks'}>
+                                    <Tooltip title={dictionary.tooltips.remarks}>
                                         <Typography variant={"span"} fontSize={14} lineHeight={1.25} mb={0} >
                                             {item.remarks}
                                         </Typography>
@@ -40,12 +42,12 @@ function OtherExpensesItemRow({setClearFormKey, submitMainForm, setSubmitItemFor
                             />
                         </Grid>
                         <Grid size={{xs: 4, md: 2}}>
-                            <Tooltip title="Quantity">
+                            <Tooltip title={dictionary.tooltips.quantity}>
                                 <Typography>{item.quantity.toLocaleString()}</Typography>
                             </Tooltip>
                         </Grid>
                         <Grid size={{xs: 4, md: 2}}>
-                            <Tooltip title="Rate">
+                            <Tooltip title={dictionary.tooltips.rate}>
                                 <Typography>
                                     {
                                         item.rate.toLocaleString('en-US', 
@@ -58,7 +60,7 @@ function OtherExpensesItemRow({setClearFormKey, submitMainForm, setSubmitItemFor
                             </Tooltip>
                         </Grid>
                         <Grid size={{xs: 4, md: 2}} textAlign={{xs: 'end', md: 'start'}}>
-                            <Tooltip title="Amount">
+                            <Tooltip title={dictionary.tooltips.amount}>
                                 <Typography>{(item.rate * item.quantity)?.toLocaleString('en-US', 
                                     {
                                         style: 'currency',
@@ -70,13 +72,13 @@ function OtherExpensesItemRow({setClearFormKey, submitMainForm, setSubmitItemFor
                         </Grid>
                         <Grid textAlign={'end'} size={{xs: 12, md: 1}}>
                             { !item.isFetched &&
-                                <Tooltip title='Edit Item'>
+                                <Tooltip title={dictionary.tooltips.editItem}>
                                     <IconButton size='small' onClick={() => {setShowForm(true)}}>
                                         <EditOutlined fontSize='small'/>
                                     </IconButton>
                                 </Tooltip>
                             }
-                            <Tooltip title='Remove Item'>
+                            <Tooltip title={dictionary.tooltips.removeItem}>
                                 <IconButton size='small' 
                                     onClick={() => setOtherExpenses(ledger_item => {
                                         const newItems = [...ledger_item];

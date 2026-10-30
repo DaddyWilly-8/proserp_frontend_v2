@@ -6,8 +6,10 @@ import { LoadingButton } from '@mui/lab';
 import { Card, CardContent, Link, Typography } from '@mui/material';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const VerifyPassword = () => {
+  const dictionary = useDictionary();
   const router = useRouter();
   const params = useParams<{ lang?: string }>();
   const searchParams = useSearchParams();
@@ -54,23 +56,23 @@ const VerifyPassword = () => {
             size='large'
             sx={{ mb: 3 }}
           >
-            {isVerifying ? 'Verifying Email' : 'Verify Email'}
+            {isVerifying ? dictionary.forms.verifyPassword.verifying : dictionary.forms.verifyPassword.verify}
           </LoadingButton>
 
           <Typography align='center' variant='body2' mb={1}>
-            Have the password?{' '}
+            {dictionary.forms.verifyPassword.havePassword}{' '}
             <Link
               href='/auth/signin'
               style={{ color: '#0267a0', fontWeight: 600 }}
             >
-              Proceed to Sign In
+              {dictionary.forms.verifyPassword.proceedToSignIn}
             </Link>
           </Typography>
 
           <Typography align='center' variant='body2'>
-            Don’t remember your email?{' '}
+            {dictionary.forms.verifyPassword.forgotEmail}{' '}
             <Link href='/support' style={{ color: '#00a8ff' }}>
-              Contact Support
+              {dictionary.forms.verifyPassword.contactSupport}
             </Link>
           </Typography>
         </CardContent>

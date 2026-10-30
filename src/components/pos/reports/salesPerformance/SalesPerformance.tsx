@@ -6,6 +6,7 @@ import { Stakeholder } from '@/components/masters/stakeholders/StakeholderType';
 import PDFContent from '@/components/pdf/PDFContent';
 import { FileExportGrid } from '@/components/sharedComponents/FileExportGrid';
 import { Organization } from '@/types/auth-types';
+import { MODULES } from '@/utilities/constants/modules';
 import { HighlightOff, KeyboardArrowDown, KeyboardArrowUp } from '@mui/icons-material';
 import {
   Autocomplete,
@@ -18,6 +19,7 @@ import {
   DialogTitle,
   Divider,
   FormControl,
+  FormControlLabel,
   Grid,
   IconButton,
   InputLabel,
@@ -26,6 +28,7 @@ import {
   Paper,
   Select,
   Stack,
+  Switch,
   Table,
   TableBody,
   TableCell,
@@ -46,6 +49,7 @@ import React, { useState } from 'react';
 import OutletSelector from '../../outlet/OutletSelector';
 import posServices from '../../pos-services';
 import SalesPerformancePDF from './SalesPerformancePDF';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface SalesPerformanceProductRow {
   product_id: number;
@@ -63,6 +67,9 @@ interface SalesPerformanceRow {
   transaction_count: number;
   amount_ordered: number;
   amount_collected: number;
+  // Of the figures above, what came from fuel vouchers (when they are included)
+  fuel_voucher_count?: number;
+  fuel_voucher_amount?: number;
   products: SalesPerformanceProductRow[];
 }
 
@@ -70,6 +77,14 @@ const formatQuantity = (value: number, unitSymbol?: string | null) =>
   `${(value || 0).toLocaleString('en-US', { maximumFractionDigits: 2 })}${
     unitSymbol ? ` ${unitSymbol}` : ''
   }`;
+
+const fuelVoucherNote = (row: SalesPerformanceRow) =>
+  row.fuel_voucher_count
+    ? `incl. ${row.fuel_voucher_count} fuel voucher${row.fuel_voucher_count === 1 ? '' : 's'} (${formatAmount(row.fuel_voucher_amount || 0)})`
+    : null;
+
+const FUEL_VOUCHER_REPORT_NOTE =
+  'Fuel vouchers are included in Transactions and Amount Ordered. Collections against fuel vouchers are not tracked, so Amount Collected does not include them.';
 
 const formatAmount = (value: number) =>
   (value || 0).toLocaleString('en-US', {
@@ -82,6 +97,7 @@ function SalesPerformance({
 }: {
   setOpenSalesPerformance: (open: boolean) => void;
 }) {
+  const dictionary = useDictionary();
   const [from, setFrom] = useState<Dayjs | null>(
     dayjs().startOf('month')
   );
@@ -101,6 +117,10 @@ function SalesPerformance({
     []
   );
   const [rows, setRows] = useState<SalesPerformanceRow[] | null>(null);
+  // Fuel vouchers are credit fuel sales to customers: offered to organizations with Fuel Station,
+  // for the customer view only (a voucher has no sales person)
+  const [includeFuelVouchers, setIncludeFuelVouchers] = useState(true);
+  const [fuelVouchersIncluded, setFuelVouchersIncluded] = useState(false);
   const [expandedKeys, setExpandedKeys] = useState<Set<string | number>>(
     new Set()
   );
@@ -120,7 +140,9 @@ function SalesPerformance({
   };
 
   const { enqueueSnackbar } = useSnackbar();
-  const { authUser, authOrganization } = useJumboAuth();
+  const { authUser, authOrganization, organizationHasSubscribed } = useJumboAuth();
+  const canIncludeFuelVouchers =
+    organizationHasSubscribed(MODULES.FUEL_STATION) && groupBy === 'customer';
   const { theme } = useJumboTheme();
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
   const organization = (authOrganization as any)?.organization as Organization;
@@ -137,6 +159,7 @@ function SalesPerformance({
     mutationFn: posServices.salesPerformance,
     onSuccess: (data) => {
       setRows(data?.data || []);
+      setFuelVouchersIncluded(!!data?.includes_fuel_vouchers);
       setExpandedKeys(new Set());
       setShowPdfPreview(false);
     },
@@ -152,6 +175,7 @@ function SalesPerformance({
       from: from.toISOString(),
       to: to.toISOString(),
       group_by: groupBy,
+      include_fuel_vouchers: canIncludeFuelVouchers ? (includeFuelVouchers ? 1 : 0) : undefined,
       order_by: orderBy,
       limit: limit || undefined,
       sales_outlet_id:
@@ -175,6 +199,7 @@ function SalesPerformance({
         organization,
         rows,
         groupBy,
+        includesFuelVouchers: fuelVouchersIncluded,
         from: from?.toISOString(),
         to: to?.toISOString(),
         baseCurrencyCode,
@@ -187,7 +212,7 @@ function SalesPerformance({
       a.click();
       window.URL.revokeObjectURL(url);
     } catch (error: any) {
-      enqueueSnackbar('Could not export the Excel file', {
+      enqueueSnackbar(dictionary.forms.reports.salesPerformance.messages.exportFailed, {
         variant: 'error',
       });
     } finally {
@@ -195,18 +220,21 @@ function SalesPerformance({
     }
   };
 
-  const labelColumn = groupBy === 'sales_person' ? 'Sales Person' : 'Customer';
+  const labelColumn =
+    groupBy === 'sales_person'
+      ? dictionary.forms.reports.salesPerformance.labels.salesPerson
+      : dictionary.forms.reports.salesPerformance.labels.customer;
 
   return (
     <>
       <DialogTitle textAlign='center'>
         <Grid container>
           <Grid size={belowLargeScreen ? 11 : 12}>
-            <Typography variant='h3'>Sales Performance</Typography>
+            <Typography variant='h3'>{dictionary.forms.reports.salesPerformance.title}</Typography>
           </Grid>
           {belowLargeScreen && (
             <Grid size={1}>
-              <Tooltip title='Close'>
+              <Tooltip title={dictionary.tooltips.close}>
                 <IconButton
                   sx={{ mb: 1 }}
                   size='small'
@@ -228,7 +256,7 @@ function SalesPerformance({
         <Grid container spacing={1} sx={{ mb: 2 }}>
           <Grid size={{ xs: 12, md: 3 }}>
             <DateTimePicker
-              label='From'
+              label={dictionary.forms.reports.salesPerformance.labels.from}
               value={from}
               slotProps={{ textField: { size: 'small', fullWidth: true } }}
               onChange={(value) => setFrom(value)}
@@ -236,7 +264,7 @@ function SalesPerformance({
           </Grid>
           <Grid size={{ xs: 12, md: 3 }}>
             <DateTimePicker
-              label='To'
+              label={dictionary.forms.reports.salesPerformance.labels.to}
               value={to}
               slotProps={{ textField: { size: 'small', fullWidth: true } }}
               onChange={(value) => setTo(value)}
@@ -245,29 +273,29 @@ function SalesPerformance({
           <Grid size={{ xs: 12, md: 2 }}>
             <FormControl fullWidth size='small'>
               <InputLabel id='sales-performance-group-by-label'>
-                Group By
+                {dictionary.forms.reports.salesPerformance.labels.groupBy}
               </InputLabel>
               <Select
                 labelId='sales-performance-group-by-label'
-                label='Group By'
+                label={dictionary.forms.reports.salesPerformance.labels.groupBy}
                 value={groupBy}
                 onChange={(e) =>
                   setGroupBy(e.target.value as 'customer' | 'sales_person')
                 }
               >
-                <MenuItem value='customer'>Customer</MenuItem>
-                <MenuItem value='sales_person'>Sales Person</MenuItem>
+                <MenuItem value='customer'>{dictionary.forms.reports.salesPerformance.labels.customer}</MenuItem>
+                <MenuItem value='sales_person'>{dictionary.forms.reports.salesPerformance.labels.salesPerson}</MenuItem>
               </Select>
             </FormControl>
           </Grid>
           <Grid size={{ xs: 12, md: 2 }}>
             <FormControl fullWidth size='small'>
               <InputLabel id='sales-performance-order-by-label'>
-                Rank By
+                {dictionary.forms.reports.salesPerformance.labels.rankBy}
               </InputLabel>
               <Select
                 labelId='sales-performance-order-by-label'
-                label='Rank By'
+                label={dictionary.forms.reports.salesPerformance.labels.rankBy}
                 value={orderBy}
                 onChange={(e) =>
                   setOrderBy(
@@ -275,14 +303,14 @@ function SalesPerformance({
                   )
                 }
               >
-                <MenuItem value='amount_ordered'>Amount Ordered</MenuItem>
-                <MenuItem value='amount_collected'>Amount Collected</MenuItem>
+                <MenuItem value='amount_ordered'>{dictionary.forms.reports.salesPerformance.labels.amountOrdered}</MenuItem>
+                <MenuItem value='amount_collected'>{dictionary.forms.reports.salesPerformance.labels.amountCollected}</MenuItem>
               </Select>
             </FormControl>
           </Grid>
           <Grid size={{ xs: 12, md: 2 }}>
             <TextField
-              label='Top N'
+              label={dictionary.forms.reports.salesPerformance.labels.topN}
               type='number'
               size='small'
               fullWidth
@@ -298,7 +326,7 @@ function SalesPerformance({
           </Grid>
           <Grid size={{ xs: 12, md: 4 }}>
             <StakeholderSelector
-              label='Clients (all if empty)'
+              label={dictionary.forms.reports.salesPerformance.labels.clientsAll}
               multiple
               onChange={(newValue) =>
                 setSelectedStakeholders(
@@ -317,7 +345,7 @@ function SalesPerformance({
               }
               getOptionLabel={(option: string) => option}
               renderInput={(params) => (
-                <TextField {...params} label='Sales People (all if empty)' />
+                <TextField {...params} label={dictionary.forms.reports.salesPerformance.labels.salesPeopleAll} />
               )}
               renderTags={(tagValue: string[], getTagProps) =>
                 tagValue.map((option, index) => (
@@ -329,6 +357,20 @@ function SalesPerformance({
               }
             />
           </Grid>
+          {canIncludeFuelVouchers && (
+            <Grid size={{ xs: 12 }}>
+              <FormControlLabel
+                control={
+                  <Switch
+                    size='small'
+                    checked={includeFuelVouchers}
+                    onChange={(event) => setIncludeFuelVouchers(event.target.checked)}
+                  />
+                }
+                label='Include fuel vouchers'
+              />
+            </Grid>
+          )}
           <Grid size={{ xs: 12 }}>
             <Stack
               direction='row'
@@ -354,7 +396,7 @@ function SalesPerformance({
                 disabled={!from || !to || generateReport.isPending}
                 onClick={handleGenerate}
               >
-                Generate
+                {dictionary.forms.reports.salesPerformance.labels.generate}
               </Button>
             </Stack>
           </Grid>
@@ -370,7 +412,7 @@ function SalesPerformance({
               textAlign='center'
               sx={{ py: 3 }}
             >
-              No sales found for this period.
+              {dictionary.forms.reports.salesPerformance.messages.noSales}
             </Typography>
           ) : showPdfPreview ? (
             <PDFContent
@@ -380,10 +422,12 @@ function SalesPerformance({
                   organization={organization}
                   rows={rows}
                   groupBy={groupBy}
+                  includesFuelVouchers={fuelVouchersIncluded}
                   from={from?.toISOString() || ''}
                   to={to?.toISOString() || ''}
                   baseCurrencyCode={baseCurrencyCode}
                   printedBy={authUser?.user?.name}
+                  dictionary={dictionary}
                 />
               }
             />
@@ -405,6 +449,11 @@ function SalesPerformance({
                           <Typography variant='subtitle2'>
                             {index + 1}. {row.label}
                           </Typography>
+                          {fuelVoucherNote(row) && (
+                            <Typography variant='caption' color='text.secondary' display='block'>
+                              {fuelVoucherNote(row)}
+                            </Typography>
+                          )}
                         </Grid>
                         {hasProducts && (
                           <Grid size={2} textAlign='right'>
@@ -424,7 +473,7 @@ function SalesPerformance({
                       <Grid container rowSpacing={0.5}>
                         <Grid size={6}>
                           <Typography variant='caption' color='text.secondary'>
-                            Transactions
+                            {dictionary.forms.reports.salesPerformance.labels.transactions}
                           </Typography>
                         </Grid>
                         <Grid size={6} textAlign='right'>
@@ -434,7 +483,7 @@ function SalesPerformance({
                         </Grid>
                         <Grid size={6}>
                           <Typography variant='caption' color='text.secondary'>
-                            Amount Ordered
+                            {dictionary.forms.reports.salesPerformance.labels.amountOrdered}
                           </Typography>
                         </Grid>
                         <Grid size={6} textAlign='right'>
@@ -444,7 +493,7 @@ function SalesPerformance({
                         </Grid>
                         <Grid size={6}>
                           <Typography variant='caption' color='text.secondary'>
-                            Amount Collected
+                            {dictionary.forms.reports.salesPerformance.labels.amountCollected}
                           </Typography>
                         </Grid>
                         <Grid size={6} textAlign='right'>
@@ -457,7 +506,7 @@ function SalesPerformance({
                         <Collapse in={isExpanded} timeout='auto' unmountOnExit>
                           <Divider sx={{ my: 1 }} />
                           <Typography variant='caption' color='text.secondary' gutterBottom display='block'>
-                            Products sold
+                            {dictionary.forms.reports.salesPerformance.labels.productsSold}
                           </Typography>
                           {row.products.map((product) => (
                             <Box
@@ -475,7 +524,7 @@ function SalesPerformance({
                               <Grid container rowSpacing={0.25}>
                                 <Grid size={6}>
                                   <Typography variant='caption' color='text.secondary'>
-                                    Quantity
+                                    {dictionary.forms.reports.salesPerformance.labels.quantity}
                                   </Typography>
                                 </Grid>
                                 <Grid size={6} textAlign='right'>
@@ -485,7 +534,7 @@ function SalesPerformance({
                                 </Grid>
                                 <Grid size={6}>
                                   <Typography variant='caption' color='text.secondary'>
-                                    Amount Ordered
+                                    {dictionary.forms.reports.salesPerformance.labels.amountOrdered}
                                   </Typography>
                                 </Grid>
                                 <Grid size={6} textAlign='right'>
@@ -495,7 +544,7 @@ function SalesPerformance({
                                 </Grid>
                                 <Grid size={6}>
                                   <Typography variant='caption' color='text.secondary'>
-                                    Amount Dispatched
+                                    {dictionary.forms.reports.salesPerformance.labels.amountDispatched}
                                   </Typography>
                                 </Grid>
                                 <Grid size={6} textAlign='right'>
@@ -513,12 +562,12 @@ function SalesPerformance({
                 })}
                 <Paper variant='outlined' sx={{ p: 1.5, bgcolor: 'action.hover' }}>
                   <Typography variant='subtitle2' gutterBottom>
-                    Total
+                    {dictionary.forms.reports.salesPerformance.labels.total}
                   </Typography>
                   <Grid container rowSpacing={0.5}>
                     <Grid size={6}>
                       <Typography variant='caption' color='text.secondary'>
-                        Transactions
+                        {dictionary.forms.reports.salesPerformance.labels.transactions}
                       </Typography>
                     </Grid>
                     <Grid size={6} textAlign='right'>
@@ -533,7 +582,7 @@ function SalesPerformance({
                     </Grid>
                     <Grid size={6}>
                       <Typography variant='caption' color='text.secondary'>
-                        Amount Ordered
+                        {dictionary.forms.reports.salesPerformance.labels.amountOrdered}
                       </Typography>
                     </Grid>
                     <Grid size={6} textAlign='right'>
@@ -550,7 +599,7 @@ function SalesPerformance({
                     </Grid>
                     <Grid size={6}>
                       <Typography variant='caption' color='text.secondary'>
-                        Amount Collected
+                        {dictionary.forms.reports.salesPerformance.labels.amountCollected}
                       </Typography>
                     </Grid>
                     <Grid size={6} textAlign='right'>
@@ -576,11 +625,11 @@ function SalesPerformance({
                 <TableHead>
                   <TableRow>
                     <TableCell />
-                    <TableCell>Rank</TableCell>
+                    <TableCell>{dictionary.forms.reports.salesPerformance.labels.rank}</TableCell>
                     <TableCell>{labelColumn}</TableCell>
-                    <TableCell align='right'>Transactions</TableCell>
-                    <TableCell align='right'>Amount Ordered</TableCell>
-                    <TableCell align='right'>Amount Collected</TableCell>
+                    <TableCell align='right'>{dictionary.forms.reports.salesPerformance.labels.transactions}</TableCell>
+                    <TableCell align='right'>{dictionary.forms.reports.salesPerformance.labels.amountOrdered}</TableCell>
+                    <TableCell align='right'>{dictionary.forms.reports.salesPerformance.labels.amountCollected}</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -605,7 +654,14 @@ function SalesPerformance({
                             )}
                           </TableCell>
                           <TableCell>{index + 1}</TableCell>
-                          <TableCell>{row.label}</TableCell>
+                          <TableCell>
+                            {row.label}
+                            {fuelVoucherNote(row) && (
+                              <Typography variant='caption' color='text.secondary' display='block'>
+                                {fuelVoucherNote(row)}
+                              </Typography>
+                            )}
+                          </TableCell>
                           <TableCell align='right'>
                             {row.transaction_count}
                           </TableCell>
@@ -625,15 +681,15 @@ function SalesPerformance({
                               <Collapse in={isExpanded} timeout='auto' unmountOnExit>
                                 <Box sx={{ my: 1, ml: 5 }}>
                                   <Typography variant='subtitle2' gutterBottom>
-                                    Products sold by {row.label}
+                                    {dictionary.forms.reports.salesPerformance.labels.productsSoldBy.replace('{name}', row.label)}
                                   </Typography>
                                   <Table size='small'>
                                     <TableHead>
                                       <TableRow>
-                                        <TableCell>Product</TableCell>
-                                        <TableCell align='right'>Quantity</TableCell>
-                                        <TableCell align='right'>Amount Ordered</TableCell>
-                                        <TableCell align='right'>Amount Dispatched</TableCell>
+                                        <TableCell>{dictionary.forms.reports.salesPerformance.labels.product}</TableCell>
+                                        <TableCell align='right'>{dictionary.forms.reports.salesPerformance.labels.quantity}</TableCell>
+                                        <TableCell align='right'>{dictionary.forms.reports.salesPerformance.labels.amountOrdered}</TableCell>
+                                        <TableCell align='right'>{dictionary.forms.reports.salesPerformance.labels.amountDispatched}</TableCell>
                                       </TableRow>
                                     </TableHead>
                                     <TableBody>
@@ -668,7 +724,7 @@ function SalesPerformance({
                     <TableCell />
                     <TableCell />
                     <TableCell>
-                      <strong>Total</strong>
+                      <strong>{dictionary.forms.reports.salesPerformance.labels.total}</strong>
                     </TableCell>
                     <TableCell align='right'>
                       <strong>
@@ -705,10 +761,16 @@ function SalesPerformance({
               </Box>
             </>
           ))}
+
+        {rows && rows.length > 0 && fuelVouchersIncluded && (
+          <Typography variant='caption' color='text.secondary' display='block' sx={{ mt: 1 }}>
+            {FUEL_VOUCHER_REPORT_NOTE}
+          </Typography>
+        )}
       </DialogContent>
       <DialogActions>
         <Button size='small' onClick={() => setOpenSalesPerformance(false)}>
-          Close
+          {dictionary.forms.reports.salesPerformance.labels.close}
         </Button>
       </DialogActions>
     </>

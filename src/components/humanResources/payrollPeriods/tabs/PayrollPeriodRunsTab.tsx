@@ -30,6 +30,7 @@ import humanResourcesServices from '../../humanResourcesServices';
 import PayrollRunForm from '../../payrollRuns/PayrollRunForm';
 import PayrollRunItemAction from '../../payrollRuns/PayrollRunItemAction';
 import { PayrollRunType } from '../../payrollRuns/PayrollRunType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface PayrollPeriodRunsTabProps {
   payrollPeriodId: number;
@@ -62,6 +63,8 @@ const PayrollPeriodRunsTab = ({
   year,
   month 
 }: PayrollPeriodRunsTabProps) => {
+  const dictionary = useDictionary();
+  const t = dictionary.humanResources.payrollPeriods;
   const queryClient = useQueryClient();
   const [openCreateRunDialog, setOpenCreateRunDialog] = useState(false);
 
@@ -113,7 +116,7 @@ const PayrollPeriodRunsTab = ({
         </Box>
         <Stack direction="row" spacing={1}>
           {canCreateRun && (
-            <Tooltip title="Create New Run">
+            <Tooltip title={dictionary.tooltips.createNewRun}>
               <IconButton
                 color="primary"
                 onClick={() => setOpenCreateRunDialog(true)}
@@ -144,17 +147,17 @@ const PayrollPeriodRunsTab = ({
       {/* Runs List */}
       {runs.length === 0 ? (
         <Alert severity="info">
-          No payroll runs found for this period. Click the + button to create a run.
+          {t.runsTab.empty}
         </Alert>
       ) : (
         <TableContainer sx={{ maxHeight: 500 }}>
           <Table size="small" stickyHeader>
             <TableHead>
               <TableRow>
-                <TableCell>Cost Center</TableCell>
-                <TableCell align="center">Status</TableCell>
-                <TableCell align="center">Employees</TableCell>
-                <TableCell align="right">Actions</TableCell>
+                <TableCell>{t.runsTab.columns.costCenter}</TableCell>
+                <TableCell align="center">{t.runsTab.columns.status}</TableCell>
+                <TableCell align="center">{t.runsTab.columns.employees}</TableCell>
+                <TableCell align="right">{t.runsTab.columns.actions}</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -177,22 +180,28 @@ const PayrollPeriodRunsTab = ({
                         />
                         <Typography variant="body2">
                           {isCompanyWide
-                            ? 'Company-wide Run'
-                            : run.cost_center?.name || 'Unnamed Run'}
+                            ? t.runsTab.companyWideRun
+                            : run.cost_center?.name || t.runsTab.unnamedRun}
                         </Typography>
                         {run.created_by_user && (
                           <Typography
                             variant="caption"
                             color="text.secondary"
                           >
-                            (Created by {run.created_by_user.first_name} {run.created_by_user.last_name})
+                            ({t.runsTab.createdBy
+                              .replace('{first}', run.created_by_user.first_name)
+                              .replace('{last}', run.created_by_user.last_name)})
                           </Typography>
                         )}
                       </Box>
                     </TableCell>
                     <TableCell align="center">
                       <Chip
-                        label={run.status || 'draft'}
+                        label={
+                          (t.common.status as Record<string, string>)[(run.status || 'draft').toLowerCase()] ||
+                          run.status ||
+                          'draft'
+                        }
                         size="small"
                         color={runStatusColor(run.status || '')}
                         sx={{ textTransform: 'capitalize' }}
@@ -210,7 +219,7 @@ const PayrollPeriodRunsTab = ({
                         {(run.status === 'paid' ||
                           run.status === 'finalized' ||
                           run.status === 'completed') && (
-                          <Tooltip title="Fully Processed">
+                          <Tooltip title={dictionary.tooltips.fullyProcessed}>
                             <VerifiedRounded
                               fontSize="small"
                               color="success"

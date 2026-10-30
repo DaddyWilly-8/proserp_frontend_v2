@@ -27,6 +27,7 @@ import CostCenterSelector from '@/components/masters/costCenters/CostCenterSelec
 import { CostCenter } from '@/components/masters/costCenters/CostCenterType';
 import bankReconciliationServices from '../bank-reconciliation-services';
 import { formatDate } from './date-format';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface Ledger {
   id: number;
@@ -49,17 +50,11 @@ interface Props {
 
 type TransactionType = 'payment' | 'receipt' | 'fund_transfer' | 'journal_voucher';
 
-const TYPE_LABELS: Record<TransactionType, string> = {
-  payment: 'Payment',
-  receipt: 'Receipt',
-  fund_transfer: 'Fund Transfer',
-  journal_voucher: 'Journal Voucher',
-};
-
 const formatAmount = (amount: number) =>
   amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 function PostTransactionDialogContent({ bankAccountId, line, open, onClose }: Props) {
+  const dictionary = useDictionary();
   const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
   const { checkOrganizationPermission } = useJumboAuth();
@@ -106,11 +101,11 @@ function PostTransactionDialogContent({ bankAccountId, line, open, onClose }: Pr
         cost_center_ids: costCenters.map((c) => c.id),
       }),
     onSuccess: (result) => {
-      enqueueSnackbar(result.message || 'Posted and matched successfully', { variant: 'success' });
+      enqueueSnackbar(result.message || dictionary.forms.bankReconciliation.postTransaction.messages.success, { variant: 'success' });
       queryClient.invalidateQueries({ queryKey: ['bank-reconciliation-workspace', bankAccountId] });
       onClose();
     },
-    onError: (err: any) => enqueueSnackbar(err?.response?.data?.message || 'Failed to post transaction', { variant: 'error' }),
+    onError: (err: any) => enqueueSnackbar(err?.response?.data?.message || dictionary.forms.bankReconciliation.postTransaction.messages.failed, { variant: 'error' }),
   });
 
   const canSubmit = !!effectiveType && !!otherLedger && !!narration.trim();
@@ -124,7 +119,7 @@ function PostTransactionDialogContent({ bankAccountId, line, open, onClose }: Pr
       fullScreen={belowLargeScreen}
       scroll={belowLargeScreen ? 'body' : 'paper'}
     >
-      <DialogTitle>Post Transaction</DialogTitle>
+      <DialogTitle>{dictionary.forms.bankReconciliation.postTransaction.title}</DialogTitle>
       <DialogContent>
         <Box sx={{ mb: 2 }}>
           <Typography variant='body2' color='text.secondary'>
@@ -137,7 +132,7 @@ function PostTransactionDialogContent({ bankAccountId, line, open, onClose }: Pr
 
         {availableTypes.length === 0 ? (
           <Alert severity='warning'>
-            You don&apos;t have permission to post any transaction type against this statement line.
+            {dictionary.forms.bankReconciliation.postTransaction.alerts.noPermission}
           </Alert>
         ) : (
           <Grid container spacing={2}>
@@ -151,7 +146,7 @@ function PostTransactionDialogContent({ bankAccountId, line, open, onClose }: Pr
               >
                 {availableTypes.map((t) => (
                   <ToggleButton key={t} value={t}>
-                    {TYPE_LABELS[t]}
+                    {dictionary.forms.bankReconciliation.postTransaction.types[t]}
                   </ToggleButton>
                 ))}
               </ToggleButtonGroup>
@@ -159,14 +154,14 @@ function PostTransactionDialogContent({ bankAccountId, line, open, onClose }: Pr
             <Grid size={12}>
               <CostCenterSelector
                 multiple
-                label='Cost Centers (optional)'
+                label={dictionary.forms.bankReconciliation.postTransaction.labels.costCenters}
                 defaultValue={costCenters}
                 onChange={(value) => setCostCenters((Array.isArray(value) ? value : value ? [value] : []) as CostCenter[])}
               />
             </Grid>
             <Grid size={12}>
               <LedgerSelect
-                label={effectiveType === 'payment' ? 'Paid to / Expense Ledger' : effectiveType === 'receipt' ? 'Received from / Income Ledger' : 'Other Ledger'}
+                label={effectiveType === 'payment' ? dictionary.forms.bankReconciliation.postTransaction.labels.paidToExpense : effectiveType === 'receipt' ? dictionary.forms.bankReconciliation.postTransaction.labels.receivedFromIncome : dictionary.forms.bankReconciliation.postTransaction.labels.otherLedger}
                 value={otherLedger as any}
                 onChange={(value) => setOtherLedger(value as Ledger | null)}
                 notAllowedLedgers={[]}
@@ -176,7 +171,7 @@ function PostTransactionDialogContent({ bankAccountId, line, open, onClose }: Pr
               <TextField
                 fullWidth
                 size='small'
-                label='Narration'
+                label={dictionary.forms.bankReconciliation.postTransaction.labels.narration}
                 value={narration}
                 onChange={(e) => setNarration(e.target.value)}
               />
@@ -185,7 +180,7 @@ function PostTransactionDialogContent({ bankAccountId, line, open, onClose }: Pr
               <TextField
                 fullWidth
                 size='small'
-                label='Reference (optional)'
+                label={dictionary.forms.bankReconciliation.postTransaction.labels.reference}
                 value={reference}
                 onChange={(e) => setReference(e.target.value)}
               />
@@ -194,7 +189,7 @@ function PostTransactionDialogContent({ bankAccountId, line, open, onClose }: Pr
         )}
       </DialogContent>
       <DialogActions>
-        <LoadingButton onClick={onClose}>Cancel</LoadingButton>
+        <LoadingButton onClick={onClose}>{dictionary.forms.bankReconciliation.postTransaction.buttons.cancel}</LoadingButton>
         {availableTypes.length > 0 && (
           <LoadingButton
             variant='contained'
@@ -202,7 +197,7 @@ function PostTransactionDialogContent({ bankAccountId, line, open, onClose }: Pr
             loading={postMutation.isPending}
             onClick={() => postMutation.mutate()}
           >
-            Post &amp; Match
+            {dictionary.forms.bankReconciliation.postTransaction.buttons.postAndMatch}
           </LoadingButton>
         )}
       </DialogActions>

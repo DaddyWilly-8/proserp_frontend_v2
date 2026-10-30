@@ -1,4 +1,5 @@
 import React from 'react';
+import RecurringTag, { RECURRING_SOURCE } from '@/components/accounts/recurringTransactions/RecurringTag';
 import {
   Alert,
   Grid,
@@ -27,6 +28,7 @@ interface JournalItem {
 
 interface Transaction {
   voucherNo: string;
+  system_source?: string | null;
   reference?: string;
   transaction_date: string;
   cost_centers: CostCenter[];
@@ -63,7 +65,10 @@ function JournalOnScreen({ transaction, authObject }: JournalOnScreenProps) {
       <Grid container spacing={2} marginBottom={2} paddingTop={2}>
         <Grid size={12} textAlign="center">
           <Typography variant="h4" color={headerColor}>JOURNAL VOUCHER</Typography>
-          <Typography variant="subtitle1" fontWeight="bold">{transaction.voucherNo}</Typography>
+          <Typography variant="subtitle1" fontWeight="bold">
+            {transaction.voucherNo}
+            {transaction.system_source === RECURRING_SOURCE && <RecurringTag />}
+          </Typography>
           {transaction.reference && <Typography variant="body2">Ref: {transaction.reference}</Typography>}
         </Grid>
       </Grid>

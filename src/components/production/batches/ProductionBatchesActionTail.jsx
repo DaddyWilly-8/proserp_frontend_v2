@@ -6,8 +6,10 @@ import ProductionBatchesForm from './form/ProductionBatchesForm';
 import ProductionBatchesForm2 from './form/ProductionBatchesForm2';
 import { JumboDdMenu } from '@jumbo/components';
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const ProductionBatchesActionTail = () => {
+  const dictionary = useDictionary();
   const [openDialog, setOpenDialog] = useState(false);
   const [openDialog2, setOpenDialog2] = useState(false);
 
@@ -40,7 +42,7 @@ const ProductionBatchesActionTail = () => {
       </Dialog>
       <JumboDdMenu
         icon={
-          <Tooltip title='Actions'>
+          <Tooltip title={dictionary.tooltips.actions}>
             <AddOutlined/>
           </Tooltip>
         }

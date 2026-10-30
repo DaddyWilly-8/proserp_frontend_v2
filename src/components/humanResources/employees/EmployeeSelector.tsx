@@ -10,6 +10,7 @@ import {
 } from '@mui/material';
 import React, { useEffect } from 'react';
 import { useEmployees } from './EmployeesProvider';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import { Employee } from './EmployeesType';
 
 const EMPTY_EMPLOYEE_REFS: EmployeeRef[] = [];
@@ -38,7 +39,7 @@ const EmployeeSelector = (props: EmployeeSelector) => {
   const {
     onChange,
     frontError = null,
-    label = 'Select Employee',
+    label,
     defaultValue = null,
     value = null,
     addedEmployee = null,
@@ -47,6 +48,7 @@ const EmployeeSelector = (props: EmployeeSelector) => {
     excludeId,
   } = props;
 
+  const dictionary = useDictionary();
   const { employees, isLoading } = useEmployees();
   const [options, setOptions] = React.useState<Employee[]>([]);
   const [selectedValue, setSelectedValue] = React.useState<
@@ -95,7 +97,7 @@ const EmployeeSelector = (props: EmployeeSelector) => {
           {...params}
           size='small'
           fullWidth
-          label={label}
+          label={label ?? dictionary.humanResources.employees.selector.label}
           error={!!frontError}
           helperText={frontError?.message}
           InputProps={{

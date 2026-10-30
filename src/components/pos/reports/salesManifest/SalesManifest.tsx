@@ -51,6 +51,7 @@ import PdfLogo from '../../../pdf/PdfLogo';
 import OutletSelector from '../../outlet/OutletSelector';
 import posServices from '../../pos-services';
 import SalesManifestOnScreen from './SalesManifestOnScreen';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface SaleItem {
   id: number;
@@ -117,6 +118,7 @@ interface SalesManifestPDFProps {
   separateVAT: boolean;
   authObject: AuthObject;
   title?: string;
+  dictionary: any;
 }
 
 interface FormValues {
@@ -136,8 +138,10 @@ const SalesManifestPDF: React.FC<SalesManifestPDFProps> = ({
   reportData,
   separateVAT,
   authObject,
+  dictionary,
   title = `Sales Manifest ${readableDate(reportData.filters.from, true)} - ${readableDate(reportData.filters.to, true)}`,
 }) => {
+  const t = dictionary.reports.posReports.salesManifest;
   const {
     authUser,
     checkOrganizationPermission,
@@ -233,9 +237,7 @@ const SalesManifestPDF: React.FC<SalesManifestPDFProps> = ({
               <PdfLogo organization={organization} />
             </View>
             <View style={{ flex: 1, textAlign: 'right' }}>
-              <Text style={{ ...pdfStyles.majorInfo, color: mainColor }}>
-                SALES MANIFEST
-              </Text>
+              <Text style={{ ...pdfStyles.majorInfo, color: mainColor }}>{t.titleCaps}</Text>
               <Text style={{ ...pdfStyles.minInfo }}>
                 {`${readableDate(reportData.filters.from, true)} - ${readableDate(reportData.filters.to, true)}`}
               </Text>
@@ -245,9 +247,7 @@ const SalesManifestPDF: React.FC<SalesManifestPDFProps> = ({
           {/* Filter Summary */}
           <View style={{ ...pdfStyles.tableRow }}>
             <View style={{ flex: 1, padding: 2 }}>
-              <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>
-                Outlets
-              </Text>
+              <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>{t.outlets}</Text>
               <Text style={{ ...pdfStyles.minInfo }}>
                 {reportData.filters.sales_outlets
                   .map((sales_outlet) => sales_outlet.name)
@@ -257,9 +257,7 @@ const SalesManifestPDF: React.FC<SalesManifestPDFProps> = ({
 
             {reportData?.filters?.counters?.length > 0 && (
               <View style={{ flex: 1, padding: 2 }}>
-                <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>
-                  Counters
-                </Text>
+                <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>{t.counters}</Text>
                 <Text style={{ ...pdfStyles.minInfo }}>
                   {reportData.filters.counters
                     .map((counter) => counter.name)
@@ -270,9 +268,7 @@ const SalesManifestPDF: React.FC<SalesManifestPDFProps> = ({
 
             {reportData.filters.stakeholders.length > 0 && (
               <View style={{ flex: 1, padding: 2 }}>
-                <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>
-                  Clients
-                </Text>
+                <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>{t.clients}</Text>
                 <Text style={{ ...pdfStyles.minInfo }}>
                   {reportData.filters.stakeholders
                     .map((client) => client.name)
@@ -283,9 +279,7 @@ const SalesManifestPDF: React.FC<SalesManifestPDFProps> = ({
 
             {userNames?.length > 0 && (
               <View style={{ flex: 1, padding: 2 }}>
-                <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>
-                  Recorded By
-                </Text>
+                <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>{t.recordedBy}</Text>
                 <Text style={{ ...pdfStyles.minInfo }}>
                   {userNames.join(', ')}
                 </Text>
@@ -294,9 +288,7 @@ const SalesManifestPDF: React.FC<SalesManifestPDFProps> = ({
 
             {reportData.filters.sales_people.length > 0 && (
               <View style={{ flex: 1, padding: 2 }}>
-                <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>
-                  Sales People
-                </Text>
+                <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>{t.salesPeople}</Text>
                 <Text style={{ ...pdfStyles.minInfo }}>
                   {reportData.filters.sales_people.join(', ')}
                 </Text>
@@ -304,16 +296,12 @@ const SalesManifestPDF: React.FC<SalesManifestPDFProps> = ({
             )}
 
             <View style={{ flex: 1, padding: 2 }}>
-              <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>
-                Printed By
-              </Text>
+              <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>{t.printedBy}</Text>
               <Text style={{ ...pdfStyles.minInfo }}>{user.name}</Text>
             </View>
 
             <View style={{ flex: 1, padding: 2 }}>
-              <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>
-                Printed On
-              </Text>
+              <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>{t.printedOn}</Text>
               <Text style={{ ...pdfStyles.minInfo }}>
                 {readableDate(undefined, true)}
               </Text>
@@ -342,9 +330,7 @@ const SalesManifestPDF: React.FC<SalesManifestPDFProps> = ({
                       flex: 1,
                       textAlign: 'center',
                     }}
-                  >
-                    Summary
-                  </Text>
+                  >{t.summary}</Text>
                 </View>
                 <Text
                   style={{
@@ -353,9 +339,7 @@ const SalesManifestPDF: React.FC<SalesManifestPDFProps> = ({
                     textAlign: 'center',
                   }}
                 >
-                  Converted to base currency (transactions may be in different
-                  currencies). Each transaction below shows its own figures in
-                  its own sale currency.
+                  {t.convertedNote}
                 </Text>
               </View>
             </View>
@@ -368,7 +352,7 @@ const SalesManifestPDF: React.FC<SalesManifestPDFProps> = ({
                 justifyContent: 'space-between',
               }}
             >
-              <Text style={{ ...pdfStyles.minInfo }}>Total Sales:</Text>
+              <Text style={{ ...pdfStyles.minInfo }}>{t.totalSales}</Text>
               <Text style={{ ...pdfStyles.minInfo, color: 'blue' }}>
                 {totalSalesVatInclusive.toLocaleString('en-US', {
                   maximumFractionDigits: 2,
@@ -387,9 +371,7 @@ const SalesManifestPDF: React.FC<SalesManifestPDFProps> = ({
                     justifyContent: 'space-between',
                   }}
                 >
-                  <Text style={{ ...pdfStyles.minInfo }}>
-                    Sales (VAT Excl.)
-                  </Text>
+                  <Text style={{ ...pdfStyles.minInfo }}>{t.salesVatExcl}</Text>
                   <Text style={{ ...pdfStyles.minInfo }}>
                     {totalSales.toLocaleString('en-US', {
                       maximumFractionDigits: 2,
@@ -405,7 +387,7 @@ const SalesManifestPDF: React.FC<SalesManifestPDFProps> = ({
                     justifyContent: 'space-between',
                   }}
                 >
-                  <Text style={{ ...pdfStyles.minInfo }}>VAT</Text>
+                  <Text style={{ ...pdfStyles.minInfo }}>{t.vat}</Text>
                   <Text style={{ ...pdfStyles.minInfo }}>
                     {(totalSalesVatInclusive - totalSales).toLocaleString(
                       'en-US',
@@ -429,7 +411,7 @@ const SalesManifestPDF: React.FC<SalesManifestPDFProps> = ({
                     justifyContent: 'space-between',
                   }}
                 >
-                  <Text style={{ ...pdfStyles.minInfo }}>Total CoGS:</Text>
+                  <Text style={{ ...pdfStyles.minInfo }}>{t.totalCogs}</Text>
                   <Text style={{ ...pdfStyles.minInfo, color: 'red' }}>
                     {totalCoGS.toLocaleString('en-US', {
                       maximumFractionDigits: 2,
@@ -445,7 +427,7 @@ const SalesManifestPDF: React.FC<SalesManifestPDFProps> = ({
                     justifyContent: 'space-between',
                   }}
                 >
-                  <Text style={{ ...pdfStyles.minInfo }}>Total Profit:</Text>
+                  <Text style={{ ...pdfStyles.minInfo }}>{t.totalProfit}</Text>
                   <Text style={{ ...pdfStyles.minInfo, color: 'green' }}>
                     {(totalSales - totalCoGS).toLocaleString('en-US', {
                       maximumFractionDigits: 2,
@@ -478,9 +460,7 @@ const SalesManifestPDF: React.FC<SalesManifestPDFProps> = ({
                         color: contrastText,
                         textAlign: 'center',
                       }}
-                    >
-                      Collected Cash Distribution
-                    </Text>
+                    >{t.collectedCashDistribution}</Text>
                   </View>
                   {reportData.collection_distribution.map((cd, index) => (
                     <View
@@ -521,9 +501,7 @@ const SalesManifestPDF: React.FC<SalesManifestPDFProps> = ({
                         color: contrastText,
                         flex: 0.7,
                       }}
-                    >
-                      Total
-                    </Text>
+                    >{t.total}</Text>
                     <Text
                       style={{
                         ...pdfStyles.tableCell,
@@ -556,9 +534,7 @@ const SalesManifestPDF: React.FC<SalesManifestPDFProps> = ({
               flex: 1,
               textAlign: 'center',
             }}
-          >
-            Sales Details
-          </Text>
+          >{t.salesDetails}</Text>
         </View>
 
         {reportData.transactions.map((sale, index) => {
@@ -583,7 +559,7 @@ const SalesManifestPDF: React.FC<SalesManifestPDFProps> = ({
               </View>
               <View style={{ ...pdfStyles.tableRow }}>
                 <Text style={{ ...pdfStyles.midInfo, textAlign: 'right' }}>
-                  {sale.counter} | Currency: {sale.currency.code} ({sale.currency.symbol})
+                  {sale.counter} | {t.currencyLabel} {sale.currency.code} ({sale.currency.symbol})
                 </Text>
               </View>
 
@@ -603,9 +579,7 @@ const SalesManifestPDF: React.FC<SalesManifestPDFProps> = ({
                       color: contrastText,
                       flex: 0.5,
                     }}
-                  >
-                    S/N
-                  </Text>
+                  >{t.sn}</Text>
                   <Text
                     style={{
                       ...pdfStyles.tableHeader,
@@ -613,9 +587,7 @@ const SalesManifestPDF: React.FC<SalesManifestPDFProps> = ({
                       color: contrastText,
                       flex: 4,
                     }}
-                  >
-                    Product
-                  </Text>
+                  >{t.product}</Text>
                   <Text
                     style={{
                       ...pdfStyles.tableHeader,
@@ -623,9 +595,7 @@ const SalesManifestPDF: React.FC<SalesManifestPDFProps> = ({
                       color: contrastText,
                       flex: 1.5,
                     }}
-                  >
-                    Quantity
-                  </Text>
+                  >{t.quantity}</Text>
                   <Text
                     style={{
                       ...pdfStyles.tableHeader,
@@ -633,9 +603,7 @@ const SalesManifestPDF: React.FC<SalesManifestPDFProps> = ({
                       color: contrastText,
                       flex: 2,
                     }}
-                  >
-                    Price
-                  </Text>
+                  >{t.price}</Text>
                   <Text
                     style={{
                       ...pdfStyles.tableHeader,
@@ -643,9 +611,7 @@ const SalesManifestPDF: React.FC<SalesManifestPDFProps> = ({
                       color: contrastText,
                       flex: 2,
                     }}
-                  >
-                    Amount
-                  </Text>
+                  >{t.amount}</Text>
                   {!!separateVAT && !!sale.vat_percentage && (
                     <Text
                       style={{
@@ -654,9 +620,7 @@ const SalesManifestPDF: React.FC<SalesManifestPDFProps> = ({
                         color: contrastText,
                         flex: 2,
                       }}
-                    >
-                      VAT
-                    </Text>
+                    >{t.vat}</Text>
                   )}
                   {financePersonnel && (
                     <React.Fragment>
@@ -667,9 +631,7 @@ const SalesManifestPDF: React.FC<SalesManifestPDFProps> = ({
                           color: contrastText,
                           flex: 2,
                         }}
-                      >
-                        P.U Cost
-                      </Text>
+                      >{t.puCost}</Text>
                       <Text
                         style={{
                           ...pdfStyles.tableHeader,
@@ -677,9 +639,7 @@ const SalesManifestPDF: React.FC<SalesManifestPDFProps> = ({
                           color: contrastText,
                           flex: 2,
                         }}
-                      >
-                        CoGS
-                      </Text>
+                      >{t.cogs}</Text>
                       <Text
                         style={{
                           ...pdfStyles.tableHeader,
@@ -687,9 +647,7 @@ const SalesManifestPDF: React.FC<SalesManifestPDFProps> = ({
                           color: contrastText,
                           flex: 2,
                         }}
-                      >
-                        Profit
-                      </Text>
+                      >{t.profit}</Text>
                     </React.Fragment>
                   )}
                 </View>
@@ -878,9 +836,7 @@ const SalesManifestPDF: React.FC<SalesManifestPDFProps> = ({
                       flex: 8.6,
                       textAlign: 'right',
                     }}
-                  >
-                    Total
-                  </Text>
+                  >{t.total}</Text>
                   <Text
                     style={{
                       ...pdfStyles.tableHeader,
@@ -1017,6 +973,7 @@ interface SalesManifestProps {
 const SalesManifest: React.FC<SalesManifestProps> = ({
   setOpenSalesManifest,
 }) => {
+  const dictionary = useDictionary();
   const css = useProsERPStyles();
   const authObject = useJumboAuth();
   const { authOrganization } = authObject;
@@ -1041,7 +998,7 @@ const SalesManifest: React.FC<SalesManifestProps> = ({
     from: yup
       .string()
       .required('Start Date is required')
-      .typeError('Start Date is required'),
+      .typeError(dictionary.forms.reports.salesManifest.validation.startDateRequired),
   });
 
   const [reportData, setReportData] = useState<any>(null);
@@ -1095,7 +1052,7 @@ const SalesManifest: React.FC<SalesManifestProps> = ({
       link.click();
       setIsDownloadingTemplate(false);
     } catch (error) {
-      enqueueSnackbar('Error downloading Excel template', { variant: 'error' });
+      enqueueSnackbar(dictionary.reports.posReports.salesManifest.excelError, { variant: 'error' });
       setIsDownloadingTemplate(false);
     }
   };
@@ -1139,11 +1096,11 @@ const SalesManifest: React.FC<SalesManifestProps> = ({
       <DialogTitle textAlign={'center'}>
         <Grid container>
           <Grid size={{ xs: 11, md: 11 }}>
-            <Typography variant='h3'>Sales Manifest</Typography>
+            <Typography variant='h3'>{dictionary.forms.reports.salesManifest.title}</Typography>
           </Grid>
           {belowLargeScreen && (
             <Grid size={{ xs: 1 }}>
-              <Tooltip title='Close'>
+              <Tooltip title={dictionary.tooltips.close}>
                 <IconButton
                   sx={{ mb: 1 }}
                   size='small'
@@ -1193,7 +1150,7 @@ const SalesManifest: React.FC<SalesManifestProps> = ({
                       }
                       getOptionLabel={(option) => option.name}
                       renderInput={(params) => (
-                        <TextField {...params} label='Counter' />
+                        <TextField {...params} label={dictionary.forms.reports.salesManifest.labels.counter} />
                       )}
                       renderTags={(tagValue, getTagProps) =>
                         tagValue.map((option, index) => (
@@ -1240,7 +1197,7 @@ const SalesManifest: React.FC<SalesManifestProps> = ({
               >
                 <Div sx={{ mt: 1, mb: 1 }}>
                   <StakeholderSelector
-                    label='Clients'
+                    label={dictionary.forms.reports.salesManifest.labels.clients}
                     multiple={true}
                     onChange={(newValue: any) => {
                       setValue(
@@ -1255,7 +1212,7 @@ const SalesManifest: React.FC<SalesManifestProps> = ({
               <Grid size={{ xs: 12, md: 3 }}>
                 <Div sx={{ mt: 1, mb: 1 }}>
                   <UsersSelector
-                    label='Recorded By'
+                    label={dictionary.forms.reports.salesManifest.labels.recordedBy}
                     multiple={true}
                     onChange={(newValue: any) => {
                       setValue(
@@ -1283,7 +1240,7 @@ const SalesManifest: React.FC<SalesManifestProps> = ({
                     renderInput={(params) => (
                       <TextField
                         {...params}
-                        label='Sales Person'
+                        label={dictionary.forms.reports.salesManifest.labels.salesPerson}
                         size='small'
                         fullWidth
                       />
@@ -1307,7 +1264,7 @@ const SalesManifest: React.FC<SalesManifestProps> = ({
               <Grid size={{ xs: 12, md: 3 }}>
                 <Div sx={{ mt: 1, mb: 1 }}>
                   <DateTimePicker
-                    label='From (MM/DD/YYYY)'
+                    label={dictionary.forms.reports.salesManifest.labels.fromDate}
                     value={dayjs(watch('from'))}
                     minDate={dayjs(
                       authOrganization?.organization.recording_start_date
@@ -1337,7 +1294,7 @@ const SalesManifest: React.FC<SalesManifestProps> = ({
               <Grid size={{ xs: 12, md: 3 }}>
                 <Div sx={{ mt: 1, mb: 1 }}>
                   <DateTimePicker
-                    label='To (MM/DD/YYYY)'
+                    label={dictionary.forms.reports.salesManifest.labels.toDate}
                     value={dayjs(watch('to'))}
                     minDate={dayjs(watch('from'))}
                     slotProps={{
@@ -1369,7 +1326,7 @@ const SalesManifest: React.FC<SalesManifestProps> = ({
                       checked={separateVAT}
                       onChange={(e) => setSeparateVAT(e.target.checked)}
                     />
-                    Separate VAT
+                    {dictionary.forms.reports.salesManifest.labels.separateVat}
                   </Div>
                 </Grid>
               )}
@@ -1387,7 +1344,7 @@ const SalesManifest: React.FC<SalesManifestProps> = ({
                       setWithCashDistribution(isChecked);
                     }}
                   />
-                  Collection Distribution
+                  {dictionary.forms.reports.salesManifest.labels.collectionDistribution}
                 </Div>
               </Grid>
 
@@ -1423,7 +1380,7 @@ const SalesManifest: React.FC<SalesManifestProps> = ({
                         setUpdatedUsers(watch(`user_names`) as string[])
                       }
                     >
-                      Filter
+                      {dictionary.forms.reports.salesManifest.labels.filter}
                     </LoadingButton>
                   </>
                 </Stack>
@@ -1466,6 +1423,7 @@ const SalesManifest: React.FC<SalesManifestProps> = ({
                     title={downloadFileName}
                     userNames={updatedUsers}
                     separateVAT={separateVAT}
+                    dictionary={dictionary}
                   />
                 }
                 fileName={downloadFileName}
@@ -1488,7 +1446,7 @@ const SalesManifest: React.FC<SalesManifestProps> = ({
           variant='outlined'
           onClick={() => setOpenSalesManifest(false)}
         >
-          Close
+          {dictionary.forms.reports.salesManifest.labels.close}
         </Button>
       </DialogActions>
     </React.Fragment>

@@ -134,7 +134,7 @@ const AllowanceTypeForm = ({
     mutationFn: humanResourcesServices.addAllowanceType,
     onSuccess: () => {
       setOpenDialog(false);
-      enqueueSnackbar('Allowance Type Added Successfully', {
+      enqueueSnackbar(dictionary.humanResources.allowanceTypes.form.messages.addSuccess, {
         variant: 'success',
       });
       queryClient.invalidateQueries({ queryKey: ['allowanceTypes'] });
@@ -152,7 +152,7 @@ const AllowanceTypeForm = ({
     mutationFn: humanResourcesServices.updateAllowanceType,
     onSuccess: () => {
       setOpenDialog(false);
-      enqueueSnackbar('Allowance Type Updated Successfully', {
+      enqueueSnackbar(dictionary.humanResources.allowanceTypes.form.messages.updateSuccess, {
         variant: 'success',
       });
       queryClient.invalidateQueries({ queryKey: ['allowanceTypes'] });
@@ -212,22 +212,22 @@ const AllowanceTypeForm = ({
     id: yup.number().optional(),
     name: yup
       .string()
-      .required('Name is required')
-      .max(255, 'Name cannot exceed 255 characters'),
-    code: yup.string().max(50, 'Code cannot exceed 50 characters'),
+      .required(dictionary.humanResources.allowanceTypes.form.validation.nameRequired)
+      .max(255, dictionary.humanResources.allowanceTypes.form.validation.nameMax),
+    code: yup.string().max(50, dictionary.humanResources.allowanceTypes.form.validation.codeMax),
     is_taxable: yup.boolean().required(),
     default_value: yup
       .number()
-      .typeError('Default value must be a number')
-      .required('Default value is required')
-      .min(0, 'Default value must be 0 or greater'),
+      .typeError(dictionary.humanResources.allowanceTypes.form.validation.defaultValueNumber)
+      .required(dictionary.humanResources.allowanceTypes.form.validation.defaultValueRequired)
+      .min(0, dictionary.humanResources.allowanceTypes.form.validation.defaultValueMin),
     // Optional — an unmapped allowance falls back to the employee's department
     // (or the run's fallback) salary expense account when posting, same as
     // basic salary itself; see PayrollPostingService::post().
     expense_ledger_id: yup.number().nullable(),
     description: yup
       .string()
-      .max(500, 'Description cannot exceed 500 characters'),
+      .max(500, dictionary.humanResources.allowanceTypes.form.validation.descriptionMax),
     apply_to_employees: yup
       .string()
       .oneOf(['none', 'all', 'active_contracts'])
@@ -298,24 +298,23 @@ const AllowanceTypeForm = ({
     <>
       <DialogTitle>
         <Grid size={12} textAlign={'center'}>
-          {!allowanceType?.id ? 'Add Allowance Type' : 'Edit Allowance Type'}
+          {!allowanceType?.id
+            ? dictionary.humanResources.allowanceTypes.form.titles.add
+            : dictionary.humanResources.allowanceTypes.form.titles.edit}
         </Grid>
       </DialogTitle>
       <DialogContent>
         <form autoComplete='off' onSubmit={handleSubmit(onSubmit)}>
           {isReservedType && (
             <Alert severity='info' sx={{ mb: 2 }}>
-              This is a system-provisioned allowance type — payroll matches it
-              by its Code, so Name, Code, Default Value, and Is Taxable are
-              locked. Only the ledger mapping and description can be changed
-              here.
+              {dictionary.humanResources.allowanceTypes.form.helpers.reservedAlert}
             </Alert>
           )}
           <Grid container rowSpacing={{ xs: 1, md: 2 }} spacing={2}>
             <Grid size={{ xs: 12, md: 8 }}>
               <Div sx={{ mt: 1, mb: 1 }}>
                 <TextField
-                  label='Name'
+                  label={dictionary.humanResources.allowanceTypes.form.labels.name}
                   size='small'
                   fullWidth
                   disabled={isReservedType}
@@ -335,7 +334,7 @@ const AllowanceTypeForm = ({
             <Grid size={{ xs: 12, md: 4 }}>
               <Div sx={{ mt: 1, mb: 1 }}>
                 <TextField
-                  label='Code'
+                  label={dictionary.humanResources.allowanceTypes.form.labels.code}
                   size='small'
                   fullWidth
                   disabled={isReservedType}
@@ -384,7 +383,7 @@ const AllowanceTypeForm = ({
                         PERMISSIONS.ACCOUNTS_MASTERS_CREATE
                       ) && (
                         <Tooltip
-                          title={'Quick Add Ledger'}
+                          title={dictionary.tooltips.quickAddLedger}
                           onClick={() => {
                             setLedgertType('debit');
                             setOpenQuickAddLedger(true);
@@ -406,7 +405,7 @@ const AllowanceTypeForm = ({
                   control={control}
                   render={({ field }) => (
                     <TextField
-                      label='Default Value'
+                      label={dictionary.humanResources.allowanceTypes.form.labels.defaultValue}
                       size='small'
                       fullWidth
                       disabled={isReservedType}
@@ -447,21 +446,23 @@ const AllowanceTypeForm = ({
                     render={({ field }) => (
                       <TextField
                         select
-                        label='Apply To Employees'
+                        label={dictionary.humanResources.allowanceTypes.form.labels.applyToEmployees}
                         size='small'
                         fullWidth
                         value={field.value || 'none'}
                         onChange={field.onChange}
                         helperText={
                           applyScope !== 'none'
-                            ? 'This will apply to all existing employees'
-                            : 'Select an option to bulk apply this allowance'
+                            ? dictionary.humanResources.allowanceTypes.form.helpers.applyAll
+                            : dictionary.humanResources.allowanceTypes.form.helpers.applyNone
                         }
                       >
-                        <MenuItem value='none'>None</MenuItem>
-                        <MenuItem value='all'>All Employees</MenuItem>
+                        <MenuItem value='none'>{dictionary.humanResources.allowanceTypes.form.options.none}</MenuItem>
+                        <MenuItem value='all'>
+                          {dictionary.humanResources.allowanceTypes.form.options.allEmployees}
+                        </MenuItem>
                         <MenuItem value='active_contracts'>
-                          Employees With Active Contracts
+                          {dictionary.humanResources.allowanceTypes.form.options.activeContracts}
                         </MenuItem>
                       </TextField>
                     )}
@@ -473,7 +474,7 @@ const AllowanceTypeForm = ({
             <Grid size={{ xs: 12 }}>
               <Div sx={{ mt: 1, mb: 1 }}>
                 <TextField
-                  label='Description'
+                  label={dictionary.humanResources.allowanceTypes.form.labels.description}
                   size='small'
                   fullWidth
                   multiline
@@ -507,7 +508,7 @@ const AllowanceTypeForm = ({
                           }
                         />
                       }
-                      label='Is Taxable'
+                      label={dictionary.humanResources.allowanceTypes.form.labels.isTaxable}
                     />
                   )}
                 />
@@ -517,7 +518,7 @@ const AllowanceTypeForm = ({
 
           <DialogActions>
             <Button size='small' onClick={() => setOpenDialog(false)}>
-              Cancel
+              {dictionary.humanResources.allowanceTypes.form.buttons.cancel}
             </Button>
             <LoadingButton
               type='submit'
@@ -526,7 +527,7 @@ const AllowanceTypeForm = ({
               sx={{ display: 'flex' }}
               loading={isPending || updateIsPending}
             >
-              Submit
+              {dictionary.humanResources.allowanceTypes.form.buttons.submit}
             </LoadingButton>
           </DialogActions>
         </form>
@@ -541,61 +542,65 @@ const AllowanceTypeForm = ({
       >
         <DialogTitle>
           <Typography variant='h6' fontWeight={600}>
-            Confirm Bulk Application
+            {dictionary.humanResources.allowanceTypes.form.titles.confirmBulk}
           </Typography>
         </DialogTitle>
         <DialogContent>
           <Typography variant='body2' color='text.secondary' sx={{ mb: 2 }}>
-            This action will apply this allowance type to multiple employees:
+            {dictionary.humanResources.allowanceTypes.form.bulk.intro}
           </Typography>
           <Grid container spacing={1}>
             <Grid size={12}>
               <Typography variant='body2'>
-                <strong>Will Update:</strong> {confirmDialog.wouldUpdate}{' '}
-                employees
+                <strong>{dictionary.humanResources.allowanceTypes.form.bulk.willUpdate}</strong>{' '}
+                {dictionary.humanResources.allowanceTypes.form.bulk.employeesCount.replace(
+                  '{count}',
+                  String(confirmDialog.wouldUpdate)
+                )}
                 {confirmDialog.wouldUpdate > 0 && (
                   <Typography
                     variant='caption'
                     display='block'
                     color='text.secondary'
                   >
-                    (Employees who already have this allowance will be
-                    updated with the new amount)
+                    {dictionary.humanResources.allowanceTypes.form.bulk.updateNote}
                   </Typography>
                 )}
               </Typography>
             </Grid>
             <Grid size={12}>
               <Typography variant='body2'>
-                <strong>Will Create:</strong> {confirmDialog.wouldCreate} new
-                employees
+                <strong>{dictionary.humanResources.allowanceTypes.form.bulk.willCreate}</strong>{' '}
+                {dictionary.humanResources.allowanceTypes.form.bulk.newEmployeesCount.replace(
+                  '{count}',
+                  String(confirmDialog.wouldCreate)
+                )}
                 {confirmDialog.wouldCreate > 0 && (
                   <Typography
                     variant='caption'
                     display='block'
                     color='text.secondary'
                   >
-                    (Employees who don&apos;t have this allowance will get it
-                    added)
+                    {dictionary.humanResources.allowanceTypes.form.bulk.createNote}
                   </Typography>
                 )}
               </Typography>
             </Grid>
           </Grid>
           <Typography variant='body2' color='warning.main' sx={{ mt: 2 }}>
-            This action cannot be undone. Continue?
+            {dictionary.humanResources.allowanceTypes.form.bulk.warning}
           </Typography>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCancelBulkUpdate} variant='outlined'>
-            Cancel
+            {dictionary.humanResources.allowanceTypes.form.buttons.cancel}
           </Button>
           <Button
             onClick={handleConfirmBulkUpdate}
             variant='contained'
             color='warning'
           >
-            Continue
+            {dictionary.humanResources.allowanceTypes.form.buttons.continue}
           </Button>
         </DialogActions>
       </Dialog>
@@ -606,7 +611,7 @@ const AllowanceTypeForm = ({
           <QuickAddLedger
             ledgerType={ledgertType}
             toggleOpen={setOpenQuickAddLedger}
-            heading='Quick Add Ledger'
+            heading={dictionary.humanResources.allowanceTypes.form.titles.quickAddLedger}
             setAddedLedger={(v) => {
               setRecentlyAddedExpenseLedger(v);
               setValue('expense_ledger_id', v.id, {

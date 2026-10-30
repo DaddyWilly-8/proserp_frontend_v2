@@ -5,7 +5,8 @@ import PdfLogo from '@/components/pdf/PdfLogo';
 import { Document, Page, Text, View } from '@react-pdf/renderer'
 import React from 'react'
 
-function PurchaseGrnsReportPDF({organization,purchaseGrnsReport}) {
+function PurchaseGrnsReportPDF({organization,purchaseGrnsReport,dictionary}) {
+    const dict = dictionary.reports.purchaseGrnsReport;
     const mainColor = organization.settings?.main_color || "#2113AD";
     const lightColor = organization.settings?.light_color || "#bec5da";
     const contrastText = organization.settings?.contrast_text || "#FFFFFF"
@@ -35,7 +36,7 @@ function PurchaseGrnsReportPDF({organization,purchaseGrnsReport}) {
     <Document 
       title={`${purchaseGrnsReport.orderNo}`}
       author={`${purchaseGrnsReport.creator?.name}`}
-      subject='PURCHASE ORDER GRNS REPORT'
+      subject={dict.title}
       creator='ProsERP'
       producer='ProsERP'
       keywords={purchaseGrnsReport.stakeholder?.name}
@@ -46,24 +47,24 @@ function PurchaseGrnsReportPDF({organization,purchaseGrnsReport}) {
                     <PdfLogo organization={organization} />
                 </View>
                 <View style={{ flex: 1, textAlign: 'right' }}>
-                    <Text style={{...pdfStyles.majorInfo, color: mainColor }}>PURCHASE ORDER GRNS REPORT</Text>
+                    <Text style={{...pdfStyles.majorInfo, color: mainColor }}>{dict.title}</Text>
                     <Text style={{ ...pdfStyles.midInfo }}>{purchaseGrnsReport.orderNo}</Text>
-                    <Text style={{ ...pdfStyles.minInfo }}>{`As at: ${readableDate(undefined,true)}`}</Text>
+                    <Text style={{ ...pdfStyles.minInfo }}>{`${dict.asAt}: ${readableDate(undefined,true)}`}</Text>
                 </View>
             </View>
             <View style={{ ...pdfStyles.table, minHeight: 230 }}>
                 <View style={pdfStyles.tableRow}>
                     <View style={{ ...pdfStyles.tableCell, ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 0.5 }}>
-                        <Text style={{ ...pdfStyles.tableCell}}>S/N</Text>
+                        <Text style={{ ...pdfStyles.tableCell}}>{dict.sn}</Text>
                     </View>
                     <View style={{ ...pdfStyles.tableCell, ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 4 }}>
-                        <Text style={{ ...pdfStyles.tableCell}}>Products</Text>
+                        <Text style={{ ...pdfStyles.tableCell}}>{dict.products}</Text>
                     </View>
                     <View style={{ ...pdfStyles.tableCell, ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 0.6 }}>
-                        <Text style={{ ...pdfStyles.tableCell}}>Unit</Text>
+                        <Text style={{ ...pdfStyles.tableCell}}>{dict.unit}</Text>
                     </View>
                     <View style={{ ...pdfStyles.tableCell, ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 1.5 }}>
-                        <Text style={{ ...pdfStyles.tableCell}}>Ordered</Text>
+                        <Text style={{ ...pdfStyles.tableCell}}>{dict.ordered}</Text>
                         <Text style={{ ...pdfStyles.tableCell}}>{readableDate(purchaseGrnsReport.order_date)}</Text>
                     </View>
 
@@ -76,7 +77,7 @@ function PurchaseGrnsReportPDF({organization,purchaseGrnsReport}) {
                     ))}
     
                     <View style={{ ...pdfStyles.tableCell, ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 1.5 }}>
-                        <Text style={{ ...pdfStyles.tableCell}}>Pending</Text>
+                        <Text style={{ ...pdfStyles.tableCell}}>{dict.pending}</Text>
                         <Text style={{ ...pdfStyles.tableCell}}>{readableDate()}</Text>
                     </View>
                 </View>

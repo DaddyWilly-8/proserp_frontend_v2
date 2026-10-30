@@ -24,6 +24,7 @@ import DepartmentSelector from '@/components/humanResources/departments/Departme
 import { DepartmentsProvider } from '@/components/humanResources/departments/DepartmentsProvider';
 import CostCenterSelector from '@/components/masters/costCenters/CostCenterSelector';
 import smsServices from './sms-services';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface EmployeeOption {
   id: number;
@@ -48,6 +49,7 @@ const SmsEmployeeFilterPicker = ({
 }: {
   onChange: (selection: { employeeIds: number[]; allEmployees: boolean }) => void;
 }) => {
+  const dictionary = useDictionary();
   const [gender, setGender] = useState('');
   const [department, setDepartment] = useState<Department | null>(null);
   const [costCenter, setCostCenter] = useState<CostCenter | null>(null);
@@ -122,25 +124,25 @@ const SmsEmployeeFilterPicker = ({
             }}
           />
         }
-        label='Send to all employees (ignore filters below)'
+        label={dictionary.forms.sms.employeePicker.sendToAll}
       />
 
       {allEmployees && (
         <Alert severity='warning'>
           {isCountFetching
-            ? 'Checking total employee count...'
-            : `This will message every employee with a valid phone number out of ${totalEmployeeCount ?? '?'} total employees. Those without a valid phone number are skipped automatically.`}
+            ? dictionary.forms.sms.employeePicker.checkingCount
+            : dictionary.forms.sms.employeePicker.allEmployeesWarning.replace('{total}', String(totalEmployeeCount ?? '?'))}
         </Alert>
       )}
 
       <Grid container spacing={2}>
         <Grid size={{ xs: 12, md: 4 }}>
           <FormControl size='small' fullWidth disabled={allEmployees}>
-            <InputLabel>Gender</InputLabel>
-            <Select label='Gender' value={gender} onChange={(e) => setGender(e.target.value)}>
-              <MenuItem value=''>Any</MenuItem>
-              <MenuItem value='male'>Male</MenuItem>
-              <MenuItem value='female'>Female</MenuItem>
+            <InputLabel>{dictionary.forms.sms.employeePicker.gender}</InputLabel>
+            <Select label={dictionary.forms.sms.employeePicker.gender} value={gender} onChange={(e) => setGender(e.target.value)}>
+              <MenuItem value=''>{dictionary.forms.sms.employeePicker.any}</MenuItem>
+              <MenuItem value='male'>{dictionary.forms.sms.employeePicker.male}</MenuItem>
+              <MenuItem value='female'>{dictionary.forms.sms.employeePicker.female}</MenuItem>
             </Select>
           </FormControl>
         </Grid>
@@ -148,7 +150,7 @@ const SmsEmployeeFilterPicker = ({
           <Box sx={allEmployees ? { opacity: 0.5, pointerEvents: 'none' } : undefined}>
             <DepartmentsProvider>
               <DepartmentSelector
-                label='Department'
+                label={dictionary.forms.sms.employeePicker.department}
                 onChange={(value) => setDepartment((value as Department) || null)}
               />
             </DepartmentsProvider>
@@ -156,7 +158,7 @@ const SmsEmployeeFilterPicker = ({
         </Grid>
         <Grid size={{ xs: 12, md: 4 }}>
           <CostCenterSelector
-            label='Cost Center'
+            label={dictionary.forms.sms.employeePicker.costCenter}
             multiple={false}
             disabled={allEmployees}
             onChange={(value) => setCostCenter((value as CostCenter) || null)}
@@ -166,10 +168,10 @@ const SmsEmployeeFilterPicker = ({
 
       {hasFilter && (
         <>
-          {isFetching && <Typography color='text.secondary'>Searching employees...</Typography>}
+          {isFetching && <Typography color='text.secondary'>{dictionary.forms.sms.employeePicker.searching}</Typography>}
 
           {!isFetching && employees.length === 0 && (
-            <Typography color='text.secondary'>No employees match this filter.</Typography>
+            <Typography color='text.secondary'>{dictionary.forms.sms.employeePicker.noMatch}</Typography>
           )}
 
           {!isFetching && employees.length > 0 && (
@@ -184,10 +186,10 @@ const SmsEmployeeFilterPicker = ({
                       disabled={withPhone.length === 0}
                     />
                   }
-                  label={`Select all with a phone number (${withPhone.length})`}
+                  label={dictionary.forms.sms.employeePicker.selectAllWithPhone.replace('{count}', String(withPhone.length))}
                 />
                 {withoutPhoneCount > 0 && (
-                  <Chip size='small' color='warning' label={`${withoutPhoneCount} without phone number`} />
+                  <Chip size='small' color='warning' label={dictionary.forms.sms.employeePicker.withoutPhone.replace('{count}', String(withoutPhoneCount))} />
                 )}
               </Stack>
               <List dense sx={{ maxHeight: 260, overflowY: 'auto' }}>
@@ -209,7 +211,7 @@ const SmsEmployeeFilterPicker = ({
                     </ListItemIcon>
                     <ListItemText
                       primary={`${employee.first_name} ${employee.last_name}`}
-                      secondary={employee.phone_number || 'No phone number'}
+                      secondary={employee.phone_number || dictionary.forms.sms.employeePicker.noPhone}
                     />
                   </ListItem>
                 ))}

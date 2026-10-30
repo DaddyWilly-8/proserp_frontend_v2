@@ -1,5 +1,6 @@
 'use client';
 
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import { AddCircleOutline, DeleteOutline } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
 import {
@@ -88,6 +89,8 @@ const AbsenceBatchRow = ({
   onChange,
   onRemove,
 }: AbsenceBatchRowProps) => {
+  const dictionary = useDictionary();
+  const t = dictionary.humanResources.payrollPeriods;
   const { data: hourlyRateResponse } = useQuery({
     queryKey: ['absenceHourlyRate', row.employee?.id],
     queryFn: () => humanResourcesServices.getAbsenceHourlyRate(row.employee?.id),
@@ -120,7 +123,7 @@ const AbsenceBatchRow = ({
           }}
         >
           <Typography variant='subtitle2' color='text.secondary'>
-            Row {index + 1}
+            {t.batchDialogs.row.replace('{n}', String(index + 1))}
           </Typography>
           <IconButton color='error' onClick={onRemove} disabled={!canRemove}>
             <DeleteOutline />
@@ -142,7 +145,7 @@ const AbsenceBatchRow = ({
           </Grid>
           <Grid size={{ xs: 12, sm: 4 }}>
             <DatePicker
-              label='Date'
+              label={t.common.date}
               value={row.date ? dayjs(row.date) : null}
               onChange={(newValue) =>
                 onChange({ date: newValue ? newValue.toISOString() : '' })
@@ -154,7 +157,7 @@ const AbsenceBatchRow = ({
           </Grid>
           <Grid size={{ xs: 12, sm: 3 }}>
             <TextField
-              label='Hours'
+              label={t.batchDialogs.hours}
               fullWidth
               type='number'
               value={row.hours}
@@ -171,7 +174,7 @@ const AbsenceBatchRow = ({
         <Grid container spacing={2.5}>
           <Grid size={{ xs: 12, sm: 6 }}>
             <TextField
-              label='Rate/Hour'
+              label={t.batchDialogs.ratePerHour}
               fullWidth
               value={row.hourlyRate}
               onChange={(e) => {
@@ -184,20 +187,23 @@ const AbsenceBatchRow = ({
               InputProps={{ inputComponent: CommaSeparatedField as any }}
               helperText={
                 row.rateTouched
-                  ? 'Overridden — clear to fall back to the derived rate'
+                  ? t.batchDialogs.rate.overridden
                   : derivedRate !== null
-                    ? 'Auto-derived from contract — edit to override'
+                    ? t.batchDialogs.rate.autoDerived
                     : row.employee
-                      ? "Couldn't derive a rate for this employee — enter it manually"
-                      : 'Pick an employee to auto-derive a rate'
+                      ? t.batchDialogs.rate.couldNotDerive
+                      : t.batchDialogs.rate.pickEmployee
               }
             />
           </Grid>
           <Grid size={{ xs: 12, sm: 6 }}>
             <Alert severity='info' sx={{ borderRadius: 2, height: '100%' }}>
               {computedAmount !== null
-                ? `Deduction: ${computedAmount.toLocaleString()}`
-                : 'Enter hours and a rate to see the deduction'}
+                ? t.batchDialogs.deductionAmount.replace(
+                    '{amount}',
+                    computedAmount.toLocaleString()
+                  )
+                : t.batchDialogs.enterHoursAndRate}
             </Alert>
           </Grid>
         </Grid>
@@ -205,11 +211,11 @@ const AbsenceBatchRow = ({
         <Grid container spacing={2.5}>
           <Grid size={{ xs: 12 }}>
             <TextField
-              label='Remarks'
+              label={t.common.remarks}
               fullWidth
               value={row.remarks}
               onChange={(e) => onChange({ remarks: e.target.value })}
-              placeholder='Optional'
+              placeholder={t.common.optional}
             />
           </Grid>
         </Grid>
@@ -218,14 +224,14 @@ const AbsenceBatchRow = ({
   );
 };
 
-const getErrorMessage = (error: any) => {
+const getErrorMessage = (error: any, fallback: string) => {
   const validationErrors = error?.response?.data?.validation_errors;
   if (validationErrors && typeof validationErrors === 'object') {
     const first = Object.values(validationErrors)[0] as any;
     return Array.isArray(first) ? first[0] : String(first);
   }
   return (
-    error?.response?.data?.message || error?.message || 'Something went wrong'
+    error?.response?.data?.message || error?.message || fallback
   );
 };
 
@@ -240,6 +246,8 @@ const LogAbsenceBatchDialog = ({
   year,
   onSaved,
 }: LogAbsenceBatchDialogProps) => {
+  const dictionary = useDictionary();
+  const t = dictionary.humanResources.payrollPeriods;
   const theme = useTheme();
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
   const { enqueueSnackbar } = useSnackbar();
@@ -297,7 +305,9 @@ const LogAbsenceBatchDialog = ({
       }
     },
     onError: (error: any) => {
-      enqueueSnackbar(getErrorMessage(error), { variant: 'error' });
+      enqueueSnackbar(getErrorMessage(error, t.batchDialogs.somethingWentWrong), {
+        variant: 'error',
+      });
     },
   });
 
@@ -330,13 +340,13 @@ const LogAbsenceBatchDialog = ({
       fullScreen={belowLargeScreen}
       scroll={belowLargeScreen ? 'body' : 'paper'}
     >
-      <DialogTitle>Log Absence Entries</DialogTitle>
+      <DialogTitle>{t.batchDialogs.logAbsenceTitle}</DialogTitle>
       <DialogContent>
         <Stack spacing={3} sx={{ pt: 1 }}>
           <Typography variant='body2' color='text.secondary'>
-            Add one row per employee/date, then save them all at once. Dates
-            must fall within {monthName} {year}. A row with a problem is
-            skipped and reported — it won&apos;t block the others.
+            {t.batchDialogs.intro
+              .replace('{month}', String(monthName))
+              .replace('{year}', String(year))}
           </Typography>
 
           {result && (
@@ -349,7 +359,9 @@ const LogAbsenceBatchDialog = ({
               </Typography>
               {result.errors?.map((err, idx) => (
                 <Typography key={idx} variant='caption' display='block'>
-                  Row {err.row}: {err.error}
+                  {t.batchDialogs.rowError
+                    .replace('{row}', String(err.row))
+                    .replace('{error}', String(err.error))}
                 </Typography>
               ))}
             </Alert>
@@ -383,19 +395,21 @@ const LogAbsenceBatchDialog = ({
               py: 1,
             }}
           >
-            Add Row
+            {t.batchDialogs.addRow}
           </Button>
         </Stack>
       </DialogContent>
       <DialogActions>
-        <Button onClick={handleClose}>Close</Button>
+        <Button onClick={handleClose}>{t.common.close}</Button>
         <LoadingButton
           onClick={handleSave}
           variant='contained'
           loading={saveMutation.isPending}
           disabled={!canSave}
         >
-          Save {rows.length > 1 ? `${rows.length} Rows` : 'Row'}
+          {rows.length > 1
+            ? t.batchDialogs.saveRows.replace('{count}', String(rows.length))
+            : t.batchDialogs.saveRow}
         </LoadingButton>
       </DialogActions>
     </Dialog>

@@ -22,6 +22,7 @@ import { Controller, useForm } from 'react-hook-form';
 import * as yup from 'yup';
 import humanResourcesServices from '../humanResourcesServices';
 import { PayeTaxBandType } from './PayeTaxBandType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface PayeTaxBandFormProps {
   setOpenDialog: (open: boolean) => void;
@@ -50,6 +51,7 @@ const PayeTaxBandForm = ({
   setOpenDialog,
   payeTaxBand = null,
 }: PayeTaxBandFormProps) => {
+  const dictionary = useDictionary();
   const queryClient = useQueryClient();
   const { enqueueSnackbar } = useSnackbar();
 
@@ -61,7 +63,7 @@ const PayeTaxBandForm = ({
     mutationFn: humanResourcesServices.addPayeTaxBand,
     onSuccess: () => {
       setOpenDialog(false);
-      enqueueSnackbar('PAYE Tax Band Added Successfully', {
+      enqueueSnackbar(dictionary.humanResources.payeTaxBands.form.messages.addSuccess, {
         variant: 'success',
       });
       queryClient.invalidateQueries({ queryKey: ['payeTaxBands'] });
@@ -91,7 +93,7 @@ const PayeTaxBandForm = ({
     mutationFn: humanResourcesServices.updatePayeTaxBand,
     onSuccess: () => {
       setOpenDialog(false);
-      enqueueSnackbar('PAYE Tax Band Updated Successfully', {
+      enqueueSnackbar(dictionary.humanResources.payeTaxBands.form.messages.updateSuccess, {
         variant: 'success',
       });
       queryClient.invalidateQueries({ queryKey: ['payeTaxBands'] });
@@ -117,14 +119,14 @@ const PayeTaxBandForm = ({
     id: yup.number().optional(),
     min_income: yup
       .number()
-      .typeError('Minimum income must be a number')
-      .required('Minimum income is required')
+      .typeError(dictionary.humanResources.payeTaxBands.form.validation.minIncomeNumber)
+      .required(dictionary.humanResources.payeTaxBands.form.validation.minIncomeRequired)
       .transform((value, originalValue) => {
         if (typeof originalValue === 'string')
           return parseFloat(originalValue.replace(/,/g, ''));
         return value;
       })
-      .min(0, 'Minimum income must be 0 or greater'),
+      .min(0, dictionary.humanResources.payeTaxBands.form.validation.minIncomeMin),
     max_income: yup
       .number()
       .nullable()
@@ -134,35 +136,37 @@ const PayeTaxBandForm = ({
           return parseFloat(originalValue.replace(/,/g, ''));
         return value;
       })
-      .min(0, 'Maximum income must be 0 or greater')
+      .min(0, dictionary.humanResources.payeTaxBands.form.validation.maxIncomeMin)
       .optional(),
     rate: yup
       .number()
-      .typeError('Rate must be a number')
-      .required('Rate is required')
-      .min(0, 'Rate must be 0 or greater')
-      .max(1, 'Rate must be a decimal (e.g. 0.30 for 30%)'),
+      .typeError(dictionary.humanResources.payeTaxBands.form.validation.rateNumber)
+      .required(dictionary.humanResources.payeTaxBands.form.validation.rateRequired)
+      .min(0, dictionary.humanResources.payeTaxBands.form.validation.rateMin)
+      .max(1, dictionary.humanResources.payeTaxBands.form.validation.rateMax),
     fixed_tax: yup
       .number()
-      .typeError('Fixed tax must be a number')
-      .required('Fixed tax is required')
+      .typeError(dictionary.humanResources.payeTaxBands.form.validation.fixedTaxNumber)
+      .required(dictionary.humanResources.payeTaxBands.form.validation.fixedTaxRequired)
       .transform((value, originalValue) => {
         if (typeof originalValue === 'string')
           return parseFloat(originalValue.replace(/,/g, ''));
         return value;
       })
-      .min(0, 'Fixed tax must be 0 or greater'),
+      .min(0, dictionary.humanResources.payeTaxBands.form.validation.fixedTaxMin),
     excess_over: yup
       .number()
-      .typeError('Excess over must be a number')
-      .required('Excess over is required')
+      .typeError(dictionary.humanResources.payeTaxBands.form.validation.excessOverNumber)
+      .required(dictionary.humanResources.payeTaxBands.form.validation.excessOverRequired)
       .transform((value, originalValue) => {
         if (typeof originalValue === 'string')
           return parseFloat(originalValue.replace(/,/g, ''));
         return value;
       })
-      .min(0, 'Excess over must be 0 or greater'),
-    effective_from: yup.string().required('Effective from is required'),
+      .min(0, dictionary.humanResources.payeTaxBands.form.validation.excessOverMin),
+    effective_from: yup.string().required(
+      dictionary.humanResources.payeTaxBands.form.validation.effectiveFromRequired
+    ),
     effective_to: yup.string().nullable().optional(),
   });
 
@@ -215,7 +219,7 @@ const PayeTaxBandForm = ({
     <>
       <DialogTitle>
         <Grid size={12} textAlign={'center'}>
-          {!payeTaxBand?.id ? 'Add PAYE Tax Band' : 'Edit PAYE Tax Band'}
+          {!payeTaxBand?.id ? dictionary.humanResources.payeTaxBands.form.titles.add : dictionary.humanResources.payeTaxBands.form.titles.edit}
         </Grid>
       </DialogTitle>
       <DialogContent>
@@ -224,7 +228,7 @@ const PayeTaxBandForm = ({
             <Grid size={{ xs: 12, md: 6 }}>
               <Div sx={{ mt: 1, mb: 1 }}>
                 <TextField
-                  label='Minimum Income'
+                  label={dictionary.humanResources.payeTaxBands.form.labels.minIncome}
                   size='small'
                   fullWidth
                   error={
@@ -244,7 +248,7 @@ const PayeTaxBandForm = ({
             <Grid size={{ xs: 12, md: 6 }}>
               <Div sx={{ mt: 1, mb: 1 }}>
                 <TextField
-                  label='Maximum Income'
+                  label={dictionary.humanResources.payeTaxBands.form.labels.maxIncome}
                   size='small'
                   fullWidth
                   error={
@@ -264,7 +268,7 @@ const PayeTaxBandForm = ({
             <Grid size={{ xs: 12, md: 4 }}>
               <Div sx={{ mt: 1, mb: 1 }}>
                 <TextField
-                  label='Rate (decimal, e.g. 0.30 = 30%)'
+                  label={dictionary.humanResources.payeTaxBands.form.labels.rate}
                   size='small'
                   fullWidth
                   error={
@@ -283,7 +287,7 @@ const PayeTaxBandForm = ({
             <Grid size={{ xs: 12, md: 4 }}>
               <Div sx={{ mt: 1, mb: 1 }}>
                 <TextField
-                  label='Fixed Tax'
+                  label={dictionary.humanResources.payeTaxBands.form.labels.fixedTax}
                   size='small'
                   fullWidth
                   error={
@@ -303,7 +307,7 @@ const PayeTaxBandForm = ({
             <Grid size={{ xs: 12, md: 4 }}>
               <Div sx={{ mt: 1, mb: 1 }}>
                 <TextField
-                  label='Excess Over'
+                  label={dictionary.humanResources.payeTaxBands.form.labels.excessOver}
                   size='small'
                   fullWidth
                   error={
@@ -327,7 +331,7 @@ const PayeTaxBandForm = ({
                   control={control}
                   render={({ field }) => (
                     <DatePicker
-                      label='Effective From *'
+                      label={dictionary.humanResources.payeTaxBands.form.labels.effectiveFrom}
                       value={field.value ? dayjs(field.value) : null}
                       onChange={(v) =>
                         field.onChange(v ? v.format('YYYY-MM-DD') : '')
@@ -363,7 +367,7 @@ const PayeTaxBandForm = ({
                   control={control}
                   render={({ field }) => (
                     <DatePicker
-                      label='Effective To'
+                      label={dictionary.humanResources.payeTaxBands.form.labels.effectiveTo}
                       value={field.value ? dayjs(field.value) : null}
                       onChange={(v) =>
                         field.onChange(v ? v.format('YYYY-MM-DD') : null)
@@ -395,7 +399,7 @@ const PayeTaxBandForm = ({
 
           <DialogActions>
             <Button size='small' onClick={() => setOpenDialog(false)}>
-              Cancel
+              {dictionary.humanResources.payeTaxBands.form.buttons.cancel}
             </Button>
             <LoadingButton
               type='submit'
@@ -404,7 +408,7 @@ const PayeTaxBandForm = ({
               sx={{ display: 'flex' }}
               loading={isPending || updateIsPending}
             >
-              Submit
+              {dictionary.humanResources.payeTaxBands.form.buttons.submit}
             </LoadingButton>
           </DialogActions>
         </form>

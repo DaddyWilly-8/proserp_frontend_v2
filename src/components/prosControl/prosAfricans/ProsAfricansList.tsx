@@ -13,8 +13,10 @@ import { useJumboAuth } from "@/app/providers/JumboAuthProvider";
 import { Div } from "@jumbo/shared";
 import { PROS_CONTROL_PERMISSIONS } from "@/utilities/constants/prosControlPermissions";
 import { Organization } from "@/types/auth-types";
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const ProsAfricansList = () => {
+  const dictionary = useDictionary();
   const params = useParams();
   const { showDialog } = useJumboDialog();
   const { checkPermission, authOrganization } = useJumboAuth();
@@ -71,7 +73,7 @@ const ProsAfricansList = () => {
               </Grid>
               {canAdd && (
                 <Grid size={{xs: 12, md: 2, lg: 1}} textAlign="end">
-                  <Tooltip title="Add Members">
+                  <Tooltip title={dictionary.tooltips.addMembers}>
                     <IconButton
                       onClick={() =>
                         showDialog({

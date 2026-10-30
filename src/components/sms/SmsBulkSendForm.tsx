@@ -34,6 +34,7 @@ import { getErrorMessage } from '@/utilities/helpers/errorHandler';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
 import UnauthorizedAccess from '@/shared/Information/UnauthorizedAccess';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const PLACEHOLDERS = ['name', 'phone', 'email', 'gender'];
 
@@ -65,6 +66,7 @@ const parseRawRecipients = (raw: string) =>
     });
 
 const SmsBulkSendForm = () => {
+  const dictionary = useDictionary();
   const queryClient = useQueryClient();
   const { enqueueSnackbar } = useSnackbar();
   const { checkOrganizationPermission } = useJumboAuth();
@@ -90,7 +92,7 @@ const SmsBulkSendForm = () => {
 
   const validationSchema = yup.object({
     rawRecipients: yup.string().default(''),
-    body: yup.string().required('Message template is required').max(918, 'Message must be at most 918 characters'),
+    body: yup.string().required(dictionary.forms.sms.bulk.errors.templateRequired).max(918, dictionary.forms.sms.bulk.errors.templateMax),
   });
 
   const {
@@ -136,7 +138,7 @@ const SmsBulkSendForm = () => {
       !employeeSelection.allEmployees &&
       rawRecipients.length === 0
     ) {
-      enqueueSnackbar('Select at least one group, stakeholder, employee, or recipient', { variant: 'error' });
+      enqueueSnackbar(dictionary.forms.sms.bulk.messages.selectAtLeastOne, { variant: 'error' });
       return;
     }
 
@@ -167,7 +169,7 @@ const SmsBulkSendForm = () => {
               onChange={(_e, newValue) => setSelectedGroups(newValue)}
               getOptionLabel={(option) => `${option.name} (${option.stakeholders_count})`}
               isOptionEqualToValue={(option, value) => option.id === value.id}
-              renderInput={(params) => <TextField {...params} label='Stakeholder Groups' size='small' />}
+              renderInput={(params) => <TextField {...params} label={dictionary.forms.sms.bulk.labels.stakeholderGroups} size='small' />}
             />
           </Div>
         </Grid>
@@ -176,7 +178,7 @@ const SmsBulkSendForm = () => {
             <StakeholderSelectProvider>
               <StakeholderSelector
                 multiple
-                label='Individual Stakeholders'
+                label={dictionary.forms.sms.bulk.labels.individualStakeholders}
                 disabled={allStakeholders}
                 onChange={(value) => setSelectedStakeholders((value as Stakeholder[]) || [])}
               />
@@ -184,19 +186,19 @@ const SmsBulkSendForm = () => {
           </Div>
           <FormControlLabel
             control={<Checkbox checked={allStakeholders} onChange={(e) => setAllStakeholders(e.target.checked)} />}
-            label='Send to all stakeholders'
+            label={dictionary.forms.sms.bulk.labels.sendToAllStakeholders}
           />
           {allStakeholders && (
             <Alert severity='warning' sx={{ mt: 1 }}>
               {isStakeholderCountFetching
-                ? 'Checking total stakeholder count...'
-                : `This will message every stakeholder with a valid phone number out of ${allStakeholdersCountData?.total ?? '?'} total stakeholders.`}
+                ? dictionary.forms.sms.bulk.alerts.checkingStakeholders
+                : dictionary.forms.sms.bulk.alerts.allStakeholders.replace('{total}', String(allStakeholdersCountData?.total ?? '?'))}
             </Alert>
           )}
         </Grid>
         <Grid size={12}>
           <Typography variant='subtitle2' color='text.secondary' mb={1}>
-            Employees (filter by gender, department, or cost center, then pick who to message)
+            {dictionary.forms.sms.bulk.labels.employeesHeading}
           </Typography>
           <SmsEmployeeFilterPicker onChange={setEmployeeSelection} />
         </Grid>
@@ -208,8 +210,8 @@ const SmsBulkSendForm = () => {
               render={({ field }) => (
                 <TextField
                   {...field}
-                  label='Raw Recipients (optional)'
-                  placeholder={'One per line: phone or phone,name\ne.g. 255700000000,John'}
+                  label={dictionary.forms.sms.bulk.labels.rawRecipients}
+                  placeholder={dictionary.forms.sms.bulk.placeholders.rawRecipients}
                   fullWidth
                   multiline
                   minRows={3}
@@ -222,7 +224,7 @@ const SmsBulkSendForm = () => {
         <Grid size={12}>
           <Stack direction='row' spacing={1} mb={1}>
             <Typography variant='body2' color='text.secondary'>
-              Placeholders:
+              {dictionary.forms.sms.bulk.labels.placeholdersLabel}
             </Typography>
             {PLACEHOLDERS.map((p) => (
               <Chip key={p} size='small' label={`{${p}}`} />
@@ -235,14 +237,14 @@ const SmsBulkSendForm = () => {
               render={({ field }) => (
                 <TextField
                   {...field}
-                  label='Message Template'
-                  placeholder='Hello {name}, ...'
+                  label={dictionary.forms.sms.bulk.labels.messageTemplate}
+                  placeholder={dictionary.forms.sms.bulk.placeholders.messageTemplate}
                   fullWidth
                   multiline
                   minRows={4}
                   size='small'
                   error={!!errors.body}
-                  helperText={errors.body?.message || `${body.length}/918 characters`}
+                  helperText={errors.body?.message || dictionary.forms.sms.bulk.helper.characters.replace('{length}', String(body.length))}
                 />
               )}
             />
@@ -250,13 +252,13 @@ const SmsBulkSendForm = () => {
         </Grid>
         <Grid size={12}>
           <LoadingButton type='submit' variant='contained' size='small' loading={isPending}>
-            Send Bulk SMS
+            {dictionary.forms.sms.bulk.buttons.send}
           </LoadingButton>
         </Grid>
         {lastResult && (
           <Grid size={12}>
             <Alert severity='info' sx={{ mb: 1 }}>
-              {lastResult.message} &mdash; {lastResult.results.length} sent, {lastResult.skipped.length} skipped
+              {dictionary.forms.sms.bulk.alerts.result.replace('{message}', String(lastResult.message)).replace('{sent}', String(lastResult.results.length)).replace('{skipped}', String(lastResult.skipped.length))}
             </Alert>
             {lastResult.skipped.length > 0 && (
               <List dense>

@@ -46,6 +46,7 @@ import * as yup from 'yup';
 import { PurchaseApprovalRequisition } from '../../ApprovalRequisitionType';
 import ApprovedPurchaseItemForm from './ApprovedPurchaseItemForm';
 import ApprovedPurchaseTopInformation from './ApprovedPurchaseTopInformation';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface Order {
   id?: number;
@@ -160,6 +161,7 @@ const ApprovedPurchaseForm: React.FC<ApprovedPurchaseFormProps> = ({
   order,
   prevApprovedDetails,
 }) => {
+  const dictionary = useDictionary();
   const { authOrganization, checkOrganizationPermission } = useJumboAuth();
   // VAT Exempt only affects the flat VAT calculation a Purchase Bill applies
   // (SupplierInvoiceController::postBill()) — organizations that don't bill
@@ -320,22 +322,22 @@ const ApprovedPurchaseForm: React.FC<ApprovedPurchaseFormProps> = ({
   });
 
   const validationSchema = yup.object({
-    order_date: yup.string().required('Order date is required'),
+    order_date: yup.string().required(dictionary.forms.approvedRequisitions.approvedPurchase.validation.orderDate),
     currency_id: yup
       .number()
-      .positive('Currency is required')
-      .required('Currency is required')
-      .typeError('Currency is required'),
+      .positive(dictionary.forms.approvedRequisitions.approvedPurchase.validation.currency)
+      .required(dictionary.forms.approvedRequisitions.approvedPurchase.validation.currency)
+      .typeError(dictionary.forms.approvedRequisitions.approvedPurchase.validation.currency),
     cost_centers: yup
       .array()
-      .min(1, 'At least one cost center must be selected')
-      .required('Cost Center is required')
-      .typeError('At least one cost center must be selected'),
+      .min(1, dictionary.forms.approvedRequisitions.approvedPurchase.validation.costCenterMin)
+      .required(dictionary.forms.approvedRequisitions.approvedPurchase.validation.costCenter)
+      .typeError(dictionary.forms.approvedRequisitions.approvedPurchase.validation.costCenterMin),
     exchange_rate: yup
       .number()
-      .positive('Exchange rate is required')
-      .required('Exchange rate is required')
-      .typeError('Exchange rate is required'),
+      .positive(dictionary.forms.approvedRequisitions.approvedPurchase.validation.exchangeRate)
+      .required(dictionary.forms.approvedRequisitions.approvedPurchase.validation.exchangeRate)
+      .typeError(dictionary.forms.approvedRequisitions.approvedPurchase.validation.exchangeRate),
     stakeholder_id: yup.number().positive().nullable(),
     instant_pay: yup.boolean(),
     instant_receive: yup.boolean(),
@@ -346,16 +348,16 @@ const ApprovedPurchaseForm: React.FC<ApprovedPurchaseFormProps> = ({
         is: true,
         then: (schema) =>
           schema
-            .positive('Credit Account(From) is required')
-            .required('Credit Account(From) is required'),
+            .positive(dictionary.forms.approvedRequisitions.approvedPurchase.validation.creditAccount)
+            .required(dictionary.forms.approvedRequisitions.approvedPurchase.validation.creditAccount),
         otherwise: (schema) => schema.nullable(),
       }),
     store_id: yup.number().when(['instant_receive', 'displayStoreSelector'], {
       is: (instant_receive: boolean) => instant_receive && displayStoreSelector,
       then: (schema) =>
         schema
-          .positive('Receiving store is required')
-          .required('Receiving store is required'),
+          .positive(dictionary.forms.approvedRequisitions.approvedPurchase.validation.receivingStore)
+          .required(dictionary.forms.approvedRequisitions.approvedPurchase.validation.receivingStore),
       otherwise: (schema) => schema.nullable(),
     }),
     stakeholder_ledger_id: yup
@@ -369,8 +371,8 @@ const ApprovedPurchaseForm: React.FC<ApprovedPurchaseFormProps> = ({
         ) => instant_pay && !!stakeholder_id && !instant_receive,
         then: (schema) =>
           schema
-            .positive(`Selected supplier doesn't have any account`)
-            .required(`Selected supplier doesn't have any account`),
+            .positive(dictionary.forms.approvedRequisitions.approvedPurchase.validation.supplierNoAccount)
+            .required(dictionary.forms.approvedRequisitions.approvedPurchase.validation.supplierNoAccount),
         otherwise: (schema) => schema.nullable(),
       }),
   });
@@ -678,7 +680,7 @@ const ApprovedPurchaseForm: React.FC<ApprovedPurchaseFormProps> = ({
   const onSubmit = (data: FormValues) => {
     if (!validateAdditionalCosts()) {
       enqueueSnackbar(
-        'Please ensure each value does not exceed its cost amount.',
+        dictionary.forms.approvedRequisitions.approvedPurchase.ensureWithinCost,
         {
           variant: 'error',
         }
@@ -695,7 +697,7 @@ const ApprovedPurchaseForm: React.FC<ApprovedPurchaseFormProps> = ({
       <DialogTitle>
         <Grid container columnSpacing={2}>
           <Grid textAlign={'center'} size={12} mb={3}>
-            {order ? `Edit Order` : `New Approved Purchase Order`}
+            {order ? dictionary.forms.approvedRequisitions.approvedPurchase.titleEdit : dictionary.forms.approvedRequisitions.approvedPurchase.titleNew}
           </Grid>
           <Grid size={{ xs: 12, md: 8, lg: 9 }} mb={2}>
             <form autoComplete='off'>
@@ -748,8 +750,8 @@ const ApprovedPurchaseForm: React.FC<ApprovedPurchaseFormProps> = ({
           allowScrollButtonsMobile
           sx={{ mb: 1 }}
         >
-          <Tab label='Products' />
-          <Tab label='Additional Costs' />
+          <Tab label={dictionary.forms.approvedRequisitions.approvedPurchase.tabProducts} />
+          <Tab label={dictionary.forms.approvedRequisitions.approvedPurchase.tabAdditionalCosts} />
         </Tabs>
 
         {activeTab === 0 && (
@@ -792,7 +794,7 @@ const ApprovedPurchaseForm: React.FC<ApprovedPurchaseFormProps> = ({
 
                     return (
                       <Tooltip
-                        title={`Approved Price: ${cost?.approved_amount?.toLocaleString(
+                        title={`${dictionary.forms.approvedRequisitions.approvedPurchase.approvedPrice}: ${cost?.approved_amount?.toLocaleString(
                           'en-US',
                           {
                             minimumFractionDigits: 2,
@@ -801,7 +803,7 @@ const ApprovedPurchaseForm: React.FC<ApprovedPurchaseFormProps> = ({
                         )}`}
                       >
                         <TextField
-                          label='Amount'
+                          label={dictionary.forms.approvedRequisitions.common.amount}
                           size='small'
                           value={Number(cost.amount || 0).toLocaleString(
                             'en-US',
@@ -813,7 +815,10 @@ const ApprovedPurchaseForm: React.FC<ApprovedPurchaseFormProps> = ({
                           error={isAmountInvalid}
                           helperText={
                             isAmountInvalid
-                              ? `Value should not exceed cost amount (${costAmount.toLocaleString('en-US')}).`
+                              ? dictionary.forms.approvedRequisitions.approvedPurchase.valueExceedsCost.replace(
+                                '{amount}',
+                                costAmount.toLocaleString('en-US')
+                              )
                               : ''
                           }
                           InputProps={{
@@ -832,7 +837,7 @@ const ApprovedPurchaseForm: React.FC<ApprovedPurchaseFormProps> = ({
                 </Grid>
                 {deferGrnBilling && (
                   <Grid size={{ xs: 12, md: 3 }}>
-                    <Tooltip title="Excludes this cost from VAT when the order is later billed — e.g. CESS, a statutory levy that shouldn't itself attract VAT.">
+                    <Tooltip title={dictionary.tooltips.excludesThisCostFromVatWhen}>
                       <FormControlLabel
                         control={
                           <Checkbox
@@ -850,13 +855,13 @@ const ApprovedPurchaseForm: React.FC<ApprovedPurchaseFormProps> = ({
                             }
                           />
                         }
-                        label='VAT Exempt'
+                        label={dictionary.forms.approvedRequisitions.approvedPurchase.vatExempt}
                       />
                     </Tooltip>
                   </Grid>
                 )}
                 <Grid size={{ xs: 12, md: 1 }}>
-                  <Tooltip title='Remove Additional Cost'>
+                  <Tooltip title={dictionary.tooltips.removeAdditionalCost}>
                     <IconButton
                       size='small'
                       onClick={() => {
@@ -883,7 +888,7 @@ const ApprovedPurchaseForm: React.FC<ApprovedPurchaseFormProps> = ({
 
         {activeTab === 1 && additionalCosts.length === 0 && (
           <Alert severity='info'>
-            No additional costs found on this approved requisition.
+            {dictionary.forms.approvedRequisitions.approvedPurchase.noAdditionalCosts}
           </Alert>
         )}
 
@@ -892,7 +897,7 @@ const ApprovedPurchaseForm: React.FC<ApprovedPurchaseFormProps> = ({
           <Grid container spacing={1} sx={{ mt: 1 }}>
             <Stack direction={'column'} width={'100%'} mt={4}>
               <Divider sx={{ height: 2, width: '100%' }} />
-              <Typography>Other Addtional Costs</Typography>
+              <Typography>{dictionary.forms.approvedRequisitions.approvedPurchase.otherAdditionalCosts}</Typography>
             </Stack>
 
             <Grid container size={12} alignItems={'center'}>
@@ -923,7 +928,7 @@ const ApprovedPurchaseForm: React.FC<ApprovedPurchaseFormProps> = ({
 
                         return (
                           <Tooltip
-                            title={`Approved Price: ${costAmount.toLocaleString(
+                            title={`${dictionary.forms.approvedRequisitions.approvedPurchase.approvedPrice}: ${costAmount.toLocaleString(
                               'en-US',
                               {
                                 minimumFractionDigits: 2,
@@ -932,7 +937,7 @@ const ApprovedPurchaseForm: React.FC<ApprovedPurchaseFormProps> = ({
                             )}`}
                           >
                             <TextField
-                              label='Amount'
+                              label={dictionary.forms.approvedRequisitions.common.amount}
                               size='small'
                               disabled
                               value={Number(cost.amount || 0).toLocaleString(
@@ -941,7 +946,10 @@ const ApprovedPurchaseForm: React.FC<ApprovedPurchaseFormProps> = ({
                               error={isAmountInvalid}
                               helperText={
                                 isAmountInvalid
-                                  ? `Value should not exceed cost amount (${costAmount.toLocaleString('en-US')}).`
+                                  ? dictionary.forms.approvedRequisitions.approvedPurchase.valueExceedsCost.replace(
+                                '{amount}',
+                                costAmount.toLocaleString('en-US')
+                              )
                                   : ''
                               }
                               InputProps={{
@@ -959,7 +967,7 @@ const ApprovedPurchaseForm: React.FC<ApprovedPurchaseFormProps> = ({
                       })()}
                     </Grid>
                     <Grid size={{ xs: 12, md: 1 }}>
-                      <Tooltip title='Add Additional Cost'>
+                      <Tooltip title={dictionary.tooltips.addAdditionalCost}>
                         <IconButton
                           size='small'
                           onClick={() => {
@@ -991,7 +999,7 @@ const ApprovedPurchaseForm: React.FC<ApprovedPurchaseFormProps> = ({
           <Grid container spacing={1} sx={{ mt: 1 }}>
             <Stack direction={'column'} width={'100%'} mt={4}>
               <Divider sx={{ height: 2, width: '100%' }} />
-              <Typography>Removed Addtional Costs</Typography>
+              <Typography>{dictionary.forms.approvedRequisitions.approvedPurchase.removedAdditionalCosts}</Typography>
             </Stack>
 
             <Grid container size={12} alignItems={'center'}>
@@ -1022,7 +1030,7 @@ const ApprovedPurchaseForm: React.FC<ApprovedPurchaseFormProps> = ({
 
                         return (
                           <Tooltip
-                            title={`Approved Price: ${cost?.approved_amount?.toLocaleString(
+                            title={`${dictionary.forms.approvedRequisitions.approvedPurchase.approvedPrice}: ${cost?.approved_amount?.toLocaleString(
                               'en-US',
                               {
                                 minimumFractionDigits: 2,
@@ -1031,7 +1039,7 @@ const ApprovedPurchaseForm: React.FC<ApprovedPurchaseFormProps> = ({
                             )}`}
                           >
                             <TextField
-                              label='Amount'
+                              label={dictionary.forms.approvedRequisitions.common.amount}
                               size='small'
                               disabled
                               value={Number(cost.amount || 0).toLocaleString(
@@ -1040,7 +1048,10 @@ const ApprovedPurchaseForm: React.FC<ApprovedPurchaseFormProps> = ({
                               error={isAmountInvalid}
                               helperText={
                                 isAmountInvalid
-                                  ? `Value should not exceed cost amount (${costAmount.toLocaleString('en-US')}).`
+                                  ? dictionary.forms.approvedRequisitions.approvedPurchase.valueExceedsCost.replace(
+                                '{amount}',
+                                costAmount.toLocaleString('en-US')
+                              )
                                   : ''
                               }
                               InputProps={{
@@ -1058,7 +1069,7 @@ const ApprovedPurchaseForm: React.FC<ApprovedPurchaseFormProps> = ({
                       })()}
                     </Grid>
                     <Grid size={{ xs: 12, md: 1 }}>
-                      <Tooltip title='Restore Additional Cost'>
+                      <Tooltip title={dictionary.tooltips.restoreAdditionalCost}>
                         <IconButton
                           size='small'
                           onClick={() => {
@@ -1090,7 +1101,7 @@ const ApprovedPurchaseForm: React.FC<ApprovedPurchaseFormProps> = ({
       </DialogContent>
       <DialogActions>
         <Button size='small' onClick={() => toggleOpen(false)}>
-          Cancel
+          {dictionary.forms.approvedRequisitions.common.cancel}
         </Button>
         {activeTab === 0 ? (
           <Button
@@ -1099,7 +1110,7 @@ const ApprovedPurchaseForm: React.FC<ApprovedPurchaseFormProps> = ({
             onClick={() => setActiveTab((prev) => Math.min(prev + 1, 1))}
             disabled={activeTab >= 1}
           >
-            Next &gt;
+            {dictionary.forms.approvedRequisitions.approvedPurchase.next}
           </Button>
         ) : (
           <Button
@@ -1107,7 +1118,7 @@ const ApprovedPurchaseForm: React.FC<ApprovedPurchaseFormProps> = ({
             variant='outlined'
             onClick={() => setActiveTab((prev) => Math.max(prev - 1, 0))}
           >
-            &lt; Prev
+            {dictionary.forms.approvedRequisitions.approvedPurchase.prev}
           </Button>
         )}
         {items?.length > 0 && activeTab === 1 && (
@@ -1119,7 +1130,7 @@ const ApprovedPurchaseForm: React.FC<ApprovedPurchaseFormProps> = ({
               addPurchaseOrder.isPending || updatePurchaseOrder.isPending
             }
           >
-            Submit
+            {dictionary.forms.approvedRequisitions.common.submit}
           </LoadingButton>
         )}
       </DialogActions>

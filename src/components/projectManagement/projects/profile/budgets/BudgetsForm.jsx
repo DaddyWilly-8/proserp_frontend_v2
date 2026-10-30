@@ -33,6 +33,7 @@ import { useSnackbar } from 'notistack';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as yup from 'yup';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import projectsServices from '../../project-services';
 import { useProjectProfile } from '../ProjectProfileProvider';
 import BudgetSummaryTab from './budgetItems/tabs/BudgetSummaryTab';
@@ -49,6 +50,8 @@ const BudgetsForm = ({
   isProjectBudget = true,
   isDuplicate = false,
 }) => {
+  const dictionary = useDictionary();
+  const t = dictionary.forms.projects.budgets;
   const queryClient = useQueryClient();
   const { enqueueSnackbar } = useSnackbar();
   const { authOrganization } = useJumboAuth();
@@ -137,14 +140,14 @@ const BudgetsForm = ({
   }, [budget]);
 
   const validationSchema = yup.object({
-    name: yup.string().required('Budget name is required'),
-    start_date: yup.string().required('Start Date is required'),
+    name: yup.string().required(t.errors.nameRequired),
+    start_date: yup.string().required(t.errors.startDateRequired),
     end_date: yup
       .string()
-      .required('End Date is required')
+      .required(t.errors.endDateRequired)
       .test(
         'is-after-start-date',
-        'End date must be after start date',
+        t.errors.endAfterStart,
         function (value) {
           const { start_date } = this.parent;
           if (!start_date || !value) return true;
@@ -153,9 +156,9 @@ const BudgetsForm = ({
       ),
     cost_center_id: yup
       .number()
-      .required('Cost Center is required')
-      .positive('Cost Center is Required')
-      .typeError('Cost Center is Required'),
+      .required(t.errors.costCenterRequired)
+      .positive(t.errors.costCenterRequired)
+      .typeError(t.errors.costCenterRequired),
   });
 
   const {
@@ -388,22 +391,22 @@ const BudgetsForm = ({
     <>
       <DialogTitle textAlign='center' sx={{ pb: 1 }}>
         {budget
-          ? `${isDuplicate ? `Duplicate` : `Edit`} ${' '} ${budget?.name} Budget`
+          ? (isDuplicate ? t.titles.duplicate : t.titles.edit).replace(
+              '{name}',
+              budget?.name
+            )
           : isProjectBudget
-            ? 'New Project Budget'
-            : 'New Budget'}
+            ? t.titles.newProject
+            : t.titles.new}
       </DialogTitle>
       <DialogContent>
         <Dialog
           open={showRestoreDialog}
           onClose={() => setShowRestoreDialog(false)}
         >
-          <DialogTitle>Restore Previous Subcontract Tasks?</DialogTitle>
+          <DialogTitle>{t.dialogs.restoreTitle}</DialogTitle>
           <DialogContent>
-            <DialogContentText>
-              You have previous Subcontract Tasks for this cost center. Would
-              you like to restore them or start with a blank list?
-            </DialogContentText>
+            <DialogContentText>{t.dialogs.restoreText}</DialogContentText>
           </DialogContent>
           <DialogActions>
             <Button
@@ -424,7 +427,7 @@ const BudgetsForm = ({
               }}
               color='inherit'
             >
-              Start New
+              {t.buttons.startNew}
             </Button>
             <Button
               onClick={() => {
@@ -449,7 +452,7 @@ const BudgetsForm = ({
               color='primary'
               variant='contained'
             >
-              Restore Previous
+              {t.buttons.restorePrevious}
             </Button>
           </DialogActions>
         </Dialog>
@@ -462,7 +465,7 @@ const BudgetsForm = ({
         >
           <Grid size={{ xs: 12, md: 4 }}>
             <TextField
-              label='Budget Name'
+              label={t.labels.budgetName}
               size='small'
               fullWidth
               error={!!errors?.name}
@@ -473,7 +476,7 @@ const BudgetsForm = ({
 
           <Grid size={{ xs: 12, md: 4 }}>
             <DateTimePicker
-              label='Start Date'
+              label={t.labels.startDate}
               fullWidth
               minDate={dayjs(organization.recording_start_date)}
               defaultValue={
@@ -501,7 +504,7 @@ const BudgetsForm = ({
 
           <Grid size={{ xs: 12, md: 4 }}>
             <DateTimePicker
-              label='End Date'
+              label={t.labels.endDate}
               fullWidth
               minDate={dayjs(watch('start_date'))}
               defaultValue={
@@ -538,7 +541,7 @@ const BudgetsForm = ({
           {!project && (
             <Grid size={{ xs: 12, md: 4 }}>
               <CostCenterSelector
-                label='Cost Center'
+                label={t.labels.costCenter}
                 frontError={errors.cost_center_id}
                 defaultValue={
                   (budget && !isDuplicate && budget.cost_center) ||
@@ -614,15 +617,9 @@ const BudgetsForm = ({
                     open={showRestoreDialog}
                     onClose={() => setShowRestoreDialog(false)}
                   >
-                    <DialogTitle>
-                      Restore Previous Subcontract Tasks?
-                    </DialogTitle>
+                    <DialogTitle>{t.dialogs.restoreTitle}</DialogTitle>
                     <DialogContent>
-                      <DialogContentText>
-                        You have previous Subcontract Tasks for this cost
-                        center. Would you like to restore them or start with a
-                        blank list?
-                      </DialogContentText>
+                      <DialogContentText>{t.dialogs.restoreText}</DialogContentText>
                     </DialogContent>
                     <DialogActions>
                       <Button
@@ -647,7 +644,7 @@ const BudgetsForm = ({
                         }}
                         color='inherit'
                       >
-                        Start New
+                        {t.buttons.startNew}
                       </Button>
                       <Button
                         onClick={() => {
@@ -676,7 +673,7 @@ const BudgetsForm = ({
                         color='primary'
                         variant='contained'
                       >
-                        Restore Previous
+                        {t.buttons.restorePrevious}
                       </Button>
                     </DialogActions>
                   </Dialog>;
@@ -687,19 +684,16 @@ const BudgetsForm = ({
                 open={showSubcontractLossDialog}
                 onClose={() => setShowSubcontractLossDialog(false)}
               >
-                <DialogTitle>Subcontract Tasks Will Be Lost</DialogTitle>
+                <DialogTitle>{t.dialogs.lossTitle}</DialogTitle>
                 <DialogContent>
-                  <DialogContentText>
-                    Changing the cost center will clear all current Subcontract
-                    Tasks. Do you want to continue?
-                  </DialogContentText>
+                  <DialogContentText>{t.dialogs.lossText}</DialogContentText>
                 </DialogContent>
                 <DialogActions>
                   <Button
                     onClick={() => setShowSubcontractLossDialog(false)}
                     color='inherit'
                   >
-                    Cancel
+                    {t.buttons.cancel}
                   </Button>
                   <Button
                     onClick={() => {
@@ -720,7 +714,7 @@ const BudgetsForm = ({
                     color='warning'
                     variant='contained'
                   >
-                    Continue
+                    {t.buttons.continue}
                   </Button>
                 </DialogActions>
               </Dialog>
@@ -730,7 +724,7 @@ const BudgetsForm = ({
           <Grid size={{ xs: 12, md: project ? 12 : 8 }}>
             <Div>
               <TextField
-                label='Remarks'
+                label={t.labels.remarks}
                 size='small'
                 fullWidth
                 multiline
@@ -748,10 +742,9 @@ const BudgetsForm = ({
                 justifyContent='space-between'
               >
                 <Grid size={{ xs: 12, md: 8 }}>
-                  <Typography variant='subtitle2'>Optional Filters</Typography>
+                  <Typography variant='subtitle2'>{t.labels.optionalFilters}</Typography>
                   <Typography variant='caption' color='text.secondary'>
-                    Use these filters to narrow down listed items. Leave blank
-                    to show all.
+                    {t.labels.filtersHint}
                   </Typography>
                 </Grid>
                 <Grid
@@ -767,7 +760,7 @@ const BudgetsForm = ({
                         onChange={(e) => setShowFiltersPanel(e.target.checked)}
                       />
                     }
-                    label='Show Filters'
+                    label={t.labels.showFilters}
                   />
                 </Grid>
               </Grid>
@@ -779,12 +772,12 @@ const BudgetsForm = ({
                       <Grid size={{ xs: 12, md: 4 }}>
                         <FormControl fullWidth>
                           <InputLabel id='budget-bound-to-filter-label'>
-                            Filter by Bound To (Optional)
+                            {t.labels.filterBoundTo}
                           </InputLabel>
                           <Select
                             labelId='budget-bound-to-filter-label'
                             value={boundToOption}
-                            label='Filter by Bound To (Optional)'
+                            label={t.labels.filterBoundTo}
                             size='small'
                             onChange={(e) => {
                               setSelectedItemable(null);
@@ -792,8 +785,8 @@ const BudgetsForm = ({
                               setBoundToOption(e.target.value);
                             }}
                           >
-                            <MenuItem value=''>All</MenuItem>
-                            <MenuItem value='Task'>Task</MenuItem>
+                            <MenuItem value=''>{t.labels.all}</MenuItem>
+                            <MenuItem value='Task'>{t.labels.task}</MenuItem>
                           </Select>
                         </FormControl>
                       </Grid>
@@ -812,8 +805,8 @@ const BudgetsForm = ({
                               {...params}
                               label={
                                 boundToOption === 'Task'
-                                  ? 'Filter by Task (Optional)'
-                                  : 'Select Bound To to enable Task filter'
+                                  ? t.labels.filterByTask
+                                  : t.labels.selectBoundTo
                               }
                               size='small'
                               fullWidth
@@ -856,7 +849,7 @@ const BudgetsForm = ({
                         renderInput={(params) => (
                           <TextField
                             {...params}
-                            label='Filter by Expense (Optional)'
+                            label={t.labels.filterByExpense}
                             size='small'
                             fullWidth
                           />
@@ -881,7 +874,7 @@ const BudgetsForm = ({
                         renderInput={(params) => (
                           <TextField
                             {...params}
-                            label='Filter by Product (Optional)'
+                            label={t.labels.filterByProduct}
                             size='small'
                             fullWidth
                           />
@@ -906,10 +899,10 @@ const BudgetsForm = ({
                         renderInput={(params) => (
                           <TextField
                             {...params}
-                            label='Filter by Subcontract Task (Optional)'
+                            label={t.labels.filterBySubTask}
                             size='small'
                             fullWidth
-                            helperText='Not required'
+                            helperText={t.labels.notRequired}
                           />
                         )}
                       />
@@ -930,12 +923,12 @@ const BudgetsForm = ({
               scrollButtons='auto'
               allowScrollButtonsMobile
             >
-              <Tab label='Expense Items' />
-              <Tab label='Product Items' />
+              <Tab label={t.tabs.expenseItems} />
+              <Tab label={t.tabs.productItems} />
               {selectedCostCenter?.cost_centerable_id && (
-                <Tab label='Subcontract Task' />
+                <Tab label={t.tabs.subcontractTask} />
               )}
-              <Tab label='Summary' />
+              <Tab label={t.tabs.summary} />
             </Tabs>
           </Grid>
 
@@ -1045,7 +1038,7 @@ const BudgetsForm = ({
       </DialogContent>
       <DialogActions>
         <Button size='small' onClick={() => setOpenDialog(false)}>
-          Cancel
+          {t.buttons.cancel}
         </Button>
         <LoadingButton
           type='submit'
@@ -1055,30 +1048,27 @@ const BudgetsForm = ({
           sx={{ display: 'flex' }}
           loading={isPending}
         >
-          Submit
+          {t.buttons.submit}
         </LoadingButton>
       </DialogActions>
       <Dialog open={showWarning} onClose={() => setShowWarning(false)}>
-        <DialogTitle>Unsaved Expense Item</DialogTitle>
+        <DialogTitle>{t.dialogs.unsavedTitle}</DialogTitle>
         <DialogContent>
-          <DialogContentText>
-            You have unsaved changes in Expense Items form. Do you want to add
-            the item first, or submit without adding it?
-          </DialogContentText>
+          <DialogContentText>{t.dialogs.unsavedText}</DialogContentText>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setShowWarning(false)} color='inherit'>
-            Cancel
+            {t.buttons.cancel}
           </Button>
           <Button
             onClick={handleConfirmSubmitWithoutAdd}
             color='warning'
             variant='outlined'
           >
-            Submit Without Add
+            {t.buttons.submitWithoutAdd}
           </Button>
           <LoadingButton onClick={handleAddAndSubmit} variant='contained'>
-            Add & Submit
+            {t.buttons.addAndSubmit}
           </LoadingButton>
         </DialogActions>
       </Dialog>

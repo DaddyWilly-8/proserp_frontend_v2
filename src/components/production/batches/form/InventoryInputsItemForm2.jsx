@@ -18,6 +18,7 @@ import { Div } from '@jumbo/shared';
 import CommaSeparatedField from '@/shared/Inputs/CommaSeparatedField';
 import { sanitizedNumber } from '@/app/helpers/input-sanitization-helpers';
 import StoreSelector from '@/components/procurement/stores/StoreSelector';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
   
   // Custom Input Component
   const CustomTextField = ({ label, defaultValue, onChange, InputProps, ...props }) => (
@@ -72,6 +73,7 @@ import StoreSelector from '@/components/procurement/stores/StoreSelector';
     outputs,
     watch, setValue, errors
     }) {
+    const dictionary = useDictionary();
     const { activeWorkCenter } = useContext(ProductionBatchesContext);
     const currentOutput = outputs[0];
     const [isRetrieving, setIsRetrieving] = useState({});
@@ -208,7 +210,7 @@ import StoreSelector from '@/components/procurement/stores/StoreSelector';
   
                 <Grid size={{xs: 11.5, md: 5.5}}>
                   <Div sx={{ mt: 1.7, mb: 1.7 }}>
-                    <Tooltip title="Product">
+                    <Tooltip title={dictionary.tooltips.product}>
                       <CustomSelect
                         value={selectedProducts[index]?.id || ''}
                         onChange={async (e) => {
@@ -263,7 +265,7 @@ import StoreSelector from '@/components/procurement/stores/StoreSelector';
                       <LinearProgress />
                     ) : (
                       <Tooltip
-                        title={!isStoreSelected ? `Quantity Required` : `Quantity Required (Available Balance)`}
+                        title={!isStoreSelected ? dictionary.forms.batches.tooltips.quantityRequired : dictionary.forms.batches.tooltips.quantityRequiredAvailable}
                       >
                         <Typography color={availableBalance && isQuantityLow ? 'red' : null}>
                           {`${quantityFormatted} ${currentItem.measurement_unit.symbol}`}
@@ -281,7 +283,7 @@ import StoreSelector from '@/components/procurement/stores/StoreSelector';
   
                 <Grid size={{xs: 7, md: 3}}>
                   <CustomTextField
-                    label="Used Quantity"
+                    label={dictionary.forms.batches.labels.usedQuantity}
                     key={usedQtyKey}
                     defaultValue={quantity}
                     InputProps={{
@@ -350,7 +352,7 @@ import StoreSelector from '@/components/procurement/stores/StoreSelector';
   
                 <Grid size={{xs: 12, md: 6}}>
                   <CustomTextField
-                    label="Remarks"
+                    label={dictionary.forms.batches.labels.remarks}
                     defaultValue={watch(`inventory_inputs.${index}.remarks`)}
                     onChange={(e) => {
                       setFormValues(setValue, index, currentItem, watch);

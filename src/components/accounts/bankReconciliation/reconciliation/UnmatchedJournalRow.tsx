@@ -1,4 +1,5 @@
 'use client';
+import RecurringTag from '@/components/accounts/recurringTransactions/RecurringTag';
 
 import React, { useState } from 'react';
 import { Autocomplete, Box, Chip, Grid, IconButton, TextField, Tooltip, Typography } from '@mui/material';
@@ -15,6 +16,8 @@ import { descriptionIncludesVoucher } from './journal-display';
 import { formatDate } from './date-format';
 import { quickActionsFor } from './transaction-quick-actions';
 import CancelTransactionDialog from './CancelTransactionDialog';
+import { LOCKED_HINT } from './locked-hint';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface StatementLine {
   id: number;
@@ -40,6 +43,7 @@ interface Journal {
   description: string;
   comparable_amount: number;
   voucher_no?: string | null;
+  is_scheduled?: boolean;
   counterparty?: string | null;
   credit_ledger?: { name: string };
   debit_ledger?: { name: string };
@@ -57,6 +61,8 @@ interface Props {
   existingMatches: ExistingMatch[];
   remainingAmount: number;
   tolerance?: number;
+  // The statement is completed: matching and marking outstanding are switched off until it is reopened.
+  locked?: boolean;
 }
 
 const formatAmount = (amount: number) =>
@@ -70,7 +76,9 @@ export default function UnmatchedJournalRow({
   existingMatches,
   remainingAmount,
   tolerance = 0.01,
+  locked = false,
 }: Props) {
+  const dictionary = useDictionary();
   const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
   const { showDialog, hideDialog } = useJumboDialog();
@@ -167,6 +175,7 @@ export default function UnmatchedJournalRow({
         <Typography variant='body2' color='text.secondary'>
           {formatDate(journal.journal_date)}
           {!descriptionIncludesVoucher(journal) && journal.voucher_no && ` — ${journal.voucher_no}`}
+          {journal.is_scheduled && <RecurringTag />}
         </Typography>
         <Typography variant='body2'>{journal.description}</Typography>
         {journal.counterparty && (
@@ -191,7 +200,7 @@ export default function UnmatchedJournalRow({
                 key={match.id}
                 size='small'
                 label={`${match.statement_line.description} — ${formatAmount(match.matched_amount)}`}
-                onDelete={() => removeMatchMutation.mutate(match.id)}
+                onDelete={locked ? undefined : () => removeMatchMutation.mutate(match.id)}
                 deleteIcon={<LinkOffOutlined fontSize='small' />}
               />
             ))}
@@ -200,6 +209,7 @@ export default function UnmatchedJournalRow({
         <Autocomplete
           multiple
           size='small'
+          disabled={locked}
           options={directionFilteredLines}
           value={selectedLines}
           getOptionLabel={(option: UnmatchedLineOption) =>
@@ -221,13 +231,13 @@ export default function UnmatchedJournalRow({
         )}
       </Grid>
       <Grid size={{ xs: 12, md: 2 }} textAlign='end'>
-        <Tooltip title='Match selected statement lines to this book entry'>
+        <Tooltip title={locked ? LOCKED_HINT : dictionary.tooltips.matchSelectedStatementLinesToThis}>
           <span>
             <LoadingButton
               size='small'
               variant='contained'
               startIcon={<CheckCircleOutlined />}
-              disabled={selectedLines.length === 0 || !isBalanced}
+              disabled={locked || selectedLines.length === 0 || !isBalanced}
               loading={matchMutation.isPending}
               onClick={() => matchMutation.mutate()}
               sx={{ mr: hasAnyRowAction ? 1 : 0 }}
@@ -238,7 +248,7 @@ export default function UnmatchedJournalRow({
         </Tooltip>
         {hasAnyRowAction && (
           <>
-            <Tooltip title='More actions'>
+            <Tooltip title={dictionary.tooltips.moreActions}>
               <MuiIconButton size='small' onClick={(e) => setMenuAnchor(e.currentTarget)}>
                 <MoreVert fontSize='small' />
               </MuiIconButton>
@@ -246,6 +256,8 @@ export default function UnmatchedJournalRow({
             <Menu anchorEl={menuAnchor} open={!!menuAnchor} onClose={() => setMenuAnchor(null)}>
               {canMarkOutstanding && (
                 <MenuItem
+                  disabled={locked}
+                  title={locked ? LOCKED_HINT : undefined}
                   onClick={() => {
                     setMenuAnchor(null);
                     markOutstandingMutation.mutate();

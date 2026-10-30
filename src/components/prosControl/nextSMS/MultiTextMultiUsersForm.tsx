@@ -26,6 +26,7 @@ import { useMutation } from '@tanstack/react-query';
 import { Add as AddIcon, Delete as DeleteIcon } from '@mui/icons-material';
 import smsServices from './smsServices';
 import { useSnackbar } from 'notistack';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface MessageData {
   to: string;
@@ -51,6 +52,7 @@ interface SmsResponse {
 }
 
 export default function MultiTextMultiUsersForm() {
+    const dictionary = useDictionary();
     const { enqueueSnackbar } = useSnackbar();
     const [responseData, setResponseData] = useState<SmsResponse | null>(null);
 
@@ -58,11 +60,11 @@ export default function MultiTextMultiUsersForm() {
         messages: yup.array().of(
             yup.object().shape({
                 to: yup.string()
-                    .required("Recipient number is required")
-                    .matches(/^255\d{9}$/, "Number must start with 255 and have 9 more digits"),
-                text: yup.string().required("Message text is required")
+                    .required(dictionary.forms.nextSms.multiMulti.recipientRequired)
+                    .matches(/^255\d{9}$/, dictionary.forms.nextSms.multiMulti.recipientPattern),
+                text: yup.string().required(dictionary.forms.nextSms.common.messageRequired)
             })
-        ).min(1, "At least one message is required")
+        ).min(1, dictionary.forms.nextSms.multiMulti.atLeastOne)
     });
 
     const { control, handleSubmit, formState: { errors }, reset } = useForm<MultiMessagesFormData>({
@@ -80,12 +82,12 @@ export default function MultiTextMultiUsersForm() {
     const mutation = useMutation({
         mutationFn: smsServices.sendMultiTextMultiUsers,
         onSuccess: (data: SmsResponse) => {
-            enqueueSnackbar(`Successfully sent ${data.messages?.length || 0} messages`, { variant: 'success' });
+            enqueueSnackbar(dictionary.forms.nextSms.multiMulti.success.replace('{count}', String(data.messages?.length || 0)), { variant: 'success' });
             setResponseData(data);
             reset();
         },
         onError: (err: any) => {
-            enqueueSnackbar(err?.response?.data?.message || 'Failed to send messages', { variant: 'error' });
+            enqueueSnackbar(err?.response?.data?.message || dictionary.forms.nextSms.multiMulti.failedToSend, { variant: 'error' });
             setResponseData(null);
         }
     });
@@ -117,7 +119,7 @@ export default function MultiTextMultiUsersForm() {
 
     return (
         <Box sx={{ mt: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
-            <Typography variant="h6">Send Multiple Texts to Multiple Users</Typography>
+            <Typography variant="h6">{dictionary.forms.nextSms.multiMulti.title}</Typography>
 
             <Box component="form" onSubmit={handleSubmit(onSubmit)}>
                 {fields.map((field, index) => (
@@ -126,7 +128,7 @@ export default function MultiTextMultiUsersForm() {
                             <Grid container spacing={2} alignItems="center">
                                 <Grid size={{xs: 12, md: 5}}>
                                     <TextField
-                                        label="Recipient Number (255...)"
+                                        label={dictionary.forms.nextSms.multiMulti.recipientLabel}
                                         fullWidth
                                         size="small"
                                         {...control.register(`messages.${index}.to` as const)}
@@ -138,7 +140,7 @@ export default function MultiTextMultiUsersForm() {
                                 
                                 <Grid size={{xs: 12, md: 6}}>
                                     <TextField
-                                        label="Message"
+                                        label={dictionary.forms.nextSms.common.message}
                                         fullWidth
                                         size="small"
                                         multiline
@@ -146,7 +148,7 @@ export default function MultiTextMultiUsersForm() {
                                         {...control.register(`messages.${index}.text` as const)}
                                         error={!!errors.messages?.[index]?.text}
                                         helperText={errors.messages?.[index]?.text?.message || 
-                                            `${field.text?.length || 0} characters, ~${Math.ceil((field.text?.length || 0) / 160)} SMS`}
+                                            dictionary.forms.nextSms.multiMulti.messageHelper.replace('{chars}', String(field.text?.length || 0)).replace('{sms}', String(Math.ceil((field.text?.length || 0) / 160)))}
                                     />
                                 </Grid>
                                 
@@ -167,7 +169,7 @@ export default function MultiTextMultiUsersForm() {
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'end', mt: 2 }}>
                     <Box sx={{ textAlign: 'right' }}>
                         <Typography variant="body2" color="text.secondary">
-                            {totalRecipients} recipient(s), ~{totalMessages} total SMS
+                            {dictionary.forms.nextSms.multiMulti.summaryLine.replace('{recipients}', String(totalRecipients)).replace('{sms}', String(totalMessages))}
                         </Typography>
                     </Box>
                     <Button
@@ -176,7 +178,7 @@ export default function MultiTextMultiUsersForm() {
                         variant="outlined"
                         size="small"
                     >
-                        Add Another Message
+                        {dictionary.forms.nextSms.multiMulti.addAnother}
                     </Button>
                 </Box>
 
@@ -187,7 +189,7 @@ export default function MultiTextMultiUsersForm() {
                     sx={{ mt: 2 }}
                     fullWidth
                 >
-                    Send {totalRecipients} Message(s)
+                    {dictionary.forms.nextSms.multiMulti.sendMessages.replace('{count}', String(totalRecipients))}
                 </LoadingButton>
             </Box>
 
@@ -195,17 +197,17 @@ export default function MultiTextMultiUsersForm() {
                 <Card variant="outlined" sx={{ mt: 3 }}>
                     <CardContent>
                         <Typography variant="h6" gutterBottom>
-                            Delivery Status ({responseData.messages.length} messages sent)
+                            {dictionary.forms.nextSms.multiMulti.deliveryStatusTitle.replace('{count}', String(responseData.messages.length))}
                         </Typography>
                         
                         <TableContainer component={Paper} sx={{ maxHeight: 400 }}>
                             <Table stickyHeader size="small">
                                 <TableHead>
                                     <TableRow>
-                                        <TableCell>To</TableCell>
-                                        <TableCell>Status</TableCell>
-                                        <TableCell>Description</TableCell>
-                                        <TableCell>SMS Count</TableCell>
+                                        <TableCell>{dictionary.forms.nextSms.common.to}</TableCell>
+                                        <TableCell>{dictionary.forms.nextSms.common.status}</TableCell>
+                                        <TableCell>{dictionary.forms.nextSms.common.description}</TableCell>
+                                        <TableCell>{dictionary.forms.nextSms.common.smsCount}</TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
@@ -230,21 +232,21 @@ export default function MultiTextMultiUsersForm() {
                         {/* Summary Statistics */}
                         <Box sx={{ mt: 2, p: 2, bgcolor: 'grey.50', borderRadius: 1 }}>
                             <Typography variant="subtitle2" gutterBottom>
-                                Summary
+                                {dictionary.forms.nextSms.common.summary}
                             </Typography>
                             <Typography variant="body2">
-                                Total Messages Sent: {responseData.messages.length}
+                                {dictionary.forms.nextSms.multiMulti.totalMessagesSent.replace('{count}', String(responseData.messages.length))}
                             </Typography>
                             <Typography variant="body2">
-                                Total SMS: {responseData.messages.reduce((total, msg) => total + msg.smsCount, 0)}
+                                {dictionary.forms.nextSms.common.totalSms.replace('{count}', String(responseData.messages.reduce((total, msg) => total + msg.smsCount, 0)))}
                             </Typography>
                             <Typography variant="body2">
-                                Current Status: {responseData.messages.every(msg => msg.status.name === 'DELIVERED') 
-                                    ? 'All delivered' 
+                                {dictionary.forms.nextSms.common.currentStatus.replace('{status}', responseData.messages.every(msg => msg.status.name === 'DELIVERED') 
+                                    ? dictionary.forms.nextSms.common.allDelivered 
                                     : responseData.messages.some(msg => msg.status.name === 'PENDING_ENROUTE')
-                                    ? 'In progress'
-                                    : 'Mixed status'
-                                }
+                                    ? dictionary.forms.nextSms.common.inProgress
+                                    : dictionary.forms.nextSms.common.mixedStatus
+                                )}
                             </Typography>
                         </Box>
                     </CardContent>

@@ -16,8 +16,10 @@ import {
   alpha,
 } from '@mui/material';
 import Image from 'next/image';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 export const ForgotPassword = () => {
+  const dictionary = useDictionary();
   return (
     <Div
       sx={{
@@ -68,34 +70,34 @@ export const ForgotPassword = () => {
                 mb: 0,
               }}
             >
-              Forgot password
+              {dictionary.forms.forgotPassword.title}
             </Typography>
           </Div>
         </Div>
         <CardContent>
           <JumboForm>
             <Stack spacing={3} mb={3}>
-              <JumboInput fieldName='email' label='Email' />
+              <JumboInput fieldName='email' label={dictionary.forms.forgotPassword.email} />
               <LoadingButton
                 variant='contained'
                 size='large'
                 // loading={isSubmitting || mutation.isLoading}
               >
-                Submit
+                {dictionary.forms.forgotPassword.submit}
               </LoadingButton>
             </Stack>
           </JumboForm>
 
           <Typography textAlign={'center'} variant={'body1'} mb={1}>
-            {`Don't remember your email? `}
+            {dictionary.forms.forgotPassword.forgotEmail + ' '}
             <Link underline='none' href='/'>
-              Contact Support
+              {dictionary.forms.forgotPassword.contactSupport}
             </Link>
           </Typography>
         </CardContent>
       </Card>
       <Typography variant={'body1'} mb={2}>
-        Or sign up with
+        {dictionary.forms.forgotPassword.orSignUpWith}
       </Typography>
       <Stack direction='row' alignItems='center' spacing={1}>
         <IconButton

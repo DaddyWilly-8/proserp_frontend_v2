@@ -1,5 +1,6 @@
 'use client';
 
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import { useLanguage } from '@/app/[lang]/contexts/LanguageContext';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { CostCenter } from '@/components/masters/costCenters/CostCenterType';
@@ -106,6 +107,21 @@ export interface PayrollPeriodNewViewDialogProp {
   isLoading?: boolean;
 }
 
+const MONTH_KEYS = [
+  'january',
+  'february',
+  'march',
+  'april',
+  'may',
+  'june',
+  'july',
+  'august',
+  'september',
+  'october',
+  'november',
+  'december',
+];
+
 function fmt(value: number) {
   if (!value) return '0.00';
   return value.toLocaleString(undefined, {
@@ -185,6 +201,9 @@ const PayrollPeriodNewViewDialog = ({
 }: PayrollPeriodNewViewDialogProp) => {
   const router = useRouter();
   const lang = useLanguage();
+  const dictionary = useDictionary() as any;
+  const t = dictionary.humanResources.payrollPeriods;
+  const pv = t.periodView;
   const authObject = useJumboAuth() as any;
   const theme = useTheme();
   const { theme: jumboTheme } = useJumboTheme();
@@ -195,22 +214,12 @@ const PayrollPeriodNewViewDialog = ({
   const [openPdfDialog, setOpenPdfDialog] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
 
-  let periodLabel = runs?.[0].cost_center?.name || 'Company-wide Run';
-  const monthNames = [
-    'January',
-    'February',
-    'March',
-    'April',
-    'May',
-    'June',
-    'July',
-    'August',
-    'September',
-    'October',
-    'November',
-    'December',
-  ];
-  periodLabel = `${monthNames?.[period?.month || 1 - 1]} ${period?.year} - ${periodLabel}`;
+  const costCenterName = runs?.[0].cost_center?.name;
+  const monthIdx = period?.month || 1 - 1;
+  const monthKey = MONTH_KEYS[monthIdx];
+  const periodLabel = `${t.common.months[monthKey] ?? monthKey} ${period?.year} - ${costCenterName || pv.companyWideRun}`;
+  // English label kept for downloaded file names
+  const fileLabel = `${monthKey ? monthKey.charAt(0).toUpperCase() + monthKey.slice(1) : monthKey} ${period?.year} - ${costCenterName || 'Company-wide Run'}`;
 
   const hasAllowances = hasTypes?.hasAllowances;
   const hasDeductions = hasTypes?.hasDeductions;
@@ -294,7 +303,7 @@ const PayrollPeriodNewViewDialog = ({
     }
   );
 
-  const downloadFileName = `Payroll-period-${periodLabel}`;
+  const downloadFileName = `Payroll-period-${fileLabel}`;
 
   const exportedData = {
     organization: organization,
@@ -347,10 +356,10 @@ const PayrollPeriodNewViewDialog = ({
           >
             <Box>
               <Typography variant='h6'>
-                {organization?.name || 'Company'}
+                {organization?.name || pv.company}
               </Typography>
               <Typography variant='body2' color='text.secondary'>
-                Salary Payroll - {periodLabel}
+                {pv.salaryPayroll} - {periodLabel}
               </Typography>
             </Box>
           </Stack>
@@ -365,7 +374,7 @@ const PayrollPeriodNewViewDialog = ({
             >
               <CircularProgress />
               <Typography variant='body2' color='text.secondary' sx={{ ml: 2 }}>
-                Generating Preview...
+                {pv.generatingPreview}
               </Typography>
             </Box>
           ) : (
@@ -394,7 +403,7 @@ const PayrollPeriodNewViewDialog = ({
                         fontSize: '0.9rem',
                       }}
                     >
-                      RECRUITMENT
+                      {pv.recruitment}
                     </TableCell>
                     <TableCell
                       colSpan={
@@ -414,7 +423,7 @@ const PayrollPeriodNewViewDialog = ({
                         fontSize: '0.9rem',
                       }}
                     >
-                      EMPLOYEE
+                      {pv.employee}
                     </TableCell>
                     <TableCell
                       colSpan={
@@ -431,7 +440,7 @@ const PayrollPeriodNewViewDialog = ({
                         fontSize: '0.9rem',
                       }}
                     >
-                      EMPLOYER
+                      {pv.employer}
                     </TableCell>
                   </TableRow>
 
@@ -445,7 +454,7 @@ const PayrollPeriodNewViewDialog = ({
                         textWrap: 'nowrap',
                       }}
                     >
-                      cost center
+                      {pv.costCenter}
                     </TableCell>
                     <TableCell
                       sx={{
@@ -454,7 +463,7 @@ const PayrollPeriodNewViewDialog = ({
                         borderColor: 'divider',
                       }}
                     >
-                      S/N
+                      {pv.sn}
                     </TableCell>
                     <TableCell
                       sx={{
@@ -463,7 +472,7 @@ const PayrollPeriodNewViewDialog = ({
                         borderColor: 'divider',
                       }}
                     >
-                      Employee
+                      {pv.employeeCol}
                     </TableCell>
                     <TableCell
                       sx={{
@@ -472,7 +481,7 @@ const PayrollPeriodNewViewDialog = ({
                         borderColor: 'divider',
                       }}
                     >
-                      Designation
+                      {pv.designation}
                     </TableCell>
                     <TableCell
                       align='right'
@@ -482,7 +491,7 @@ const PayrollPeriodNewViewDialog = ({
                         borderColor: 'divider',
                       }}
                     >
-                      Basic
+                      {pv.basic}
                     </TableCell>
 
                     {hasAllowances && (
@@ -495,7 +504,7 @@ const PayrollPeriodNewViewDialog = ({
                           borderColor: 'divider',
                         }}
                       >
-                        Allowances
+                        {pv.allowances}
                       </TableCell>
                     )}
 
@@ -507,7 +516,7 @@ const PayrollPeriodNewViewDialog = ({
                         borderColor: 'divider',
                       }}
                     >
-                      Gross
+                      {pv.gross}
                     </TableCell>
 
                     {hasDeductions && (
@@ -520,7 +529,7 @@ const PayrollPeriodNewViewDialog = ({
                           borderColor: 'divider',
                         }}
                       >
-                        Deductions
+                        {pv.deductions}
                       </TableCell>
                     )}
 
@@ -532,7 +541,7 @@ const PayrollPeriodNewViewDialog = ({
                         borderColor: 'divider',
                       }}
                     >
-                      Net Payable
+                      {pv.netPayable}
                     </TableCell>
 
                     {hasContributions ? (
@@ -545,7 +554,7 @@ const PayrollPeriodNewViewDialog = ({
                           borderColor: 'divider',
                         }}
                       >
-                        Employer Contributions
+                        {pv.employerContributions}
                       </TableCell>
                     ) : (
                       <TableCell
@@ -586,7 +595,7 @@ const PayrollPeriodNewViewDialog = ({
                           fontWeight: 450,
                         }}
                       >
-                        {type.label || 'Allowance'}
+                        {type.label || pv.allowance}
                       </TableCell>
                     ))}
 
@@ -608,7 +617,7 @@ const PayrollPeriodNewViewDialog = ({
                               fontWeight: 450,
                             }}
                           >
-                            {type.label || 'Deduction'}
+                            {type.label || pv.deduction}
                           </TableCell>
                         );
                       }
@@ -621,7 +630,7 @@ const PayrollPeriodNewViewDialog = ({
                         fontWeight: 450,
                       }}
                     >
-                      PAYE
+                      {pv.paye}
                     </TableCell>
 
                     <TableCell
@@ -641,7 +650,7 @@ const PayrollPeriodNewViewDialog = ({
                           borderColor: 'divider',
                         }}
                       >
-                        {type.label || 'Contribution'}
+                        {type.label || pv.contribution}
                       </TableCell>
                     ))}
 
@@ -652,7 +661,7 @@ const PayrollPeriodNewViewDialog = ({
                         borderColor: 'divider',
                       }}
                     >
-                      Total Empr. Cost
+                      {pv.totalEmprCost}
                     </TableCell>
                   </TableRow>
                 </TableHead>
@@ -881,7 +890,7 @@ const PayrollPeriodNewViewDialog = ({
                         borderColor: 'divider',
                       }}
                     >
-                      TOTALS
+                      {pv.totals}
                     </TableCell>
                     <TableCell
                       align='right'
@@ -1022,9 +1031,9 @@ const PayrollPeriodNewViewDialog = ({
             onClick={() => setOpenPdfDialog(true)}
             disabled={runs?.length === 0 || isLoading}
           >
-            Print
+            {pv.print}
           </Button>
-          <Button onClick={onClose}>Close</Button>
+          <Button onClick={onClose}>{t.common.close}</Button>
         </DialogActions>
       </Dialog>
 
@@ -1045,6 +1054,7 @@ const PayrollPeriodNewViewDialog = ({
             document={
               <PayrollPeriodPDF
                 organization={organization}
+                dictionary={dictionary}
                 period={period}
                 runs={runs}
                 hasTypes={hasTypes}
@@ -1053,7 +1063,7 @@ const PayrollPeriodNewViewDialog = ({
                 isLoading={isLoading}
               />
             }
-            fileName={`Salary-Sheet-${periodLabel}`}
+            fileName={`Salary-Sheet-${fileLabel}`}
           />
         </DialogContent>
         <DialogActions>
@@ -1073,7 +1083,9 @@ const PayrollPeriodNewViewDialog = ({
           >
             <FontAwesomeIcon icon={faFileExcel} color='green' /> Excel
           </LoadingButton>
-          <Button onClick={() => setOpenPdfDialog(false)}>Close</Button>
+          <Button onClick={() => setOpenPdfDialog(false)}>
+            {t.common.close}
+          </Button>
         </DialogActions>
       </Dialog>
     </>

@@ -13,6 +13,7 @@ import {
   Typography,
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function SummaryTab({
   authOrganization,
@@ -23,6 +24,7 @@ function SummaryTab({
   getTotalAdditionalCostsAmount,
   getAdditionalCostsSummary,
 }) {
+  const dictionary = useDictionary();
   const theme = useTheme();
   const { currencies } = useCurrencySelect();
   const currency = order.currency;
@@ -60,7 +62,7 @@ function SummaryTab({
       {/* ---------------- RECEIVED ITEMS ---------------- */}
       <Grid size={12}>
         <Typography variant='h3' align='center'>
-          Received Items
+          {dictionary.forms.purchases.receive.summary.titles.receivedItems}
         </Typography>
 
         <TableContainer>
@@ -70,23 +72,23 @@ function SummaryTab({
                 <TableCell
                   sx={{ backgroundColor: mainColor, color: contrastText }}
                 >
-                  S/N
+                  {dictionary.forms.purchases.receive.summary.headers.serialNo}
                 </TableCell>
                 <TableCell
                   sx={{ backgroundColor: mainColor, color: contrastText }}
                 >
-                  Product/Service
+                  {dictionary.forms.purchases.receive.summary.headers.productOrService}
                 </TableCell>
                 <TableCell
                   sx={{ backgroundColor: mainColor, color: contrastText }}
                 >
-                  Unit
+                  {dictionary.forms.purchases.receive.summary.headers.unit}
                 </TableCell>
                 <TableCell
                   sx={{ backgroundColor: mainColor, color: contrastText }}
                   align='right'
                 >
-                  Quantity
+                  {dictionary.forms.purchases.receive.summary.headers.quantity}
                 </TableCell>
 
                 {withPrices && (
@@ -95,25 +97,25 @@ function SummaryTab({
                       sx={{ backgroundColor: mainColor, color: contrastText }}
                       align='right'
                     >
-                      Unit Price
+                      {dictionary.forms.purchases.receive.summary.headers.unitPrice}
                     </TableCell>
                     <TableCell
                       sx={{ backgroundColor: mainColor, color: contrastText }}
                       align='right'
                     >
-                      Amount
+                      {dictionary.forms.purchases.receive.summary.headers.amount}
                     </TableCell>
                     <TableCell
                       sx={{ backgroundColor: mainColor, color: contrastText }}
                       align='right'
                     >
-                      Cost P.U ({baseCurrency})
+                      {dictionary.forms.purchases.receive.summary.headers.costPerUnit.replace('{currency}', baseCurrency)}
                     </TableCell>
                     <TableCell
                       sx={{ backgroundColor: mainColor, color: contrastText }}
                       align='right'
                     >
-                      Amount ({baseCurrency})
+                      {dictionary.forms.purchases.receive.summary.headers.amountWithCurrency.replace('{currency}', baseCurrency)}
                     </TableCell>
                   </>
                 )}
@@ -311,7 +313,7 @@ function SummaryTab({
       {getAdditionalCostsSummary().length > 0 && (
         <Grid size={12} mt={3}>
           <Typography variant='h3' color={contrastText} align='center'>
-            Additional Costs
+            {dictionary.forms.purchases.receive.summary.titles.additionalCosts}
           </Typography>
 
           <TableContainer>
@@ -321,24 +323,24 @@ function SummaryTab({
                   <TableCell
                     sx={{ backgroundColor: mainColor, color: contrastText }}
                   >
-                    S/N
+                    {dictionary.forms.purchases.receive.summary.headers.serialNo}
                   </TableCell>
                   <TableCell
                     sx={{ backgroundColor: mainColor, color: contrastText }}
                   >
-                    Additional Costs
-                  </TableCell>
-                  <TableCell
-                    sx={{ backgroundColor: mainColor, color: contrastText }}
-                    align='right'
-                  >
-                    Exchange Rate
+                    {dictionary.forms.purchases.receive.summary.titles.additionalCosts}
                   </TableCell>
                   <TableCell
                     sx={{ backgroundColor: mainColor, color: contrastText }}
                     align='right'
                   >
-                    Amount
+                    {dictionary.forms.purchases.receive.summary.headers.exchangeRate}
+                  </TableCell>
+                  <TableCell
+                    sx={{ backgroundColor: mainColor, color: contrastText }}
+                    align='right'
+                  >
+                    {dictionary.forms.purchases.receive.summary.headers.amount}
                   </TableCell>
                 </TableRow>
               </TableHead>
@@ -419,7 +421,7 @@ function SummaryTab({
                         ),
                       }}
                     >
-                      TOTAL Additional Costs ({baseCurrency})
+                      {dictionary.forms.purchases.receive.summary.headers.totalAdditionalCosts.replace('{currency}', baseCurrency)}
                     </Typography>
                   </TableCell>
 
@@ -447,7 +449,7 @@ function SummaryTab({
                         ),
                       }}
                     >
-                      TOTAL Value of Goods ({baseCurrency})
+                      {dictionary.forms.purchases.receive.summary.headers.totalValueOfGoods.replace('{currency}', baseCurrency)}
                     </Typography>
                   </TableCell>
 

@@ -17,6 +17,7 @@ import * as yup from 'yup';
 import UsersSelector from '../../sharedComponents/UsersSelector';
 import costCenterservices from './cost-center-services';
 import { CostCenter } from './CostCenterType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface User {
   id: number;
@@ -41,6 +42,7 @@ const CostCenterForm: React.FC<CostCenterFormProps> = ({
   setOpenDialog,
   costCenter,
 }) => {
+  const dictionary = useDictionary();
   const queryClient = useQueryClient();
   const { enqueueSnackbar } = useSnackbar();
 
@@ -73,12 +75,12 @@ const CostCenterForm: React.FC<CostCenterFormProps> = ({
   });
 
   const validationSchema = yup.object({
-    name: yup.string().required('Cost Center Name is required'),
+    name: yup.string().required(dictionary.forms.costCenters.form.errors.validation.nameRequired),
     description: yup.string().nullable(),
     user_ids: yup
       .array()
       .of(yup.number())
-      .min(1, 'At least one user is required'),
+      .min(1, dictionary.forms.costCenters.form.errors.validation.usersRequired),
   });
 
   const {
@@ -111,7 +113,7 @@ const CostCenterForm: React.FC<CostCenterFormProps> = ({
     <>
       <DialogTitle>
         <Grid container justifyContent='center'>
-          {costCenter ? `Edit ${costCenter.name}` : 'Create New Cost Center'}
+          {costCenter ? dictionary.forms.costCenters.form.title.edit.replace('{name}', costCenter.name) : dictionary.forms.costCenters.form.title.create}
         </Grid>
       </DialogTitle>
       <DialogContent>
@@ -119,7 +121,7 @@ const CostCenterForm: React.FC<CostCenterFormProps> = ({
           <Grid container spacing={2} sx={{ mt: 1 }}>
             <Grid size={12}>
               <TextField
-                label='Cost Center name'
+                label={dictionary.forms.costCenters.form.labels.name}
                 fullWidth
                 size='small'
                 variant='outlined'
@@ -131,7 +133,7 @@ const CostCenterForm: React.FC<CostCenterFormProps> = ({
 
             <Grid size={12}>
               <UsersSelector
-                label='Cost Center Users'
+                label={dictionary.forms.costCenters.form.labels.users}
                 multiple={true}
                 defaultValue={costCenter?.users}
                 onChange={(value: User | User[] | null) => {
@@ -154,7 +156,7 @@ const CostCenterForm: React.FC<CostCenterFormProps> = ({
 
             <Grid size={12}>
               <TextField
-                label='Description'
+                label={dictionary.forms.costCenters.form.labels.description}
                 fullWidth
                 size='small'
                 multiline
@@ -167,7 +169,7 @@ const CostCenterForm: React.FC<CostCenterFormProps> = ({
 
           <DialogActions sx={{ mt: 2 }}>
             <Button size='small' onClick={() => setOpenDialog(false)}>
-              Cancel
+              {dictionary.forms.costCenters.form.buttons.cancel}
             </Button>
             <LoadingButton
               type='submit'
@@ -175,7 +177,7 @@ const CostCenterForm: React.FC<CostCenterFormProps> = ({
               size='small'
               loading={isPending || updateIsLoading}
             >
-              {costCenter ? 'Update' : 'Create'}
+              {costCenter ? dictionary.forms.costCenters.form.buttons.update : dictionary.forms.costCenters.form.buttons.create}
             </LoadingButton>
           </DialogActions>
         </form>

@@ -13,8 +13,10 @@ import { sanitizedNumber } from '@/app/helpers/input-sanitization-helpers';
 import ProductQuickAdd from '@/components/productAndServices/products/ProductQuickAdd';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
 import { wholeUnitQuantityTest } from '@/app/helpers/measurement-unit-helpers';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function PurchaseOrderItemForm({ setClearFormKey, submitMainForm, submitItemForm, setSubmitItemForm, item = null, index = -1, setItems, items = [], setShowForm = null, checked, getLastPriceItems, setIsDirty }) {
+    const dictionary = useDictionary();
     const [isRetrieving, setIsRetrieving] = useState(false);
     const [openProductQuickAdd, setOpenProductQuickAdd] = useState(false);
     const [addedProduct, setAddedProduct] = useState(null);
@@ -32,9 +34,9 @@ function PurchaseOrderItemForm({ setClearFormKey, submitMainForm, submitItemForm
     const [vatPriceFieldKey, setVatPriceFieldKey] = useState(0);
 
     const validationSchema = yup.object({
-        product: yup.object().required('Product is required').typeError('Product is required'),
-        quantity: yup.number().positive('Quantity is required').required('Quantity is required').typeError('Quantity is required').test(wholeUnitQuantityTest),
-        rate: yup.number().required('Price is required').positive('Price is required').typeError('Price is required'),
+        product: yup.object().required(dictionary.forms.purchases.itemForm.errors.validation.product.required).typeError(dictionary.forms.purchases.itemForm.errors.validation.product.required),
+        quantity: yup.number().positive(dictionary.forms.purchases.itemForm.errors.validation.quantity.required).required(dictionary.forms.purchases.itemForm.errors.validation.quantity.required).typeError(dictionary.forms.purchases.itemForm.errors.validation.quantity.required).test(wholeUnitQuantityTest),
+        rate: yup.number().required(dictionary.forms.purchases.itemForm.errors.validation.price.required).positive(dictionary.forms.purchases.itemForm.errors.validation.price.required).typeError(dictionary.forms.purchases.itemForm.errors.validation.price.required),
     });
 
     const { setValue, handleSubmit, watch, clearErrors, reset, register, formState: { errors, dirtyFields } } = useForm({
@@ -186,13 +188,13 @@ function PurchaseOrderItemForm({ setClearFormKey, submitMainForm, submitItemForm
             <Grid container spacing={1} mb={1} mt={1}>
                 {!openProductQuickAdd && !item && (
                     <Grid size={12} textAlign={'center'}>
-                        <Typography variant='h5'>Add Item</Typography>
+                        <Typography variant='h5'>{dictionary.forms.purchases.itemForm.titles.addItem}</Typography>
                     </Grid>
                 )}
 
                 {!!openProductQuickAdd && !item && (
                     <Grid size={12} textAlign={'center'}>
-                        <Typography variant='h5'>Quick Product Registration</Typography>
+                        <Typography variant='h5'>{dictionary.forms.purchases.itemForm.titles.quickProductRegistration}</Typography>
                     </Grid>
                 )}
 
@@ -200,7 +202,7 @@ function PurchaseOrderItemForm({ setClearFormKey, submitMainForm, submitItemForm
                     <>
                         <Grid size={{xs: 12, md: 3}}>
                             <ProductSelect
-                                label='Product/Service'
+                                label={dictionary.forms.purchases.itemForm.labels.productOrService}
                                 frontError={errors.product}
                                 defaultValue={item && item.product}
                                 addedProduct={addedProduct}
@@ -230,7 +232,7 @@ function PurchaseOrderItemForm({ setClearFormKey, submitMainForm, submitItemForm
                                 }}
                                 startAdornment={
                                     checkOrganizationPermission([PERMISSIONS.PRODUCTS_CREATE]) && (
-                                        <Tooltip title={'Add New Product'}>
+                                        <Tooltip title={dictionary.tooltips.addNewProduct}>
                                             <AddOutlined
                                                 onClick={() => setOpenProductQuickAdd(true)}
                                                 sx={{
@@ -244,7 +246,7 @@ function PurchaseOrderItemForm({ setClearFormKey, submitMainForm, submitItemForm
                         </Grid>
                         <Grid size={{xs: 12, md: 2}}>
                             <TextField
-                                label='Quantity'
+                                label={dictionary.forms.purchases.itemForm.labels.quantity}
                                 fullWidth
                                 size='small'
                                 InputProps={{
@@ -298,7 +300,7 @@ function PurchaseOrderItemForm({ setClearFormKey, submitMainForm, submitItemForm
                         </Grid>
                         <Grid size={{xs: 12, md: 1}}>
                             <Typography align='left' variant='body2'>
-                                VAT
+                                {dictionary.forms.purchases.itemForm.labels.vat}
                                 <Checkbox
                                     size='small'
                                     checked={vatChecked}
@@ -319,7 +321,7 @@ function PurchaseOrderItemForm({ setClearFormKey, submitMainForm, submitItemForm
                                 <LinearProgress />
                             ) : (
                                 <TextField
-                                    label='Price'
+                                    label={dictionary.forms.purchases.itemForm.labels.price}
                                     fullWidth
                                     key={priceFieldKey}
                                     size='small'
@@ -344,7 +346,7 @@ function PurchaseOrderItemForm({ setClearFormKey, submitMainForm, submitItemForm
                         {!!vat_factor && (
                             <Grid size={{xs: 12, md: 2}}>
                                 <TextField
-                                    label='Price (VAT Inclusive)'
+                                    label={dictionary.forms.purchases.itemForm.labels.priceVatInclusive}
                                     fullWidth
                                     key={vatPriceFieldKey}
                                     size='small'
@@ -372,7 +374,7 @@ function PurchaseOrderItemForm({ setClearFormKey, submitMainForm, submitItemForm
                         )}
                         <Grid size={{xs: 12, md: vat_factor ? 2 : 3}}>
                             <TextField
-                                label='Amount'
+                                label={dictionary.forms.purchases.itemForm.labels.amount}
                                 fullWidth
                                 size='small'
                                 value={calculatedAmount}
@@ -391,16 +393,16 @@ function PurchaseOrderItemForm({ setClearFormKey, submitMainForm, submitItemForm
                             >
                                 {item ? (
                                     <>
-                                        <CheckOutlined fontSize='small' /> Done
+                                        <CheckOutlined fontSize='small' /> {dictionary.forms.purchases.itemForm.buttons.done}
                                     </>
                                 ) : (
                                     <>
-                                        <AddOutlined fontSize='small' /> Add
+                                        <AddOutlined fontSize='small' /> {dictionary.forms.purchases.itemForm.buttons.add}
                                     </>
                                 )}
                             </Button>
                             {item && (
-                                <Tooltip title='Close Edit'>
+                                <Tooltip title={dictionary.tooltips.closeEdit}>
                                     <IconButton
                                         size='small'
                                         onClick={() => {

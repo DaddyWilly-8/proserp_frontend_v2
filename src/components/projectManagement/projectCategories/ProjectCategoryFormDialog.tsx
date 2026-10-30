@@ -1,3 +1,4 @@
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import { getErrorMessage } from '@/utilities/helpers/errorHandler';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { LoadingButton } from '@mui/lab';
@@ -32,15 +33,20 @@ interface FormData {
   description?: string;
 }
 
-const validationSchema = yup.object({
-  name: yup.string().required('Category name is required'),
-  description: yup.string().optional(),
-});
+const getValidationSchema = (dictionary: any) =>
+  yup.object({
+    name: yup
+      .string()
+      .required(dictionary.forms.projectCategories.errors.nameRequired),
+    description: yup.string().optional(),
+  });
 
 const ProjectCategoryFormDialog: React.FC<ProjectCategoryFormProps> = ({
   category,
   setOpenDialog,
 }) => {
+  const dictionary = useDictionary();
+  const t = dictionary.forms.projectCategories;
   const queryClient = useQueryClient();
   const { enqueueSnackbar } = useSnackbar();
 
@@ -54,7 +60,7 @@ const ProjectCategoryFormDialog: React.FC<ProjectCategoryFormProps> = ({
       name: category ? category.name : '',
       description: category?.description || '',
     },
-    resolver: yupResolver(validationSchema) as any,
+    resolver: yupResolver(getValidationSchema(dictionary)) as any,
   });
 
   const { mutate: addCategory, isPending: isAdding } = useMutation<
@@ -64,7 +70,7 @@ const ProjectCategoryFormDialog: React.FC<ProjectCategoryFormProps> = ({
   >({
     mutationFn: projectCategoryServices.add,
     onSuccess: (data) => {
-      const message = (data as { message: string })?.message ?? 'Success';
+      const message = (data as { message: string })?.message ?? t.messages.success;
       enqueueSnackbar(message, { variant: 'success' });
       queryClient.invalidateQueries({ queryKey: ['projectCategories'] });
       setOpenDialog(false);
@@ -132,14 +138,14 @@ const ProjectCategoryFormDialog: React.FC<ProjectCategoryFormProps> = ({
   return (
     <form onSubmit={handleSubmit(onSubmit)} noValidate>
       <DialogTitle sx={{ textAlign: 'center' }}>
-        {!category?.id ? 'New Category Form' : `Edit ${category.name}`}
+        {!category?.id ? t.titles.new : t.titles.edit.replace('{name}', category.name)}
       </DialogTitle>
       <DialogContent>
         <Grid container spacing={2} p={1}>
           <Grid size={12}>
             <TextField
               fullWidth
-              label='Category Name'
+              label={t.labels.categoryName}
               size='small'
               error={Boolean(errors.name)}
               helperText={errors.name?.message}
@@ -149,7 +155,7 @@ const ProjectCategoryFormDialog: React.FC<ProjectCategoryFormProps> = ({
           <Grid size={12}>
             <TextField
               multiline
-              label='Description'
+              label={t.labels.description}
               fullWidth
               size='small'
               rows={2}
@@ -160,7 +166,7 @@ const ProjectCategoryFormDialog: React.FC<ProjectCategoryFormProps> = ({
       </DialogContent>
       <DialogActions>
         <Button onClick={() => setOpenDialog(false)} size='small'>
-          Cancel
+          {t.buttons.cancel}
         </Button>
         <LoadingButton
           type='submit'
@@ -168,7 +174,7 @@ const ProjectCategoryFormDialog: React.FC<ProjectCategoryFormProps> = ({
           size='small'
           loading={isAdding || updateLoading}
         >
-          Submit
+          {t.buttons.submit}
         </LoadingButton>
       </DialogActions>
     </form>

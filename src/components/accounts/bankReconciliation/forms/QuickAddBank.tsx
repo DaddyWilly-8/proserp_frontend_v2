@@ -7,6 +7,7 @@ import * as yup from 'yup';
 import { useSnackbar } from 'notistack';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import bankReconciliationServices from '../bank-reconciliation-services';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface BankFormData {
   name: string;
@@ -24,6 +25,7 @@ interface QuickAddBankProps {
 }
 
 export default function QuickAddBank({ onCancel, onCreated }: QuickAddBankProps) {
+  const dictionary = useDictionary();
   const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
 
@@ -31,16 +33,16 @@ export default function QuickAddBank({ onCancel, onCreated }: QuickAddBankProps)
     mutationFn: (data: BankFormData) => bankReconciliationServices.addBank(data),
     onSuccess: (response: { data: Bank }) => {
       queryClient.invalidateQueries({ queryKey: ['banks-list'] });
-      enqueueSnackbar('Bank added successfully', { variant: 'success' });
+      enqueueSnackbar(dictionary.forms.bankReconciliation.quickAddBank.messages.createSuccess, { variant: 'success' });
       onCreated(response.data);
     },
     onError: (err: any) => {
-      enqueueSnackbar(err?.response?.data?.message || 'Failed to add bank', { variant: 'error' });
+      enqueueSnackbar(err?.response?.data?.message || dictionary.forms.bankReconciliation.quickAddBank.messages.createFailed, { variant: 'error' });
     },
   });
 
   const validationSchema = yup.object({
-    name: yup.string().required('Bank Name is required'),
+    name: yup.string().required(dictionary.forms.bankReconciliation.quickAddBank.errors.validation.nameRequired),
     short_name: yup.string().nullable(),
     swift_code: yup.string().nullable(),
   });
@@ -57,13 +59,13 @@ export default function QuickAddBank({ onCancel, onCreated }: QuickAddBankProps)
   return (
     <>
       <Typography variant='h6' textAlign='center'>
-        Quick Add Bank
+        {dictionary.forms.bankReconciliation.quickAddBank.title}
       </Typography>
       <Grid container spacing={1}>
         <Grid size={12}>
           <TextField
             fullWidth
-            label='Bank Name'
+            label={dictionary.forms.bankReconciliation.quickAddBank.labels.name}
             size='small'
             error={!!errors.name}
             helperText={errors.name?.message}
@@ -71,15 +73,15 @@ export default function QuickAddBank({ onCancel, onCreated }: QuickAddBankProps)
           />
         </Grid>
         <Grid size={{ xs: 12, sm: 6 }}>
-          <TextField fullWidth label='Short Name (Optional)' size='small' {...register('short_name')} />
+          <TextField fullWidth label={dictionary.forms.bankReconciliation.quickAddBank.labels.shortName} size='small' {...register('short_name')} />
         </Grid>
         <Grid size={{ xs: 12, sm: 6 }}>
-          <TextField fullWidth label='SWIFT Code (Optional)' size='small' {...register('swift_code')} />
+          <TextField fullWidth label={dictionary.forms.bankReconciliation.quickAddBank.labels.swiftCode} size='small' {...register('swift_code')} />
         </Grid>
         <Grid size={12}>
           <Box display='flex' justifyContent='flex-end'>
             <Button size='small' type='button' onClick={onCancel}>
-              Cancel
+              {dictionary.forms.bankReconciliation.quickAddBank.buttons.cancel}
             </Button>
             <LoadingButton
               type='submit'
@@ -88,7 +90,7 @@ export default function QuickAddBank({ onCancel, onCreated }: QuickAddBankProps)
               onClick={handleSubmit((data) => addBankMutation.mutate(data))}
               loading={addBankMutation.isPending}
             >
-              Add
+              {dictionary.forms.bankReconciliation.quickAddBank.buttons.add}
             </LoadingButton>
           </Box>
         </Grid>

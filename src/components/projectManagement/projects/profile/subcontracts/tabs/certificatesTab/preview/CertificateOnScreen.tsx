@@ -1,4 +1,5 @@
 import React from 'react';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import {
   Box,
   Typography,
@@ -79,6 +80,7 @@ interface CertificateOnScreenProps {
 }
 
 const CertificateOnScreen: React.FC<CertificateOnScreenProps> = ({ certificate, organization, isFromProcessApproval = false }) => {
+  const dictionary = useDictionary();
   const theme = useTheme();
   const isDark = theme.type === 'dark';
 
@@ -95,7 +97,7 @@ const CertificateOnScreen: React.FC<CertificateOnScreenProps> = ({ certificate, 
   const summaryItems = [
     {
       id: 'gross',
-      particular: 'Gross Amount Certified',
+      particular: dictionary.projectManagement.certificatePreview.grossAmountCertified,
       amount: grossAmount,
       complement_ledger: null,
       type: null as 'addition' | 'deduction' | null,
@@ -169,14 +171,14 @@ const CertificateOnScreen: React.FC<CertificateOnScreenProps> = ({ certificate, 
 
         <Grid size={{ xs: 12, md: 12 }} textAlign="center">
           <Typography variant="h3" sx={{ color: headerColor, fontWeight: 'bold' }}>
-            CERTIFICATE
+            {dictionary.projectManagement.certificatePreview.certificateUpper}
           </Typography>
           <Typography variant="h4" fontWeight="bold" sx={{ mt: 2 }}>
             {certificate.certificateNo}
           </Typography>
           {certificate.supplier_invoice?.invoiceNo && (
             <Typography variant="subtitle1" color="text.secondary">
-              Bill: {certificate.supplier_invoice.invoiceNo}
+              {dictionary.projectManagement.certificatePreview.bill.replace('{billNo}', certificate.supplier_invoice.invoiceNo)}
             </Typography>
           )}
         </Grid>
@@ -186,7 +188,7 @@ const CertificateOnScreen: React.FC<CertificateOnScreenProps> = ({ certificate, 
       <Grid container spacing={4} sx={{ mb: 6 }}>
         <Grid size={{ xs: 12, md: 6 }}>
           <Typography variant="subtitle2" color="text.secondary" gutterBottom>
-            Certificate Date
+            {dictionary.projectManagement.certificatePreview.certificateDate}
           </Typography>
           <Typography variant="h6" fontWeight="medium">
             {readableDate(certificate.certificate_date, false)}
@@ -195,7 +197,7 @@ const CertificateOnScreen: React.FC<CertificateOnScreenProps> = ({ certificate, 
 
         <Grid size={{ xs: 12, md: 6 }}>
           <Typography variant="subtitle2" color="text.secondary" gutterBottom>
-            SubContractor
+            {dictionary.projectManagement.certificatePreview.subcontractor}
           </Typography>
           <Typography variant="h6">
             {certificate?.subcontractor?.name}
@@ -205,7 +207,7 @@ const CertificateOnScreen: React.FC<CertificateOnScreenProps> = ({ certificate, 
         {certificate.remarks && (
           <Grid size={{ xs: 12, md: 6 }}>
             <Typography variant="subtitle2" color="text.secondary" gutterBottom>
-              Remarks
+              {dictionary.projectManagement.certificatePreview.remarks}
             </Typography>
             <Typography variant="h6">{certificate.remarks}</Typography>
           </Grid>
@@ -216,17 +218,17 @@ const CertificateOnScreen: React.FC<CertificateOnScreenProps> = ({ certificate, 
       <Box sx={{ mb: 8, display: 'flex', justifyContent: isFromProcessApproval ? 'flex-start' : 'flex-end' }}>
         <Box sx={{ width: isFromProcessApproval ? '100%' : 'auto' }}>
           <Typography variant="h6" sx={{ mb: 3, textAlign: 'center' }}>
-            Summary
+            {dictionary.projectManagement.certificatePreview.summary}
           </Typography>
 
           <TableContainer component={Paper} elevation={4}>
             <Table size="medium">
               <TableHead>
                 <TableRow sx={{ backgroundColor: mainColor }}>
-                  <TableCell sx={{ border: `1px solid ${contrastText}`, color: contrastText, fontWeight: 'bold' }}>S/N</TableCell>
-                  <TableCell sx={{ border: `1px solid ${contrastText}`, color: contrastText, fontWeight: 'bold' }}>Particulars</TableCell>
+                  <TableCell sx={{ border: `1px solid ${contrastText}`, color: contrastText, fontWeight: 'bold' }}>{dictionary.projectManagement.certificatePreview.sn}</TableCell>
+                  <TableCell sx={{ border: `1px solid ${contrastText}`, color: contrastText, fontWeight: 'bold' }}>{dictionary.projectManagement.certificatePreview.particulars}</TableCell>
                   <TableCell align="right" sx={{ border: `1px solid ${contrastText}`, color: contrastText, fontWeight: 'bold' }}>
-                    Amount ({currencyCode})
+                    {dictionary.projectManagement.certificatePreview.amountCurrency.replace('{currency}', currencyCode)}
                   </TableCell>
                 </TableRow>
               </TableHead>
@@ -258,7 +260,7 @@ const CertificateOnScreen: React.FC<CertificateOnScreenProps> = ({ certificate, 
 
                 <TableRow sx={{ backgroundColor: mainColor }}>
                   <TableCell colSpan={2} align="center" sx={{ border: `1px solid ${contrastText}`, color: contrastText, py: 2 }}>
-                    Grand Total ({currencyCode})
+                    {dictionary.projectManagement.certificatePreview.grandTotalCurrency.replace('{currency}', currencyCode)}
                   </TableCell>
                   <TableCell align="right" sx={{ border: `1px solid ${contrastText}`, color: contrastText, py: 2 }}>
                     {grandTotal.toLocaleString(undefined, { minimumFractionDigits: 2 })}
@@ -272,7 +274,7 @@ const CertificateOnScreen: React.FC<CertificateOnScreenProps> = ({ certificate, 
 
       {/* ==================== Certified Items Table ==================== */}
       <Typography variant="h5" sx={{ mb: 4, textAlign: 'center' }}>
-        Certified Items
+        {dictionary.projectManagement.certificatePreview.certifiedItems}
       </Typography>
 
       <TableContainer component={Paper} elevation={4} sx={{ mb: 8, overflowX: 'auto' }}>
@@ -282,23 +284,23 @@ const CertificateOnScreen: React.FC<CertificateOnScreenProps> = ({ certificate, 
             <TableRow sx={{ backgroundColor: mainColor }}>
               <TableCell colSpan={3} sx={{ border: `1px solid ${contrastText}`, color: contrastText }} />
               <TableCell colSpan={3} align="center" sx={{ border: `1px solid ${contrastText}`, color: contrastText, fontWeight: 'bold' }}>
-                Price Schedule
+                {dictionary.projectManagement.certificatePreview.priceSchedule}
               </TableCell>
               <TableCell colSpan={3} align="center" sx={{ border: `1px solid ${contrastText}`, color: contrastText, fontWeight: 'bold' }}>
-                Quantity
+                {dictionary.projectManagement.certificatePreview.quantity}
               </TableCell>
               <TableCell colSpan={3} align="center" sx={{ border: `1px solid ${contrastText}`, color: contrastText, fontWeight: 'bold' }}>
-                Amount ({currencyCode})
+                {dictionary.projectManagement.certificatePreview.amountCurrency.replace('{currency}', currencyCode)}
               </TableCell>
             </TableRow>
 
             {/* Sub Headers */}
             <TableRow sx={{ backgroundColor: mainColor + 'dd' }}>
               {[
-                'S/N', 'Description', 'Unit',
-                'Qty', 'Unit Rate', 'Amount',
-                'Previous', 'Present', 'Cumulative',
-                'Previous', 'Present', 'Cumulative',
+                dictionary.projectManagement.certificatePreview.sn, dictionary.projectManagement.certificatePreview.description, dictionary.projectManagement.certificatePreview.unit,
+                dictionary.projectManagement.certificatePreview.qty, dictionary.projectManagement.certificatePreview.unitRate, dictionary.projectManagement.certificatePreview.amount,
+                dictionary.projectManagement.certificatePreview.previous, dictionary.projectManagement.certificatePreview.present, dictionary.projectManagement.certificatePreview.cumulative,
+                dictionary.projectManagement.certificatePreview.previous, dictionary.projectManagement.certificatePreview.present, dictionary.projectManagement.certificatePreview.cumulative,
               ].map((header, idx) => (
                 <TableCell
                    key={idx} 
@@ -332,7 +334,7 @@ const CertificateOnScreen: React.FC<CertificateOnScreenProps> = ({ certificate, 
             {/* Grand Total Row */}
             <TableRow sx={{ backgroundColor: mainColor }}>
               <TableCell colSpan={5} align="right" sx={{ border: `1px solid ${contrastText}`, color: contrastText, py: 2 }}>
-                GRAND TOTAL ({currencyCode})
+                {dictionary.projectManagement.certificatePreview.grandTotalUpper.replace('{currency}', currencyCode)}
               </TableCell>
               <TableCell align="right" sx={{ border: `1px solid ${contrastText}`, color: contrastText, py: 2 }}>
                 {totals.contractAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}

@@ -35,6 +35,8 @@ import {
 import BalanceSheet from '../../accounts/reports/balance sheet/BalanceSheet';
 import financialReportsServices from '../../accounts/reports/financial-reports-services';
 import { useDashboardSettings } from '../Dashboard';
+import FinancialSummaryStrip from './FinancialSummaryStrip';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface BalanceSheetItem {
   period: string;
@@ -43,10 +45,12 @@ interface BalanceSheetItem {
 }
 
 function BalanceSheetTrend() {
+  const dictionary = useDictionary();
   const [openDialog, setOpenDialog] = useState(false);
 
   const { theme } = useJumboTheme();
   const smallScreen = useMediaQuery(theme.breakpoints.down('md'));
+  const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
   const midScreen = useMediaQuery(theme.breakpoints.down('lg'));
   const xlScreen = useMediaQuery(theme.breakpoints.up('lg'));
 
@@ -92,7 +96,7 @@ function BalanceSheetTrend() {
 
   return (
     <JumboCardQuick
-      title='Balance Sheet Trend'
+      title={dictionary.dashboardCards.balanceSheetTrend}
       sx={{
         height: 360,
       }}
@@ -106,7 +110,7 @@ function BalanceSheetTrend() {
                 disableElevation
                 sx={{ p: 0 }}
               >
-                <Tooltip title='Daily Trend'>
+                <Tooltip title={dictionary.tooltips.dailyTrend}>
                   <Button
                     variant={
                       params.aggregate_by === 'day' ? 'contained' : 'outlined'
@@ -118,7 +122,7 @@ function BalanceSheetTrend() {
                     Daily
                   </Button>
                 </Tooltip>
-                <Tooltip title='Weekly Trend'>
+                <Tooltip title={dictionary.tooltips.weeklyTrend}>
                   <Button
                     variant={
                       params.aggregate_by === 'week' ? 'contained' : 'outlined'
@@ -130,7 +134,7 @@ function BalanceSheetTrend() {
                     Weekly
                   </Button>
                 </Tooltip>
-                <Tooltip title='Monthly Trend'>
+                <Tooltip title={dictionary.tooltips.monthlyTrend}>
                   <Button
                     variant={
                       params.aggregate_by === 'month' ? 'contained' : 'outlined'
@@ -142,7 +146,7 @@ function BalanceSheetTrend() {
                     Monthly
                   </Button>
                 </Tooltip>
-                <Tooltip title='Yearly Trend'>
+                <Tooltip title={dictionary.tooltips.yearlyTrend}>
                   <Button
                     variant={
                       params.aggregate_by === 'year' ? 'contained' : 'outlined'
@@ -187,7 +191,7 @@ function BalanceSheetTrend() {
             )}
           </Grid>
           <Grid size={4} textAlign={'end'} p={0}>
-            <Tooltip title='Open Balance Sheet Report' sx={{ p: 0 }}>
+            <Tooltip title={dictionary.tooltips.openBalanceSheetReport} sx={{ p: 0 }}>
               <IconButton
                 onClick={() => setOpenDialog(true)}
                 size='small'
@@ -210,9 +214,9 @@ function BalanceSheetTrend() {
       <Dialog
         open={openDialog}
         fullWidth
-        scroll={smallScreen ? 'body' : 'paper'}
-        fullScreen={smallScreen}
-        maxWidth='md'
+        scroll={belowLargeScreen ? 'body' : 'paper'}
+        fullScreen={belowLargeScreen}
+        maxWidth='xl'
       >
         <BalanceSheet as_at={to} setOpenBalanceSheettDialog={setOpenDialog} />
         <DialogActions>
@@ -226,17 +230,19 @@ function BalanceSheetTrend() {
         </DialogActions>
       </Dialog>
 
+      <FinancialSummaryStrip kind='balanceSheet' />
+
       {isLoading ? (
-        <ResponsiveContainer width='100%' height={midScreen ? 245 : 245}>
+        <ResponsiveContainer width='100%' height={196}>
           <Skeleton
             variant='rectangular'
             width='100%'
-            height={midScreen ? 245 : 245}
+            height={196}
             sx={{ borderRadius: 2 }}
           />
         </ResponsiveContainer>
       ) : (
-        <ResponsiveContainer width='100%' height={midScreen ? 240 : 245}>
+        <ResponsiveContainer width='100%' height={196}>
           <ComposedChart data={balanceSheetTrend}>
             <CartesianGrid
               strokeDasharray='3 3'
@@ -279,7 +285,13 @@ function BalanceSheetTrend() {
                 name,
               ]}
             />
-            <Legend wrapperStyle={{ color: theme.palette.text.primary }} />
+            <Legend
+              wrapperStyle={{
+                color: theme.palette.text.primary,
+                paddingTop: 8,
+                paddingBottom: 12,
+              }}
+            />
             <Line
               type='monotone'
               dataKey='Assets'

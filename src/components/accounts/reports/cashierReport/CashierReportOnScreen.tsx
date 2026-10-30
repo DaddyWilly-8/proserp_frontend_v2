@@ -15,6 +15,7 @@ import RemoveIcon from '@mui/icons-material/Remove';
 import AddIcon from '@mui/icons-material/Add';
 import { readableDate } from '@/app/helpers/input-sanitization-helpers';
 import { AuthOrganization } from '@/types/auth-types';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface Transaction {
   transactionDate: string;
@@ -43,6 +44,8 @@ const CashierReportOnScreen: React.FC<CashierReportOnScreenProps> = ({
   reportData,
   authOrganization,
 }) => {
+  const dictionary = useDictionary();
+  const t = dictionary.reports.accountsReports;
   const theme = useTheme();
   const [expanded, setExpanded] = useState<boolean[]>(Array(reportData.length).fill(false));
   const currencyCode = authOrganization.base_currency.code;
@@ -127,7 +130,7 @@ const CashierReportOnScreen: React.FC<CashierReportOnScreenProps> = ({
                     borderColor: 'divider'
                   }}
                 >
-                  <Tooltip title="Cash Account / Ledger Name">
+                  <Tooltip title={dictionary.tooltips.cashAccountLedgerName}>
                     <Typography variant="h4" fontWeight={expanded[index] ? 600 : 400}>
                       {item.name}
                     </Typography>
@@ -135,9 +138,9 @@ const CashierReportOnScreen: React.FC<CashierReportOnScreenProps> = ({
                 </Grid>
 
                 <Grid size={{ xs: 12, md: 3 }}>
-                  <Tooltip title="Balance at the beginning of the period">
+                  <Tooltip title={dictionary.tooltips.balanceAtTheBeginningOfThe}>
                     <Typography variant="body2" color="text.secondary">
-                      Opening Balance
+                      {t.cashierReport.openingBalance}
                     </Typography>
                   </Tooltip>
                   <Tooltip title={currency(item.opening_balance)}>
@@ -146,9 +149,9 @@ const CashierReportOnScreen: React.FC<CashierReportOnScreenProps> = ({
                 </Grid>
 
                 <Grid size={{ xs: 12, md: 3 }}>
-                  <Tooltip title="Total amount received during the period">
+                  <Tooltip title={dictionary.tooltips.totalAmountReceivedDuringThePeriod}>
                     <Typography variant="body2" color="text.secondary">
-                      Incoming Total
+                      {t.cashierReport.incomingTotal}
                     </Typography>
                   </Tooltip>
                   <Tooltip title={currency(item.incoming_total)}>
@@ -159,9 +162,9 @@ const CashierReportOnScreen: React.FC<CashierReportOnScreenProps> = ({
                 </Grid>
 
                 <Grid size={{ xs: 12, md: 3 }}>
-                  <Tooltip title="Total amount paid out during the period">
+                  <Tooltip title={dictionary.tooltips.totalAmountPaidOutDuringThe}>
                     <Typography variant="body2" color="text.secondary">
-                      Outgoing Total
+                      {t.cashierReport.outgoingTotal}
                     </Typography>
                   </Tooltip>
                   <Tooltip title={currency(item.outgoing_total)}>
@@ -172,9 +175,9 @@ const CashierReportOnScreen: React.FC<CashierReportOnScreenProps> = ({
                 </Grid>
 
                 <Grid size={{ xs: 12, md: 3 }}>
-                  <Tooltip title="Final balance after all transactions">
+                  <Tooltip title={dictionary.tooltips.finalBalanceAfterAllTransactions}>
                     <Typography variant="body2" color="text.secondary">
-                      Closing Balance
+                      {t.cashierReport.closingBalance}
                     </Typography>
                   </Tooltip>
                   <Tooltip title={currency(item.closing_balance)}>
@@ -190,9 +193,9 @@ const CashierReportOnScreen: React.FC<CashierReportOnScreenProps> = ({
               {/* INCOMING */}
               {item.incoming_transactions && (
                 <>
-                  <Tooltip title="All money received in this period">
+                  <Tooltip title={dictionary.tooltips.allMoneyReceivedInThisPeriod}>
                     <Typography variant="h6" textAlign="center" mt={2}>
-                      Incoming Transactions
+                      {t.cashierReport.incomingTransactions}
                     </Typography>
                   </Tooltip>
 
@@ -205,22 +208,22 @@ const CashierReportOnScreen: React.FC<CashierReportOnScreenProps> = ({
                       sx={{ borderTop: 1, borderColor: 'divider', py: 0.5 }}
                     >
                       <Grid size={{ xs: 6, md: 3 }}>
-                        <Tooltip title="Transaction Date">
+                        <Tooltip title={dictionary.tooltips.transactionDate}>
                           <Typography>{readableDate(t.transactionDate)}</Typography>
                         </Tooltip>
                       </Grid>
                       <Grid size={{ xs: 6, md: 3 }} textAlign="center">
-                        <Tooltip title="Voucher / Reference">
+                        <Tooltip title={dictionary.tooltips.voucherReference}>
                           <Typography>{t.voucherNo} {t.reference}</Typography>
                         </Tooltip>
                       </Grid>
                       <Grid size={{ xs: 6, md: 3 }}>
-                        <Tooltip title="Transaction Description">
+                        <Tooltip title={dictionary.tooltips.transactionDescription}>
                           <Typography>{t.description}</Typography>
                         </Tooltip>
                       </Grid>
                       <Grid size={{ xs: 6, md: 3 }} textAlign="end">
-                        <Tooltip title="Incoming Amount">
+                        <Tooltip title={dictionary.tooltips.incomingAmount}>
                           <Typography sx={{ color: theme.palette.success.main }}>
                             {currency(t.amount)}
                           </Typography>
@@ -229,9 +232,9 @@ const CashierReportOnScreen: React.FC<CashierReportOnScreenProps> = ({
                     </Grid>
                   ))}
 
-                  <Tooltip title="Total incoming amount">
+                  <Tooltip title={dictionary.tooltips.totalIncomingAmount}>
                     <Typography textAlign="end" mt={1} fontWeight={600}>
-                      Total: {currency(incomingTotal)}
+                      {t.common.total}: {currency(incomingTotal)}
                     </Typography>
                   </Tooltip>
                 </>
@@ -242,9 +245,9 @@ const CashierReportOnScreen: React.FC<CashierReportOnScreenProps> = ({
               {/* OUTGOING */}
               {item.outgoing_transactions && (
                 <>
-                  <Tooltip title="All money paid out in this period">
+                  <Tooltip title={dictionary.tooltips.allMoneyPaidOutInThis}>
                     <Typography variant="h6" textAlign="center">
-                      Outgoing Transactions
+                      {t.cashierReport.outgoingTransactions}
                     </Typography>
                   </Tooltip>
 
@@ -257,22 +260,22 @@ const CashierReportOnScreen: React.FC<CashierReportOnScreenProps> = ({
                       sx={{ borderTop: 1, borderColor: 'divider', py: 0.5 }}
                     >
                       <Grid size={{ xs: 6, md: 3 }}>
-                        <Tooltip title="Transaction Date">
+                        <Tooltip title={dictionary.tooltips.transactionDate}>
                           <Typography>{readableDate(t.transactionDate)}</Typography>
                         </Tooltip>
                       </Grid>
                       <Grid size={{ xs: 6, md: 3 }} textAlign="center">
-                        <Tooltip title="Voucher / Reference">
+                        <Tooltip title={dictionary.tooltips.voucherReference}>
                           <Typography>{t.voucherNo} {t.reference}</Typography>
                         </Tooltip>
                       </Grid>
                       <Grid size={{ xs: 6, md: 3 }}>
-                        <Tooltip title="Transaction Description">
+                        <Tooltip title={dictionary.tooltips.transactionDescription}>
                           <Typography>{t.description}</Typography>
                         </Tooltip>
                       </Grid>
                       <Grid size={{ xs: 6, md: 3 }} textAlign="end">
-                        <Tooltip title="Outgoing Amount">
+                        <Tooltip title={dictionary.tooltips.outgoingAmount}>
                           <Typography sx={{ color: theme.palette.error.main }}>
                             {currency(t.amount)}
                           </Typography>
@@ -281,9 +284,9 @@ const CashierReportOnScreen: React.FC<CashierReportOnScreenProps> = ({
                     </Grid>
                   ))}
 
-                  <Tooltip title="Total outgoing amount">
+                  <Tooltip title={dictionary.tooltips.totalOutgoingAmount}>
                     <Typography textAlign="end" mt={1} fontWeight={600}>
-                      Total: {currency(outgoingTotal)}
+                      {t.common.total}: {currency(outgoingTotal)}
                     </Typography>
                   </Tooltip>
                 </>

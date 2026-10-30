@@ -67,6 +67,7 @@ import projectsServices from '../../project-services';
 import { useProjectProfile } from '../ProjectProfileProvider';
 import ProjectInventoryValuePDF from './ProjectInventoryValuePDF';
 import ProjectLiabilitiesPDF from './ProjectLiabilitiesPDF';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 // Dialogs/previews only shown on demand, plus the always-visible recharts
 // trend chart - none need to be in the route's initial bundle. PDF
@@ -93,6 +94,7 @@ const PurchaseGrnsReportDialogContent = ({
   organization,
   onClose,
 }) => {
+  const dictionary = useDictionary();
   const { theme } = useJumboTheme();
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
   const [activeTab, setActiveTab] = useState(0);
@@ -120,9 +122,9 @@ const PurchaseGrnsReportDialogContent = ({
           <Tabs
             value={activeTab}
             onChange={(e, value) => setActiveTab(value)}
-            aria-label='purchase order grns report tabs'
+            aria-label={dictionary.projectManagement.dashboard.grnsReportTabs}
           >
-            <Tab label='ONSCREEN' />
+            <Tab label={dictionary.projectManagement.dashboard.onScreen} />
             <Tab label='PDF' />
           </Tabs>
         )}
@@ -135,7 +137,7 @@ const PurchaseGrnsReportDialogContent = ({
           />
         ) : (
           <PDFContent
-            fileName={`${purchaseGrnsReport.orderNo} GRNs Report`}
+            fileName={dictionary.projectManagement.dashboard.grnsReportFileName.replace('{orderNo}', purchaseGrnsReport.orderNo)}
             document={
               <PurchaseGrnsReportPDF
                 organization={organization}
@@ -146,7 +148,7 @@ const PurchaseGrnsReportDialogContent = ({
         )}
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose}>Close</Button>
+        <Button onClick={onClose}>{dictionary.projectManagement.dashboard.close}</Button>
       </DialogActions>
     </>
   );
@@ -192,6 +194,7 @@ const DashboardDocumentDialog = ({
   activeTab,
   inventoryValuesParam,
 }) => {
+  const dictionary = useDictionary();
   const { theme } = useJumboTheme();
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
   const smallScreen = useMediaQuery(theme.breakpoints.down('md'));
@@ -310,7 +313,7 @@ const DashboardDocumentDialog = ({
                         variant={showState === 'trend' ? 'contained' : 'text'}
                         onClick={() => setShowState('trend')}
                       >
-                        Trend
+                        {dictionary.projectManagement.dashboard.trend}
                       </Button>
                     ) : null
                   }
@@ -319,44 +322,44 @@ const DashboardDocumentDialog = ({
               <Grid size={4} display={'flex'} justifyContent={'end'}>
                 {showState === 'trend' && isInventoryDocument && (
                   <ButtonGroup variant='outlined' size='small' disableElevation>
-                    <Tooltip title='Daily Trend'>
+                    <Tooltip title={dictionary.tooltips.dailyTrend}>
                       <Button
                         variant={
                           rangeValue === 'day' ? 'contained' : 'outlined'
                         }
                         onClick={() => setRangeValue('day')}
                       >
-                        Daily
+                        {dictionary.projectManagement.dashboard.daily}
                       </Button>
                     </Tooltip>
-                    <Tooltip title='Weekly Trend'>
+                    <Tooltip title={dictionary.tooltips.weeklyTrend}>
                       <Button
                         variant={
                           rangeValue === 'week' ? 'contained' : 'outlined'
                         }
                         onClick={() => setRangeValue('week')}
                       >
-                        Weekly
+                        {dictionary.projectManagement.dashboard.weekly}
                       </Button>
                     </Tooltip>
-                    <Tooltip title='Monthly Trend'>
+                    <Tooltip title={dictionary.tooltips.monthlyTrend}>
                       <Button
                         variant={
                           rangeValue === 'month' ? 'contained' : 'outlined'
                         }
                         onClick={() => setRangeValue('month')}
                       >
-                        Monthly
+                        {dictionary.projectManagement.dashboard.monthly}
                       </Button>
                     </Tooltip>
-                    <Tooltip title='Yearly Trend'>
+                    <Tooltip title={dictionary.tooltips.yearlyTrend}>
                       <Button
                         variant={
                           rangeValue === 'year' ? 'contained' : 'outlined'
                         }
                         onClick={() => setRangeValue('year')}
                       >
-                        Yearly
+                        {dictionary.projectManagement.dashboard.yearly}
                       </Button>
                     </Tooltip>
                   </ButtonGroup>
@@ -367,19 +370,19 @@ const DashboardDocumentDialog = ({
                   <Div sx={{ mt: 1 }}>
                     <FormControl fullWidth size='small'>
                       <InputLabel id='inventory-value-trend-group-by-input-label'>
-                        Interval
+                        {dictionary.projectManagement.dashboard.interval}
                       </InputLabel>
                       <Select
                         labelId='inventory-value-trend-group-by-label'
                         id='inventory-value-trend-group-by'
                         value={rangeValue}
-                        label='Interval'
+                        label={dictionary.projectManagement.dashboard.interval}
                         onChange={(e) => setRangeValue(e.target.value)}
                       >
-                        <MenuItem value='day'>Daily</MenuItem>
-                        <MenuItem value='week'>Weekly</MenuItem>
-                        <MenuItem value='month'>Monthly</MenuItem>
-                        <MenuItem value='year'>Yearly</MenuItem>
+                        <MenuItem value='day'>{dictionary.projectManagement.dashboard.daily}</MenuItem>
+                        <MenuItem value='week'>{dictionary.projectManagement.dashboard.weekly}</MenuItem>
+                        <MenuItem value='month'>{dictionary.projectManagement.dashboard.monthly}</MenuItem>
+                        <MenuItem value='year'>{dictionary.projectManagement.dashboard.yearly}</MenuItem>
                       </Select>
                     </FormControl>
                   </Div>
@@ -388,7 +391,7 @@ const DashboardDocumentDialog = ({
             </Grid>
             {belowLargeScreen && (
               <Grid size={{ xs: 1 }} textAlign='right'>
-                <Tooltip title='Close'>
+                <Tooltip title={dictionary.tooltips.close}>
                   <IconButton
                     size='small'
                     color='primary'
@@ -424,7 +427,7 @@ const DashboardDocumentDialog = ({
             color='primary'
             onClick={() => setOpenDocumentDialog(false)}
           >
-            Close
+            {dictionary.projectManagement.dashboard.close}
           </Button>
         </Box>
       </DialogActions>
@@ -433,6 +436,7 @@ const DashboardDocumentDialog = ({
 };
 
 function ProjectDashboard() {
+  const dictionary = useDictionary();
   const { project, setIsDashboardTab, reFetchProject } = useProjectProfile();
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const [openDocumentDialog, setOpenDocumentDialog] = useState(false);
@@ -667,12 +671,12 @@ function ProjectDashboard() {
               <Divider />
               <Grid container size={12} sx={{ py: 1, px: 1 }}>
                 <Grid size={8} sx={{ pl: (level + 1) * 2 }}>
-                  <Tooltip title='Name'>
+                  <Tooltip title={dictionary.tooltips.name}>
                     <Typography>{ledger.name}</Typography>
                   </Tooltip>
                 </Grid>
                 <Grid size={4}>
-                  <Tooltip title={`Click to view ${ledger.name} Statement`}>
+                  <Tooltip title={dictionary.projectManagement.dashboard.clickToViewStatement.replace('{name}', ledger.name)}>
                     <Typography
                       textAlign='right'
                       onClick={() => {
@@ -803,9 +807,9 @@ function ProjectDashboard() {
   const selectedTitle =
     selectedReport === 'liabilities'
       ? activeTab === 0
-        ? 'Project Creditors Summary'
-        : 'Project Debtors Summary'
-      : 'Project Inventory Value Summary';
+        ? dictionary.projectManagement.dashboard.projectCreditorsSummary
+        : dictionary.projectManagement.dashboard.projectDebtorsSummary
+      : dictionary.projectManagement.dashboard.projectInventoryValueSummary;
   const selectedTotal =
     selectedReport === 'liabilities'
       ? activeTab === 0
@@ -813,7 +817,7 @@ function ProjectDashboard() {
         : debitorsTotal
       : inventoryTotal;
   const selectedFileName = `${selectedTitle} ${
-    project?.name || project?.project_name || 'Project'
+    project?.name || project?.project_name || dictionary.projectManagement.dashboard.project
   }`;
   const selectedDocument =
     selectedReport === 'liabilities' ? (
@@ -824,6 +828,7 @@ function ProjectDashboard() {
         rows={selectedRows}
         total={selectedTotal}
         activeTab={activeTab}
+        dictionary={dictionary}
       />
     ) : (
       <ProjectInventoryValuePDF
@@ -832,6 +837,7 @@ function ProjectDashboard() {
         currencyCode={currencyCode}
         rows={selectedRows}
         total={selectedTotal}
+        dictionary={dictionary}
       />
     );
   const selectedOnScreenContent =
@@ -876,7 +882,7 @@ function ProjectDashboard() {
         {/* Edit Button */}
         {checkOrganizationPermission(PERMISSIONS.PROJECTS_EDIT) && (
           <Grid size={12} display='flex' justifyContent='flex-end'>
-            <Tooltip title='Edit Project'>
+            <Tooltip title={dictionary.tooltips.editProject}>
               <IconButton
                 onClick={() => setOpenEditDialog(true)}
                 sx={{
@@ -901,7 +907,7 @@ function ProjectDashboard() {
               <Box display='flex' alignItems='center' mb={3}>
                 <TimelineOutlined color='primary' sx={{ mr: 1 }} />
                 <Typography variant='h6' fontWeight={600}>
-                  Project Progress
+                  {dictionary.projectManagement.dashboard.projectProgress}
                 </Typography>
               </Box>
 
@@ -950,7 +956,7 @@ function ProjectDashboard() {
                           color='text.secondary'
                           fontWeight={500}
                         >
-                          Execution:{' '}
+                          {dictionary.projectManagement.dashboard.execution}{' '}
                           {Math.min(100, Number(execPercent).toFixed(2))}%
                         </Typography>
                         <Typography
@@ -958,19 +964,19 @@ function ProjectDashboard() {
                           color='text.secondary'
                           fontWeight={500}
                         >
-                          Time Elapsed:{' '}
+                          {dictionary.projectManagement.dashboard.timeElapsed}{' '}
                           {Math.min(100, Number(timePercent).toFixed(2))}%
                         </Typography>
                       </Box>
                       <Tooltip
                         title={
                           execColor === 'success'
-                            ? 'Execution is on track with time elapsed.'
+                            ? dictionary.projectManagement.dashboard.execOnTrack
                             : execColor === 'warning'
-                              ? 'Execution is lagging behind time elapsed. Monitor closely.'
+                              ? dictionary.projectManagement.dashboard.execLagging
                               : execColor === 'error'
-                                ? 'Execution is significantly behind schedule.'
-                                : 'Progress status.'
+                                ? dictionary.projectManagement.dashboard.execBehind
+                                : dictionary.projectManagement.dashboard.progressStatus
                         }
                       >
                         <LinearProgress
@@ -996,7 +1002,7 @@ function ProjectDashboard() {
                 <Box display='flex' alignItems='center' mb={2}>
                   <PaidOutlined color='primary' sx={{ mr: 1 }} />
                   <Typography variant='h6' fontWeight={600}>
-                    Revenue
+                    {dictionary.projectManagement.dashboard.revenue}
                   </Typography>
                 </Box>
 
@@ -1012,13 +1018,13 @@ function ProjectDashboard() {
                   <Grid container columnSpacing={1}>
                     <Grid size={{ xs: 12, md: 6, lg: 6 }}>
                       <StatItem
-                        label='Contract Sum'
+                        label={dictionary.projectManagement.dashboard.contractSum}
                         value={formatCurrency(dashboardFigures?.contract_sum)}
                       />
                     </Grid>
                     <Grid size={{ xs: 12, md: 6, lg: 6 }}>
                       <StatItem
-                        label='Certified Revenue'
+                        label={dictionary.projectManagement.dashboard.certifiedRevenue}
                         value={formatCurrency(
                           dashboardFigures?.certified_revenue
                         )}
@@ -1026,13 +1032,13 @@ function ProjectDashboard() {
                     </Grid>
                     <Grid size={{ xs: 12, md: 6, lg: 6 }}>
                       <StatItem
-                        label='Uncertified Revenue'
+                        label={dictionary.projectManagement.dashboard.uncertifiedRevenue}
                         value={formatCurrency(workInProgress)}
                       />
                     </Grid>
                     <Grid size={{ xs: 12, md: 6, lg: 6 }}>
                       <StatItem
-                        label='Progressive Revenue'
+                        label={dictionary.projectManagement.dashboard.progressiveRevenue}
                         value={formatCurrency(
                           dashboardFigures?.progressive_revenue
                         )}
@@ -1067,7 +1073,7 @@ function ProjectDashboard() {
                     </Grid>
                     <Grid size={{ xs: 12, md: 6, lg: 6 }}>
                       <StatItem
-                        label='Gross Profit to Date'
+                        label={dictionary.projectManagement.dashboard.grossProfitToDate}
                         value={formatCurrency(
                           dashboardFigures?.gross_profit_to_date
                         )}
@@ -1095,7 +1101,7 @@ function ProjectDashboard() {
               <Box display='flex' alignItems='center' mb={2}>
                 <AccountBalanceWalletOutlined color='primary' sx={{ mr: 1 }} />
                 <Typography variant='h6' fontWeight={600}>
-                  Budgets
+                  {dictionary.projectManagement.dashboard.budgets}
                 </Typography>
               </Box>
 
@@ -1109,25 +1115,25 @@ function ProjectDashboard() {
                 <Grid container columnSpacing={1}>
                   <Grid size={{ xs: 12, md: 6, lg: 6 }}>
                     <StatItem
-                      label='Total Budget'
+                      label={dictionary.projectManagement.dashboard.totalBudget}
                       value={formatCurrency(dashboardFigures?.budget)}
                     />
                   </Grid>
                   <Grid size={{ xs: 12, md: 6, lg: 6 }}>
                     <StatItem
-                      label='Spent to Date'
+                      label={dictionary.projectManagement.dashboard.spentToDate}
                       value={formatCurrency(dashboardFigures?.cost_to_date)}
                     />
                   </Grid>
                   <Grid size={{ xs: 12, md: 6, lg: 6 }}>
                     <StatItem
-                      label='Remaining Budget'
+                      label={dictionary.projectManagement.dashboard.remainingBudget}
                       value={formatCurrency(dashboardFigures?.remaining_budget)}
                     />
                   </Grid>
                   <Grid size={{ xs: 12, md: 6, lg: 6 }}>
                     <StatItem
-                      label='Committed'
+                      label={dictionary.projectManagement.dashboard.committed}
                       value={formatCurrency(dashboardFigures?.committed_cost)}
                       onClick={() => {
                         setExpandedCommittedSection(false);
@@ -1159,7 +1165,7 @@ function ProjectDashboard() {
                   </Grid>
                   <Grid size={{ xs: 12, md: 6, lg: 6 }}>
                     <StatItem
-                      label='Available Budget'
+                      label={dictionary.projectManagement.dashboard.availableBudget}
                       value={formatCurrency(dashboardFigures?.available_budget)}
                       valueColor={
                         Number(dashboardFigures?.available_budget) < 0
@@ -1194,8 +1200,8 @@ function ProjectDashboard() {
                   onChange={handleTabChange}
                   variant='fullWidth'
                 >
-                  <Tab label='Creditors' />
-                  <Tab label='Debtors' />
+                  <Tab label={dictionary.projectManagement.dashboard.creditors} />
+                  <Tab label={dictionary.projectManagement.dashboard.debtors} />
                 </Tabs>
               }
             />
@@ -1218,26 +1224,26 @@ function ProjectDashboard() {
                   renderLiabilityGroup(creditors?.creditors, 0, 'CR', 'cr')
                 ) : (
                   <Alert variant='outlined' severity='info'>
-                    No Creditors Found
+                    {dictionary.projectManagement.dashboard.noCreditorsFound}
                   </Alert>
                 )
               ) : debtorLedgers.length ? (
                 renderLiabilityGroup(debtors?.debtors, 0, 'DR', 'db')
               ) : (
                 <Alert variant='outlined' severity='info'>
-                  No Debtors Found
+                  {dictionary.projectManagement.dashboard.noDebtorsFound}
                 </Alert>
               )}
             </CardContent>
             <CardActions>
               <Grid container size={12} sx={{ py: 1, px: 1 }}>
                 <Grid size={6}>
-                  <Tooltip title='Total'>
-                    <Typography fontWeight={'bold'}>Total</Typography>
+                  <Tooltip title={dictionary.tooltips.total}>
+                    <Typography fontWeight={'bold'}>{dictionary.projectManagement.dashboard.total}</Typography>
                   </Tooltip>
                 </Grid>
                 <Grid size={6}>
-                  <Tooltip title='Click For More details'>
+                  <Tooltip title={dictionary.tooltips.clickForMoreDetails}>
                     <Typography
                       textAlign={'right'}
                       fontWeight={'bold'}
@@ -1288,7 +1294,7 @@ function ProjectDashboard() {
               avatar={<Inventory2Outlined color='primary' sx={{ mr: 1 }} />}
               title={
                 <Typography variant='h6' fontWeight={600}>
-                  Inventory Value
+                  {dictionary.projectManagement.dashboard.inventoryValue}
                 </Typography>
               }
             />
@@ -1319,7 +1325,7 @@ function ProjectDashboard() {
                           </Tooltip>
                         </Grid>
                         <Grid size={6}>
-                          <Tooltip title='value'>
+                          <Tooltip title={dictionary.tooltips.value2}>
                             <Typography textAlign={'right'}>
                               {parseFloat(value).toLocaleString('en-US', {
                                 minimumFractionDigits: 2,
@@ -1334,7 +1340,7 @@ function ProjectDashboard() {
                 })
               ) : (
                 <Alert variant='outlined' severity='info'>
-                  No inventory values found for now
+                  {dictionary.projectManagement.dashboard.noInventoryValuesNow}
                 </Alert>
               )}
             </CardContent>
@@ -1342,12 +1348,12 @@ function ProjectDashboard() {
               {inventorySnapshot && (
                 <Grid container size={12} sx={{ py: 1, px: 1 }}>
                   <Grid size={6}>
-                    <Tooltip title='Total'>
-                      <Typography fontWeight={'bold'}>Total</Typography>
+                    <Tooltip title={dictionary.tooltips.total}>
+                      <Typography fontWeight={'bold'}>{dictionary.projectManagement.dashboard.total}</Typography>
                     </Tooltip>
                   </Grid>
                   <Grid size={6}>
-                    <Tooltip title='Click For More details'>
+                    <Tooltip title={dictionary.tooltips.clickForMoreDetails}>
                       <Typography
                         textAlign={'right'}
                         fontWeight={'bold'}
@@ -1424,7 +1430,7 @@ function ProjectDashboard() {
       >
         <DialogContent>
           <Typography variant='h6' fontWeight={600} mb={2}>
-            Committed Cost
+            {dictionary.projectManagement.dashboard.committedCost}
           </Typography>
 
           {isLoadingCommitments ? (
@@ -1448,7 +1454,7 @@ function ProjectDashboard() {
                     pr={1}
                   >
                     <Typography>
-                      Unreceived Order Amounts (Open Purchase Orders)
+                      {dictionary.projectManagement.dashboard.unreceivedOrderAmounts}
                     </Typography>
                     <Typography fontWeight={600}>
                       {formatCurrency(commitments?.committed_purchase_orders)}
@@ -1459,7 +1465,7 @@ function ProjectDashboard() {
                   {belowSmallScreen ? (
                     <Box mb={3}>
                       {(commitments?.purchase_orders || []).length === 0 && (
-                        <Alert severity='info'>No open purchase orders</Alert>
+                        <Alert severity='info'>{dictionary.projectManagement.dashboard.noOpenPurchaseOrders}</Alert>
                       )}
                       {(commitments?.purchase_orders || []).map((po) => (
                         <Card key={po.id} variant='outlined' sx={{ mb: 1.5 }}>
@@ -1471,7 +1477,7 @@ function ProjectDashboard() {
                               gap={1}
                             >
                               <Tooltip
-                                title={`View ${po.order_no} GRNs Report`}
+                                title={dictionary.projectManagement.dashboard.viewGrnsReport.replace('{orderNo}', po.order_no)}
                               >
                                 <Box
                                   display='flex'
@@ -1513,7 +1519,7 @@ function ProjectDashboard() {
                                   variant='caption'
                                   color='text.secondary'
                                 >
-                                  Ordered
+                                  {dictionary.projectManagement.dashboard.ordered}
                                 </Typography>
                                 <Typography variant='body2'>
                                   {formatCurrencyIn(
@@ -1527,7 +1533,7 @@ function ProjectDashboard() {
                                   variant='caption'
                                   color='text.secondary'
                                 >
-                                  Received
+                                  {dictionary.projectManagement.dashboard.received}
                                 </Typography>
                                 <Typography variant='body2'>
                                   {formatCurrencyIn(
@@ -1541,7 +1547,7 @@ function ProjectDashboard() {
                                   variant='caption'
                                   color='text.secondary'
                                 >
-                                  Paid in Advance
+                                  {dictionary.projectManagement.dashboard.paidInAdvance}
                                 </Typography>
                                 <Typography variant='body2'>
                                   {formatCurrencyIn(
@@ -1555,7 +1561,7 @@ function ProjectDashboard() {
                                   variant='caption'
                                   color='text.secondary'
                                 >
-                                  Outstanding
+                                  {dictionary.projectManagement.dashboard.outstanding}
                                 </Typography>
                                 <Typography variant='body2'>
                                   {formatCurrencyIn(
@@ -1574,14 +1580,14 @@ function ProjectDashboard() {
                       <Table size='small'>
                         <TableHead>
                           <TableRow>
-                            <TableCell>P.O No</TableCell>
-                            <TableCell>Supplier</TableCell>
-                            <TableCell>Order Date</TableCell>
-                            <TableCell>Status</TableCell>
-                            <TableCell align='right'>Ordered</TableCell>
-                            <TableCell align='right'>Received</TableCell>
-                            <TableCell align='right'>Paid in Advance</TableCell>
-                            <TableCell align='right'>Outstanding</TableCell>
+                            <TableCell>{dictionary.projectManagement.dashboard.poNo}</TableCell>
+                            <TableCell>{dictionary.projectManagement.dashboard.supplier}</TableCell>
+                            <TableCell>{dictionary.projectManagement.dashboard.orderDate}</TableCell>
+                            <TableCell>{dictionary.projectManagement.dashboard.status}</TableCell>
+                            <TableCell align='right'>{dictionary.projectManagement.dashboard.ordered}</TableCell>
+                            <TableCell align='right'>{dictionary.projectManagement.dashboard.received}</TableCell>
+                            <TableCell align='right'>{dictionary.projectManagement.dashboard.paidInAdvance}</TableCell>
+                            <TableCell align='right'>{dictionary.projectManagement.dashboard.outstanding}</TableCell>
                           </TableRow>
                         </TableHead>
                         <TableBody>
@@ -1589,7 +1595,7 @@ function ProjectDashboard() {
                             0 && (
                             <TableRow>
                               <TableCell colSpan={8} align='center'>
-                                No open purchase orders
+                                {dictionary.projectManagement.dashboard.noOpenPurchaseOrders}
                               </TableCell>
                             </TableRow>
                           )}
@@ -1597,7 +1603,7 @@ function ProjectDashboard() {
                             <TableRow key={po.id}>
                               <TableCell>
                                 <Tooltip
-                                  title={`View ${po.order_no} GRNs Report`}
+                                  title={dictionary.projectManagement.dashboard.viewGrnsReport.replace('{orderNo}', po.order_no)}
                                 >
                                   <Box
                                     display='flex'
@@ -1679,7 +1685,7 @@ function ProjectDashboard() {
                     pr={1}
                   >
                     <Typography>
-                      Stock In Hand (Received, Not Yet Consumed)
+                      {dictionary.projectManagement.dashboard.stockInHand}
                     </Typography>
                     <Typography fontWeight={600}>
                       {formatCurrency(commitments?.committed_stock_on_hand)}
@@ -1691,7 +1697,7 @@ function ProjectDashboard() {
                     <Box mb={3}>
                       {(commitments?.stock_on_hand || []).length === 0 && (
                         <Alert severity='info'>
-                          No stock currently on hand
+                          {dictionary.projectManagement.dashboard.noStockOnHand}
                         </Alert>
                       )}
                       {(commitments?.stock_on_hand || []).map((stock) => (
@@ -1723,15 +1729,15 @@ function ProjectDashboard() {
                       <Table size='small'>
                         <TableHead>
                           <TableRow>
-                            <TableCell>Category</TableCell>
-                            <TableCell align='right'>Value</TableCell>
+                            <TableCell>{dictionary.projectManagement.dashboard.category}</TableCell>
+                            <TableCell align='right'>{dictionary.projectManagement.dashboard.value}</TableCell>
                           </TableRow>
                         </TableHead>
                         <TableBody>
                           {(commitments?.stock_on_hand || []).length === 0 && (
                             <TableRow>
                               <TableCell colSpan={2} align='center'>
-                                No stock currently on hand
+                                {dictionary.projectManagement.dashboard.noStockOnHand}
                               </TableCell>
                             </TableRow>
                           )}
@@ -1768,7 +1774,7 @@ function ProjectDashboard() {
                       pr={1}
                     >
                       <Typography>
-                        Unpaid Expenses (Approved, Not Yet Paid)
+                        {dictionary.projectManagement.dashboard.unpaidExpenses}
                       </Typography>
                       <Typography fontWeight={600}>
                         {formatCurrency(commitments?.committed_payments)}
@@ -1780,7 +1786,7 @@ function ProjectDashboard() {
                       <Box>
                         {(commitments?.payments || []).length === 0 && (
                           <Alert severity='info'>
-                            No pending supplier payments
+                            {dictionary.projectManagement.dashboard.noPendingSupplierPayments}
                           </Alert>
                         )}
                         {(commitments?.payments || []).map((payment) => (
@@ -1816,7 +1822,7 @@ function ProjectDashboard() {
                                     variant='caption'
                                     color='text.secondary'
                                   >
-                                    Approved
+                                    {dictionary.projectManagement.dashboard.approved}
                                   </Typography>
                                   <Typography variant='body2'>
                                     {formatCurrencyIn(
@@ -1830,7 +1836,7 @@ function ProjectDashboard() {
                                     variant='caption'
                                     color='text.secondary'
                                   >
-                                    Paid
+                                    {dictionary.projectManagement.dashboard.paid}
                                   </Typography>
                                   <Typography variant='body2'>
                                     {formatCurrencyIn(
@@ -1844,7 +1850,7 @@ function ProjectDashboard() {
                                     variant='caption'
                                     color='text.secondary'
                                   >
-                                    Unpaid
+                                    {dictionary.projectManagement.dashboard.unpaid}
                                   </Typography>
                                   <Typography variant='body2'>
                                     {formatCurrencyIn(
@@ -1863,20 +1869,20 @@ function ProjectDashboard() {
                         <Table size='small'>
                           <TableHead>
                             <TableRow>
-                              <TableCell>Requisition No</TableCell>
-                              <TableCell>Ledger</TableCell>
-                              <TableCell>Requester</TableCell>
-                              <TableCell>Date Required</TableCell>
-                              <TableCell align='right'>Approved</TableCell>
-                              <TableCell align='right'>Paid</TableCell>
-                              <TableCell align='right'>Unpaid</TableCell>
+                              <TableCell>{dictionary.projectManagement.dashboard.requisitionNo}</TableCell>
+                              <TableCell>{dictionary.projectManagement.dashboard.ledger}</TableCell>
+                              <TableCell>{dictionary.projectManagement.dashboard.requester}</TableCell>
+                              <TableCell>{dictionary.projectManagement.dashboard.dateRequired}</TableCell>
+                              <TableCell align='right'>{dictionary.projectManagement.dashboard.approved}</TableCell>
+                              <TableCell align='right'>{dictionary.projectManagement.dashboard.paid}</TableCell>
+                              <TableCell align='right'>{dictionary.projectManagement.dashboard.unpaid}</TableCell>
                             </TableRow>
                           </TableHead>
                           <TableBody>
                             {(commitments?.payments || []).length === 0 && (
                               <TableRow>
                                 <TableCell colSpan={7} align='center'>
-                                  No pending supplier payments
+                                  {dictionary.projectManagement.dashboard.noPendingSupplierPayments}
                                 </TableCell>
                               </TableRow>
                             )}
@@ -1923,7 +1929,7 @@ function ProjectDashboard() {
           )}
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setOpenCommitmentsDialog(false)}>Close</Button>
+          <Button onClick={() => setOpenCommitmentsDialog(false)}>{dictionary.projectManagement.dashboard.close}</Button>
         </DialogActions>
       </Dialog>
 

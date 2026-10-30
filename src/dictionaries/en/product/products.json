@@ -75,8 +75,8 @@
         "submit": "Submit",
         "cancel": "Cancel"
       },
-      "pageTitle": "Hariri: {unitName}",
-      "heading": "Inahaririwa: {unitName}",
+      "pageTitle": "Edit: {unitName}",
+      "heading": "Editing: {unitName}",
       "labels": {
         "unitName": "Unit Name",
         "symbol": "Symbol",
@@ -86,7 +86,7 @@
         "secondaryTitle": "Secondary Unit"
       },
        "messages": {
-      "loading": "Inachakata maelezo ya Kitengo cha Sekondari...",
+      "loading": "Processing Secondary Unit details...",
       "createSuccess": "secondaryUnit successfully registered!",
       "updateSuccess": "secondaryUnit successfully updated!",
       "deleteSuccess": "secondaryUnit successfully deleted."

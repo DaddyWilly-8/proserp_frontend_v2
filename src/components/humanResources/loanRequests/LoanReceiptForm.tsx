@@ -20,6 +20,7 @@ import { useSnackbar } from 'notistack';
 import { useEffect, useState } from 'react';
 import humanResourcesServices from '../humanResourcesServices';
 import { LoanRequestType } from './LoanRequestType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface LoanReceiptFormProps {
   open: boolean;
@@ -41,6 +42,7 @@ const LoanReceiptForm = ({
   loanRequest,
   onClose,
 }: LoanReceiptFormProps) => {
+  const dictionary = useDictionary();
   const initiatedRepayments = (loanRequest.repayments || []).filter(
     (r) => r.status === 'initiated'
   );
@@ -72,12 +74,12 @@ const LoanReceiptForm = ({
       queryClient.invalidateQueries({ queryKey: ['loanRequests'] });
       queryClient.invalidateQueries({ queryKey: ['loanStatement', loanRequest.id] });
       queryClient.invalidateQueries({ queryKey: ['transactions'] });
-      enqueueSnackbar('Repayment receipted', { variant: 'success' });
+      enqueueSnackbar(dictionary.humanResources.loanRequests.receiptForm.messages.receipted, { variant: 'success' });
       onClose();
     },
     onError: (error: any) => {
       enqueueSnackbar(
-        error?.response?.data?.message || 'Something went wrong',
+        error?.response?.data?.message || dictionary.humanResources.loanRequests.common.somethingWentWrong,
         { variant: 'error' }
       );
     },
@@ -104,13 +106,13 @@ const LoanReceiptForm = ({
       fullScreen={belowLargeScreen}
       scroll={belowLargeScreen ? 'body' : 'paper'}
     >
-      <DialogTitle>Receipt Loan Repayment</DialogTitle>
+      <DialogTitle>{dictionary.humanResources.loanRequests.receiptForm.title}</DialogTitle>
       <DialogContent>
         <Stack spacing={2} sx={{ mt: 1 }}>
           {initiatedRepayments.length > 1 ? (
             <TextField
               select
-              label='Initiated Repayment'
+              label={dictionary.humanResources.loanRequests.receiptForm.labels.initiatedRepayment}
               size='small'
               fullWidth
               value={repaymentId}
@@ -126,7 +128,7 @@ const LoanReceiptForm = ({
           ) : (
             initiatedRepayments[0] && (
               <TextField
-                label='Amount'
+                label={dictionary.humanResources.loanRequests.common.amount}
                 size='small'
                 fullWidth
                 disabled
@@ -136,7 +138,7 @@ const LoanReceiptForm = ({
           )}
           <LedgerSelectProvider>
             <LedgerSelect
-              label='Received Into'
+              label={dictionary.humanResources.loanRequests.receiptForm.labels.receivedInto}
               allowedGroups={[
                 'Current Assets',
                 'Current Liabilities',
@@ -149,7 +151,7 @@ const LoanReceiptForm = ({
             />
           </LedgerSelectProvider>
           <DateTimePicker
-            label='Receipt Date & Time'
+            label={dictionary.humanResources.loanRequests.receiptForm.labels.receiptDateTime}
             value={receiptedAt ? dayjs(receiptedAt) : null}
             onChange={(val) => setReceiptedAt(val?.toISOString() || '')}
             slotProps={{
@@ -157,8 +159,8 @@ const LoanReceiptForm = ({
             }}
           />
           <TextField
-            label='Reference (optional)'
-            placeholder='e.g. Bank slip / transaction number'
+            label={dictionary.humanResources.loanRequests.common.referenceOptional}
+            placeholder={dictionary.humanResources.loanRequests.receiptForm.placeholders.reference}
             size='small'
             fullWidth
             value={reference}
@@ -168,7 +170,7 @@ const LoanReceiptForm = ({
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose} disabled={isPending}>
-          Cancel
+          {dictionary.humanResources.loanRequests.common.cancel}
         </Button>
         <LoadingButton
           loading={isPending}
@@ -178,7 +180,7 @@ const LoanReceiptForm = ({
           disabled={!canSubmit}
           onClick={handleSubmit}
         >
-          Receipt
+          {dictionary.humanResources.loanRequests.receiptForm.buttons.receipt}
         </LoadingButton>
       </DialogActions>
     </Dialog>

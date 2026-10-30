@@ -2,8 +2,10 @@ import { Divider, Grid, IconButton, Tooltip, Typography } from '@mui/material';
 import React, { useState } from 'react'
 import { DisabledByDefault, EditOutlined } from '@mui/icons-material';
 import InventoryTrasferItemForm from './InventoryTrasferItemForm';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function InventoryTransferItemRow({setClearFormKey, submitMainForm, setSubmitItemForm, submitItemForm, setIsDirty,items,setItems,item,index, sourceCostCenterId = null}) {
+    const dictionary = useDictionary();
     const product = item.product;
     const [showForm, setShowForm] = useState(false);
     
@@ -23,7 +25,7 @@ function InventoryTransferItemRow({setClearFormKey, submitMainForm, setSubmitIte
                         {index+1}.
                     </Grid>
                     <Grid size={{xs: 11, md: 5}}>
-                        <Tooltip title='Product'>
+                        <Tooltip title={dictionary.tooltips.product}>
                             <Typography>{product.name}</Typography>
                         </Tooltip>
                     </Grid>
@@ -31,17 +33,17 @@ function InventoryTransferItemRow({setClearFormKey, submitMainForm, setSubmitIte
                         {item?.unit_symbol ? item.unit_symbol : item.measurement_unit.symbol}
                     </Grid>
                     <Grid textAlign={'center'} size={{xs: 1.5, md: 4}}>
-                        <Tooltip title='Quantity'>
+                        <Tooltip title={dictionary.tooltips.quantity}>
                            <Typography>{item?.quantity}</Typography>
                         </Tooltip>
                     </Grid>
                     <Grid textAlign={'end'} size={{xs: 9, md: 1.5}}>
-                        <Tooltip title='Edit Item'>
+                        <Tooltip title={dictionary.tooltips.editItem}>
                             <IconButton size='small' onClick={() => {setShowForm(true)}}>
                                 <EditOutlined fontSize='small'/>
                             </IconButton>
                         </Tooltip>
-                        <Tooltip title='Remove Item'>
+                        <Tooltip title={dictionary.tooltips.removeItem}>
                             <IconButton size='small' 
                                 onClick={() => setItems(items => {
                                     const newItems = [...items];

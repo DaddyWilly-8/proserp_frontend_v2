@@ -15,29 +15,25 @@ import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 import { LoginForm } from '../loginForm';
 import { ThemeModeOption } from '@/components/header/themeModeOptions/ThemeModeOption';
 
-const FEATURES = [
-  {
-    icon: ShieldOutlined,
-    title: 'All your business, one place',
-    description:
-      'Accounts, procurement, HR, POS and more - unified in a single, secure workspace.',
-  },
-  {
-    icon: GroupAddOutlined,
-    title: 'Multi-organization support',
-    description:
-      'Switch between organizations instantly without signing out.',
-  },
-  {
-    icon: InsightsOutlined,
-    title: 'Real-time insights',
-    description:
-      'Dashboards and reports that stay current as your business moves.',
-  },
-];
-
 export const Signin = () => {
   const dictionary = useDictionary();
+  const FEATURES = [
+    {
+      icon: ShieldOutlined,
+      title: dictionary.forms.signin.features.allInOne.title,
+      description: dictionary.forms.signin.features.allInOne.description,
+    },
+    {
+      icon: GroupAddOutlined,
+      title: dictionary.forms.signin.features.multiOrg.title,
+      description: dictionary.forms.signin.features.multiOrg.description,
+    },
+    {
+      icon: InsightsOutlined,
+      title: dictionary.forms.signin.features.insights.title,
+      description: dictionary.forms.signin.features.insights.description,
+    },
+  ];
   const lang = useLanguage();
   // The app's actual theme (src/themes/main/{default,dark}.ts) - not a
   // custom hardcoded palette, so this page matches whatever the rest of
@@ -111,13 +107,13 @@ export const Signin = () => {
 
           <Box>
             <Typography variant='h3' fontWeight={700} sx={{ fontSize: { xs: '1.4rem', md: '2.2rem' } }}>
-              Welcome
+              {dictionary.forms.signin.welcome}
             </Typography>
             <Typography
               variant='body2'
               sx={{ opacity: 0.85, letterSpacing: 0.5, mt: 0.5 }}
             >
-              Simplified Management and Control
+              {dictionary.forms.signin.tagline}
             </Typography>
           </Box>
 
@@ -175,7 +171,7 @@ export const Signin = () => {
             {dictionary.signin.form.title}
           </Typography>
           <Typography variant='body2' sx={{ color: palette.text.secondary, mb: 3 }}>
-            Use your ProsERP account to continue.
+            {dictionary.forms.signin.useAccount}
           </Typography>
 
           <LoginForm />

@@ -12,6 +12,7 @@ import {
 } from '@mui/material';
 import { useState } from 'react';
 import EmployeeAttendanceDialog from './EmployeeAttendanceDialog';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 // Simple Excel-styled icon with "XLS" badge
 const ExcelUploadIcon = () => (
   <Box sx={{ position: 'relative', display: 'inline-flex' }}>
@@ -42,6 +43,7 @@ const ExcelUploadIcon = () => (
 );
 
 const EmployeesAteendanceActionTail = () => {
+  const dictionary = useDictionary();
   const { theme } = useJumboTheme();
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
   const [openAttendanceDialog, setOpenAttendanceDialog] = useState(false);
@@ -68,7 +70,7 @@ const EmployeesAteendanceActionTail = () => {
           },
         }}
       >
-        <Tooltip title='Employee Attendance Import'>
+        <Tooltip title={dictionary.tooltips.employeeAttendanceImport}>
           <IconButton
             onClick={() => setOpenAttendanceDialog(true)}
             sx={{

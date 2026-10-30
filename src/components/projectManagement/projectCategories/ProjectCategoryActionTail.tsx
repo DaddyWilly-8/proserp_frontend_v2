@@ -12,8 +12,10 @@ import React, { useState } from 'react';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { PERMISSIONS } from '@/utilities/constants/permissions'; 
 import ProjectCategoryFormDialog from './ProjectCategoryFormDialog';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const ProjectCategoryActionTail = () => {
+  const dictionary = useDictionary();
   const [openDialog, setOpenDialog] = useState(false);
   const { theme } = useJumboTheme();
   const { checkOrganizationPermission } = useJumboAuth();
@@ -31,7 +33,7 @@ const ProjectCategoryActionTail = () => {
 
       <ButtonGroup variant="outlined" size="small" disableElevation sx={{ '& .MuiButton-root': { px: 1 } }}>
         {checkOrganizationPermission(PERMISSIONS.PROJECT_CATEGORIES_CREATE) && (
-          <Tooltip title="New Project Category">
+          <Tooltip title={dictionary.tooltips.newProjectCategory}>
             <IconButton onClick={() => setOpenDialog(true)}>
               <AddOutlined />
             </IconButton>

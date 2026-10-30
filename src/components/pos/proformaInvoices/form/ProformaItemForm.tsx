@@ -32,6 +32,7 @@ import { SubmitHandler, useForm } from 'react-hook-form';
 import * as yup from 'yup';
 import ProductSelect from '../../../productAndServices/products/ProductSelect';
 import { useSalesOutlet } from '../../outlet/OutletProvider';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface FormValues {
   product?: Product | null;
@@ -71,23 +72,24 @@ interface ProformaItemFormProps {
   vat_percentage: number;
 }
 
-const validationSchema = yup.object({
-  product: yup
-    .object()
-    .required('Product is required')
-    .typeError('Product is required')
-    .nullable(),
-  quantity: yup
-    .number()
-    .positive('Quantity is required')
-    .required('Quantity is required')
-    .typeError('Quantity is required'),
-  rate: yup
-    .number()
-    .required('Price is required')
-    .positive('Price is required')
-    .typeError('Price is required'),
-});
+const getValidationSchema = (dictionary: any) =>
+  yup.object({
+    product: yup
+      .object()
+      .required(dictionary.forms.proformaInvoices.validation.productRequired)
+      .typeError(dictionary.forms.proformaInvoices.validation.productRequired)
+      .nullable(),
+    quantity: yup
+      .number()
+      .positive(dictionary.forms.proformaInvoices.validation.quantityRequired)
+      .required(dictionary.forms.proformaInvoices.validation.quantityRequired)
+      .typeError(dictionary.forms.proformaInvoices.validation.quantityRequired),
+    rate: yup
+      .number()
+      .required(dictionary.forms.proformaInvoices.validation.priceRequired)
+      .positive(dictionary.forms.proformaInvoices.validation.priceRequired)
+      .typeError(dictionary.forms.proformaInvoices.validation.priceRequired),
+  });
 
 const ProformaItemForm: React.FC<ProformaItemFormProps> = ({
   setClearFormKey,
@@ -103,6 +105,11 @@ const ProformaItemForm: React.FC<ProformaItemFormProps> = ({
   vat_percentage,
   selectedCurrencyId,
 }) => {
+  const dictionary = useDictionary();
+  const validationSchema = React.useMemo(
+    () => getValidationSchema(dictionary),
+    [dictionary]
+  );
   const { activeOutlet } = useSalesOutlet();
   const vat_factor = vat_percentage * 0.01;
   const [openProductQuickAdd, setOpenProductQuickAdd] = useState(false);
@@ -279,12 +286,14 @@ const ProformaItemForm: React.FC<ProformaItemFormProps> = ({
       <Grid container columnSpacing={1} rowSpacing={1} mb={1} mt={1}>
         {!openProductQuickAdd && !item && (
           <Grid size={{ xs: 12 }} textAlign={'center'}>
-            <Typography variant='h5'>Add Item</Typography>
+            <Typography variant='h5'>{dictionary.forms.proformaInvoices.labels.addItem}</Typography>
           </Grid>
         )}
         {openProductQuickAdd && !item && (
           <Grid size={{ xs: 12 }} textAlign={'center'}>
-            <Typography variant='h5'>Quick Product Registration</Typography>
+            <Typography variant='h5'>
+              {dictionary.forms.proformaInvoices.labels.quickProductRegistration}
+            </Typography>
           </Grid>
         )}
 
@@ -292,7 +301,7 @@ const ProformaItemForm: React.FC<ProformaItemFormProps> = ({
           <>
             <Grid size={{ xs: 12, md: vat_factor ? 3.5 : 5 }}>
               <ProductSelect
-                label='Product/Service'
+                label={dictionary.forms.proformaInvoices.labels.productService}
                 frontError={errors.product}
                 defaultValue={item?.product}
                 addedProduct={addedProduct}
@@ -343,7 +352,7 @@ const ProformaItemForm: React.FC<ProformaItemFormProps> = ({
                   checkOrganizationPermission([
                     PERMISSIONS.PRODUCTS_CREATE,
                   ]) && (
-                    <Tooltip title='Quick Add New Product'>
+                    <Tooltip title={dictionary.tooltips.quickAddNewProduct}>
                       <AddOutlined
                         onClick={() => setOpenProductQuickAdd(true)}
                         sx={{ cursor: 'pointer' }}
@@ -356,7 +365,7 @@ const ProformaItemForm: React.FC<ProformaItemFormProps> = ({
 
             <Grid size={{ xs: 12, md: vat_factor ? 2.5 : 3 }}>
               <TextField
-                label='Quantity'
+                label={dictionary.forms.proformaInvoices.labels.quantity}
                 fullWidth
                 size='small'
                 defaultValue={item?.quantity ?? ''}
@@ -416,7 +425,7 @@ const ProformaItemForm: React.FC<ProformaItemFormProps> = ({
                 <LinearProgress />
               ) : (
                 <TextField
-                  label='Price'
+                  label={dictionary.forms.proformaInvoices.labels.price}
                   fullWidth
                   key={priceFieldKey}
                   size='small'
@@ -450,7 +459,7 @@ const ProformaItemForm: React.FC<ProformaItemFormProps> = ({
             {vat_factor > 0 && (
               <Grid size={{ xs: 12, md: 2 }}>
                 <TextField
-                  label='Price (VAT Inclusive)'
+                  label={dictionary.forms.proformaInvoices.labels.priceVatInclusive}
                   fullWidth
                   key={vatPriceFieldKey}
                   size='small'
@@ -496,7 +505,7 @@ const ProformaItemForm: React.FC<ProformaItemFormProps> = ({
 
             <Grid size={{ xs: 12, md: 2 }}>
               <TextField
-                label='Amount'
+                label={dictionary.forms.proformaInvoices.labels.amount}
                 fullWidth
                 size='small'
                 value={calculatedAmount}
@@ -509,7 +518,7 @@ const ProformaItemForm: React.FC<ProformaItemFormProps> = ({
 
             <Grid size={{ xs: 12, md: vat_factor ? 10 : 11 }}>
               <TextField
-                label='Description'
+                label={dictionary.forms.proformaInvoices.labels.description}
                 fullWidth
                 size='small'
                 rows={2}
@@ -530,16 +539,16 @@ const ProformaItemForm: React.FC<ProformaItemFormProps> = ({
               >
                 {item ? (
                   <>
-                    <CheckOutlined fontSize='small' /> Done
+                    <CheckOutlined fontSize='small' /> {dictionary.forms.proformaInvoices.buttons.done}
                   </>
                 ) : (
                   <>
-                    <AddOutlined fontSize='small' /> Add
+                    <AddOutlined fontSize='small' /> {dictionary.forms.proformaInvoices.buttons.add}
                   </>
                 )}
               </Button>
               {item && (
-                <Tooltip title='Close Edit'>
+                <Tooltip title={dictionary.tooltips.closeEdit}>
                   <IconButton
                     size='small'
                     onClick={() => {

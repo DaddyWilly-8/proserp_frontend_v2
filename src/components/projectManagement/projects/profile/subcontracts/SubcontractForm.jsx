@@ -29,8 +29,12 @@ import { useForm } from 'react-hook-form';
 import * as yup from 'yup';
 import projectsServices from '../../project-services';
 import { useProjectProfile } from '../ProjectProfileProvider';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function SubcontractForm({ setOpenDialog, subContract = null }) {
+  const dictionary = useDictionary();
+  const t = dictionary.forms.projects.subcontracts;
+  const sh = dictionary.forms.projects.shared;
   const queryClient = useQueryClient();
   const { enqueueSnackbar } = useSnackbar();
   const { project } = useProjectProfile();
@@ -79,8 +83,8 @@ function SubcontractForm({ setOpenDialog, subContract = null }) {
   const validationSchema = yup.object({
     subcontractor_id: yup
       .number()
-      .required('Sub Contractor Name is required')
-      .typeError('Sub Contractor Name is required'),
+      .required(t.errors.subcontractorRequired)
+      .typeError(t.errors.subcontractorRequired),
   });
 
   const {
@@ -122,8 +126,8 @@ function SubcontractForm({ setOpenDialog, subContract = null }) {
       {!stakeholderQuickAddDisplay && (
         <DialogTitle textAlign={'center'}>
           {subContract
-            ? `Edit: ${subContract.subcontractNo}`
-            : 'New Sub Contract'}
+            ? t.titles.edit.replace('{no}', subContract.subcontractNo)
+            : t.titles.new}
         </DialogTitle>
       )}
       <DialogContent>
@@ -133,7 +137,7 @@ function SubcontractForm({ setOpenDialog, subContract = null }) {
               <Grid size={{ xs: 12, md: 4 }}>
                 <Div sx={{ mt: 1 }}>
                   <StakeholderSelector
-                    label='Sub Contractor Name'
+                    label={t.labels.subContractorName}
                     defaultValue={subContract && subContract.subcontractor_id}
                     frontError={errors?.subcontractor_id}
                     addedStakeholder={addedStakeholder}
@@ -152,7 +156,7 @@ function SubcontractForm({ setOpenDialog, subContract = null }) {
                       checkOrganizationPermission(
                         PERMISSIONS.STAKEHOLDERS_CREATE
                       ) && (
-                        <Tooltip title='Add Sub Contractor'>
+                        <Tooltip title={dictionary.tooltips.addSubContractor}>
                           <AddOutlined
                             onClick={() => setStakeholderQuickAddDisplay(true)}
                             sx={{ cursor: 'pointer' }}
@@ -166,7 +170,7 @@ function SubcontractForm({ setOpenDialog, subContract = null }) {
               <Grid size={{ xs: 12, md: 4 }}>
                 <Div sx={{ mt: 1 }}>
                   <StoreSelector
-                    label='Store Assigned (optional)'
+                    label={t.labels.storeAssigned}
                     allowSubStores={true}
                     proposedOptions={project?.stores}
                     defaultValue={
@@ -190,7 +194,7 @@ function SubcontractForm({ setOpenDialog, subContract = null }) {
 
           {stakeholderQuickAddDisplay && (
             <StakeholderQuickAdd
-              displayTitle={'Add Sub Contractor'}
+              displayTitle={t.titles.addSubContractor}
               setStakeholderQuickAddDisplay={setStakeholderQuickAddDisplay}
               create_payable={true}
               setAddedStakeholder={setAddedStakeholder}
@@ -224,7 +228,7 @@ function SubcontractForm({ setOpenDialog, subContract = null }) {
                 <Grid size={{ xs: 12, md: 4 }}>
                   <Div sx={{ mt: 1 }}>
                     <TextField
-                      label='Exchange Rate'
+                      label={sh.exchangeRate}
                       fullWidth
                       size='small'
                       InputProps={{
@@ -250,7 +254,7 @@ function SubcontractForm({ setOpenDialog, subContract = null }) {
               <Grid size={{ xs: 12, md: 4 }}>
                 <Div sx={{ mt: 1 }}>
                   <TextField
-                    label='Reference'
+                    label={sh.reference}
                     size='small'
                     fullWidth
                     defaultValue={subContract?.reference}
@@ -261,7 +265,7 @@ function SubcontractForm({ setOpenDialog, subContract = null }) {
               <Grid size={{ xs: 12, md: 4 }}>
                 <Div sx={{ mt: 1 }}>
                   <DateTimePicker
-                    label='Commencement Date'
+                    label={sh.commencementDate}
                     fullWidth
                     minDate={dayjs(organization.recording_start_date)}
                     defaultValue={
@@ -292,7 +296,7 @@ function SubcontractForm({ setOpenDialog, subContract = null }) {
               <Grid size={{ xs: 12, md: 4 }}>
                 <Div sx={{ mt: 1 }}>
                   <DateTimePicker
-                    label='Completion Date'
+                    label={sh.completionDate}
                     fullWidth
                     minDate={dayjs(watch(`commencement_date`))}
                     defaultValue={
@@ -323,7 +327,7 @@ function SubcontractForm({ setOpenDialog, subContract = null }) {
               <Grid size={{ xs: 12, md: watch('currency_id') > 1 ? 8 : 12 }}>
                 <Div sx={{ mt: 1 }}>
                   <TextField
-                    label='Remarks'
+                    label={t.labels.remarks}
                     size='small'
                     defaultValue={subContract?.remarks}
                     multiline={true}
@@ -339,7 +343,7 @@ function SubcontractForm({ setOpenDialog, subContract = null }) {
       </DialogContent>
       <DialogActions>
         <Button size='small' onClick={() => setOpenDialog(false)}>
-          Cancel
+          {sh.cancel}
         </Button>
         {!stakeholderQuickAddDisplay && (
           <LoadingButton
@@ -349,7 +353,7 @@ function SubcontractForm({ setOpenDialog, subContract = null }) {
             sx={{ display: 'flex' }}
             loading={isPending || updateIsLoading}
           >
-            Submit
+            {sh.submit}
           </LoadingButton>
         )}
       </DialogActions>

@@ -1,0 +1,490 @@
+{
+  "nextSms": {
+    "tabs": {
+      "singleUser": "Ujumbe kwa Mtumiaji Mmoja",
+      "singleTextMulti": "Ujumbe Mmoja → Watumiaji Wengi",
+      "multiTextMulti": "Jumbe Nyingi → Watumiaji Wengi",
+      "deliveryReports": "Ripoti za Uwasilishaji",
+      "sentLogs": "Kumbukumbu za Zilizotumwa",
+      "checkBalance": "Angalia Salio"
+    },
+    "common": {
+      "to": "Kwa",
+      "toValue": "Kwa: {to}",
+      "status": "Hali",
+      "statusColon": "Hali:",
+      "description": "Maelezo",
+      "descriptionValue": "Maelezo: {description}",
+      "smsCount": "Idadi ya SMS",
+      "smsCountValue": "Idadi ya SMS: {count}",
+      "sentAt": "Imetumwa Saa",
+      "completedAt": "Imekamilika Saa",
+      "error": "Hitilafu",
+      "summary": "Muhtasari",
+      "message": "Ujumbe",
+      "unknown": "HAIJULIKANI",
+      "notAvailable": "Haipo",
+      "totalSms": "Jumla ya SMS: {count}",
+      "totalMessages": "Jumla ya Jumbe: {count}",
+      "delivered": "Zilizowasilishwa: {count}",
+      "pending": "Zinazosubiri: {count}",
+      "rejected": "Zilizokataliwa: {count}",
+      "groupValue": "Kundi: {group}",
+      "currentStatus": "Hali ya Sasa: {status}",
+      "allDelivered": "Zote zimewasilishwa",
+      "inProgress": "Inaendelea",
+      "mixedStatus": "Hali mchanganyiko",
+      "deliveryStatusTitle": "Hali ya Uwasilishaji wa SMS",
+      "failedToSend": "Imeshindwa kutuma SMS",
+      "messageRequired": "Maandishi ya ujumbe yanahitajika"
+    },
+    "single": {
+      "title": "Tuma SMS kwa Mtumiaji Mmoja",
+      "recipientLabel": "Namba ya Mpokeaji (mf. 2557...)",
+      "recipientRequired": "Namba ya mpokeaji inahitajika",
+      "send": "Tuma SMS",
+      "success": "SMS imetumwa kwa mafanikio!"
+    },
+    "singleMulti": {
+      "title": "Tuma Ujumbe Mmoja kwa Watumiaji Wengi",
+      "recipientsLabel": "Wapokeaji (tenganisha kwa koma)",
+      "recipientsRequired": "Weka angalau namba moja ya mpokeaji",
+      "recipientsHelper": "Weka namba zilizotenganishwa kwa koma. Wapokeaji {count} wamebainika.",
+      "messageHelper": "Herufi {chars}, ~SMS {sms} kwa kila mpokeaji",
+      "totalEstimated": "Jumla ya SMS inayokadiriwa: {count}",
+      "sendTo": "Tuma kwa Wapokeaji {count}",
+      "success": "SMS imetumwa kwa mafanikio kwa watumiaji wengi!",
+      "deliveryStatusTitle": "Hali ya Uwasilishaji wa SMS (wapokeaji {count})",
+      "totalRecipients": "Jumla ya Wapokeaji: {count}",
+      "totalSmsSent": "Jumla ya SMS Zilizotumwa: {count}"
+    },
+    "multiMulti": {
+      "title": "Tuma Jumbe Nyingi kwa Watumiaji Wengi",
+      "recipientLabel": "Namba ya Mpokeaji (255...)",
+      "recipientRequired": "Namba ya mpokeaji inahitajika",
+      "recipientPattern": "Namba lazima ianze na 255 na iwe na tarakimu 9 zaidi",
+      "atLeastOne": "Angalau ujumbe mmoja unahitajika",
+      "messageHelper": "Herufi {chars}, ~SMS {sms}",
+      "summaryLine": "Wapokeaji {recipients}, ~SMS {sms} kwa jumla",
+      "addAnother": "Ongeza Ujumbe Mwingine",
+      "sendMessages": "Tuma Jumbe {count}",
+      "success": "Jumbe {count} zimetumwa kwa mafanikio",
+      "failedToSend": "Imeshindwa kutuma jumbe",
+      "deliveryStatusTitle": "Hali ya Uwasilishaji (jumbe {count} zimetumwa)",
+      "totalMessagesSent": "Jumla ya Jumbe Zilizotumwa: {count}"
+    },
+    "deliveryReports": {
+      "title": "Pata Ripoti za Uwasilishaji",
+      "button": "Pata Ripoti za Uwasilishaji",
+      "success": "Ripoti za uwasilishaji zimepatikana kwa mafanikio!",
+      "failed": "Imeshindwa kupata ripoti za uwasilishaji",
+      "recordsTitle": "Ripoti za Uwasilishaji (rekodi {count})",
+      "noStatus": "Hakuna hali iliyopo",
+      "empty": "Hakuna ripoti za uwasilishaji zilizopatikana."
+    },
+    "logs": {
+      "title": "Pata Kumbukumbu za SMS Zilizotumwa",
+      "toLabel": "Kwa (Namba ya Mpokeaji)",
+      "sentSince": "Imetumwa Tangu",
+      "sentUntil": "Imetumwa Hadi",
+      "button": "Pata Kumbukumbu",
+      "success": "Kumbukumbu za SMS zimepatikana kwa mafanikio!",
+      "failed": "Imeshindwa kupata kumbukumbu za SMS",
+      "recordsTitle": "Kumbukumbu za SMS (rekodi {count})",
+      "empty": "Hakuna kumbukumbu za SMS zilizopatikana kwa vigezo vilivyochaguliwa."
+    },
+    "balance": {
+      "current": "Salio la Sasa la SMS: SMS {balance}",
+      "check": "Angalia Salio la SMS",
+      "button": "Angalia Salio",
+      "error": "Hitilafu wakati wa kuangalia salio"
+    }
+  },
+  "smsAccounts": {
+    "form": {
+      "newTitle": "Akaunti Mpya ya SMS",
+      "editTitle": "Hariri Akaunti ya SMS",
+      "topUpTitle": "Ongeza Salio la SMS",
+      "transactionsTitle": "{name} — Miamala ya SMS",
+      "labels": {
+        "organization": "Shirika",
+        "unitPrice": "Bei ya Kipimo",
+        "lowBalanceThreshold": "Kiwango cha Salio Dogo",
+        "senderId": "Kitambulisho cha Mtumaji (hiari, herufi 11 kwa juu)",
+        "active": "Hai",
+        "amount": "Kiasi",
+        "notes": "Maelezo (hiari)"
+      },
+      "buttons": {
+        "cancel": "Ghairi",
+        "save": "Hifadhi",
+        "topUp": "Ongeza Salio"
+      },
+      "summary": "{name} — salio la sasa: {balance}",
+      "noTransactions": "Hakuna miamala bado.",
+      "messages": {
+        "created": "Akaunti ya SMS imeundwa kwa mafanikio",
+        "updated": "Akaunti ya SMS imesasishwa kwa mafanikio",
+        "toppedUp": "Salio la SMS limeongezwa kwa mafanikio"
+      },
+      "errors": {
+        "organizationRequired": "Shirika linahitajika",
+        "unitPriceRequired": "Bei ya kipimo inahitajika",
+        "min0": "Lazima iwe angalau 0",
+        "min1": "Lazima iwe angalau 1",
+        "senderIdMax": "Kitambulisho cha Mtumaji kisizidi herufi 11",
+        "amountRequired": "Kiasi kinahitajika"
+      }
+    }
+  },
+  "prosAfricans": {
+    "form": {
+      "buttons": {
+        "addMember": "Ongeza Mwanachama",
+        "add": "Ongeza",
+        "save": "Hifadhi",
+        "cancel": "Ghairi",
+        "delete": "Futa"
+      },
+      "messages": {
+        "invitationsSent": "Mialiko imetumwa kwa mafanikio",
+        "invitationsErrors": "Mialiko imetumwa ikiwa na makosa",
+        "alreadyQueued": "Mtumiaji tayari yuko kwenye orodha ya foleni",
+        "notFound": "Hakuna mtumiaji mwenye barua pepe hiyo aliyepatikana.",
+        "somethingWrong": "Kuna tatizo limetokea"
+      },
+      "labels": {
+        "email": "Barua pepe",
+        "name": "Jina",
+        "description": "Maelezo"
+      },
+      "errors": {
+        "emailRequired": "Barua pepe inahitajika",
+        "emailInvalid": "Muundo wa barua pepe si sahihi",
+        "roleNameRequired": "Jina la jukumu linahitajika"
+      },
+      "dialogs": {
+        "deleteTitle": "Futa jukumu la {name}?",
+        "deleteContent": "Watumiaji wote wenye jukumu hili hawatakuwa nalo tena"
+      }
+    }
+  },
+  "support": {
+    "permissions": {
+      "titles": {
+        "newOrganization": "Ruhusa Mpya ya Shirika",
+        "newPros": "Ruhusa Mpya ya Pros",
+        "edit": "Hariri {name}"
+      },
+      "labels": {
+        "name": "Jina",
+        "core": "Msingi",
+        "modules": "Moduli",
+        "description": "Maelezo"
+      },
+      "buttons": {
+        "add": "Ongeza",
+        "cancel": "Ghairi",
+        "submit": "Wasilisha"
+      },
+      "errors": {
+        "nameRequired": "Jina linahitajika",
+        "modulesRequired": "Tafadhali chagua Moduli kwa Ruhusa hii"
+      }
+    },
+    "tabs": {
+      "databaseActions": "Vitendo vya hifadhidata",
+      "permissions": "Ruhusa",
+      "prosPermissions": "Ruhusa za Pros",
+      "stakeholders": "Wadau",
+      "transactions": "Miamala"
+    },
+    "bulkImports": {
+      "needPrefix": "Unahitaji ruhusa ya ",
+      "permissionStakeholders": " ili kuingiza wadau.",
+      "permissionTransactions": " ili kuingiza miamala."
+    },
+    "database": {
+      "labels": {
+        "selectDatabase": "Chagua Hifadhidata",
+        "enterPassword": "Weka Nenosiri",
+        "typeToConfirm": "Andika \"{action}\" ili kuthibitisha"
+      },
+      "buttons": {
+        "execute": "Tekeleza",
+        "cancel": "Ghairi",
+        "confirm": "Thibitisha"
+      },
+      "viewDetails": "Tazama maelezo",
+      "confirmPrompt": "Tafadhali thibitisha kitendo kilicho hapa chini na uweke nenosiri lako",
+      "messages": {
+        "somethingWrong": "Kuna tatizo limetokea"
+      },
+      "errors": {
+        "selectDatabase": "Tafadhali chagua angalau hifadhidata moja",
+        "actionRequired": "Kitendo cha hifadhidata kinahitajika",
+        "passwordRequired": "Tafadhali weka nenosiri lako ili kuthibitisha kitendo",
+        "typeExactly": "Tafadhali andika \"{action}\" kama ilivyo ili kuthibitisha"
+      }
+    }
+  },
+  "sms": {
+    "send": {
+      "labels": {
+        "recipients": "Wapokeaji",
+        "message": "Ujumbe"
+      },
+      "placeholders": {
+        "recipients": "Namba moja ya simu kwa kila mstari au zitenganishwe kwa koma, mf. 255700000000"
+      },
+      "helper": {
+        "recipientCount": "Wapokeaji {count}",
+        "characters": "Herufi {length}/{max}, ~sehemu {segments} za SMS kwa kila mmoja"
+      },
+      "buttons": {
+        "send": "Tuma SMS"
+      },
+      "errors": {
+        "recipientsRequired": "Angalau mpokeaji mmoja anahitajika",
+        "messageRequired": "Ujumbe unahitajika",
+        "messageMax": "Ujumbe usizidi herufi {max}"
+      }
+    },
+    "bulk": {
+      "labels": {
+        "stakeholderGroups": "Makundi ya Wadau",
+        "individualStakeholders": "Wadau Mmoja Mmoja",
+        "sendToAllStakeholders": "Tuma kwa wadau wote",
+        "employeesHeading": "Wafanyakazi (chuja kwa jinsia, idara, au kituo cha gharama, kisha chagua wa kutumia ujumbe)",
+        "rawRecipients": "Wapokeaji wa Moja kwa Moja (hiari)",
+        "placeholdersLabel": "Vijazaji:",
+        "messageTemplate": "Kiolezo cha Ujumbe"
+      },
+      "placeholders": {
+        "rawRecipients": "Mmoja kwa kila mstari: simu au simu,jina\nmf. 255700000000,John",
+        "messageTemplate": "Habari {name}, ..."
+      },
+      "helper": {
+        "characters": "Herufi {length}/918"
+      },
+      "alerts": {
+        "checkingStakeholders": "Inakagua idadi ya wadau wote...",
+        "allStakeholders": "Hii itatuma ujumbe kwa kila mdau mwenye namba halali ya simu kati ya wadau {total} kwa jumla.",
+        "result": "{message} — {sent} zimetumwa, {skipped} zimerukwa"
+      },
+      "buttons": {
+        "send": "Tuma SMS za Wingi"
+      },
+      "messages": {
+        "selectAtLeastOne": "Chagua angalau kundi, mdau, mfanyakazi, au mpokeaji mmoja"
+      },
+      "errors": {
+        "templateRequired": "Kiolezo cha ujumbe kinahitajika",
+        "templateMax": "Ujumbe usizidi herufi 918"
+      }
+    },
+    "employeePicker": {
+      "sendToAll": "Tuma kwa wafanyakazi wote (puuza vichujio vilivyo hapa chini)",
+      "checkingCount": "Inakagua idadi ya wafanyakazi wote...",
+      "allEmployeesWarning": "Hii itatuma ujumbe kwa kila mfanyakazi mwenye namba halali ya simu kati ya wafanyakazi {total} kwa jumla. Wasio na namba halali ya simu wataruka kiotomatiki.",
+      "gender": "Jinsia",
+      "any": "Yoyote",
+      "male": "Mwanaume",
+      "female": "Mwanamke",
+      "department": "Idara",
+      "costCenter": "Kituo cha Gharama",
+      "searching": "Inatafuta wafanyakazi...",
+      "noMatch": "Hakuna wafanyakazi wanaolingana na kichujio hiki.",
+      "selectAllWithPhone": "Chagua wote wenye namba ya simu ({count})",
+      "withoutPhone": "{count} bila namba ya simu",
+      "noPhone": "Hakuna namba ya simu"
+    }
+  },
+  "changePassword": {
+    "title": "Badilisha Nenosiri",
+    "labels": {
+      "currentPassword": "Nenosiri la Sasa",
+      "newPassword": "Nenosiri Jipya",
+      "confirmNewPassword": "Thibitisha Nenosiri Jipya"
+    },
+    "buttons": {
+      "cancel": "Ghairi",
+      "submit": "Badilisha Nenosiri"
+    },
+    "errors": {
+      "currentRequired": "Nenosiri la sasa linahitajika",
+      "newRequired": "Nenosiri jipya linahitajika",
+      "complexity": "Lazima liwe na angalau herufi 8, herufi kubwa 1, herufi ndogo 1 na nambari 1",
+      "confirmationRequired": "Uthibitisho wa nenosiri unahitajika",
+      "mismatch": "Nenosiri halilingani"
+    }
+  },
+  "resetPassword": {
+    "title": "Unda Nenosiri lako Jipya",
+    "labels": {
+      "email": "Barua pepe",
+      "newPassword": "Nenosiri Jipya",
+      "confirmPassword": "Thibitisha Nenosiri"
+    },
+    "buttons": {
+      "submit": "Weka Upya Nenosiri"
+    },
+    "links": {
+      "havePassword": "Una nenosiri?",
+      "proceedToSignIn": "Endelea Kuingia",
+      "forgotEmail": "Umesahau barua pepe yako?",
+      "contactSupport": "Wasiliana na Msaada"
+    },
+    "messages": {
+      "genericError": "Hitilafu imetokea",
+      "tokenMissing": "Tokeni ya kuweka upya nenosiri haipo au si sahihi."
+    },
+    "errors": {
+      "emailInvalid": "Weka barua pepe sahihi",
+      "emailRequired": "Barua pepe inahitajika",
+      "passwordRequired": "Nenosiri linahitajika",
+      "complexity": "Lazima liwe na angalau herufi 8, herufi kubwa 1, herufi ndogo 1, nambari 1 na alama maalum 1",
+      "confirmationRequired": "Uthibitisho wa nenosiri unahitajika",
+      "mismatch": "Nenosiri halilingani"
+    },
+    "recover": {
+      "title": "Weka barua pepe yako",
+      "emailLabel": "Barua pepe",
+      "submit": "Tuma Tokeni ya Kurejesha Nenosiri",
+      "success": "Kiungo cha kurejesha kimetumwa kwa mafanikio!",
+      "failed": "Imeshindwa kutuma kiungo cha kurejesha.",
+      "emailRequired": "Tafadhali weka barua pepe yako."
+    }
+  },
+  "forgotPassword": {
+    "title": "Umesahau nenosiri",
+    "email": "Barua pepe",
+    "submit": "Wasilisha",
+    "forgotEmail": "Umesahau barua pepe yako?",
+    "contactSupport": "Wasiliana na Msaada",
+    "orSignUpWith": "Au jisajili kwa"
+  },
+  "verifyPassword": {
+    "verifying": "Inathibitisha Barua Pepe",
+    "verify": "Thibitisha Barua Pepe",
+    "havePassword": "Una nenosiri?",
+    "proceedToSignIn": "Endelea Kuingia",
+    "forgotEmail": "Umesahau barua pepe yako?",
+    "contactSupport": "Wasiliana na Msaada"
+  },
+  "emailVerification": {
+    "notice": "Tafadhali thibitisha barua pepe yako kupitia kiungo kilichotumwa kwa anwani ya barua pepe iliyo hapa chini. Kama kiungo kimeisha muda au umekipoteza, bofya kitufe cha Tuma tena kiungo cha uthibitisho ili kupata kipya.",
+    "emailLabel": "Barua pepe",
+    "resend": "Tuma tena kiungo cha uthibitisho",
+    "logout": "Toka",
+    "alreadyVerified": "Umeshathibitisha?",
+    "proceedToHomepage": "Endelea kwenye Ukurasa wa Mwanzo",
+    "forgotEmail": "Umesahau barua pepe yako?",
+    "contactSupport": "Wasiliana na Msaada",
+    "linkSent": "Kiungo cha uthibitisho kimetumwa",
+    "resendFailed": "Imeshindwa kutuma tena barua pepe ya uthibitisho",
+    "recheckFailed": "Imeshindwa kukagua tena uthibitisho. Tafadhali jaribu tena."
+  },
+  "signin": {
+    "welcome": "Karibu",
+    "tagline": "Usimamizi na Udhibiti Rahisi",
+    "useAccount": "Tumia akaunti yako ya ProsERP kuendelea.",
+    "hidePassword": "Ficha nenosiri",
+    "showPassword": "Onyesha nenosiri",
+    "loginFailed": "Kuingia kumeshindikana. Tafadhali jaribu tena.",
+    "features": {
+      "allInOne": {
+        "title": "Biashara yako yote, mahali pamoja",
+        "description": "Hesabu, ununuzi, Rasilimali Watu, POS na zaidi - vyote katika mazingira moja salama."
+      },
+      "multiOrg": {
+        "title": "Msaada wa mashirika mengi",
+        "description": "Badilisha kati ya mashirika papo hapo bila kutoka."
+      },
+      "insights": {
+        "title": "Taarifa za wakati halisi",
+        "description": "Dashibodi na ripoti zinazobaki za kisasa biashara yako inaposonga."
+      }
+    }
+  },
+  "signup": {
+    "getStarted": "Anza",
+    "tagline": "Usimamizi na Udhibiti Rahisi",
+    "createAccount": "Fungua akaunti yako",
+    "fillDetails": "Jaza maelezo hapa chini ili kuanza.",
+    "labels": {
+      "fullName": "Jina Kamili",
+      "emailAddress": "Anwani ya Barua Pepe",
+      "phoneNumber": "Namba ya Simu",
+      "password": "Nenosiri",
+      "confirmPassword": "Thibitisha Nenosiri"
+    },
+    "placeholders": {
+      "fullName": "Jane Doe",
+      "email": "wewe@mfano.com",
+      "phone": "+255 ..."
+    },
+    "buttons": {
+      "submit": "Fungua akaunti"
+    },
+    "alreadyHaveAccount": "Tayari una akaunti?",
+    "signIn": "Ingia",
+    "messages": {
+      "signupFailed": "Usajili umeshindikana. Tafadhali jaribu tena."
+    },
+    "features": {
+      "allInOne": {
+        "title": "Biashara yako yote, mahali pamoja",
+        "description": "Hesabu, ununuzi, Rasilimali Watu, POS na zaidi, vyote pamoja."
+      },
+      "invite": {
+        "title": "Alika timu yako",
+        "description": "Ongeza wafanyakazi wenzako na simamia ufikiaji kwa majukumu."
+      },
+      "insights": {
+        "title": "Taarifa za wakati halisi",
+        "description": "Dashibodi na ripoti zinazobaki za kisasa."
+      }
+    },
+    "errors": {
+      "nameRequired": "Jina kamili linahitajika",
+      "nameTooLong": "Jina kamili ni refu mno",
+      "emailInvalid": "Weka anwani sahihi ya barua pepe",
+      "emailRequired": "Barua pepe inahitajika",
+      "phoneRequired": "Namba ya simu inahitajika",
+      "phoneFormat": "Namba ya simu lazima iwe na tarakimu 10 hadi 15",
+      "passwordRequired": "Nenosiri linahitajika",
+      "passwordComplexity": "Nenosiri lazima liwe na angalau herufi 8 na liwe na herufi kubwa, herufi ndogo, nambari na alama maalum",
+      "confirmRequired": "Tafadhali thibitisha nenosiri lako",
+      "mismatch": "Manenosiri hayalingani"
+    }
+  },
+  "audits": {
+    "platform": {
+      "title": "Kumbukumbu za Ukaguzi za Jukwaa",
+      "tabs": {
+        "platform": "Kumbukumbu za Jukwaa",
+        "organization": "Kumbukumbu za Shirika"
+      },
+      "labels": {
+        "organization": "Shirika",
+        "keyword": "Neno Kuu",
+        "from": "Kuanzia",
+        "to": "Hadi"
+      },
+      "placeholders": {
+        "organization": "Chagua shirika..."
+      },
+      "buttons": {
+        "clear": "Futa"
+      },
+      "empty": {
+        "platform": "Hakuna rekodi za ukaguzi za jukwaa zilizopatikana.",
+        "organization": "Hakuna rekodi za ukaguzi zilizopatikana kwa shirika hili.",
+        "selectOrganization": "Chagua shirika hapo juu ili kuona kumbukumbu zake za ukaguzi."
+      },
+      "entryTitle": "Rekodi ya Ukaguzi",
+      "orgEntryTitle": "Rekodi ya Ukaguzi — {name}"
+    }
+  }
+}

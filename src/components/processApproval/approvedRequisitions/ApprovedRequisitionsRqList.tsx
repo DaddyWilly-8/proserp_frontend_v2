@@ -27,6 +27,7 @@ import UnauthorizedAccess from '@/shared/Information/UnauthorizedAccess';
 import { ApprovalRequisition } from './ApprovalRequisitionType';
 import { CostCenter } from '@/components/masters/costCenters/CostCenterType';
 import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface FilterDate {
   from: string | null;
@@ -57,6 +58,7 @@ interface ApprovedRequisitionsRqListProps {
 }
 
 const ApprovedRequisitionsRqList: React.FC<ApprovedRequisitionsRqListProps> = ({ processType }) => {
+  const dictionary = useDictionary();
   const params = useParams();
   const searchParams = useSearchParams();
   const listRef = useRef<any>(null);
@@ -261,7 +263,7 @@ const ApprovedRequisitionsRqList: React.FC<ApprovedRequisitionsRqListProps> = ({
                                 />
                               </Grid>
                               <Grid size={{ xs: 1, md: 0.5 }} alignContent={'end'}>
-                                <Tooltip title="Filter Dates">
+                                <Tooltip title={dictionary.tooltips.filterDates}>
                                   <IconButton onClick={handleDateFilterApply}>
                                     <EventAvailableOutlined />
                                   </IconButton>

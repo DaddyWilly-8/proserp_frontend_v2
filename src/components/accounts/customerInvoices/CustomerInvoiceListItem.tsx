@@ -4,11 +4,13 @@ import { readableDate } from '@/app/helpers/input-sanitization-helpers';
 import { Chip, Grid, ListItemText, Stack, Tooltip, Typography } from '@mui/material';
 import CustomerInvoiceItemAction from './CustomerInvoiceItemAction';
 import { CustomerInvoice } from './CustomerInvoiceType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const money = (value: number = 0) =>
   value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 function CustomerInvoiceListItem({ invoice }: { invoice: CustomerInvoice }) {
+  const dictionary = useDictionary();
   const netAmount = invoice.net_amount ?? 0;
   const paidAmount = invoice.paid_amount ?? 0;
   const paymentStatus = invoice.manually_paid_at || (netAmount > 0 && paidAmount >= netAmount)
@@ -20,7 +22,9 @@ function CustomerInvoiceListItem({ invoice }: { invoice: CustomerInvoice }) {
     paymentStatus !== 'paid' && !!invoice.due_date && new Date(invoice.due_date).getTime() < Date.now();
 
   const sourceLabel =
-    invoice.source?.type === 'ProjectPaymentClaim'
+    invoice.source?.type === 'FuelVoucher'
+      ? 'Fuel Vouchers'
+      : invoice.source?.type === 'ProjectPaymentClaim'
       ? `Project Payment Claim ${invoice.source.no ?? ''}`.trim()
       : invoice.source?.no
         ? `Sale ${invoice.source.no}`
@@ -41,7 +45,7 @@ function CustomerInvoiceListItem({ invoice }: { invoice: CustomerInvoice }) {
       <Grid size={{ xs: 6, md: 2, lg: 1.5 }}>
         <ListItemText
           primary={
-            <Tooltip title='Invoice Date'>
+            <Tooltip title={dictionary.tooltips.invoiceDate}>
               <Typography variant='h5' fontSize={14} lineHeight={1.25} mb={0} noWrap component='span'>
                 {readableDate(invoice.transaction_date)}
               </Typography>
@@ -63,7 +67,7 @@ function CustomerInvoiceListItem({ invoice }: { invoice: CustomerInvoice }) {
         <ListItemText
           primary={
             <Stack direction='row' spacing={0.5} alignItems='center' flexWrap='wrap'>
-              <Tooltip title='Invoice No.'>
+              <Tooltip title={dictionary.tooltips.invoiceNo}>
                 <Typography variant='h5' fontSize={14} lineHeight={1.25} mb={0} noWrap component='span'>
                   {invoice.invoiceNo}
                 </Typography>
@@ -79,7 +83,7 @@ function CustomerInvoiceListItem({ invoice }: { invoice: CustomerInvoice }) {
                 </Tooltip>
               )}
               {paymentStatus === 'unpaid' && (
-                <Tooltip title='Not yet received from the customer'>
+                <Tooltip title={dictionary.tooltips.notYetReceivedFromTheCustomer}>
                   <Chip size='small' variant='outlined' label='Unpaid' />
                 </Tooltip>
               )}
@@ -87,7 +91,7 @@ function CustomerInvoiceListItem({ invoice }: { invoice: CustomerInvoice }) {
           }
           secondary={
             sourceLabel ? (
-              <Tooltip title='Source Document'>
+              <Tooltip title={dictionary.tooltips.sourceDocument}>
                 <Typography variant='caption' color='text.secondary' component='span'>
                   {sourceLabel}
                 </Typography>
@@ -100,7 +104,7 @@ function CustomerInvoiceListItem({ invoice }: { invoice: CustomerInvoice }) {
       <Grid size={{ xs: 12, md: 3, lg: 3 }}>
         <ListItemText
           primary={
-            <Tooltip title='Customer'>
+            <Tooltip title={dictionary.tooltips.customer}>
               <Typography variant='h5' fontSize={14} lineHeight={1.25} mb={0} noWrap component='span'>
                 {invoice.stakeholder?.name}
               </Typography>
@@ -112,7 +116,7 @@ function CustomerInvoiceListItem({ invoice }: { invoice: CustomerInvoice }) {
       <Grid size={{ xs: 12, md: 2, lg: 2.5 }}>
         <ListItemText
           secondary={
-            <Tooltip title='Internal / Customer Reference'>
+            <Tooltip title={dictionary.tooltips.internalCustomerReference}>
               <Typography component='span' fontSize={14} lineHeight={1.25} mb={0} noWrap color='text.secondary'>
                 {[invoice.internal_reference, invoice.customer_reference].filter(Boolean).join(' / ')}
               </Typography>

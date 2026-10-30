@@ -1,3 +1,4 @@
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import { sanitizedNumber } from '@/app/helpers/input-sanitization-helpers';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import LedgerSelect from '@/components/accounts/ledgers/forms/LedgerSelect';
@@ -34,6 +35,7 @@ function SubContractTasks({
   subContractTask = null,
   existingTasks,
 }) {
+  const dictionary = useDictionary();
   const queryClient = useQueryClient();
   const { enqueueSnackbar } = useSnackbar();
   const { ungroupedLedgerOptions } = useLedgerSelect();
@@ -82,19 +84,19 @@ function SubContractTasks({
   const validationSchema = yup.object({
     rate: yup
       .number()
-      .required('Rate is required')
-      .typeError('Rate is required'),
+      .required(dictionary.projectManagement.subcontractTasks.rateRequired)
+      .typeError(dictionary.projectManagement.subcontractTasks.rateRequired),
     expense_ledger_id: yup
       .number()
-      .required('Expense Ledger is required')
-      .typeError('Expense Ledger is required'),
+      .required(dictionary.projectManagement.subcontractTasks.expenseLedgerRequired)
+      .typeError(dictionary.projectManagement.subcontractTasks.expenseLedgerRequired),
     project_task_id: yup
       .number()
-      .required('Project Task is required')
-      .typeError('Project Task is required')
+      .required(dictionary.projectManagement.subcontractTasks.projectTaskRequired)
+      .typeError(dictionary.projectManagement.subcontractTasks.projectTaskRequired)
       .test(
         'unique-task',
-        'This Task is already in Subcontract',
+        dictionary.projectManagement.subcontractTasks.taskAlreadyInSubcontract,
         function (value) {
           const { existingTasks, subContractTask } = this.options.context;
 
@@ -113,14 +115,14 @@ function SubContractTasks({
       ),
     quantity: yup
       .number()
-      .required('Quantity is required')
-      .typeError('Quantity is required')
+      .required(dictionary.projectManagement.subcontractTasks.quantityRequired)
+      .typeError(dictionary.projectManagement.subcontractTasks.quantityRequired)
       .test('max-quantity', function (value) {
         const originalQuantity = this.parent.unsubcontracted_quantity;
 
         if (value > originalQuantity) {
           return this.createError({
-            message: `Quantity should not exceed Project Task Quantity. ${originalQuantity} remaining.`,
+            message: dictionary.projectManagement.subcontractTasks.quantityExceeds.replace('{remaining}', originalQuantity),
           });
         }
         return true;
@@ -208,7 +210,7 @@ function SubContractTasks({
   return (
     <>
       <DialogTitle textAlign={'center'}>
-        {subContractTask ? `Edit SubContract Task` : `New Subcontract Task`}
+        {subContractTask ? dictionary.projectManagement.subcontractTasks.editTitle : dictionary.projectManagement.subcontractTasks.newTitle}
       </DialogTitle>
       <DialogContent>
         <form autoComplete='false'>
@@ -225,7 +227,7 @@ function SubContractTasks({
                   renderInput={(params) => (
                     <TextField
                       {...params}
-                      label='Project Task'
+                      label={dictionary.projectManagement.subcontractTasks.projectTask}
                       size='small'
                       fullWidth
                       error={!!errors?.project_task_id}
@@ -261,7 +263,7 @@ function SubContractTasks({
             <Grid size={{ xs: 12, md: 6 }}>
               <Div sx={{ mt: 1 }}>
                 <LedgerSelect
-                  label='Expense'
+                  label={dictionary.projectManagement.subcontractTasks.expense}
                   frontError={errors.expense_ledger_id}
                   allowedGroups={['Expenses']}
                   defaultValue={
@@ -286,7 +288,7 @@ function SubContractTasks({
                   <LinearProgress />
                 ) : (
                   <TextField
-                    label='Quantity'
+                    label={dictionary.projectManagement.subcontractTasks.quantityLabel}
                     fullWidth
                     size='small'
                     defaultValue={watch(`quantity`)}
@@ -317,7 +319,7 @@ function SubContractTasks({
             <Grid size={{ xs: 12, md: 6 }}>
               <Div sx={{ mt: 1 }}>
                 <TextField
-                  label='Rate'
+                  label={dictionary.projectManagement.subcontractTasks.rateLabel}
                   fullWidth
                   size='small'
                   defaultValue={subContractTask?.rate}
@@ -342,7 +344,7 @@ function SubContractTasks({
             <Grid size={{ xs: 12, md: 6 }}>
               <Div sx={{ mt: 1 }}>
                 <DateTimePicker
-                  label='Start Date'
+                  label={dictionary.projectManagement.subcontractTasks.startDate}
                   fullWidth
                   minDate={dayjs(organization.recording_start_date)}
                   value={
@@ -370,7 +372,7 @@ function SubContractTasks({
             <Grid size={{ xs: 12, md: 6 }}>
               <Div sx={{ mt: 1 }}>
                 <DateTimePicker
-                  label='End Date'
+                  label={dictionary.projectManagement.subcontractTasks.endDate}
                   fullWidth
                   minDate={
                     watch('start_date') ? dayjs(watch('start_date')) : null
@@ -401,7 +403,7 @@ function SubContractTasks({
             <Grid size={{ xs: 12, md: 12 }}>
               <Div sx={{ mt: 1 }}>
                 <TextField
-                  label='Remarks'
+                  label={dictionary.projectManagement.subcontractTasks.remarks}
                   size='small'
                   defaultValue={subContractTask?.remarks}
                   error={!!errors?.remarks}
@@ -418,7 +420,7 @@ function SubContractTasks({
       </DialogContent>
       <DialogActions>
         <Button size='small' onClick={() => setOpenDialog(false)}>
-          Cancel
+          {dictionary.projectManagement.common.cancel}
         </Button>
         <LoadingButton
           type='submit'
@@ -427,7 +429,7 @@ function SubContractTasks({
           size='small'
           variant='contained'
         >
-          Submit
+          {dictionary.projectManagement.common.submit}
         </LoadingButton>
       </DialogActions>
     </>

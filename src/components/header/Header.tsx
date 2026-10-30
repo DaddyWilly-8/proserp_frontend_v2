@@ -15,7 +15,9 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import React from 'react';
 import { Logo } from '../logo/Logo';
 import { SidebarToggleButton } from '../sidebarToggleButton';
+import { TranslationPopover } from '../translationPopover/TranslationPopover';
 import { ThemeModeOption } from './themeModeOptions/ThemeModeOption';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 // Both render a 40x40 circular control (IconButton/Avatar default size) -
 // a matching circular skeleton reserves that space from first paint instead
@@ -36,6 +38,7 @@ const NotificationBell = dynamic(
 );
 
 function Header({ dictionary }: { dictionary: any }) {
+  const tooltipDict = useDictionary().tooltips;
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -162,6 +165,7 @@ function Header({ dictionary }: { dictionary: any }) {
           sx={{ ml: 'auto', minWidth: 320 }}
         >
           {/* <SearchGlobal sx={{ maxWidth: 320, minWidth: 200 }} /> */}
+          {/* <TranslationPopover /> */}
           <ThemeModeOption />
           <NotificationBell />
           <AuthUserPopover dictionary={dictionary} />
@@ -184,7 +188,7 @@ function Header({ dictionary }: { dictionary: any }) {
           <Stack direction='row' alignItems='center' gap={0.5}>
             <SidebarToggleButton />
             {canGoBack && (
-              <Tooltip title='Back'>
+              <Tooltip title={tooltipDict.back}>
                 <IconButton
                   color='inherit'
                   size='small'
@@ -196,7 +200,7 @@ function Header({ dictionary }: { dictionary: any }) {
               </Tooltip>
             )}
             {canGoForward && (
-              <Tooltip title='Forward'>
+              <Tooltip title={tooltipDict.forward}>
                 <IconButton
                   color='inherit'
                   size='small'
@@ -207,7 +211,7 @@ function Header({ dictionary }: { dictionary: any }) {
                 </IconButton>
               </Tooltip>
             )}
-            <Tooltip title='Refresh'>
+            <Tooltip title={tooltipDict.refresh}>
               <IconButton
                 color='inherit'
                 size='small'
@@ -219,6 +223,7 @@ function Header({ dictionary }: { dictionary: any }) {
             </Tooltip>
           </Stack>
           <Stack direction={'row'} alignItems={'center'} gap={1}>
+            {/* <TranslationPopover /> */}
             <ThemeModeOption />
             <NotificationBell />
             <AuthUserPopover dictionary={dictionary} />

@@ -22,10 +22,12 @@ import SalesShiftsActionTail from './SalesShiftsActionTail';
 import SalesShiftsListItem from './SalesShiftsListItem';
 import ShiftTeamsSelector from './ShiftTeamsSelector';
 import StationShiftsStatusSelector from './StationShiftsStatusSelector';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 export const StationFormContext = createContext({});
 
 const SalesShifts = ({ activeStation }) => {
+  const dictionary = useDictionary();
   const [openFilters, setOpenFilters] = useState(false);
   const params = useParams();
   const listRef = React.useRef();
@@ -185,7 +187,7 @@ const SalesShifts = ({ activeStation }) => {
                               size={{ xs: 1.5, md: 1, lg: 0.5 }}
                               alignContent={'end'}
                             >
-                              <Tooltip title='Filter Dates'>
+                              <Tooltip title={dictionary.tooltips.filterDates}>
                                 <IconButton
                                   onClick={() => {
                                     setQueryOptions((state) => ({

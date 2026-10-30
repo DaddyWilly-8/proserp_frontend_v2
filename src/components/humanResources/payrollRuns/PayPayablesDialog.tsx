@@ -33,6 +33,7 @@ import dayjs from 'dayjs';
 import { useSnackbar } from 'notistack';
 import { useEffect, useState } from 'react';
 import humanResourcesServices from '../humanResourcesServices';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 type PayableRow = {
   payable_type: 'deduction' | 'employer_contribution';
@@ -61,6 +62,8 @@ const PayPayablesDialog = ({
   payrollRunId: number;
   onSuccess?: () => void;
 }) => {
+  const dictionary = useDictionary();
+  const t = dictionary.humanResources.payrollRuns.payPayables;
   const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
   const { theme } = useJumboTheme();
@@ -120,7 +123,7 @@ const PayPayablesDialog = ({
       });
     },
     onSuccess: (response: any) => {
-      enqueueSnackbar(response?.message || 'Payable settlement recorded', {
+      enqueueSnackbar(response?.message || t.recorded, {
         variant: 'success',
       });
       queryClient.invalidateQueries({
@@ -154,23 +157,22 @@ const PayPayablesDialog = ({
     >
       <DialogTitle>
         <Typography variant='h6' component='div' fontWeight={600}>
-          Pay Payables
+          {t.title}
         </Typography>
       </DialogTitle>
       <DialogContent>
         <Stack spacing={2} mt={1}>
           <Alert severity='info'>
-            Settles what this run accrued for deduction/employer-contribution
-            types (e.g. remitting NSSF) — separate from paying employees.
+            {t.info}
           </Alert>
 
           <LedgerSelect
-            label='Bank or Cash Account'
+            label={t.bankOrCash}
             onChange={(ledger: any) => setCreditLedgerId(ledger?.id || 0)}
           />
 
           <DateTimePicker
-            label='Settlement Date & Time'
+            label={t.settlementDate}
             value={transactionDate ? dayjs(transactionDate) : null}
             onChange={(val) =>
               setTransactionDate(val?.toISOString() || '')
@@ -186,8 +188,7 @@ const PayPayablesDialog = ({
             </Box>
           ) : payableRows.length === 0 ? (
             <Alert severity='success'>
-              Nothing outstanding — every payable this run accrued has been
-              settled.
+              {t.nothingOutstanding}
             </Alert>
           ) : (
             <TableContainer sx={{ overflowX: 'auto' }}>
@@ -195,11 +196,11 @@ const PayPayablesDialog = ({
               <TableHead>
                 <TableRow>
                   <TableCell padding='checkbox' />
-                  <TableCell>Type</TableCell>
-                  <TableCell align='right'>Accrued</TableCell>
-                  <TableCell align='right'>Remaining</TableCell>
+                  <TableCell>{t.type}</TableCell>
+                  <TableCell align='right'>{t.accrued}</TableCell>
+                  <TableCell align='right'>{t.remaining}</TableCell>
                   <TableCell align='right' width={140}>
-                    Amount to Pay
+                    {t.amountToPay}
                   </TableCell>
                 </TableRow>
               </TableHead>
@@ -224,8 +225,8 @@ const PayPayablesDialog = ({
                       </Typography>
                       <Typography variant='caption' color='text.secondary' noWrap component='div'>
                         {row.payable_type === 'deduction'
-                          ? 'Deduction'
-                          : 'Employer Contribution'}
+                          ? t.deduction
+                          : t.employerContribution}
                       </Typography>
                     </TableCell>
                     <TableCell align='right'>
@@ -270,7 +271,7 @@ const PayPayablesDialog = ({
           {payableRows.length > 0 && (
             <Stack direction='row' justifyContent='flex-end'>
               <Typography variant='body2' fontWeight={600}>
-                Total this payment: {total.toLocaleString()}
+                {t.totalThisPayment.replace('{amount}', total.toLocaleString())}
               </Typography>
             </Stack>
           )}
@@ -278,7 +279,7 @@ const PayPayablesDialog = ({
       </DialogContent>
       <DialogActions sx={{ px: 3, pb: 2 }}>
         <Button onClick={onClose} variant='outlined' size='small' disabled={isPending}>
-          Cancel
+          {t.cancel}
         </Button>
         <Button
           variant='contained'
@@ -287,7 +288,7 @@ const PayPayablesDialog = ({
           onClick={() => settle()}
           disabled={isPending || !isValid || payableRows.length === 0}
         >
-          {isPending ? <CircularProgress size={18} /> : 'Settle'}
+          {isPending ? <CircularProgress size={18} /> : t.settle}
         </Button>
       </DialogActions>
     </Dialog>

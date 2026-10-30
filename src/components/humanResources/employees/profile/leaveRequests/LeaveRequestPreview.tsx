@@ -18,6 +18,7 @@ import {
   Typography,
 } from '@mui/material';
 import dayjs from 'dayjs';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 // Inlined rather than shared — see the identical note in LoanRequestPreview.tsx.
 const getDecision = (
@@ -81,13 +82,6 @@ const STATUS_COLOR: Record<string, any> = {
   cancelled: 'default',
 };
 
-const STATUS_LABEL: Record<string, string> = {
-  in_review: 'In Review',
-  approved: 'Approved',
-  rejected: 'Rejected',
-  cancelled: 'Cancelled',
-};
-
 const DECISION_COLOR: Record<string, any> = {
   approved: 'success',
   rejected: 'error',
@@ -122,18 +116,22 @@ interface LeaveRequestPreviewProps {
  * approval_chain/approvals shape from the backend.
  */
 const LeaveRequestPreview = ({ leaveRequest, title }: LeaveRequestPreviewProps) => {
+  const dictionary = useDictionary();
   const employeeName =
     title ??
     (leaveRequest.employee
       ? `${leaveRequest.employee.first_name} ${leaveRequest.employee.last_name}`
-      : `Employee #${leaveRequest.employee_id}`);
+      : dictionary.humanResources.leaveRequests.preview.employeeFallback.replace(
+          '{id}',
+          String(leaveRequest.employee_id)
+        ));
 
   const statusColor = STATUS_COLOR[leaveRequest.status] || 'default';
   const statusLabel =
     leaveRequest.status_label ||
-    STATUS_LABEL[leaveRequest.status] ||
+    (dictionary.humanResources.leaveRequests.status as Record<string, string>)[leaveRequest.status] ||
     leaveRequest.status ||
-    'Pending';
+    dictionary.humanResources.leaveRequests.status.pending;
 
   const levels = [...(leaveRequest.approval_chain?.levels || [])].sort(
     (a, b) => Number(a.position_index || 0) - Number(b.position_index || 0)
@@ -153,8 +151,13 @@ const LeaveRequestPreview = ({ leaveRequest, title }: LeaveRequestPreviewProps) 
 
   const daysLabel =
     leaveRequest.days_granted != null
-      ? `${leaveRequest.days_granted} / ${leaveRequest.days_requested} days`
-      : `${leaveRequest.days_requested} days`;
+      ? dictionary.humanResources.leaveRequests.preview.daysGranted
+          .replace('{granted}', String(leaveRequest.days_granted))
+          .replace('{requested}', String(leaveRequest.days_requested))
+      : dictionary.humanResources.leaveRequests.dayCountMany.replace(
+          '{n}',
+          String(leaveRequest.days_requested)
+        );
 
   return (
     <Box>
@@ -162,7 +165,10 @@ const LeaveRequestPreview = ({ leaveRequest, title }: LeaveRequestPreviewProps) 
         <Grid size={{ xs: 12, sm: 8 }}>
           <Typography variant='h5'>{employeeName}</Typography>
           <Typography variant='body2' color='text.secondary'>
-            {leaveRequest.leave_type?.name || `Type #${leaveRequest.leave_type_id}`}
+            {leaveRequest.leave_type?.name || dictionary.humanResources.leaveRequests.list.typeFallback.replace(
+                '{id}',
+                String(leaveRequest.leave_type_id)
+              )}
             {leaveRequest.reason ? ` · ${leaveRequest.reason}` : ''}
           </Typography>
         </Grid>
@@ -181,7 +187,7 @@ const LeaveRequestPreview = ({ leaveRequest, title }: LeaveRequestPreviewProps) 
           <Grid container spacing={2}>
             <Grid size={{ xs: 12, sm: 4 }}>
               <Typography variant='caption' color='text.secondary' display='block'>
-                Start Date
+                {dictionary.humanResources.leaveRequests.preview.startDate}
               </Typography>
               <Typography variant='h6' fontWeight={500}>
                 {dayjs(leaveRequest.start_date).format('YYYY-MM-DD')}
@@ -189,7 +195,7 @@ const LeaveRequestPreview = ({ leaveRequest, title }: LeaveRequestPreviewProps) 
             </Grid>
             <Grid size={{ xs: 12, sm: 4 }}>
               <Typography variant='caption' color='text.secondary' display='block'>
-                End Date
+                {dictionary.humanResources.leaveRequests.preview.endDate}
               </Typography>
               <Typography variant='h6' fontWeight={500}>
                 {dayjs(leaveRequest.end_date).format('YYYY-MM-DD')}
@@ -197,7 +203,7 @@ const LeaveRequestPreview = ({ leaveRequest, title }: LeaveRequestPreviewProps) 
             </Grid>
             <Grid size={{ xs: 12, sm: 4 }}>
               <Typography variant='caption' color='text.secondary' display='block'>
-                Days
+                {dictionary.humanResources.leaveRequests.preview.days}
               </Typography>
               <Typography variant='h6' fontWeight={500}>
                 {daysLabel}
@@ -208,20 +214,23 @@ const LeaveRequestPreview = ({ leaveRequest, title }: LeaveRequestPreviewProps) 
       </Card>
 
       <Typography variant='subtitle1' fontWeight={600} mb={1.5}>
-        Approval Stages
+        {dictionary.humanResources.leaveRequests.preview.approvalStages}
       </Typography>
 
       {approvals.length === 0 && !nextLevel ? (
         <Alert severity='info' variant='outlined'>
           {leaveRequest.reviewed_at ? (
             <>
-              Decided directly on {readableDate(leaveRequest.reviewed_at, false)}
+              {dictionary.humanResources.leaveRequests.preview.decidedDirectly.replace(
+                '{date}',
+                readableDate(leaveRequest.reviewed_at, false)
+              )}
               {leaveRequest.review_remarks
                 ? ` — "${leaveRequest.review_remarks}"`
                 : ''}
             </>
           ) : (
-            'No approval chain configured for this request — awaiting a direct decision.'
+            dictionary.humanResources.leaveRequests.preview.noChain
           )}
         </Alert>
       ) : (
@@ -230,12 +239,12 @@ const LeaveRequestPreview = ({ leaveRequest, title }: LeaveRequestPreviewProps) 
             const decision = getDecision(approval);
             const actionLabel =
               decision === 'approved'
-                ? approval.label || 'Approved'
+                ? approval.label || dictionary.humanResources.leaveRequests.preview.approved
                 : decision === 'rejected'
-                  ? 'Rejected'
+                  ? dictionary.humanResources.leaveRequests.preview.rejected
                   : decision === 'on hold'
-                    ? 'Put on hold'
-                    : 'Decision recorded';
+                    ? dictionary.humanResources.leaveRequests.preview.putOnHold
+                    : dictionary.humanResources.leaveRequests.preview.decisionRecorded;
             const isLast = !nextLevel && index === approvals.length - 1;
 
             return (
@@ -262,11 +271,20 @@ const LeaveRequestPreview = ({ leaveRequest, title }: LeaveRequestPreviewProps) 
                     flexWrap='wrap'
                   >
                     <Typography variant='subtitle2'>
-                      {actionLabel} by {approval.creator?.name || 'Unknown reviewer'}
+                      {dictionary.humanResources.leaveRequests.preview.actionBy
+                        .replace('{action}', actionLabel)
+                        .replace(
+                          '{name}',
+                          approval.creator?.name || dictionary.humanResources.leaveRequests.preview.unknownReviewer
+                        )}
                     </Typography>
                     <Chip
                       size='small'
-                      label={approval.status || 'Pending'}
+                      label={
+                        (dictionary.humanResources.leaveRequests.status as Record<string, string>)[
+                          (approval.status || 'pending').toLowerCase()
+                        ] ?? approval.status
+                      }
                       color={DECISION_COLOR[decision] || 'default'}
                       sx={{ textTransform: 'capitalize' }}
                     />
@@ -279,7 +297,10 @@ const LeaveRequestPreview = ({ leaveRequest, title }: LeaveRequestPreviewProps) 
                   </Typography>
                   {approval.days_approved != null && (
                     <Typography variant='body2' mt={0.5}>
-                      Approved {approval.days_approved} days
+                      {dictionary.humanResources.leaveRequests.preview.approvedDays.replace(
+                        '{n}',
+                        String(approval.days_approved)
+                      )}
                     </Typography>
                   )}
                   {approval.remarks && (
@@ -304,18 +325,20 @@ const LeaveRequestPreview = ({ leaveRequest, title }: LeaveRequestPreviewProps) 
               <Box sx={{ flex: 1 }}>
                 <Stack direction='row' spacing={1} alignItems='center'>
                   <Typography variant='subtitle2'>
-                    Waiting for{' '}
-                    {nextLevel.role?.name || 'next reviewer'}
+                    {dictionary.humanResources.leaveRequests.preview.waitingFor.replace(
+                      '{role}',
+                      nextLevel.role?.name || dictionary.humanResources.leaveRequests.preview.nextReviewer
+                    )}
                   </Typography>
                   <Chip
                     size='small'
-                    label='Pending'
+                    label={dictionary.humanResources.leaveRequests.preview.pending}
                     color='default'
                     sx={{ textTransform: 'capitalize' }}
                   />
                 </Stack>
                 <Typography variant='body2' color='text.secondary'>
-                  Not reached yet
+                  {dictionary.humanResources.leaveRequests.preview.notReached}
                 </Typography>
               </Box>
             </Stack>

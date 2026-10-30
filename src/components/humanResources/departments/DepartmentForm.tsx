@@ -95,7 +95,7 @@ const DepartmentForm = ({
     mutationFn: humanResourcesServices.addDepartment,
     onSuccess: (data) => {
       setOpenDialog(false);
-      enqueueSnackbar('Success Adding Department', {
+      enqueueSnackbar(dictionary.humanResources.departments.form.messages.addSuccess, {
         variant: 'success',
       });
       queryClient.invalidateQueries({ queryKey: ['departments'] });
@@ -125,7 +125,7 @@ const DepartmentForm = ({
     mutationFn: humanResourcesServices.updateDepartment,
     onSuccess: (data) => {
       setOpenDialog(false);
-      enqueueSnackbar('Department update success', {
+      enqueueSnackbar(dictionary.humanResources.departments.form.messages.updateSuccess, {
         variant: 'success',
       });
       queryClient.invalidateQueries({ queryKey: ['departments'] });
@@ -149,15 +149,15 @@ const DepartmentForm = ({
 
   const validationSchema = yup.object({
     id: yup.number().optional(),
-    name: yup.string().required('Name is required').max(255),
+    name: yup.string().required(dictionary.humanResources.departments.form.validation.nameRequired).max(255),
     code: yup.string().max(50),
     description: yup.string(),
     salary_expense_ledger_id: orgHasSubscribedAccountsAndFinance
       ? yup
           .number()
-          .required('This field is required')
-          .positive('Invalid ledger selected')
-      : yup.number().nullable().optional().positive('Invalid ledger selected'),
+          .required(dictionary.humanResources.departments.form.validation.fieldRequired)
+          .positive(dictionary.humanResources.departments.form.validation.invalidLedger)
+      : yup.number().nullable().optional().positive(dictionary.humanResources.departments.form.validation.invalidLedger),
   });
 
   const {
@@ -205,8 +205,8 @@ const DepartmentForm = ({
       <DialogTitle>
         <Grid size={12} textAlign={'center'}>
           {!department?.id
-            ? 'Add Department'
-            : `Edit ${department.name} Department`}
+            ? dictionary.humanResources.departments.form.titles.add
+            : dictionary.humanResources.departments.form.titles.edit.replace('{name}', department.name)}
         </Grid>
       </DialogTitle>
       <DialogContent>
@@ -215,8 +215,8 @@ const DepartmentForm = ({
             <Grid size={{ xs: 12, md: 4 }}>
               <Div sx={{ mt: 1, mb: 1 }}>
                 <TextField
-                  label='Name'
-                  placeholder='Department Name'
+                  label={dictionary.humanResources.departments.form.labels.name}
+                  placeholder={dictionary.humanResources.departments.form.placeholders.name}
                   size='small'
                   fullWidth
                   error={
@@ -234,8 +234,8 @@ const DepartmentForm = ({
             <Grid size={{ xs: 12, md: 3 }}>
               <Div sx={{ mt: 1, mb: 1 }}>
                 <TextField
-                  label='Code'
-                  placeholder='Department Code'
+                  label={dictionary.humanResources.departments.form.labels.code}
+                  placeholder={dictionary.humanResources.departments.form.placeholders.code}
                   size='small'
                   fullWidth
                   error={
@@ -260,7 +260,7 @@ const DepartmentForm = ({
                     control={control}
                     render={({ field }) => (
                       <LedgerSelect
-                        label='Salary Expense Ledger'
+                        label={dictionary.humanResources.departments.form.labels.salaryExpenseLedger}
                         allowedGroups={['Expenses']}
                         frontError={errors.salary_expense_ledger_id}
                         key='salary-expense-ledger'
@@ -294,8 +294,8 @@ const DepartmentForm = ({
             <Grid size={{ xs: 12 }}>
               <Div sx={{ mt: 1, mb: 1 }}>
                 <TextField
-                  label='Description'
-                  placeholder='Department Description'
+                  label={dictionary.humanResources.departments.form.labels.description}
+                  placeholder={dictionary.humanResources.departments.form.placeholders.description}
                   size='small'
                   multiline
                   minRows={2}
@@ -316,7 +316,7 @@ const DepartmentForm = ({
 
           <DialogActions>
             <Button size='small' onClick={() => setOpenDialog(false)}>
-              Cancel
+              {dictionary.humanResources.departments.form.buttons.cancel}
             </Button>
             <LoadingButton
               type='submit'
@@ -325,7 +325,7 @@ const DepartmentForm = ({
               sx={{ display: 'flex' }}
               loading={isPending || updateIsLoading}
             >
-              Submit
+              {dictionary.humanResources.departments.form.buttons.submit}
             </LoadingButton>
           </DialogActions>
         </form>

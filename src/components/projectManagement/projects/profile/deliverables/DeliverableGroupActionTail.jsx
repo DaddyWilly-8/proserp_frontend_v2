@@ -6,8 +6,10 @@ import DeliverableGroupForm from "./DeliverableGroupForm";
 import { useJumboTheme } from "@jumbo/components/JumboTheme/hooks";
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const DeliverableGroupActionTail = ({ openDialog, setOpenDialog, group }) => {
+    const dictionary = useDictionary();
     const { theme } = useJumboTheme();
     const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
     const { checkOrganizationPermission } = useJumboAuth();
@@ -23,7 +25,7 @@ const DeliverableGroupActionTail = ({ openDialog, setOpenDialog, group }) => {
         </Dialog>
 
         <ButtonGroup variant="outlined" size="small" disableElevation sx={{ '& .MuiButton-root': { px: 1 } }}>
-          <Tooltip title={"New Deliverable Group"}>
+          <Tooltip title={dictionary.tooltips.newDeliverableGroup}>
             <IconButton onClick={() => setOpenDialog(true)}>
               <PlaylistAdd />
             </IconButton>

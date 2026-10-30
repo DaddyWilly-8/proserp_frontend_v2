@@ -233,6 +233,46 @@
     }
   },
   "depreciationRuns": {
+    "autoRun": {
+      "button": "Kiotomatiki",
+      "statusOn": "Imewashwa",
+      "statusOff": "Imezimwa",
+      "title": "Uchakavu wa Kiotomatiki",
+      "intro": "Uchakavu unapostiwa kiotomatiki tu pale hili linapowashwa. Kabla ya hapo, uendeshaji unapostiwa kwa mkono.",
+      "notSetUp": "Uchakavu wa kiotomatiki haujawekwa kwa shirika hili.",
+      "labels": {
+        "enabled": "Posti uchakavu kiotomatiki",
+        "timing": "Wakati wa kupost",
+        "monthEnd": "Siku ya mwisho ya kila mwezi",
+        "dayOfNextMonth": "Kuanzia siku fulani ya mwezi unaofuata",
+        "runDay": "Siku ya mwezi (1 hadi 28)",
+        "startMonth": "Mwezi wa kwanza wa kupost",
+        "narration": "Maelezo",
+        "postedAs": "Inapostiwa kama",
+        "notifyPosted": "Arifu uendeshaji unapopostiwa",
+        "notifySkipped": "Arifu mwezi unaposhindwa kupostiwa",
+        "notifyUsers": "Arifu watu hawa",
+        "latestPosted": "Mwezi wa mwisho uliopostiwa",
+        "nextMonth": "Mwezi unaofuata kupostiwa",
+        "lastRun": "Uendeshaji wa mwisho wa kiotomatiki",
+        "lastProblem": "Ulisimama kwa sababu"
+      },
+      "helper": {
+        "monthEnd": "Inapost mwezi siku yake ya mwisho, karibu saa 23:50.",
+        "dayOfNextMonth": "Inapost mwezi uliopita kuanzia siku hii. Usiku ukikosa, usiku unaofuata unafidia.",
+        "startMonth": "Inatumika hadi uendeshaji wa kwanza uwepo. Baada ya hapo inaendelea kutoka mwezi wa mwisho uliopostiwa.",
+        "startMonthRequired": "Inahitajika: hakuna uendeshaji wa uchakavu uliopostiwa bado.",
+        "narration": "Tumia {month} kwa kipindi, mfano \"Oktoba 2026\".",
+        "notifyUsers": "Acha wazi kuarifu kila mwenye uwezo wa kupost uchakavu."
+      },
+      "buttons": {
+        "save": "Hifadhi",
+        "cancel": "Ghairi"
+      },
+      "messages": {
+        "saved": "Mipangilio ya uchakavu wa kiotomatiki imehifadhiwa"
+      }
+    },
     "list": {
       "labels": {
         "listHeader": "Uendeshaji wa Uchakavu",

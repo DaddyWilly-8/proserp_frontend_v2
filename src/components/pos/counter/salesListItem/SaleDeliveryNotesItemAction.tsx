@@ -29,6 +29,7 @@ import { Organization } from '@/types/auth-types';
 import AttachmentForm from '@/components/filesShelf/attachments/AttachmentForm';
 import PDFContent from '@/components/pdf/PDFContent';
 import { BackdropSpinner } from '@/shared/ProgressIndicators/BackdropSpinner';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 // Lazy loaded components
 const SalesDispatchForm = React.lazy(() => import('./dispatch/SalesDispatchForm'));
@@ -60,6 +61,7 @@ const DocumentDialog: React.FC<DocumentDialogProps> = ({
   openDispatchPreview = false, 
   setOpenDocumentDialog 
 }) => {
+  const dictionary = useDictionary();
   const [thermalPrinter, setThermalPrinter] = useState(false);
   const [activeTab, setActiveTab] = useState(0);
 
@@ -105,7 +107,7 @@ const DocumentDialog: React.FC<DocumentDialogProps> = ({
 
               {belowLargeScreen && (
                 <Grid size={belowLargeScreen && activeTab === 0 ? 12 : 1} textAlign="right">
-                  <Tooltip title="Cancel">
+                  <Tooltip title={dictionary.tooltips.cancel}>
                     <IconButton
                       size="small"
                       onClick={() => setOpenDocumentDialog(false)}
@@ -149,7 +151,7 @@ const DocumentDialog: React.FC<DocumentDialogProps> = ({
                   }
 
                   {belowLargeScreen &&
-                    <Tooltip title="Close">
+                    <Tooltip title={dictionary.tooltips.close}>
                       <IconButton
                         size="small"
                         onClick={() => setOpenDocumentDialog(false)}

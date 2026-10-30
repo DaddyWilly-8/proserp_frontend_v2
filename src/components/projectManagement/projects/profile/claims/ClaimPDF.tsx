@@ -67,7 +67,8 @@ const ClaimPDF: React.FC<{
   claim: Claim;
   organization: Organization;
   openDetails: boolean;
-}> = ({ claim, organization, openDetails }) => {
+  dictionary: any;
+}> = ({ claim, organization, openDetails, dictionary }) => {
   const mainColor = organization.settings?.main_color || '#2113AD';
   const lightColor = organization.settings?.light_color || '#bec5da';
   const contrastText = organization.settings?.contrast_text || '#FFFFFF';
@@ -81,7 +82,7 @@ const ClaimPDF: React.FC<{
   const summaryItems = [
     {
       id: 'gross',
-      particular: 'Gross Amount Certified',
+      particular: dictionary.projectManagement.claims.doc.grossAmountCertified,
       amount: grossAmount,
       complement_ledger: null as ComplementLedger | null,
       type: null as 'addition' | 'deduction' | null,
@@ -100,7 +101,7 @@ const ClaimPDF: React.FC<{
       ? [
           {
             id: 'vat',
-            particular: `VAT (${vatPercentage}%)`,
+            particular: dictionary.projectManagement.claims.doc.vatPercent.replace('{percent}', String(vatPercentage)),
             amount: vatAmount,
             complement_ledger: null,
             type: null as 'addition' | 'deduction' | null,
@@ -165,11 +166,11 @@ const ClaimPDF: React.FC<{
           </View>
           <View style={{ textAlign: 'right' }}>
             <Text style={{ ...pdfStyles.majorInfo, color: mainColor }}>
-              Payment Claim
+              {dictionary.projectManagement.claims.doc.paymentClaim}
             </Text>
             <Text style={pdfStyles.minInfo}>{claim.claimNo}</Text>
             {claim.customer_invoice?.invoiceNo && (
-              <Text style={pdfStyles.minInfo}>Invoice: {claim.customer_invoice.invoiceNo}</Text>
+              <Text style={pdfStyles.minInfo}>{dictionary.projectManagement.claims.doc.invoice}: {claim.customer_invoice.invoiceNo}</Text>
             )}
             <Text style={pdfStyles.minInfo}>{claim.project?.name || ''}</Text>
           </View>
@@ -179,7 +180,7 @@ const ClaimPDF: React.FC<{
         <View style={{ ...pdfStyles.tableRow, marginBottom: 20, gap: 20 }}>
           <View style={{ flex: 1 }}>
             <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>
-              Claim Date
+              {dictionary.projectManagement.claims.doc.claimDate}
             </Text>
             <Text style={pdfStyles.minInfo}>
               {readableDate(claim.claim_date, false)}
@@ -188,7 +189,7 @@ const ClaimPDF: React.FC<{
           {claim.remarks && (
             <View style={{ flex: 1 }}>
               <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>
-                Remarks
+                {dictionary.projectManagement.claims.doc.remarks}
               </Text>
               <Text style={pdfStyles.minInfo}>{claim.remarks}</Text>
             </View>
@@ -205,7 +206,7 @@ const ClaimPDF: React.FC<{
               fontWeight: 'bold',
             }}
           >
-            Summary
+            {dictionary.projectManagement.claims.doc.summary}
           </Text>
           <View style={{ width: '100%', minWidth: 380 }}>
             <View style={pdfStyles.table}>
@@ -218,7 +219,7 @@ const ClaimPDF: React.FC<{
                     width: '10%',
                   }}
                 >
-                  S/N
+                  {dictionary.projectManagement.claims.doc.sn}
                 </Text>
                 <Text
                   style={{
@@ -228,7 +229,7 @@ const ClaimPDF: React.FC<{
                     width: '70%',
                   }}
                 >
-                  Particulars
+                  {dictionary.projectManagement.claims.doc.particulars}
                 </Text>
                 <Text
                   style={{
@@ -239,7 +240,7 @@ const ClaimPDF: React.FC<{
                     textAlign: 'right',
                   }}
                 >
-                  Amount ({currencyCode})
+                  {dictionary.projectManagement.claims.doc.amountWithCurrency.replace('{currency}', currencyCode)}
                 </Text>
               </View>
 
@@ -298,7 +299,7 @@ const ClaimPDF: React.FC<{
                     fontWeight: 'bold',
                   }}
                 >
-                  Grand Total ({currencyCode})
+                  {dictionary.projectManagement.claims.doc.grandTotalWithCurrency.replace('{currency}', currencyCode)}
                 </Text>
                 <Text
                   style={{
@@ -332,7 +333,7 @@ const ClaimPDF: React.FC<{
                 fontWeight: 'bold',
               }}
             >
-              Claim Derivations
+              {dictionary.projectManagement.claims.doc.claimDerivations}
             </Text>
             <View style={pdfStyles.table}>
               {/* Group Headers */}
@@ -354,7 +355,7 @@ const ClaimPDF: React.FC<{
                     textAlign: 'center',
                   }}
                 >
-                  Price Schedule
+                  {dictionary.projectManagement.claims.doc.priceSchedule}
                 </Text>
                 <Text
                   style={{
@@ -365,7 +366,7 @@ const ClaimPDF: React.FC<{
                     textAlign: 'center',
                   }}
                 >
-                  Quantity
+                  {dictionary.projectManagement.claims.doc.quantity}
                 </Text>
                 <Text
                   style={{
@@ -376,7 +377,7 @@ const ClaimPDF: React.FC<{
                     textAlign: 'center',
                   }}
                 >
-                  Amount ({currencyCode})
+                  {dictionary.projectManagement.claims.doc.amountWithCurrency.replace('{currency}', currencyCode)}
                 </Text>
               </View>
 
@@ -390,7 +391,7 @@ const ClaimPDF: React.FC<{
                     flex: 0.5,
                   }}
                 >
-                  S/N
+                  {dictionary.projectManagement.claims.doc.sn}
                 </Text>
                 <Text
                   style={{
@@ -400,7 +401,7 @@ const ClaimPDF: React.FC<{
                     flex: 2,
                   }}
                 >
-                  Description
+                  {dictionary.projectManagement.claims.doc.description}
                 </Text>
                 <Text
                   style={{
@@ -410,7 +411,7 @@ const ClaimPDF: React.FC<{
                     flex: 0.7,
                   }}
                 >
-                  Unit
+                  {dictionary.projectManagement.claims.doc.unit}
                 </Text>
                 <Text
                   style={{
@@ -420,7 +421,7 @@ const ClaimPDF: React.FC<{
                     flex: 1,
                   }}
                 >
-                  Qty
+                  {dictionary.projectManagement.claims.doc.qty}
                 </Text>
                 <Text
                   style={{
@@ -430,7 +431,7 @@ const ClaimPDF: React.FC<{
                     flex: 1,
                   }}
                 >
-                  Rate
+                  {dictionary.projectManagement.claims.doc.rate}
                 </Text>
                 <Text
                   style={{
@@ -440,7 +441,7 @@ const ClaimPDF: React.FC<{
                     flex: 1,
                   }}
                 >
-                  Amount
+                  {dictionary.projectManagement.claims.doc.amount}
                 </Text>
                 <Text
                   style={{
@@ -450,7 +451,7 @@ const ClaimPDF: React.FC<{
                     flex: 1.2,
                   }}
                 >
-                  Previous
+                  {dictionary.projectManagement.claims.doc.previous}
                 </Text>
                 <Text
                   style={{
@@ -460,7 +461,7 @@ const ClaimPDF: React.FC<{
                     flex: 1.2,
                   }}
                 >
-                  Present
+                  {dictionary.projectManagement.claims.doc.present}
                 </Text>
                 <Text
                   style={{
@@ -470,7 +471,7 @@ const ClaimPDF: React.FC<{
                     flex: 1.2,
                   }}
                 >
-                  Cumulative
+                  {dictionary.projectManagement.claims.doc.cumulative}
                 </Text>
                 <Text
                   style={{
@@ -480,7 +481,7 @@ const ClaimPDF: React.FC<{
                     flex: 1.2,
                   }}
                 >
-                  Previous
+                  {dictionary.projectManagement.claims.doc.previous}
                 </Text>
                 <Text
                   style={{
@@ -490,7 +491,7 @@ const ClaimPDF: React.FC<{
                     flex: 1.2,
                   }}
                 >
-                  Present
+                  {dictionary.projectManagement.claims.doc.present}
                 </Text>
                 <Text
                   style={{
@@ -500,7 +501,7 @@ const ClaimPDF: React.FC<{
                     flex: 1.2,
                   }}
                 >
-                  Cumulative
+                  {dictionary.projectManagement.claims.doc.cumulative}
                 </Text>
               </View>
 
@@ -664,7 +665,7 @@ const ClaimPDF: React.FC<{
                     fontWeight: 'bold',
                   }}
                 >
-                  GRAND TOTAL ({currencyCode})
+                  {dictionary.projectManagement.claims.doc.grandTotalUpper.replace('{currency}', currencyCode)}
                 </Text>
                 <Text
                   style={{
@@ -740,7 +741,7 @@ const ClaimPDF: React.FC<{
         >
           <View style={{ width: 300 }}>
             <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>
-              Prepared By:
+              {dictionary.projectManagement.claims.doc.preparedBy}:
             </Text>
             <View style={{ paddingTop: 2 }}>
               <Text style={pdfStyles.minInfo}>{claim.creator?.name || ''}</Text>

@@ -1,3 +1,4 @@
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import React from 'react';
 import { 
   Typography, 
@@ -68,6 +69,8 @@ const SalesAndCashSummaryOnScreen: React.FC<SalesAndCashSummaryOnScreenProps> = 
   authOrganization,
   separateCreditSales = false,
 }) => {
+  const dictionary = useDictionary();
+  const t = dictionary.reports.posReports.salesAndCashSummary;
   const theme = useTheme();
   const mainColor = authOrganization.organization.settings?.main_color || "#2113AD";
   const headerColor = theme.type === 'dark' ? '#29f096' : (authOrganization.organization.settings?.main_color || "#2113AD");
@@ -120,7 +123,7 @@ const SalesAndCashSummaryOnScreen: React.FC<SalesAndCashSummaryOnScreenProps> = 
       {/* Sales Section */}
       <Box sx={{ textAlign: 'right', mb: 3 }}>
         <Typography variant="h5" color={headerColor} fontWeight="bold">
-          Sales: {formatNumber(reportData.revenue)}
+          {t.sales} {formatNumber(reportData.revenue)}
         </Typography>
       </Box>
 
@@ -136,9 +139,7 @@ const SalesAndCashSummaryOnScreen: React.FC<SalesAndCashSummaryOnScreenProps> = 
               textAlign: "center",
               fontSize: '1rem'
             }}
-          >
-            Payments Collected
-          </Typography>
+          >{t.paymentsCollected}</Typography>
           <TableContainer 
             component={Paper}
             sx={{
@@ -167,9 +168,7 @@ const SalesAndCashSummaryOnScreen: React.FC<SalesAndCashSummaryOnScreenProps> = 
                   </TableRow>
                 ))}
                 <TableRow sx={{ backgroundColor: theme.palette.background.default }}>
-                  <TableCell sx={{  borderBottom: 'none' }}>
-                    Total
-                  </TableCell>
+                  <TableCell sx={{  borderBottom: 'none' }}>{t.total}</TableCell>
                   <TableCell align="right" sx={{ fontFamily: 'monospace',  borderBottom: 'none' }}>
                     {formatNumber(totalCollectedAmount)}
                   </TableCell>
@@ -194,9 +193,7 @@ const SalesAndCashSummaryOnScreen: React.FC<SalesAndCashSummaryOnScreenProps> = 
                   textAlign: "center",
                   fontSize: '1rem'
                 }}
-              >
-                Credit Sales
-              </Typography>
+              >{t.creditSales}</Typography>
               <TableContainer
                 component={Paper}
                 sx={{
@@ -225,9 +222,7 @@ const SalesAndCashSummaryOnScreen: React.FC<SalesAndCashSummaryOnScreenProps> = 
                       </TableRow>
                     ))}
                     <TableRow sx={{ backgroundColor: theme.palette.background.default }}>
-                      <TableCell sx={{  borderBottom: 'none' }}>
-                        Total
-                      </TableCell>
+                      <TableCell sx={{  borderBottom: 'none' }}>{t.total}</TableCell>
                       <TableCell align="right" sx={{ fontFamily: 'monospace',  borderBottom: 'none' }}>
                         {formatNumber(totalCreditSalesAmount)}
                       </TableCell>
@@ -250,9 +245,7 @@ const SalesAndCashSummaryOnScreen: React.FC<SalesAndCashSummaryOnScreenProps> = 
                   textAlign: "center",
                   fontSize: '1rem'
                 }}
-              >
-                Payments Received
-              </Typography>
+              >{t.paymentsReceived}</Typography>
               <TableContainer
                 component={Paper}
                 sx={{
@@ -281,9 +274,7 @@ const SalesAndCashSummaryOnScreen: React.FC<SalesAndCashSummaryOnScreenProps> = 
                       </TableRow>
                     ))}
                     <TableRow sx={{ backgroundColor: theme.palette.background.default }}>
-                      <TableCell sx={{  borderBottom: 'none' }}>
-                        Total
-                      </TableCell>
+                      <TableCell sx={{  borderBottom: 'none' }}>{t.total}</TableCell>
                       <TableCell align="right" sx={{ fontFamily: 'monospace',  borderBottom: 'none' }}>
                         {formatNumber(totalPaymentsReceivedAmount)}
                       </TableCell>
@@ -307,9 +298,7 @@ const SalesAndCashSummaryOnScreen: React.FC<SalesAndCashSummaryOnScreenProps> = 
                 textAlign: "center",
                 fontSize: '1rem'
               }}
-            >
-              Credits and Received Payments
-            </Typography>
+            >{t.creditsAndReceivedPayments}</Typography>
             <TableContainer
               component={Paper}
               sx={{
@@ -322,18 +311,10 @@ const SalesAndCashSummaryOnScreen: React.FC<SalesAndCashSummaryOnScreenProps> = 
               <Table>
                 <TableHead>
                   <TableRow>
-                    <TableCell sx={{ backgroundColor: theme.palette.background.default,  fontSize: '0.875rem' }}>
-                      Client
-                    </TableCell>
-                    <TableCell align="right" sx={{ backgroundColor: theme.palette.background.default,  fontSize: '0.875rem' }}>
-                      Purchase
-                    </TableCell>
-                    <TableCell align="right" sx={{ backgroundColor: theme.palette.background.default,  fontSize: '0.875rem' }}>
-                      Payment
-                    </TableCell>
-                    <TableCell align="right" sx={{ backgroundColor: theme.palette.background.default,  fontSize: '0.875rem' }}>
-                      Balance
-                    </TableCell>
+                    <TableCell sx={{ backgroundColor: theme.palette.background.default,  fontSize: '0.875rem' }}>{t.client}</TableCell>
+                    <TableCell align="right" sx={{ backgroundColor: theme.palette.background.default,  fontSize: '0.875rem' }}>{t.purchase}</TableCell>
+                    <TableCell align="right" sx={{ backgroundColor: theme.palette.background.default,  fontSize: '0.875rem' }}>{t.payment}</TableCell>
+                    <TableCell align="right" sx={{ backgroundColor: theme.palette.background.default,  fontSize: '0.875rem' }}>{t.balance}</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -366,9 +347,7 @@ const SalesAndCashSummaryOnScreen: React.FC<SalesAndCashSummaryOnScreenProps> = 
                     </TableRow>
                   ))}
                   <TableRow sx={{ backgroundColor: theme.palette.background.default }}>
-                    <TableCell sx={{  borderBottom: 'none' }}>
-                      Total
-                    </TableCell>
+                    <TableCell sx={{  borderBottom: 'none' }}>{t.total}</TableCell>
                     <TableCell align="right" sx={{ fontFamily: 'monospace',  borderBottom: 'none' }}>
                       {formatNumber(totalCreditSalesSummaryDebit)}
                     </TableCell>
@@ -405,9 +384,7 @@ const SalesAndCashSummaryOnScreen: React.FC<SalesAndCashSummaryOnScreenProps> = 
               textAlign: "center",
               fontSize: '1rem'
             }}
-          >
-            Fuel Vouchers to Internal/Non-Collectible Ledgers
-          </Typography>
+          >{t.nonCollectibleFuelVouchers}</Typography>
           <TableContainer
             component={Paper}
             sx={{
@@ -436,9 +413,7 @@ const SalesAndCashSummaryOnScreen: React.FC<SalesAndCashSummaryOnScreenProps> = 
                   </TableRow>
                 ))}
                 <TableRow sx={{ backgroundColor: theme.palette.background.default }}>
-                  <TableCell sx={{  borderBottom: 'none' }}>
-                    Total
-                  </TableCell>
+                  <TableCell sx={{  borderBottom: 'none' }}>{t.total}</TableCell>
                   <TableCell align="right" sx={{ fontFamily: 'monospace',  borderBottom: 'none' }}>
                     {formatNumber(totalNonCollectibleAmount)}
                   </TableCell>
@@ -462,9 +437,7 @@ const SalesAndCashSummaryOnScreen: React.FC<SalesAndCashSummaryOnScreenProps> = 
               
               fontSize: '1rem'
             }}
-          >
-            Payments Made
-          </Typography>
+          >{t.paymentsMade}</Typography>
           <TableContainer 
             component={Paper}
             sx={{
@@ -477,15 +450,9 @@ const SalesAndCashSummaryOnScreen: React.FC<SalesAndCashSummaryOnScreenProps> = 
             <Table>
               <TableHead>
                 <TableRow>
-                  <TableCell sx={{ backgroundColor: theme.palette.background.default,  fontSize: '0.875rem' }}>
-                    Paid To
-                  </TableCell>
-                  <TableCell sx={{ backgroundColor: theme.palette.background.default,  fontSize: '0.875rem' }}>
-                    Paid From
-                  </TableCell>
-                  <TableCell align="right" sx={{ backgroundColor: theme.palette.background.default,  fontSize: '0.875rem' }}>
-                    Amount
-                  </TableCell>
+                  <TableCell sx={{ backgroundColor: theme.palette.background.default,  fontSize: '0.875rem' }}>{t.paidTo}</TableCell>
+                  <TableCell sx={{ backgroundColor: theme.palette.background.default,  fontSize: '0.875rem' }}>{t.paidFrom}</TableCell>
+                  <TableCell align="right" sx={{ backgroundColor: theme.palette.background.default,  fontSize: '0.875rem' }}>{t.amount}</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -507,9 +474,7 @@ const SalesAndCashSummaryOnScreen: React.FC<SalesAndCashSummaryOnScreenProps> = 
                   </TableRow>
                 ))}
                 <TableRow sx={{ backgroundColor: theme.palette.background.default }}>
-                  <TableCell sx={{  borderBottom: 'none' }}>
-                    Total
-                  </TableCell>
+                  <TableCell sx={{  borderBottom: 'none' }}>{t.total}</TableCell>
                   <TableCell sx={{ borderBottom: 'none' }}></TableCell>
                   <TableCell align="right" sx={{ fontFamily: 'monospace',  borderBottom: 'none' }}>
                     {formatNumber(totalPaymentsAmount)}
@@ -532,13 +497,11 @@ const SalesAndCashSummaryOnScreen: React.FC<SalesAndCashSummaryOnScreenProps> = 
             borderRadius: 1
           }}
         >
-          <Typography variant="h6" color={headerColor} fontWeight="bold" gutterBottom>
-            Summary
-          </Typography>
+          <Typography variant="h6" color={headerColor} fontWeight="bold" gutterBottom>{t.summary}</Typography>
           <Grid container spacing={2}>
             {reportData.collection_distribution.length > 0 && (
               <Grid size={{xs: 12, sm: 6, md: 3}}>
-                <Typography variant="body2" fontWeight="medium">Total Collected:</Typography>
+                <Typography variant="body2" fontWeight="medium">{t.totalCollected}</Typography>
                 <Typography variant="body1" fontWeight="bold" fontFamily="monospace" color="success.main">
                   {formatNumber(totalCollectedAmount)}
                 </Typography>
@@ -546,7 +509,7 @@ const SalesAndCashSummaryOnScreen: React.FC<SalesAndCashSummaryOnScreenProps> = 
             )}
             {reportData.payments.length > 0 && (
               <Grid size={{xs: 12, sm: 6, md: 3}}>
-                <Typography variant="body2" fontWeight="medium">Total Payments:</Typography>
+                <Typography variant="body2" fontWeight="medium">{t.totalPayments}</Typography>
                 <Typography variant="body1" fontWeight="bold" fontFamily="monospace" color="error.main">
                   {formatNumber(totalPaymentsAmount)}
                 </Typography>

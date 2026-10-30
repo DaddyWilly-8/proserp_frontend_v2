@@ -9,14 +9,20 @@ import AuditTrailListItem from './AuditTrailListItem';
 import MovementTypeSelector from './MovementTypeSelector';
 import { Movement } from './AuditTrailType';
 import humanResourcesServices from '@/components/humanResources/humanResourcesServices';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface AuditTrailTabProps {
   employeeId: number;
 }
 
-const TABLE_HEADERS = ['Date', 'From', 'To', 'Reason'];
-
 const AuditTrailTab = ({ employeeId }: AuditTrailTabProps) => {
+  const dictionary = useDictionary();
+  const TABLE_HEADERS = [
+    dictionary.humanResources.auditTrail.headers.date,
+    dictionary.humanResources.auditTrail.headers.from,
+    dictionary.humanResources.auditTrail.headers.to,
+    dictionary.humanResources.auditTrail.headers.reason,
+  ];
   const listRef = useRef<any>(null);
   const [movementType, setMovementType] = useState('all');
 
@@ -79,13 +85,13 @@ const AuditTrailTab = ({ employeeId }: AuditTrailTabProps) => {
           hideItemsPerPage={true}
           actionTail={
             <Grid container columnSpacing={1} rowSpacing={1}>
-              <Grid size={{ xs: 12, lg: 6 }} alignItems="center">
+              <Grid size={{ xs: 12, md: 6 }} alignItems="center">
                 <MovementTypeSelector
                   value={movementType}
                   onChange={handleMovementTypeChange}
                 />
               </Grid>
-              <Grid size={{ xs: 12, lg: 6 }}>
+              <Grid size={{ xs: 12, md: 6 }}>
                 <Stack direction="row">
                   <JumboSearch
                     onChange={handleOnChange}

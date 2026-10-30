@@ -11,8 +11,10 @@ import PayeTaxBandActionTail from './PayeTaxBandActionTail';
 import { PayeTaxBandType } from './PayeTaxBandType';
 import PayeTaxBandsListItem from './PayeTaxBandsListItem';
 import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const PayeTaxBands = () => {
+  const dictionary = useDictionary();
   const params = useParams<{ keyword?: string }>();
   const searchParams = useSearchParams();
   const listRef = useRef<any>(null);
@@ -55,7 +57,7 @@ const PayeTaxBands = () => {
   return (
     <>
       <Typography variant={'h4'} mb={2}>
-        PAYE Tax Bands
+        {dictionary.humanResources.payeTaxBands.list.title}
       </Typography>
       <JumboRqList
         ref={listRef}

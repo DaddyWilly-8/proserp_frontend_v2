@@ -13,6 +13,7 @@ import {
 } from '@mui/material';
 import React, { useState } from 'react';
 import ProformaItemForm from './ProformaItemForm';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface ProformaItem {
   product_id?: number;
@@ -53,6 +54,7 @@ function ProformaItemRow({
   index,
   vat_percentage = 0,
 }: ProformaItemRowProps) {
+  const dictionary = useDictionary();
   const product = item?.product;
   const thumbnail =
     item?.product?.main_photo?.full_path || item?.product?.thumbnail;
@@ -97,7 +99,7 @@ function ProformaItemRow({
           </Grid>
 
           <Grid size={{ xs: 11, md: 4.5, lg: 4.5 }}>
-            <Tooltip title='Product'>
+            <Tooltip title={dictionary.tooltips.product}>
               <Stack direction={'row'} gap={1}>
                 <PhotoThumbnail
                   thumbnail={thumbnail}
@@ -105,7 +107,7 @@ function ProformaItemRow({
                 />
                 <ListItemText
                   primary={
-                    <Tooltip title={'Product'}>
+                    <Tooltip title={dictionary.tooltips.product}>
                       <Typography
                         variant='h5'
                         fontSize={14}
@@ -130,7 +132,7 @@ function ProformaItemRow({
                     </Tooltip>
                   }
                   secondary={
-                    <Tooltip title={'Description'}>
+                    <Tooltip title={dictionary.tooltips.description}>
                       <Typography
                         component='span'
                         variant='body2'
@@ -150,7 +152,7 @@ function ProformaItemRow({
           <Grid
             size={{ xs: vat_factor ? 4 : 6, md: 2.5, lg: vat_factor ? 1 : 2 }}
           >
-            <Tooltip title='Quantity'>
+            <Tooltip title={dictionary.tooltips.quantity}>
               <Typography textAlign={{ md: 'end' }} variant='body2'>
                 {item.quantity.toLocaleString()}{' '}
                 {item?.unit_symbol
@@ -165,7 +167,7 @@ function ProformaItemRow({
           <Grid
             size={{ xs: vat_factor ? 4 : 6, md: 2.5, lg: vat_factor ? 1 : 1.5 }}
           >
-            <Tooltip title='Price'>
+            <Tooltip title={dictionary.tooltips.price}>
               <Typography textAlign='end' variant='body2'>
                 {item.rate.toLocaleString()}
               </Typography>
@@ -174,7 +176,7 @@ function ProformaItemRow({
 
           {vat_factor > 0 && (
             <Grid size={{ xs: 4, md: 2, lg: 2 }}>
-              <Tooltip title='VAT'>
+              <Tooltip title={dictionary.tooltips.vat}>
                 <Typography textAlign='end' variant='body2'>
                   {calculatevatAmount().toLocaleString()}
                 </Typography>
@@ -183,7 +185,7 @@ function ProformaItemRow({
           )}
 
           <Grid size={{ xs: 6, md: 2 }}>
-            <Tooltip title='Line Total'>
+            <Tooltip title={dictionary.tooltips.lineTotal}>
               <Typography textAlign={{ md: 'end' }} variant='body2'>
                 {calculateLineTotal().toLocaleString()}
               </Typography>
@@ -191,12 +193,12 @@ function ProformaItemRow({
           </Grid>
 
           <Grid textAlign={'end'} size={{ xs: 12, md: 12, lg: 1 }}>
-            <Tooltip title='Edit Item'>
+            <Tooltip title={dictionary.tooltips.editItem}>
               <IconButton size='small' onClick={() => setShowForm(true)}>
                 <EditOutlined fontSize='small' />
               </IconButton>
             </Tooltip>
-            <Tooltip title='Remove Item'>
+            <Tooltip title={dictionary.tooltips.removeItem}>
               <IconButton size='small' onClick={handleRemoveItem}>
                 <DisabledByDefault fontSize='small' color='error' />
               </IconButton>

@@ -3,12 +3,14 @@
 import { Chip, Divider, Grid, Tooltip, Typography } from '@mui/material';
 import { DeductionType } from './DeductionType';
 import DeductionTypeItemAction from './DeductionTypeItemAction';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const DeductionTypesListItem = ({
   deductionType,
 }: {
   deductionType: DeductionType;
 }) => {
+  const dictionary = useDictionary();
   return (
     <>
       <Divider />
@@ -31,7 +33,7 @@ const DeductionTypesListItem = ({
         <Grid
           size={{ xs: 6, md: 3.2 }}
         >
-          <Tooltip title='Name'>
+          <Tooltip title={dictionary.tooltips.name}>
             <Typography variant='h6' fontSize={14} lineHeight={1.25} mb={0}>
               {deductionType.name}
             </Typography>
@@ -42,7 +44,7 @@ const DeductionTypesListItem = ({
           size={{ xs: 6, md: 1.4 }}
           textAlign={{ xs: 'start', md: 'center' }}
         >
-          <Tooltip title='Code'>
+          <Tooltip title={dictionary.tooltips.code}>
             <Typography>{deductionType.code || '-'}</Typography>
           </Tooltip>
         </Grid>
@@ -53,7 +55,9 @@ const DeductionTypesListItem = ({
         >
           <Chip
             label={
-              deductionType.category === 'statutory' ? 'Statutory' : 'Voluntary'
+              deductionType.category === 'statutory'
+                ? dictionary.humanResources.deductionTypes.list.statutory
+                : dictionary.humanResources.deductionTypes.list.voluntary
             }
             size='small'
             color={
@@ -67,9 +71,11 @@ const DeductionTypesListItem = ({
           size={{ xs: 6, md: 2.1 }}
           textAlign={{ xs: 'start', md: 'center' }}
         >
-          <Tooltip title='Method'>
+          <Tooltip title={dictionary.tooltips.method}>
             <Typography textTransform='capitalize'>
-              {deductionType.computation_method.replaceAll('_', ' ')}
+              {dictionary.humanResources.deductionTypes.list.computationMethods[
+                deductionType.computation_method as keyof typeof dictionary.humanResources.deductionTypes.list.computationMethods
+              ] ?? deductionType.computation_method.replaceAll('_', ' ')}
             </Typography>
           </Tooltip>
         </Grid>
@@ -78,7 +84,7 @@ const DeductionTypesListItem = ({
           size={{ xs: 5, md: 1.2 }}
           textAlign={{ xs: 'start', md: 'center' }}
         >
-          <Tooltip title='Default Value'>
+          <Tooltip title={dictionary.tooltips.defaultValue}>
             <Typography>
               {Number(deductionType.default_value || 0).toLocaleString('en-US')}
             </Typography>
@@ -91,13 +97,17 @@ const DeductionTypesListItem = ({
         >
           {deductionType.is_pre_tax ? (
             <Chip
-              label='Pre-tax'
+              label={dictionary.humanResources.deductionTypes.list.preTax}
               size='small'
               color='success'
               variant='outlined'
             />
           ) : (
-            <Chip label='Post-tax' size='small' variant='outlined' />
+            <Chip
+              label={dictionary.humanResources.deductionTypes.list.postTax}
+              size='small'
+              variant='outlined'
+            />
           )}
         </Grid>
 

@@ -9,6 +9,9 @@ import exportingModule from 'highcharts/modules/exporting';
 import { useEffect, useState } from 'react';
 import financialReportsServices from '../../accounts/reports/financial-reports-services';
 import { useDashboardSettings } from '../Dashboard';
+import dayjs from 'dayjs';
+import { FigureLegend, useFinancialSummary } from './FinancialSummaryStrip';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface ExpenseData {
   ledger_name: string;
@@ -20,6 +23,7 @@ interface ChartDataPoint {
 }
 
 function ExpenseDistributionCard() {
+  const dictionary = useDictionary();
   const {
     chartFilters: { from, to, cost_center_ids },
   } = useDashboardSettings();
@@ -60,6 +64,25 @@ function ExpenseDistributionCard() {
     },
   });
 
+  // Operating expenses only (the group the pie shows), compared with the
+  // previous window of the same length - not the summary's total expenses.
+  const { data: summary } = useFinancialSummary();
+  const { data: previousTotal } = useQuery({
+    queryKey: ['expenseDistributionPrevious', summary?.period, params.cost_center_ids],
+    enabled: !!summary,
+    queryFn: async () => {
+      const expenses = await financialReportsServices.expenseFigures({
+        from: dayjs(summary!.period.previous_from).toISOString(),
+        to: dayjs(summary!.period.previous_to).subtract(1, 'millisecond').toISOString(),
+        ledgerGroupId: 19,
+        cost_center_ids: params.cost_center_ids,
+        group_by_ledgers: true,
+      });
+      return (expenses as ExpenseData[]).reduce((sum, e) => sum + e.amount, 0);
+    },
+  });
+  const currentTotal = (expenseDistribution || []).reduce((sum, p) => sum + p.y, 0);
+
   useEffect(() => {
     let mounted = true;
 
@@ -92,14 +115,14 @@ function ExpenseDistributionCard() {
   const options: Highcharts.Options = {
     chart: {
       type: 'pie',
-      height: 255,
+      height: 265,
       backgroundColor: 'transparent',
       spacing: [10, 10, 10, 10],
       style: { color: textColor },
     },
     title: { text: '' },
     tooltip: {
-      pointFormat: '{point.y}: <b>({point.percentage:.1f}%)</b>',
+      pointFormat: '{point.y:,.2f}: <b>({point.percentage:.1f}%)</b>',
       backgroundColor,
       style: { color: textColor },
     },
@@ -128,7 +151,7 @@ function ExpenseDistributionCard() {
     series: [
       {
         type: 'pie',
-        name: 'Expenses',
+        name: dictionary.dashboardCards.expenses,
         colorByPoint: true,
         data: expenseDistribution || [],
       } as Highcharts.SeriesPieOptions,
@@ -159,7 +182,7 @@ function ExpenseDistributionCard() {
             fontFamily: 'NoirPro, Arial',
           }}
         >
-          Operating Expenses
+          {dictionary.dashboardCards.operatingExpenses}
         </Typography>
       </Box>
 
@@ -175,7 +198,7 @@ function ExpenseDistributionCard() {
           <Skeleton
             variant='rectangular'
             width='100%'
-            height={245}
+            height={255}
             sx={{ borderRadius: 2 }}
           />
         ) : (
@@ -184,6 +207,15 @@ function ExpenseDistributionCard() {
             highcharts={Highcharts}
             options={options}
           />
+        )}
+      </Box>
+
+      {/* Where the legend would sit */}
+      <Box sx={{ px: 2 }}>
+        {previousTotal === undefined || isLoading ? (
+          <Skeleton variant='rounded' height={28} />
+        ) : (
+          <FigureLegend value={currentTotal} previous={previousTotal} higherIsBetter={false} />
         )}
       </Box>
     </JumboCardQuick>

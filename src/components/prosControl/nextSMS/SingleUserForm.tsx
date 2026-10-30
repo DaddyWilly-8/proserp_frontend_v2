@@ -9,6 +9,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { useMutation } from '@tanstack/react-query';
 import smsServices from './smsServices';
 import { useSnackbar } from 'notistack';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface SingleSmsFormData {
   from: string;
@@ -31,12 +32,13 @@ interface SmsResponse {
 }
 
 export default function SingleUserForm() {
+    const dictionary = useDictionary();
     const { enqueueSnackbar } = useSnackbar();
     const [responseData, setResponseData] = useState<SmsResponse | null>(null);
 
     const validationSchema = yup.object({
-        to: yup.string().required("Recipient number is required"),
-        text: yup.string().required("Message text is required")
+        to: yup.string().required(dictionary.forms.nextSms.single.recipientRequired),
+        text: yup.string().required(dictionary.forms.nextSms.common.messageRequired)
     });
     
     const { register, handleSubmit, formState: { errors }, reset } = useForm<SingleSmsFormData>({
@@ -49,12 +51,12 @@ export default function SingleUserForm() {
     const sendSmsMutation = useMutation({
         mutationFn: smsServices.sendSingleSms,
         onSuccess: (data) => {
-            enqueueSnackbar('SMS sent successfully!', { variant: 'success' });
+            enqueueSnackbar(dictionary.forms.nextSms.single.success, { variant: 'success' });
             setResponseData(data);
             reset();
         },
         onError: (error: any) => {
-            enqueueSnackbar(error?.response?.data?.message || 'Failed to send SMS', { variant: 'error' });
+            enqueueSnackbar(error?.response?.data?.message || dictionary.forms.nextSms.common.failedToSend, { variant: 'error' });
             setResponseData(null);
         }
     });
@@ -79,11 +81,11 @@ export default function SingleUserForm() {
 
     return (
         <Box sx={{ mt: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
-            <Typography variant="h6">Send SMS to Single User</Typography>
+            <Typography variant="h6">{dictionary.forms.nextSms.single.title}</Typography>
 
             <Box component="form" onSubmit={handleSubmit(onSubmit)} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                 <TextField
-                    label="Recipient Number (e.g. 2557...)"
+                    label={dictionary.forms.nextSms.single.recipientLabel}
                     {...register("to")}
                     error={!!errors.to}
                     helperText={errors.to?.message}
@@ -91,7 +93,7 @@ export default function SingleUserForm() {
                 />
 
                 <TextField
-                    label="Message"
+                    label={dictionary.forms.nextSms.common.message}
                     {...register("text")}
                     error={!!errors.text}
                     helperText={errors.text?.message}
@@ -105,7 +107,7 @@ export default function SingleUserForm() {
                     variant="contained"
                     loading={sendSmsMutation.isPending}
                 >
-                    Send SMS
+                    {dictionary.forms.nextSms.single.send}
                 </LoadingButton>
             </Box>
 
@@ -113,16 +115,16 @@ export default function SingleUserForm() {
                 <Card variant="outlined">
                     <CardContent>
                         <Typography variant="h6" gutterBottom>
-                            SMS Delivery Status
+                            {dictionary.forms.nextSms.common.deliveryStatusTitle}
                         </Typography>
                         {responseData.messages.map((message, index) => (
                             <Box key={index} sx={{ mb: 2, p: 2, border: '1px solid', borderColor: 'divider', borderRadius: 1 }}>
                                 <Typography variant="subtitle2" gutterBottom>
-                                    To: {message.to}
+                                    {dictionary.forms.nextSms.common.toValue.replace('{to}', String(message.to))}
                                 </Typography>
                                 
                                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                                    <Typography variant="body2">Status:</Typography>
+                                    <Typography variant="body2">{dictionary.forms.nextSms.common.statusColon}</Typography>
                                     <Chip 
                                         label={message.status.name} 
                                         color={getStatusColor(message.status.name)}
@@ -131,15 +133,15 @@ export default function SingleUserForm() {
                                 </Box>
                                 
                                 <Typography variant="body2" gutterBottom>
-                                    Description: {message.status.description}
+                                    {dictionary.forms.nextSms.common.descriptionValue.replace('{description}', String(message.status.description))}
                                 </Typography>
                                 
                                 <Typography variant="body2" gutterBottom>
-                                    Group: {message.status.groupName}
+                                    {dictionary.forms.nextSms.common.groupValue.replace('{group}', String(message.status.groupName))}
                                 </Typography>
                                 
                                 <Typography variant="body2">
-                                    SMS Count: {message.smsCount}
+                                    {dictionary.forms.nextSms.common.smsCountValue.replace('{count}', String(message.smsCount))}
                                 </Typography>
                             </Box>
                         ))}

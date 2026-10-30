@@ -94,7 +94,7 @@ const StakeholderDialogForm: React.FC<StakeholderDialogFormProps> = ({
       type: yup
         .string()
         .required(dictionary.stakeholders.form.errors.validation.type.required)
-        .typeError(dictionary.stakeholders.form.errors.validation.typeError),
+        .typeError(dictionary.stakeholders.form.errors.validation.type.typeError),
       email: yup
         .string()
         .email(dictionary.stakeholders.form.errors.validation.email)

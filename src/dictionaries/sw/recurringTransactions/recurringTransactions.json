@@ -1,0 +1,151 @@
+{
+  "recurringTransactions": {
+    "list": {
+      "labels": {
+        "listHeader": "Miamala Inayojirudia",
+        "howToCreate": "Ili kupanga muamala ujirudie, ufungue kwenye Miamala kisha chagua Rudia kwenye menyu yake.",
+        "name": "Jina",
+        "schedule": "Inajirudia Kila",
+        "amount": "Kiasi",
+        "next": "Utekelezaji Ujao",
+        "progress": "Iliyopostiwa",
+        "status": "Hali",
+        "type": "Aina",
+        "actions": "Vitendo",
+        "search": "Tafuta",
+        "allTypes": "Aina zote",
+        "allStatuses": "Hali zote",
+        "failed": "Imeshindwa"
+      },
+      "status": {
+        "active": "Inatumika",
+        "paused": "Imesitishwa",
+        "completed": "Imekamilika"
+      },
+      "types": {
+        "journal_voucher": "Hati ya Jarida",
+        "payment": "Malipo",
+        "receipt": "Risiti",
+        "fund_transfer": "Uhamisho wa Fedha"
+      },
+      "actionsTitle": {
+        "view": "Tazama",
+        "edit": "Hariri",
+        "pause": "Sitisha",
+        "resume": "Endelea",
+        "delete": "Futa"
+      },
+      "dialog": {
+        "resume": {
+          "title": "Endelea na ratiba hii?",
+          "content": "Tarehe zilizopita wakati imesitishwa zinarukwa. Inaendelea kuanzia tarehe inayofuata."
+        },
+        "delete": {
+          "title": "Futa ratiba hii?",
+          "content": "Hakuna miamala mingine itakayopostiwa kutoka kwake. Miamala iliyopostiwa tayari inabaki kama ilivyo."
+        }
+      }
+    },
+    "form": {
+      "repeatTitle": "Rudia Muamala",
+      "repeatIntro": "{voucherNo} inanakiliwa kama ilivyo sasa, hivyo mabadiliko ya baadaye hayaathiri ratiba. Chagua lini na mara ngapi ipostiwe.",
+      "editTitle": "Hariri Ratiba",
+      "labels": {
+        "name": "Jina",
+        "amountMode": "Kiasi",
+        "fixed": "Kiasi kilekile kila mara",
+        "total": "Gawa jumla kwa vipindi",
+        "frequency": "Mzunguko",
+        "repeatEvery": "Rudia kila",
+        "weekdays": "Siku hizi",
+        "monthEnd": "Posti siku ya mwisho ya mwezi",
+        "startDate": "Tarehe ya kwanza",
+        "ends": "Inaisha",
+        "never": "Kamwe",
+        "onDate": "Tarehe maalum",
+        "afterCount": "Baada ya idadi ya mapostio",
+        "endDate": "Tarehe ya kuisha",
+        "occurrences": "Idadi ya mapostio",
+        "periods": "Idadi ya vipindi",
+        "postTime": "Saa kwenye muamala"
+      },
+      "frequencies": {
+        "daily": "Kila siku",
+        "weekly": "Kila wiki",
+        "monthly": "Kila mwezi",
+        "yearly": "Kila mwaka"
+      },
+      "units": {
+        "daily": "siku",
+        "weekly": "wiki",
+        "monthly": "miezi",
+        "yearly": "miaka"
+      },
+      "weekdays": [
+        "Jum",
+        "Jpl",
+        "Jtt",
+        "Jnn",
+        "Alh",
+        "Ijm",
+        "Jms"
+      ],
+      "helper": {
+        "fixed": "Kila mstari unapostiwa kwa kiasi ulicho nacho sasa, kila mara.",
+        "total": "Viasi vya muamala uliong'olewa vinachukuliwa kama jumla. Kila kipindi kinapost sehemu yake, na kipindi cha mwisho kinachukua mzunguko ili jumla iwe sahihi.",
+        "weekdays": "Acha wazi kutumia siku ya wiki ya tarehe ya kwanza.",
+        "never": "Hii itaendelea kupost hadi uisitishe au uifute. Ratiba za mara kwa mara zinahitaji mwisho.",
+        "pastStart": "Tarehe ya kwanza iliyopita inapost tarehe zilizopita mara moja, na inahitaji ruhusa ya kurudisha tarehe nyuma.",
+        "locked": "Ratiba hii tayari imepost, hivyo tarehe na viasi vyake haviwezi kubadilishwa. Unaweza kuipa jina jipya au kuhamisha mwisho wake.",
+        "postTime": "Posti inapewa saa hii siku yake (saa za seva yako). Ratiba yenyewe inaendeshwa mara moja kwa siku saa 23:50."
+      },
+      "buttons": {
+        "create": "Unda Ratiba",
+        "save": "Hifadhi",
+        "cancel": "Ghairi",
+        "createSchedule": "Unda Ratiba"
+      },
+      "messages": {
+        "created": "Ratiba imeundwa",
+        "updated": "Ratiba imesasishwa"
+      },
+      "scheduleMode": {
+        "toggle": "Rudia kwa ratiba badala ya kupost mara moja",
+        "info": "Hakuna kitakachopostiwa sasa. Mistari unayoingiza inahifadhiwa kama ratiba na kupostiwa kwenye tarehe zilizo hapa chini. Tarehe ya juu ya fomu haitumiki; ratiba inaanza tarehe yake ya kwanza."
+      }
+    },
+    "view": {
+      "title": "Ratiba Inayojirudia",
+      "labels": {
+        "lastError": "Kosa la mwisho",
+        "repeats": "Inajirudia kila",
+        "narration": "Maelezo",
+        "lines": "Mistari",
+        "debit": "Debiti",
+        "credit": "Krediti",
+        "description": "Maelezo",
+        "amount": "Kiasi",
+        "totalAmount": "Jumla",
+        "history": "Historia",
+        "noRuns": "Hakuna kilichopostiwa bado.",
+        "date": "Tarehe",
+        "voucher": "Hati"
+      },
+      "runStatus": {
+        "posted": "Imepostiwa",
+        "failed": "Imeshindwa",
+        "cancelled": "Imeghairiwa"
+      },
+      "buttons": {
+        "close": "Funga",
+        "cancelOccurrence": "Ghairi",
+        "confirmCancel": "Ghairi Posti"
+      },
+      "cancelDialog": {
+        "title": "Ghairi {voucherNo}",
+        "content": "Hii inabadilisha posti na kuiweka kwenye kumbukumbu. Ratiba inaendelea na tarehe inayofuata; kipindi hiki hakipostiwi tena.",
+        "reason": "Sababu ya kughairi"
+      }
+    }
+  }
+}

@@ -32,6 +32,7 @@ import PayrollRunActionTail from './PayrollRunActionTail';
 import PayrollRunsListItem from './PayrollRunsListItem';
 import { PayrollRunType } from './PayrollRunType';
 import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface PayrollRunsProps {
   defaultStatus?: string;
@@ -97,6 +98,8 @@ export const usePeriod = () => {
 // ============================================
 
 const PayrollRuns = ({ defaultStatus, title }: PayrollRunsProps) => {
+  const dictionary = useDictionary();
+  const t = dictionary.humanResources.payrollRuns;
   const params = useParams<{ keyword?: string }>();
   const searchParams = useSearchParams();
   const listRef = useRef<any>(null);
@@ -114,20 +117,7 @@ const PayrollRuns = ({ defaultStatus, title }: PayrollRunsProps) => {
   const payrollPeriods: PayrollPeriodType[] =
     payrollPeriodsResponse?.data || [];
 
-  const monthNames = [
-    'January',
-    'February',
-    'March',
-    'April',
-    'May',
-    'June',
-    'July',
-    'August',
-    'September',
-    'October',
-    'November',
-    'December',
-  ];
+  const monthNames: string[] = t.months;
 
   const periodWithMonthNames = useMemo(() => {
     return payrollPeriods.map((period) => {
@@ -257,7 +247,8 @@ const PayrollRuns = ({ defaultStatus, title }: PayrollRunsProps) => {
             isLoading={isPayrollPeriodsFetching}
           >
             <Typography variant={'h4'} mb={2}>
-              {title ?? (defaultStatus ? 'Approved Payroll Runs' : 'Payroll Runs')}
+              {title ??
+                (defaultStatus ? t.list.approvedTitle : t.list.title)}
             </Typography>
 
             <JumboRqList
@@ -300,7 +291,7 @@ const PayrollRuns = ({ defaultStatus, title }: PayrollRunsProps) => {
                           renderInput={(inputParams) => (
                             <TextField
                               {...inputParams}
-                              label='Payroll Period'
+                              label={t.list.payrollPeriod}
                               fullWidth
                             />
                           )}

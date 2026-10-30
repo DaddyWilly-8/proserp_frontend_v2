@@ -8,6 +8,7 @@ import { LoadingButton } from '@mui/lab'
 import prosAfricansServices from './prosAfricansServices'
 import { ProsAfricansAddNewMemberQueue } from './addQueue/ProsAfricansAddNewMemberQueue'
 import { useQuery } from '@tanstack/react-query'
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface Role {
   id: string;
@@ -28,6 +29,7 @@ interface FormData {
 }
 
 function ProsAfricansAddNewMemberForm() {
+    const dictionary = useDictionary();
     const [addNewProsAfrican, setAddNewProsAfrican] = useState<User[]>([]);
     const [loading, setLoading] = useState(false);
 
@@ -37,10 +39,10 @@ function ProsAfricansAddNewMemberForm() {
     // ValidationSchema
     const validationSchema = yup.object({
         email: yup.string()
-          .required('Email is required')
+          .required(dictionary.forms.prosAfricans.form.errors.emailRequired)
           .matches(
             /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i,
-            { message: 'Invalid email format' },
+            { message: dictionary.forms.prosAfricans.form.errors.emailInvalid },
           ),
     });
 
@@ -80,7 +82,7 @@ function ProsAfricansAddNewMemberForm() {
                 };
       
                 if (addNewProsAfrican.some(obj => obj.email === user.email)) {
-                    enqueueSnackbar('User is already in the queued list', { variant: 'error' });
+                    enqueueSnackbar(dictionary.forms.prosAfricans.form.messages.alreadyQueued, { variant: 'error' });
                 } else {
                     setAddNewProsAfrican(prev => [...prev, user]);
                     reset();
@@ -97,10 +99,10 @@ function ProsAfricansAddNewMemberForm() {
       
                     let message;
                     if (addNewProsAfrican.some(obj => obj.email === user.email)) {
-                        message = 'User is already in the queued list';
+                        message = dictionary.forms.prosAfricans.form.messages.alreadyQueued;
                         reset();
                     } else {
-                        message = 'No user with that email was found.';
+                        message = dictionary.forms.prosAfricans.form.messages.notFound;
                         reset();
                     }
       
@@ -110,7 +112,7 @@ function ProsAfricansAddNewMemberForm() {
                     reset();
                 }
             } else {
-                enqueueSnackbar('Something went wrong', { variant: 'error' });
+                enqueueSnackbar(dictionary.forms.prosAfricans.form.messages.somethingWrong, { variant: 'error' });
                 reset();
             }
         } finally {
@@ -124,7 +126,7 @@ function ProsAfricansAddNewMemberForm() {
             <Grid container columnSpacing={1} paddingRight={1}>
                 <Grid size={{ xs: 10 }}>
                     <TextField
-                        label='Email'
+                        label={dictionary.forms.prosAfricans.form.labels.email}
                         fullWidth
                         size='small'
                         error={!!errors?.email}
@@ -140,7 +142,7 @@ function ProsAfricansAddNewMemberForm() {
                         sx={{ mb: 4, display: 'flex' }}
                         loading={loading}
                     >
-                        Add
+                        {dictionary.forms.prosAfricans.form.buttons.add}
                     </LoadingButton>
                 </Grid>
                 <Grid size={{ xs: 12 }}>

@@ -1,0 +1,791 @@
+{
+  "products": {
+    "form": {
+      "title": "New Product/Service",
+      "labels": {
+        "category": "Category",
+        "type": "Type",
+        "itemName": "Item Name",
+        "brandOptional": "Brand (Optional)",
+        "modelOptional": "Model (Optional)",
+        "skuOptional": "SKU (Optional)",
+        "specificationsOptional": "Specifications (Optional)",
+        "primaryMeasurementUnit": "Primary Measurement Unit",
+        "vatExempted": "VAT Exempted",
+        "descriptionOptional": "Description (Optional)",
+        "openingBalanceDetails": "Opening Balance Details",
+        "costCenter": "Cost Center",
+        "stockComplementLedger": "Stock Complement Ledger",
+        "asOf": "As of",
+        "store": "Store",
+        "openingBalance": "Opening Balance",
+        "unitCost": "Unit Cost"
+      },
+      "types": {
+        "Inventory": "Inventory",
+        "Non-Inventory": "Non-Inventory",
+        "Service": "Service",
+        "Asset": "Asset"
+      },
+      "buttons": {
+        "cancel": "Cancel",
+        "save": "Save"
+      },
+      "messages": {
+        "checkInformation": "Please check the information you submitted"
+      },
+      "errors": {
+        "validation": {
+          "itemName": {
+            "required": "Item name is required"
+          },
+          "productCategory": {
+            "required": "Product category is required"
+          },
+          "measurementUnit": {
+            "required": "Measurement unit is required"
+          },
+          "type": {
+            "required": "Item type is required"
+          },
+          "costCenter": {
+            "required": "Cost center is required"
+          },
+          "stockComplementLedger": {
+            "required": "Stock Complement Ledger is required"
+          },
+          "unitCost": {
+            "required": "Unit cost is required",
+            "positive": "Unit cost must be positive"
+          },
+          "openingBalanceDate": {
+            "required": "Opening balance date is required"
+          }
+        }
+      }
+    },
+    "secondaryUnits": {
+      "messages": {
+        "addFailed": "Failed to add unit",
+        "updateFailed": "Failed to update unit"
+      },
+      "errors": {
+        "validation": {
+          "unitExists": "Unit already exists",
+          "conversionFactor": "Conversion factor"
+        }
+      }
+    },
+    "quickAdd": {
+      "labels": {
+        "productCategory": "Product Category",
+        "productName": "Product Name",
+        "measurementUnit": "Measurement Unit"
+      },
+      "buttons": {
+        "cancel": "Cancel",
+        "add": "Add"
+      },
+      "messages": {
+        "addFailed": "Failed to add product"
+      },
+      "errors": {
+        "validation": {
+          "productName": {
+            "typeError": "Enter your Product name",
+            "required": "Product name is required"
+          },
+          "productCategory": {
+            "typeError": "Choose an Product category",
+            "required": "Product category is required"
+          },
+          "measurementUnit": {
+            "typeError": "Choose a measurement unit",
+            "required": "Measurement unit is required"
+          },
+          "productType": {
+            "typeError": "Choose an Product type",
+            "required": "Product type is required"
+          }
+        }
+      }
+    },
+    "excelImport": {
+      "labels": {
+        "productsExcel": "Products Excel",
+        "asAt": "As At (MM/DD/YYYY)",
+        "store": "Store"
+      },
+      "messages": {
+        "templateDownloadFailed": "Error downloading Excel template"
+      },
+      "errors": {
+        "validation": {
+          "stockDate": {
+            "required": "Stock Date is required"
+          },
+          "complementLedger": {
+            "required": "Complement Ledger is required"
+          },
+          "store": {
+            "required": "Store is required"
+          },
+          "costCenter": {
+            "required": "Cost Center is required"
+          }
+        }
+      }
+    }
+  },
+  "productCategories": {
+    "form": {
+      "errors": {
+        "cannotBeOwnParent": "Cannot be a parent of its own"
+      }
+    }
+  },
+  "stores": {
+    "form": {
+      "titleSubStore": "Add Sub-store",
+      "errors": {
+        "validation": {
+          "parentStore": {
+            "required": "Parent Store is required"
+          }
+        },
+        "cannotBeOwnParent": "Cannot be a parent of its own"
+      }
+    },
+    "selectionMobile": {
+      "labels": {
+        "subStoreSelect": "Sub-store select"
+      },
+      "buttons": {
+        "subStore": "Sub-store"
+      }
+    },
+    "convertToAsset": {
+      "title": "Convert to Asset",
+      "labels": {
+        "quantityToConvert": "Quantity to Convert",
+        "conversionDate": "Conversion Date",
+        "receivingAssetProduct": "Receiving Asset Product",
+        "costCenter": "Cost Center",
+        "identificationSerialNumbers": "Identification / Serial Numbers (optional)",
+        "unitN": "Unit {n}",
+        "remarks": "Remarks"
+      },
+      "messages": {
+        "availableUnits": "{name} — {balance} {symbol} available",
+        "atAverageCost": " at an average cost of {cost} per unit"
+      },
+      "buttons": {
+        "cancel": "Cancel",
+        "convert": "Convert"
+      },
+      "errors": {
+        "validation": {
+          "quantity": {
+            "required": "Quantity is required",
+            "integer": "Quantity must be a whole number",
+            "positive": "Quantity must be greater than 0",
+            "max": "Only {count} unit(s) are available"
+          },
+          "assetProduct": {
+            "required": "Select the asset product to receive this stock"
+          },
+          "costCenter": {
+            "required": "Select the cost center this stock is being converted from"
+          },
+          "conversionDate": {
+            "required": "Conversion date is required"
+          }
+        }
+      }
+    },
+    "lowStockThreshold": {
+      "labels": {
+        "product": "Product",
+        "threshold": "Threshold"
+      },
+      "buttons": {
+        "submit": "Submit",
+        "close": "Close"
+      },
+      "errors": {
+        "validation": {
+          "product": {
+            "required": "Product is required"
+          },
+          "quantity": {
+            "required": "Quantity is required"
+          }
+        }
+      }
+    },
+    "stockAdjustment": {
+      "titles": {
+        "edit": "Edit: {adjustmentNo}",
+        "new": "New Stock Adjustment"
+      },
+      "labels": {
+        "adjustmentDate": "Adjustment Date (MM/DD/YYYY)",
+        "reason": "Reason",
+        "reference": "Reference",
+        "costCenter": "Cost Center",
+        "stockComplementLedger": "Stock Complement Ledger",
+        "importExcel": "Import Excel",
+        "description": "Description",
+        "currentStock": "Current Stock",
+        "actualStock": "Actual Stock",
+        "changeInStock": "Change in Stock",
+        "averageCost": "Average Cost",
+        "stockExcel": "Stock Excel",
+        "narration": "Narration"
+      },
+      "reasons": {
+        "Opening balance": "Opening balance",
+        "Stock-taking": "Stock-taking",
+        "Returned goods": "Returned goods",
+        "Write-offs": "Write-offs",
+        "Internal": "Internal",
+        "Waste": "Waste",
+        "Others": "Others"
+      },
+      "buttons": {
+        "add": "Add",
+        "cancel": "Cancel",
+        "submit": "Submit"
+      },
+      "errors": {
+        "validation": {
+          "reason": {
+            "required": "Reason is required"
+          },
+          "adjustmentDate": {
+            "required": "Adjustment Date is required"
+          },
+          "costCenter": {
+            "required": "Cost center is required"
+          },
+          "stockComplementLedger": {
+            "required": "Stock Complement Ledger is required"
+          },
+          "narration": {
+            "required": "Narration is required"
+          },
+          "product": {
+            "required": "Product is required"
+          },
+          "actualStock": {
+            "required": "Actual stock is required"
+          },
+          "averageCost": {
+            "required": "Average cost is required"
+          }
+        }
+      }
+    },
+    "inventoryTransfer": {
+      "titles": {
+        "newExternal": "New External Inventory Transfer",
+        "newInternal": "New Internal Inventory Transfer",
+        "newCostCenters": "New Cost Centers Inventory Transfer",
+        "edit": "Edit {transferNo}",
+        "receive": "Receive {transferNo}",
+        "unsavedChanges": "Unsaved Changes",
+        "addItem": "Add Item"
+      },
+      "tabs": {
+        "items": "ITEMS"
+      },
+      "labels": {
+        "transferDate": "Transfer Date",
+        "destinationStore": "Destination Store",
+        "destination": "Destination",
+        "sourceCostCenter": "Source Cost Center",
+        "costCenter": "Cost Center",
+        "destinationCostCenter": "Destination Cost Center",
+        "receivableAccount": "Receivable Account",
+        "changeCostCenter": "Change Cost Center",
+        "vehicleInformation": "Vehicle Information",
+        "driverInformation": "Driver Information",
+        "narration": "Narration",
+        "receiveDate": "Receive Date",
+        "receive": "Receive",
+        "remarks": "Remarks",
+        "availableBalance": "Available Balance",
+        "quantity": "Quantity"
+      },
+      "messages": {
+        "lastItemNotAdded": "Last item was not added to the list",
+        "negativeBalance": "This quantity will lead to negative balance. Current balance today is {balance}"
+      },
+      "buttons": {
+        "addAndSubmit": "Add and Submit",
+        "submitWithoutAdd": "Submit without add",
+        "cancel": "Cancel",
+        "submit": "Submit",
+        "done": "Done",
+        "add": "Add"
+      },
+      "errors": {
+        "validation": {
+          "transferDate": {
+            "required": "Transfer Date is required"
+          },
+          "narration": {
+            "required": "Narration is required"
+          },
+          "destinationStore": {
+            "required": "Destination Store is required"
+          },
+          "ledger": {
+            "required": "Ledger is required"
+          },
+          "items": {
+            "min": "You must add at least one item"
+          },
+          "receiveDate": {
+            "required": "Receive Date is required"
+          },
+          "remarks": {
+            "required": "Remark is required"
+          },
+          "quantity": {
+            "required": "Quantity is required",
+            "max": "Quantity cannot exceed unreceived quantity",
+            "wholeUnit": "This product is sold in whole units — quantity cannot be a fraction",
+            "positive": "Quantity must be a positive number",
+            "number": "Quantity must be a number",
+            "exceedsBalance": "The quantity exceeds the available balance"
+          },
+          "product": {
+            "required": "Product is required"
+          }
+        }
+      }
+    }
+  },
+  "purchases": {
+    "orderForm": {
+      "labels": {
+        "orderDate": "Order Date",
+        "vendor": "Vendor",
+        "reference": "Reference",
+        "dateRequired": "Date required",
+        "exchangeRate": "Exchange Rate",
+        "costCenters": "Cost Centers",
+        "cashPurchase": "Cash Purchase",
+        "costName": "Cost name",
+        "amount": "Amount",
+        "vatExempted": "VAT Exempted"
+      },
+      "buttons": {
+        "done": "Done",
+        "add": "Add"
+      },
+      "errors": {
+        "validation": {
+          "costName": {
+            "required": "Cost name is required"
+          },
+          "amount": {
+            "required": "Amount is required"
+          }
+        }
+      },
+      "summary": {
+        "title": "Order Summary",
+        "itemsTotal": "Items Total:",
+        "additionalCosts": "Additional Costs:",
+        "vat": "VAT:",
+        "grandTotal": "Grand Total:",
+        "suggestRecentPrice": "Suggest Recent Price:"
+      }
+    },
+    "itemForm": {
+      "titles": {
+        "addItem": "Add Item",
+        "quickProductRegistration": "Quick Product Registration"
+      },
+      "labels": {
+        "productOrService": "Product/Service",
+        "quantity": "Quantity",
+        "vat": "VAT",
+        "price": "Price",
+        "priceVatInclusive": "Price (VAT Inclusive)",
+        "amount": "Amount"
+      },
+      "buttons": {
+        "done": "Done",
+        "add": "Add"
+      },
+      "errors": {
+        "validation": {
+          "product": {
+            "required": "Product is required"
+          },
+          "quantity": {
+            "required": "Quantity is required"
+          },
+          "price": {
+            "required": "Price is required"
+          }
+        }
+      }
+    },
+    "orderDialog": {
+      "titles": {
+        "new": "New Purchase Order",
+        "edit": "Edit Order: {orderNo}",
+        "unsavedChanges": "Unsaved Changes"
+      },
+      "tabs": {
+        "items": "Items",
+        "additionalCosts": "Additional Costs",
+        "termsAndRemarks": "Terms & Remarks"
+      },
+      "messages": {
+        "lastItemNotAdded": "Last item was not added to the list"
+      },
+      "buttons": {
+        "addAndSubmit": "Add and Submit",
+        "submitWithoutAdd": "Submit without add",
+        "cancel": "Cancel",
+        "prev": "< Prev",
+        "next": "Next >",
+        "submit": "Submit"
+      },
+      "errors": {
+        "validation": {
+          "orderDate": {
+            "required": "Order date is required"
+          },
+          "currency": {
+            "required": "Currency is required"
+          },
+          "costCenters": {
+            "min": "At least one cost center must be selected",
+            "required": "Cost Center is required"
+          },
+          "exchangeRate": {
+            "required": "Exchange rate is required"
+          },
+          "creditLedger": {
+            "required": "Credit Account(From) is required"
+          },
+          "store": {
+            "required": "Receiving store is required"
+          },
+          "supplierLedger": {
+            "required": "Supplier account is required"
+          },
+          "items": {
+            "min": "You must add at least one item"
+          }
+        }
+      }
+    },
+    "orderPayment": {
+      "labels": {
+        "paymentTerms": "Payment Terms",
+        "remarks": "Remarks",
+        "instantPayment": "Instant Payment",
+        "payFrom": "Pay from",
+        "instantReceive": "Instant Receive"
+      }
+    },
+    "closeOrReopen": {
+      "titles": {
+        "reopen": "Re-Open Order: {orderNo}",
+        "close": "Close Order: {orderNo}"
+      },
+      "labels": {
+        "reopeningDate": "Re-Opening Date",
+        "closingDate": "Closing Date",
+        "remarks": "Remarks"
+      },
+      "buttons": {
+        "cancel": "Cancel",
+        "submit": "Submit"
+      },
+      "errors": {
+        "validation": {
+          "closingDate": {
+            "required": "Closing date is required"
+          },
+          "reopeningDate": {
+            "required": "Reopening date is required"
+          }
+        }
+      }
+    },
+    "receive": {
+      "itemsTab": {
+        "buttons": {
+          "autofillAll": "Autofill All",
+          "clearAll": "Clear All",
+          "resetItems": "Reset Items"
+        },
+        "labels": {
+          "receive": "Receive",
+          "remarks": "Remarks",
+          "unitN": "Unit {n}"
+        },
+        "messages": {
+          "identificationHint": "Identification / Serial No. for each unit (optional — an asset number is assigned automatically when left blank)"
+        }
+      },
+      "titles": {
+        "edit": "Edit {grnNo}",
+        "receive": "Receive {orderNo}",
+        "unsavedAdditionalCost": "Unsaved Additional Cost"
+      },
+      "tabs": {
+        "items": "Items",
+        "additionalCosts": "Additional Costs",
+        "summaryPreview": "Summary Preview"
+      },
+      "labels": {
+        "receiveDate": "Receive Date",
+        "orderReference": "Order Reference",
+        "costFactor": "Cost Factor",
+        "changeCostCenter": "Change Cost Center",
+        "destinationCostCenter": "Destination Cost Center",
+        "receivableLedger": "Receivable Ledger",
+        "orderCurrency": "Order Currency:",
+        "orderExchangeRate": "Order Exchange Rate"
+      },
+      "messages": {
+        "grnUpdated": "GRN updated successfully",
+        "grnUpdateFailed": "Failed to update GRN",
+        "prepopulatedCostsWarning": "The prepopulated Additional cost amounts might vary from the actual amount, please verify from the actual amounts and correct where required",
+        "unsavedCostConfirm": "You have unsaved Additional Cost. Are you sure you want to leave without saving?"
+      },
+      "buttons": {
+        "cancel": "Cancel",
+        "discard": "Discard",
+        "save": "Save",
+        "prev": "Prev",
+        "next": "Next",
+        "submit": "Submit"
+      },
+      "errors": {
+        "validation": {
+          "receiveDate": {
+            "required": "Receive Date is required"
+          },
+          "store": {
+            "required": "Store is required"
+          },
+          "exchangeRate": {
+            "required": "Exchange rate is required"
+          },
+          "destinationCostCenter": {
+            "required": "Destination Cost Center is required"
+          },
+          "receivableLedger": {
+            "required": "Receivable Ledger is required"
+          },
+          "quantity": {
+            "required": "Quantity is required",
+            "max": "Quantity cannot exceed unreceived quantity",
+            "wholeUnit": "This product is sold in whole units — quantity cannot be a fraction"
+          },
+          "amount": {
+            "required": "Amount is required",
+            "positive": "Amount must be positive"
+          },
+          "currency": {
+            "required": "Currency is required"
+          }
+        }
+      },
+      "summary": {
+        "titles": {
+          "receivedItems": "Received Items",
+          "additionalCosts": "Additional Costs"
+        },
+        "headers": {
+          "serialNo": "S/N",
+          "productOrService": "Product/Service",
+          "unit": "Unit",
+          "quantity": "Quantity",
+          "unitPrice": "Unit Price",
+          "amount": "Amount",
+          "costPerUnit": "Cost P.U ({currency})",
+          "amountWithCurrency": "Amount ({currency})",
+          "exchangeRate": "Exchange Rate",
+          "totalAdditionalCosts": "TOTAL Additional Costs ({currency})",
+          "totalValueOfGoods": "TOTAL Value of Goods ({currency})"
+        }
+      },
+      "additionalCosts": {
+        "labels": {
+          "costName": "Cost name",
+          "reference": "Reference",
+          "exchangeRate": "Exchange Rate",
+          "amount": "Amount",
+          "owedToSupplier": "Owed to Supplier",
+          "vatExempt": "VAT Exempt"
+        },
+        "buttons": {
+          "done": "Done",
+          "add": "Add"
+        },
+        "errors": {
+          "validation": {
+            "costName": {
+              "required": "Cost name is required"
+            },
+            "currency": {
+              "required": "Currency is required"
+            },
+            "exchangeRate": {
+              "required": "Exchange rate is required"
+            },
+            "amount": {
+              "required": "Amount is required"
+            }
+          }
+        }
+      }
+    }
+  },
+  "inventoryConsumptions": {
+    "form": {
+      "titles": {
+        "new": "New Inventory Consumption",
+        "edit": "Edit {consumptionNo}"
+      },
+      "labels": {
+        "consumptionDate": "Consumption Date",
+        "usedIn": "Used In",
+        "batchNo": "Batch No",
+        "narration": "Narration",
+        "product": "Product",
+        "availableBalance": "Available Balance",
+        "quantity": "Quantity",
+        "correspondingLedger": "Corresponding Ledger",
+        "description": "Description"
+      },
+      "messages": {
+        "lastItemNotAdded": "Last item was not added to the list",
+        "negativeBalance": "This quantity will lead to negative balance. Current balance today is {balance}"
+      },
+      "buttons": {
+        "addAndSubmit": "Add and Submit",
+        "submitWithoutAdd": "Submit without add",
+        "cancel": "Cancel",
+        "submit": "Submit",
+        "done": "Done",
+        "add": "Add"
+      },
+      "errors": {
+        "validation": {
+          "consumptionDate": {
+            "required": "Consumption Date is required"
+          },
+          "narration": {
+            "required": "Narration is required"
+          },
+          "costCenter": {
+            "required": "Cost Center is required"
+          },
+          "items": {
+            "min": "You must add at least one item"
+          },
+          "product": {
+            "required": "Product is required"
+          },
+          "quantity": {
+            "required": "Quantity is required",
+            "positive": "Quantity must be a positive number",
+            "number": "Quantity must be a number",
+            "exceedsBalance": "The quantity exceeds the available balance"
+          }
+        }
+      }
+    }
+  },
+  "grns": {
+    "purchaseBillForm": {
+      "titles": {
+        "edit": "Edit {invoiceNo} for {documentNo}",
+        "create": "Purchase Bill for {documentNo}"
+      },
+      "sections": {
+        "billDetails": "Bill Details",
+        "itemsToBill": "Items to Bill",
+        "additionalCostsToBill": "Additional Costs to Bill",
+        "adjustments": "Adjustments"
+      },
+      "hints": {
+        "itemsToBill": "Amount defaults to each item's full remaining balance — reduce it to bill only part of an item. Debit ledger defaults to the item's category expense ledger if left blank.",
+        "additionalCostsToBill": "Freight, PVOC, transportation, etc. entered on the order. Amount defaults to the full remaining balance — reduce it to bill only part of it now.",
+        "adjustments": "Withholding tax, retentions, penalties, discounts, etc."
+      },
+      "labels": {
+        "billDate": "Bill Date",
+        "dueDate": "Due Date",
+        "internalRef": "Internal Ref.",
+        "supplierRef": "Supplier Ref.",
+        "narration": "Narration",
+        "goodsServicesAmount": "Goods/Services Amount",
+        "itemsTotal": "Items Total",
+        "vatPercent": "VAT %",
+        "amountToBill": "Amount to Bill",
+        "debitLedger": "Debit Ledger",
+        "ledger": "Ledger",
+        "type": "Type",
+        "appliesTo": "Applies To (optional — whole bill if blank)",
+        "description": "Description",
+        "amount": "Amount",
+        "remaining": "Remaining:",
+        "vatExemptParen": "(VAT Exempt)",
+        "netPayableToSupplier": "Net Payable to Supplier"
+      },
+      "options": {
+        "addition": "Addition",
+        "subtraction": "Subtraction"
+      },
+      "messages": {
+        "vatHelperExcluding": "From org settings — applied on the amount above, excluding {amount} that's VAT-exempt",
+        "vatHelper": "From org settings — applied on the amount above",
+        "saveFailedUpdate": "Failed to update Purchase Bill",
+        "saveFailedCreate": "Failed to create Purchase Bill"
+      },
+      "buttons": {
+        "addAdjustment": "Add Adjustment",
+        "cancel": "Cancel",
+        "updateBill": "Update Bill",
+        "createBill": "Create Bill"
+      },
+      "errors": {
+        "validation": {
+          "billDate": {
+            "required": "Bill date is required"
+          },
+          "maxChars": "Max 20 characters",
+          "vat": {
+            "min": "Must be at least 0",
+            "max": "Must not exceed 100"
+          },
+          "ledger": {
+            "required": "Ledger is required"
+          },
+          "description": {
+            "required": "Description is required"
+          },
+          "amount": {
+            "required": "Amount is required",
+            "positive": "Amount must be greater than 0",
+            "maxRemainingItem": "Amount exceeds the remaining balance for this item",
+            "maxRemainingCost": "Amount exceeds the remaining balance for this cost"
+          }
+        }
+      }
+    }
+  }
+}

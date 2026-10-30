@@ -5,8 +5,10 @@ import { Dialog, DialogTitle, IconButton, Tooltip, useMediaQuery } from '@mui/ma
 import React, { useState } from 'react'
 import LowStockThresholdDialogContent from './LowStockThresholdDialogContent';
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function LowStockThresholds() {
+  const dictionary = useDictionary();
   const [openDialog, setOpenDialog] = useState(false);
 
   //Screen handling constants
@@ -15,7 +17,7 @@ function LowStockThresholds() {
 
   return (
     <React.Fragment>
-      <Tooltip title='Set low stock thresholds'>
+      <Tooltip title={dictionary.tooltips.setLowStockThresholds}>
         <IconButton onClick={() => setOpenDialog(true)}>
           <AddAlertOutlined color='warning'/>
         </IconButton>

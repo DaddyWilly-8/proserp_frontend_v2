@@ -16,12 +16,14 @@ import { useState } from 'react';
 import humanResourcesServices from '../humanResourcesServices';
 import PublicH0lidayForm from './PublicH0lidayForm';
 import { PublicHolidaysType } from './PublicHOlidaysType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const PublicHolidaysItemAction = ({
   publicHoliday,
 }: {
   publicHoliday: PublicHolidaysType;
 }) => {
+  const dictionary = useDictionary();
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const { showDialog, hideDialog } = useJumboDialog();
   const { enqueueSnackbar } = useSnackbar();
@@ -34,7 +36,7 @@ const PublicHolidaysItemAction = ({
     mutationFn: humanResourcesServices.deletePublicHoliday,
     onSuccess: (data: { message: string }) => {
       queryClient.invalidateQueries({ queryKey: ['publicHolidays'] });
-      enqueueSnackbar('Public Holiday Deleted Successfully', {
+      enqueueSnackbar(dictionary.humanResources.publicHolidays.actions.deleted, {
         variant: 'success',
       });
     },
@@ -46,12 +48,12 @@ const PublicHolidaysItemAction = ({
   const menuItems = [
     {
       icon: <EditOutlined />,
-      title: 'Edit',
+      title: dictionary.humanResources.publicHolidays.actions.edit,
       action: 'edit',
     },
     {
       icon: <DeleteOutlined color='error' />,
-      title: 'Delete',
+      title: dictionary.humanResources.publicHolidays.actions.delete,
       action: 'delete',
     },
   ];
@@ -63,8 +65,8 @@ const PublicHolidaysItemAction = ({
         break;
       case 'delete':
         showDialog({
-          title: 'Confirm Delete',
-          content: 'Are you sure you want to delete this Public holiday?',
+          title: dictionary.humanResources.publicHolidays.actions.confirmDeleteTitle,
+          content: dictionary.humanResources.publicHolidays.actions.confirmDeleteContent,
           onYes: () => {
             hideDialog();
             deletePublicHoliday(publicHoliday.id);
@@ -96,7 +98,7 @@ const PublicHolidaysItemAction = ({
       </Dialog>
       <JumboDdMenu
         icon={
-          <Tooltip title='Actions'>
+          <Tooltip title={dictionary.tooltips.actions}>
             <MoreHorizOutlined fontSize='small' />
           </Tooltip>
         }

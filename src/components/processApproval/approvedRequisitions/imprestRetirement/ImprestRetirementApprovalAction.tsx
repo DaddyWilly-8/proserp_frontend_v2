@@ -37,6 +37,7 @@ import React from 'react';
 import ImprestRetirementForm from './form/ImprestRetirementForm';
 import ImprestRetirementOnScreenPreview from './preview/ImprestRetirementOnScreenPreview';
 import ImprestRetirementPDF from './preview/ImprestRetirementPDF';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface ImprestRetirementApprovalActionProps {
   retirement: any;
@@ -47,6 +48,7 @@ function ImprestRetirementApprovalAction({
   retirement,
   approvedRequisition,
 }: ImprestRetirementApprovalActionProps) {
+  const dictionary = useDictionary();
   const { showDialog, hideDialog } = useJumboDialog();
   const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
@@ -295,7 +297,7 @@ function ImprestRetirementApprovalAction({
                   </Tabs>
                 </Grid>
                 <Grid size={{ xs: 1 }} sx={{ textAlign: 'right' }}>
-                  <Tooltip title='Close'>
+                  <Tooltip title={dictionary.tooltips.close}>
                     <IconButton
                       size='small'
                       onClick={() => setOpenPreviewDialog(false)}
@@ -384,7 +386,7 @@ function ImprestRetirementApprovalAction({
 
       <JumboDdMenu
         icon={
-          <Tooltip title='Retirement Actions'>
+          <Tooltip title={dictionary.tooltips.retirementActions}>
             <MoreHorizOutlined fontSize='small' />
           </Tooltip>
         }

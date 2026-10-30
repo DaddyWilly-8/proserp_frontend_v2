@@ -7,6 +7,7 @@ import {
   Typography,
 } from '@mui/material';
 import React from 'react';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const formatAmount = (value) =>
   Number(value || 0).toLocaleString('en-US', {
@@ -15,6 +16,7 @@ const formatAmount = (value) =>
   });
 
 function ProjectLiabilitiesOnScreen({ rows, total, currencyCode }) {
+  const dictionary = useDictionary();
   return (
     <Box>
       {rows.length ? (
@@ -28,7 +30,7 @@ function ProjectLiabilitiesOnScreen({ rows, total, currencyCode }) {
                 </Tooltip>
               </Grid>
               <Grid size={4}>
-                <Tooltip title='Amount'>
+                <Tooltip title={dictionary.tooltips.amount}>
                   <Typography textAlign='right'>
                     {currencyCode ? `${currencyCode} ` : ''}
                     {formatAmount(row.value)}
@@ -40,19 +42,19 @@ function ProjectLiabilitiesOnScreen({ rows, total, currencyCode }) {
         ))
       ) : (
         <Alert variant='outlined' severity='info'>
-          No Liabilities Found
+          {dictionary.projectManagement.dashboard.noLiabilitiesFound}
         </Alert>
       )}
 
       <Divider />
       <Grid container size={12} sx={{ py: 1, px: 1 }}>
         <Grid size={6}>
-          <Tooltip title='Total'>
-            <Typography fontWeight={600}>Total</Typography>
+          <Tooltip title={dictionary.tooltips.total}>
+            <Typography fontWeight={600}>{dictionary.projectManagement.dashboard.total}</Typography>
           </Tooltip>
         </Grid>
         <Grid size={6}>
-          <Tooltip title='Amount'>
+          <Tooltip title={dictionary.tooltips.amount}>
             <Typography textAlign='right' fontWeight={600}>
               {currencyCode ? `${currencyCode} ` : ''}
               {formatAmount(total)}

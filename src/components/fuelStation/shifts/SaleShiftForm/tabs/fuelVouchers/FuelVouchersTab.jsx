@@ -6,6 +6,7 @@ import {
 } from '@mui/material';
 import FuelVouchers from './FuelVouchers';
 import FuelVouchersItemRow from './FuelVouchersItemRow';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function FuelVouchersTab({ 
   localFuelVouchers, 
@@ -13,6 +14,7 @@ function FuelVouchersTab({
   cashierPumpProducts,
   watch
 }) {
+    const dictionary = useDictionary();
     const productPrices = watch(`product_prices`) || [];
     const safeFuelVouchers = Array.isArray(localFuelVouchers) ? localFuelVouchers : [];
 
@@ -39,7 +41,7 @@ function FuelVouchersTab({
         
         {safeFuelVouchers.length === 0 && (
           <Typography color="textSecondary" textAlign="center" py={4}>
-            No fuel vouchers added for this cashier yet. Add one using the form above.
+            {dictionary.forms.shifts.messages.noFuelVouchers}
           </Typography>
         )}
       </Box>

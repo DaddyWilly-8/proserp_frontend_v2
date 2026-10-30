@@ -1,4 +1,5 @@
 import React from 'react';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import {
   Dialog,
   Typography,
@@ -74,6 +75,7 @@ const Section = ({
 const LedgerBudgetCheckDetails: React.FC<
   LedgerBudgetCheckDetailsProps
 > = ({ ledgerName, ledgerId, costCenterId, open, onClose, currency }) => {
+  const dictionary = useDictionary();
   const { data, isFetching } = useQuery({
     queryKey: ['ledgerBudgetCheck', { ledgerId, costCenterId }],
     queryFn: () => fetchLedgerBudgetCheck(ledgerId, costCenterId),
@@ -88,7 +90,7 @@ const LedgerBudgetCheckDetails: React.FC<
         {/* Header */}
         <Box mb={3}>
           <Typography variant="h4" textAlign={'center'} fontWeight={700}>
-            Budget Check
+            {dictionary.forms.requisitions.budgetCheck.title}
           </Typography>
           <Typography variant="body2" color="text.secondary" textAlign={'center'}>
             {ledgerName}
@@ -101,17 +103,17 @@ const LedgerBudgetCheckDetails: React.FC<
           <Grid container spacing={3}>
             {/* ================= Budget Allocation ================= */}
             <Grid size={{ xs: 12 }}>
-              <Section title="Budget Allocation">
+              <Section title={dictionary.forms.requisitions.budgetCheck.budgetAllocation}>
                 <Grid size={{ xs: 6 }}>
                   <StatItem
-                    label="Budgeted Amount"
+                    label={dictionary.forms.requisitions.budgetCheck.budgetedAmount}
                     value={data.budgeted}
                     currency={currencyCode}
                   />
                 </Grid>
                 <Grid size={{ xs: 6 }}>
                   <StatItem
-                    label="Spent Amount"
+                    label={dictionary.forms.requisitions.budgetCheck.spentAmount}
                     value={data.spent}
                     currency={currencyCode}
                   />
@@ -121,17 +123,17 @@ const LedgerBudgetCheckDetails: React.FC<
 
             {/* ================= Request & Approval ================= */}
             <Grid size={{ xs: 12 }}>
-              <Section title="Request & Approval">
+              <Section title={dictionary.forms.requisitions.budgetCheck.requestAndApproval}>
                 <Grid size={{ xs: 6 }}>
                   <StatItem
-                    label="Requested Amount"
+                    label={dictionary.forms.requisitions.budgetCheck.requestedAmount}
                     value={data.requested_amount}
                     currency={currencyCode}
                   />
                 </Grid>
                 <Grid size={{ xs: 6 }}>
                   <StatItem
-                    label="Approved Amount"
+                    label={dictionary.forms.requisitions.budgetCheck.approvedAmount}
                     value={data.approved_amount}
                     currency={currencyCode}
                   />
@@ -143,7 +145,7 @@ const LedgerBudgetCheckDetails: React.FC<
             <Grid size={{ xs: 12 }}>
               <Paper variant="outlined" sx={{ p: 2 }}>
                 <Typography variant="subtitle1"  mb={1}>
-                  Remaining Balance
+                  {dictionary.forms.requisitions.budgetCheck.remainingBalance}
                 </Typography>
                 <Divider sx={{ mb: 2 }} />
 
@@ -163,7 +165,7 @@ const LedgerBudgetCheckDetails: React.FC<
           </Grid>
         ) : (
           <Typography color="text.secondary">
-            No budget data available.
+            {dictionary.forms.requisitions.budgetCheck.noBudgetData}
           </Typography>
         )}
       </Box>

@@ -12,6 +12,7 @@ import {
 import React from 'react';
 
 import { Button } from '@mui/material';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 function ItemsTab({
   purchase_order_items,
   onRemoveItem,
@@ -21,6 +22,7 @@ function ItemsTab({
   onClearQuantities,
   errors, register, setValue, watch
 }) {
+  const dictionary = useDictionary();
 
   return (
     <>
@@ -31,23 +33,23 @@ function ItemsTab({
         flexWrap='wrap'
         justifyContent='flex-end'
       >
-        <Tooltip title='Fill every item with its full unreceived quantity, for shipments received exactly as ordered'>
+        <Tooltip title={dictionary.tooltips.fillEveryItemWithItsFull}>
           <Button
             variant='outlined'
             size='small'
             onClick={onAutofillQuantities}
           >
-            Autofill All
+            {dictionary.forms.purchases.receive.itemsTab.buttons.autofillAll}
           </Button>
         </Tooltip>
-        <Tooltip title='Set every item to 0 quantity, then fill in only the items actually received in this shipment'>
+        <Tooltip title={dictionary.tooltips.setEveryItemTo0Quantity}>
           <Button
             variant='outlined'
             color='secondary'
             size='small'
             onClick={onClearQuantities}
           >
-            Clear All
+            {dictionary.forms.purchases.receive.itemsTab.buttons.clearAll}
           </Button>
         </Tooltip>
         {canReset && (
@@ -57,7 +59,7 @@ function ItemsTab({
             size='small'
             onClick={onResetItems}
           >
-            Reset Items
+            {dictionary.forms.purchases.receive.itemsTab.buttons.resetItems}
           </Button>
         )}
       </Stack>
@@ -76,14 +78,14 @@ function ItemsTab({
               </Grid>
               <Grid size={{ xs: 11.5, md: 6 }}>
                 <Div sx={{ mt: 1.7, mb: 1.7 }}>
-                  <Tooltip title='Product'>
+                  <Tooltip title={dictionary.tooltips.product}>
                     <Typography>{item.product.name}</Typography>
                   </Tooltip>
                 </Div>
               </Grid>
               <Grid textAlign={'center'} size={{ xs: 6, md: 2 }}>
                 <Div sx={{ mt: 1.7, mb: 1.7 }}>
-                  <Tooltip title='Ordered Quantity'>
+                  <Tooltip title={dictionary.tooltips.orderedQuantity}>
                     <Typography>{`${item.measurement_unit.symbol} ${item.unreceived_quantity}`}</Typography>
                   </Tooltip>
                 </Div>
@@ -91,7 +93,7 @@ function ItemsTab({
               <Grid size={{ xs: 6, md: 3, lg: 2 }}>
                 <Div sx={{ mt: 0.7, mb: 0.5 }}>
                   <TextField
-                    label='Receive'
+                    label={dictionary.forms.purchases.receive.itemsTab.labels.receive}
                     fullWidth
                     size='small'
                     type={item.product.type === 'Asset' ? 'number' : 'text'}
@@ -119,7 +121,7 @@ function ItemsTab({
               {purchase_order_items.length > 1 && (
                 <Grid size={{ xs: 12, md: 1 }} textAlign={'end'}>
                   <Div sx={{ mt: 1.7, mb: 1.7 }}>
-                    <Tooltip title='Remove item'>
+                    <Tooltip title={dictionary.tooltips.removeItem2}>
                       <IconButton
                         size='small'
                         color='error'
@@ -135,13 +137,13 @@ function ItemsTab({
                 <Grid size={{ xs: 12, md: 11.5, offset: { md: 0.5 } }}>
                   <Div sx={{ mt: 0.5, mb: 1.7 }}>
                     <Typography variant='caption' color='text.secondary' display='block' mb={0.5}>
-                      Identification / Serial No. for each unit (optional — an asset number is assigned automatically when left blank)
+                      {dictionary.forms.purchases.receive.itemsTab.messages.identificationHint}
                     </Typography>
                     <Grid container spacing={1}>
                       {Array.from({ length: Math.max(0, Math.floor(watch(`items.${index}.quantity`) || 0)) }).map((_, unit) => (
                         <Grid key={unit} size={{ xs: 6, md: 3 }}>
                           <TextField
-                            label={`Unit ${unit + 1}`}
+                            label={dictionary.forms.purchases.receive.itemsTab.labels.unitN.replace('{n}', unit + 1)}
                             fullWidth
                             size='small'
                             value={watch(`items.${index}.identifications.${unit}`) || ''}
@@ -165,7 +167,7 @@ function ItemsTab({
         <Grid size={12}>
           <Div sx={{ mt: 1, mb: 1 }}>
             <TextField
-              label='Remarks'
+              label={dictionary.forms.purchases.receive.itemsTab.labels.remarks}
               fullWidth
               multiline={true}
               minRows={2}

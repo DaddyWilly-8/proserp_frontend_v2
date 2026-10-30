@@ -12,6 +12,7 @@ import { Product } from '@/components/productAndServices/products/ProductType';
 interface SalesDispatchReportProps {
   organization: Organization;
   dispatchReport: DispatchReport;
+  dictionary: any;
 }
 
 interface DispatchedItem {
@@ -54,8 +55,10 @@ interface GroupedDispatchedItem {
 
 const SalesDispatchReport: React.FC<SalesDispatchReportProps> = ({
   organization,
-  dispatchReport
+  dispatchReport,
+  dictionary
 }) => {
+  const dict = dictionary.reports.saleDispatchReport;
   const mainColor = organization.settings?.main_color || "#2113AD";
   const lightColor = organization.settings?.light_color || "#bec5da";
   const contrastText = organization.settings?.contrast_text || "#FFFFFF";
@@ -85,7 +88,7 @@ const SalesDispatchReport: React.FC<SalesDispatchReportProps> = ({
     <Document 
       title={`${dispatchReport.saleNo}`}
       author={`${dispatchReport.creator?.name}`}
-      subject='SALES DISPATCH REPORT'
+      subject={dict.title}
       creator='ProsERP'
       producer='ProsERP'
       keywords={dispatchReport.stakeholder?.name}
@@ -100,24 +103,24 @@ const SalesDispatchReport: React.FC<SalesDispatchReportProps> = ({
             <PdfLogo organization={organization} />
           </View>
           <View style={{ flex: 1, textAlign: 'right' }}>
-            <Text style={{...pdfStyles.majorInfo, color: mainColor }}>SALES DISPATCH REPORT</Text>
+            <Text style={{...pdfStyles.majorInfo, color: mainColor }}>{dict.title}</Text>
             <Text style={{ ...pdfStyles.midInfo }}>{dispatchReport.saleNo}</Text>
-            <Text style={{ ...pdfStyles.minInfo }}>{`As at: ${readableDate(undefined,true)}`}</Text>
+            <Text style={{ ...pdfStyles.minInfo }}>{`${dict.asAt}: ${readableDate(undefined,true)}`}</Text>
           </View>
         </View>
         <View style={{ ...pdfStyles.table, minHeight: 230 }}>
           <View style={pdfStyles.tableRow}>
             <View style={{ ...pdfStyles.tableCell, ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 0.5 }}>
-              <Text style={{ ...pdfStyles.tableCell}}>S/N</Text>
+              <Text style={{ ...pdfStyles.tableCell}}>{dict.sn}</Text>
             </View>
             <View style={{ ...pdfStyles.tableCell, ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 4 }}>
-              <Text style={{ ...pdfStyles.tableCell}}>Products</Text>
+              <Text style={{ ...pdfStyles.tableCell}}>{dict.products}</Text>
             </View>
             <View style={{ ...pdfStyles.tableCell, ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 0.6 }}>
-              <Text style={{ ...pdfStyles.tableCell}}>Unit</Text>
+              <Text style={{ ...pdfStyles.tableCell}}>{dict.unit}</Text>
             </View>
             <View style={{ ...pdfStyles.tableCell, ...pdfStyles.tableHeader, backgroundColor: mainColor, color: contrastText, flex: 1.5 }}>
-              <Text style={{ ...pdfStyles.tableCell}}>Ordered</Text>
+              <Text style={{ ...pdfStyles.tableCell}}>{dict.ordered}</Text>
               <Text style={{ ...pdfStyles.tableCell}}>{readableDate(dispatchReport.transaction_date)}</Text>
             </View>
 
@@ -145,7 +148,7 @@ const SalesDispatchReport: React.FC<SalesDispatchReportProps> = ({
               color: contrastText, 
               flex: 1.5 
             }}>
-              <Text style={{ ...pdfStyles.tableCell}}>Balance</Text>
+              <Text style={{ ...pdfStyles.tableCell}}>{dict.balance}</Text>
               <Text style={{ ...pdfStyles.tableCell}}>{readableDate()}</Text>
             </View>
           </View>

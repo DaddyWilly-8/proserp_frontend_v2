@@ -25,6 +25,7 @@ import { useSnackbar } from 'notistack';
 import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as yup from 'yup';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import projectsServices from '../../project-services';
 import { useProjectProfile } from '../ProjectProfileProvider';
 
@@ -33,6 +34,9 @@ const DeliverablesForm = ({
   group = null,
   deliverable = null,
 }) => {
+  const dictionary = useDictionary();
+  const t = dictionary.forms.projects.deliverables;
+  const sh = dictionary.forms.projects.shared;
   const queryClient = useQueryClient();
   const { enqueueSnackbar } = useSnackbar();
   const { project, deliverable_groups } = useProjectProfile();
@@ -101,7 +105,7 @@ const DeliverablesForm = ({
       const { children, deliverables } = group;
 
       const deliverableOptions = (deliverables || []).map((deliverable) => ({
-        description: `After: ${deliverable.description}`,
+        description: t.labels.after.replace('{description}', deliverable.description),
         id: deliverable.id,
         position_index: deliverable.position_index,
         weighted_percentage: deliverable.weighted_percentage,
@@ -127,26 +131,26 @@ const DeliverablesForm = ({
   );
 
   const positionIndexOptions = [
-    { description: 'At the beginning', position_index: null, id: null },
+    { description: sh.atTheBeginning, position_index: null, id: null },
     ...sameLevelDeliverables,
   ];
 
 const validationSchema = yup.object({
     description: yup
       .string()
-      .required('Description is required')
-      .typeError('Description is required'),
+      .required(t.errors.descriptionRequired)
+      .typeError(t.errors.descriptionRequired),
     measurement_unit_id: yup
       .number()
-      .required('Measurement Unit is required')
-      .typeError('Measurement Unit is required'),
+      .required(t.errors.unitRequired)
+      .typeError(t.errors.unitRequired),
     quantity: yup
       .number()
-      .required('Quantity is required')
-      .typeError('Quantity is required')
+      .required(t.errors.quantityRequired)
+      .typeError(t.errors.quantityRequired)
       .test(
         'whole-unit',
-        'This unit is whole-units-only — quantity cannot be a fraction',
+        t.errors.wholeUnit,
         function (value) {
           const unit = measurementUnits?.find((u) => u.id === this.parent.measurement_unit_id);
           return unit?.allows_fractional !== false || !value || Number.isInteger(value);
@@ -156,7 +160,7 @@ const validationSchema = yup.object({
       .number()
       .nullable()
       .notRequired()
-      .test("greater-than-zero", "Weight Percentage must be greater than 0", function (value) {
+      .test("greater-than-zero", sh.weightGreaterThanZero, function (value) {
         // If value is null, undefined, or empty string, it's valid (optional field)
         if (value === null || value === undefined || value === '') {
           return true;
@@ -165,20 +169,20 @@ const validationSchema = yup.object({
         // Check if value is a valid number
         if (isNaN(value)) {
           return this.createError({
-            message: "Weight Percentage must be a valid number"
+            message: sh.weightValidNumber
           });
         }
         
         // Reject 0 and negative numbers
         if (value <= 0) {
           return this.createError({
-            message: "Weight Percentage must be greater than 0"
+            message: sh.weightGreaterThanZero
           });
         }
         
         return true;
       })
-      .max(100, 'Weight Percentage must be less than or equal to 100')
+      .max(100, sh.weightMax)
       .test('check-total', function (value) {
         const context = this.options.context || {};
         const { sameLevelDeliverables, deliverable } = context;
@@ -202,7 +206,7 @@ const validationSchema = yup.object({
         // Check if total exceeds 100
         if (totalWeightPercentages + value > 100) {
           return this.createError({
-            message: `Total percentage should not exceed 100%. You currently have ${totalWeightPercentages}% allocated.`,
+            message: sh.totalExceeds.replace('{total}', totalWeightPercentages),
           });
         }
         return true;
@@ -211,8 +215,8 @@ const validationSchema = yup.object({
       is: (client_id) => !!client_id,
       then: (schema) =>
         schema
-          .required('Contract rate is required when client is selected')
-          .typeError('Contract rate must be a number'),
+          .required(t.errors.contractRateRequired)
+          .typeError(t.errors.contractRateNumber),
       otherwise: (schema) => schema.notRequired().nullable(true),
     }),
   });
@@ -271,7 +275,9 @@ const validationSchema = yup.object({
   return (
     <>
       <DialogTitle textAlign={'center'}>
-        {deliverable ? `Edit Deliverable` : `Add ${group?.name} Deliverable`}
+        {deliverable
+          ? t.titles.edit
+          : t.titles.add.replace('{name}', group?.name)}
       </DialogTitle>
       <DialogContent>
         <form autoComplete='off'>
@@ -283,7 +289,7 @@ const validationSchema = yup.object({
                   fullWidth
                   multiline={true}
                   rows={2}
-                  label='Description'
+                  label={sh.description}
                   error={!!errors?.description}
                   helperText={errors?.description?.message}
                   {...register(`description`)}
@@ -295,7 +301,7 @@ const validationSchema = yup.object({
                 <TextField
                   size='small'
                   defaultValue={deliverable?.code}
-                  label='Code'
+                  label={sh.code}
                   fullWidth
                   {...register('code')}
                 />
@@ -328,7 +334,7 @@ const validationSchema = yup.object({
                   <Grid size={{ xs: 12, md: 4 }}>
                     <Div sx={{ mt: 1 }}>
                       <TextField
-                        label='Exchange Rate'
+                        label={sh.exchangeRate}
                         fullWidth
                         size='small'
                         InputProps={{
@@ -356,7 +362,7 @@ const validationSchema = yup.object({
             <Grid size={{ xs: 12, md: 4 }}>
               <Div sx={{ mt: 1 }}>
                 <MeasurementSelector
-                  label='Measurement Unit'
+                  label={sh.measurementUnit}
                   frontError={errors?.measurement_unit_id}
                   value={selectedUnit ? selectedUnit : null}
                   defaultValue={deliverable?.measurement_unit_id}
@@ -384,7 +390,7 @@ const validationSchema = yup.object({
                   fullWidth
                   error={!!errors?.quantity}
                   helperText={errors?.quantity?.message}
-                  label='Quantity'
+                  label={sh.quantity}
                   defaultValue={deliverable?.quantity}
                   onChange={(e) => {
                     setValue(
@@ -408,7 +414,7 @@ const validationSchema = yup.object({
                   <TextField
                     size='small'
                     fullWidth
-                    label='Contract Rate'
+                    label={sh.contractRate}
                     defaultValue={deliverable?.contract_rate}
                     error={!!errors?.contract_rate}
                     helperText={errors?.contract_rate?.message}
@@ -435,7 +441,7 @@ const validationSchema = yup.object({
                   <TextField
                     size='small'
                     fullWidth
-                    label='Amount'
+                    label={sh.amount}
                     value={computedAmount.toLocaleString(undefined, {
                       minimumFractionDigits: 2,
                       maximumFractionDigits: 2,
@@ -455,7 +461,7 @@ const validationSchema = yup.object({
                   defaultValue={deliverable?.weighted_percentage}
                   error={!!errors?.weighted_percentage}
                   helperText={errors?.weighted_percentage?.message}
-                  label='Weighted Percentage'
+                  label={sh.weightedPercentage}
                   InputProps={{
                     endAdornment: <span>%</span>,
                   }}
@@ -490,7 +496,7 @@ const validationSchema = yup.object({
                   renderInput={(params) => (
                     <TextField
                       {...params}
-                      label='Position'
+                      label={sh.position}
                       size='small'
                       fullWidth
                     />
@@ -513,7 +519,7 @@ const validationSchema = yup.object({
       </DialogContent>
       <DialogActions>
         <Button size='small' onClick={() => setOpenDialog(false)}>
-          Cancel
+          {sh.cancel}
         </Button>
         <LoadingButton
           type='submit'
@@ -523,7 +529,7 @@ const validationSchema = yup.object({
           sx={{ display: 'flex' }}
           loading={isPending || updateIsLoading}
         >
-          Submit
+          {sh.submit}
         </LoadingButton>
       </DialogActions>
 

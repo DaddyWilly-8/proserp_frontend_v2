@@ -16,6 +16,7 @@ import { useState } from 'react';
 import humanResourcesServices from '../../../humanResourcesServices';
 import EmployeeEmployerContributionForm from './EmployeeEmployerContributionForm';
 import { EmployeeEmployerContributionType } from './EmployeeEmployerContributionType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const EditEmployeeEmployerContribution = ({
   employeeEmployerContribution,
@@ -62,6 +63,7 @@ const EmployeeEmployerContributionItemAction = ({
 }: {
   employeeEmployerContribution: EmployeeEmployerContributionType;
 }) => {
+  const dictionary = useDictionary();
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const { showDialog, hideDialog } = useJumboDialog();
   const { enqueueSnackbar } = useSnackbar();
@@ -75,12 +77,12 @@ const EmployeeEmployerContributionItemAction = ({
       queryClient.invalidateQueries({
         queryKey: ['employeeEmployerContributions'],
       });
-      enqueueSnackbar('Employee Employer Contribution Deleted Successfully', {
+      enqueueSnackbar(dictionary.humanResources.employeeEmployerContributions.messages.deleted, {
         variant: 'success',
       });
     },
     onError: (error: any) => {
-      let message = 'Something went wrong';
+      let message = dictionary.humanResources.profileSectionsCommon.somethingWentWrong;
 
       if (
         typeof error === 'object' &&
@@ -99,12 +101,12 @@ const EmployeeEmployerContributionItemAction = ({
   const menuItems = [
     {
       icon: <EditOutlined />,
-      title: 'Edit',
+      title: dictionary.humanResources.profileSectionsCommon.edit,
       action: 'edit',
     },
     {
       icon: <DeleteOutlined color='error' />,
-      title: 'Delete',
+      title: dictionary.humanResources.profileSectionsCommon.delete,
       action: 'delete',
     },
   ];
@@ -116,9 +118,8 @@ const EmployeeEmployerContributionItemAction = ({
         break;
       case 'delete':
         showDialog({
-          title: 'Confirm Delete',
-          content:
-            'Are you sure you want to delete this Employee Employer Contribution?',
+          title: dictionary.humanResources.profileSectionsCommon.confirmDelete,
+          content: dictionary.humanResources.employeeEmployerContributions.messages.deleteConfirm,
           onYes: () => {
             hideDialog();
             deleteEmployeeEmployerContribution(employeeEmployerContribution.id);
@@ -149,7 +150,7 @@ const EmployeeEmployerContributionItemAction = ({
       </Dialog>
       <JumboDdMenu
         icon={
-          <Tooltip title='Actions'>
+          <Tooltip title={dictionary.tooltips.actions}>
             <MoreHorizOutlined fontSize='small' />
           </Tooltip>
         }

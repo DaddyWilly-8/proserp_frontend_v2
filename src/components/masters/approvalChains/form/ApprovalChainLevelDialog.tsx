@@ -22,6 +22,7 @@ import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import organizationServices from '@/components/organizations/organizationServices';
 import { Div } from '@jumbo/shared';
 import { ApprovalChainLevel } from '../ApprovalChainType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface Role {
   id: number;
@@ -52,14 +53,14 @@ interface ApprovalChainLevelDialogProps {
   approvalChain?: { id: number };
 }
 
-const getValidationSchema = (approvalChain: ApprovalChainLevelDialogProps['approvalChain']) =>
+const getValidationSchema = (approvalChain: ApprovalChainLevelDialogProps['approvalChain'], dictionary: any) =>
   yup.object({
-    label: yup.string().required('Label is required'),
-    role_id: yup.number().required('Role is required').typeError('Role is required'),
+    label: yup.string().required(dictionary.forms.approvalChains.levelDialog.errors.validation.labelRequired),
+    role_id: yup.number().required(dictionary.forms.approvalChains.levelDialog.errors.validation.roleRequired).typeError(dictionary.forms.approvalChains.levelDialog.errors.validation.roleRequired),
     approval_chain_id: yup.number()
       .when([], {
         is: () => !!approvalChain,
-        then: (schema) => schema.required('Approval chain is required').typeError('Approval chain is required'),
+        then: (schema) => schema.required(dictionary.forms.approvalChains.levelDialog.errors.validation.chainRequired).typeError(dictionary.forms.approvalChains.levelDialog.errors.validation.chainRequired),
         otherwise: (schema) => schema.notRequired(),
       }),
     position_index: yup.number().nullable(),
@@ -73,6 +74,7 @@ function ApprovalChainLevelDialog({
   toggleOpen,
   approvalChain,
 }: ApprovalChainLevelDialogProps) {
+  const dictionary = useDictionary();
   const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
   const { authOrganization } = useJumboAuth();
@@ -91,7 +93,7 @@ function ApprovalChainLevelDialog({
       queryClient.invalidateQueries({ queryKey: ['approvalChainLevels'] });
     },
     onError: (error: any) => {
-      const msg = error?.response?.data?.message || 'Failed to add level';
+      const msg = error?.response?.data?.message || dictionary.forms.approvalChains.levelDialog.messages.addFailed;
       enqueueSnackbar(msg, { variant: 'error' });
     },
   });
@@ -104,7 +106,7 @@ function ApprovalChainLevelDialog({
       queryClient.invalidateQueries({ queryKey: ['approvalChainLevels'] });
     },
     onError: (error: any) => {
-      const msg = error?.response?.data?.message || 'Failed to update level';
+      const msg = error?.response?.data?.message || dictionary.forms.approvalChains.levelDialog.messages.updateFailed;
       enqueueSnackbar(msg, { variant: 'error' });
     },
   });
@@ -117,14 +119,14 @@ function ApprovalChainLevelDialog({
 
   const positionIndexOptions: PositionIndexOption[] = useMemo(
     () => [
-      { label: 'At the beginning', position_index: null, id: null },
+      { label: dictionary.forms.approvalChains.levelDialog.labels.atTheBeginning, position_index: null, id: null },
       ...approvalChainLevels.map((level) => ({
-        label: `After ${level.role?.name ?? ''} ${level.label}`,
+        label: dictionary.forms.approvalChains.levelDialog.labels.after.replace('{role}', level.role?.name ?? '').replace('{label}', level.label ?? ''),
         position_index: level.position_index ?? null,
         id: level.id ?? null,
       })),
     ],
-    [approvalChainLevels]
+    [approvalChainLevels, dictionary]
   );
 
   const {
@@ -134,7 +136,7 @@ function ApprovalChainLevelDialog({
     watch,
     formState: { errors },
   } = useForm<FormValues>({
-    resolver: yupResolver(getValidationSchema(approvalChain)) as any,
+    resolver: yupResolver(getValidationSchema(approvalChain, dictionary)) as any,
     defaultValues: {
       id: approvalChainLevel?.id,
       approval_chain_id: approvalChain?.id,
@@ -193,7 +195,7 @@ function ApprovalChainLevelDialog({
       <DialogTitle>
         <Grid container columnSpacing={1}>
           <Grid size={12} textAlign="center">
-            {isEditMode ? 'Edit Level' : 'Add New Chain Level'}
+            {isEditMode ? dictionary.forms.approvalChains.levelDialog.title.edit : dictionary.forms.approvalChains.levelDialog.title.add}
           </Grid>
         </Grid>
       </DialogTitle>
@@ -214,7 +216,7 @@ function ApprovalChainLevelDialog({
                     renderInput={(params) => (
                       <TextField
                         {...params}
-                        label="Role"
+                        label={dictionary.forms.approvalChains.levelDialog.labels.role}
                         size="small"
                         fullWidth
                         error={!!errors.role_id}
@@ -236,7 +238,7 @@ function ApprovalChainLevelDialog({
             <Grid size={{ xs: 12, md: 4 }}>
               <Div sx={{ mt: 1 }}>
                 <TextField
-                  label="Label"
+                  label={dictionary.forms.approvalChains.levelDialog.labels.label}
                   size="small"
                   fullWidth
                   error={!!errors.label}
@@ -255,7 +257,7 @@ function ApprovalChainLevelDialog({
                   isOptionEqualToValue={(option, value) => option.id === value.id}
                   getOptionLabel={(option) => option.label}
                   renderInput={(params) => (
-                    <TextField {...params} label="Position" size="small" fullWidth />
+                    <TextField {...params} label={dictionary.forms.approvalChains.levelDialog.labels.position} size="small" fullWidth />
                   )}
                   onChange={(_, newValue) => {
                     const val =
@@ -275,7 +277,7 @@ function ApprovalChainLevelDialog({
             <Grid size={{ xs: 12, md: 4 }}>
               <Div sx={{ mt: 1 }}>
                 <TextField
-                  label="Remarks"
+                  label={dictionary.forms.approvalChains.levelDialog.labels.remarks}
                   size="small"
                   multiline
                   minRows={2}
@@ -299,7 +301,7 @@ function ApprovalChainLevelDialog({
                     });
                   }}
                 />
-                Can Finalize
+                {dictionary.forms.approvalChains.levelDialog.labels.canFinalize}
               </Div>
             </Grid>
 
@@ -317,7 +319,7 @@ function ApprovalChainLevelDialog({
                     });
                   }}
                 />
-                Can Override
+                {dictionary.forms.approvalChains.levelDialog.labels.canOverride}
               </Div>
             </Grid>
           </Grid>
@@ -326,7 +328,7 @@ function ApprovalChainLevelDialog({
 
       <DialogActions>
         <Button size="small" onClick={() => toggleOpen(false)}>
-          Cancel
+          {dictionary.forms.approvalChains.levelDialog.buttons.cancel}
         </Button>
 
         <LoadingButton
@@ -336,7 +338,7 @@ function ApprovalChainLevelDialog({
           type="submit"
           form="approval-chain-level-form"
         >
-          Submit
+          {dictionary.forms.approvalChains.levelDialog.buttons.submit}
         </LoadingButton>
       </DialogActions>
     </>

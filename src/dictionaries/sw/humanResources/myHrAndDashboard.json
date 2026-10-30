@@ -1,0 +1,314 @@
+{
+  "myHr": {
+    "page": {
+      "somethingWentWrong": "Hitilafu imetokea",
+      "notLinked": "Akaunti yako haijaunganishwa na rekodi ya mfanyakazi. Wasiliana na Rasilimali Watu.",
+      "tabs": {
+        "profile": "Wasifu",
+        "payslips": "Hati za Mshahara",
+        "leave": "Likizo",
+        "contracts": "Mikataba",
+        "nextOfKin": "Ndugu wa Karibu",
+        "loans": "Mikopo",
+        "accountStatement": "Taarifa ya Akaunti"
+      }
+    },
+    "loans": {
+      "status": "Hali",
+      "statusOptions": {
+        "inReview": "Inakaguliwa",
+        "approved": "Imeidhinishwa",
+        "rejected": "Imekataliwa",
+        "onHold": "Imesitishwa"
+      },
+      "form": {
+        "messages": {
+          "updated": "Ombi la mkopo limesasishwa kwa mafanikio",
+          "added": "Ombi la mkopo limeongezwa kwa mafanikio",
+          "somethingWentWrong": "Hitilafu imetokea"
+        },
+        "errors": {
+          "required": "Sehemu hii inahitajika",
+          "amountMin": "Kiasi lazima kiwe >= 0",
+          "amountNumber": "Kiasi lazima kiwe namba",
+          "installmentsRequired": "Tafadhali ingiza idadi ya awamu",
+          "fixedAmountRequired": "Tafadhali ingiza kiasi maalum cha kukatwa kwa kila kipindi",
+          "exceedsLoanAmount": "Hakiwezi kuzidi kiasi cha mkopo kilichoombwa"
+        },
+        "editTitle": "Hariri Mkopo",
+        "createTitle": "Unda Ombi la Mkopo",
+        "labels": {
+          "amount": "Kiasi",
+          "recoveryMode": "Njia ya Urejeshaji",
+          "byInstallmentCount": "Kwa Idadi ya Awamu",
+          "byFixedAmount": "Kwa Kiasi Maalum",
+          "amountPerPeriod": "Kiasi cha Kukatwa kwa Kila Kipindi",
+          "installments": "Awamu",
+          "reason": "Sababu"
+        },
+        "helpers": {
+          "installmentsDerived": "Awamu hukokotolewa moja kwa moja kutokana na kiasi hiki"
+        },
+        "buttons": {
+          "cancel": "Ghairi",
+          "update": "Sasisha",
+          "create": "Unda"
+        }
+      },
+      "item": {
+        "statuses": {
+          "inReview": "Inakaguliwa",
+          "approved": "Imeidhinishwa",
+          "rejected": "Imekataliwa",
+          "cancelled": "Imeghairiwa",
+          "onHold": "Imesitishwa",
+          "pending": "Inasubiri"
+        },
+        "disbursedOn": "Imetolewa {date}",
+        "yourLoanRequest": "Ombi Lako la Mkopo",
+        "close": "Funga",
+        "tabs": {
+          "summary": "Muhtasari",
+          "approvals": "Idhini"
+        },
+        "sections": {
+          "loanDetails": "Maelezo ya Mkopo",
+          "approvalDecision": "Uamuzi wa Idhini",
+          "disbursementPayment": "Utoaji na Malipo"
+        },
+        "fields": {
+          "department": "Idara",
+          "amountRequested": "Kiasi Kilichoombwa",
+          "installmentsRequested": "Awamu Zilizoombwa",
+          "reason": "Sababu",
+          "status": "Hali",
+          "amountApproved": "Kiasi Kilichoidhinishwa",
+          "installmentsApproved": "Awamu Zilizoidhinishwa",
+          "installmentAmount": "Kiasi cha Awamu",
+          "reviewedAt": "Imekaguliwa Tarehe",
+          "reviewRemarks": "Maoni ya Mkaguzi",
+          "disbursedAt": "Imetolewa Tarehe",
+          "disbursedBy": "Imetolewa Na",
+          "disbursementReference": "Rejea ya Utoaji",
+          "paymentVoucher": "Hati ya Malipo",
+          "paymentNarration": "Maelezo ya Malipo"
+        },
+        "monthsCount": "miezi {count}",
+        "noApprovals": "Hakuna Idhini Zilizopatikana"
+      }
+    },
+    "profile": {
+      "sections": {
+        "identity": "Utambulisho",
+        "contact": "Mawasiliano",
+        "employment": "Ajira",
+        "currentContract": "Mkataba wa Sasa",
+        "primaryBankAccount": "Akaunti Kuu ya Benki"
+      },
+      "fields": {
+        "employeeNumber": "Namba ya Mfanyakazi",
+        "gender": "Jinsia",
+        "dateOfBirth": "Tarehe ya Kuzaliwa",
+        "nationalId": "Kitambulisho cha Taifa",
+        "passportNumber": "Namba ya Pasipoti",
+        "phoneNumber": "Namba ya Simu",
+        "email": "Barua Pepe",
+        "address": "Anwani",
+        "department": "Idara",
+        "costCenter": "Kituo cha Gharama",
+        "employmentType": "Aina ya Ajira",
+        "joinDate": "Tarehe ya Kujiunga",
+        "designation": "Cheo",
+        "contractType": "Aina ya Mkataba",
+        "startDate": "Tarehe ya Kuanza",
+        "basicSalary": "Mshahara wa Msingi",
+        "bank": "Benki",
+        "accountName": "Jina la Akaunti",
+        "accountNumber": "Namba ya Akaunti",
+        "contractStatus": "Hali ya Mkataba"
+      },
+      "noContract": "Hakuna Mkataba",
+      "noActiveContract": "Bado hakuna mkataba unaofanya kazi uliohifadhiwa.",
+      "noPrimaryBank": "Hakuna akaunti kuu ya benki iliyohifadhiwa. Wasiliana na Rasilimali Watu ili iongezwe."
+    },
+    "nextOfKin": {
+      "primary": "Msingi",
+      "secondary": "Wa Pili"
+    },
+    "contracts": {
+      "present": "Sasa",
+      "probationEnds": "Muda wa majaribio unaisha {date}"
+    },
+    "leaves": {
+      "leaveBalances": "Salio la Likizo",
+      "leaveRequests": "Maombi ya Likizo",
+      "balances": {
+        "selectYear": "Chagua Mwaka",
+        "leaveType": "Aina ya Likizo",
+        "period": "Kipindi",
+        "allocated": "Zilizotengwa",
+        "used": "Zilizotumika",
+        "remaining": "Zilizobaki",
+        "carryForwardNote": "Inajumuisha siku {days} zilizohamishwa",
+        "carryForwardUsableUntil": ", zinaweza kutumika hadi {date}",
+        "typeNumber": "Aina #{id}"
+      },
+      "requests": {
+        "status": "Hali",
+        "statusOptions": {
+          "inReview": "Inakaguliwa",
+          "approved": "Imeidhinishwa",
+          "rejected": "Imekataliwa",
+          "onHold": "Imesitishwa"
+        },
+        "statuses": {
+          "inReview": "Inakaguliwa",
+          "approved": "Imeidhinishwa",
+          "cancelled": "Imeghairiwa",
+          "rejected": "Imekataliwa",
+          "pending": "Inasubiri"
+        },
+        "typeNumber": "Aina #{id}",
+        "yourLeaveRequest": "Ombi Lako la Likizo",
+        "close": "Funga",
+        "form": {
+          "messages": {
+            "created": "Ombi la Likizo Limeundwa kwa Mafanikio",
+            "updated": "Ombi la Likizo Limesasishwa kwa Mafanikio",
+            "somethingWentWrong": "Hitilafu imetokea"
+          },
+          "errors": {
+            "leaveTypeRequired": "Aina ya likizo inahitajika",
+            "startDateRequired": "Tarehe ya kuanza inahitajika",
+            "endDateRequired": "Tarehe ya mwisho inahitajika",
+            "daysNumber": "Siku zilizoombwa lazima ziwe namba",
+            "daysRequired": "Siku zilizoombwa zinahitajika",
+            "daysMin": "Siku zilizoombwa lazima ziwe angalau 0.5",
+            "reasonMax": "Sababu haiwezi kuzidi herufi 1000"
+          },
+          "hint": {
+            "saturdays": "Jumamosi",
+            "sundays": "Jumapili",
+            "and": " na ",
+            "day": "siku",
+            "days": "siku",
+            "excluded": " ({label} hazijajumuishwa)",
+            "matches": "{days}{excluded} kati ya tarehe zilizochaguliwa — zinalingana na siku zilizoombwa",
+            "differs": "{days}{excluded} kati ya tarehe zilizochaguliwa — zinatofautiana na siku zilizoombwa"
+          },
+          "createTitle": "Unda Ombi la Likizo",
+          "editTitle": "Hariri Ombi la Likizo",
+          "labels": {
+            "leaveType": "Aina ya Likizo",
+            "daysRequested": "Siku Zilizoombwa",
+            "startDate": "Tarehe ya Kuanza",
+            "endDate": "Tarehe ya Mwisho",
+            "reason": "Sababu"
+          },
+          "buttons": {
+            "cancel": "Ghairi",
+            "submit": "Wasilisha"
+          }
+        }
+      }
+    },
+    "payslips": {
+      "payrollPeriod": "Kipindi cha Mishahara",
+      "months": [
+        "Januari",
+        "Februari",
+        "Machi",
+        "Aprili",
+        "Mei",
+        "Juni",
+        "Julai",
+        "Agosti",
+        "Septemba",
+        "Oktoba",
+        "Novemba",
+        "Desemba"
+      ],
+      "status": {
+        "paid": "Imelipwa",
+        "partiallyPaid": "Imelipwa Kiasi",
+        "unpaid": "Haijalipwa"
+      }
+    },
+    "accountStatement": {
+      "costCenters": "Vituo vya Gharama",
+      "from": "Kuanzia",
+      "to": "Hadi",
+      "filter": "Chuja",
+      "statementTitle": "{name} - Taarifa",
+      "totalDebits": "Jumla ya Madeni (Debit)",
+      "totalCredits": "Jumla ya Mikopo (Credit)",
+      "noTransactions": "Hakuna miamala iliyopatikana kwa kipindi hiki.",
+      "total": "JUMLA",
+      "date": "Tarehe",
+      "reference": "Rejea",
+      "description": "Maelezo",
+      "debit": "Debit",
+      "credit": "Credit",
+      "balance": "Salio"
+    },
+    "imprest": {
+      "noAccounts": "Hakuna akaunti za imprest zilizounganishwa na akaunti yako.",
+      "statementTitle": "{name} — Taarifa",
+      "defaultName": "Akaunti ya Imprest",
+      "cancel": "Ghairi"
+    }
+  },
+  "hrDashboard": {
+    "alerts": {
+      "noPayrollRun": "Hakuna mzunguko wa mishahara ulioanzishwa bado kwa {period}.",
+      "payrollInDraft": "Mishahara ya {period} bado iko kwenye rasimu/inasubiri idhini."
+    },
+    "tiles": {
+      "activeEmployees": "Wafanyakazi Hai",
+      "newThisMonth": "{count} wapya mwezi huu",
+      "onLeaveToday": "Walio Likizo Leo",
+      "activeLoans": "Mikopo Inayoendelea",
+      "owed": "{amount} inadaiwa",
+      "contractsExpiring": "Mikataba Inayoisha (siku 30)",
+      "birthdays": "Siku za Kuzaliwa (siku 30)",
+      "pendingApprovals": "Idhini Zinazosubiri",
+      "pendingSub": "likizo {leave}, mkopo {loan}"
+    },
+    "cards": {
+      "onLeaveTitle": "Wafanyakazi Walio Likizo Leo",
+      "activeLoansTitle": "Wafanyakazi Wenye Mikopo Inayoendelea",
+      "contractsTitle": "Mikataba Inayoisha Ndani ya Siku 30",
+      "birthdaysTitle": "Siku za Kuzaliwa Zijazo (Siku 30)"
+    },
+    "empty": {
+      "noOneOnLeave": "Hakuna aliye likizo leo",
+      "noLoans": "Hakuna wafanyakazi wanaolipa mkopo kwa sasa",
+      "noContracts": "Hakuna mikataba inayokaribia kuisha",
+      "noBirthdays": "Hakuna siku za kuzaliwa zijazo"
+    },
+    "today": "Leo",
+    "tomorrow": "Kesho",
+    "inDaysShort": "Baada ya siku {count}",
+    "inDays": "Baada ya siku {count}",
+    "daysShort": "siku {count}",
+    "ends": "Inaisha",
+    "outstandingLabel": "Kinachodaiwa",
+    "installmentLabel": "Awamu",
+    "columns": {
+      "employee": "Mfanyakazi",
+      "leaveType": "Aina ya Likizo",
+      "returns": "Anarudi",
+      "outstanding": "Kinachodaiwa",
+      "installment": "Awamu",
+      "designation": "Cheo",
+      "ends": "Inaisha",
+      "date": "Tarehe"
+    }
+  },
+  "orgChart": {
+    "title": "Chati ya Shirika",
+    "titleWithOrganization": "Chati ya Shirika ya {name}",
+    "noEmployees": "Bado hakuna wafanyakazi.",
+    "employees": "Wafanyakazi"
+  }
+}

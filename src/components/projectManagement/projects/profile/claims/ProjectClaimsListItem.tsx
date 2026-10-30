@@ -7,6 +7,7 @@ import ProjectClaimItemAction from './ProjectClaimItemAction';
 import ProjectClaimApprovalsActionTail from './ProjectClaimApprovalsActionTail';
 import { ProjectClaim } from './ProjectClaimType';
 import InvoiceLinkChip from '../../../InvoiceLinkChip';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface ProjectClaimsListItemProps {
   claim: ProjectClaim;
@@ -24,6 +25,7 @@ const STATUS_CHIP_COLOR: Record<string, 'default' | 'warning' | 'info' | 'succes
 const ProjectClaimsListItem: React.FC<ProjectClaimsListItemProps> = ({
   claim,
 }) => {
+  const dictionary = useDictionary();
   return (
     <>
       <Divider />
@@ -45,7 +47,7 @@ const ProjectClaimsListItem: React.FC<ProjectClaimsListItemProps> = ({
       >
         {/* Claim Date */}
         <Grid size={{ xs: 6, md: 3, lg: 3 }}>
-          <Tooltip title="Claim Date">
+          <Tooltip title={dictionary.tooltips.claimDate}>
             <Typography variant="h5" fontSize={14} lineHeight={1.25} noWrap>
               {claim.claim_date ? readableDate(claim.claim_date) : '-'}
             </Typography>
@@ -54,7 +56,7 @@ const ProjectClaimsListItem: React.FC<ProjectClaimsListItemProps> = ({
 
         {/* Claim No */}
         <Grid size={{ xs: 6, md: 3, lg: 3 }}>
-          <Tooltip title="Claim No.">
+          <Tooltip title={dictionary.tooltips.claimNo}>
             <Box display="flex" alignItems="center" gap={1}>
               <Typography noWrap>
                 {claim.claimNo || '-'}
@@ -65,8 +67,8 @@ const ProjectClaimsListItem: React.FC<ProjectClaimsListItemProps> = ({
                   documentNo={claim.customer_invoice?.invoiceNo}
                   tooltip={
                     claim.invoice_date
-                      ? `Invoiced on ${readableDate(claim.invoice_date)}`
-                      : 'Invoiced'
+                      ? dictionary.projectManagement.claims.list.invoicedOn.replace('{date}', readableDate(claim.invoice_date))
+                      : dictionary.projectManagement.claims.list.invoiced
                   }
                 />
               ) : claim.approval_chain && claim.status_label ? (
@@ -78,7 +80,7 @@ const ProjectClaimsListItem: React.FC<ProjectClaimsListItemProps> = ({
                 />
               ) : (
                 claim.status === 'draft' && (
-                  <Chip label="Draft" size="small" color="warning" variant="outlined" />
+                  <Chip label={dictionary.projectManagement.claims.list.draft} size="small" color="warning" variant="outlined" />
                 )
               )}
             </Box>
@@ -87,7 +89,7 @@ const ProjectClaimsListItem: React.FC<ProjectClaimsListItemProps> = ({
 
         {/* Remarks */}
         <Grid size={{ xs: 5, md: 2, lg: 2 }}>
-          <Tooltip title="Remarks">
+          <Tooltip title={dictionary.tooltips.remarks}>
             <Typography noWrap>
               {claim.remarks || '-'}
             </Typography>
@@ -96,7 +98,7 @@ const ProjectClaimsListItem: React.FC<ProjectClaimsListItemProps> = ({
 
         {/* Amount */}
         <Grid size={{ xs: 7, md: 3, lg: 3 }}>
-          <Tooltip title="Amount">
+          <Tooltip title={dictionary.tooltips.amount}>
             <Typography noWrap>
               {claim.amount != null && claim.currency?.code
                 ? claim.amount.toLocaleString('en-US', {

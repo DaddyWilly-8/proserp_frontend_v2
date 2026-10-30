@@ -3,6 +3,7 @@ import { Avatar, Grid, ListItemAvatar, Tooltip, Typography } from '@mui/material
 import React from 'react'
 import { Div } from '@jumbo/shared';
 import ProjectUserAction from './ProjectUserAction';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface Role {
   id: number;
@@ -23,6 +24,7 @@ interface ProjectUsersListItemProps {
 }
 
 function ProjectUsersListItem({ user }: ProjectUsersListItemProps) {
+  const dictionary = useDictionary();
   return (
     <React.Fragment>
         <Grid 
@@ -45,22 +47,22 @@ function ProjectUsersListItem({ user }: ProjectUsersListItemProps) {
             </Grid>
             <Grid size={{ xs: 10, md: 5, lg: 5 }}>
                 <Div sx={{ mt: 1}}>
-                    <Tooltip title={'Name'}>
+                    <Tooltip title={dictionary.tooltips.name}>
                         <Typography>{user.name}</Typography>
                     </Tooltip>
                 </Div>
             </Grid>
             <Grid size={{ xs: 12, md: 3.5, lg: 3.5 }}>
                 <Div sx={{ mt: 1, paddingLeft: 1 }}>
-                    <Tooltip title={'Email'}>
+                    <Tooltip title={dictionary.tooltips.email}>
                         <Typography>{user.email}</Typography>
                     </Tooltip>
                 </Div>
             </Grid>
             <Grid size={{ xs: 11, md: 2, lg: 2 }}>
                 <Div sx={{ mt: 1, paddingLeft: 1 }}>
-                    <Tooltip title={'Phone'}>
-                        <Typography>{user.phone || 'N/A'}</Typography>
+                    <Tooltip title={dictionary.tooltips.phone}>
+                        <Typography>{user.phone || dictionary.projectManagement.projectUsers.notAvailable}</Typography>
                     </Tooltip>
                 </Div>
             </Grid>

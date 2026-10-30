@@ -21,8 +21,10 @@ import ProductSelect from '@/components/productAndServices/products/ProductSelec
 import productServices from '@/components/productAndServices/products/productServices'
 import CommaSeparatedField from '@/shared/Inputs/CommaSeparatedField'
 import { sanitizedNumber } from '@/app/helpers/input-sanitization-helpers'
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function StockAdjustmentDialogForm({toggleOpen,stockAdjustment = null}) {
+  const dictionary = useDictionary();
   //Initial necessary constants
   const {authOrganization} = useJumboAuth();
   const {activeStore} = useStoreProfile();
@@ -46,19 +48,19 @@ function StockAdjustmentDialogForm({toggleOpen,stockAdjustment = null}) {
 
   // Validation schema
   const validationSchema = yup.object({
-    reason: yup.string().required('Reason is required'),
-    adjustment_date: yup.string().required('Adjustment Date is required').typeError('Adjustment Date is required'),
-    cost_center_id: yup.number().min(-1, 'Cost center is required').required('Cost center is required').typeError('Cost center is required'),
-    stock_complement_ledger_id: yup.number().required('Stock Complement Ledger is required').typeError('Stock Complement Ledger is required'),
-    narration: yup.string().required('Narration is required').typeError('Narration is required'),
+    reason: yup.string().required(dictionary.forms.stores.stockAdjustment.errors.validation.reason.required),
+    adjustment_date: yup.string().required(dictionary.forms.stores.stockAdjustment.errors.validation.adjustmentDate.required).typeError(dictionary.forms.stores.stockAdjustment.errors.validation.adjustmentDate.required),
+    cost_center_id: yup.number().min(-1, dictionary.forms.stores.stockAdjustment.errors.validation.costCenter.required).required(dictionary.forms.stores.stockAdjustment.errors.validation.costCenter.required).typeError(dictionary.forms.stores.stockAdjustment.errors.validation.costCenter.required),
+    stock_complement_ledger_id: yup.number().required(dictionary.forms.stores.stockAdjustment.errors.validation.stockComplementLedger.required).typeError(dictionary.forms.stores.stockAdjustment.errors.validation.stockComplementLedger.required),
+    narration: yup.string().required(dictionary.forms.stores.stockAdjustment.errors.validation.narration.required).typeError(dictionary.forms.stores.stockAdjustment.errors.validation.narration.required),
     ...(!switchToExcell && {
       items: yup.array().of(
         yup.object().shape({
-          product_id: yup.number().required("Product is required").positive('Product is required'),
-          actual_stock: yup.number().required("Actual stock is required").typeError('Actual stock is required'),
-          average_cost: yup.number('Average cost is required')
-            .required('Average cost is required')
-            .positive('Average cost is required').typeError('Average cost is required')
+          product_id: yup.number().required(dictionary.forms.stores.stockAdjustment.errors.validation.product.required).positive(dictionary.forms.stores.stockAdjustment.errors.validation.product.required),
+          actual_stock: yup.number().required(dictionary.forms.stores.stockAdjustment.errors.validation.actualStock.required).typeError(dictionary.forms.stores.stockAdjustment.errors.validation.actualStock.required),
+          average_cost: yup.number(dictionary.forms.stores.stockAdjustment.errors.validation.averageCost.required)
+            .required(dictionary.forms.stores.stockAdjustment.errors.validation.averageCost.required)
+            .positive(dictionary.forms.stores.stockAdjustment.errors.validation.averageCost.required).typeError(dictionary.forms.stores.stockAdjustment.errors.validation.averageCost.required)
           })
         ),
     }),
@@ -135,14 +137,14 @@ function StockAdjustmentDialogForm({toggleOpen,stockAdjustment = null}) {
 
   return (
     <>
-      <DialogTitle textAlign={'center'}>{stockAdjustment ? `Edit: ${stockAdjustment.adjustmentNo}` : `New Stock Adjustment`}</DialogTitle>
+      <DialogTitle textAlign={'center'}>{stockAdjustment ? dictionary.forms.stores.stockAdjustment.titles.edit.replace('{adjustmentNo}', stockAdjustment.adjustmentNo) : dictionary.forms.stores.stockAdjustment.titles.new}</DialogTitle>
       <DialogContent>
         <form autoComplete='false'>
           <Grid container columnSpacing={1}>
             <Grid size={{xs: 12, md: 4}}>
               <Div sx={{mt: 1, mb: 1}}>
                 <DateTimePicker
-                  label="Adjustment Date (MM/DD/YYYY)"
+                  label={dictionary.forms.stores.stockAdjustment.labels.adjustmentDate}
                   fullWidth
                   minDate={dayjs(authOrganization.organization.recording_start_date)}
                   maxDate={dayjs()}
@@ -175,12 +177,12 @@ function StockAdjustmentDialogForm({toggleOpen,stockAdjustment = null}) {
                       isOptionEqualToValue={(option, value) => option.reason === value.reason}
                       options={reasons}
                       readOnly={reasonSelectorDisabled}
-                      getOptionLabel={(option) => option.reason}
+                      getOptionLabel={(option) => dictionary.forms.stores.stockAdjustment.reasons[option.reason] || option.reason}
                       defaultValue={reasons.find(reason => reason.reason === (!!stockAdjustment ? stockAdjustment.reason : 'Stock-taking'))}
                       renderInput={(params) => (
                           <TextField 
                               {...params} 
-                              label="Reason"
+                              label={dictionary.forms.stores.stockAdjustment.labels.reason}
                               error={!!errors?.reason}
                               helperText={errors?.reason?.message}
                           />
@@ -198,7 +200,7 @@ function StockAdjustmentDialogForm({toggleOpen,stockAdjustment = null}) {
                 <Div sx={{mt: 1, mb: 1}}>
                     <TextField
                         size="small"
-                        label="Reference"
+                        label={dictionary.forms.stores.stockAdjustment.labels.reference}
                         fullWidth
                         {...register('reference')}
                     />
@@ -207,7 +209,7 @@ function StockAdjustmentDialogForm({toggleOpen,stockAdjustment = null}) {
             <Grid size={{xs: 12, md: 8}}>
                 <Div sx={{mt: 1, mb: 1}}>
                     <CostCenterSelector
-                      label="Cost Center"
+                      label={dictionary.forms.stores.stockAdjustment.labels.costCenter}
                       multiple={false}
                       frontError={errors.cost_center_id}
                       readOnly={reasonSelectorDisabled}
@@ -224,7 +226,7 @@ function StockAdjustmentDialogForm({toggleOpen,stockAdjustment = null}) {
             <Grid size={{xs: 12, md: 4}}>
               <Div sx={{mt: 1, mb: 1}}>
                 <LedgerSelect
-                  label={'Stock Complement Ledger'}
+                  label={dictionary.forms.stores.stockAdjustment.labels.stockComplementLedger}
                   allowedGroups={['Capital','Expenses','Accounts Payable']}
                   frontError={errors.stock_complement_ledger_id}
                   defaultValue={ungroupedLedgerOptions.find(ledger => ledger.id === watch(`stock_complement_ledger_id`))}
@@ -237,7 +239,7 @@ function StockAdjustmentDialogForm({toggleOpen,stockAdjustment = null}) {
             </Grid>
             <Grid size={12}>
               <Stack spacing={1} direction={'row'} p={1}>
-                <Typography>Import Excel</Typography>
+                <Typography>{dictionary.forms.stores.stockAdjustment.labels.importExcel}</Typography>
                 <Switch
                   onClick={() => setSwitchToExcell(!switchToExcell)}
                   size='small'
@@ -306,7 +308,7 @@ function StockAdjustmentDialogForm({toggleOpen,stockAdjustment = null}) {
                         <Grid size={{xs: 12, md: 6}}>
                           <Div sx={{mt: 1, mb: 1}}>
                             <TextField
-                              label="Description"
+                              label={dictionary.forms.stores.stockAdjustment.labels.description}
                               fullWidth
                               size='small'
                               error={errors.items && !!errors?.items[index]?.description}
@@ -318,7 +320,7 @@ function StockAdjustmentDialogForm({toggleOpen,stockAdjustment = null}) {
                         <Grid size={{xs: 12, md: 3}}>
                           <Div sx={{mt: 1, mb: 1}}>
                             <TextField
-                              label="Current Stock"
+                              label={dictionary.forms.stores.stockAdjustment.labels.currentStock}
                               fullWidth
                               size='small'
                               InputProps={{
@@ -332,7 +334,7 @@ function StockAdjustmentDialogForm({toggleOpen,stockAdjustment = null}) {
                         <Grid size={{xs: 12, md: 3}}>
                           <Div sx={{mt: 1, mb: 1}}>
                             <TextField
-                              label="Actual Stock"
+                              label={dictionary.forms.stores.stockAdjustment.labels.actualStock}
                               fullWidth
                               size='small'
                               InputProps={{ 
@@ -348,7 +350,7 @@ function StockAdjustmentDialogForm({toggleOpen,stockAdjustment = null}) {
                         <Grid size={{xs: 12, md: 2}}>
                           <Div sx={{mt: 1, mb: 1}}>
                             <TextField
-                              label="Change in Stock"
+                              label={dictionary.forms.stores.stockAdjustment.labels.changeInStock}
                               fullWidth
                               size='small'
                               value={stock_change}
@@ -360,7 +362,7 @@ function StockAdjustmentDialogForm({toggleOpen,stockAdjustment = null}) {
                         <Grid size={{xs: 10, md: 3}}>
                           <Div sx={{mt: 1, mb: 1}}>
                             <TextField
-                              label="Average Cost"
+                              label={dictionary.forms.stores.stockAdjustment.labels.averageCost}
                               fullWidth
                               size="small"
                               error={errors.items && !!errors?.items[index]?.average_cost}
@@ -381,7 +383,7 @@ function StockAdjustmentDialogForm({toggleOpen,stockAdjustment = null}) {
                         {fields.length > 1 && !stockAdjustment && (
                           <Grid ssize={{xs: 2, md: 1}}>
                               <Div sx={{mt: 1, mb: 1}}>
-                                  <Tooltip title='Remove Row'>
+                                  <Tooltip title={dictionary.tooltips.removeRow}>
                                       <IconButton size='small' onClick={() => remove(index)}>
                                         <DisabledByDefault fontSize='small' color='error'/>
                                       </IconButton>
@@ -405,9 +407,9 @@ function StockAdjustmentDialogForm({toggleOpen,stockAdjustment = null}) {
                       justifyContent: 'flex-end'
                     }}>
                       <Div sx={{mt: 1, mb: 1}}>
-                          <Tooltip title='Add row'>
+                          <Tooltip title={dictionary.tooltips.addRow}>
                               <Button size='small' variant='outlined' onClick={() => append(itemTemplate)}>
-                                  <AddOutlined fontSize='10' /> Add
+                                  <AddOutlined fontSize='10' /> {dictionary.forms.stores.stockAdjustment.buttons.add}
                               </Button>
                           </Tooltip>
                       </Div>
@@ -416,7 +418,7 @@ function StockAdjustmentDialogForm({toggleOpen,stockAdjustment = null}) {
                 {!!switchToExcell &&
                   <Grid size={12}>
                     <Input
-                        label={'Stock Excel'}
+                        label={dictionary.forms.stores.stockAdjustment.labels.stockExcel}
                         type="file"
                         required
                         id="excel-import"
@@ -427,7 +429,7 @@ function StockAdjustmentDialogForm({toggleOpen,stockAdjustment = null}) {
                 <Grid size={12}>
                     <Div sx={{mt: 1, mb: 1}}>
                         <TextField
-                            label='Narration'
+                            label={dictionary.forms.stores.stockAdjustment.labels.narration}
                             multiline={true}
                             rows={2}
                             fullWidth
@@ -443,10 +445,10 @@ function StockAdjustmentDialogForm({toggleOpen,stockAdjustment = null}) {
       </DialogContent>
       <DialogActions>
         <Button size='small' onClick={() => toggleOpen(false)}>
-          Cancel
+          {dictionary.forms.stores.stockAdjustment.buttons.cancel}
         </Button>
         <LoadingButton onClick={handleSubmit(saveStockAdjustment)} loading={addStockAdjustment.isPending || updateStockAdjustment.isPending} type='submit' size='small' variant='contained'>
-          Submit
+          {dictionary.forms.stores.stockAdjustment.buttons.submit}
         </LoadingButton>
       </DialogActions>
     </>

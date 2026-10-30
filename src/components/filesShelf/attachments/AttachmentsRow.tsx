@@ -14,6 +14,7 @@ import {
 import AttachmentItemAction from './AttachmentItemAction';
 import { readableDate } from '@/app/helpers/input-sanitization-helpers';
 import { Attachment } from './AttachmentsType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 // Define colors for different file types
 const iconColors: Record<string, string> = {
@@ -72,6 +73,7 @@ type AttachmentsRowProps = {
 };
 
 const AttachmentsRow: React.FC<AttachmentsRowProps> = ({ attachment, index, readOnly = false }) => {
+  const dictionary = useDictionary();
   const fileType = attachment.type?.split('/').pop()?.toLowerCase() || 'default';
   const icon = fileTypeIcon[fileType] || fileTypeIcon.default;
   const iconColor = iconColors[fileType] || iconColors.default;
@@ -92,17 +94,17 @@ const AttachmentsRow: React.FC<AttachmentsRowProps> = ({ attachment, index, read
           {index + 1}.
         </Grid>
         <Grid size={{xs: 11, md: 3}}>
-          <Tooltip title="Attachment">
+          <Tooltip title={dictionary.tooltips.attachment}>
             <Typography>{attachment.name}</Typography>
           </Tooltip>
         </Grid>
         <Grid size={{xs: 6, md: 3}}>
-          <Tooltip title="Created At">
+          <Tooltip title={dictionary.tooltips.createdAt}>
             <Typography>{readableDate(attachment.created_at, true)}</Typography>
           </Tooltip>
         </Grid>
         <Grid size={{xs: 6, md: 3}}>
-          <Tooltip title="Updated At">
+          <Tooltip title={dictionary.tooltips.updatedAt}>
             <Typography>{readableDate(attachment.updated_at, true)}</Typography>
           </Tooltip>
         </Grid>

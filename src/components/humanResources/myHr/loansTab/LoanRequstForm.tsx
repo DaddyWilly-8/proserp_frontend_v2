@@ -1,4 +1,5 @@
 'use client';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import { sanitizedNumber } from '@/app/helpers/input-sanitization-helpers';
 import CommaSeparatedField from '@/shared/Inputs/CommaSeparatedField';
 import { getErrorMessage } from '@/utilities/helpers/errorHandler';
@@ -45,6 +46,8 @@ const LoanRequstForm = ({
   setOpenDialog,
   loan = null,
 }: LoanRequstFormProps) => {
+  const dictionary = useDictionary();
+  const t = dictionary.humanResources.myHr.loans.form;
   const queryClient = useQueryClient();
   const { enqueueSnackbar } = useSnackbar();
 
@@ -64,8 +67,8 @@ const LoanRequstForm = ({
       setOpenDialog(false);
       enqueueSnackbar(
         isEditing
-          ? 'Loan request updated successfully'
-          : 'Loan request added successfully',
+          ? t.messages.updated
+          : t.messages.added,
         { variant: 'success' }
       );
       queryClient.invalidateQueries({ queryKey: ['myHrLoanRequests'] });
@@ -74,7 +77,7 @@ const LoanRequstForm = ({
       enqueueSnackbar(
         err?.response?.data?.message ||
           getErrorMessage(err) ||
-          'Something went wrong',
+          t.messages.somethingWentWrong,
         {
           variant: 'error',
         }
@@ -85,19 +88,19 @@ const LoanRequstForm = ({
   const validationSchema = yup.object({
     amount: yup
       .number()
-      .required('This field is required')
+      .required(t.errors.required)
       .transform((_, val) =>
         val === '' || val === undefined || val === null ? null : Number(val)
       )
-      .min(0, 'Basic salary must be >= 0')
-      .typeError('Basic salary must be a number'),
+      .min(0, t.errors.amountMin)
+      .typeError(t.errors.amountNumber),
     recovery_mode: yup
       .string()
       .oneOf(['installments', 'fixed_amount'])
       .required(),
     installments: yup.string().when('recovery_mode', {
       is: 'installments',
-      then: (schema) => schema.required('Please enter an installments count'),
+      then: (schema) => schema.required(t.errors.installmentsRequired),
       otherwise: (schema) => schema.nullable(),
     }),
     installment_amount_requested: yup
@@ -110,10 +113,10 @@ const LoanRequstForm = ({
         is: 'fixed_amount',
         then: (schema) =>
           schema
-            .required('Please enter the flat amount to deduct per period')
+            .required(t.errors.fixedAmountRequired)
             .max(
               yup.ref('amount'),
-              'Cannot exceed the requested loan amount'
+              t.errors.exceedsLoanAmount
             ),
         otherwise: (schema) => schema.nullable(),
       }),
@@ -152,7 +155,7 @@ const LoanRequstForm = ({
     <>
       <DialogTitle>
         <Grid size={12} textAlign='center'>
-          {loan?.id ? `Edit Loan` : 'Create Loan Request'}
+          {loan?.id ? t.editTitle : t.createTitle}
         </Grid>
       </DialogTitle>
       <DialogContent>
@@ -164,7 +167,7 @@ const LoanRequstForm = ({
           <Grid container spacing={1} mt={2}>
             <Grid size={{ xs: 12, md: 6 }}>
               <TextField
-                label='Amount'
+                label={t.labels.amount}
                 size='small'
                 fullWidth
                 value={watch('amount') ?? ''}
@@ -183,7 +186,7 @@ const LoanRequstForm = ({
             <Grid size={{ xs: 12, md: 6 }}>
               <TextField
                 select
-                label='Recovery Mode'
+                label={t.labels.recoveryMode}
                 size='small'
                 fullWidth
                 value={recoveryMode}
@@ -195,14 +198,14 @@ const LoanRequstForm = ({
                   )
                 }
               >
-                <MenuItem value='installments'>By Installment Count</MenuItem>
-                <MenuItem value='fixed_amount'>By Fixed Amount</MenuItem>
+                <MenuItem value='installments'>{t.labels.byInstallmentCount}</MenuItem>
+                <MenuItem value='fixed_amount'>{t.labels.byFixedAmount}</MenuItem>
               </TextField>
             </Grid>
             {recoveryMode === 'fixed_amount' ? (
               <Grid size={{ xs: 12, md: 6 }}>
                 <TextField
-                  label='Amount To Deduct Per Period'
+                  label={t.labels.amountPerPeriod}
                   size='small'
                   fullWidth
                   value={watch('installment_amount_requested') ?? ''}
@@ -218,14 +221,14 @@ const LoanRequstForm = ({
                   error={!!errors.installment_amount_requested}
                   helperText={
                     errors.installment_amount_requested?.message ||
-                    'Installments are derived automatically from this'
+                    t.helpers.installmentsDerived
                   }
                 />
               </Grid>
             ) : (
               <Grid size={{ xs: 12, md: 6 }}>
                 <TextField
-                  label='Installments'
+                  label={t.labels.installments}
                   size='small'
                   fullWidth
                   value={watch('installments')}
@@ -243,7 +246,7 @@ const LoanRequstForm = ({
             )}
             <Grid size={{ xs: 12 }}>
               <TextField
-                label='Reason'
+                label={t.labels.reason}
                 size='small'
                 fullWidth
                 multiline
@@ -261,7 +264,7 @@ const LoanRequstForm = ({
 
           <DialogActions>
             <Button size='small' onClick={() => setOpenDialog(false)}>
-              Cancel
+              {t.buttons.cancel}
             </Button>
             <LoadingButton
               type='submit'
@@ -269,7 +272,7 @@ const LoanRequstForm = ({
               size='small'
               loading={isPending}
             >
-              {loan?.id ? 'Update' : 'Create'}
+              {loan?.id ? t.buttons.update : t.buttons.create}
             </LoadingButton>
           </DialogActions>
         </form>

@@ -40,6 +40,7 @@ import proformaServices from './proforma-services';
 import ProformaInvoicePDF from './ProformaInvoicePDF';
 import { Proforma } from './ProformaType';
 import dynamic from 'next/dynamic';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface EditProformaProps {
   proforma: Proforma;
@@ -253,6 +254,7 @@ interface ProformaItemActionProps {
 const ProformaItemAction: React.FC<ProformaItemActionProps> = ({
   proforma,
 }) => {
+  const dictionary = useDictionary();
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const [openSaleDialog, setOpenSaleDialog] = useState(false);
   const [attachDialog, setAttachDialog] = useState(false);
@@ -385,7 +387,7 @@ const ProformaItemAction: React.FC<ProformaItemActionProps> = ({
 
       <JumboDdMenu
         icon={
-          <Tooltip title='Actions'>
+          <Tooltip title={dictionary.tooltips.actions}>
             <MoreHorizOutlined fontSize='small' />
           </Tooltip>
         }

@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, useTheme } from '@mui/material';
 import { KeyboardArrowDown, KeyboardArrowRight } from '@mui/icons-material';
+import { PeriodCells, PeriodTableHead, pruneZeroNetTree } from '../periodColumns';
 
-const formatAmount = (amount) =>
-  amount?.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-
-const TrialBalanceGroupedOnScreen = ({ reportData, authOrganization }) => {
+const TrialBalanceGroupedOnScreen = ({ reportData, authOrganization, netOnly, closingOnly }) => {
   const theme = useTheme();
+  const dictionary = useDictionary();
+  const t = dictionary.reports.accountsReports;
   const [openRows, setOpenRows] = useState([]);
 
   const mainColor = authOrganization?.organization.settings?.main_color || '#2113AD';
@@ -37,23 +38,13 @@ const TrialBalanceGroupedOnScreen = ({ reportData, authOrganization }) => {
             {hasChildren && (isOpen ? <KeyboardArrowDown /> : <KeyboardArrowRight />)}
             <span style={{ fontWeight: 'bold', marginLeft: 5 }}>{group.name}</span>
           </TableCell>
-          <TableCell align="right" sx={{ fontWeight: 'bold' }}>
-            {group.balance?.side === 'DR' && formatAmount(group.balance.amount)}
-          </TableCell>
-          <TableCell align="right" sx={{ fontWeight: 'bold' }}>
-            {group.balance?.side === 'CR' && formatAmount(group.balance.amount)}
-          </TableCell>
+          <PeriodCells netOnly={netOnly} closingOnly={closingOnly} node={group} sx={{ fontWeight: 'bold' }} />
         </TableRow>
         {isOpen && group.children?.map((child) => renderGroup(child, level + 1))}
         {isOpen && group.ledgers?.map((ledger) => (
           <TableRow key={`l-${ledger.id}`}>
             <TableCell style={{ paddingLeft: (level + 1) * 20 }}>{ledger.name}</TableCell>
-            <TableCell align="right">
-              {ledger.balance?.side === 'DR' && formatAmount(ledger.balance.amount)}
-            </TableCell>
-            <TableCell align="right">
-              {ledger.balance?.side === 'CR' && formatAmount(ledger.balance.amount)}
-            </TableCell>
+            <PeriodCells netOnly={netOnly} closingOnly={closingOnly} node={ledger} />
           </TableRow>
         ))}
       </React.Fragment>
@@ -64,24 +55,29 @@ const TrialBalanceGroupedOnScreen = ({ reportData, authOrganization }) => {
     <TableContainer component={Paper}>
       <Table size="small" aria-label="trial-balance-grouped">
         <TableHead>
-          <TableRow>
-            <TableCell sx={{ backgroundColor: headerColor, color: contrastText }}>LEDGER GROUP</TableCell>
-            <TableCell align="right" sx={{ backgroundColor: headerColor, color: contrastText }}>DEBIT</TableCell>
-            <TableCell align="right" sx={{ backgroundColor: headerColor, color: contrastText }}>CREDIT</TableCell>
-          </TableRow>
+          <PeriodTableHead netOnly={netOnly} closingOnly={closingOnly}
+            leadingLabels={[t.trialBalance.ledgerGroup.toUpperCase()]}
+            labels={t.common}
+            backgroundColor={headerColor}
+            color={contrastText}
+            filters={reportData.filters}
+          />
         </TableHead>
         <TableBody>
-          {reportData.groups?.map((group) => renderGroup(group, 0))}
+          {(netOnly
+            ? reportData.groups?.map((group) =>
+                pruneZeroNetTree(group, closingOnly)
+              )
+            : reportData.groups
+          )?.map((group) => renderGroup(group, 0))}
           <TableRow>
             <TableCell sx={{ backgroundColor: mainColor, color: contrastText, borderBottom: 'none' }}>
-              TOTAL
+              {t.common.total.toUpperCase()}
             </TableCell>
-            <TableCell align="right" sx={{ backgroundColor: mainColor, color: contrastText, borderBottom: 'none' }}>
-              {formatAmount(reportData.totalDebit)}
-            </TableCell>
-            <TableCell align="right" sx={{ backgroundColor: mainColor, color: contrastText, borderBottom: 'none' }}>
-              {formatAmount(reportData.totalCredit)}
-            </TableCell>
+            <PeriodCells netOnly={netOnly} closingOnly={closingOnly}
+              node={reportData.totals}
+              sx={{ backgroundColor: mainColor, color: contrastText, borderBottom: 'none', fontWeight: 'bold' }}
+            />
           </TableRow>
         </TableBody>
       </Table>

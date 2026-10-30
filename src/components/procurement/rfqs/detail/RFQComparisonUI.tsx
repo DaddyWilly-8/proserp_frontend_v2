@@ -21,6 +21,7 @@ import {
 import { AssessmentOutlined, ReceiptOutlined, TrendingDown, ShoppingCartOutlined } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
 import { readableDate } from '@/app/helpers/input-sanitization-helpers';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface Quote {
   id: number;
@@ -65,6 +66,7 @@ interface RFQComparisonProps {
 const TABLE_MAX_HEIGHT = 560;
 
 const RFQComparisonUI: React.FC<RFQComparisonProps> = ({ comparison, rfqDetails, isAwarding, awardingSupplierId, onAward, canAward = true }) => {
+  const dictionary = useDictionary();
   const theme = useTheme();
   const isDarkMode = theme.type === 'dark';
 
@@ -235,7 +237,7 @@ const RFQComparisonUI: React.FC<RFQComparisonProps> = ({ comparison, rfqDetails,
                                 TZS {quote.amount?.toLocaleString()}
                               </Typography>
                               {isBest && (
-                                <Tooltip title="Best Total Amount">
+                                <Tooltip title={dictionary.tooltips.bestTotalAmount}>
                                   <TrendingDown fontSize="small" color="success" sx={{ fontSize: 14 }} />
                                 </Tooltip>
                               )}
@@ -295,7 +297,7 @@ const RFQComparisonUI: React.FC<RFQComparisonProps> = ({ comparison, rfqDetails,
                           Award{count > 0 ? ` (${count})` : ''}
                         </LoadingButton>
                       ) : (
-                        <Tooltip title="You don't have permission to create purchase orders">
+                        <Tooltip title={dictionary.tooltips.youDonTHavePermissionTo}>
                           <span>
                             <LoadingButton
                               variant="outlined"

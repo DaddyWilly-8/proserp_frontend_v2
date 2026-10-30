@@ -11,6 +11,7 @@ import UsersSelector from '@/components/sharedComponents/UsersSelector';
 import userLedgerServices from '../user-ledger-services';
 import UserLedgerLinksActionTail from './UserLedgerLinksActionTail';
 import UserLedgerUnlinkRowAction from './UserLedgerUnlinkRowAction';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface UserLedgerLink {
   id: number;
@@ -46,6 +47,7 @@ interface QueryOptions {
 }
 
 export default function UserLedgerLinksList() {
+  const dictionary = useDictionary();
   const listRef = useRef<any>(null);
   const [selectedUser, setSelectedUser] = useState<SelectorUser | null>(null);
   const [queryOptions, setQueryOptions] = useState<QueryOptions>({
@@ -108,7 +110,7 @@ export default function UserLedgerLinksList() {
         }}
       >
         <Grid size={{ xs: 12, md: 3.5 }}>
-          <Tooltip title="User">
+          <Tooltip title={dictionary.tooltips.user}>
             <Typography noWrap>{item.user?.name}</Typography>
           </Tooltip>
           <Typography variant="caption" color="text.secondary" noWrap>
@@ -116,7 +118,7 @@ export default function UserLedgerLinksList() {
           </Typography>
         </Grid>
         <Grid size={{ xs: 12, md: 4 }}>
-          <Tooltip title="Ledger">
+          <Tooltip title={dictionary.tooltips.ledger}>
             <Typography noWrap>{item.ledger?.name}</Typography>
           </Tooltip>
         </Grid>

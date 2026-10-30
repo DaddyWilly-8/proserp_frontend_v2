@@ -2,8 +2,10 @@ import { Divider, Grid, IconButton, ListItemText, Tooltip, Typography } from '@m
 import React, { useState } from 'react'
 import { DisabledByDefault, EditOutlined } from '@mui/icons-material';
 import OutputsItemForm from './OutputsItemForm';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function OutputsItemRow({ setClearFormKey, submitMainForm, setSubmitItemForm, submitItemForm, setIsDirty, outputs, setOutputs, item, index}) {
+  const dictionary = useDictionary();
   const [showForm, setShowForm] = useState(false);
 
   return (
@@ -24,14 +26,14 @@ function OutputsItemRow({ setClearFormKey, submitMainForm, setSubmitItemForm, su
                     <Grid size={{xs: 11.5, md: 3.5}}>
                         <ListItemText
                             primary={
-                                <Tooltip title={'Product'}>
+                                <Tooltip title={dictionary.tooltips.product}>
                                     <Typography variant={"h5"} fontSize={14} lineHeight={1.25} mb={0} noWrap>
                                         {item.product?.name}
                                     </Typography>
                                 </Tooltip>
                             }
                             secondary={
-                                <Tooltip title={'Remarks'}>
+                                <Tooltip title={dictionary.tooltips.remarks}>
                                     <Typography variant={"span"} fontSize={14} lineHeight={1.25} mb={0} >
                                         {item.remarks}
                                     </Typography>
@@ -40,27 +42,27 @@ function OutputsItemRow({ setClearFormKey, submitMainForm, setSubmitItemForm, su
                         />
                     </Grid>
                     <Grid size={{xs: 6, md: 3}}>
-                        <Tooltip title="Store">
+                        <Tooltip title={dictionary.tooltips.store}>
                             <Typography>{item.store.name}</Typography>
                         </Tooltip>
                     </Grid>
                     <Grid size={{xs: 6, md: 2}} textAlign={'end'}>
-                        <Tooltip title="Quantity">
+                        <Tooltip title={dictionary.tooltips.quantity}>
                             <Typography>{item.quantity?.toLocaleString()} {item?.unit_symbol ? item.unit_symbol : (item.measurement_unit?.symbol ? item.measurement_unit?.symbol : item.product.unit_symbol)}</Typography>
                         </Tooltip>
                     </Grid>
                     <Grid size={{xs: 6, md: 2}} textAlign={{md: 'end'}}>
-                        <Tooltip title="Value Percentage">
+                        <Tooltip title={dictionary.tooltips.valuePercentage}>
                             <Typography>{item.value_percentage?.toLocaleString()}%</Typography>
                         </Tooltip>
                     </Grid>
                     <Grid textAlign={'end'} size={{xs: 6, md: 1}}>
-                        <Tooltip title='Edit Item'>
+                        <Tooltip title={dictionary.tooltips.editItem}>
                             <IconButton size='small' onClick={() => {setShowForm(true)}}>
                                 <EditOutlined fontSize='small'/>
                             </IconButton>
                         </Tooltip>
-                        <Tooltip title='Remove Item'>
+                        <Tooltip title={dictionary.tooltips.removeItem}>
                             <IconButton size='small' 
                                 onClick={() => setOutputs(items => {
                                     const newItems = [...items];

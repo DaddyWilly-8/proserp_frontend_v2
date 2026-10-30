@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { Dialog, DialogActions, DialogContent, DialogTitle, Button, TextField, Grid, Typography, Divider } from '@mui/material';
 import { sanitizedNumber } from '@/app/helpers/input-sanitization-helpers';
 import CommaSeparatedField from '@/shared/Inputs/CommaSeparatedField';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const DiscountCalculatorDialog = ({ open, onClose, onSubmit, productPrice }) => {
+  const dictionary = useDictionary();
   const [discountQuantity, setDiscountQuantity] = useState('');
   const [discountRate, setDiscountRate] = useState('');
   const [discountAmount, setDiscountAmount] = useState('');
@@ -55,7 +57,7 @@ const DiscountCalculatorDialog = ({ open, onClose, onSubmit, productPrice }) => 
       fullWidth
       PaperProps={{ sx: { borderRadius: 2 } }}
     >
-      <DialogTitle sx={{ pb: 1 }}>Discount Calculator</DialogTitle>
+      <DialogTitle sx={{ pb: 1 }}>{dictionary.forms.shifts.labels.discountCalculator}</DialogTitle>
       <DialogContent>
         <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
           Unit Price: {(Number(productPrice) || 0).toLocaleString()} TZS per L
@@ -64,11 +66,11 @@ const DiscountCalculatorDialog = ({ open, onClose, onSubmit, productPrice }) => 
         <Grid container spacing={2} paddingTop={1}>
           <Grid size={12}>
             <TextField
-              label="Quantity"
+              label={dictionary.forms.shifts.labels.quantity}
               fullWidth
               size='small'
               value={discountQuantity}
-              placeholder='Enter liters'
+              placeholder={dictionary.forms.shifts.labels.enterLiters}
               InputProps={{
                 inputComponent: CommaSeparatedField,
               }}
@@ -77,11 +79,11 @@ const DiscountCalculatorDialog = ({ open, onClose, onSubmit, productPrice }) => 
           </Grid>
           <Grid size={12}>
             <TextField
-              label="Discount Rate"
+              label={dictionary.forms.shifts.labels.discountRate}
               fullWidth
               size='small'
               value={discountRate}
-              placeholder='Discount per liter'
+              placeholder={dictionary.forms.shifts.labels.discountPerLiter}
               InputProps={{
                 inputComponent: CommaSeparatedField,
               }}
@@ -90,7 +92,7 @@ const DiscountCalculatorDialog = ({ open, onClose, onSubmit, productPrice }) => 
           </Grid>
           <Grid size={12}>
             <TextField
-              label="Discount Amount (TZS)"
+              label={dictionary.forms.shifts.labels.discountAmountTzs}
               fullWidth
               size='small'
               value={discountAmount ? Number(discountAmount).toLocaleString() : ''}
@@ -103,7 +105,7 @@ const DiscountCalculatorDialog = ({ open, onClose, onSubmit, productPrice }) => 
           </Grid>
           <Grid size={12}>
             <TextField
-              label="Amount Sold (TZS)"
+              label={dictionary.forms.shifts.labels.amountSoldTzs}
               fullWidth
               size='small'
               value={netAmount ? Number(netAmount).toLocaleString() : ''}
@@ -117,8 +119,8 @@ const DiscountCalculatorDialog = ({ open, onClose, onSubmit, productPrice }) => 
         </Grid>
       </DialogContent>
       <DialogActions sx={{ px: 3, pb: 2 }}>
-        <Button onClick={onClose} color='inherit'>Cancel</Button>
-        <Button onClick={handleSubmit} variant="contained" disabled={!netAmount || !discountQuantity}>Apply</Button>
+        <Button onClick={onClose} color='inherit'>{dictionary.forms.shifts.buttons.cancel}</Button>
+        <Button onClick={handleSubmit} variant="contained" disabled={!netAmount || !discountQuantity}>{dictionary.forms.shifts.buttons.apply}</Button>
       </DialogActions>
     </Dialog>
   );

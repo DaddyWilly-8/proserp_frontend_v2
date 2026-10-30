@@ -31,6 +31,7 @@ import { useSnackbar } from 'notistack';
 import projectsServices from '../../../project-services';
 import { useProjectProfile } from '../../ProjectProfileProvider';
 import UsersSelector from '@/components/sharedComponents/UsersSelector';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 type EntityId = number | string;
 
@@ -133,7 +134,7 @@ const UNDO_WINDOW_MS = 8000;
 const createActivityTempId = (indexPath: string): string => `activity-${indexPath}`;
 const createTaskTempId = (activityPath: string, index: number): string => `task-${activityPath}-${index}`;
 
-const normalizeTasks = (tasks: any[] = [], activityPath: string): DraftTask[] =>
+const normalizeTasks = (tasks: any[] = [], activityPath: string, dictionary: any): DraftTask[] =>
   tasks.map((task, index) => ({
     temp_id: createTaskTempId(activityPath, index),
     source_id: task.id ?? null,
@@ -150,18 +151,18 @@ const normalizeTasks = (tasks: any[] = [], activityPath: string): DraftTask[] =>
     handlers:
       task.handlers?.map((handler: any) => ({
         id: Number(handler.id),
-        name: handler.name || handler.full_name || handler.email || 'Unknown User',
+        name: handler.name || handler.full_name || handler.email || dictionary.projectManagement.wbs.clone.unknownUser,
       })) || [],
     handlers_ids: task.handlers?.map((handler: any) => Number(handler.id)) || [],
     dependency_source_ids: task.dependencies?.map((dependency: any) => dependency.id) || [],
     dependencies:
       task.dependencies?.map((dep: any) => ({
         id: dep.id,
-        name: dep.name || dep.label || `Task #${dep.id}`,
+        name: dep.name || dep.label || dictionary.projectManagement.wbs.clone.taskHash.replace('{id}', String(dep.id)),
       })) || [],
   }));
 
-const normalizeActivities = (activities: any[] = [], parentPath = 'root'): DraftActivity[] =>
+const normalizeActivities = (activities: any[] = [], parentPath = 'root', dictionary: any): DraftActivity[] =>
   activities.map((activity, index) => {
     const indexPath = `${parentPath}-${index}`;
     return {
@@ -174,8 +175,8 @@ const normalizeActivities = (activities: any[] = [], parentPath = 'root'): Draft
       start_date: activity.start_date || null,
       end_date: activity.end_date || null,
       position_index: activity.position_index ?? index,
-      tasks: normalizeTasks(activity.tasks || [], indexPath),
-      children: normalizeActivities(activity.children || [], indexPath),
+      tasks: normalizeTasks(activity.tasks || [], indexPath, dictionary),
+      children: normalizeActivities(activity.children || [], indexPath, dictionary),
     };
   });
 
@@ -220,14 +221,14 @@ const countNodes = (activities: DraftActivity[] = []): CountNodesResult =>
     { activities: 0, tasks: 0 }
   );
 
-const flattenTasks = (activities: DraftActivity[] = []): DependencyOption[] =>
+const flattenTasks = (activities: DraftActivity[] = [], dictionary: any): DependencyOption[] =>
   activities.flatMap((activity) => [
     ...(activity.tasks || []).map((task) => ({
       temp_id: task.temp_id,
       source_id: task.source_id,
-      name: task.name || 'Unnamed Task',
+      name: task.name || dictionary.projectManagement.wbs.clone.unnamedTask,
     })),
-    ...flattenTasks(activity.children || []),
+    ...flattenTasks(activity.children || [], dictionary),
   ]);
 
 const removeTaskById = (activities: DraftActivity[], targetTaskId: string): DraftActivity[] =>
@@ -338,7 +339,9 @@ const UndoInlineAlert = ({
   message: string;
   seconds: number;
   onUndo: () => void;
-}) => (
+}) => {
+  const dictionary = useDictionary();
+  return (
   <Alert
     severity='warning'
     variant='outlined'
@@ -378,13 +381,14 @@ const UndoInlineAlert = ({
           },
         }}
       >
-        Undo ({seconds}s)
+        {dictionary.projectManagement.wbs.clone.undo.replace('{seconds}', String(seconds))}
       </Button>
     }
   >
-    {message}. You can undo within {seconds} seconds.
+    {dictionary.projectManagement.wbs.clone.undoMessage.replace('{message}', message).replace('{seconds}', String(seconds))}
   </Alert>
-);
+  );
+};
 
 const ActivityEditor = ({
   activity,
@@ -402,6 +406,7 @@ const ActivityEditor = ({
   showHandlers,
   showDependencies,
 }: ActivityEditorProps) => {
+  const dictionary = useDictionary();
   const isTaskUndoForThisActivity =
     pendingUndo?.location.type === 'task' &&
     pendingUndo.location.parentActivityTempId === activity.temp_id;
@@ -416,17 +421,17 @@ const ActivityEditor = ({
       <AccordionSummary expandIcon={<ExpandMore />}>
         <Stack direction='row' spacing={1} alignItems='center' width='100%'>
           <Typography fontWeight={600} sx={{ flex: 1 }}>
-            {activity.name || 'Untitled Activity'}
+            {activity.name || dictionary.projectManagement.wbs.clone.untitledActivity}
           </Typography>
-          <Chip size='small' label={`${activity.tasks?.length || 0} tasks`} />
+          <Chip size='small' label={dictionary.projectManagement.wbs.clone.tasksCount.replace('{count}', String(activity.tasks?.length || 0))} />
           {(activity.children?.length || 0) > 0 && (
-            <Chip size='small' variant='outlined' label={`${activity.children.length} sub activities`} />
+            <Chip size='small' variant='outlined' label={dictionary.projectManagement.wbs.clone.subActivitiesCount.replace('{count}', String(activity.children.length))} />
           )}
-          <Tooltip title={level === 0 ? 'Remove Group' : 'Remove Activity'}>
+          <Tooltip title={level === 0 ? dictionary.projectManagement.wbs.clone.removeGroup : dictionary.projectManagement.wbs.clone.removeActivity}>
             <Box
               role='button'
               tabIndex={0}
-              aria-label={level === 0 ? 'Remove Group' : 'Remove Activity'}
+              aria-label={level === 0 ? dictionary.projectManagement.wbs.clone.removeGroup : dictionary.projectManagement.wbs.clone.removeActivity}
               onClick={(event) => {
                 event.stopPropagation();
                 onRemoveActivity(activity.temp_id);
@@ -461,7 +466,7 @@ const ActivityEditor = ({
             <TextField
               size='small'
               fullWidth
-              label='Activity Name'
+              label={dictionary.projectManagement.wbs.clone.activityName}
               value={activity.name}
               onChange={(e) => onActivityFieldChange(activity.temp_id, 'name', e.target.value)}
             />
@@ -470,7 +475,7 @@ const ActivityEditor = ({
             <TextField
               size='small'
               fullWidth
-              label='Code'
+              label={dictionary.projectManagement.wbs.clone.code}
               value={activity.code || ''}
               onChange={(e) => onActivityFieldChange(activity.temp_id, 'code', e.target.value)}
             />
@@ -480,7 +485,7 @@ const ActivityEditor = ({
               size='small'
               fullWidth
               type='number'
-              label='Weight %'
+              label={dictionary.projectManagement.wbs.clone.weightPercent}
               value={activity.weighted_percentage ?? 0}
               onChange={(e) =>
                 onActivityFieldChange(
@@ -496,7 +501,7 @@ const ActivityEditor = ({
               size='small'
               fullWidth
               type='date'
-              label='Start Date'
+              label={dictionary.projectManagement.wbs.clone.startDate}
               value={activity.start_date ? String(activity.start_date).slice(0, 10) : ''}
               onChange={(e) => onActivityFieldChange(activity.temp_id, 'start_date', e.target.value || null)}
               InputLabelProps={{ shrink: true }}
@@ -507,7 +512,7 @@ const ActivityEditor = ({
               size='small'
               fullWidth
               type='date'
-              label='End Date'
+              label={dictionary.projectManagement.wbs.clone.endDate}
               value={activity.end_date ? String(activity.end_date).slice(0, 10) : ''}
               onChange={(e) => onActivityFieldChange(activity.temp_id, 'end_date', e.target.value || null)}
               InputLabelProps={{ shrink: true }}
@@ -519,7 +524,7 @@ const ActivityEditor = ({
               fullWidth
               multiline
               rows={2}
-              label='Description'
+              label={dictionary.projectManagement.wbs.clone.description}
               value={activity.description || ''}
               onChange={(e) =>
                 onActivityFieldChange(activity.temp_id, 'description', e.target.value)
@@ -531,7 +536,7 @@ const ActivityEditor = ({
         {showTaskSection && (
           <Box mt={2}>
             <Typography variant='subtitle2' sx={{ mb: 1 }}>
-              Tasks
+              {dictionary.projectManagement.wbs.clone.tasks}
             </Typography>
             <Stack spacing={1}>
               {(activity.tasks || []).map((task, taskIndex) => {
@@ -553,7 +558,7 @@ const ActivityEditor = ({
                     )}
                     <Box sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 1, p: 1 }}>
                     <Stack direction='row' justifyContent='flex-end' sx={{ mb: 0.5 }}>
-                      <Tooltip title='Remove Task'>
+                      <Tooltip title={dictionary.tooltips.removeTask}>
                         <IconButton size='small' color='error' onClick={() => onRemoveTask(task.temp_id)}>
                           <DeleteOutline fontSize='small' />
                         </IconButton>
@@ -564,7 +569,7 @@ const ActivityEditor = ({
                         <TextField
                           size='small'
                           fullWidth
-                          label='Task Name'
+                          label={dictionary.projectManagement.wbs.clone.taskName}
                           value={task.name}
                           onChange={(e) =>
                             onTaskFieldChange(task.temp_id, 'name', e.target.value)
@@ -575,7 +580,7 @@ const ActivityEditor = ({
                         <TextField
                           size='small'
                           fullWidth
-                          label='Code'
+                          label={dictionary.projectManagement.wbs.clone.code}
                           value={task.code || ''}
                           onChange={(e) =>
                             onTaskFieldChange(task.temp_id, 'code', e.target.value)
@@ -587,7 +592,7 @@ const ActivityEditor = ({
                           size='small'
                           fullWidth
                           type='number'
-                          label='Weight %'
+                          label={dictionary.projectManagement.wbs.clone.weightPercent}
                           value={task.weighted_percentage ?? 0}
                           onChange={(e) =>
                             onTaskFieldChange(
@@ -603,7 +608,7 @@ const ActivityEditor = ({
                           size='small'
                           fullWidth
                           type='number'
-                          label='Qty'
+                          label={dictionary.projectManagement.wbs.clone.qty}
                           value={task.quantity ?? 0}
                           onChange={(e) =>
                             onTaskFieldChange(task.temp_id, 'quantity', Number(e.target.value || 0))
@@ -615,7 +620,7 @@ const ActivityEditor = ({
                           size='small'
                           fullWidth
                           type='date'
-                          label='Start Date'
+                          label={dictionary.projectManagement.wbs.clone.startDate}
                           value={task.start_date ? String(task.start_date).slice(0, 10) : ''}
                           onChange={(e) =>
                             onTaskFieldChange(task.temp_id, 'start_date', e.target.value || null)
@@ -628,7 +633,7 @@ const ActivityEditor = ({
                           size='small'
                           fullWidth
                           type='date'
-                          label='End Date'
+                          label={dictionary.projectManagement.wbs.clone.endDate}
                           value={task.end_date ? String(task.end_date).slice(0, 10) : ''}
                           onChange={(e) =>
                             onTaskFieldChange(task.temp_id, 'end_date', e.target.value || null)
@@ -645,12 +650,12 @@ const ActivityEditor = ({
                             isOptionEqualToValue={(option, value) =>
                               (option.source_id || option.id) === (value.source_id || value.id)
                             }
-                            getOptionLabel={(option) => option?.name || 'Unnamed Task'}
+                            getOptionLabel={(option) => option?.name || dictionary.projectManagement.wbs.clone.unnamedTask}
                             onChange={(_event, newValue) => {
                               onTaskDependenciesChange(task.temp_id, newValue || []);
                             }}
                             renderInput={(params) => (
-                              <TextField {...params} size='small' fullWidth label='Dependencies' />
+                              <TextField {...params} size='small' fullWidth label={dictionary.projectManagement.wbs.clone.dependencies} />
                             )}
                             renderTags={(value, getTagProps) =>
                               value.map((option, index) => (
@@ -675,7 +680,7 @@ const ActivityEditor = ({
                       {showHandlers && (
                         <Grid size={{ xs: 12, md: 6 }}>
                           <UsersSelector
-                            label='Handlers'
+                            label={dictionary.projectManagement.wbs.clone.handlers}
                             multiple
                             defaultValue={task.handlers || []}
                             onChange={(newValue: unknown) => {
@@ -691,7 +696,7 @@ const ActivityEditor = ({
                           fullWidth
                           multiline
                           rows={2}
-                          label='Description'
+                          label={dictionary.projectManagement.wbs.clone.description}
                           value={task.description || ''}
                           onChange={(e) =>
                             onTaskFieldChange(task.temp_id, 'description', e.target.value)
@@ -758,6 +763,7 @@ const ActivityEditor = ({
 };
 
 function WBSCloneDialog({ setOpenDialog }: WBSCloneDialogProps) {
+  const dictionary = useDictionary();
   const queryClient = useQueryClient();
   const { enqueueSnackbar } = useSnackbar();
   const { project } = useProjectProfile() as { project?: ProjectOption | null };
@@ -795,13 +801,13 @@ function WBSCloneDialog({ setOpenDialog }: WBSCloneDialogProps) {
 
   useEffect(() => {
     if (!sourceTimelineData) return;
-    setDraftActivities(normalizeActivities(sourceTimelineData as any[]));
+    setDraftActivities(normalizeActivities(sourceTimelineData as any[], 'root', dictionary));
   }, [sourceTimelineData]);
 
   const cloneMutation = useMutation({
     mutationFn: projectsServices.cloneProjectWbsDraft,
     onSuccess: (response: any) => {
-      enqueueSnackbar(response?.message || 'WBS cloned successfully', {
+      enqueueSnackbar(response?.message || dictionary.projectManagement.wbs.clone.clonedSuccess, {
         variant: 'success',
       });
       queryClient.invalidateQueries({ queryKey: ['projectTimelineActivities', project?.id] });
@@ -809,7 +815,7 @@ function WBSCloneDialog({ setOpenDialog }: WBSCloneDialogProps) {
       setOpenDialog(false);
     },
     onError: (error: any) => {
-      enqueueSnackbar(error?.response?.data?.message || 'Failed to clone WBS', {
+      enqueueSnackbar(error?.response?.data?.message || dictionary.projectManagement.wbs.clone.cloneFailed, {
         variant: 'error',
       });
     },
@@ -817,7 +823,7 @@ function WBSCloneDialog({ setOpenDialog }: WBSCloneDialogProps) {
 
   const doLoadSource = async () => {
     if (!sourceProject?.id) {
-      enqueueSnackbar('Please select source project first', { variant: 'warning' });
+      enqueueSnackbar(dictionary.projectManagement.wbs.clone.selectSourceFirst, { variant: 'warning' });
       return;
     }
 
@@ -828,7 +834,7 @@ function WBSCloneDialog({ setOpenDialog }: WBSCloneDialogProps) {
 
   const handleLoadSource = async () => {
     if (!sourceProject?.id) {
-      enqueueSnackbar('Please select source project first', { variant: 'warning' });
+      enqueueSnackbar(dictionary.projectManagement.wbs.clone.selectSourceFirst, { variant: 'warning' });
       return;
     }
 
@@ -874,7 +880,7 @@ function WBSCloneDialog({ setOpenDialog }: WBSCloneDialogProps) {
   };
 
   const nodeCounts = useMemo(() => countNodes(draftActivities), [draftActivities]);
-  const dependencyOptions = useMemo(() => flattenTasks(draftActivities), [draftActivities]);
+  const dependencyOptions = useMemo(() => flattenTasks(draftActivities, dictionary), [draftActivities, dictionary]);
 
   const handleTaskDependenciesChange = (taskId: string, dependencies: DependencyOption[]) => {
     setDraftActivities((prev) =>
@@ -882,7 +888,7 @@ function WBSCloneDialog({ setOpenDialog }: WBSCloneDialogProps) {
         ...task,
         dependencies: (dependencies || []).map((dependency) => ({
           id: dependency.source_id || dependency.id || '',
-          name: dependency.name || 'Unnamed Task',
+          name: dependency.name || dictionary.projectManagement.wbs.clone.unnamedTask,
         })),
         dependency_source_ids: (dependencies || []).map(
           (dependency) => dependency.source_id || dependency.id || ''
@@ -907,7 +913,7 @@ function WBSCloneDialog({ setOpenDialog }: WBSCloneDialogProps) {
     setDraftActivities(pendingUndo.previousDraft);
     setPendingUndo(null);
     setUndoSecondsLeft(0);
-    enqueueSnackbar('Deleted item restored', { variant: 'success' });
+    enqueueSnackbar(dictionary.projectManagement.wbs.clone.itemRestored, { variant: 'success' });
   };
 
   const handleRemoveTask = (taskTempId: string) => {
@@ -922,7 +928,7 @@ function WBSCloneDialog({ setOpenDialog }: WBSCloneDialogProps) {
     const nextDraft = sanitizeDependencies(removeTaskById(draftActivities, taskTempId), removedSourceIds);
     setDraftActivities(nextDraft);
     if (taskLocation) {
-      startUndoWindow(previousDraft, 'Task removed', {
+      startUndoWindow(previousDraft, dictionary.projectManagement.wbs.clone.taskRemoved, {
         type: 'task',
         parentActivityTempId: taskLocation.parentActivityTempId,
         index: taskLocation.index,
@@ -936,7 +942,7 @@ function WBSCloneDialog({ setOpenDialog }: WBSCloneDialogProps) {
     const { nextActivities, removedSourceIds } = removeActivityAndCollectTaskIds(draftActivities, activityTempId);
     setDraftActivities(sanitizeDependencies(nextActivities, removedSourceIds));
     if (activityLocation) {
-      startUndoWindow(previousDraft, 'Activity/Group removed', {
+      startUndoWindow(previousDraft, dictionary.projectManagement.wbs.clone.activityGroupRemoved, {
         type: 'activity',
         parentActivityTempId: activityLocation.parentActivityTempId,
         index: activityLocation.index,
@@ -970,40 +976,40 @@ function WBSCloneDialog({ setOpenDialog }: WBSCloneDialogProps) {
         activity.end_date &&
         new Date(activity.start_date) > new Date(activity.end_date)
       ) {
-        errors.push(`${pathLabel}: activity start date cannot be after end date`);
+        errors.push(dictionary.projectManagement.wbs.clone.activityDateError.replace('{path}', pathLabel));
       }
 
       (activity.tasks || []).forEach((task) => {
         if (task.start_date && task.end_date && new Date(task.start_date) > new Date(task.end_date)) {
-          errors.push(`${pathLabel} / ${task.name || 'Unnamed Task'}: task start date cannot be after end date`);
+          errors.push(dictionary.projectManagement.wbs.clone.taskDateError.replace('{path}', pathLabel).replace('{task}', task.name || dictionary.projectManagement.wbs.clone.unnamedTask));
         }
       });
 
       (activity.children || []).forEach((child) =>
-        validateActivity(child, `${pathLabel} / ${child.name || 'Unnamed Activity'}`)
+        validateActivity(child, `${pathLabel} / ${child.name || dictionary.projectManagement.wbs.clone.unnamedActivity}`)
       );
     };
 
     draftActivities.forEach((activity) =>
-      validateActivity(activity, activity.name || 'Unnamed Activity')
+      validateActivity(activity, activity.name || dictionary.projectManagement.wbs.clone.unnamedActivity)
     );
 
     return errors;
-  }, [draftActivities]);
+  }, [draftActivities, dictionary]);
 
   const handleSubmit = () => {
     if (!sourceProject?.id) {
-      enqueueSnackbar('Please select source project', { variant: 'warning' });
+      enqueueSnackbar(dictionary.projectManagement.wbs.clone.selectSource, { variant: 'warning' });
       return;
     }
 
     if (draftActivities.length === 0) {
-      enqueueSnackbar('There is no WBS data to clone', { variant: 'warning' });
+      enqueueSnackbar(dictionary.projectManagement.wbs.clone.noWbsData, { variant: 'warning' });
       return;
     }
 
     if (validationErrors.length > 0) {
-      enqueueSnackbar('Please resolve date validation errors before submit', {
+      enqueueSnackbar(dictionary.projectManagement.wbs.clone.resolveDateErrors, {
         variant: 'warning',
       });
       return;
@@ -1019,11 +1025,11 @@ function WBSCloneDialog({ setOpenDialog }: WBSCloneDialogProps) {
 
   return (
     <>
-      <DialogTitle textAlign='center'>Clone WBS Draft From Another Project</DialogTitle>
+      <DialogTitle textAlign='center'>{dictionary.projectManagement.wbs.clone.dialogTitle}</DialogTitle>
       <DialogContent dividers>
         <Stack spacing={2}>
           <Alert severity='info' variant='outlined'>
-            Select source project, load its WBS, edit activities/tasks here, then submit to clone.
+            {dictionary.projectManagement.wbs.clone.instructions}
           </Alert>
 
           <Grid container spacing={1.5}>
@@ -1044,7 +1050,7 @@ function WBSCloneDialog({ setOpenDialog }: WBSCloneDialogProps) {
                 isOptionEqualToValue={(option, value) => option.id === value.id}
                 getOptionLabel={(option) => option?.name || ''}
                 renderInput={(params) => (
-                  <TextField {...params} size='small' label='Source Project' fullWidth />
+                  <TextField {...params} size='small' label={dictionary.projectManagement.wbs.clone.sourceProject} fullWidth />
                 )}
               />
             </Grid>
@@ -1059,7 +1065,7 @@ function WBSCloneDialog({ setOpenDialog }: WBSCloneDialogProps) {
                       }
                     />
                   }
-                  label='Include Dependencies'
+                  label={dictionary.projectManagement.wbs.clone.includeDependencies}
                 />
                 <FormControlLabel
                   control={
@@ -1070,7 +1076,7 @@ function WBSCloneDialog({ setOpenDialog }: WBSCloneDialogProps) {
                       }
                     />
                   }
-                  label='Include Handlers'
+                  label={dictionary.projectManagement.wbs.clone.includeHandlers}
                 />
               </Stack>
             </Grid>
@@ -1078,7 +1084,7 @@ function WBSCloneDialog({ setOpenDialog }: WBSCloneDialogProps) {
             <Grid size={12} textAlign='end'>
               <Stack direction='row' spacing={1} justifyContent={{ xs: 'flex-start', md: 'flex-end' }}>
                 <Button variant='outlined' loading={isTimelineLoading} onClick={handleLoadSource}>
-                  {'Load WBS'}
+                  {dictionary.projectManagement.wbs.clone.loadWbs}
                 </Button>
               </Stack>
             </Grid>
@@ -1088,16 +1094,16 @@ function WBSCloneDialog({ setOpenDialog }: WBSCloneDialogProps) {
 
           {draftActivities.length > 0 && (
             <Stack direction='row' spacing={1}>
-              <Chip label={`${nodeCounts.activities} activities`} />
-              <Chip label={`${nodeCounts.tasks} tasks`} />
-              <Chip label={`Target: ${project?.name || 'Current Project'}`} variant='outlined' />
+              <Chip label={dictionary.projectManagement.wbs.clone.activitiesCount.replace('{count}', String(nodeCounts.activities))} />
+              <Chip label={dictionary.projectManagement.wbs.clone.tasksCount.replace('{count}', String(nodeCounts.tasks))} />
+              <Chip label={dictionary.projectManagement.wbs.clone.target.replace('{name}', project?.name || dictionary.projectManagement.wbs.clone.currentProject)} variant='outlined' />
             </Stack>
           )}
 
           {validationErrors.length > 0 && (
             <Alert severity='warning' variant='outlined'>
               <Typography variant='body2' fontWeight={600} sx={{ mb: 0.5 }}>
-                Please resolve these validation issues:
+                {dictionary.projectManagement.wbs.clone.resolveIssues}
               </Typography>
               {validationErrors.slice(0, 6).map((error) => (
                 <Typography key={error} variant='caption' display='block'>
@@ -1106,7 +1112,7 @@ function WBSCloneDialog({ setOpenDialog }: WBSCloneDialogProps) {
               ))}
               {validationErrors.length > 6 && (
                 <Typography variant='caption' display='block'>
-                  • and {validationErrors.length - 6} more
+                  • {dictionary.projectManagement.wbs.clone.andMore.replace('{count}', String(validationErrors.length - 6))}
                 </Typography>
               )}
             </Alert>
@@ -1114,7 +1120,7 @@ function WBSCloneDialog({ setOpenDialog }: WBSCloneDialogProps) {
 
           {draftActivities.length === 0 && (
             <Alert severity='info' variant='outlined'>
-              No source WBS loaded yet.
+              {dictionary.projectManagement.wbs.clone.noSourceLoaded}
             </Alert>
           )}
 
@@ -1164,23 +1170,23 @@ function WBSCloneDialog({ setOpenDialog }: WBSCloneDialogProps) {
       </DialogContent>
 
       <Dialog open={openReloadWarning} onClose={() => setOpenReloadWarning(false)} maxWidth='xs' fullWidth>
-        <DialogTitle>Reload WBS?</DialogTitle>
+        <DialogTitle>{dictionary.projectManagement.wbs.clone.reloadTitle}</DialogTitle>
         <DialogContent>
           <Typography variant='body2'>
-            This will discard all current draft changes in this dialog. Do you want to continue?
+            {dictionary.projectManagement.wbs.clone.reloadWarning}
           </Typography>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setOpenReloadWarning(false)}>Cancel</Button>
+          <Button onClick={() => setOpenReloadWarning(false)}>{dictionary.projectManagement.wbs.clone.cancel}</Button>
           <LoadingButton color='warning' variant='contained' onClick={handleConfirmReload} loading={isTimelineLoading}>
-            Reload
+            {dictionary.projectManagement.wbs.clone.reload}
           </LoadingButton>
         </DialogActions>
       </Dialog>
 
       <DialogActions>
-        <Tooltip title='Close dialog without cloning'>
-          <Button onClick={() => setOpenDialog(false)}>Cancel</Button>
+        <Tooltip title={dictionary.tooltips.closeDialogWithoutCloning}>
+          <Button onClick={() => setOpenDialog(false)}>{dictionary.projectManagement.wbs.clone.cancel}</Button>
         </Tooltip>
         <LoadingButton
           variant='contained'
@@ -1188,7 +1194,7 @@ function WBSCloneDialog({ setOpenDialog }: WBSCloneDialogProps) {
           loading={cloneMutation.isPending}
           disabled={draftActivities.length === 0}
         >
-          Submit Clone
+          {dictionary.projectManagement.wbs.clone.submitClone}
         </LoadingButton>
       </DialogActions>
     </>

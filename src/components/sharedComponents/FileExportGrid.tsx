@@ -2,6 +2,7 @@ import { faFileExcel, faFilePdf } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { LoadingButton } from '@mui/lab';
 import { Box, Button, Divider, Tooltip } from '@mui/material';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 export const FileExportGrid = ({
   exportExcel,
@@ -20,6 +21,7 @@ export const FileExportGrid = ({
   exportingExcel?: boolean;
   startComponent?: React.ReactNode;
 }) => {
+  const dictionary = useDictionary();
   return (
     <Box
       sx={{
@@ -41,7 +43,7 @@ export const FileExportGrid = ({
         <Divider orientation='vertical' variant='middle' flexItem />
       )}
       {exportExcel && (
-        <Tooltip title='Export Excel'>
+        <Tooltip title={dictionary.tooltips.exportExcel}>
           <LoadingButton
             onClick={() => {
               handlExcelExport && handlExcelExport(exportData);
@@ -61,7 +63,7 @@ export const FileExportGrid = ({
       )}
 
       {exportPdf && (
-        <Tooltip title='Toggle PDF Preview'>
+        <Tooltip title={dictionary.tooltips.togglePdfPreview}>
           <Button
             onClick={() => {
               handlePdf && handlePdf();

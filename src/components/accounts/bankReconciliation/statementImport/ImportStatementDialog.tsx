@@ -24,6 +24,7 @@ import { useSnackbar } from 'notistack';
 import dayjs, { Dayjs } from 'dayjs';
 import React, { useState } from 'react';
 import bankReconciliationServices from '../bank-reconciliation-services';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface ColumnMap {
   date?: number;
@@ -42,15 +43,16 @@ interface Props {
   onImported?: () => void;
 }
 
-const FIELD_LABELS: Record<keyof ColumnMap, string> = {
-  date: 'Date',
-  description: 'Description',
-  reference: 'Reference (optional)',
-  amount: 'Amount (signed, optional if using Debit/Credit)',
-  debit: 'Debit (optional if using Amount)',
-  credit: 'Credit (optional if using Amount)',
-  balance: 'Running Balance (optional)',
-};
+// Keys into dictionary.forms.bankReconciliation.importStatement.fieldLabels
+const FIELD_KEYS: Array<keyof ColumnMap> = [
+  'date',
+  'description',
+  'reference',
+  'amount',
+  'debit',
+  'credit',
+  'balance',
+];
 
 const sanitizedNumber = (value: string): string => {
   const parsed = parseFloat(value.replace(/,/g, ''));
@@ -58,6 +60,7 @@ const sanitizedNumber = (value: string): string => {
 };
 
 export default function ImportStatementDialog({ bankAccountId, savedColumnMap, toggleOpen, onImported }: Props) {
+  const dictionary = useDictionary();
   const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
 
@@ -107,7 +110,7 @@ export default function ImportStatementDialog({ bankAccountId, savedColumnMap, t
       queryClient.invalidateQueries({ queryKey: ['bank-statements-list', bankAccountId] });
       queryClient.invalidateQueries({ queryKey: ['bank-accounts-list'] });
       onImported?.();
-      enqueueSnackbar(data.message || 'Statement imported successfully', { variant: 'success' });
+      enqueueSnackbar(data.message || dictionary.forms.bankReconciliation.importStatement.messages.success, { variant: 'success' });
     },
     onError: (err: any) => enqueueSnackbar(getErrorMessage(err), { variant: 'error' }),
   });
@@ -116,7 +119,7 @@ export default function ImportStatementDialog({ bankAccountId, savedColumnMap, t
   const canImport = columnMap.date !== undefined && columnMap.description !== undefined &&
     (columnMap.amount !== undefined || columnMap.debit !== undefined || columnMap.credit !== undefined);
 
-  const columnOptions = header.map((label, index) => ({ index, label: label || `Column ${index + 1}` }));
+  const columnOptions = header.map((label, index) => ({ index, label: label || dictionary.forms.bankReconciliation.importStatement.labels.column.replace('{number}', String(index + 1)) }));
 
   const handleFieldChange = (field: keyof ColumnMap, value: string) => {
     setColumnMap((prev) => ({
@@ -128,7 +131,7 @@ export default function ImportStatementDialog({ bankAccountId, savedColumnMap, t
   if (importResult) {
     return (
       <>
-        <Typography textAlign='center' variant='h4' marginTop={2}>Import Complete</Typography>
+        <Typography textAlign='center' variant='h4' marginTop={2}>{dictionary.forms.bankReconciliation.importStatement.title.complete}</Typography>
         <DialogContent>
           <Alert severity={importResult.errors?.length ? 'warning' : 'success'} sx={{ mb: 2 }}>
             {importResult.message}
@@ -137,14 +140,14 @@ export default function ImportStatementDialog({ bankAccountId, savedColumnMap, t
             <Box sx={{ maxHeight: 240, overflowY: 'auto' }}>
               {importResult.errors.map((error: any, index: number) => (
                 <Typography key={index} variant='body2' color='error'>
-                  Row {error.row}: {error.error}
+                  {dictionary.forms.bankReconciliation.importStatement.labels.row.replace('{row}', String(error.row)).replace('{error}', String(error.error))}
                 </Typography>
               ))}
             </Box>
           )}
         </DialogContent>
         <DialogActions>
-          <Button variant='contained' onClick={() => toggleOpen(false)}>Close</Button>
+          <Button variant='contained' onClick={() => toggleOpen(false)}>{dictionary.forms.bankReconciliation.importStatement.buttons.close}</Button>
         </DialogActions>
       </>
     );
@@ -152,18 +155,18 @@ export default function ImportStatementDialog({ bankAccountId, savedColumnMap, t
 
   return (
     <>
-      <Typography textAlign='center' variant='h4' marginTop={2}>Import Bank Statement</Typography>
+      <Typography textAlign='center' variant='h4' marginTop={2}>{dictionary.forms.bankReconciliation.importStatement.title.import}</Typography>
       <DialogContent>
         <Stepper activeStep={activeStep} sx={{ mb: 3 }}>
-          <Step><StepLabel>Statement Details</StepLabel></Step>
-          <Step><StepLabel>Map Columns</StepLabel></Step>
+          <Step><StepLabel>{dictionary.forms.bankReconciliation.importStatement.steps.details}</StepLabel></Step>
+          <Step><StepLabel>{dictionary.forms.bankReconciliation.importStatement.steps.mapColumns}</StepLabel></Step>
         </Stepper>
 
         {activeStep === 0 && (
           <Grid container spacing={2}>
             <Grid size={12}>
               <Button variant='outlined' component='label' startIcon={<UploadOutlined />} fullWidth>
-                {file ? file.name : 'Select CSV or Excel File'}
+                {file ? file.name : dictionary.forms.bankReconciliation.importStatement.labels.selectFile}
                 <input
                   hidden
                   type='file'
@@ -174,7 +177,7 @@ export default function ImportStatementDialog({ bankAccountId, savedColumnMap, t
             </Grid>
             <Grid size={{ xs: 12, md: 6 }}>
               <DatePicker
-                label='Statement From'
+                label={dictionary.forms.bankReconciliation.importStatement.labels.statementFrom}
                 value={dateFrom}
                 onChange={setDateFrom}
                 format='DD/MM/YYYY'
@@ -183,7 +186,7 @@ export default function ImportStatementDialog({ bankAccountId, savedColumnMap, t
             </Grid>
             <Grid size={{ xs: 12, md: 6 }}>
               <DatePicker
-                label='Statement To'
+                label={dictionary.forms.bankReconciliation.importStatement.labels.statementTo}
                 value={dateTo}
                 onChange={setDateTo}
                 format='DD/MM/YYYY'
@@ -192,7 +195,7 @@ export default function ImportStatementDialog({ bankAccountId, savedColumnMap, t
             </Grid>
             <Grid size={{ xs: 12, md: 6 }}>
               <TextField
-                label='Opening Balance'
+                label={dictionary.forms.bankReconciliation.importStatement.labels.openingBalance}
                 size='small'
                 fullWidth
                 value={openingBalance}
@@ -202,7 +205,7 @@ export default function ImportStatementDialog({ bankAccountId, savedColumnMap, t
             </Grid>
             <Grid size={{ xs: 12, md: 6 }}>
               <TextField
-                label='Closing Balance'
+                label={dictionary.forms.bankReconciliation.importStatement.labels.closingBalance}
                 size='small'
                 fullWidth
                 value={closingBalance}
@@ -217,21 +220,21 @@ export default function ImportStatementDialog({ bankAccountId, savedColumnMap, t
           <Grid container spacing={2}>
             <Grid size={12}>
               <Typography variant='body2' color='text.secondary'>
-                Tell us which column in your file holds each piece of information.
-                {savedColumnMap && ' Pre-filled from your last import for this bank account — adjust if the format changed.'}
+                {dictionary.forms.bankReconciliation.importStatement.help.mapColumns}
+                {savedColumnMap && dictionary.forms.bankReconciliation.importStatement.help.prefilled}
               </Typography>
             </Grid>
-            {(Object.keys(FIELD_LABELS) as Array<keyof ColumnMap>).map((field) => (
+            {FIELD_KEYS.map((field) => (
               <Grid size={{ xs: 12, md: 6 }} key={field}>
                 <TextField
                   select
                   fullWidth
                   size='small'
-                  label={FIELD_LABELS[field]}
+                  label={dictionary.forms.bankReconciliation.importStatement.fieldLabels[field]}
                   value={columnMap[field] ?? ''}
                   onChange={(e) => handleFieldChange(field, e.target.value)}
                 >
-                  <MenuItem value=''>— Not in file —</MenuItem>
+                  <MenuItem value=''>{dictionary.forms.bankReconciliation.importStatement.labels.notInFile}</MenuItem>
                   {columnOptions.map((option) => (
                     <MenuItem key={option.index} value={option.index}>
                       {option.label}
@@ -245,11 +248,11 @@ export default function ImportStatementDialog({ bankAccountId, savedColumnMap, t
       </DialogContent>
       <DialogActions>
         <Button size='small' variant='outlined' onClick={() => toggleOpen(false)}>
-          Cancel
+          {dictionary.forms.bankReconciliation.importStatement.buttons.cancel}
         </Button>
         {activeStep === 1 && (
           <Button size='small' onClick={() => setActiveStep(0)}>
-            Back
+            {dictionary.forms.bankReconciliation.importStatement.buttons.back}
           </Button>
         )}
         {activeStep === 0 && (
@@ -260,7 +263,7 @@ export default function ImportStatementDialog({ bankAccountId, savedColumnMap, t
             loading={previewMutation.isPending}
             onClick={() => previewMutation.mutate(file as File)}
           >
-            Next
+            {dictionary.forms.bankReconciliation.importStatement.buttons.next}
           </LoadingButton>
         )}
         {activeStep === 1 && (
@@ -271,7 +274,7 @@ export default function ImportStatementDialog({ bankAccountId, savedColumnMap, t
             loading={importMutation.isPending}
             onClick={() => importMutation.mutate()}
           >
-            Import
+            {dictionary.forms.bankReconciliation.importStatement.buttons.import}
           </LoadingButton>
         )}
       </DialogActions>

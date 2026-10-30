@@ -47,6 +47,10 @@ const TransferFormDialogContent = dynamic(() => import('./TransferFormDialogCont
 const TransferOnScreen = dynamic(() => import('./TransferOnScreen'), { ssr: false });
 import TransferInvoicePDF from './TransferPDF';
 import dynamic from 'next/dynamic';
+import { EventRepeatOutlined } from '@mui/icons-material';
+import RepeatTransactionDialogContent from '@/components/accounts/recurringTransactions/RepeatTransactionDialogContent';
+import { canRepeatTransaction } from '@/components/accounts/recurringTransactions/recurring-utils';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface DocumentDialogProps {
   transaction: Transaction;
@@ -167,12 +171,14 @@ interface TransferItemActionProps {
 const TransferItemAction: React.FC<TransferItemActionProps> = ({
   transaction,
 }) => {
+  const dictionary = useDictionary();
   const [openDocumentDialog, setOpenDocumentDialog] = useState(false);
   const { showDialog, hideDialog } = useJumboDialog();
   const { enqueueSnackbar } = useSnackbar();
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const [attachDialog, setAttachDialog] = useState(false);
   const [openCancelDialog, setOpenCancelDialog] = useState(false);
+  const [openRepeatDialog, setOpenRepeatDialog] = useState(false);
   const queryClient = useQueryClient();
   const authObject = useJumboAuth();
   const checkOrganizationPermission = authObject.checkOrganizationPermission;
@@ -404,6 +410,14 @@ const TransferItemAction: React.FC<TransferItemActionProps> = ({
     );
   };
 
+  // Scheduling posts automatically, so it has its own permission on top of
+  // the transaction's; the server checks both again.
+  const repeatMenuItems: MenuItemProps[] =
+    checkOrganizationPermission([PERMISSIONS.RECURRING_TRANSACTIONS_CREATE]) &&
+    canRepeatTransaction(transaction)
+      ? [{ icon: <EventRepeatOutlined />, title: 'Repeat', action: 'repeat' }]
+      : [];
+
   const handleItemAction = (menuItem: MenuItemProps) => {
     switch (menuItem.action) {
       case 'delete':
@@ -426,6 +440,9 @@ const TransferItemAction: React.FC<TransferItemActionProps> = ({
         break;
       case 'open':
         setOpenDocumentDialog(true);
+        break;
+      case 'repeat':
+        setOpenRepeatDialog(true);
         break;
       case 'cancel':
         setOpenCancelDialog(true);
@@ -506,13 +523,30 @@ const TransferItemAction: React.FC<TransferItemActionProps> = ({
         )}
       </Dialog>
 
+      <Dialog
+        open={openRepeatDialog}
+        scroll='paper'
+        fullScreen={belowLargeScreen}
+        fullWidth
+        maxWidth='sm'
+        onClose={() => setOpenRepeatDialog(false)}
+      >
+        {openRepeatDialog && (
+          <RepeatTransactionDialogContent
+            type='fund_transfer'
+            transaction={transaction}
+            onClose={() => setOpenRepeatDialog(false)}
+          />
+        )}
+      </Dialog>
+
       <JumboDdMenu
         icon={
-          <Tooltip title='Actions'>
+          <Tooltip title={dictionary.tooltips.actions}>
             <MoreHorizOutlined />
           </Tooltip>
         }
-        menuItems={menuItems}
+        menuItems={[...menuItems, ...repeatMenuItems]}
         onClickCallback={handleItemAction}
       />
     </React.Fragment>

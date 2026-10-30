@@ -1,6 +1,8 @@
 import { FormControlLabel, Switch } from '@mui/material';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function MaterialIssuedSelector({ aggregated, onChange }) {
+  const dictionary = useDictionary();
   const handleToggle = (event) => {
     onChange(event.target.checked);
   };
@@ -14,7 +16,7 @@ function MaterialIssuedSelector({ aggregated, onChange }) {
           color="primary"
         />
       }
-      label={"Aggregated"}
+      label={dictionary.projectManagement.materialIssued.aggregated}
     />
   );
 }

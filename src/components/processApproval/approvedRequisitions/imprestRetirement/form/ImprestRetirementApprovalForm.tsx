@@ -1,5 +1,6 @@
 'use client';
 import React from 'react';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import { LoadingButton } from '@mui/lab';
 import {
   Alert,
@@ -62,6 +63,7 @@ function ImprestRetirementApprovalForm({
   retirement,
   isEdit = false,
 }: ImprestRetirementApprovalFormProps) {
+  const dictionary = useDictionary();
   const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
 
@@ -206,7 +208,7 @@ function ImprestRetirementApprovalForm({
       ? imprestRetirementServices.updateApproval
       : imprestRetirementServices.approve,
     onSuccess: async (response: any) => {
-      enqueueSnackbar(response?.message || 'Decision recorded', { variant: 'success' });
+      enqueueSnackbar(response?.message || dictionary.forms.approvedRequisitions.imprestRetirement.approval.decisionRecorded, { variant: 'success' });
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ['imprestRetirements'] }),
         queryClient.invalidateQueries({ queryKey: ['imprestRetirementDetails'] }),
@@ -216,7 +218,7 @@ function ImprestRetirementApprovalForm({
     },
     onError: (error: any) => {
       enqueueSnackbar(
-        error?.response?.data?.message || 'Failed to submit decision',
+        error?.response?.data?.message || dictionary.forms.approvedRequisitions.imprestRetirement.approval.submitFailed,
         { variant: 'error' }
       );
     },
@@ -255,34 +257,34 @@ function ImprestRetirementApprovalForm({
 
       if (isProductLine) {
         if (!item.product_id) {
-          nextFieldErrors[index].source = 'Product is required.';
+          nextFieldErrors[index].source = dictionary.forms.approvedRequisitions.imprestRetirement.approval.productRequired;
           hasAnyError = true;
         }
         if (!item.store_id) {
           nextFieldErrors[index].source = nextFieldErrors[index].source 
-            ? 'Product and Store are required.' 
-            : 'Store is required.';
+            ? dictionary.forms.approvedRequisitions.imprestRetirement.approval.productAndStoreRequired
+            : dictionary.forms.approvedRequisitions.imprestRetirement.approval.storeRequired;
           hasAnyError = true;
         }
       } else {
         if (!item.ledger_id) {
-          nextFieldErrors[index].source = 'Ledger is required.';
+          nextFieldErrors[index].source = dictionary.forms.approvedRequisitions.imprestRetirement.approval.ledgerRequired;
           hasAnyError = true;
         }
       }
 
       if (!item.measurement_unit_id) {
-        nextFieldErrors[index].measurement_unit_id = 'Unit is required.';
+        nextFieldErrors[index].measurement_unit_id = dictionary.forms.approvedRequisitions.imprestRetirement.approval.unitRequired;
         hasAnyError = true;
       }
 
       if (!Number.isFinite(Number(item.quantity)) || Number(item.quantity) <= 0) {
-        nextFieldErrors[index].quantity = 'Quantity must be greater than 0.';
+        nextFieldErrors[index].quantity = dictionary.forms.approvedRequisitions.imprestRetirement.approval.quantityGreaterThanZero;
         hasAnyError = true;
       }
 
       if (isFinalLevel && (!Number.isFinite(Number(item.rate)) || Number(item.rate) <= 0)) {
-        nextFieldErrors[index].rate = 'Rate is required for final approval.';
+        nextFieldErrors[index].rate = dictionary.forms.approvedRequisitions.imprestRetirement.approval.rateRequiredFinal;
         hasAnyError = true;
       }
     });
@@ -293,20 +295,18 @@ function ImprestRetirementApprovalForm({
 
   const validate = (requireRemarks: boolean): boolean => {
     if (!chainLevelId) {
-      setClientError(
-        'Approval chain level could not be determined. Please contact support.'
-      );
+      setClientError(dictionary.forms.approvedRequisitions.imprestRetirement.approval.chainLevelUnknown);
       return false;
     }
     if (requireRemarks && !remarks.trim()) {
-      setClientError('Remarks are required for this decision.');
+      setClientError(dictionary.forms.approvedRequisitions.imprestRetirement.approval.remarksRequired);
       return false;
     }
     if (!validateItems()) {
       setClientError(
         isFinalLevel
-          ? 'Final approval requires valid source, unit, quantity, and rate on each item.'
-          : 'Each item requires valid source, unit, and quantity.'
+          ? dictionary.forms.approvedRequisitions.imprestRetirement.approval.finalItemsInvalid
+          : dictionary.forms.approvedRequisitions.imprestRetirement.approval.itemsInvalid
       );
       return false;
     }
@@ -318,7 +318,7 @@ function ImprestRetirementApprovalForm({
     if (!validate(status !== 'approved')) return;
 
     if (isEdit && !approvalId) {
-      setClientError('Approval record could not be determined for update.');
+      setClientError(dictionary.forms.approvedRequisitions.imprestRetirement.approval.approvalRecordUnknown);
       return;
     }
 
@@ -343,7 +343,7 @@ function ImprestRetirementApprovalForm({
   const handleRemarksChange = (value: string) => {
     setRemarks(value);
 
-    if (clientError === 'Remarks are required for this decision.' && value.trim()) {
+    if (clientError === dictionary.forms.approvedRequisitions.imprestRetirement.approval.remarksRequired && value.trim()) {
       setClientError(null);
     }
   };
@@ -356,7 +356,9 @@ function ImprestRetirementApprovalForm({
   return (
     <>
       <DialogTitle textAlign="center">
-        {isEdit ? `Edit Approval — ${retirementNo}` : `Approve Retirement ${retirementNo}`}
+        {isEdit
+          ? dictionary.forms.approvedRequisitions.imprestRetirement.approval.titleEdit.replace('{no}', String(retirementNo))
+          : dictionary.forms.approvedRequisitions.imprestRetirement.approval.titleApprove.replace('{no}', String(retirementNo))}
       </DialogTitle>
 
       <DialogContent>
@@ -373,18 +375,21 @@ function ImprestRetirementApprovalForm({
           }}
         >
           <Grid size={{ xs: 12, md: 4 }}>
-            <Chip size="small" color="primary" label={`Status: ${statusLabel}`} sx={{ mb: 1 }} />
+            <Chip size="small" color="primary" label={dictionary.forms.approvedRequisitions.imprestRetirement.approval.status.replace('{status}', statusLabel)} sx={{ mb: 1 }} />
             <Typography variant="body2" fontWeight={700}>
               {retirementNo}
             </Typography>
             <Typography variant="caption" color="text.secondary">
-              Retirement Date: {formattedRetirementDate}
+              {dictionary.forms.approvedRequisitions.imprestRetirement.approval.retirementDate.replace(
+                '{date}',
+                formattedRetirementDate
+              )}
             </Typography>
           </Grid>
 
           <Grid size={{ xs: 12, md: 4 }}>
             <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
-              Total Retired To Date
+              {dictionary.forms.approvedRequisitions.imprestRetirement.approval.totalRetiredToDate}
             </Typography>
             <Typography variant="h6" fontWeight={700} color="info.main">
               {totalRetiredToDate.toLocaleString('en-US', {
@@ -396,7 +401,7 @@ function ImprestRetirementApprovalForm({
 
           <Grid size={{ xs: 12, md: 4 }} sx={{ textAlign: { xs: 'left', md: 'right' } }}>
             <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
-              Current Items Total
+              {dictionary.forms.approvedRequisitions.imprestRetirement.approval.currentItemsTotal}
             </Typography>
             <Typography variant="h6" fontWeight={700} color="success.main">
               {totalAmount.toLocaleString('en-US', {
@@ -431,7 +436,7 @@ function ImprestRetirementApprovalForm({
               <Grid size={{ xs: 12, md: isProductLine ? (showStoreField ? 3.5 : 4.5) : 4.5 }}>
                 {isProductLine ? (
                   <ProductSelect
-                    label='Product'
+                    label={dictionary.forms.approvedRequisitions.imprestRetirement.item.product}
                     defaultValue={item.product || null}
                     frontError={getFieldError(index, 'source') ? { message: getFieldError(index, 'source') } : undefined}
                     onChange={(newValue: any) => {
@@ -453,7 +458,7 @@ function ImprestRetirementApprovalForm({
                   />
                 ) : (
                   <LedgerSelect
-                    label="Item Ledger"
+                    label={dictionary.forms.approvedRequisitions.imprestRetirement.item.itemLedger}
                     frontError={getFieldError(index, 'source') ? { message: getFieldError(index, 'source') } : null}
                     defaultValue={
                       item.ledger_id
@@ -474,7 +479,7 @@ function ImprestRetirementApprovalForm({
               {isProductLine && (
                 <Grid size={{ xs: 12, md: 2.5 }}>
                   <StoreSelector
-                    label='Store'
+                    label={dictionary.forms.approvedRequisitions.imprestRetirement.item.store}
                     multiple={false}
                     defaultValue={item.store || null}
                     frontError={getFieldError(index, 'source') ? { message: getFieldError(index, 'source') } : undefined as any}
@@ -490,7 +495,7 @@ function ImprestRetirementApprovalForm({
 
               <Grid size={{ xs: 12, md: 2 }}>
                 <MeasurementSelector
-                  label="Unit"
+                  label={dictionary.forms.approvedRequisitions.imprestRetirement.item.unit}
                   frontError={getFieldError(index, 'measurement_unit_id') ? { message: getFieldError(index, 'measurement_unit_id') } : null}
                   defaultValue={item.measurement_unit_id || null}
                   onChange={(v: any) => {
@@ -507,7 +512,7 @@ function ImprestRetirementApprovalForm({
                 <TextField
                   size="small"
                   fullWidth
-                  label="Quantity"
+                  label={dictionary.forms.approvedRequisitions.imprestRetirement.item.quantity}
                   value={item.quantity ?? 0}
                   error={!!getFieldError(index, 'quantity')}
                   helperText={getFieldError(index, 'quantity')}
@@ -523,7 +528,7 @@ function ImprestRetirementApprovalForm({
                 <TextField
                   size="small"
                   fullWidth
-                  label="Rate"
+                  label={dictionary.forms.approvedRequisitions.imprestRetirement.item.rate}
                   value={item.rate ?? 0}
                   error={!!getFieldError(index, 'rate')}
                   helperText={getFieldError(index, 'rate')}
@@ -539,7 +544,7 @@ function ImprestRetirementApprovalForm({
                 <TextField
                   size="small"
                   fullWidth
-                  label="Amount"
+                  label={dictionary.forms.approvedRequisitions.imprestRetirement.item.amount}
                   disabled
                   value={(
                     (Number(item.quantity) || 0) * (Number(item.rate) || 0)
@@ -556,7 +561,7 @@ function ImprestRetirementApprovalForm({
                   fullWidth
                   multiline
                   rows={2}
-                  label="Description"
+                  label={dictionary.forms.approvedRequisitions.imprestRetirement.item.description}
                   value={item.description || ''}
                   onChange={(e) => updateItem(index, { description: e.target.value })}
                 />
@@ -571,7 +576,7 @@ function ImprestRetirementApprovalForm({
           multiline
           minRows={2}
           sx={{ mt: 4 }}
-          label="Remarks (required for On Hold / Reject)"
+          label={dictionary.forms.approvedRequisitions.imprestRetirement.approval.remarks}
           value={remarks}
           onChange={(e) => handleRemarksChange(e.target.value)}
         />
@@ -583,7 +588,7 @@ function ImprestRetirementApprovalForm({
         )}
 
         <Typography variant="subtitle2" mt={2} fontWeight={600}>
-          Receipts / Supporting Documents
+          {dictionary.forms.approvedRequisitions.imprestRetirement.approval.supportingDocuments}
         </Typography>
 
         {retirement?.id ? (
@@ -601,14 +606,14 @@ function ImprestRetirementApprovalForm({
           />
         ) : (
           <Alert severity="info" sx={{ mt: 1 }}>
-            Supporting documents are unavailable because retirement reference is missing.
+            {dictionary.forms.approvedRequisitions.imprestRetirement.approval.documentsUnavailable}
           </Alert>
         )}
       </DialogContent>
 
       <DialogActions>
         <Button size="small" onClick={() => toggleOpen(false)} disabled={isPending}>
-          Close
+          {dictionary.forms.approvedRequisitions.common.close}
         </Button>
         <LoadingButton
           size="small"
@@ -617,7 +622,7 @@ function ImprestRetirementApprovalForm({
           loading={isPending}
           onClick={() => run('rejected')}
         >
-          Reject
+          {dictionary.forms.approvedRequisitions.imprestRetirement.approval.reject}
         </LoadingButton>
         <LoadingButton
           size="small"
@@ -626,7 +631,7 @@ function ImprestRetirementApprovalForm({
           loading={isPending}
           onClick={() => run('on hold')}
         >
-          On Hold
+          {dictionary.forms.approvedRequisitions.imprestRetirement.approval.onHold}
         </LoadingButton>
         <LoadingButton
           size="small"
@@ -635,7 +640,7 @@ function ImprestRetirementApprovalForm({
           loading={isPending}
           onClick={() => run('approved')}
         >
-          Approve
+          {dictionary.forms.approvedRequisitions.imprestRetirement.approval.approve}
         </LoadingButton>
       </DialogActions>
     </>

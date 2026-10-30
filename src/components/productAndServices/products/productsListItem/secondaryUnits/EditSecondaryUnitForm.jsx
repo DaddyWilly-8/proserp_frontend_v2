@@ -31,7 +31,7 @@ const EditSecondaryUnitForm = ({ product, setOpenDialog, unit }) => {
       queryClient.invalidateQueries({ queryKey: ['secondaryUnits'] });
     },
     onError: (error) => {
-      enqueueSnackbar(error?.response?.data?.message || 'Failed to update unit', {
+      enqueueSnackbar(error?.response?.data?.message || dictionary.forms.products.secondaryUnits.messages.updateFailed, {
         variant: 'error',
       });
     },
@@ -42,7 +42,7 @@ const EditSecondaryUnitForm = ({ product, setOpenDialog, unit }) => {
   }, [updateUnit]);
 
   const validationSchema = yup.object({
-    conversion_factor: yup.number().required('Conversion factor').typeError(`Conversion factor`),
+    conversion_factor: yup.number().required(dictionary.forms.products.secondaryUnits.errors.validation.conversionFactor).typeError(dictionary.forms.products.secondaryUnits.errors.validation.conversionFactor),
   })
 
   const {setValue, handleSubmit, formState: { errors }} = useForm({

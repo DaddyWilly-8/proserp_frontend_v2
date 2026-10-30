@@ -156,7 +156,7 @@ const MeasurementUnitForm: React.FC<MeasurementUnitFormProps> = ({
             ? dictionary.measurementUnits.form.title
             : dictionary.measurementUnits.form.pageTitle.replace(
                 '{name}',
-                measurementUnit.name
+                measurementUnit.name ?? ''
               )}
         </Grid>
       </DialogTitle>
@@ -168,7 +168,7 @@ const MeasurementUnitForm: React.FC<MeasurementUnitFormProps> = ({
                 <TextField
                   label={dictionary.measurementUnits.list.labels.name}
                   placeholder={
-                    dictionary.measurementUnits.form.placeholders.name
+                    dictionary.measurementUnits.form.placeholders.UnitName
                   }
                   size='small'
                   fullWidth
@@ -191,7 +191,7 @@ const MeasurementUnitForm: React.FC<MeasurementUnitFormProps> = ({
                 <TextField
                   label={dictionary.measurementUnits.form.labels.symbol}
                   placeholder={
-                    dictionary.measurementUnits.form.placeholders.symbol
+                    dictionary.measurementUnits.form.placeholders.unitSymbol
                   }
                   size='small'
                   fullWidth

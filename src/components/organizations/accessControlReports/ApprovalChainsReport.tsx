@@ -84,7 +84,7 @@ const ApprovalChainsReport = () => {
       {!isFetching && (
         showPdf ? (
           <PDFContent
-            document={<ApprovalChainsPdfDocument chains={chains} authOrganization={authOrganization} user={user} />}
+            document={<ApprovalChainsPdfDocument chains={chains} authOrganization={authOrganization} user={user} dictionary={dictionary} />}
             fileName='Approval Chains'
           />
         ) : (
@@ -105,8 +105,8 @@ const ApprovalChainsReport = () => {
                   <TableCell sx={{ verticalAlign: 'top', whiteSpace: 'nowrap' }}>
                     <Typography variant='body1' fontWeight='medium'>{chain.process_type}</Typography>
                   </TableCell>
-                  <TableCell sx={{ verticalAlign: 'top' }}>{chain.cost_center?.name || 'All'}</TableCell>
-                  <TableCell sx={{ verticalAlign: 'top' }}>{chain.department?.name || 'All'}</TableCell>
+                  <TableCell sx={{ verticalAlign: 'top' }}>{chain.cost_center?.name || dictionary.reports.accessControlReports.all}</TableCell>
+                  <TableCell sx={{ verticalAlign: 'top' }}>{chain.department?.name || dictionary.reports.accessControlReports.all}</TableCell>
                   <TableCell sx={{ verticalAlign: 'top' }}>
                     <Chip
                       label={chain.status}

@@ -48,8 +48,10 @@ import AdditionalCostsTab from './receiveFormTabs/AdditionalCosts/AdditionalCost
 import AdditionalCostsTabRow from './receiveFormTabs/AdditionalCosts/AdditionalCostsTabRow';
 import ItemsTab from './receiveFormTabs/ItemsTab';
 import SummaryTab from './receiveFormTabs/SummaryTab';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function PurchaseOrderReceiveForm({ toggleOpen, order, grn }) {
+  const dictionary = useDictionary();
   const theme = useTheme();
   const [date_received] = useState(dayjs());
   const [activeTab, setActiveTab] = useState(0);
@@ -163,7 +165,7 @@ function PurchaseOrderReceiveForm({ toggleOpen, order, grn }) {
     mutationFn: ({ grnId, data }) => purchaseServices.editGrn(grnId, data),
     onSuccess: (response) => {
       toggleOpen(false);
-      enqueueSnackbar(response.message || 'GRN updated successfully', {
+      enqueueSnackbar(response.message || dictionary.forms.purchases.receive.messages.grnUpdated, {
         variant: 'success',
       });
       queryClient.invalidateQueries({ queryKey: ['purchaseOrders'] });
@@ -173,7 +175,7 @@ function PurchaseOrderReceiveForm({ toggleOpen, order, grn }) {
     },
     onError: (error) => {
       enqueueSnackbar(
-        error?.response?.data?.message || 'Failed to update GRN',
+        error?.response?.data?.message || dictionary.forms.purchases.receive.messages.grnUpdateFailed,
         { variant: 'error' }
       );
     },
@@ -190,43 +192,43 @@ function PurchaseOrderReceiveForm({ toggleOpen, order, grn }) {
   }, [receiveOrder, editGrnMutation, grn]);
 
   const validationSchema = yup.object({
-    date_received: yup.string().required('Receive Date is required'),
+    date_received: yup.string().required(dictionary.forms.purchases.receive.errors.validation.receiveDate.required),
     store_id: yup
       .number()
-      .typeError('Store is required')
-      .positive('Store is required')
-      .required('Store is required'),
+      .typeError(dictionary.forms.purchases.receive.errors.validation.store.required)
+      .positive(dictionary.forms.purchases.receive.errors.validation.store.required)
+      .required(dictionary.forms.purchases.receive.errors.validation.store.required),
     exchange_rate: yup
       .number()
-      .typeError('Exchange rate is required')
-      .positive('Exchange rate is required')
-      .required('Exchange rate is required'),
+      .typeError(dictionary.forms.purchases.receive.errors.validation.exchangeRate.required)
+      .positive(dictionary.forms.purchases.receive.errors.validation.exchangeRate.required)
+      .required(dictionary.forms.purchases.receive.errors.validation.exchangeRate.required),
     change_cost_center: yup.boolean(),
     destination_cost_center_id: yup.number().when('change_cost_center', {
       is: true,
       then: (schema) =>
         schema
-          .required('Destination Cost Center is required')
-          .typeError('Destination Cost Center is required'),
+          .required(dictionary.forms.purchases.receive.errors.validation.destinationCostCenter.required)
+          .typeError(dictionary.forms.purchases.receive.errors.validation.destinationCostCenter.required),
       otherwise: (schema) => schema.nullable(),
     }),
     receivable_ledger_id: yup.number().when('change_cost_center', {
       is: true,
       then: (schema) =>
         schema
-          .required('Receivable Ledger is required')
-          .typeError('Receivable Ledger is required'),
+          .required(dictionary.forms.purchases.receive.errors.validation.receivableLedger.required)
+          .typeError(dictionary.forms.purchases.receive.errors.validation.receivableLedger.required),
       otherwise: (schema) => schema.nullable(),
     }),
     items: yup.array().of(
       yup.object().shape({
         quantity: yup
           .number()
-          .typeError('Quantity is required')
-          .required('Quantity is Required')
+          .typeError(dictionary.forms.purchases.receive.errors.validation.quantity.required)
+          .required(dictionary.forms.purchases.receive.errors.validation.quantity.required)
           .test(
             'maxQuantity',
-            'Quantity cannot exceed unreceived quantity',
+            dictionary.forms.purchases.receive.errors.validation.quantity.max,
             function (value) {
               const unreceivedQuantity = this.parent.unreceived_quantity;
               return value <= unreceivedQuantity;
@@ -234,7 +236,7 @@ function PurchaseOrderReceiveForm({ toggleOpen, order, grn }) {
           )
           .test(
             'whole-unit',
-            'This product is sold in whole units — quantity cannot be a fraction',
+            dictionary.forms.purchases.receive.errors.validation.quantity.wholeUnit,
             function (value) {
               const poItem = purchase_order_items?.find(
                 (item) => item.id === this.parent.purchase_order_item_id
@@ -251,27 +253,27 @@ function PurchaseOrderReceiveForm({ toggleOpen, order, grn }) {
           is: (id) => !!id,
           then: (schema) =>
             schema
-              .required('Amount is required')
-              .positive('Amount must be positive')
-              .typeError('Amount is required'),
+              .required(dictionary.forms.purchases.receive.errors.validation.amount.required)
+              .positive(dictionary.forms.purchases.receive.errors.validation.amount.positive)
+              .typeError(dictionary.forms.purchases.receive.errors.validation.amount.required),
           otherwise: (schema) => schema.nullable(),
         }),
         currency_id: yup.number().when('credit_ledger_id', {
           is: (id) => !!id,
           then: (schema) =>
             schema
-              .required('Currency is required')
-              .positive('Currency is required')
-              .typeError('Currency is required'),
+              .required(dictionary.forms.purchases.receive.errors.validation.currency.required)
+              .positive(dictionary.forms.purchases.receive.errors.validation.currency.required)
+              .typeError(dictionary.forms.purchases.receive.errors.validation.currency.required),
           otherwise: (schema) => schema.nullable(),
         }),
         exchange_rate: yup.number().when('credit_ledger_id', {
           is: (id) => !!id,
           then: (schema) =>
             schema
-              .required('Exchange rate is required')
-              .positive('Exchange rate is required')
-              .typeError('Exchange rate is required'),
+              .required(dictionary.forms.purchases.receive.errors.validation.exchangeRate.required)
+              .positive(dictionary.forms.purchases.receive.errors.validation.exchangeRate.required)
+              .typeError(dictionary.forms.purchases.receive.errors.validation.exchangeRate.required),
           otherwise: (schema) => schema.nullable(),
         }),
       })
@@ -627,7 +629,7 @@ function PurchaseOrderReceiveForm({ toggleOpen, order, grn }) {
       <DialogTitle>
         <Grid container spacing={1}>
           <Grid size={12} textAlign={'center'} mb={1}>
-            {grn ? `Edit ${grn.grnNo}` : `Receive ${order.orderNo}`}
+            {grn ? dictionary.forms.purchases.receive.titles.edit.replace('{grnNo}', grn.grnNo) : dictionary.forms.purchases.receive.titles.receive.replace('{orderNo}', order.orderNo)}
           </Grid>
           <Grid size={12}>
             <form autoComplete='off'>
@@ -636,7 +638,7 @@ function PurchaseOrderReceiveForm({ toggleOpen, order, grn }) {
                   <Div sx={{ mt: 1 }}>
                     <DateTimePicker
                       fullWidth
-                      label='Receive Date'
+                      label={dictionary.forms.purchases.receive.labels.receiveDate}
                       defaultValue={
                         grn && grn.date_received
                           ? dayjs(grn.date_received)
@@ -697,7 +699,7 @@ function PurchaseOrderReceiveForm({ toggleOpen, order, grn }) {
                 <Grid size={{ xs: 12, md: 6, lg: 4 }}>
                   <Div sx={{ mt: 1 }}>
                     <TextField
-                      label='Order Reference'
+                      label={dictionary.forms.purchases.receive.labels.orderReference}
                       fullWidth
                       size='small'
                       defaultValue={watch('reference')}
@@ -713,7 +715,7 @@ function PurchaseOrderReceiveForm({ toggleOpen, order, grn }) {
                 <Grid size={{ xs: 12, md: 6, lg: 4 }}>
                   <Div sx={{ mt: 1 }}>
                     <TextField
-                      label='Cost Factor'
+                      label={dictionary.forms.purchases.receive.labels.costFactor}
                       fullWidth
                       size='small'
                       disabled
@@ -740,7 +742,7 @@ function PurchaseOrderReceiveForm({ toggleOpen, order, grn }) {
                       }}
                       size='small'
                     />
-                    <Typography>Change Cost Center</Typography>
+                    <Typography>{dictionary.forms.purchases.receive.labels.changeCostCenter}</Typography>
                   </Div>
                 </Grid>
                 {watch('change_cost_center') && (
@@ -748,7 +750,7 @@ function PurchaseOrderReceiveForm({ toggleOpen, order, grn }) {
                     <Grid size={{ xs: 12, md: 6, lg: 4 }}>
                       <Div sx={{ mt: 1 }}>
                         <CostCenterSelector
-                          label='Destination Cost Center'
+                          label={dictionary.forms.purchases.receive.labels.destinationCostCenter}
                           multiple={false}
                           defaultValue={
                             grn?.receivable_ledger_id && grn?.cost_center
@@ -773,7 +775,7 @@ function PurchaseOrderReceiveForm({ toggleOpen, order, grn }) {
                     <Grid size={{ xs: 12, md: 6, lg: 4 }}>
                       <Div sx={{ mt: 1 }}>
                         <LedgerSelect
-                          label='Receivable Ledger'
+                          label={dictionary.forms.purchases.receive.labels.receivableLedger}
                           allowedGroups={['Accounts Receivable']}
                           multiple={false}
                           defaultValue={ungroupedLedgerOptions.find(
@@ -801,7 +803,7 @@ function PurchaseOrderReceiveForm({ toggleOpen, order, grn }) {
                     <Typography
                       sx={{ fontWeight: 'bold', color: 'primary.main' }}
                     >
-                      Order Currency:
+                      {dictionary.forms.purchases.receive.labels.orderCurrency}
                     </Typography>
                     <Typography>{order.currency?.name}</Typography>
                   </Stack>
@@ -810,7 +812,7 @@ function PurchaseOrderReceiveForm({ toggleOpen, order, grn }) {
                   <Grid size={{ xs: 12, md: 6, lg: 4 }}>
                     <Div sx={{ mt: 1 }}>
                       <TextField
-                        label='Order Exchange Rate'
+                        label={dictionary.forms.purchases.receive.labels.orderExchangeRate}
                         fullWidth
                         size='small'
                         error={!!errors?.exchange_rate}
@@ -847,9 +849,9 @@ function PurchaseOrderReceiveForm({ toggleOpen, order, grn }) {
               allowScrollButtonsMobile
               sx={{ mt: 1 }}
             >
-              <Tab label='Items' />
-              <Tab label='Additional Costs' />
-              <Tab label='Summary Preview' />
+              <Tab label={dictionary.forms.purchases.receive.tabs.items} />
+              <Tab label={dictionary.forms.purchases.receive.tabs.additionalCosts} />
+              <Tab label={dictionary.forms.purchases.receive.tabs.summaryPreview} />
             </Tabs>
           </Grid>
         </Grid>
@@ -904,9 +906,7 @@ function PurchaseOrderReceiveForm({ toggleOpen, order, grn }) {
                   ),
                 }}
               >
-                The prepopulated Additional cost amounts might vary from the
-                actual amount, please verify from the actual amounts and correct
-                where required
+                {dictionary.forms.purchases.receive.messages.prepopulatedCostsWarning}
               </Alert>
             )}
 
@@ -928,14 +928,13 @@ function PurchaseOrderReceiveForm({ toggleOpen, order, grn }) {
         )}
 
         <Dialog open={showWarning} onClose={() => setShowWarning(false)}>
-          <DialogTitle>Unsaved Additional Cost</DialogTitle>
+          <DialogTitle>{dictionary.forms.purchases.receive.titles.unsavedAdditionalCost}</DialogTitle>
           <DialogContent>
-            You have unsaved Additional Cost. Are you sure you want to leave
-            without saving?
+            {dictionary.forms.purchases.receive.messages.unsavedCostConfirm}
           </DialogContent>
           <DialogActions>
             <Button size='small' onClick={() => setShowWarning(false)}>
-              Cancel
+              {dictionary.forms.purchases.receive.buttons.cancel}
             </Button>
             <Button
               size='small'
@@ -943,7 +942,7 @@ function PurchaseOrderReceiveForm({ toggleOpen, order, grn }) {
               color='secondary'
               disabled={savingDirtyCost}
             >
-              Discard
+              {dictionary.forms.purchases.receive.buttons.discard}
             </Button>
             <LoadingButton
               size='small'
@@ -951,7 +950,7 @@ function PurchaseOrderReceiveForm({ toggleOpen, order, grn }) {
               onClick={handleSaveDirtyCostAndContinue}
               loading={savingDirtyCost}
             >
-              Save
+              {dictionary.forms.purchases.receive.buttons.save}
             </LoadingButton>
           </DialogActions>
         </Dialog>
@@ -967,7 +966,7 @@ function PurchaseOrderReceiveForm({ toggleOpen, order, grn }) {
               sx={{ mt: 1, mb: 1 }}
             >
               <Button size='small' onClick={() => toggleOpen(false)}>
-                Cancel
+                {dictionary.forms.purchases.receive.buttons.cancel}
               </Button>
               {activeTab > 0 && (
                 <Button
@@ -976,7 +975,7 @@ function PurchaseOrderReceiveForm({ toggleOpen, order, grn }) {
                   onClick={() => handleTabChange(null, activeTab - 1)}
                 >
                   <KeyboardArrowLeftOutlined />
-                  Prev
+                  {dictionary.forms.purchases.receive.buttons.prev}
                 </Button>
               )}
               {activeTab < 2 && (
@@ -985,7 +984,7 @@ function PurchaseOrderReceiveForm({ toggleOpen, order, grn }) {
                   variant='outlined'
                   onClick={() => handleTabChange(null, activeTab + 1)}
                 >
-                  Next
+                  {dictionary.forms.purchases.receive.buttons.next}
                   <KeyboardArrowRightOutlined />
                 </Button>
               )}
@@ -998,7 +997,7 @@ function PurchaseOrderReceiveForm({ toggleOpen, order, grn }) {
                   size='small'
                   onClick={handleSubmit(() => handleSubmitForm(getValues()))}
                 >
-                  Submit
+                  {dictionary.forms.purchases.receive.buttons.submit}
                 </LoadingButton>
               )}
             </Stack>

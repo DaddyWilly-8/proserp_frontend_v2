@@ -40,15 +40,16 @@ import DeductionsTab from './DeductionsTab';
 import LeaveAllocationsTab from './LeaveAllocationsTab';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { MODULES } from '@/utilities/constants/modules';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
-const getErrorMessage = (error: any) => {
+const getErrorMessage = (error: any, fallback: string) => {
   const validationErrors = error?.response?.data?.validation_errors;
   if (validationErrors && typeof validationErrors === 'object') {
     const first = Object.values(validationErrors)[0] as any;
     return Array.isArray(first) ? first[0] : String(first);
   }
   return (
-    error?.response?.data?.message || error?.message || 'Something went wrong'
+    error?.response?.data?.message || error?.message || fallback
   );
 };
 
@@ -69,6 +70,7 @@ const EmployeeOnboardingDialog = ({
 }: {
   setOpenDialog: (open: boolean) => void;
 }) => {
+  const dictionary = useDictionary();
   const theme = useTheme();
   const [tabValue, setTabValue] = useState(0);
   const [settingTab, setSettingTab] = useState(0);
@@ -98,12 +100,18 @@ const EmployeeOnboardingDialog = ({
       anchor.download = 'employees-registration-template.xlsx';
       anchor.click();
       window.URL.revokeObjectURL(url);
-      enqueueSnackbar('Template downloaded successfully', {
+      enqueueSnackbar(dictionary.humanResources.employees.onboarding.messages.templateDownloaded, {
         variant: 'success',
       });
     },
     onError: (error: any) =>
-      enqueueSnackbar(getErrorMessage(error), { variant: 'error' }),
+      enqueueSnackbar(
+        getErrorMessage(
+          error,
+          dictionary.humanResources.employees.common.somethingWentWrong
+        ),
+        { variant: 'error' }
+      ),
   });
 
   const { mutate: importExcelMutation, isPending: isImporting } = useMutation({
@@ -116,29 +124,40 @@ const EmployeeOnboardingDialog = ({
 
       if (response.errors && response.errors.length > 0) {
         enqueueSnackbar(
-          `${response.message}. ${response.errors.length} error(s) found. Check the details below.`,
+          `${response.message}. ${dictionary.humanResources.employees.onboarding.messages.errorsFound.replace(
+            '{count}',
+            String(response.errors.length)
+          )}`,
           { variant: 'warning' }
         );
       } else if (processed > 0 && response.skipped === 0) {
-        enqueueSnackbar(response.message || 'Employees imported successfully', {
+        enqueueSnackbar(response.message || dictionary.humanResources.employees.onboarding.messages.imported, {
           variant: 'success',
         });
         setOpenDialog(false);
       } else if (processed > 0 && response.skipped > 0) {
         enqueueSnackbar(
-          `${response.message}. ${processed} processed, ${response.skipped} skipped.`,
+          `${response.message}. ${dictionary.humanResources.employees.onboarding.messages.processedSkipped
+            .replace('{processed}', String(processed))
+            .replace('{skipped}', String(response.skipped))}`,
           { variant: 'warning' }
         );
       } else {
         enqueueSnackbar(
           response.message ||
-            'No employees were imported. Please check the errors below.',
+            dictionary.humanResources.employees.onboarding.messages.noneImported,
           { variant: 'error' }
         );
       }
     },
     onError: (error: any) => {
-      enqueueSnackbar(getErrorMessage(error), { variant: 'error' });
+      enqueueSnackbar(
+        getErrorMessage(
+          error,
+          dictionary.humanResources.employees.common.somethingWentWrong
+        ),
+        { variant: 'error' }
+      );
     },
   });
 
@@ -188,7 +207,7 @@ const EmployeeOnboardingDialog = ({
         fontWeight={600}
         sx={{ textAlign: 'center', pb: 1 }}
       >
-        Employee Onboarding
+        {dictionary.humanResources.employees.onboarding.title}
       </DialogTitle>
 
       <DialogContent>
@@ -215,12 +234,12 @@ const EmployeeOnboardingDialog = ({
           >
             <Tab
               icon={<DownloadOutlined />}
-              label='Download Template'
+              label={dictionary.humanResources.employees.onboarding.tabs.download}
               iconPosition='start'
             />
             <Tab
               icon={<UploadOutlined />}
-              label='Upload Excel'
+              label={dictionary.humanResources.employees.onboarding.tabs.upload}
               iconPosition='start'
             />
           </Tabs>
@@ -247,13 +266,10 @@ const EmployeeOnboardingDialog = ({
               }}
             >
               <Typography variant='body2' fontWeight={600} gutterBottom>
-                Getting Started
+                {dictionary.humanResources.employees.onboarding.download.gettingStarted}
               </Typography>
               <Typography variant='body2' color='text.secondary'>
-                Download the Excel template below. Fill in employee details
-                following the format provided. The template includes dropdown
-                validation for fields like Gender, Department, and Employment
-                Type.
+                {dictionary.humanResources.employees.onboarding.download.instructions}
               </Typography>
             </Alert>
 
@@ -300,10 +316,10 @@ const EmployeeOnboardingDialog = ({
                 />
               </Box>
               <Typography variant='h6' fontWeight={600}>
-                Employee Registration Template
+                {dictionary.humanResources.employees.onboarding.download.templateTitle}
               </Typography>
               <Typography variant='body2' color='text.secondary' align='center'>
-                Excel file with pre-defined columns and dropdown validation
+                {dictionary.humanResources.employees.onboarding.download.templateDescription}
               </Typography>
             </Paper>
           </Stack>
@@ -325,12 +341,10 @@ const EmployeeOnboardingDialog = ({
               }}
             >
               <Typography variant='body2' fontWeight={600} gutterBottom>
-                Upload Instructions
+                {dictionary.humanResources.employees.onboarding.upload.instructionsTitle}
               </Typography>
               <Typography variant='body2' color='text.secondary'>
-                Upload the filled Excel file. Employees with existing IDs or
-                duplicate entries will be skipped. If a row has Basic Salary, an
-                active contract will be created automatically.
+                {dictionary.humanResources.employees.onboarding.upload.instructions}
               </Typography>
             </Alert>
 
@@ -395,7 +409,7 @@ const EmployeeOnboardingDialog = ({
                     {file.name}
                   </Typography>
                   <Typography variant='body2' color='text.secondary'>
-                    {(file.size / 1024).toFixed(1)} KB • Ready to upload
+                    {(file.size / 1024).toFixed(1)} KB • {dictionary.humanResources.employees.onboarding.upload.readyToUpload}
                   </Typography>
                   <Button
                     variant='outlined'
@@ -404,13 +418,13 @@ const EmployeeOnboardingDialog = ({
                     onClick={() => setFile(null)}
                     sx={{ borderRadius: 2, textTransform: 'none' }}
                   >
-                    Remove File
+                    {dictionary.humanResources.employees.onboarding.upload.removeFile}
                   </Button>
                 </>
               ) : (
                 <>
                   <Typography variant='body2' color='text.secondary'>
-                    No file selected
+                    {dictionary.humanResources.employees.onboarding.upload.noFileSelected}
                   </Typography>
                   <Button
                     variant='outlined'
@@ -423,7 +437,7 @@ const EmployeeOnboardingDialog = ({
                       fontWeight: 500,
                     }}
                   >
-                    Select Excel File
+                    {dictionary.humanResources.employees.onboarding.upload.selectFile}
                     <input
                       hidden
                       type='file'
@@ -446,7 +460,7 @@ const EmployeeOnboardingDialog = ({
                     }}
                   />
                 }
-                label='Auto create payable ledger'
+                label={dictionary.humanResources.employees.onboarding.upload.autoCreateLedger}
               />
             }
             {/* update-existing switch */}
@@ -459,7 +473,7 @@ const EmployeeOnboardingDialog = ({
                   }}
                 />
               }
-              label='Update existing employees (fill in missing fields only, e.g. re-uploading with bank details added)'
+              label={dictionary.humanResources.employees.onboarding.upload.updateExisting}
             />
             {/* optional data */}
             <Tabs
@@ -482,9 +496,9 @@ const EmployeeOnboardingDialog = ({
                 },
               }}
             >
-              <Tab label='Deductions' />
-              <Tab label='Contributions' />
-              <Tab label='Leave Allocations' />
+              <Tab label={dictionary.humanResources.employees.onboarding.settingTabs.deductions} />
+              <Tab label={dictionary.humanResources.employees.onboarding.settingTabs.contributions} />
+              <Tab label={dictionary.humanResources.employees.onboarding.settingTabs.leaveAllocations} />
             </Tabs>
 
             {settingTab === 0 && (
@@ -510,17 +524,17 @@ const EmployeeOnboardingDialog = ({
                   <Divider sx={{ py: 0, my: 0 }} />
                   <Grid container>
                     <Grid size={5}>
-                      <Tooltip title='Deduction'>
+                      <Tooltip title={dictionary.tooltips.deduction}>
                         <Typography>{itm.deduction_name}</Typography>
                       </Tooltip>
                     </Grid>
                     <Grid size={5}>
-                      <Tooltip title='Scope'>
+                      <Tooltip title={dictionary.tooltips.scope}>
                         <Typography>{itm.scope_lable}</Typography>
                       </Tooltip>
                     </Grid>
                     <Grid size={2}>
-                      <Tooltip title='Delete'>
+                      <Tooltip title={dictionary.tooltips.delete}>
                         <IconButton
                           color='error'
                           size='small'
@@ -545,17 +559,17 @@ const EmployeeOnboardingDialog = ({
                   <Divider sx={{ py: 0, my: 0 }} />
                   <Grid container>
                     <Grid size={5}>
-                      <Tooltip title='Deduction'>
+                      <Tooltip title={dictionary.tooltips.deduction}>
                         <Typography>{itm.contribution_name}</Typography>
                       </Tooltip>
                     </Grid>
                     <Grid size={5}>
-                      <Tooltip title='Scope'>
+                      <Tooltip title={dictionary.tooltips.scope}>
                         <Typography>{itm.scope_lable}</Typography>
                       </Tooltip>
                     </Grid>
                     <Grid size={2}>
-                      <Tooltip title='Delete'>
+                      <Tooltip title={dictionary.tooltips.delete}>
                         <IconButton
                           color='error'
                           size='small'
@@ -580,12 +594,12 @@ const EmployeeOnboardingDialog = ({
                   <Divider sx={{ py: 0, my: 0 }} />
                   <Grid container>
                     <Grid size={5}>
-                      <Tooltip title='Leave Name'>
+                      <Tooltip title={dictionary.tooltips.leaveName}>
                         <Typography>{itm.leave_name}</Typography>
                       </Tooltip>
                     </Grid>
                     <Grid size={5}>
-                      <Tooltip title='Allocation Amount'>
+                      <Tooltip title={dictionary.tooltips.allocationAmount}>
                         <Typography>
                           {parseFloat(itm.allocation_amount).toLocaleString(
                             'en-US',
@@ -598,7 +612,7 @@ const EmployeeOnboardingDialog = ({
                       </Tooltip>
                     </Grid>
                     <Grid size={2}>
-                      <Tooltip title='Delete'>
+                      <Tooltip title={dictionary.tooltips.delete}>
                         <IconButton
                           color='error'
                           size='small'
@@ -655,7 +669,7 @@ const EmployeeOnboardingDialog = ({
                       color={isDark ? theme.palette.text.primary : 'primary'}
                       gutterBottom
                     >
-                      Import Summary
+                      {dictionary.humanResources.employees.onboarding.results.summary}
                     </Typography>
                     <Box
                       sx={{ display: 'flex', gap: 4, mt: 1, flexWrap: 'wrap' }}
@@ -666,7 +680,7 @@ const EmployeeOnboardingDialog = ({
                           color='text.secondary'
                           display='block'
                         >
-                          Imported
+                          {dictionary.humanResources.employees.onboarding.results.imported}
                         </Typography>
                         <Typography
                           variant='h6'
@@ -683,7 +697,7 @@ const EmployeeOnboardingDialog = ({
                             color='text.secondary'
                             display='block'
                           >
-                            Updated
+                            {dictionary.humanResources.employees.onboarding.results.updated}
                           </Typography>
                           <Typography
                             variant='h6'
@@ -700,7 +714,7 @@ const EmployeeOnboardingDialog = ({
                           color='text.secondary'
                           display='block'
                         >
-                          Skipped
+                          {dictionary.humanResources.employees.onboarding.results.skipped}
                         </Typography>
                         <Typography
                           variant='h6'
@@ -716,7 +730,7 @@ const EmployeeOnboardingDialog = ({
                           color='text.secondary'
                           display='block'
                         >
-                          Errors
+                          {dictionary.humanResources.employees.onboarding.results.errors}
                         </Typography>
                         <Typography
                           variant='h6'
@@ -732,7 +746,7 @@ const EmployeeOnboardingDialog = ({
                           color='text.secondary'
                           display='block'
                         >
-                          Total Processed
+                          {dictionary.humanResources.employees.onboarding.results.totalProcessed}
                         </Typography>
                         <Typography
                           variant='h6'
@@ -767,8 +781,10 @@ const EmployeeOnboardingDialog = ({
                         sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
                       >
                         <ErrorOutline fontSize='small' color='warning' />
-                        Skipped Rows ({importResult.errors.length} row
-                        {importResult.errors.length > 1 ? 's' : ''})
+                        {(importResult.errors.length > 1
+                          ? dictionary.humanResources.employees.onboarding.results.skippedRowsMany
+                          : dictionary.humanResources.employees.onboarding.results.skippedRowsOne
+                        ).replace('{count}', String(importResult.errors.length))}
                       </Typography>
 
                       <Box
@@ -826,7 +842,7 @@ const EmployeeOnboardingDialog = ({
                             color={isDark ? 'text.primary' : 'text.secondary'}
                             sx={{ letterSpacing: 0.5 }}
                           >
-                            Row No.
+                            {dictionary.humanResources.employees.onboarding.results.rowNo}
                           </Typography>
                           <Typography
                             variant='caption'
@@ -834,7 +850,7 @@ const EmployeeOnboardingDialog = ({
                             color={isDark ? 'text.primary' : 'text.secondary'}
                             sx={{ letterSpacing: 0.5 }}
                           >
-                            Error Description
+                            {dictionary.humanResources.employees.onboarding.results.errorDescription}
                           </Typography>
                         </Box>
 
@@ -903,7 +919,7 @@ const EmployeeOnboardingDialog = ({
                                     fontSize: '0.7rem',
                                   }}
                                 >
-                                  Row data: {JSON.stringify(item.rowData)}
+                                  {dictionary.humanResources.employees.onboarding.results.rowData}: {JSON.stringify(item.rowData)}
                                 </Typography>
                               )}
                             </Box>
@@ -931,8 +947,8 @@ const EmployeeOnboardingDialog = ({
                           sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
                         >
                           <span style={{ fontSize: '1.2rem' }}>💡</span>
-                          <strong>Tip:</strong> Correct the errors above and
-                          re-upload the Excel file to import these employees.
+                          <strong>{dictionary.humanResources.employees.onboarding.results.tipLabel}:</strong>{' '}
+                          {dictionary.humanResources.employees.onboarding.results.tip}
                         </Typography>
                       </Box>
                     </Box>
@@ -954,13 +970,19 @@ const EmployeeOnboardingDialog = ({
                           ✅{' '}
                           {[
                             importResult.imported > 0 &&
-                              `${importResult.imported} employee${importResult.imported > 1 ? 's' : ''} imported`,
+                              (importResult.imported > 1
+                                ? dictionary.humanResources.employees.onboarding.results.importedMany
+                                : dictionary.humanResources.employees.onboarding.results.importedOne
+                              ).replace('{count}', String(importResult.imported)),
                             importResult.updated > 0 &&
-                              `${importResult.updated} employee${importResult.updated > 1 ? 's' : ''} updated`,
+                              (importResult.updated > 1
+                                ? dictionary.humanResources.employees.onboarding.results.updatedMany
+                                : dictionary.humanResources.employees.onboarding.results.updatedOne
+                              ).replace('{count}', String(importResult.updated)),
                           ]
                             .filter(Boolean)
                             .join(', ')}{' '}
-                          successfully!
+                          {dictionary.humanResources.employees.onboarding.results.successfully}
                         </Typography>
                       </Alert>
                     )}
@@ -1002,7 +1024,7 @@ const EmployeeOnboardingDialog = ({
             },
           }}
         >
-          Close
+          {dictionary.humanResources.employees.onboarding.buttons.close}
         </Button>
         {tabValue === 0 && (
           <Button
@@ -1018,7 +1040,9 @@ const EmployeeOnboardingDialog = ({
               fontWeight: 600,
             }}
           >
-            {isDownloading ? 'Downloading...' : 'Download Template'}
+            {isDownloading
+              ? dictionary.humanResources.employees.onboarding.buttons.downloading
+              : dictionary.humanResources.employees.onboarding.buttons.downloadTemplate}
           </Button>
         )}
         {file && tabValue === 1 && (
@@ -1036,7 +1060,9 @@ const EmployeeOnboardingDialog = ({
               fontWeight: 600,
             }}
           >
-            {isImporting ? 'Uploading...' : 'Upload & Import'}
+            {isImporting
+              ? dictionary.humanResources.employees.onboarding.buttons.uploading
+              : dictionary.humanResources.employees.onboarding.buttons.uploadImport}
           </Button>
         )}
       </DialogActions>

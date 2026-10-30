@@ -38,6 +38,7 @@ import { useSnackbar } from 'notistack';
 import { useEffect, useState } from 'react';
 import humanResourcesServices from '../humanResourcesServices';
 import { formatMoney } from './payrollUtils';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 type PaymentItem = {
   journal_id: number;
@@ -69,6 +70,8 @@ const PayrollPaymentViewEditDialog = ({
   canEdit: boolean;
   canRemove: boolean;
 }) => {
+  const dictionary = useDictionary();
+  const t = dictionary.humanResources.payrollRuns.paymentView;
   const { enqueueSnackbar } = useSnackbar();
   const { showDialog, hideDialog } = useJumboDialog();
   const queryClient = useQueryClient();
@@ -126,7 +129,7 @@ const PayrollPaymentViewEditDialog = ({
         })),
       }),
     onSuccess: (response: any) => {
-      enqueueSnackbar(response?.message || 'Payment updated', {
+      enqueueSnackbar(response?.message || t.updated, {
         variant: 'success',
       });
       queryClient.invalidateQueries({ queryKey: ['payrollRuns'] });
@@ -178,7 +181,7 @@ const PayrollPaymentViewEditDialog = ({
         journal_id: journalId,
       }),
     onSuccess: (_response: any, journalId: number) => {
-      enqueueSnackbar('Item removed', { variant: 'success' });
+      enqueueSnackbar(t.itemRemoved, { variant: 'success' });
       invalidatePaymentQueries();
       // Removing the payment's only remaining line deletes the payment
       // itself — nothing left to view, so close instead of refetching a
@@ -194,11 +197,13 @@ const PayrollPaymentViewEditDialog = ({
   const handleRemoveItem = (item: PaymentItem) => {
     const name = isPayableSettlement ? item.label : item.employee_name;
     showDialog({
-      title: 'Remove Item',
+      title: t.removeTitle,
       content:
         items.length <= 1
-          ? `This is the only line left on this payment — removing it deletes the whole payment. Continue?`
-          : `Remove ${name} (${formatMoney(item.amount)}) from this payment?`,
+          ? t.removeLastContent
+          : t.removeContent
+              .replace('{name}', String(name))
+              .replace('{amount}', formatMoney(item.amount)),
       onYes: () => {
         hideDialog();
         removeItem(item.journal_id);
@@ -224,7 +229,7 @@ const PayrollPaymentViewEditDialog = ({
     >
       <DialogTitle>
         <Typography variant='h6' component='div' fontWeight={600}>
-          {data?.voucher_no || 'Payment'}
+          {data?.voucher_no || t.payment}
         </Typography>
       </DialogTitle>
       <DialogContent>
@@ -238,7 +243,7 @@ const PayrollPaymentViewEditDialog = ({
               <Grid size={{ xs: 12, md: 6 }}>
                 {isEditing ? (
                   <DateTimePicker
-                    label='Transaction Date & Time'
+                    label={t.transactionDateTime}
                     value={transactionDate ? dayjs(transactionDate) : null}
                     onChange={(val) =>
                       setTransactionDate(val?.toISOString() || '')
@@ -250,7 +255,7 @@ const PayrollPaymentViewEditDialog = ({
                 ) : (
                   <>
                     <Typography variant='caption' color='text.secondary'>
-                      Transaction Date
+                      {t.transactionDate}
                     </Typography>
                     <Typography variant='body2'>
                       {dayjs(data?.transaction_date).format('DD MMM YYYY, HH:mm')}
@@ -262,7 +267,7 @@ const PayrollPaymentViewEditDialog = ({
                 {isEditing ? (
                   <LedgerSelectProvider>
                     <LedgerSelect
-                      label='Bank or Cash Account'
+                      label={t.bankOrCash}
                       defaultValue={data?.credit_ledger || null}
                       allowedGroups={[
                         'Current Assets',
@@ -280,7 +285,7 @@ const PayrollPaymentViewEditDialog = ({
                 ) : (
                   <>
                     <Typography variant='caption' color='text.secondary'>
-                      Reference
+                      {t.reference}
                     </Typography>
                     <Typography variant='body2'>{data?.reference}</Typography>
                   </>
@@ -289,7 +294,7 @@ const PayrollPaymentViewEditDialog = ({
               <Grid size={{ xs: 12 }}>
                 {isEditing ? (
                   <TextField
-                    label='Narration'
+                    label={t.narration}
                     size='small'
                     fullWidth
                     multiline
@@ -300,7 +305,7 @@ const PayrollPaymentViewEditDialog = ({
                 ) : (
                   <>
                     <Typography variant='caption' color='text.secondary'>
-                      Narration
+                      {t.narration}
                     </Typography>
                     <Typography variant='body2'>{data?.narration}</Typography>
                   </>
@@ -313,10 +318,10 @@ const PayrollPaymentViewEditDialog = ({
                 <TableHead>
                   <TableRow>
                     <TableCell>
-                      {isPayableSettlement ? 'Payable Type' : 'Employee'}
+                      {isPayableSettlement ? t.payableType : t.employee}
                     </TableCell>
                     <TableCell align='right' width={160}>
-                      Amount
+                      {t.amount}
                     </TableCell>
                     {isEditing && canRemove && (
                       <TableCell align='center' width={60} />
@@ -358,7 +363,7 @@ const PayrollPaymentViewEditDialog = ({
                       </TableCell>
                       {isEditing && canRemove && (
                         <TableCell align='center'>
-                          <Tooltip title='Remove'>
+                          <Tooltip title={dictionary.tooltips.remove}>
                             <IconButton
                               size='small'
                               disabled={isRemoving}
@@ -377,7 +382,7 @@ const PayrollPaymentViewEditDialog = ({
 
             <Stack direction='row' justifyContent='flex-end'>
               <Typography variant='body2' fontWeight={600}>
-                Total: {formatMoney(total)}
+                {t.total.replace('{amount}', formatMoney(total))}
               </Typography>
             </Stack>
           </Stack>
@@ -385,7 +390,7 @@ const PayrollPaymentViewEditDialog = ({
       </DialogContent>
       <DialogActions sx={{ px: 3, pb: 2 }}>
         <Button onClick={onClose} size='small' disabled={isPending}>
-          Close
+          {t.close}
         </Button>
         {canEdit && !isEditing && (
           <Button
@@ -393,7 +398,7 @@ const PayrollPaymentViewEditDialog = ({
             size='small'
             onClick={() => setIsEditing(true)}
           >
-            Edit
+            {t.edit}
           </Button>
         )}
         {isEditing && (
@@ -403,7 +408,7 @@ const PayrollPaymentViewEditDialog = ({
             loading={isPending}
             onClick={() => save()}
           >
-            Save
+            {t.save}
           </LoadingButton>
         )}
       </DialogActions>

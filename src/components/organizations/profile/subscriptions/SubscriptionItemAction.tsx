@@ -61,7 +61,7 @@ const SubscriptionItemAction: React.FC<SubscriptionItemActionProps> = ({ subscri
 
   const handleDelete = () => {
     showDialog({
-      title: subsDict.buttons.confirmDelete.title.replace('{subscriptionNo}', subscription.subscriptionNo),
+      title: subsDict.buttons.confirmDelete.title.replace('{subscriptionNo}', subscription.subscriptionNo ?? ''),
       content: subsDict.buttons.confirmDelete.content,
       onYes: () => {
         hideDialog();
@@ -99,7 +99,7 @@ const SubscriptionItemAction: React.FC<SubscriptionItemActionProps> = ({ subscri
         </IconButton>
       </Tooltip>
 
-      <Tooltip title='Duplicate'>
+      <Tooltip title={dictionary.tooltips.duplicate}>
         <IconButton
           color='primary'
           size='small'

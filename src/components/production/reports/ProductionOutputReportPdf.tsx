@@ -15,6 +15,7 @@ interface ProductionOutputReportPdfProps {
   reportData: OutputReportResponse;
   organization?: Organization | null;
   user?: UserLike | null;
+  dictionary: any;
 }
 
 type SummaryProduct = OutputReportResponse['summary']['products'][number];
@@ -197,6 +198,7 @@ interface ProductSummaryTableProps {
   mainColor: string;
   contrastText: string;
   lightColor: string;
+  dict: any;
 }
 
 function ProductSummaryTable({
@@ -204,14 +206,15 @@ function ProductSummaryTable({
   mainColor,
   contrastText,
   lightColor,
+  dict,
 }: ProductSummaryTableProps): JSX.Element {
   const columns: ColumnDefinition[] = [
-    { label: 'Finished Product', width: '20%' },
-    { label: 'Unit', width: '16%' },
-    { label: 'Qty Produced', width: '16%' },
-    { label: 'Avg Unit Cost', width: '16%' },
-    { label: 'Total Value', width: '16%' },
-    { label: 'Batches', width: '16%' },
+    { label: dict.finishedProduct, width: '20%' },
+    { label: dict.unit, width: '16%' },
+    { label: dict.qtyProduced, width: '16%' },
+    { label: dict.avgUnitCost, width: '16%' },
+    { label: dict.totalValue, width: '16%' },
+    { label: dict.batches, width: '16%' },
   ];
 
   return (
@@ -295,6 +298,7 @@ interface BatchBlockProps {
   mainColor: string;
   contrastText: string;
   lightColor: string;
+  dict: any;
 }
 
 function BatchBlock({
@@ -302,23 +306,24 @@ function BatchBlock({
   mainColor,
   contrastText,
   lightColor,
+  dict,
 }: BatchBlockProps): JSX.Element {
   const outputColumns: ColumnDefinition[] = [
-    { label: 'S/N', width: '8%' },
-    { label: 'Product', width: '18%' },
-    { label: 'Unit', width: '14%' },
-    { label: 'Qty', width: '15%', right: true },
-    { label: 'Unit Cost', width: '15%', right: true },
-    { label: 'Total Value', width: '15%', right: true },
-    { label: 'Value %', width: '15%', right: true },
+    { label: dict.sn, width: '8%' },
+    { label: dict.product, width: '18%' },
+    { label: dict.unit, width: '14%' },
+    { label: dict.qty, width: '15%', right: true },
+    { label: dict.unitCost, width: '15%', right: true },
+    { label: dict.totalValue, width: '15%', right: true },
+    { label: dict.valuePercent, width: '15%', right: true },
   ];
 
   const byProductColumns: ColumnDefinition[] = [
-    { label: 'Product', width: '20%' },
-    { label: 'Unit', width: '20%' },
-    { label: 'Qty', width: '20%', right: true },
-    { label: 'Market Value / Unit', width: '20%', right: true },
-    { label: 'Total Market Value', width: '20%', right: true },
+    { label: dict.product, width: '20%' },
+    { label: dict.unit, width: '20%' },
+    { label: dict.qty, width: '20%', right: true },
+    { label: dict.marketValuePerUnit, width: '20%', right: true },
+    { label: dict.totalMarketValue, width: '20%', right: true },
   ];
 
   return (
@@ -341,7 +346,7 @@ function BatchBlock({
         </Text>
       </View>
 
-      <Text style={{ ...styles.subSectionHeading, textAlign: 'center', fontWeight: 'bold' }}>Outputs</Text>
+      <Text style={{ ...styles.subSectionHeading, textAlign: 'center', fontWeight: 'bold' }}>{dict.outputs}</Text>
       <View style={pdfStyles.tableRow}>
         {outputColumns.map((column) => (
           <Text
@@ -431,7 +436,7 @@ function BatchBlock({
 
       {(batch.by_products || []).length > 0 && (
         <>
-          <Text style={[styles.subSectionHeading, { marginTop: 4 }]}>By-Products</Text>
+          <Text style={[styles.subSectionHeading, { marginTop: 4 }]}>{dict.byProducts}</Text>
           <View
             style={{
               ...pdfStyles.tableRow,
@@ -490,7 +495,9 @@ function ProductionOutputReportPdf({
   reportData,
   organization,
   user,
+  dictionary,
 }: ProductionOutputReportPdfProps): JSX.Element {
+  const dict = dictionary.reports.productionReports;
   const mainColor = organization?.settings?.main_color || "#2113AD";
   const lightColor = organization?.settings?.light_color || "#bec5da";
   const contrastText = organization?.settings?.contrast_text || "#FFFFFF";
@@ -501,16 +508,16 @@ function ProductionOutputReportPdf({
   const printedOn = readableDate(new Date().toISOString(), true);
 
   const batchHeaderColumns: ColumnDefinition[] = [
-    { label: 'Duration', width: '20%' },
-    { label: 'Work Center', width: '20%' },
-    { label: 'Cost Center', width: '20%' },
-    { label: 'Output Value', width: '20%', right: true },
-    { label: 'By-Product Val', width: '20%', right: true },
+    { label: dict.duration, width: '20%' },
+    { label: dict.workCenter, width: '20%' },
+    { label: dict.costCenter, width: '20%' },
+    { label: dict.outputValue, width: '20%', right: true },
+    { label: dict.byProductVal, width: '20%', right: true },
   ];
 
   return (
     <Document
-      title={`Production Output Report ${periodLabel}`}
+      title={`${dict.productionOutputReport} ${periodLabel}`}
       author={userName}
       creator='ERP System'
     >
@@ -521,22 +528,22 @@ function ProductionOutputReportPdf({
           </View>
           <View style={{ flex: 1, textAlign: 'right' }}>
             <Text style={{ ...pdfStyles.majorInfo, color: mainColor }}>
-              Production Output Report
+              {dict.productionOutputReport}
             </Text>
-            <Text style={pdfStyles.minInfo}>Period: {periodLabel}</Text>
+            <Text style={pdfStyles.minInfo}>{dict.period}: {periodLabel}</Text>
           </View>
         </View>
 
         <View style={{ ...pdfStyles.tableRow, marginTop: 10, marginBottom: 10 }}>
           <View style={{ flex: 1, padding: 2 }}>
             <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>
-              Printed By
+              {dict.printedBy}
             </Text>
             <Text style={pdfStyles.minInfo}>{userName}</Text>
           </View>
           <View style={{ flex: 1, padding: 2 }}>
             <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>
-              Printed On
+              {dict.printedOn}
             </Text>
             <Text style={pdfStyles.minInfo}>{printedOn}</Text>
           </View>
@@ -544,34 +551,35 @@ function ProductionOutputReportPdf({
 
         <View style={styles.kpiRow}>
           <View style={[styles.kpiCard]}>
-            <Text style={[styles.kpiLabel, { color: mainColor }]}>Total Batches</Text>
+            <Text style={[styles.kpiLabel, { color: mainColor }]}>{dict.totalBatches}</Text>
             <Text style={pdfStyles.minInfo}>
               {summary?.total_batches ?? 0}
             </Text>
           </View>
           <View style={[styles.kpiCard]}>
-            <Text style={[styles.kpiLabel, { color: mainColor }]}>Total Output Value</Text>
+            <Text style={[styles.kpiLabel, { color: mainColor }]}>{dict.totalOutputValue}</Text>
             <Text style={pdfStyles.minInfo}>
               {formatCurrency(summary?.total_output_value)}
             </Text>
           </View>
           <View style={[styles.kpiCard]}>
-            <Text style={[styles.kpiLabel, { color: mainColor }]}>By-Product Value</Text>
+            <Text style={[styles.kpiLabel, { color: mainColor }]}>{dict.byProductValue}</Text>
             <Text style={pdfStyles.minInfo}>
               {formatCurrency(summary?.total_by_product_value)}
             </Text>
           </View>
         </View>
 
-        <SectionHeading label='Product Summary' color={mainColor} />
+        <SectionHeading label={dict.productSummary} color={mainColor} />
         <ProductSummaryTable
           products={summary?.products}
           mainColor={mainColor}
           contrastText={contrastText}
           lightColor={lightColor}
+          dict={dict}
         />
 
-        <SectionHeading label='Batch Detail' color={mainColor} />
+        <SectionHeading label={dict.batchDetail} color={mainColor} />
         {(batches || []).map((batch, index) => (
           <Fragment key={batch.id || index}>
             <Text
@@ -610,19 +618,20 @@ function ProductionOutputReportPdf({
               mainColor={mainColor}
               contrastText={contrastText}
               lightColor={lightColor}
+              dict={dict}
             />
           </Fragment>
         ))}
 
         <View style={styles.footer} fixed>
-          <Text style={styles.footerText}>Production Output Report</Text>
+          <Text style={styles.footerText}>{dict.productionOutputReport}</Text>
           <Text
             style={styles.footerText}
             render={({ pageNumber, totalPages }) =>
-              `Page ${pageNumber} of ${totalPages}`
+              dict.pageXofY.replace('{page}', String(pageNumber)).replace('{total}', String(totalPages))
             }
           />
-          <Text style={styles.footerText}>Period: {periodLabel}</Text>
+          <Text style={styles.footerText}>{dict.period}: {periodLabel}</Text>
         </View>
       </Page>
     </Document>

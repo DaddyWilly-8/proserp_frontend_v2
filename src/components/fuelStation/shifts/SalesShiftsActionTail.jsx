@@ -11,8 +11,10 @@ import { useState } from 'react';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
 import SaleShiftForm from './SaleShiftForm/SaleShiftForm';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const SalesShiftsActionTail = () => {
+  const dictionary = useDictionary();
   const [openDialog, setOpenDialog] = useState(false);
   const { checkOrganizationPermission } = useJumboAuth();
 
@@ -35,7 +37,7 @@ const SalesShiftsActionTail = () => {
         disableElevation
         sx={{ '& .MuiButton-root': { px: 1 } }}
       >
-        <Tooltip title='Add Sales Shift'>
+        <Tooltip title={dictionary.tooltips.addSalesShift}>
           <IconButton onClick={() => setOpenDialog(true)}>
             <AddOutlined />
           </IconButton>

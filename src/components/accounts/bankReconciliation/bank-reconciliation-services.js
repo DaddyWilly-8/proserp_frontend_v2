@@ -61,6 +61,13 @@ bankReconciliationServices.getReconciliationWorkspace = async (bankAccountId, pa
     return data;
 };
 
+bankReconciliationServices.getReconciliationStatement = async (bankAccountId, params = {}) => {
+    const { data } = await axios.get(`/api/accounts/bankReconciliation/bankAccounts/${bankAccountId}/reconciliationStatement`, {
+        params
+    });
+    return data;
+};
+
 bankReconciliationServices.listStatements = async (bankAccountId) => {
     const { data } = await axios.get(`/api/accounts/bankReconciliation/bankAccounts/${bankAccountId}/statements`);
     return data;
@@ -118,6 +125,11 @@ bankReconciliationServices.undoPostedTransaction = async (matchId) => {
 
 bankReconciliationServices.completeStatement = async (statementId) => {
     const { data } = await axios.post(`/api/accounts/bankReconciliation/statements/${statementId}/complete`);
+    return data;
+};
+
+bankReconciliationServices.reopenStatement = async (statementId) => {
+    const { data } = await axios.post(`/api/accounts/bankReconciliation/statements/${statementId}/reopen`);
     return data;
 };
 

@@ -21,6 +21,7 @@ import { useMutation } from '@tanstack/react-query';
 import { DateTimePicker } from '@mui/x-date-pickers';
 import smsServices from './smsServices';
 import { useSnackbar } from 'notistack';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface LogsFormData {
   from?: string;
@@ -59,6 +60,7 @@ interface LogsResponse {
 }
 
 export default function LogsForm() {
+  const dictionary = useDictionary();
   const { enqueueSnackbar } = useSnackbar();
   const [logs, setLogs] = useState<SmsLog[]>([]);
 
@@ -67,11 +69,11 @@ export default function LogsForm() {
   const mutation = useMutation({
     mutationFn: smsServices.getLogs,
     onSuccess: (data: LogsResponse) => {
-      enqueueSnackbar('SMS logs fetched successfully!', { variant: 'success' });
+      enqueueSnackbar(dictionary.forms.nextSms.logs.success, { variant: 'success' });
       setLogs(data.results || []);
     },
     onError: (err: any) => {
-      enqueueSnackbar(err?.response?.data?.message || 'Failed to fetch SMS logs', { variant: 'error' });
+      enqueueSnackbar(err?.response?.data?.message || dictionary.forms.nextSms.logs.failed, { variant: 'error' });
       setLogs([]);
     }
   });
@@ -113,19 +115,19 @@ export default function LogsForm() {
 
   return (
     <Box sx={{ mt: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
-      <Typography variant="h6">Get Sent SMS Logs</Typography>
+      <Typography variant="h6">{dictionary.forms.nextSms.logs.title}</Typography>
 
       <Box component="form" onSubmit={handleSubmit(onSubmit)} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
         
         <TextField 
-          label="To (Recipient Number)" 
+          label={dictionary.forms.nextSms.logs.toLabel} 
           {...register("to")} 
           fullWidth 
           size="small"
         />
         
         <DateTimePicker
-          label="Sent Since"
+          label={dictionary.forms.nextSms.logs.sentSince}
           defaultValue={null}
           slotProps={{
             textField: {
@@ -139,7 +141,7 @@ export default function LogsForm() {
         />
         
         <DateTimePicker
-          label="Sent Until"
+          label={dictionary.forms.nextSms.logs.sentUntil}
           defaultValue={null}
           slotProps={{
             textField: {
@@ -158,7 +160,7 @@ export default function LogsForm() {
           loading={mutation.isPending}
           sx={{ alignSelf: 'flex-start' }}
         >
-          Get Logs
+          {dictionary.forms.nextSms.logs.button}
         </LoadingButton>
       </Box>
 
@@ -166,19 +168,19 @@ export default function LogsForm() {
         <Card variant="outlined">
           <CardContent>
             <Typography variant="h6" gutterBottom>
-              SMS Logs ({logs.length} records)
+              {dictionary.forms.nextSms.logs.recordsTitle.replace('{count}', String(logs.length))}
             </Typography>
             
             <TableContainer component={Paper} sx={{ maxHeight: 400 }}>
               <Table stickyHeader size="small">
                 <TableHead>
                   <TableRow>
-                    <TableCell>To</TableCell>
-                    <TableCell>Message</TableCell>
-                    <TableCell>Status</TableCell>
-                    <TableCell>SMS Count</TableCell>
-                    <TableCell>Sent At</TableCell>
-                    <TableCell>Completed At</TableCell>
+                    <TableCell>{dictionary.forms.nextSms.common.to}</TableCell>
+                    <TableCell>{dictionary.forms.nextSms.common.message}</TableCell>
+                    <TableCell>{dictionary.forms.nextSms.common.status}</TableCell>
+                    <TableCell>{dictionary.forms.nextSms.common.smsCount}</TableCell>
+                    <TableCell>{dictionary.forms.nextSms.common.sentAt}</TableCell>
+                    <TableCell>{dictionary.forms.nextSms.common.completedAt}</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -199,12 +201,12 @@ export default function LogsForm() {
                             title={log.status.description}
                           />
                         ) : (
-                          <Chip label="UNKNOWN" color="default" size="small" />
+                          <Chip label={dictionary.forms.nextSms.common.unknown} color="default" size="small" />
                         )}
                       </TableCell>
                       <TableCell>{log.smsCount}</TableCell>
                       <TableCell>{formatDate(log.sentAt)}</TableCell>
-                      <TableCell>{log.doneAt ? formatDate(log.doneAt) : 'N/A'}</TableCell>
+                      <TableCell>{log.doneAt ? formatDate(log.doneAt) : dictionary.forms.nextSms.common.notAvailable}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -214,22 +216,22 @@ export default function LogsForm() {
             {/* Summary Statistics */}
             <Box sx={{ mt: 2, p: 2, bgcolor: 'grey.50', borderRadius: 1 }}>
               <Typography variant="subtitle2" gutterBottom>
-                Summary
+                {dictionary.forms.nextSms.common.summary}
               </Typography>
               <Typography variant="body2">
-                Total Messages: {logs.length}
+                {dictionary.forms.nextSms.common.totalMessages.replace('{count}', String(logs.length))}
               </Typography>
               <Typography variant="body2">
-                Delivered: {logs.filter(log => log.status?.name === 'DELIVERED_TO_HANDSET').length}
+                {dictionary.forms.nextSms.common.delivered.replace('{count}', String(logs.filter(log => log.status?.name === 'DELIVERED_TO_HANDSET').length))}
               </Typography>
               <Typography variant="body2">
-                Pending: {logs.filter(log => log.status?.name === 'PENDING_ENROUTE').length}
+                {dictionary.forms.nextSms.common.pending.replace('{count}', String(logs.filter(log => log.status?.name === 'PENDING_ENROUTE').length))}
               </Typography>
               <Typography variant="body2">
-                Rejected: {logs.filter(log => log.status?.groupName === 'REJECTED').length}
+                {dictionary.forms.nextSms.common.rejected.replace('{count}', String(logs.filter(log => log.status?.groupName === 'REJECTED').length))}
               </Typography>
               <Typography variant="body2">
-                Total SMS: {logs.reduce((total, log) => total + log.smsCount, 0)}
+                {dictionary.forms.nextSms.common.totalSms.replace('{count}', String(logs.reduce((total, log) => total + log.smsCount, 0)))}
               </Typography>
             </Box>
           </CardContent>
@@ -238,7 +240,7 @@ export default function LogsForm() {
 
       {mutation.isSuccess && logs.length === 0 && (
         <Typography variant="body2" color="text.secondary">
-          No SMS logs found for the selected criteria.
+          {dictionary.forms.nextSms.logs.empty}
         </Typography>
       )}
     </Box>

@@ -36,6 +36,7 @@ type SalarySheetPDFProps = {
   // All three view options at Detailed (widest possible column count) — A4
   // gets cramped, so the page bumps up to A3.
   allDetailed?: boolean;
+  dictionary: any;
 };
 
 const styles = StyleSheet.create({
@@ -223,7 +224,9 @@ const SalarySheetPDF = ({
   selectedPeriod,
   userName = 'ProsERP',
   allDetailed = false,
+  dictionary,
 }: SalarySheetPDFProps) => {
+  const t = dictionary.humanResources.payrollPeriods;
   const mainColor = organization.settings?.main_color || '#2113AD';
   const lightColor = organization.settings?.light_color || '#d9dfef';
   const contrastText = organization.settings?.contrast_text || '#FFFFFF';
@@ -358,10 +361,10 @@ const SalarySheetPDF = ({
   // SalarySheetDialog.tsx's groupedRows exactly.
   const getGroupLabel = (run: PayrollRunType): string => {
     if (groupBy === 'department') {
-      return (run.employee as any)?.department?.name || 'Unassigned';
+      return (run.employee as any)?.department?.name || t.salarySheet.labels.unassigned;
     }
     if (groupBy === 'cost_center') {
-      return (run.employee as any)?.cost_center?.name || 'Unassigned';
+      return (run.employee as any)?.cost_center?.name || t.salarySheet.labels.unassigned;
     }
     return '';
   };
@@ -440,9 +443,9 @@ const SalarySheetPDF = ({
 
   return (
     <Document
-      title={`Salary Sheet ${periodLabel}`}
+      title={`${t.salarySheet.labels.salarySheet} ${periodLabel}`}
       author={organization.name}
-      subject='Salary Sheet'
+      subject={t.salarySheet.labels.salarySheet}
     >
       <Page
         size={allDetailed ? 'A3' : 'A4'}
@@ -456,7 +459,7 @@ const SalarySheetPDF = ({
           </View>
           <View style={{ alignItems: 'flex-end' }}>
             <Text style={{ ...styles.title, color: mainColor }}>
-              SALARY PAYROLL
+              {t.salarySheet.labels.salaryPayrollTitle}
             </Text>
             <Text style={styles.subtitle}>{periodLabel}</Text>
             {!!selectedPeriod && (
@@ -484,7 +487,7 @@ const SalarySheetPDF = ({
                 borderColor: borderColor,
               }}
             >
-              RECRUITMENT
+              {t.salarySheet.columns.recruitment}
             </Text>
             <Text
               style={{
@@ -496,7 +499,7 @@ const SalarySheetPDF = ({
                 borderColor: borderColor,
               }}
             >
-              EMPLOYEE
+              {t.salarySheet.columns.employee}
             </Text>
             <Text
               style={{
@@ -508,7 +511,7 @@ const SalarySheetPDF = ({
                 borderColor: borderColor,
               }}
             >
-              EMPLOYER
+              {t.salarySheet.columns.employer}
             </Text>
           </View>
 
@@ -523,7 +526,7 @@ const SalarySheetPDF = ({
                 backgroundColor: subHeaderBg,
               }}
             >
-              S/N
+              {t.salarySheet.columns.serialNumber}
             </Text>
             <Text
               style={{
@@ -534,7 +537,7 @@ const SalarySheetPDF = ({
                 backgroundColor: subHeaderBg,
               }}
             >
-              Employee
+              {t.salarySheet.columns.employeeName}
             </Text>
             <Text
               style={{
@@ -545,7 +548,7 @@ const SalarySheetPDF = ({
                 backgroundColor: subHeaderBg,
               }}
             >
-              Designation
+              {t.salarySheet.columns.designation}
             </Text>
 
             <Text
@@ -557,7 +560,7 @@ const SalarySheetPDF = ({
                 backgroundColor: subHeaderBg,
               }}
             >
-              Basic Salary
+              {t.salarySheet.columns.basicSalary}
             </Text>
             {hasAllowances && (
               <Text
@@ -569,7 +572,7 @@ const SalarySheetPDF = ({
                   backgroundColor: subHeaderBg,
                 }}
               >
-                Allowances
+                {t.salarySheet.columns.allowances}
               </Text>
             )}
             <Text
@@ -581,7 +584,7 @@ const SalarySheetPDF = ({
                 backgroundColor: subHeaderBg,
               }}
             >
-              Gross Salary
+              {t.salarySheet.columns.grossSalary}
             </Text>
             <Text
               style={{
@@ -592,7 +595,7 @@ const SalarySheetPDF = ({
                 backgroundColor: subHeaderBg,
               }}
             >
-              Taxable Salary
+              {t.salarySheet.columns.taxableSalary}
             </Text>
             <Text
               style={{
@@ -603,7 +606,7 @@ const SalarySheetPDF = ({
                 backgroundColor: subHeaderBg,
               }}
             >
-              PAYE
+              {t.salarySheet.columns.paye}
             </Text>
             {hasDeductions && (
               <Text
@@ -615,7 +618,7 @@ const SalarySheetPDF = ({
                   backgroundColor: subHeaderBg,
                 }}
               >
-                Deductions
+                {t.salarySheet.columns.deductions}
               </Text>
             )}
             <Text
@@ -627,7 +630,7 @@ const SalarySheetPDF = ({
                 backgroundColor: subHeaderBg,
               }}
             >
-              Total Ded.
+              {t.salarySheet.columns.totalDed}
             </Text>
             <Text
               style={{
@@ -638,7 +641,7 @@ const SalarySheetPDF = ({
                 backgroundColor: subHeaderBg,
               }}
             >
-              Net Payable
+              {t.salarySheet.columns.netPayable}
             </Text>
 
             {hasContributions && (
@@ -652,7 +655,7 @@ const SalarySheetPDF = ({
                   backgroundColor: subHeaderBg,
                 }}
               >
-                Employer Contributions
+                {t.salarySheet.columns.employerContributions}
               </Text>
             )}
             <Text
@@ -664,7 +667,7 @@ const SalarySheetPDF = ({
                 backgroundColor: subHeaderBg,
               }}
             >
-              Total Empr. Cont.
+              {t.salarySheet.columns.totalEmployerContributions}
             </Text>
             <Text
               style={{
@@ -675,7 +678,7 @@ const SalarySheetPDF = ({
                 backgroundColor: subHeaderBg,
               }}
             >
-              Total Empr. Cost
+              {t.salarySheet.columns.totalEmployerCost}
             </Text>
           </View>
 
@@ -721,7 +724,7 @@ const SalarySheetPDF = ({
                 textAlign: 'right',
               }}
             >
-              Amount
+              {t.salarySheet.columns.amount}
             </Text>
             {unique_allowances_types.map((type, idx) => (
               <Text
@@ -735,7 +738,7 @@ const SalarySheetPDF = ({
                   textAlign: 'right',
                 }}
               >
-                {type.label || type.name || 'Allowance'}
+                {type.label || type.name || t.salarySheet.labels.allowance}
               </Text>
             ))}
             <Text
@@ -748,7 +751,7 @@ const SalarySheetPDF = ({
                 textAlign: 'right',
               }}
             >
-              Amount
+              {t.salarySheet.columns.amount}
             </Text>
             <Text
               style={{
@@ -760,7 +763,7 @@ const SalarySheetPDF = ({
                 textAlign: 'right',
               }}
             >
-              Amount
+              {t.salarySheet.columns.amount}
             </Text>
             <Text
               style={{
@@ -772,7 +775,7 @@ const SalarySheetPDF = ({
                 textAlign: 'right',
               }}
             >
-              Amount
+              {t.salarySheet.columns.amount}
             </Text>
             {unique_deductions_types.map((type, idx) => (
               <Text
@@ -786,7 +789,7 @@ const SalarySheetPDF = ({
                   textAlign: 'right',
                 }}
               >
-                {type.label || 'Deduction'}
+                {type.label || t.salarySheet.labels.deduction}
               </Text>
             ))}
             <Text
@@ -799,7 +802,7 @@ const SalarySheetPDF = ({
                 textAlign: 'right',
               }}
             >
-              Amount
+              {t.salarySheet.columns.amount}
             </Text>
             <Text
               style={{
@@ -811,7 +814,7 @@ const SalarySheetPDF = ({
                 textAlign: 'right',
               }}
             >
-              Amount
+              {t.salarySheet.columns.amount}
             </Text>
 
             {unique_contributions_types.map((type, idx) => (
@@ -826,7 +829,7 @@ const SalarySheetPDF = ({
                   textAlign: 'right',
                 }}
               >
-                {type.label || 'Contribution'}
+                {type.label || t.salarySheet.labels.contribution}
               </Text>
             ))}
             <Text
@@ -839,7 +842,7 @@ const SalarySheetPDF = ({
                 textAlign: 'right',
               }}
             >
-              Total
+              {t.salarySheet.columns.total}
             </Text>
             <Text
               style={{
@@ -851,7 +854,7 @@ const SalarySheetPDF = ({
                 textAlign: 'right',
               }}
             >
-              Cost
+              {t.salarySheet.columns.cost}
             </Text>
           </View>
 
@@ -882,8 +885,12 @@ const SalarySheetPDF = ({
                       marginTop: 12,
                     }}
                   >
-                    {group.label} ({group.rows.length} employee
-                    {group.rows.length === 1 ? '' : 's'})
+                    {group.label} (
+                    {(group.rows.length === 1
+                      ? t.salarySheet.labels.employeeCountOne
+                      : t.salarySheet.labels.employeeCountMany
+                    ).replace('{count}', String(group.rows.length))}
+                    )
                   </Text>
                 </View>
               )}
@@ -1145,7 +1152,7 @@ const SalarySheetPDF = ({
                           fontWeight: 'bold',
                         }}
                       >
-                        Subtotal — {group.label}
+                        {t.salarySheet.labels.subtotal} — {group.label}
                       </Text>
                       <Text
                         style={{
@@ -1315,7 +1322,7 @@ const SalarySheetPDF = ({
                 fontWeight: 'bold',
               }}
             >
-              TOTALS
+              {t.salarySheet.columns.totals}
             </Text>
 
             <Text
@@ -1482,7 +1489,7 @@ const SalarySheetPDF = ({
         {/* Breakdown Financial Summaries Panel */}
         <View style={styles.summaryWrap}>
           <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>Gross Pay by Employer</Text>
+            <Text style={styles.summaryLabel}>{t.salarySheet.labels.grossPayByEmployer}</Text>
             <Text style={styles.summaryBlank}></Text>
             <Text style={styles.summaryAmount}>{fmt(grossByEmployer)}</Text>
             <Text style={styles.summaryPercent}>
@@ -1490,7 +1497,7 @@ const SalarySheetPDF = ({
             </Text>
           </View>
           <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>Net Employee Payment</Text>
+            <Text style={styles.summaryLabel}>{t.salarySheet.labels.netEmployeePayment}</Text>
             <Text style={styles.summaryBlank}></Text>
             <Text style={styles.summaryAmount}>{fmt(netEmployeePayment)}</Text>
             <Text style={styles.summaryPercent}>
@@ -1498,7 +1505,7 @@ const SalarySheetPDF = ({
             </Text>
           </View>
           <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>Payroll Taxes & Benefits</Text>
+            <Text style={styles.summaryLabel}>{t.salarySheet.labels.payrollTaxesBenefits}</Text>
             <Text style={styles.summaryBlank}></Text>
             <Text style={styles.summaryAmount}>
               {fmt(payrollTaxesAndBenefits)}
@@ -1508,7 +1515,7 @@ const SalarySheetPDF = ({
             </Text>
           </View>
           <View style={styles.summaryRow}>
-            <Text style={styles.summarySubLabel}>P.A.Y.E</Text>
+            <Text style={styles.summarySubLabel}>{t.salarySheet.labels.payeDotted}</Text>
             <Text style={styles.summarySubAmount}>{fmt(totals.paye)}</Text>
             <Text style={styles.summaryBlank}></Text>
             <Text style={styles.summaryPercent}>
@@ -1561,8 +1568,7 @@ const SalarySheetPDF = ({
 
         {rows.some((entry) => entry.computed.proration) && (
           <Text style={{ fontSize: 7, color: '#B45309', marginTop: 4 }}>
-            * Basic Salary prorated — the employee&apos;s contract didn&apos;t cover
-            the full payroll month.
+            {t.salarySheet.messages.proratedNotePdf}
           </Text>
         )}
 
@@ -1570,34 +1576,31 @@ const SalarySheetPDF = ({
         <View style={styles.signaturesWrap}>
           <View style={styles.signatureRow}>
             <Text style={styles.signatureLabel}>
-              Prepared
-              by.............................................................................................................
+              {t.salarySheet.labels.preparedBy}.............................................................................................................
             </Text>
             <Text style={styles.signatureText}>
-              Signature..................................
+              {t.salarySheet.labels.signature}..................................
             </Text>
           </View>
           <View style={styles.signatureRow}>
             <Text style={styles.signatureLabel}>
-              Verified
-              by................................................................................................................
+              {t.salarySheet.labels.verifiedBy}.............................................................................................................
             </Text>
             <Text style={styles.signatureText}>
-              Signature..................................
+              {t.salarySheet.labels.signature}..................................
             </Text>
           </View>
           {/* Sits just above "Approved by" — the last thing an approver
               reads before signing off, rather than buried up in the header. */}
           <Text style={{ fontSize: 8, fontStyle: 'italic', marginVertical: 6 }}>
-            Printed By: {userName}   |   Printed On: {readableDate(undefined, true)}
+            {t.salarySheet.labels.printedBy}: {userName}   |   {t.salarySheet.labels.printedOn}: {readableDate(undefined, true)}
           </Text>
           <View style={styles.signatureRow}>
             <Text style={styles.signatureLabel}>
-              Approved
-              by..............................................................................................................
+              {t.salarySheet.labels.approvedBy}.............................................................................................................
             </Text>
             <Text style={styles.signatureText}>
-              Signature..................................
+              {t.salarySheet.labels.signature}..................................
             </Text>
           </View>
         </View>

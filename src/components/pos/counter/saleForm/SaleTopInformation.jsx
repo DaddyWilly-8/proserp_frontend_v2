@@ -23,6 +23,7 @@ import { useQuery } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
 import posServices from '../../pos-services';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function SaleTopInformation({
   counterLedgers,
@@ -43,7 +44,8 @@ function SaleTopInformation({
   clearErrors,
   register,
 }) {
-  const wc = { id: null, name: 'Walk-in Customer' };
+  const dictionary = useDictionary();
+  const wc = { id: null, name: dictionary.forms.counter.saleTop.walkInCustomer };
   const [transaction_date] = useState(
     sale ? dayjs(sale.transaction_date) : dayjs()
   );
@@ -67,7 +69,7 @@ function SaleTopInformation({
         <Grid size={{ xs: 12, md: 6, lg: 4 }}>
           <Div sx={{ mt: 0.3 }}>
             <DateTimePicker
-              label='Transaction Date'
+              label={dictionary.forms.counter.saleTop.labels.transactionDate}
               fullWidth
               readOnly={majorInfoOnly}
               minDate={
@@ -130,7 +132,7 @@ function SaleTopInformation({
           <Grid size={{ xs: 12, md: 6, lg: 4 }}>
             <Div sx={{ mt: 0.3 }}>
               <TextField
-                label='Exchange Rate'
+                label={dictionary.forms.counter.saleTop.labels.exchangeRate}
                 fullWidth
                 size='small'
                 readOnly={majorInfoOnly}
@@ -158,7 +160,7 @@ function SaleTopInformation({
           <Grid size={{ xs: 12, md: 6, lg: 4 }}>
             <Div sx={{ mt: 0.3 }}>
               <StakeholderSelector
-                label='Client'
+                label={dictionary.forms.counter.saleTop.labels.client}
                 frontError={errors?.stakeholder_id}
                 defaultValue={sale && sale.stakeholder.id}
                 addedStakeholder={addedStakeholder}
@@ -190,7 +192,7 @@ function SaleTopInformation({
                   checkOrganizationPermission(
                     PERMISSIONS.STAKEHOLDERS_CREATE
                   ) && (
-                    <Tooltip title='Add Client'>
+                    <Tooltip title={dictionary.tooltips.addClient}>
                       <AddOutlined
                         onClick={() => setStakeholderQuickAddDisplay(true)}
                         sx={{ cursor: 'pointer' }}
@@ -215,7 +217,7 @@ function SaleTopInformation({
         <Grid size={{ xs: 12, md: 6, lg: 4 }}>
           <TextField
             size='small'
-            label='Reference'
+            label={dictionary.forms.counter.saleTop.labels.reference}
             fullWidth
             {...register('reference')}
           />
@@ -224,9 +226,13 @@ function SaleTopInformation({
           <>
             <Grid size={{ xs: 12, md: 6, lg: 4 }}>
               <Div sx={{ mt: 0.3 }}>
-                <FormControl fullWidth size='small' label='Payment Method'>
+                <FormControl
+                  fullWidth
+                  size='small'
+                  label={dictionary.forms.counter.saleTop.labels.paymentMethod}
+                >
                   <InputLabel id='payment-method-label'>
-                    Payment Method
+                    {dictionary.forms.counter.saleTop.labels.paymentMethod}
                   </InputLabel>
                   <Select
                     labelId='payment-method-label'
@@ -237,11 +243,15 @@ function SaleTopInformation({
                       setDebitLedger(null);
                       setValue('debit_ledger_id', null);
                     }}
-                    label='Payment Method'
+                    label={dictionary.forms.counter.saleTop.labels.paymentMethod}
                   >
-                    <MenuItem value='instant'>Instant</MenuItem>
+                    <MenuItem value='instant'>
+                      {dictionary.forms.counter.saleTop.paymentMethods.instant}
+                    </MenuItem>
                     {watch('stakeholder_id') && (
-                      <MenuItem value='on_account'>On Account</MenuItem>
+                      <MenuItem value='on_account'>
+                        {dictionary.forms.counter.saleTop.paymentMethods.onAccount}
+                      </MenuItem>
                     )}
                   </Select>
                 </FormControl>
@@ -267,7 +277,7 @@ function SaleTopInformation({
                     renderInput={(params) => (
                       <TextField
                         {...params}
-                        label='Account'
+                        label={dictionary.forms.counter.saleTop.labels.account}
                         error={!!errors?.debit_ledger_id}
                         helperText={errors?.debit_ledger_id?.message}
                       />
@@ -304,7 +314,7 @@ function SaleTopInformation({
               renderInput={(params) => (
                 <TextField
                   {...params}
-                  label='Sales Person'
+                  label={dictionary.forms.counter.saleTop.labels.salesPerson}
                   size='small'
                   fullWidth
                 />
@@ -320,7 +330,7 @@ function SaleTopInformation({
         </Grid>
         <Grid size={{ xs: 12, md: 6, lg: majorInfoOnly ? 4 : 8 }}>
           <TextField
-            label='Remarks'
+            label={dictionary.forms.counter.saleTop.labels.remarks}
             fullWidth
             multiline={true}
             minRows={1}

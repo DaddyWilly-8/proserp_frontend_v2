@@ -8,6 +8,7 @@ import JumboListToolbar from '@jumbo/components/JumboList/components/JumboListTo
 import { useSearchParams } from 'next/navigation';
 import projectsServices from '@/components/projectManagement/projects/project-services';
 import { getSanitizedSearchKeyword } from '@/utilities/getSanitizedSearchKeyword';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import ApprovedSubcontractCertificatesListItem from './ApprovedSubcontractCertificatesListItem';
 import { Certificate } from '@/components/projectManagement/projects/profile/subcontracts/tabs/certificatesTab/CertificateType';
 
@@ -15,6 +16,7 @@ import { Certificate } from '@/components/projectManagement/projects/profile/sub
 // approved, invoiced) - status is shown per-row via status_label, so there's no need to filter
 // any of them out by default.
 const ApprovedSubcontractCertificates: React.FC = () => {
+  const dictionary = useDictionary();
   const searchParams = useSearchParams();
   const listRef = React.useRef<any>(null);
 
@@ -60,7 +62,7 @@ const ApprovedSubcontractCertificates: React.FC = () => {
   return (
     <>
       <Typography variant="h4" mb={2}>
-        Subcontract Certificates
+        {dictionary.projectManagement.approvedCertificates.title}
       </Typography>
 
       <JumboRqList

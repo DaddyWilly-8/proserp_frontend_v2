@@ -47,7 +47,7 @@ export const InvitationQueue: React.FC<InvitationQueueProps> = ({
     const invalidInvitees = invitees.filter((invitee) => invitee.selectedRoles.length < 1);
 
     if (invalidInvitees.length > 0) {
-      enqueueSnackbar(inviteDict.form.messages.validation.roleRequired, { variant: 'error' });
+      enqueueSnackbar(inviteDict.form.validation.roleRequired, { variant: 'error' });
       return null;
     }
 

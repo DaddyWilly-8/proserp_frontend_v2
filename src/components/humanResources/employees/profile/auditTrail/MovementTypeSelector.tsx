@@ -2,20 +2,21 @@
 
 import { Box, FormControl, InputLabel, MenuItem, Select } from '@mui/material';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface MovementTypeSelectorProps {
   onChange: (value: string) => void;
   value: string;
 }
 
-const MOVEMENT_TYPES = [
-  { value: 'all', label: 'All Movements' },
-  { value: 'cost_center', label: 'Cost Center Changes' },
-  { value: 'department', label: 'Department Changes' },
-  { value: 'manager', label: 'Manager Changes' },
-];
-
 const MovementTypeSelector = ({ onChange, value }: MovementTypeSelectorProps) => {
+  const dictionary = useDictionary();
+  const MOVEMENT_TYPES = [
+    { value: 'all', label: dictionary.humanResources.auditTrail.movementTypes.all },
+    { value: 'cost_center', label: dictionary.humanResources.auditTrail.movementTypes.cost_center },
+    { value: 'department', label: dictionary.humanResources.auditTrail.movementTypes.department },
+    { value: 'manager', label: dictionary.humanResources.auditTrail.movementTypes.manager },
+  ];
   const [selectedType, setSelectedType] = useState(value || 'all');
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -52,12 +53,12 @@ const MovementTypeSelector = ({ onChange, value }: MovementTypeSelectorProps) =>
   return (
     <Box sx={{ minWidth: 100 }}>
       <FormControl fullWidth size="small">
-        <InputLabel id="movement-type-select-label">Movement Type</InputLabel>
+        <InputLabel id="movement-type-select-label">{dictionary.humanResources.auditTrail.movementType}</InputLabel>
         <Select
           labelId="movement-type-select-label"
           id="movement-type-select"
           value={selectedType}
-          label="Movement Type"
+          label={dictionary.humanResources.auditTrail.movementType}
           onChange={handleChange}
         >
           {MOVEMENT_TYPES.map((type) => (

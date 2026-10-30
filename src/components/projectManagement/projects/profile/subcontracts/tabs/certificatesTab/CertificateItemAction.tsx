@@ -1,6 +1,7 @@
 'use client';
 
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
+import { getLatestCurrentApproval } from '@/components/projectManagement/approvals/currentApprovalCycle';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
 import PDFContent from '@/components/pdf/PDFContent';
 import projectsServices from '@/components/projectManagement/projects/project-services';
@@ -14,6 +15,7 @@ import {
   EditOutlined,
   HighlightOff,
   ReceiptLongOutlined,
+  UndoOutlined,
   VisibilityOutlined,
 } from '@mui/icons-material';
 import {
@@ -39,6 +41,7 @@ import CertificateInvoiceDialog from './CertificateInvoiceDialog';
 import CertificatePDF from './preview/CertificatePDF';
 import { Certificate } from './CertificateType';
 import dynamic from 'next/dynamic';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const DocumentDialog: React.FC<{
   open: boolean;
@@ -46,6 +49,7 @@ const DocumentDialog: React.FC<{
   certificateId: number | string;
   organization?: Organization;
 }> = ({ open, onClose, certificateId, organization }) => {
+  const dictionary = useDictionary();
   const { data: certificateDetails, isFetching } = useQuery({
     queryKey: ['CertificateDetails', { id: certificateId }],
     queryFn: () => projectsServices.getCertificateDetails(certificateId),
@@ -106,7 +110,7 @@ const DocumentDialog: React.FC<{
             justifyContent={'center'}
             alignItems={'center'}
           >
-            <Typography>With Certified Items</Typography>
+            <Typography>{dictionary.projectManagement.certificates.withCertifiedItems}</Typography>
             <Checkbox checked={openDetails} onChange={handleDetailsChange} />
           </Stack>
         </DialogTitle>
@@ -140,9 +144,10 @@ const DocumentDialog: React.FC<{
                 certificate={certificateDetails}
                 organization={organization as Organization}
                 openDetails={openDetails}
+                dictionary={dictionary}
               />
             }
-            fileName={certificateDetails?.certificateNo || 'Certificate'}
+            fileName={certificateDetails?.certificateNo || dictionary.projectManagement.certificates.certificate}
           />
         )}
 
@@ -154,7 +159,7 @@ const DocumentDialog: React.FC<{
               color='primary'
               onClick={onClose}
             >
-              Close
+              {dictionary.projectManagement.dashboard.close}
             </Button>
           </Box>
         )}
@@ -207,13 +212,14 @@ const EditCertificate: React.FC<{
 const CertificateItemAction: React.FC<{ certificate: Certificate }> = ({
   certificate,
 }) => {
+  const dictionary = useDictionary();
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const [openPreviewDialog, setOpenPreviewDialog] = useState(false);
   const [openInvoiceDialog, setOpenInvoiceDialog] = useState(false);
   const { showDialog, hideDialog } = useJumboDialog();
   const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
-  const { authOrganization, checkOrganizationPermission } = useJumboAuth();
+  const { authOrganization, authUser, checkOrganizationPermission } = useJumboAuth();
   const organization = authOrganization?.organization;
 
   const { theme } = useJumboTheme();
@@ -223,13 +229,13 @@ const CertificateItemAction: React.FC<{ certificate: Certificate }> = ({
     mutationFn: () => projectsServices.deleteCertificate(certificate.id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['Certificates'] });
-      enqueueSnackbar('Certificate deleted successfully', {
+      enqueueSnackbar(dictionary.projectManagement.certificates.deleteSuccess, {
         variant: 'success',
       });
     },
     onError: (error: any) => {
       enqueueSnackbar(
-        error?.response?.data?.message || 'Failed to delete certificate',
+        error?.response?.data?.message || dictionary.projectManagement.certificates.deleteFailed,
         { variant: 'error' }
       );
     },
@@ -237,6 +243,19 @@ const CertificateItemAction: React.FC<{ certificate: Certificate }> = ({
 
   // Whether invoicing this certificate creates a real, documented Supplier Bill — if so, Create
   // Invoice collects its due date/reference instead of a plain yes/no confirm.
+  const { mutate: withdrawCertificate } = useMutation({
+    mutationFn: () => projectsServices.withdrawCertificate(certificate.id),
+    onSuccess: (data: any) => {
+      queryClient.invalidateQueries({ queryKey: ['Certificates'] });
+      enqueueSnackbar(data.message, { variant: 'success' });
+    },
+    onError: (error: any) => {
+      enqueueSnackbar(error?.response?.data?.message || dictionary.projectManagement.certificates.withdrawFailed, {
+        variant: 'error',
+      });
+    },
+  });
+
   const generatesBills = !!organization?.settings?.generate_invoices_for_project_certificates;
 
   const { mutate: invoiceCertificate } = useMutation({
@@ -247,7 +266,7 @@ const CertificateItemAction: React.FC<{ certificate: Certificate }> = ({
     },
     onError: (error: any) => {
       enqueueSnackbar(
-        error?.response?.data?.message || 'Failed to create invoice',
+        error?.response?.data?.message || dictionary.projectManagement.certificates.invoiceFailed,
         { variant: 'error' }
       );
     },
@@ -277,16 +296,26 @@ const CertificateItemAction: React.FC<{ certificate: Certificate }> = ({
 
   const canEdit = !isLocked && checkOrganizationPermission(PERMISSIONS.PROJECT_SUBCONTRACTS_EDIT);
   const canCreateInvoice = canInvoice && checkOrganizationPermission(PERMISSIONS.PROJECT_SUBCONTRACTS_EDIT);
-  const canDelete = !certificate.has_approved_payment_request && checkOrganizationPermission(PERMISSIONS.PROJECT_SUBCONTRACTS_DELETE);
+  // The submitter can pull their own certificate back until an approver has acted on it - the
+  // backend enforces the same rules (ProjectSubcontractCertificateApprovalController::withdraw()).
+  const canWithdraw =
+    certificate.status === 'in_review' &&
+    hasApprovalChain &&
+    !!authUser?.user?.id &&
+    String(certificate.created_by) === String(authUser.user.id) &&
+    !getLatestCurrentApproval(certificate.approvals) &&
+    checkOrganizationPermission(PERMISSIONS.PROJECT_SUBCONTRACTS_EDIT);
+  // Same locks as editing (isLocked also covers an approved payment request) - the backend enforces
+  // it too. Withdraw it or have it returned first.
+  const canDelete = !isLocked && checkOrganizationPermission(PERMISSIONS.PROJECT_SUBCONTRACTS_DELETE);
 
   const handleInvoice = () => {
     if (generatesBills) {
       setOpenInvoiceDialog(true);
     } else {
       showDialog({
-        title: 'Create Invoice',
-        content:
-          'This will post the Certificate to the subcontractor’s account and it can no longer be edited. Continue?',
+        title: dictionary.projectManagement.certificates.createInvoiceTitle,
+        content: dictionary.projectManagement.certificates.createInvoiceConfirm,
         onYes: () => {
           invoiceCertificate();
           hideDialog();
@@ -297,10 +326,23 @@ const CertificateItemAction: React.FC<{ certificate: Certificate }> = ({
     }
   };
 
+  const handleWithdraw = () => {
+    showDialog({
+      title: dictionary.projectManagement.certificates.withdrawTitle,
+      content: dictionary.projectManagement.certificates.withdrawConfirm,
+      variant: 'confirm',
+      onYes: () => {
+        hideDialog();
+        withdrawCertificate();
+      },
+      onNo: hideDialog,
+    });
+  };
+
   const handleDelete = () => {
     showDialog({
-      title: 'Confirm Delete',
-      content: 'Are you sure you want to delete this certificate?',
+      title: dictionary.projectManagement.common.confirmDelete,
+      content: dictionary.projectManagement.certificates.confirmDeleteText,
       onYes: () => {
         deleteCertificate();
         hideDialog();
@@ -340,22 +382,30 @@ const CertificateItemAction: React.FC<{ certificate: Certificate }> = ({
         onClose={() => setOpenInvoiceDialog(false)}
       />
 
-      <Tooltip title='View'>
+      <Tooltip title={dictionary.tooltips.view}>
         <IconButton onClick={() => setOpenPreviewDialog(true)}>
           <VisibilityOutlined />
         </IconButton>
       </Tooltip>
 
       {canEdit && (
-        <Tooltip title='Edit'>
+        <Tooltip title={dictionary.tooltips.edit}>
           <IconButton onClick={() => setOpenEditDialog(true)}>
             <EditOutlined />
           </IconButton>
         </Tooltip>
       )}
 
+      {canWithdraw && (
+        <Tooltip title={dictionary.tooltips.withdraw}>
+          <IconButton onClick={handleWithdraw}>
+            <UndoOutlined />
+          </IconButton>
+        </Tooltip>
+      )}
+
       {canCreateInvoice && (
-        <Tooltip title='Create Invoice'>
+        <Tooltip title={dictionary.tooltips.createInvoice}>
           <IconButton onClick={handleInvoice}>
             <ReceiptLongOutlined />
           </IconButton>
@@ -363,7 +413,7 @@ const CertificateItemAction: React.FC<{ certificate: Certificate }> = ({
       )}
 
       {canDelete && (
-        <Tooltip title='Delete'>
+        <Tooltip title={dictionary.tooltips.delete}>
           <IconButton onClick={handleDelete}>
             <DeleteOutlined color='error' />
           </IconButton>

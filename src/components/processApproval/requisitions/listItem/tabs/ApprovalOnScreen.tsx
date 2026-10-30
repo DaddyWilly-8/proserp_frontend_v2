@@ -35,6 +35,7 @@ import {
   RequisitionItem,
 } from '../../../RequisitionType';
 import RelatableOrderDetails from './form/RelatableOrderDetails';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface FetchRelatableDetailsProps {
   approval: Approval;
@@ -160,6 +161,7 @@ function ApprovalOnScreen({
   belowLargeScreen,
   requisition,
 }: ApprovalOnScreenProps) {
+  const dictionary = useDictionary();
   const theme = useTheme();
   const [selectedRelated, setSelectedRelated] = useState<any>(null);
   const [openViewDialog, setOpenViewDialog] = useState(false);
@@ -477,7 +479,7 @@ function ApprovalOnScreen({
                                         mt: 0.5,
                                       }}
                                     >
-                                      <Tooltip title='Related to'>
+                                      <Tooltip title={dictionary.tooltips.relatedTo}>
                                         <Typography
                                           variant='body2'
                                           component='span'

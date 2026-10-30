@@ -4,31 +4,18 @@ import { Chip, Divider, Grid, Tooltip, Typography } from '@mui/material';
 import { formatMoney, statusColor } from '../../payrollRuns/payrollUtils';
 import MyHrPayslipItemAction from './MyHrPayslipItemAction';
 import { MyHrPayslipListItem } from './payslipsType';
-
-const MONTH_NAMES = [
-  '',
-  'January',
-  'February',
-  'March',
-  'April',
-  'May',
-  'June',
-  'July',
-  'August',
-  'September',
-  'October',
-  'November',
-  'December',
-];
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const MyHrPayslipsListItem = ({
   payslip,
 }: {
   payslip: MyHrPayslipListItem;
 }) => {
+  const dictionary = useDictionary();
+  const t = dictionary.humanResources.myHr.payslips;
   const period = payslip.run?.period;
   const periodLabel = period
-    ? `${MONTH_NAMES[period.month] || period.month} ${period.year}`
+    ? `${t.months[period.month - 1] || period.month} ${period.year}`
     : '—';
 
   // This payslip's own paid/unpaid state, not the whole run's — an employee
@@ -44,11 +31,11 @@ const MyHrPayslipsListItem = ({
   const isPartiallyPaid = !isPaid && paidAmount > 0;
   const runStatusRaw = (payslip.run?.status || '').toLowerCase();
   const paymentStatusLabel = isPaid
-    ? 'Paid'
+    ? t.status.paid
     : isPartiallyPaid
-      ? 'Partially Paid'
+      ? t.status.partiallyPaid
       : ['partially_paid', 'paid'].includes(runStatusRaw)
-        ? 'Unpaid'
+        ? t.status.unpaid
         : payslip.run?.status_label || payslip.run?.status || '—';
   const paymentStatusColor = isPaid
     ? 'success'
@@ -76,7 +63,7 @@ const MyHrPayslipsListItem = ({
         container
       >
         <Grid size={{ xs: 12, md: 3 }}>
-          <Tooltip title='Payroll Period'>
+          <Tooltip title={dictionary.tooltips.payrollPeriod}>
             <div>
               <Typography
                 variant='h5'
@@ -95,7 +82,7 @@ const MyHrPayslipsListItem = ({
         </Grid>
 
         <Grid size={{ xs: 12, md: 2.5 }}>
-          <Tooltip title='Basic Salary'>
+          <Tooltip title={dictionary.tooltips.basicSalary}>
             <div>
               <Typography noWrap>
                 {formatMoney(payslip.basic_salary)}
@@ -105,7 +92,7 @@ const MyHrPayslipsListItem = ({
         </Grid>
 
         <Grid size={{ xs: 12, md: 2.5 }}>
-          <Tooltip title='PAYE'>
+          <Tooltip title={dictionary.tooltips.paye}>
             <div>
               <Typography noWrap>{formatMoney(payslip.paye)}</Typography>
             </div>
@@ -113,7 +100,7 @@ const MyHrPayslipsListItem = ({
         </Grid>
 
         <Grid size={{ xs: 12, md: 3 }}>
-          <Tooltip title='Payment Status'>
+          <Tooltip title={dictionary.tooltips.paymentStatus}>
             <div>
               <Chip
                 size='small'

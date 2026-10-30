@@ -2,8 +2,10 @@ import { Divider, Grid, IconButton, ListItemText, Tooltip, Typography } from '@m
 import React, { useState } from 'react'
 import { DisabledByDefault, EditOutlined } from '@mui/icons-material';
 import InventoryConsumptionItemForm from './InventoryConsumptionItemForm';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function InventoryConsumptionItemRow({ setClearFormKey, submitMainForm, setSubmitItemForm, submitItemForm, setIsDirty, items, setItems, item, index, getUpdatedBalanceItems}) {
+    const dictionary = useDictionary();
     const product = item.product;
     const [showForm, setShowForm] = useState(false);
 
@@ -25,34 +27,34 @@ function InventoryConsumptionItemRow({ setClearFormKey, submitMainForm, setSubmi
                     <Grid size={{xs: 11, md: 4}}>
                         <ListItemText
                             primary={
-                                <Tooltip title="Product">
+                                <Tooltip title={dictionary.tooltips.product}>
                                     <Typography component="span">{product.name}</Typography>
                                 </Tooltip>
                             }
                             secondary={
-                                <Tooltip title="Description">
+                                <Tooltip title={dictionary.tooltips.description}>
                                     <Typography component="span">{item.description}</Typography>
                                 </Tooltip>
                             }
                         />
                     </Grid>
                     <Grid textAlign={{md: 'end'}} size={{xs: 6, md: 3.5}}>
-                        <Tooltip title="Quantity">
+                        <Tooltip title={dictionary.tooltips.quantity}>
                             <Typography component="span">{item.quantity.toLocaleString()} {item?.unit_symbol ? item.unit_symbol : (item.measurement_unit?.symbol ? item.measurement_unit?.symbol : item.product.unit_symbol)}</Typography>
                         </Tooltip>
                     </Grid>
                     <Grid size={{xs: 6, md: 3}} paddingLeft={2}>
-                        <Tooltip title="Expense Ledger">
+                        <Tooltip title={dictionary.tooltips.expenseLedger}>
                             <Typography component="span">{item.ledger?.name}</Typography>
                         </Tooltip>
                     </Grid>
                     <Grid textAlign={'end'} size={{xs: 12, md: 1}}>
-                        <Tooltip title='Edit Item'>
+                        <Tooltip title={dictionary.tooltips.editItem}>
                             <IconButton size='small' onClick={() => {setShowForm(true)}}>
                                 <EditOutlined fontSize='small'/>
                             </IconButton>
                         </Tooltip>
-                        <Tooltip title='Remove Item'>
+                        <Tooltip title={dictionary.tooltips.removeItem}>
                             <IconButton size='small' 
                                 onClick={() => setItems(items => {
                                     const newItems = [...items];

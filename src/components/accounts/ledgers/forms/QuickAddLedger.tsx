@@ -26,6 +26,7 @@ import { Controller, useForm } from 'react-hook-form';
 import * as yup from 'yup';
 import ledgerServices from '../ledger-services';
 import AddQuickLedgerGroup from './AddQuickLedgerGroup';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface Ledger {
   id?: number;
@@ -85,6 +86,7 @@ const QuickAddLedger = ({
   toggleOpen,
   setAddedLedger,
 }: QuickAddLedgerType) => {
+  const dictionary = useDictionary();
   const { authOrganization } = useJumboAuth();
   const [openQuickAddLedgerGroup, setOpenQuickAddLedgerGroup] = useState(false);
   const { ledgerGroupOptions } = useLedgerGroup();
@@ -98,14 +100,14 @@ const QuickAddLedger = ({
   > | null>(null);
 
   const validationSchema = yup.object({
-    name: yup.string().required('Ledger Name is required'),
-    ledger_group_id: yup.mixed().required('Ledger Group is required'),
+    name: yup.string().required(dictionary.forms.ledgers.form.errors.validation.nameRequired),
+    ledger_group_id: yup.mixed().required(dictionary.forms.ledgers.form.errors.validation.groupRequired),
     opening_balance: yup.number().min(0),
     opening_balance_side: yup
       .string()
       .when('opening_balance', (opening_balance, schema) => {
         if (typeof opening_balance === 'number' && opening_balance > 0) {
-          return schema.required('Is the balance Credit or Debit');
+          return schema.required(dictionary.forms.ledgers.form.errors.validation.balanceSideRequired);
         }
         return schema;
       }),
@@ -114,7 +116,7 @@ const QuickAddLedger = ({
       .nullable()
       .when('opening_balance', (opening_balance, schema) => {
         if (typeof opening_balance === 'number' && opening_balance > 0) {
-          return schema.required('Select the date of the balance you entered');
+          return schema.required(dictionary.forms.ledgers.form.errors.validation.balanceDateRequired);
         }
         return schema;
       }),
@@ -151,7 +153,7 @@ const QuickAddLedger = ({
       setAddedLedger && setAddedLedger(data.ledger);
       queryClient.invalidateQueries({ queryKey: ['ledgers-list'] });
       queryClient.invalidateQueries({ queryKey: ['ledgerOptions'] });
-      enqueueSnackbar('Ledger created successfully', {
+      enqueueSnackbar(dictionary.forms.ledgers.form.messages.createSuccess, {
         variant: 'success',
         autoHideDuration: 2000,
       });
@@ -161,7 +163,7 @@ const QuickAddLedger = ({
       if (err.response?.status === 400) {
         setServerError(err.response?.data?.validation_errors);
       } else {
-        enqueueSnackbar(err.response?.data?.message || 'Something went wrong', {
+        enqueueSnackbar(err.response?.data?.message || dictionary.forms.ledgers.form.messages.somethingWentWrong, {
           variant: 'error',
         });
       }
@@ -178,8 +180,8 @@ const QuickAddLedger = ({
       <Typography textAlign={'center'} variant='h4' marginTop={2}>
         {!heading
           ? ledgerType === 'credit'
-            ? 'Quick Add Credit Ledger'
-            : 'Quick Add Debit Ledger'
+            ? dictionary.forms.ledgers.form.title.quickAddCredit
+            : dictionary.forms.ledgers.form.title.quickAddDebit
           : heading}
       </Typography>
       <DialogContent>
@@ -191,7 +193,7 @@ const QuickAddLedger = ({
                   <Div sx={{ mb: 1 }}>
                     <TextField
                       fullWidth
-                      label='Ledger Name'
+                      label={dictionary.forms.ledgers.form.labels.ledgerName}
                       size='small'
                       error={!!errors.name || !!serverError?.name}
                       helperText={
@@ -236,12 +238,12 @@ const QuickAddLedger = ({
                           renderInput={(params) => (
                             <TextField
                               {...params}
-                              label='Ledger Group'
+                              label={dictionary.forms.ledgers.form.labels.ledgerGroup}
                               InputProps={{
                                 ...params.InputProps,
                                 startAdornment:
                                   ledger?.ledger_group_id ? null : (
-                                    <Tooltip title={'Quick Add Group'}>
+                                    <Tooltip title={dictionary.tooltips.quickAddGroup}>
                                       <AddOutlined
                                         onClick={() =>
                                           setOpenQuickAddLedgerGroup(true)
@@ -283,7 +285,7 @@ const QuickAddLedger = ({
                   <Div sx={{ mb: 1 }}>
                     <TextField
                       fullWidth
-                      label='Alias (Optional)'
+                      label={dictionary.forms.ledgers.form.labels.alias}
                       size='small'
                       {...register('alias')}
                     />
@@ -298,7 +300,7 @@ const QuickAddLedger = ({
                   <Div sx={{ mb: 1 }}>
                     <TextField
                       fullWidth
-                      label='Code (Optional)'
+                      label={dictionary.forms.ledgers.form.labels.code}
                       size='small'
                       {...register('code')}
                     />
@@ -312,7 +314,7 @@ const QuickAddLedger = ({
                 <Grid size={{ xs: 12, md: 6, lg: 4 }}>
                   <Div sx={{ mb: 1 }}>
                     <CostCenterSelector
-                      label='Cost Centers'
+                      label={dictionary.forms.ledgers.form.labels.costCenters}
                       multiple={false}
                       defaultValue={openingBalanceCostCenter}
                       onChange={(newValue: any) => {
@@ -331,7 +333,7 @@ const QuickAddLedger = ({
                       control={control}
                       render={({ field: { onChange, value } }) => (
                         <TextField
-                          label='Opening Balance (Optional)'
+                          label={dictionary.forms.ledgers.form.labels.openingBalance}
                           fullWidth
                           size='small'
                           value={value}
@@ -366,7 +368,7 @@ const QuickAddLedger = ({
               <Div sx={{ mb: 1 }}>
                 <TextField
                   fullWidth
-                  label='Description (Optional)'
+                  label={dictionary.forms.ledgers.form.labels.description}
                   size='small'
                   multiline
                   rows={2}
@@ -383,7 +385,7 @@ const QuickAddLedger = ({
           variant='outlined'
           onClick={() => toggleOpen(false)}
         >
-          Cancel
+          {dictionary.forms.ledgers.form.buttons.cancel}
         </Button>
         <LoadingButton
           type='submit'
@@ -393,7 +395,7 @@ const QuickAddLedger = ({
           sx={{ display: 'flex' }}
           loading={isSubmitting || saveMutation.isPending}
         >
-          Add
+          {dictionary.forms.ledgers.form.buttons.add}
         </LoadingButton>
       </DialogActions>
     </>

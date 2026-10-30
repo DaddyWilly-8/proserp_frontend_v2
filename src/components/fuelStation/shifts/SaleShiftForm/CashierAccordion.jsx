@@ -16,6 +16,7 @@ import AdjustmentsTab from './tabs/adjustments/AdjustmentsTab';
 import RemoveIcon from '@mui/icons-material/Remove';
 import AddIcon from '@mui/icons-material/Add'
 import { StationFormContext } from '../SalesShifts';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 export default function CashierAccordion({
   cashier,
   index,
@@ -30,6 +31,7 @@ export default function CashierAccordion({
   handleCashierPumpSelection,
   onFuelVouchersChange
 }) {
+  const dictionary = useDictionary();
   const [tab, setTab] = useState(0);
   const [expanded, setExpanded] = useState(false);
   const {activeStation} = useContext(StationFormContext);
@@ -202,10 +204,10 @@ export default function CashierAccordion({
             variant="scrollable"
             sx={{ mb: 2, backgroundColor: 'background.paper', boxShadow: 1 }}
           >
-            <Tab label="Pump Readings" />
-            <Tab label="Fuel Vouchers" />
-            <Tab label="Adjustments" />
-            <Tab label="Cash Reconciliation" />
+            <Tab label={dictionary.forms.shifts.tabs.pumpReadings} />
+            <Tab label={dictionary.forms.shifts.tabs.fuelVouchers} />
+            <Tab label={dictionary.forms.shifts.tabs.adjustments} />
+            <Tab label={dictionary.forms.shifts.tabs.cashReconciliation} />
           </Tabs>
         </div>
 

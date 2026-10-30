@@ -17,6 +17,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import measurementUnitServices from './measurement-unit-services';
 import { MeasurementUnit } from './MeasurementUnitType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface MeasurementSelectorProps {
   onChange: (value: MeasurementUnit | MeasurementUnit[] | null) => void;
@@ -30,6 +31,7 @@ interface MeasurementSelectorProps {
 }
 
 const MeasurementSelector: React.FC<MeasurementSelectorProps> = (props) => {
+  const dictionary = useDictionary();
   const {
     onChange,
     multiple = false,
@@ -109,7 +111,7 @@ const MeasurementSelector: React.FC<MeasurementSelectorProps> = (props) => {
             ...params.InputProps,
             startAdornment: showQuickAdd && (
               <Tooltip
-                title={'Quick Add Measurement Unit'}
+                title={dictionary.tooltips.quickAddMeasurementUnit}
                 onClick={onQuickAddClick}
               >
                 <AddOutlined sx={{ cursor: 'pointer' }} />

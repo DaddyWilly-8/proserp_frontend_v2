@@ -42,6 +42,7 @@ import * as yup from 'yup';
 import StoreSelector from '../../StoreSelector';
 import { useStoreProfile } from '../StoreProfileProvider';
 import ItemMovementOnScreen from './ItemMovementOnScreen';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const ReportDocument = ({
   movementsData,
@@ -871,6 +872,7 @@ const ReportDocument = ({
 };
 
 function ItemMovement({ productStock = null, toggleOpen, isFromDashboard }) {
+  const dictionary = useDictionary();
   const classes = useProsERPStyles();
   const [today] = useState(dayjs());
   const authObject = useJumboAuth();
@@ -997,7 +999,7 @@ function ItemMovement({ productStock = null, toggleOpen, isFromDashboard }) {
                 </Grid>
                 {belowLargeScreen && (
                   <Grid size={1}>
-                    <Tooltip title='Close'>
+                    <Tooltip title={dictionary.tooltips.close}>
                       <IconButton
                         size='small'
                         sx={{ mb: 1 }}

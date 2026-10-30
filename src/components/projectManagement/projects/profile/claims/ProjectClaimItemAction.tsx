@@ -1,6 +1,7 @@
 'use client';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import PDFContent from '@/components/pdf/PDFContent';
+import { getLatestCurrentApproval } from '@/components/projectManagement/approvals/currentApprovalCycle';
 import projectsServices from '@/components/projectManagement/projects/project-services';
 const FileExportGrid = dynamic(() => import('@/components/sharedComponents/FileExportGrid').then((mod) => mod.FileExportGrid), { ssr: false });
 import PreviewTopBar from '@/components/sharedComponents/PreviewTopBar';
@@ -12,6 +13,7 @@ import {
   EditOutlined,
   HighlightOff,
   ReceiptLongOutlined,
+  UndoOutlined,
   VisibilityOutlined,
 } from '@mui/icons-material';
 import {
@@ -37,6 +39,7 @@ const ProjectClaimsForm = dynamic(() => import('./form/ProjectClaimsForm'), { ss
 import ProjectClaimInvoiceDialog from './ProjectClaimInvoiceDialog';
 import { ProjectClaim } from './ProjectClaimType';
 import dynamic from 'next/dynamic';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface DocumentDialogProps {
   open: boolean;
@@ -60,6 +63,7 @@ const DocumentDialog: React.FC<DocumentDialogProps> = ({
   claimId,
   organization,
 }) => {
+  const dictionary = useDictionary();
   const { data: claimDetails, isFetching } = useQuery({
     queryKey: ['claim-details', claimId],
     queryFn: () => projectsServices.getClaimDetails(claimId),
@@ -118,7 +122,7 @@ const DocumentDialog: React.FC<DocumentDialogProps> = ({
             justifyContent={'center'}
             alignItems={'center'}
           >
-            <Typography>With Claim Derivations</Typography>
+            <Typography>{dictionary.projectManagement.claims.actions.withClaimDerivations}</Typography>
             <Checkbox checked={openDetails} onChange={handleDetailsChange} />
           </Stack>
         </DialogTitle>
@@ -150,6 +154,7 @@ const DocumentDialog: React.FC<DocumentDialogProps> = ({
                 claim={claimDetails}
                 organization={organization}
                 openDetails={openDetails}
+                dictionary={dictionary}
               />
             }
             fileName={claimDetails?.claimNo}
@@ -159,7 +164,7 @@ const DocumentDialog: React.FC<DocumentDialogProps> = ({
         {belowLargeScreen && (
           <Box textAlign='right' mt={5}>
             <Button variant='outlined' size='small' onClick={onClose}>
-              Close
+              {dictionary.projectManagement.claims.common.close}
             </Button>
           </Box>
         )}
@@ -207,6 +212,7 @@ const EditClaim: React.FC<EditClaimProps> = ({ claim, setOpenDialog }) => {
 const ProjectClaimItemAction: React.FC<ProjectClaimItemActionProps> = ({
   claim,
 }) => {
+  const dictionary = useDictionary();
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const [openPreviewDialog, setOpenPreviewDialog] = useState(false);
   const [openInvoiceDialog, setOpenInvoiceDialog] = useState(false);
@@ -217,7 +223,7 @@ const ProjectClaimItemAction: React.FC<ProjectClaimItemActionProps> = ({
 
   const { authOrganization } = useJumboAuth();
   const organization = authOrganization?.organization;
-  const { checkOrganizationPermission } = useJumboAuth();
+  const { authUser, checkOrganizationPermission } = useJumboAuth();
 
   const { theme } = useJumboTheme();
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
@@ -231,7 +237,20 @@ const ProjectClaimItemAction: React.FC<ProjectClaimItemActionProps> = ({
       enqueueSnackbar(data.message, { variant: 'success' });
     },
     onError: (error: any) => {
-      enqueueSnackbar(error?.response?.data?.message || 'Delete failed', {
+      enqueueSnackbar(error?.response?.data?.message || dictionary.projectManagement.claims.actions.deleteFailed, {
+        variant: 'error',
+      });
+    },
+  });
+
+  const { mutate: withdrawClaim } = useMutation({
+    mutationFn: (id: number) => projectsServices.withdrawClaim(id),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['projectProjectClaims'] });
+      enqueueSnackbar(data.message, { variant: 'success' });
+    },
+    onError: (error: any) => {
+      enqueueSnackbar(error?.response?.data?.message || dictionary.projectManagement.claims.actions.withdrawFailed, {
         variant: 'error',
       });
     },
@@ -250,7 +269,7 @@ const ProjectClaimItemAction: React.FC<ProjectClaimItemActionProps> = ({
       enqueueSnackbar(data.message, { variant: 'success' });
     },
     onError: (error: any) => {
-      enqueueSnackbar(error?.response?.data?.message || 'Failed to create invoice', {
+      enqueueSnackbar(error?.response?.data?.message || dictionary.projectManagement.claims.actions.invoiceFailed, {
         variant: 'error',
       });
     },
@@ -279,16 +298,27 @@ const ProjectClaimItemAction: React.FC<ProjectClaimItemActionProps> = ({
 
   const canEdit = !isLocked && checkOrganizationPermission(PERMISSIONS.PROJECT_CLAIMS_UPDATE);
   const canCreateInvoice = canInvoice && checkOrganizationPermission(PERMISSIONS.PROJECT_CLAIMS_UPDATE);
-  const canDelete = checkOrganizationPermission(PERMISSIONS.PROJECT_CLAIMS_DELETE);
+  // Same locks as editing - a claim under review/approval (or invoiced, where that's a real posted
+  // invoice) can't be deleted; the backend enforces it too. Withdraw it or have it returned first.
+  const canDelete = !isLocked && checkOrganizationPermission(PERMISSIONS.PROJECT_CLAIMS_DELETE);
+  // The submitter can pull their own claim back until an approver has acted on it (after that
+  // it's the approver's signature on the line, so only an approver can return it). The backend
+  // enforces the same rules - see ProjectPaymentClaimApprovalController::withdraw().
+  const canWithdraw =
+    claim.status === 'in_review' &&
+    hasApprovalChain &&
+    !!authUser?.user?.id &&
+    String(claim.created_by) === String(authUser.user.id) &&
+    !getLatestCurrentApproval(claim.approvals) &&
+    checkOrganizationPermission(PERMISSIONS.PROJECT_CLAIMS_UPDATE);
 
   const handleInvoice = () => {
     if (generatesInvoices) {
       setOpenInvoiceDialog(true);
     } else {
       showDialog({
-        title: 'Create Customer Invoice',
-        content:
-          'This will post the Certificate to the customer and it can no longer be edited. Continue?',
+        title: dictionary.projectManagement.claims.actions.createInvoiceTitle,
+        content: dictionary.projectManagement.claims.actions.createInvoiceText,
         variant: 'confirm',
         onYes: () => {
           hideDialog();
@@ -299,10 +329,23 @@ const ProjectClaimItemAction: React.FC<ProjectClaimItemActionProps> = ({
     }
   };
 
+  const handleWithdraw = () => {
+    showDialog({
+      title: dictionary.projectManagement.claims.actions.withdrawTitle,
+      content: dictionary.projectManagement.claims.actions.withdrawText,
+      variant: 'confirm',
+      onYes: () => {
+        hideDialog();
+        withdrawClaim(claim.id);
+      },
+      onNo: hideDialog,
+    });
+  };
+
   const handleDelete = () => {
     showDialog({
-      title: 'Confirm Delete',
-      content: 'Are you sure you want to delete this Claim?',
+      title: dictionary.projectManagement.claims.actions.confirmDelete,
+      content: dictionary.projectManagement.claims.actions.confirmDeleteText,
       variant: 'confirm',
       onYes: () => {
         hideDialog();
@@ -340,22 +383,30 @@ const ProjectClaimItemAction: React.FC<ProjectClaimItemActionProps> = ({
         onClose={() => setOpenInvoiceDialog(false)}
       />
 
-      <Tooltip title='View'>
+      <Tooltip title={dictionary.tooltips.view}>
         <IconButton onClick={() => setOpenPreviewDialog(true)}>
           <VisibilityOutlined />
         </IconButton>
       </Tooltip>
 
       {canEdit && (
-        <Tooltip title='Edit'>
+        <Tooltip title={dictionary.tooltips.edit}>
           <IconButton onClick={() => setOpenEditDialog(true)}>
             <EditOutlined />
           </IconButton>
         </Tooltip>
       )}
 
+      {canWithdraw && (
+        <Tooltip title={dictionary.tooltips.withdraw}>
+          <IconButton onClick={handleWithdraw}>
+            <UndoOutlined />
+          </IconButton>
+        </Tooltip>
+      )}
+
       {canCreateInvoice && (
-        <Tooltip title='Create Invoice'>
+        <Tooltip title={dictionary.tooltips.createInvoice}>
           <IconButton onClick={handleInvoice}>
             <ReceiptLongOutlined />
           </IconButton>
@@ -363,7 +414,7 @@ const ProjectClaimItemAction: React.FC<ProjectClaimItemActionProps> = ({
       )}
 
       {canDelete && (
-        <Tooltip title='Delete'>
+        <Tooltip title={dictionary.tooltips.delete}>
           <IconButton onClick={handleDelete}>
             <DeleteOutlined color='error' />
           </IconButton>

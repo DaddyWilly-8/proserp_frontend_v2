@@ -23,14 +23,7 @@ import LoanRequestsActionTail from './LoanRequestsActionTail';
 import LoanRequestsListItem from './LoanRequestsListItem';
 import { LoanRequestType } from './LoanRequestType';
 import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
-
-const STATUS_OPTIONS = [
-  { label: 'In Review', value: 'in_review' },
-  { label: 'On Hold', value: 'on hold' },
-  { label: 'Approved', value: 'approved' },
-  { label: 'Rejected', value: 'rejected' },
-  { label: 'Cancelled', value: 'cancelled' },
-];
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface LoanRequestsProps {
   defaultStatus?: string;
@@ -41,6 +34,14 @@ const LoanRequests = ({
   defaultStatus,
   defaultDisbursed,
 }: LoanRequestsProps = {}) => {
+  const dictionary = useDictionary();
+  const STATUS_OPTIONS = [
+    { label: dictionary.humanResources.loanRequests.list.statusOptions.in_review, value: 'in_review' },
+    { label: dictionary.humanResources.loanRequests.list.statusOptions.on_hold, value: 'on hold' },
+    { label: dictionary.humanResources.loanRequests.list.statusOptions.approved, value: 'approved' },
+    { label: dictionary.humanResources.loanRequests.list.statusOptions.rejected, value: 'rejected' },
+    { label: dictionary.humanResources.loanRequests.list.statusOptions.cancelled, value: 'cancelled' },
+  ];
   const searchParams = useSearchParams();
   const listRef = useRef<any>(null);
   const { checkOrganizationPermission } = useJumboAuth();
@@ -116,7 +117,9 @@ const LoanRequests = ({
   return (
     <>
       <Typography variant={'h4'} mb={2}>
-        {defaultStatus ? 'Approved Loans' : 'Loan Requests'}
+        {defaultStatus
+          ? dictionary.humanResources.loanRequests.list.approvedTitle
+          : dictionary.humanResources.loanRequests.list.title}
       </Typography>
       <EmployeesProvider>
         <JumboRqList
@@ -182,7 +185,7 @@ const LoanRequests = ({
                         renderInput={(inputParams) => (
                           <TextField
                             {...inputParams}
-                            label='Status'
+                            label={dictionary.humanResources.loanRequests.list.status}
                             fullWidth
                           />
                         )}

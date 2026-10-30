@@ -1,4 +1,5 @@
 import React from 'react';
+import RecurringTag, { RECURRING_SOURCE } from '@/components/accounts/recurringTransactions/RecurringTag';
 import {
   Alert,
   Grid,
@@ -26,6 +27,7 @@ interface ReceiptItem {
 
 interface Transaction {
   voucherNo: string;
+  system_source?: string | null;
   reference?: string;
   transactionDate: string;
   debitLedgerName: string;
@@ -67,6 +69,7 @@ function ReceiptOnScreen({ transaction, authObject }: ReceiptOnScreenProps) {
         </Typography>
         <Typography variant="h6" fontWeight="bold" gutterBottom>
           {transaction.voucherNo}
+          {transaction.system_source === RECURRING_SOURCE && <RecurringTag />}
         </Typography>
         {transaction.reference && (
           <Typography variant="body1" color="text.secondary">

@@ -27,6 +27,7 @@ import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import StakeholderSelector from '../../masters/stakeholders/StakeholderSelector';
 import purchaseServices from '../purchases/purchase-services';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const ReportDocument = ({
   reportData,
@@ -34,7 +35,9 @@ const ReportDocument = ({
   user,
   checkOrganizationPermission,
   baseCurrency,
+  dictionary,
 }) => {
+  const dict = dictionary.reports.procurementReports.purchasesReport;
   const mainColor =
     authOrganization.organization.settings?.main_color || '#2113AD';
   const lightColor =
@@ -64,7 +67,7 @@ const ReportDocument = ({
     <Document
       creator={`${user.name} | Powered by ProsERP`}
       producer='ProsERP'
-      title={`Purchases Report ${readableDate(reportData?.filters?.from, true)} to ${readableDate(reportData?.filters?.to, true)}`}
+      title={dict.documentTitle.replace('{from}', readableDate(reportData?.filters?.from, true)).replace('{to}', readableDate(reportData?.filters?.to, true))}
     >
       <Page
         size='A4'
@@ -82,7 +85,7 @@ const ReportDocument = ({
             </View>
             <View style={{ flex: 1, textAlign: 'right' }}>
               <Text style={{ ...pdfStyles.majorInfo, color: mainColor }}>
-                Purchases Report
+                {dict.title}
               </Text>
               <Text
                 style={{ ...pdfStyles.minInfo }}
@@ -96,7 +99,7 @@ const ReportDocument = ({
           {suppliers?.length > 0 && (
             <View style={{ flex: 2, padding: 2 }}>
               <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>
-                Suppliers
+                {dict.suppliers}
               </Text>
               <Text style={{ ...pdfStyles.minInfo }}>
                 {suppliers.map((supplier) => supplier.name).join(', ')}
@@ -106,20 +109,20 @@ const ReportDocument = ({
           {currency?.name && (
             <View style={{ flex: 2, padding: 2 }}>
               <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>
-                Currency
+                {dict.currency}
               </Text>
               <Text style={{ ...pdfStyles.minInfo }}>{currency.name}</Text>
             </View>
           )}
           <View style={{ flex: 1, padding: 2 }}>
             <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>
-              Printed By
+              {dict.printedBy}
             </Text>
             <Text style={{ ...pdfStyles.minInfo }}>{user.name}</Text>
           </View>
           <View style={{ flex: 1, padding: 2 }}>
             <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>
-              Printed On
+              {dict.printedOn}
             </Text>
             <Text style={{ ...pdfStyles.minInfo }}>
               {readableDate(undefined, true)}
@@ -130,7 +133,7 @@ const ReportDocument = ({
           {costCenters.length > 0 && (
             <View style={{ flex: 2, paddingLeft: 2 }}>
               <Text style={{ ...pdfStyles.minInfo, color: mainColor }}>
-                Cost Centers
+                {dict.costCenters}
               </Text>
               <Text style={{ ...pdfStyles.minInfo }}>
                 {costCenters
@@ -150,7 +153,7 @@ const ReportDocument = ({
                 flex: 0.35,
               }}
             >
-              S/N
+              {dict.sn}
             </Text>
             <Text
               style={{
@@ -160,7 +163,7 @@ const ReportDocument = ({
                 flex: currency?.is_base !== 1 ? 1.4 : 1,
               }}
             >
-              Order Date & No
+              {dict.orderDateAndNo}
             </Text>
             <Text
               style={{
@@ -170,7 +173,7 @@ const ReportDocument = ({
                 flex: 2,
               }}
             >
-              Supplier
+              {dict.supplier}
             </Text>
             <Text
               style={{
@@ -180,7 +183,7 @@ const ReportDocument = ({
                 flex: 2,
               }}
             >
-              Cost Center
+              {dict.costCenter}
             </Text>
             {currency?.is_base !== 1 && (
               <>
@@ -193,7 +196,7 @@ const ReportDocument = ({
                     flex: 1.5,
                   }}
                 >
-                  Order Amount
+                  {dict.orderAmount}
                 </Text>
                 <Text
                   style={{
@@ -204,7 +207,7 @@ const ReportDocument = ({
                     flex: 1.5,
                   }}
                 >
-                  Received Amount
+                  {dict.receivedAmount}
                 </Text>
                 <Text
                   style={{
@@ -215,7 +218,7 @@ const ReportDocument = ({
                     flex: 1.5,
                   }}
                 >
-                  Balance
+                  {dict.balance}
                 </Text>
               </>
             )}
@@ -229,7 +232,7 @@ const ReportDocument = ({
               }}
             >
               {' '}
-              Order Amount ({baseCurrency.code})
+              {dict.orderAmount} ({baseCurrency.code})
             </Text>
             <Text
               style={{
@@ -241,7 +244,7 @@ const ReportDocument = ({
               }}
             >
               {' '}
-              Received Amount ({baseCurrency.code})
+              {dict.receivedAmount} ({baseCurrency.code})
             </Text>
             <Text
               style={{
@@ -253,7 +256,7 @@ const ReportDocument = ({
               }}
             >
               {' '}
-              Balance ({baseCurrency.code})
+              {dict.balance} ({baseCurrency.code})
             </Text>
           </View>
           {reportData.orders.map((order, index) => {
@@ -384,7 +387,7 @@ const ReportDocument = ({
                 textAlign: 'center',
               }}
             >
-              TOTAL
+              {dict.total}
             </Text>
             <Text
               style={{
@@ -432,6 +435,8 @@ const ReportDocument = ({
 };
 
 function PurchasesReport() {
+  const dictionary = useDictionary();
+  const dict = dictionary.reports.procurementReports.purchasesReport;
   const classes = useProsERPStyles();
   const { currencies } = useCurrencySelect();
   const baseCurrency = currencies?.find((currency) => !!currency?.is_base);
@@ -513,12 +518,12 @@ function PurchasesReport() {
               justifyContent={'center'}
             >
               <Grid size={12}>
-                <Typography variant='h3'>Purchases Report</Typography>
+                <Typography variant='h3'>{dict.title}</Typography>
               </Grid>
               <Grid size={{ xs: 12, md: 5 }}>
                 <Div sx={{ mt: 1, mb: 1 }}>
                   <StakeholderSelector
-                    label='Suppliers'
+                    label={dict.suppliers}
                     multiple={true}
                     onChange={(newValue) => {
                       setValue(
@@ -532,7 +537,7 @@ function PurchasesReport() {
               <Grid size={{ xs: 12, sm: 12, md: 3.5 }}>
                 <Div sx={{ mt: 1, mb: 1 }}>
                   <DateTimePicker
-                    label='From (MM/DD/YYYY)'
+                    label={dict.fromDate}
                     fullWidth
                     minDate={dayjs(
                       authOrganization?.organization.recording_start_date
@@ -561,7 +566,7 @@ function PurchasesReport() {
               <Grid size={{ xs: 12, sm: 12, md: 3.5 }}>
                 <Div sx={{ mt: 1, mb: 1 }}>
                   <DateTimePicker
-                    label='To (MM/DD/YYYY)'
+                    label={dict.toDate}
                     fullWidth
                     minDate={dayjs(
                       authOrganization?.organization.recording_start_date
@@ -586,7 +591,7 @@ function PurchasesReport() {
               <Grid size={{ xs: 12, md: 5 }}>
                 <Div sx={{ mt: 1, mb: 1 }}>
                   <CostCenterSelector
-                    label='Cost and Profit Centers (leave empty for all)'
+                    label={dict.costAndProfitCenters}
                     multiple={true}
                     allowSameType={true}
                     onChange={(cost_centers) => {
@@ -617,7 +622,7 @@ function PurchasesReport() {
                     `${currency.name} (${currency.symbol})`
                   }
                   renderInput={(params) => (
-                    <TextField {...params} label='Currency' />
+                    <TextField {...params} label={dict.currency} />
                   )}
                   onChange={(e, newValue) => {
                     setValue('currency_id', newValue ? newValue.id : null);
@@ -645,7 +650,7 @@ function PurchasesReport() {
                       size='small'
                       variant='contained'
                     >
-                      Filter
+                      {dict.filter}
                     </LoadingButton>
                   </>
                 </Stack>
@@ -666,6 +671,7 @@ function PurchasesReport() {
                 authOrganization={authOrganization}
                 user={user}
                 checkOrganizationPermission={checkOrganizationPermission}
+                dictionary={dictionary}
               />
             }
             fileName={downloadFileName}

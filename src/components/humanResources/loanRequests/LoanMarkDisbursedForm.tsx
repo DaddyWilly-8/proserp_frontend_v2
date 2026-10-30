@@ -17,6 +17,7 @@ import { useSnackbar } from 'notistack';
 import { useEffect, useState } from 'react';
 import humanResourcesServices from '../humanResourcesServices';
 import { LoanRequestType } from './LoanRequestType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface LoanMarkDisbursedFormProps {
   open: boolean;
@@ -31,6 +32,7 @@ const LoanMarkDisbursedForm = ({
   loanRequest,
   onClose,
 }: LoanMarkDisbursedFormProps) => {
+  const dictionary = useDictionary();
   const [reference, setReference] = useState('');
   const [disbursedAt, setDisbursedAt] = useState(dayjs().toISOString());
   const { enqueueSnackbar } = useSnackbar();
@@ -50,12 +52,12 @@ const LoanMarkDisbursedForm = ({
       });
       queryClient.invalidateQueries({ queryKey: ['loanRequests'] });
       queryClient.invalidateQueries({ queryKey: ['leaveRequests'] }); // see known-issues-cleanup.md
-      enqueueSnackbar('Loan marked as disbursed', { variant: 'success' });
+      enqueueSnackbar(dictionary.humanResources.loanRequests.markDisbursed.messages.marked, { variant: 'success' });
       onClose();
     },
     onError: (error: any) => {
       enqueueSnackbar(
-        error?.response?.data?.message || 'Something went wrong',
+        error?.response?.data?.message || dictionary.humanResources.loanRequests.common.somethingWentWrong,
         { variant: 'error' }
       );
     },
@@ -78,12 +80,12 @@ const LoanMarkDisbursedForm = ({
       fullScreen={belowLargeScreen}
       scroll={belowLargeScreen ? 'body' : 'paper'}
     >
-      <DialogTitle>Mark Loan as Disbursed</DialogTitle>
+      <DialogTitle>{dictionary.humanResources.loanRequests.markDisbursed.title}</DialogTitle>
       <DialogContent>
         <Stack spacing={2} sx={{ mt: 1 }}>
           <TextField
-            label='Reference (optional)'
-            placeholder='e.g. Cash handed over, receipt #4521'
+            label={dictionary.humanResources.loanRequests.common.referenceOptional}
+            placeholder={dictionary.humanResources.loanRequests.markDisbursed.placeholders.reference}
             size='small'
             fullWidth
             multiline
@@ -92,7 +94,7 @@ const LoanMarkDisbursedForm = ({
             onChange={(e) => setReference(e.target.value)}
           />
           <DateTimePicker
-            label='Payment Date & Time'
+            label={dictionary.humanResources.loanRequests.markDisbursed.labels.paymentDateTime}
             value={disbursedAt ? dayjs(disbursedAt) : null}
             onChange={(val) => setDisbursedAt(val?.toISOString() || '')}
             slotProps={{
@@ -103,7 +105,7 @@ const LoanMarkDisbursedForm = ({
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose} disabled={isPending}>
-          Cancel
+          {dictionary.humanResources.loanRequests.common.cancel}
         </Button>
         <LoadingButton
           loading={isPending}
@@ -112,7 +114,7 @@ const LoanMarkDisbursedForm = ({
           size='small'
           onClick={handleSubmit}
         >
-          Mark as Disbursed
+          {dictionary.humanResources.loanRequests.markDisbursed.buttons.markAsDisbursed}
         </LoadingButton>
       </DialogActions>
     </Dialog>

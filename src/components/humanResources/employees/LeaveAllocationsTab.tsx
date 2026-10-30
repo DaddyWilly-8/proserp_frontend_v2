@@ -16,6 +16,7 @@ import { Controller, useForm } from 'react-hook-form';
 import * as yup from 'yup';
 import humanResourcesServices from '../humanResourcesServices';
 import { LeaveType } from '../leaveTypes/LeaveTypesType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface FormData {
   id: number | null;
@@ -38,6 +39,7 @@ const formatCommaSeparatedValue = (
 const LeaveAllocationsTab = ({
   setAllocationsSettings,
 }: LeaveAllocationsTabProps) => {
+  const dictionary = useDictionary();
   const { theme } = useJumboTheme();
 
   const { data: leaveTypesResponse, isFetching: fetchingLeaveTypes } = useQuery(
@@ -57,13 +59,13 @@ const LeaveAllocationsTab = ({
   const validationSchema = yup.object({
     id: yup
       .number()
-      .required('Allowance Type is required')
-      .typeError('Allowance Type is required'),
+      .required(dictionary.humanResources.employees.leaveAllocations.errors.leaveTypeRequired)
+      .typeError(dictionary.humanResources.employees.leaveAllocations.errors.leaveTypeRequired),
     leave_name: yup.string(),
     allocation_amount: yup
       .number()
-      .required('Allocation Amount is required')
-      .typeError('Allocation Amount is required'),
+      .required(dictionary.humanResources.employees.leaveAllocations.errors.amountRequired)
+      .typeError(dictionary.humanResources.employees.leaveAllocations.errors.amountRequired),
   });
 
   const {
@@ -103,7 +105,9 @@ const LeaveAllocationsTab = ({
               <Controller
                 name='id'
                 control={control}
-                rules={{ required: 'leave type is required' }}
+                rules={{
+                  required: dictionary.humanResources.employees.leaveAllocations.errors.leaveTypeRequired,
+                }}
                 render={({ field, fieldState }) => (
                   <Autocomplete
                     size='small'
@@ -132,7 +136,7 @@ const LeaveAllocationsTab = ({
                     renderInput={(params) => (
                       <TextField
                         {...params}
-                        label='Leave Type'
+                        label={dictionary.humanResources.employees.leaveAllocations.labels.leaveType}
                         error={!!fieldState.error}
                         helperText={fieldState.error?.message}
                       />
@@ -155,7 +159,7 @@ const LeaveAllocationsTab = ({
               control={control}
               render={({ field }) => (
                 <TextField
-                  label='Allocation Amount'
+                  label={dictionary.humanResources.employees.leaveAllocations.labels.allocationAmount}
                   size='small'
                   fullWidth
                   value={formatCommaSeparatedValue(field.value)}
@@ -178,7 +182,7 @@ const LeaveAllocationsTab = ({
         >
           <Button variant='contained' size='small' type='submit'>
             <Add />
-            add
+            {dictionary.humanResources.employees.common.add}
           </Button>
         </Grid>
       </Grid>

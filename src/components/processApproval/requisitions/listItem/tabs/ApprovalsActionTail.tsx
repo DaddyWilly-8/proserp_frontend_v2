@@ -16,6 +16,7 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import React, { useContext, useState } from 'react';
 import ApprovalForm from './form/ApprovalForm';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface ApprovalsActionTailProps {
   requisition: Requisition;
@@ -29,6 +30,7 @@ const ApprovalsActionTail: React.FC<ApprovalsActionTailProps> = ({
   requisition,
   isExpanded,
 }) => {
+  const dictionary = useDictionary();
   const { theme } = useJumboTheme();
   const [openDialog, setOpenDialog] = useState(false);
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
@@ -76,7 +78,7 @@ const ApprovalsActionTail: React.FC<ApprovalsActionTailProps> = ({
           disableElevation
           sx={{ '& .MuiButton-root': { px: 1 } }}
         >
-          <Tooltip title='Approve Requisition'>
+          <Tooltip title={dictionary.tooltips.approveRequisition}>
             <IconButton onClick={() => setOpenDialog(true)}>
               <FactCheckOutlined />
             </IconButton>

@@ -24,6 +24,7 @@ import BudgetsForm from './BudgetsForm';
 import AttachmentForm from '@/components/filesShelf/attachments/AttachmentForm';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const EditBudget = ({ budget, setOpenDialog, isDuplicate }) => {
   const { data: budgetDetails, isFetching } = useQuery({
@@ -66,6 +67,7 @@ const EditBudget = ({ budget, setOpenDialog, isDuplicate }) => {
 };
 
 const BudgetsItemAction = ({ budget }) => {
+  const dictionary = useDictionary();
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const [openAttachDialog, setOpenAttachDialog] = useState(false);
   const { showDialog, hideDialog } = useJumboDialog();
@@ -96,8 +98,8 @@ const BudgetsItemAction = ({ budget }) => {
 
   const handleDelete = () => {
     showDialog({
-      title: 'Confirm Delete',
-      content: 'Are you sure you want to delete this Budget?',
+      title: dictionary.projectManagement.budgets.confirmDelete,
+      content: dictionary.projectManagement.budgets.confirmDeleteText,
       onYes: () => {
         hideDialog();
         deleteBudgetMutation.mutate(budget.id);
@@ -137,7 +139,7 @@ const BudgetsItemAction = ({ budget }) => {
             readOnly={!checkOrganizationPermission(PERMISSIONS.BUDGETS_EDIT)}
             attachmentable_type='budget'
             attachmentable_id={budget.id}
-            attachment_name='Budget'
+            attachment_name={dictionary.projectManagement.budgets.attachmentName}
             attachment_sourceNo={budget.name}
           />
         )}
@@ -150,7 +152,7 @@ const BudgetsItemAction = ({ budget }) => {
         sx={{ mb: 1 }}
         justifyContent='flex-end'
       >
-        <Tooltip title='Attachments'>
+        <Tooltip title={dictionary.tooltips.attachments}>
           <IconButton
             size='small'
             onClick={(e) => {
@@ -164,7 +166,7 @@ const BudgetsItemAction = ({ budget }) => {
           </IconButton>
         </Tooltip>
         {checkOrganizationPermission(PERMISSIONS.BUDGETS_EDIT) && (
-          <Tooltip title='Edit'>
+          <Tooltip title={dictionary.tooltips.edit}>
             <IconButton
               color='primary'
               size='small'
@@ -179,7 +181,7 @@ const BudgetsItemAction = ({ budget }) => {
           </Tooltip>
         )}
         {checkOrganizationPermission(PERMISSIONS.BUDGETS_CREATE) && (
-          <Tooltip title='Duplicate'>
+          <Tooltip title={dictionary.tooltips.duplicate}>
             <IconButton
               color='primary'
               size='small'
@@ -194,7 +196,7 @@ const BudgetsItemAction = ({ budget }) => {
           </Tooltip>
         )}
         {checkOrganizationPermission(PERMISSIONS.BUDGETS_DELETE) && (
-          <Tooltip title='Delete'>
+          <Tooltip title={dictionary.tooltips.delete}>
             <IconButton color='error' size='small' onClick={handleDelete}>
               <DeleteOutlined />
             </IconButton>

@@ -17,6 +17,7 @@ import {
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { useCounter } from '../../CounterProvider';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface SaleItem {
   id: number;
@@ -42,6 +43,7 @@ function SalesDispatchItemForm({
   sale_items,
   selectedStore,
 }: SaleItemFormProps) {
+  const dictionary = useDictionary();
   const { outlet } = useCounter();
   const { stores, cost_center } = outlet || {};
   const {
@@ -229,14 +231,14 @@ function SalesDispatchItemForm({
             </Grid>
             <Grid size={{ xs: 9.5, md: 8, lg: 3.5 }}>
               <Div sx={{ mt: 1.7, mb: 1.7 }}>
-                <Tooltip title='Product'>
+                <Tooltip title={dictionary.tooltips.product}>
                   <Typography>{item.product?.name}</Typography>
                 </Tooltip>
               </Div>
             </Grid>
             <Grid textAlign={'center'} size={{ xs: 2, md: 3.5, lg: 1 }}>
               <Div sx={{ mt: 1.7, mb: 1.7 }}>
-                <Tooltip title='Undispatched Quantity'>
+                <Tooltip title={dictionary.tooltips.undispatchedQuantity}>
                   <Typography>
                     {`${item.measurement_unit?.symbol || ''} ${item.undispatched_quantity}`}
                   </Typography>
@@ -275,7 +277,7 @@ function SalesDispatchItemForm({
                   <LinearProgress />
                 ) : (
                   <TextField
-                    label='Available Balance'
+                    label={dictionary.forms.counter.dispatch.labels.availableBalance}
                     fullWidth
                     size='small'
                     value={watch(`items.${index}.available_balance`) ?? 0}
@@ -292,7 +294,7 @@ function SalesDispatchItemForm({
             <Grid size={{ xs: 6, md: 3, lg: 2 }}>
               <Div sx={{ mt: 0.7, mb: 0.5 }}>
                 <TextField
-                  label='Dispatch Quantity'
+                  label={dictionary.forms.counter.dispatch.labels.dispatchQuantity}
                   fullWidth
                   size='small'
                   error={!!errors.items?.[index]?.quantity}
@@ -307,7 +309,7 @@ function SalesDispatchItemForm({
               textAlign={{ xs: 'right', lg: 'center' }}
             >
               {visibleItems.length > 1 && (
-                <Tooltip title='Remove item'>
+                <Tooltip title={dictionary.tooltips.removeItem2}>
                   <IconButton
                     size='small'
                     color='error'

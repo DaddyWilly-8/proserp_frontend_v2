@@ -13,9 +13,12 @@ import {
   TableContainer
 } from '@mui/material';
 import { readableDate } from '@/app/helpers/input-sanitization-helpers';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function PurchaseGrnsReportOnScreen({ organization, purchaseGrnsReport }) {
   const theme = useTheme();
+  const dictionary = useDictionary();
+  const dict = dictionary.reports.purchaseGrnsReport;
   const mainColor = organization.settings?.main_color || "#2113AD";
   const headerColor = theme.type === 'dark' ? '#29f096' : (organization.settings?.main_color || "#2113AD");
   const contrastText = organization.settings?.contrast_text || "#FFFFFF";
@@ -68,7 +71,7 @@ function PurchaseGrnsReportOnScreen({ organization, purchaseGrnsReport }) {
               sx={{ color: headerColor }} 
               gutterBottom
             >
-              PURCHASE ORDER GRNS REPORT
+              {dict.title}
             </Typography>
             <Typography 
               variant="h6" 
@@ -78,7 +81,7 @@ function PurchaseGrnsReportOnScreen({ organization, purchaseGrnsReport }) {
               {purchaseGrnsReport.orderNo}
             </Typography>
             <Typography variant="body1" color="text.secondary">
-              {`As at: ${readableDate(undefined, true)}`}
+              {`${dict.asAt}: ${readableDate(undefined, true)}`}
             </Typography>
           </Box>
         </Grid>
@@ -103,7 +106,7 @@ function PurchaseGrnsReportOnScreen({ organization, purchaseGrnsReport }) {
                 borderRight: `1px solid ${theme.palette.divider}`,
                 fontSize: '0.875rem',
                 width: '5%'
-              }}>S/N</TableCell>
+              }}>{dict.sn}</TableCell>
               
               <TableCell sx={{
                 backgroundColor: mainColor, 
@@ -111,7 +114,7 @@ function PurchaseGrnsReportOnScreen({ organization, purchaseGrnsReport }) {
                 borderRight: `1px solid ${theme.palette.divider}`,
                 fontSize: '0.875rem',
                 width: '25%'
-              }}>Products</TableCell>
+              }}>{dict.products}</TableCell>
               
               <TableCell sx={{
                 backgroundColor: mainColor, 
@@ -119,7 +122,7 @@ function PurchaseGrnsReportOnScreen({ organization, purchaseGrnsReport }) {
                 borderRight: `1px solid ${theme.palette.divider}`,
                 fontSize: '0.875rem',
                 width: '8%'
-              }}>Unit</TableCell>
+              }}>{dict.unit}</TableCell>
               
               <TableCell sx={{
                 backgroundColor: mainColor, 
@@ -127,7 +130,7 @@ function PurchaseGrnsReportOnScreen({ organization, purchaseGrnsReport }) {
                 borderRight: `1px solid ${theme.palette.divider}`,
                 fontSize: '0.875rem',
                 width: '8%'
-              }}>Ordered</TableCell>
+              }}>{dict.ordered}</TableCell>
               
               {receivedItems.map(item => (
                 <TableCell 
@@ -160,7 +163,7 @@ function PurchaseGrnsReportOnScreen({ organization, purchaseGrnsReport }) {
               }} align="center">
                 <Box>
                   <Typography variant="subtitle2" sx={{ fontSize: '0.75rem', lineHeight: 1.2 }}>
-                    Pending
+                    {dict.pending}
                   </Typography>
                   <Typography variant="caption" sx={{ fontSize: '0.7rem', lineHeight: 1.2 }}>
                     ({readableDate()})
@@ -229,7 +232,7 @@ function PurchaseGrnsReportOnScreen({ organization, purchaseGrnsReport }) {
                   sx={{ textAlign: 'center', py: 4 }}
                 >
                   <Typography variant="body1" color="text.secondary">
-                    No purchase order items found
+                    {dict.noItems}
                   </Typography>
                 </TableCell>
               </TableRow>

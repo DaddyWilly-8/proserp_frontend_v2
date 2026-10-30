@@ -16,6 +16,7 @@ import { useState } from 'react';
 import humanResourcesServices from '../../../humanResourcesServices';
 import NextOfKinForm from './NextOfKinForm';
 import { NextOfKinType } from './NextOfKinType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const EditNextOfKin = ({
   nextOfKin,
@@ -48,6 +49,7 @@ const EditNextOfKin = ({
 };
 
 const NextOfKinItemAction = ({ nextOfKin }: { nextOfKin: NextOfKinType }) => {
+  const dictionary = useDictionary();
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const { showDialog, hideDialog } = useJumboDialog();
   const { enqueueSnackbar } = useSnackbar();
@@ -59,12 +61,12 @@ const NextOfKinItemAction = ({ nextOfKin }: { nextOfKin: NextOfKinType }) => {
     mutationFn: humanResourcesServices.deleteEmployeeNextOfKin,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['employeeNextOfKins'] });
-      enqueueSnackbar('Next Of Kin Deleted Successfully', {
+      enqueueSnackbar(dictionary.humanResources.nextOfKins.messages.deleted, {
         variant: 'success',
       });
     },
     onError: (error: any) => {
-      let message = 'Something went wrong';
+      let message = dictionary.humanResources.profileSectionsCommon.somethingWentWrong;
 
       if (
         typeof error === 'object' &&
@@ -83,12 +85,12 @@ const NextOfKinItemAction = ({ nextOfKin }: { nextOfKin: NextOfKinType }) => {
   const menuItems = [
     {
       icon: <EditOutlined />,
-      title: 'Edit',
+      title: dictionary.humanResources.profileSectionsCommon.edit,
       action: 'edit',
     },
     {
       icon: <DeleteOutlined color='error' />,
-      title: 'Delete',
+      title: dictionary.humanResources.profileSectionsCommon.delete,
       action: 'delete',
     },
   ];
@@ -100,8 +102,8 @@ const NextOfKinItemAction = ({ nextOfKin }: { nextOfKin: NextOfKinType }) => {
         break;
       case 'delete':
         showDialog({
-          title: 'Confirm Delete',
-          content: 'Are you sure you want to delete this Next Of Kin?',
+          title: dictionary.humanResources.profileSectionsCommon.confirmDelete,
+          content: dictionary.humanResources.nextOfKins.messages.deleteConfirm,
           onYes: () => {
             hideDialog();
             deleteEmployeeNextOfKin(nextOfKin.id);
@@ -132,7 +134,7 @@ const NextOfKinItemAction = ({ nextOfKin }: { nextOfKin: NextOfKinType }) => {
       </Dialog>
       <JumboDdMenu
         icon={
-          <Tooltip title='Actions'>
+          <Tooltip title={dictionary.tooltips.actions}>
             <MoreHorizOutlined fontSize='small' />
           </Tooltip>
         }

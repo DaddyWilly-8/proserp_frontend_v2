@@ -39,13 +39,14 @@ import { Employee } from '../../employees/EmployeesType';
 import { Department } from '../../departments/DepartmentsType';
 import humanResourcesServices from '../../humanResourcesServices';
 import StaffLoanReportDocument from './StaffLoanReportDocument';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
-const statusOptions = [
-  { label: 'All Statuses', value: '' },
-  { label: 'In Review', value: 'in_review' },
-  { label: 'Approved', value: 'approved' },
-  { label: 'Rejected', value: 'rejected' },
-  { label: 'Cancelled', value: 'cancelled' },
+const buildStatusOptions = (dictionary: any) => [
+  { label: dictionary.humanResources.reports.staffLoans.statusOptions.all, value: '' },
+  { label: dictionary.humanResources.reports.staffLoans.statusOptions.in_review, value: 'in_review' },
+  { label: dictionary.humanResources.reports.staffLoans.statusOptions.approved, value: 'approved' },
+  { label: dictionary.humanResources.reports.staffLoans.statusOptions.rejected, value: 'rejected' },
+  { label: dictionary.humanResources.reports.staffLoans.statusOptions.cancelled, value: 'cancelled' },
 ];
 
 const statusColors: Record<string, 'default' | 'success' | 'warning' | 'error'> = {
@@ -93,6 +94,8 @@ const fmt = (value: number) =>
   Number(value || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 function StaffLoanReportContent({ onClose }: { onClose?: () => void }) {
+  const dictionary = useDictionary();
+  const statusOptions = buildStatusOptions(dictionary);
   const { enqueueSnackbar } = useSnackbar();
   const { authOrganization, authUser } = useJumboAuth() as any;
 
@@ -155,7 +158,7 @@ function StaffLoanReportContent({ onClose }: { onClose?: () => void }) {
       link.remove();
       window.URL.revokeObjectURL(url);
     } catch (err: any) {
-      enqueueSnackbar(err?.response?.data?.message || 'Unable to export staff loans report', { variant: 'error' });
+      enqueueSnackbar(err?.response?.data?.message || dictionary.humanResources.reports.staffLoans.messages.exportError, { variant: 'error' });
     } finally {
       setIsExporting(false);
     }
@@ -165,19 +168,19 @@ function StaffLoanReportContent({ onClose }: { onClose?: () => void }) {
   const totals = data?.totals;
 
   const filtersLabel = [
-    selectedEmployee ? `Employee: ${selectedEmployee.first_name} ${selectedEmployee.last_name}` : null,
-    selectedDepartment ? `Department: ${selectedDepartment.name}` : null,
-    selectedStatus ? `Status: ${statusOptions.find((o) => o.value === selectedStatus)?.label ?? ''}` : null,
-    onlyOutstanding ? 'Only outstanding' : null,
+    selectedEmployee ? `${dictionary.humanResources.reports.common.employee}: ${selectedEmployee.first_name} ${selectedEmployee.last_name}` : null,
+    selectedDepartment ? `${dictionary.humanResources.reports.common.department}: ${selectedDepartment.name}` : null,
+    selectedStatus ? `${dictionary.humanResources.reports.common.status}: ${statusOptions.find((o) => o.value === selectedStatus)?.label ?? ''}` : null,
+    onlyOutstanding ? dictionary.humanResources.reports.staffLoans.onlyOutstanding : null,
   ]
     .filter(Boolean)
-    .join(', ') || 'All loans';
+    .join(', ') || dictionary.humanResources.reports.staffLoans.allLoans;
 
   return (
     <>
       <DialogTitle sx={{ pb: 1 }}>
         {onClose && (
-          <Tooltip title='Close'>
+          <Tooltip title={dictionary.tooltips.close}>
             <IconButton
               onClick={() => onClose()}
               sx={{ position: 'absolute', right: 12, top: 12 }}
@@ -188,15 +191,15 @@ function StaffLoanReportContent({ onClose }: { onClose?: () => void }) {
         )}
         <Grid container spacing={1.5} alignItems='center'>
           <Grid size={{ xs: 12 }} textAlign='center' marginBottom={2} sx={onClose ? { px: 4 } : undefined}>
-            <Typography variant='h3'>Staff Loans</Typography>
+            <Typography variant='h3'>{dictionary.humanResources.reports.staffLoans.title}</Typography>
             <Typography variant='body2' color='text.secondary'>
-              Loan status, approved terms, and how much has been recovered via payroll so far
+              {dictionary.humanResources.reports.staffLoans.subtitle}
             </Typography>
           </Grid>
 
           <Grid size={{ xs: 12, md: 3 }}>
             <EmployeeSelector
-              label='Employee'
+              label={dictionary.humanResources.reports.common.employee}
               value={selectedEmployee}
               onChange={(value) => setSelectedEmployee(Array.isArray(value) ? null : value)}
             />
@@ -204,7 +207,7 @@ function StaffLoanReportContent({ onClose }: { onClose?: () => void }) {
 
           <Grid size={{ xs: 12, md: 3 }}>
             <DepartmentSelector
-              label='Department'
+              label={dictionary.humanResources.reports.common.department}
               value={selectedDepartment}
               onChange={(value) => setSelectedDepartment(Array.isArray(value) ? null : value)}
             />
@@ -213,7 +216,7 @@ function StaffLoanReportContent({ onClose }: { onClose?: () => void }) {
           <Grid size={{ xs: 12, md: 3 }}>
             <TextField
               select
-              label='Status'
+              label={dictionary.humanResources.reports.common.status}
               size='small'
               value={selectedStatus}
               onChange={(event) => setSelectedStatus(event.target.value)}
@@ -235,7 +238,7 @@ function StaffLoanReportContent({ onClose }: { onClose?: () => void }) {
                   onChange={(event) => setOnlyOutstanding(event.target.checked)}
                 />
               }
-              label='Only outstanding'
+              label={dictionary.humanResources.reports.staffLoans.onlyOutstanding}
             />
           </Grid>
 
@@ -244,7 +247,7 @@ function StaffLoanReportContent({ onClose }: { onClose?: () => void }) {
             sx={{ display: 'flex', justifyContent: { xs: 'flex-start', md: 'flex-end' }, alignItems: 'center', gap: 1 }}
           >
             <Button variant='contained' size='small' onClick={handleFilter}>
-              Filter
+              {dictionary.humanResources.reports.common.filter}
             </Button>
             <FileExportGrid
               exportExcel
@@ -262,12 +265,12 @@ function StaffLoanReportContent({ onClose }: { onClose?: () => void }) {
 
         {isError && (
           <Alert severity='error' sx={{ mb: 2 }}>
-            {(error as Error)?.message || 'Unable to load staff loans.'}
+            {(error as Error)?.message || dictionary.humanResources.reports.staffLoans.messages.loadError}
           </Alert>
         )}
 
         {!isFetching && rows.length === 0 && !isError && (
-          <Alert severity='info'>No staff loans found for the selected filters.</Alert>
+          <Alert severity='info'>{dictionary.humanResources.reports.staffLoans.messages.noRecords}</Alert>
         )}
 
         {rows.length > 0 && (
@@ -280,6 +283,7 @@ function StaffLoanReportContent({ onClose }: { onClose?: () => void }) {
                     organization={authOrganization?.organization}
                     userName={authUser?.user?.name || 'ProsERP'}
                     filtersLabel={filtersLabel}
+                    dictionary={dictionary}
                   />
                 }
                 fileName='Staff Loans Report'
@@ -289,16 +293,16 @@ function StaffLoanReportContent({ onClose }: { onClose?: () => void }) {
                 <Table size='small'>
                   <TableHead>
                     <TableRow>
-                      <TableCell>Employee No.</TableCell>
-                      <TableCell>Name</TableCell>
-                      <TableCell>Department</TableCell>
-                      <TableCell>Status</TableCell>
-                      <TableCell>Requested</TableCell>
-                      <TableCell align='right'>Amount Approved</TableCell>
-                      <TableCell align='right'>Installment</TableCell>
-                      <TableCell align='center'>Disbursed</TableCell>
-                      <TableCell align='right'>Recovered</TableCell>
-                      <TableCell align='right'>Outstanding</TableCell>
+                      <TableCell>{dictionary.humanResources.reports.common.employeeNo}</TableCell>
+                      <TableCell>{dictionary.humanResources.reports.common.name}</TableCell>
+                      <TableCell>{dictionary.humanResources.reports.common.department}</TableCell>
+                      <TableCell>{dictionary.humanResources.reports.common.status}</TableCell>
+                      <TableCell>{dictionary.humanResources.reports.staffLoans.columns.requested}</TableCell>
+                      <TableCell align='right'>{dictionary.humanResources.reports.staffLoans.columns.amountApproved}</TableCell>
+                      <TableCell align='right'>{dictionary.humanResources.reports.staffLoans.columns.installment}</TableCell>
+                      <TableCell align='center'>{dictionary.humanResources.reports.staffLoans.columns.disbursed}</TableCell>
+                      <TableCell align='right'>{dictionary.humanResources.reports.staffLoans.columns.recovered}</TableCell>
+                      <TableCell align='right'>{dictionary.humanResources.reports.staffLoans.columns.outstanding}</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -314,13 +318,13 @@ function StaffLoanReportContent({ onClose }: { onClose?: () => void }) {
                             color={statusColors[row.status] || 'default'}
                           />
                           {row.fully_recovered && (
-                            <Chip size='small' label='Fully Recovered' color='success' variant='outlined' sx={{ ml: 0.5 }} />
+                            <Chip size='small' label={dictionary.humanResources.reports.staffLoans.fullyRecovered} color='success' variant='outlined' sx={{ ml: 0.5 }} />
                           )}
                         </TableCell>
                         <TableCell>{row.requested_at || '-'}</TableCell>
                         <TableCell align='right'>{fmt(row.amount_approved)}</TableCell>
                         <TableCell align='right'>{fmt(row.installment_amount)}</TableCell>
-                        <TableCell align='center'>{row.disbursed ? 'Yes' : 'No'}</TableCell>
+                        <TableCell align='center'>{row.disbursed ? dictionary.humanResources.reports.common.yes : dictionary.humanResources.reports.common.no}</TableCell>
                         <TableCell align='right'>{fmt(row.amount_recovered)}</TableCell>
                         <TableCell align='right'>{fmt(row.outstanding_balance)}</TableCell>
                       </TableRow>
@@ -328,7 +332,7 @@ function StaffLoanReportContent({ onClose }: { onClose?: () => void }) {
                     {totals && (
                       <TableRow>
                         <TableCell colSpan={5} sx={{ fontWeight: 700 }}>
-                          Total ({totals.count})
+                          {dictionary.humanResources.reports.common.totalWithCount.replace('{count}', String(totals.count))}
                         </TableCell>
                         <TableCell align='right' sx={{ fontWeight: 700 }}>
                           {fmt(totals.amount_approved)}
@@ -353,7 +357,7 @@ function StaffLoanReportContent({ onClose }: { onClose?: () => void }) {
       {onClose && (
         <DialogActions>
           <Button sx={{ m: 1 }} size='small' variant='outlined' onClick={() => onClose()}>
-            Close
+            {dictionary.humanResources.reports.common.close}
           </Button>
         </DialogActions>
       )}

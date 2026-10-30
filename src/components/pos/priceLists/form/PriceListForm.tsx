@@ -18,6 +18,7 @@ import StoreSelector from '@/components/procurement/stores/StoreSelector';
 import { PriceList, PriceListItem } from '../PriceListType';
 import CostCenterSelector from '@/components/masters/costCenters/CostCenterSelector';
 import { Outlet } from '../../outlet/OutletType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface PriceListFormProps {
   toggleOpen: (open: boolean) => void;
@@ -35,6 +36,7 @@ interface FormValues {
 }
 
 const PriceListForm: React.FC<PriceListFormProps & { fuelPriceLists?: boolean }> = ({ fuelPriceLists, toggleOpen, priceList = null }) => {
+  const dictionary = useDictionary();
   const [effective_date] = useState<Dayjs>(priceList ? dayjs(priceList.effective_date) : dayjs());
   const [items, setItems] = useState<PriceListItem[]>(priceList ? priceList.items : []);
   const [applicableOutlets, setApplicableOutlets] = useState<any>(priceList ? priceList.items[0]?.sales_outlets || [] : []);
@@ -48,15 +50,15 @@ const PriceListForm: React.FC<PriceListFormProps & { fuelPriceLists?: boolean }>
   const [submitItemForm, setSubmitItemForm] = useState(false);
 
   const validationSchema = yup.object({
-    effective_date: yup.string().required('Effective Date is required'),
-    sales_outlets: yup.array().min(1, "You must add at least one outlet").of(
-      yup.object().required('Outlet is required').typeError('Outlet is required')
-    ).typeError('You must add at least one outlet'),
-    items: yup.array().min(1, "You must add at least one item").typeError('You must add at least one item').of(
+    effective_date: yup.string().required(dictionary.forms.priceLists.validation.effectiveDateRequired),
+    sales_outlets: yup.array().min(1, dictionary.forms.priceLists.validation.outletMin).of(
+      yup.object().required(dictionary.forms.priceLists.validation.outletRequired).typeError(dictionary.forms.priceLists.validation.outletRequired)
+    ).typeError(dictionary.forms.priceLists.validation.outletMin),
+    items: yup.array().min(1, dictionary.forms.priceLists.validation.itemMin).typeError(dictionary.forms.priceLists.validation.itemMin).of(
       yup.object().shape({
-        product_id: yup.number().required("Product is required").positive('Product is required').typeError('Product is required'),
-        price: yup.number().required("Price is required").positive("Price is required").typeError('Price is required'),
-        bottom_cap: yup.number().positive("Invalid bottom cap").typeError('Invalid bottom cap'),
+        product_id: yup.number().required(dictionary.forms.priceLists.validation.productRequired).positive(dictionary.forms.priceLists.validation.productRequired).typeError(dictionary.forms.priceLists.validation.productRequired),
+        price: yup.number().required(dictionary.forms.priceLists.validation.priceRequired).positive(dictionary.forms.priceLists.validation.priceRequired).typeError(dictionary.forms.priceLists.validation.priceRequired),
+        bottom_cap: yup.number().positive(dictionary.forms.priceLists.validation.invalidBottomCap).typeError(dictionary.forms.priceLists.validation.invalidBottomCap),
       })
     ),
   });
@@ -111,7 +113,7 @@ const PriceListForm: React.FC<PriceListFormProps & { fuelPriceLists?: boolean }>
     if (items.length === 0) {
       setError(`items`, {
         type: "manual",
-        message: "You must add at least one item",
+        message: dictionary.forms.priceLists.validation.itemMin,
       });
       return;
     } else if (isDirty) {
@@ -163,14 +165,14 @@ const handleMainFormSubmit = async () => {
     <React.Fragment>
       <DialogTitle>
         <Grid size={12} textAlign={"center"} mb={2}>
-          {priceList ? `Edit Price List` : `New Price List`}
+          {priceList ? dictionary.forms.priceLists.title.edit : dictionary.forms.priceLists.title.new}
         </Grid>
         <form autoComplete='off'>
           <Grid container spacing={1}>
             <Grid size={{xs: 12, md: 4}}>
               <Div sx={{ mt: 1, mb: 1 }}>
                 <DateTimePicker
-                  label="Effective Date & Time"
+                  label={dictionary.forms.priceLists.labels.effectiveDateTime}
                   defaultValue={effective_date}
                   slotProps={{
                     textField: {
@@ -196,7 +198,7 @@ const handleMainFormSubmit = async () => {
                 <OutletSelector
                   multiple={true}
                   defaultValue={applicableOutlets}
-                  label='Applicable Outlets'
+                  label={dictionary.forms.priceLists.labels.applicableOutlets}
                   frontError={errors.sales_outlets}
                   onChange={(newValue: any) => {
                     setApplicableOutlets(newValue);
@@ -220,7 +222,7 @@ const handleMainFormSubmit = async () => {
                         setCostInsights(isChecked);
                       }}
                     />
-                    <Typography>Cost Insights</Typography>
+                    <Typography>{dictionary.forms.priceLists.labels.costInsights}</Typography>
                   </Stack>
                   {!!costInsights && (
                     <>
@@ -241,7 +243,7 @@ const handleMainFormSubmit = async () => {
                       <Grid size={12}>
                         <Div sx={{mt: 0.5}}>
                           <CostCenterSelector
-                            label="Cost Center"
+                            label={dictionary.forms.priceLists.labels.costCenter}
                             multiple={false}
                             frontError={errors.cost_center_id}
                             onChange={(newValue: any) => {
@@ -261,7 +263,7 @@ const handleMainFormSubmit = async () => {
             <Grid size={{xs: 12, md: !fuelPriceLists ? 8 : 12}} alignItems={'start'}>
               <Div sx={{ mt: {xs: 1, md: !!costInsights ? 6 : 1}, mb: 1 }}>
                 <TextField
-                  label='Narration'
+                  label={dictionary.forms.priceLists.labels.narration}
                   fullWidth
                   multiline={true}
                   minRows={2}
@@ -291,10 +293,10 @@ const handleMainFormSubmit = async () => {
           <DialogTitle>            
             <Grid container alignItems="center" justifyContent="space-between">
               <Grid size={11}>
-                Unsaved Changes
+                {dictionary.forms.priceLists.dialog.unsavedChanges}
               </Grid>
               <Grid size={1} textAlign="right">
-                <Tooltip title="Close">
+                <Tooltip title={dictionary.tooltips.close}>
                   <IconButton
                     size="small" 
                     onClick={() => setShowWarning(false)}
@@ -306,21 +308,21 @@ const handleMainFormSubmit = async () => {
             </Grid>
           </DialogTitle>
           <DialogContent>
-            Last item was not added to the list
+            {dictionary.forms.priceLists.dialog.lastItemNotAdded}
           </DialogContent>
           <DialogActions>
             <Button size="small" onClick={handleMainFormSubmit}>
-              Add and Submit
+              {dictionary.forms.priceLists.buttons.addAndSubmit}
             </Button>
             <Button size="small" onClick={handleConfirmSubmitWithoutAdd} color="secondary">
-              Submit without add
+              {dictionary.forms.priceLists.buttons.submitWithoutAdd}
             </Button>
           </DialogActions>
         </Dialog>
       </DialogContent>
       <DialogActions>
         <Button size='small' onClick={() => toggleOpen(false)}>
-          Cancel
+          {dictionary.forms.priceLists.buttons.cancel}
         </Button>
         <LoadingButton
           loading={addPriceList.isPending || updatePriceList.isPending}
@@ -328,7 +330,7 @@ const handleMainFormSubmit = async () => {
           size='small'
           onClick={onSubmit}
         >
-          Submit
+          {dictionary.forms.priceLists.buttons.submit}
         </LoadingButton>
       </DialogActions>
     </React.Fragment>

@@ -16,6 +16,7 @@ import {
   Box,
 } from '@mui/material';
 import React from 'react';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface RFQPurchaseOrderItemFormProps {
   index: number;
@@ -32,6 +33,7 @@ function RFQPurchaseOrderItemForm({
   totalItems,
   rfqDetails,
 }: RFQPurchaseOrderItemFormProps) {
+  const dictionary = useDictionary();
   const productName = item.product?.item_name || item.product?.name || item.product_name || 'Item';
   const unitSymbol = item.measurement_unit?.symbol || item.unit_symbol || '';
   const quantity = Number(item.quantity) || 0;
@@ -69,14 +71,14 @@ function RFQPurchaseOrderItemForm({
       {/* Product Name with RFQ info */}
       <Grid size={{ xs: 11, md: 3 }}>
         <Div sx={{ mt: 1, mb: 0.5 }}>
-          <Tooltip title="Product">
+          <Tooltip title={dictionary.tooltips.product}>
             <Typography variant="body2" fontWeight="medium">
               {productName}
             </Typography>
           </Tooltip>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.5 }}>
             <Chip 
-              label={`RFQ Qty: ${rfqQuantity}`} 
+              label={dictionary.forms.rfqs.purchaseOrder.item.rfqQty.replace('{quantity}', String(rfqQuantity))} 
               size="small" 
               variant="outlined"
               sx={{ height: 18, fontSize: '0.6rem' }}
@@ -98,7 +100,7 @@ function RFQPurchaseOrderItemForm({
       <Grid size={{ xs: 6, md: 3 }}>
         <Div sx={{ mt: 1, mb: 0.5 }}>
           <TextField
-            label="Quantity"
+            label={dictionary.forms.rfqs.common.quantity}
             fullWidth
             size="small"
             value={quantity || 0}
@@ -124,7 +126,7 @@ function RFQPurchaseOrderItemForm({
                 size="small"
               />
             }
-            label={'VAT'}
+            label={dictionary.forms.rfqs.purchaseOrder.item.vat}
             sx={{
               '& .MuiFormControlLabel-label': {
                 fontSize: '0.8rem',
@@ -138,7 +140,7 @@ function RFQPurchaseOrderItemForm({
       <Grid size={{ xs: 6, md: totalItems > 0 ? 2.5 : 3 }}>
         <Div sx={{ mt: 1, mb: 0.5 }}>
           <TextField
-            label="Rate"
+            label={dictionary.forms.rfqs.common.rate}
             fullWidth
             size="small"
             value={rate || 0}
@@ -158,7 +160,7 @@ function RFQPurchaseOrderItemForm({
       <Grid size={{ xs: 6, md: 2 }}>
         <Div sx={{ mt: 1, mb: 0.5 }}>
           <TextField
-            label="Amount"
+            label={dictionary.forms.rfqs.common.amount}
             fullWidth
             size="small"
             value={amount.toLocaleString()}
@@ -173,7 +175,7 @@ function RFQPurchaseOrderItemForm({
       {totalItems > 1 && (
         <Grid size={{ xs: 12, md: 0.5}} textAlign={'end'}>
           <Div sx={{ mt: 1, mb: 0.5 }}>
-            <Tooltip title="Remove Item">
+            <Tooltip title={dictionary.tooltips.removeItem}>
               <IconButton
                 size="small"
                 onClick={() => handleItemChange(index, 'delete', true)}

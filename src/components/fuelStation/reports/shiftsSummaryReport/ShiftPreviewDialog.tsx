@@ -20,6 +20,7 @@ import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 import { useQuery } from '@tanstack/react-query';
 import React from 'react';
 import SalesShiftOnScreen from '../../shifts/preview/SalesShiftOnScreen';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface ShiftPreviewDialogProps {
   shiftId: number | null;
@@ -34,6 +35,7 @@ const ShiftPreviewDialog: React.FC<ShiftPreviewDialogProps> = ({
   onClose,
   organization,
 }) => {
+  const dictionary = useDictionary();
   const { theme } = useJumboTheme();
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
   const { productOptions } = useProductsSelect();
@@ -60,8 +62,8 @@ const ShiftPreviewDialog: React.FC<ShiftPreviewDialogProps> = ({
           alignItems='center'
           position='relative'
         >
-          <Typography variant='h5'>Shift Preview</Typography>
-          <Tooltip title='Close'>
+          <Typography variant='h5'>{dictionary.reports.fuelStationReports.shiftsSummary.shiftPreview}</Typography>
+          <Tooltip title={dictionary.tooltips.close}>
             <IconButton
               size='small'
               onClick={onClose}
@@ -91,7 +93,7 @@ const ShiftPreviewDialog: React.FC<ShiftPreviewDialogProps> = ({
         {!belowLargeScreen && (
           <Box textAlign='right' mt={3}>
             <Button variant='outlined' size='small' onClick={onClose}>
-              Close
+              {dictionary.reports.fuelStationReports.shiftsSummary.close}
             </Button>
           </Box>
         )}

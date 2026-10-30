@@ -45,6 +45,7 @@ import LoanRequestPreview from './LoanRequestPreview';
 import LoanStatement from './LoanStatement';
 import LoanStatementPDF from './LoanStatementPDF';
 import { LoanRequestType } from './LoanRequestType';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface User {
   id: number;
@@ -60,13 +61,6 @@ const STATUS_COLOR: Record<string, any> = {
   approved: 'success',
   rejected: 'error',
   cancelled: 'default',
-};
-
-const STATUS_LABEL: Record<string, string> = {
-  in_review: 'In Review',
-  approved: 'Approved',
-  rejected: 'Rejected',
-  cancelled: 'Cancelled',
 };
 
 // Small label/value pair used throughout the Summary tab.
@@ -106,6 +100,15 @@ const LoanRequestsListItem = ({
 }: {
   loanRequest: LoanRequestType;
 }) => {
+  const dictionary = useDictionary();
+  const STATUS_LABEL: Record<string, string> = {
+    in_review: dictionary.humanResources.loanRequests.list.statusOptions.in_review,
+    approved: dictionary.humanResources.loanRequests.list.statusOptions.approved,
+    rejected: dictionary.humanResources.loanRequests.list.statusOptions.rejected,
+    cancelled: dictionary.humanResources.loanRequests.list.statusOptions.cancelled,
+  };
+  const formatMonths = (count: number | string) =>
+    dictionary.humanResources.loanRequests.listItem.months.replace('{count}', String(count));
   const { authOrganization, authUser, checkOrganizationPermission } =
     useJumboAuth();
   const organization = authOrganization && authOrganization?.organization;
@@ -157,7 +160,10 @@ const LoanRequestsListItem = ({
 
   const employeeName = loanRequest.employee
     ? `${loanRequest.employee.first_name} ${loanRequest.employee.last_name}`
-    : `Employee #${loanRequest.employee_id}`;
+    : dictionary.humanResources.loanRequests.common.employeeFallback.replace(
+        '{id}',
+        String(loanRequest.employee_id)
+      );
 
   const statusColor = STATUS_COLOR[loanRequest.status] || 'default';
   // status_label is backend-computed — "Waiting for {Role}" while a chain-driven
@@ -166,7 +172,7 @@ const LoanRequestsListItem = ({
     loanRequest.status_label ||
     STATUS_LABEL[loanRequest.status] ||
     loanRequest.status ||
-    'Pending';
+    dictionary.humanResources.loanRequests.listItem.pending;
 
   return (
     <Accordion
@@ -213,25 +219,25 @@ const LoanRequestsListItem = ({
           paddingRight={1}
         >
           <Grid size={{ xs: 6, md: 3 }}>
-            <Tooltip title='Employee'>
+            <Tooltip title={dictionary.tooltips.employee}>
               <Typography noWrap>{employeeName}</Typography>
             </Tooltip>
           </Grid>
 
           <Grid size={{ xs: 6, md: 2.2 }}>
-            <Tooltip title='Amount Requested'>
+            <Tooltip title={dictionary.tooltips.amountRequested}>
               <Typography>{formatCurrency(loanRequest.amount)}</Typography>
             </Tooltip>
           </Grid>
 
           <Grid size={{ xs: 6, md: 1.8 }}>
-            <Tooltip title='Installments Requested'>
-              <Typography>{loanRequest.installments} months</Typography>
+            <Tooltip title={dictionary.tooltips.installmentsRequested}>
+              <Typography>{formatMonths(loanRequest.installments)}</Typography>
             </Tooltip>
           </Grid>
 
           <Grid size={{ xs: 6, md: 1.8 }}>
-            <Tooltip title='Loan Request Date'>
+            <Tooltip title={dictionary.tooltips.loanRequestDate}>
               <Typography>
                 {readableDate(
                   loanRequest.requested_at || loanRequest.created_at,
@@ -258,7 +264,10 @@ const LoanRequestsListItem = ({
               />
               {loanRequest.disbursed_at && (
                 <Tooltip
-                  title={`Disbursed ${readableDate(loanRequest.disbursed_at, false)}`}
+                  title={dictionary.humanResources.loanRequests.listItem.disbursedOn.replace(
+                    '{date}',
+                    readableDate(loanRequest.disbursed_at, false)
+                  )}
                 >
                   <Verified color='success' fontSize='small' />
                 </Tooltip>
@@ -283,7 +292,7 @@ const LoanRequestsListItem = ({
             </DialogContent>
             <DialogActions>
               <Button size='small' onClick={() => setOpenPreview(false)}>
-                Close
+                {dictionary.humanResources.loanRequests.listItem.close}
               </Button>
             </DialogActions>
           </Dialog>
@@ -321,6 +330,7 @@ const LoanRequestsListItem = ({
                       data={statementData}
                       organization={organization}
                       userName={authUser?.user?.name || 'ProsERP'}
+                      dictionary={dictionary}
                     />
                   }
                   fileName={`Loan Statement - ${
@@ -333,7 +343,7 @@ const LoanRequestsListItem = ({
             </DialogContent>
             <DialogActions>
               <Button size='small' onClick={() => setOpenStatement(false)}>
-                Close
+                {dictionary.humanResources.loanRequests.listItem.close}
               </Button>
             </DialogActions>
           </Dialog>
@@ -347,6 +357,7 @@ const LoanRequestsListItem = ({
                       data={details}
                       organization={organization}
                       userName={authUser?.user?.name || 'ProsERP'}
+                      dictionary={dictionary}
                     />
                   }
                   fileName={`Loan Application - ${employeeName.trim()}`}
@@ -357,18 +368,18 @@ const LoanRequestsListItem = ({
 
           <Grid container spacing={1}>
             <Grid size={{ xs: 12 }} textAlign='end'>
-              <Tooltip title='Print Loan Application Form'>
+              <Tooltip title={dictionary.tooltips.printLoanApplicationForm}>
                 <IconButton size='small' onClick={() => setOpenPrint(true)}>
                   <PrintOutlined color='primary' />
                 </IconButton>
               </Tooltip>
-              <Tooltip title='Preview'>
+              <Tooltip title={dictionary.tooltips.preview}>
                 <IconButton size='small' onClick={() => setOpenPreview(true)}>
                   <PreviewOutlined color='primary' />
                 </IconButton>
               </Tooltip>
               {details.status === 'approved' && (
-                <Tooltip title='Statement'>
+                <Tooltip title={dictionary.tooltips.statement}>
                   <IconButton size='small' onClick={() => setOpenStatement(true)}>
                     <ReceiptLongOutlined color='primary' />
                   </IconButton>
@@ -385,8 +396,8 @@ const LoanRequestsListItem = ({
                 allowScrollButtonsMobile
                 sx={{ display: 'flex', justifyContent: 'center' }}
               >
-                <Tab label='Summary' />
-                <Tab label='Approvals' />
+                <Tab label={dictionary.humanResources.loanRequests.listItem.tabs.summary} />
+                <Tab label={dictionary.humanResources.loanRequests.listItem.tabs.approvals} />
               </Tabs>
             </Grid>
           </Grid>
@@ -406,22 +417,30 @@ const LoanRequestsListItem = ({
                     <CardContent>
                       <Grid container spacing={2}>
                         <Grid size={12}>
-                          <SectionTitle>Loan Details</SectionTitle>
+                          <SectionTitle>
+                            {dictionary.humanResources.loanRequests.listItem.sections.loanDetails}
+                          </SectionTitle>
                         </Grid>
-                        <Field label='Employee' value={employeeName} />
                         <Field
-                          label='Department'
+                          label={dictionary.humanResources.loanRequests.listItem.fields.employee}
+                          value={employeeName}
+                        />
+                        <Field
+                          label={dictionary.humanResources.loanRequests.listItem.fields.department}
                           value={details.department?.name}
                         />
                         <Field
-                          label='Amount Requested'
+                          label={dictionary.humanResources.loanRequests.listItem.fields.amountRequested}
                           value={formatCurrency(details.amount)}
                         />
                         <Field
-                          label='Installments Requested'
-                          value={`${details.installments} months`}
+                          label={dictionary.humanResources.loanRequests.listItem.fields.installmentsRequested}
+                          value={formatMonths(details.installments)}
                         />
-                        <Field label='Reason' value={details.reason} />
+                        <Field
+                          label={dictionary.humanResources.loanRequests.listItem.fields.reason}
+                          value={details.reason}
+                        />
                       </Grid>
                     </CardContent>
                   </Card>
@@ -429,10 +448,12 @@ const LoanRequestsListItem = ({
                     <CardContent>
                       <Grid container spacing={2}>
                         <Grid size={12}>
-                          <SectionTitle>Approval Decision</SectionTitle>
+                          <SectionTitle>
+                            {dictionary.humanResources.loanRequests.listItem.sections.approvalDecision}
+                          </SectionTitle>
                         </Grid>
                         <Field
-                          label='Status'
+                          label={dictionary.humanResources.loanRequests.listItem.fields.status}
                           value={
                             <Chip
                               label={
@@ -448,31 +469,35 @@ const LoanRequestsListItem = ({
                           }
                         />
                         <Field
-                          label='Amount Approved'
+                          label={dictionary.humanResources.loanRequests.listItem.fields.amountApproved}
                           value={formatCurrency(details.amount_approved)}
                         />
                         <Field
-                          label='Installments Approved'
+                          label={dictionary.humanResources.loanRequests.listItem.fields.installmentsApproved}
                           value={
                             details.installments_approved != null
-                              ? `${details.installments_approved} months`
+                              ? formatMonths(details.installments_approved)
                               : undefined
                           }
                         />
                         <Field
-                          label='Installment Amount'
+                          label={dictionary.humanResources.loanRequests.listItem.fields.installmentAmount}
                           value={formatCurrency(details.installment_amount)}
                         />
                         <Field
-                          label='Reviewed By'
+                          label={dictionary.humanResources.loanRequests.listItem.fields.reviewedBy}
                           value={
                             details.reviewed_by
-                              ? (reviewedBy ?? `User #${details.reviewed_by}`)
+                              ? (reviewedBy ??
+                                  dictionary.humanResources.loanRequests.listItem.userFallback.replace(
+                                    '{id}',
+                                    String(details.reviewed_by)
+                                  ))
                               : undefined
                           }
                         />
                         <Field
-                          label='Reviewed At'
+                          label={dictionary.humanResources.loanRequests.listItem.fields.reviewedAt}
                           value={
                             details.reviewed_at
                               ? readableDate(details.reviewed_at, false)
@@ -480,7 +505,7 @@ const LoanRequestsListItem = ({
                           }
                         />
                         <Field
-                          label='Review Remarks'
+                          label={dictionary.humanResources.loanRequests.listItem.fields.reviewRemarks}
                           value={details.review_remarks}
                         />
                       </Grid>
@@ -491,10 +516,12 @@ const LoanRequestsListItem = ({
                     <CardContent>
                       <Grid container spacing={2}>
                         <Grid size={12}>
-                          <SectionTitle>Disbursement & Payment</SectionTitle>
+                          <SectionTitle>
+                            {dictionary.humanResources.loanRequests.listItem.sections.disbursementPayment}
+                          </SectionTitle>
                         </Grid>
                         <Field
-                          label='Disbursed At'
+                          label={dictionary.humanResources.loanRequests.listItem.fields.disbursedAt}
                           value={
                             details.disbursed_at
                               ? readableDate(details.disbursed_at, false)
@@ -502,7 +529,7 @@ const LoanRequestsListItem = ({
                           }
                         />
                         <Field
-                          label='Disbursed By'
+                          label={dictionary.humanResources.loanRequests.listItem.fields.disbursedBy}
                           value={
                             details.disbursed_by
                               ? `${details.disbursed_by.name}`
@@ -510,11 +537,11 @@ const LoanRequestsListItem = ({
                           }
                         />
                         <Field
-                          label='Disbursement Reference'
+                          label={dictionary.humanResources.loanRequests.listItem.fields.disbursementReference}
                           value={details.disbursement_reference}
                         />
                         <Field
-                          label='Payment Voucher'
+                          label={dictionary.humanResources.loanRequests.listItem.fields.paymentVoucher}
                           value={details.payment?.voucherNo}
                         />
                         <Grid size={{ xs: 12, sm: 6, md: 8, lg: 9 }}>
@@ -533,7 +560,7 @@ const LoanRequestsListItem = ({
                               color='text.secondary'
                               display='block'
                             >
-                              Payment Narration
+                              {dictionary.humanResources.loanRequests.listItem.fields.paymentNarration}
                             </Typography>
                             <Typography variant='body2' fontWeight={500}>
                               {details.payment?.narration ?? '-'}
@@ -600,7 +627,7 @@ const LoanRequestsListItem = ({
                               alignItems='center'
                             >
                               <Grid size={{ xs: 12, md: 3, lg: 3 }}>
-                                <Tooltip title='Action Date'>
+                                <Tooltip title={dictionary.tooltips.actionDate}>
                                   <Typography variant='h6'>
                                     {approval.approval_date
                                       ? readableDate(approval.approval_date)
@@ -610,7 +637,7 @@ const LoanRequestsListItem = ({
                               </Grid>
 
                               <Grid size={{ xs: 12, md: 3, lg: 3 }}>
-                                <Tooltip title='Done By'>
+                                <Tooltip title={dictionary.tooltips.doneBy}>
                                   <Typography variant='h6'>
                                     {approval.creator?.name || ''}
                                   </Typography>
@@ -620,7 +647,17 @@ const LoanRequestsListItem = ({
                               <Grid size={{ xs: 12, md: 4, lg: 4 }}>
                                 <Chip
                                   size='small'
-                                  label={approval.status || 'Pending'}
+                                  label={
+                                    approval.status
+                                      ? decision === 'approved'
+                                        ? dictionary.humanResources.loanRequests.listItem.decisions.approved
+                                        : decision === 'rejected'
+                                          ? dictionary.humanResources.loanRequests.listItem.decisions.rejected
+                                          : decision === 'on hold'
+                                            ? dictionary.humanResources.loanRequests.listItem.decisions.onHold
+                                            : approval.status
+                                      : dictionary.humanResources.loanRequests.listItem.pending
+                                  }
                                   color={chipColor as any}
                                   sx={{ textTransform: 'capitalize' }}
                                 />
@@ -642,7 +679,7 @@ const LoanRequestsListItem = ({
                       ) : (
                         <Grid size={{ xs: 12 }}>
                           <Alert variant='outlined' severity='info'>
-                            No Approvals Found
+                            {dictionary.humanResources.loanRequests.listItem.noApprovals}
                           </Alert>
                         </Grid>
                       )}

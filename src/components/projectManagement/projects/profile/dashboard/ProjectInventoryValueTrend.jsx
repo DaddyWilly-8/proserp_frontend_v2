@@ -12,16 +12,18 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import { shortNumber } from '@/app/helpers/input-sanitization-helpers';
 
 function ProjectInventoryValueTrend({ data = [] }) {
+  const dictionary = useDictionary();
   const { theme } = useJumboTheme();
   const textColor = theme.palette.text.primary;
 
   if (!data.length) {
     return (
       <Alert variant='outlined' severity='info'>
-        No inventory values found for trend
+        {dictionary.projectManagement.dashboard.noInventoryValuesTrend}
       </Alert>
     );
   }

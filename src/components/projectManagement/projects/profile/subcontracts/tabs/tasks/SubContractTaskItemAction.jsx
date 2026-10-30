@@ -11,8 +11,10 @@ import projectsServices from '@/components/projectManagement/projects/project-se
 import { JumboDdMenu } from '@jumbo/components';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 const SubContractTaskItemAction = ({ subContract, subContractTask, subContractTasks}) => {
+    const dictionary = useDictionary();
     const [openEditDialog,setOpenEditDialog] = useState(false);
     const {showDialog,hideDialog} = useJumboDialog();
     const { enqueueSnackbar } = useSnackbar();
@@ -40,8 +42,8 @@ const SubContractTaskItemAction = ({ subContract, subContractTask, subContractTa
     });
 
     const menuItems = [
-        checkOrganizationPermission(PERMISSIONS.PROJECT_SUBCONTRACTS_EDIT) && {icon: <EditOutlined/>, title: 'Edit', action: 'edit'},
-        checkOrganizationPermission(PERMISSIONS.PROJECT_SUBCONTRACTS_DELETE) && {icon: <DeleteOutlined color='error'/>, title: 'Delete', action: 'delete'}
+        checkOrganizationPermission(PERMISSIONS.PROJECT_SUBCONTRACTS_EDIT) && {icon: <EditOutlined/>, title: dictionary.projectManagement.common.edit, action: 'edit'},
+        checkOrganizationPermission(PERMISSIONS.PROJECT_SUBCONTRACTS_DELETE) && {icon: <DeleteOutlined color='error'/>, title: dictionary.projectManagement.common.delete, action: 'delete'}
     ].filter(Boolean);
 
     const handleItemAction = (menuItem) => {
@@ -51,8 +53,8 @@ const SubContractTaskItemAction = ({ subContract, subContractTask, subContractTa
             break;
         case 'delete':
             showDialog({
-                title: 'Confirm Delete',
-                content: 'Are you sure you want to delete this Task?',
+                title: dictionary.projectManagement.common.confirmDelete,
+                content: dictionary.projectManagement.subcontractTasks.confirmDeleteText,
                 onYes: () =>{ 
                     hideDialog();
                     deleteSubContractTask(subContractTask.id)
@@ -79,7 +81,7 @@ const SubContractTaskItemAction = ({ subContract, subContractTask, subContractTa
         </Dialog>
         <JumboDdMenu
             icon={
-                <Tooltip title='Actions'>
+                <Tooltip title={dictionary.tooltips.actions}>
                     <MoreHorizOutlined/>
                 </Tooltip>
             }

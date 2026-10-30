@@ -89,6 +89,7 @@ interface BudgetsPDFProps {
   groupingMode?: 'default' | 'task';
   hideSummary?: boolean;
   organization: Organization;
+  dictionary: any;
 }
 
 interface TaskItemGroup<T> {
@@ -112,8 +113,8 @@ const formatCurrency = (
   });
 };
 
-const formatPercentage = (budgeted: number, spent: number): string => {
-  if (budgeted === 0) return 'unbudgeted';
+const formatPercentage = (budgeted: number, spent: number, unbudgetedLabel: string): string => {
+  if (budgeted === 0) return unbudgetedLabel;
   const percentage = (spent / budgeted) * 100;
   return `${percentage.toFixed(2)}%`;
 };
@@ -123,24 +124,25 @@ const getTaskLabel = (task: Task | undefined): string => {
   return task.label || task.name || '';
 };
 
-const getGroupHeading = (group: TaskItemGroup<unknown>): React.ReactNode => {
+const getGroupHeading = (group: TaskItemGroup<unknown>, labels: any): React.ReactNode => {
   if (group.key === 'unbound') {
     return (
       <Text style={{ fontStyle: 'italic', fontWeight: 400 }}>
-        Unassigned Items (Not Bound To Any Task Yet)
+        {labels.unassignedItems}
       </Text>
     );
   }
 
   return (
     <Text>
-      <Text style={{ fontWeight: 700 }}>Bound To: </Text>
+      <Text style={{ fontWeight: 700 }}>{labels.boundTo}: </Text>
       <Text style={{ fontWeight: 400 }}>{group.title}</Text>
     </Text>
   );
 };
 
 const buildGroupsByTask = <T,>(
+  labels: any,
   items: T[],
   allTasks: Task[],
   getTaskId: (item: T) => number | null | undefined,
@@ -174,14 +176,14 @@ const buildGroupsByTask = <T,>(
     const hasTask = hasValidId && boundCheck;
 
     if (!hasTask) {
-      ensureGroup('unbound', 'Not Bound To Any Task')?.items.push(item);
+      ensureGroup('unbound', labels.notBoundToAnyTask)?.items.push(item);
       return;
     }
 
     const taskId = Number(rawTaskId);
     const task = allTasks.find((entry) => Number(entry.id) === taskId);
     const fallbackLabel = getTaskLabelFromItem?.(item);
-    const groupTitle = getTaskLabel(task) || fallbackLabel || `Task ${taskId}`;
+    const groupTitle = getTaskLabel(task) || fallbackLabel || labels.taskId.replace('{id}', String(taskId));
 
     ensureGroup(`task-${taskId}`, groupTitle)?.items.push(item);
   });
@@ -365,6 +367,7 @@ const PDFTable: React.FC<TableProps> = ({
 // ==================== Section Renderers ====================
 
 const renderExpensesTable = (
+  labels: any,
   expenses: Expense[],
   mainColor: string,
   lightColor: string,
@@ -381,10 +384,10 @@ const renderExpensesTable = (
   );
 
   const columns: TableColumn[] = [
-    { key: 'name', label: 'Expense Name', flex: 2 },
-    { key: 'budgeted', label: 'Budgeted', flex: 1.5, align: 'right' },
-    { key: 'spent', label: 'Spent', flex: 1.5, align: 'right' },
-    { key: 'percent', label: 'Percent', flex: 1, align: 'right' },
+    { key: 'name', label: labels.expenseName, flex: 2 },
+    { key: 'budgeted', label: labels.budgeted, flex: 1.5, align: 'right' },
+    { key: 'spent', label: labels.spent, flex: 1.5, align: 'right' },
+    { key: 'percent', label: labels.percent, flex: 1, align: 'right' },
   ];
 
   return (
@@ -395,12 +398,12 @@ const renderExpensesTable = (
       lightColor={lightColor}
       contrastText={contrastText}
       total={{
-        label: 'Total',
+        label: labels.total,
         value: '',
         valuesByColumn: {
           budgeted: formatCurrency(totalBudgeted, baseCurrency?.code),
           spent: formatCurrency(totalSpent, baseCurrency?.code),
-          percent: formatPercentage(totalBudgeted, totalSpent),
+          percent: formatPercentage(totalBudgeted, totalSpent, labels.unbudgeted),
         },
       }}
       renderCell={(item: Expense, column) => {
@@ -416,7 +419,7 @@ const renderExpensesTable = (
               <Text>{formatCurrency(item.spent, baseCurrency?.code)}</Text>
             );
           case 'percent':
-            return <Text>{formatPercentage(item.budgeted, item.spent)}</Text>;
+            return <Text>{formatPercentage(item.budgeted, item.spent, labels.unbudgeted)}</Text>;
           default:
             return null;
         }
@@ -426,13 +429,14 @@ const renderExpensesTable = (
 };
 
 const renderProductsTable = (
+  labels: any,
   products: ProductItem[],
   allTasks: Task[],
   mainColor: string,
   lightColor: string,
   contrastText: string,
   baseCurrency?: { code: string },
-  title = 'Products',
+  title = labels.products,
   showBoundTo = true
 ) => {
   const totalProductsAmount = products.reduce((total, item) => {
@@ -444,10 +448,10 @@ const renderProductsTable = (
   const totalCurrencyCode = baseCurrency?.code;
 
   const columns: TableColumn[] = [
-    { key: 'product', label: 'Product', flex: 2.5 },
-    { key: 'quantity', label: 'Quantity', flex: 1, align: 'right' },
-    { key: 'rate', label: 'Rate', flex: 1, align: 'right' },
-    { key: 'amount', label: 'Amount', flex: 1.5, align: 'right' },
+    { key: 'product', label: labels.product, flex: 2.5 },
+    { key: 'quantity', label: labels.quantity, flex: 1, align: 'right' },
+    { key: 'rate', label: labels.rate, flex: 1, align: 'right' },
+    { key: 'amount', label: labels.amount, flex: 1.5, align: 'right' },
   ];
 
   const renderProductCell = (item: ProductItem, column: TableColumn) => {
@@ -466,7 +470,7 @@ const renderProductsTable = (
             {taskLabel && showBoundTo && (
               <>
                 <Text style={{ fontWeight: 'bold', marginTop: 2 }}>
-                  Bound To:
+                  {labels.boundTo}:
                 </Text>
                 <Text>{taskLabel}</Text>
               </>
@@ -511,7 +515,7 @@ const renderProductsTable = (
       lightColor={lightColor}
       contrastText={contrastText}
       total={{
-        label: 'Total',
+        label: labels.total,
         value: formatCurrency(totalProductsAmount, totalCurrencyCode),
         valueColumnKey: 'amount',
       }}
@@ -521,13 +525,14 @@ const renderProductsTable = (
 };
 
 const renderLedgerItemsTable = (
+  labels: any,
   ledgerItems: LedgerItem[],
   allTasks: Task[],
   mainColor: string,
   lightColor: string,
   contrastText: string,
   baseCurrency?: { code: string },
-  title = 'Ledger Items',
+  title = labels.ledgerItems,
   showBoundTo = true
 ) => {
   const totalLedgerAmount = ledgerItems.reduce((total, item) => {
@@ -539,10 +544,10 @@ const renderLedgerItemsTable = (
   const totalCurrencyCode = baseCurrency?.code;
 
   const columns: TableColumn[] = [
-    { key: 'expense', label: 'Expense', flex: 2.5 },
-    { key: 'quantity', label: 'Quantity', flex: 1, align: 'right' },
-    { key: 'rate', label: 'Rate', flex: 1, align: 'right' },
-    { key: 'amount', label: 'Amount', flex: 1.5, align: 'right' },
+    { key: 'expense', label: labels.expense, flex: 2.5 },
+    { key: 'quantity', label: labels.quantity, flex: 1, align: 'right' },
+    { key: 'rate', label: labels.rate, flex: 1, align: 'right' },
+    { key: 'amount', label: labels.amount, flex: 1.5, align: 'right' },
   ];
 
   const renderLedgerCell = (item: LedgerItem, column: TableColumn) => {
@@ -560,7 +565,7 @@ const renderLedgerItemsTable = (
             {taskLabel && showBoundTo && (
               <>
                 <Text style={{ fontWeight: 'bold', marginTop: 2 }}>
-                  Bound To:
+                  {labels.boundTo}:
                 </Text>
                 <Text>{taskLabel}</Text>
               </>
@@ -604,7 +609,7 @@ const renderLedgerItemsTable = (
       lightColor={lightColor}
       contrastText={contrastText}
       total={{
-        label: 'Total',
+        label: labels.total,
         value: formatCurrency(totalLedgerAmount, totalCurrencyCode),
         valueColumnKey: 'amount',
       }}
@@ -614,12 +619,13 @@ const renderLedgerItemsTable = (
 };
 
 const renderSubcontractTasksTable = (
+  labels: any,
   tasks: SubcontractTaskItem[],
   mainColor: string,
   lightColor: string,
   contrastText: string,
   baseCurrency?: { code: string },
-  title = 'Subcontract Tasks'
+  title = labels.subcontractTasks
 ) => {
   const totalSubcontractAmount = tasks.reduce((total, item) => {
     const quantity = Number(item.quantity || 0);
@@ -630,11 +636,11 @@ const renderSubcontractTasksTable = (
   const totalCurrencyCode = baseCurrency?.code;
 
   const columns: TableColumn[] = [
-    { key: 'taskName', label: 'Task', flex: 1.5 },
-    { key: 'expenseName', label: 'Expense', flex: 1 },
-    { key: 'quantity', label: 'Quantity', flex: 1, align: 'right' },
-    { key: 'rate', label: 'Rate', flex: 1, align: 'right' },
-    { key: 'amount', label: 'Amount', flex: 1.5, align: 'right' },
+    { key: 'taskName', label: labels.task, flex: 1.5 },
+    { key: 'expenseName', label: labels.expense, flex: 1 },
+    { key: 'quantity', label: labels.quantity, flex: 1, align: 'right' },
+    { key: 'rate', label: labels.rate, flex: 1, align: 'right' },
+    { key: 'amount', label: labels.amount, flex: 1.5, align: 'right' },
   ];
 
   const renderTaskCell = (item: SubcontractTaskItem, column: TableColumn) => {
@@ -686,7 +692,7 @@ const renderSubcontractTasksTable = (
       lightColor={lightColor}
       contrastText={contrastText}
       total={{
-        label: 'Total',
+        label: labels.total,
         value: formatCurrency(totalSubcontractAmount, totalCurrencyCode),
         valueColumnKey: 'amount',
       }}
@@ -704,12 +710,15 @@ const BudgetsPDF: React.FC<BudgetsPDFProps> = ({
   withDetails,
   groupingMode = 'default',
   organization,
+  dictionary,
 }) => {
+  const labels = dictionary.projectManagement.budgets.preview;
   const mainColor = organization.settings?.main_color || '#2113AD';
   const lightColor = organization.settings?.light_color || '#bec5da';
   const contrastText = organization.settings?.contrast_text || '#FFFFFF';
 
   const ledgerGroups = buildGroupsByTask(
+    labels,
     budgetDetails.ledger_items || [],
     allTasks || [],
     (item) => item.budget_itemable_id,
@@ -717,6 +726,7 @@ const BudgetsPDF: React.FC<BudgetsPDFProps> = ({
     (item) => item.bound_to === 'ProjectTask' && !!item.budget_itemable_id
   );
   const productGroups = buildGroupsByTask(
+    labels,
     budgetDetails.product_items || [],
     allTasks || [],
     (item) => item.budget_itemable_id,
@@ -724,6 +734,7 @@ const BudgetsPDF: React.FC<BudgetsPDFProps> = ({
     (item) => item.bound_to === 'ProjectTask' && !!item.budget_itemable_id
   );
   const subcontractGroups = buildGroupsByTask(
+    labels,
     budgetDetails.subcontract_task_items || [],
     allTasks || [],
     (item) => item.project_task_id || item.project_task?.id,
@@ -741,10 +752,10 @@ const BudgetsPDF: React.FC<BudgetsPDFProps> = ({
             </View>
             <View style={{ flex: 1, textAlign: 'right' }}>
               <Text style={{ ...pdfStyles.majorInfo, color: mainColor }}>
-                Budget Details
+                {labels.budgetDetails}
               </Text>
               <Text style={pdfStyles.minInfo}>
-                {budgetDetails.name || 'Unnamed Budget'}
+                {budgetDetails.name || labels.unnamedBudget}
               </Text>
             </View>
           </View>
@@ -754,6 +765,7 @@ const BudgetsPDF: React.FC<BudgetsPDFProps> = ({
         {!withDetails &&
           budgetDetails.expenses_budgeted &&
           renderExpensesTable(
+            labels,
             budgetDetails.expenses_budgeted,
             mainColor,
             lightColor,
@@ -765,6 +777,7 @@ const BudgetsPDF: React.FC<BudgetsPDFProps> = ({
           <>
             {budgetDetails.ledger_items &&
               renderLedgerItemsTable(
+                labels,
                 budgetDetails.ledger_items,
                 allTasks,
                 mainColor,
@@ -774,6 +787,7 @@ const BudgetsPDF: React.FC<BudgetsPDFProps> = ({
               )}
             {budgetDetails.product_items &&
               renderProductsTable(
+                labels,
                 budgetDetails.product_items,
                 allTasks,
                 mainColor,
@@ -783,6 +797,7 @@ const BudgetsPDF: React.FC<BudgetsPDFProps> = ({
               )}
             {budgetDetails.subcontract_task_items &&
               renderSubcontractTasksTable(
+                labels,
                 budgetDetails.subcontract_task_items,
                 mainColor,
                 lightColor,
@@ -799,14 +814,15 @@ const BudgetsPDF: React.FC<BudgetsPDFProps> = ({
                 <Text
                   style={{ fontSize: 14, fontWeight: 700, color: mainColor }}
                 >
-                  Ledger Items
+                  {labels.ledgerItems}
                 </Text>
                 {ledgerGroups.map((group) => (
                   <View key={`ledger-${group.key}`} style={{ marginTop: 10 }}>
                     <View style={{ ...pdfStyles.minInfo }}>
-                      {getGroupHeading(group)}
+                      {getGroupHeading(group, labels)}
                     </View>
                     {renderLedgerItemsTable(
+                      labels,
                       group.items,
                       allTasks,
                       mainColor,
@@ -826,14 +842,15 @@ const BudgetsPDF: React.FC<BudgetsPDFProps> = ({
                 <Text
                   style={{ fontSize: 14, fontWeight: 700, color: mainColor }}
                 >
-                  Products
+                  {labels.products}
                 </Text>
                 {productGroups.map((group) => (
                   <View key={`product-${group.key}`} style={{ marginTop: 10 }}>
                     <View style={{ ...pdfStyles.minInfo }}>
-                      {getGroupHeading(group)}
+                      {getGroupHeading(group, labels)}
                     </View>
                     {renderProductsTable(
+                      labels,
                       group.items,
                       allTasks,
                       mainColor,
@@ -853,7 +870,7 @@ const BudgetsPDF: React.FC<BudgetsPDFProps> = ({
                 <Text
                   style={{ fontSize: 14, fontWeight: 700, color: mainColor }}
                 >
-                  Subcontract Tasks
+                  {labels.subcontractTasks}
                 </Text>
                 {subcontractGroups.map((group) => (
                   <View
@@ -861,9 +878,10 @@ const BudgetsPDF: React.FC<BudgetsPDFProps> = ({
                     style={{ marginTop: 10 }}
                   >
                     <View style={{ ...pdfStyles.minInfo }}>
-                      {getGroupHeading(group)}
+                      {getGroupHeading(group, labels)}
                     </View>
                     {renderSubcontractTasksTable(
+                      labels,
                       group.items,
                       mainColor,
                       lightColor,

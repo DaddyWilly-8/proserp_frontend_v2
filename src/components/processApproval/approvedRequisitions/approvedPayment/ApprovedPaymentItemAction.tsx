@@ -39,6 +39,7 @@ import React, { useState } from 'react';
 import requisitionsServices from '../../requisitionsServices';
 import { ApprovalRequisition } from '../ApprovalRequisitionType';
 import dynamic from 'next/dynamic';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 const ApprovedPaymentForm = dynamic(() => import('./form/ApprovedPaymentForm'), { ssr: false });
 
 interface Payment {
@@ -161,6 +162,7 @@ const ApprovedPaymentItemAction: React.FC<ApprovedPaymentItemActionProps> = ({
   approvedRequisition,
   payment,
 }) => {
+  const dictionary = useDictionary();
   const { showDialog, hideDialog } = useJumboDialog();
   const queryClient = useQueryClient();
   const { enqueueSnackbar } = useSnackbar();
@@ -292,7 +294,7 @@ const ApprovedPaymentItemAction: React.FC<ApprovedPaymentItemActionProps> = ({
 
       <JumboDdMenu
         icon={
-          <Tooltip title='Actions'>
+          <Tooltip title={dictionary.tooltips.actions}>
             <MoreHorizOutlined fontSize='small' />
           </Tooltip>
         }

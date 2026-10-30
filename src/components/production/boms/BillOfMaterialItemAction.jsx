@@ -13,9 +13,11 @@ import { JumboDdMenu } from '@jumbo/components';
 const BillOfMaterialForm = dynamic(() => import('./form/BillOfMaterialForm'), { ssr: false });
 import BillOfMaterialPDF from './preview/BillOfMaterialPDF';
 import dynamic from 'next/dynamic';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 const BillOfMaterialOnScreen = dynamic(() => import('./preview/BillOfMaterialOnScreen'), { ssr: false });
 
 const DocumentDialog = ({ billOfMaterial, organization, setOpenDocumentDialog }) => {
+  const dictionary = useDictionary();
   const { data, isFetching } = useQuery({
     queryKey: ['billOfMaterialDetails', { id: billOfMaterial.id }],
     queryFn: () => billOfMaterialsServices.billOfMaterialDetails(billOfMaterial.id),
@@ -56,7 +58,7 @@ const DocumentDialog = ({ billOfMaterial, organization, setOpenDocumentDialog })
           </Grid>
 
           <Grid size={1} textAlign="right">
-            <Tooltip title="Cancel">
+            <Tooltip title={dictionary.tooltips.cancel}>
               <IconButton
                 size="small"
                 onClick={() => setOpenDocumentDialog(false)}
@@ -100,6 +102,7 @@ const EditBillOfMaterial = ({ billOfMaterial, setOpenDialog }) => {
 };
 
 const BillOfMaterialItemAction = ({ billOfMaterial }) => {
+  const dictionary = useDictionary();
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const [openDocumentDialog, setOpenDocumentDialog] = useState(false);
   const { showDialog, hideDialog } = useJumboDialog();
@@ -169,7 +172,7 @@ const BillOfMaterialItemAction = ({ billOfMaterial }) => {
       </Dialog>
       <JumboDdMenu
         icon={
-          <Tooltip title='Actions'>
+          <Tooltip title={dictionary.tooltips.actions}>
             <MoreHorizOutlined />
           </Tooltip>
         }

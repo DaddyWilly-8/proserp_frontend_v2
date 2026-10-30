@@ -5,8 +5,10 @@ import StoreForm from '../StoreForm';
 import { useStoreProfile } from './StoreProfileProvider'
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function StoreSelectionForMobile() {
+    const dictionary = useDictionary();
     const {activeStore,setActiveStore,storeArrays:{selectOptions}} = useStoreProfile();
     const { checkOrganizationPermission } = useJumboAuth();
     const [openDialog, setOpenDialog] = useState(false);
@@ -23,7 +25,7 @@ function StoreSelectionForMobile() {
                     <TextField 
                         {...params}
                         size="small"
-                        label="Sub-store select"
+                        label={dictionary.forms.stores.selectionMobile.labels.subStoreSelect}
                     />
                 )}
                 onChange={(e, newValue) => {
@@ -37,9 +39,9 @@ function StoreSelectionForMobile() {
                     <StoreForm setOpenDialog={setOpenDialog} parentOptions={selectOptions}/>
                 </Dialog>
                     {(
-                    <Tooltip title={"Add Sub-store"}>
+                    <Tooltip title={dictionary.tooltips.addSubStore}>
                         <Button variant="outlined" size="small" disableElevation sx={{ '& .MuiButton-root': { px: 1 } }} onClick={() => setOpenDialog(true)}>
-                            <AddOutlined /> Sub-store
+                            <AddOutlined /> {dictionary.forms.stores.selectionMobile.buttons.subStore}
                         </Button>
                     </Tooltip>
                     )}

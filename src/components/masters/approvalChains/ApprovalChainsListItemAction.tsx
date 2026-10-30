@@ -20,12 +20,14 @@ import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface DeleteResponse {
   message: string;
 }
 
 function ApprovalChainsListItemAction({ approvalChain }:{approvalChain: ApprovalChain}) {
+  const dictionary = useDictionary();
   const { showDialog, hideDialog } = useJumboDialog();
   const {checkOrganizationPermission} = useJumboAuth();
   const { enqueueSnackbar } = useSnackbar();
@@ -96,7 +98,7 @@ function ApprovalChainsListItemAction({ approvalChain }:{approvalChain: Approval
       </Dialog>
 
       {(approvalChain?.status !== 'active') && (
-        <Tooltip  title={`Activate Chain`}>
+        <Tooltip  title={dictionary.tooltips.activateChain}>
           <IconButton onClick={() => handleActivation()}>
             <RestoreOutlined />
           </IconButton>
@@ -104,7 +106,7 @@ function ApprovalChainsListItemAction({ approvalChain }:{approvalChain: Approval
       )}
 
       {(checkOrganizationPermission([PERMISSIONS.APPROVAL_CHAINS_DEACTIVATE]) && !!approvalChain?.cost_center_id && approvalChain?.status === 'active') && (
-        <Tooltip  title={`Deactivate Approval Chain`}>
+        <Tooltip  title={dictionary.tooltips.deactivateApprovalChain}>
           <IconButton onClick={() => handleDeactivation()} color={'info'}>
             <BlockOutlined color={'error'}/>
           </IconButton>
@@ -112,7 +114,7 @@ function ApprovalChainsListItemAction({ approvalChain }:{approvalChain: Approval
       )}
 
       {checkOrganizationPermission([PERMISSIONS.APPROVAL_CHAINS_EDIT]) && approvalChain.cost_center_id !== null && approvalChain?.status === 'active' && (
-        <Tooltip title={`Edit Chain`}>
+        <Tooltip title={dictionary.tooltips.editChain}>
           <IconButton onClick={() => setOpenEditDialog(true)}>
             <EditOutlined />
           </IconButton>

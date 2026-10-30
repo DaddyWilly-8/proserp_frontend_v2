@@ -17,6 +17,7 @@ import {
 } from '@mui/material';
 import { useContext, useEffect, useMemo } from 'react';
 import { StationFormContext } from '../../SalesShifts';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 function PumpReadings({ 
   prevKey,
@@ -32,6 +33,7 @@ function PumpReadings({
   errors,
   watch
 }) {
+  const dictionary = useDictionary();
   
   const {activeStation} = useContext(StationFormContext);
   const {fuel_pumps, tanks, products } = activeStation;
@@ -182,12 +184,12 @@ function PumpReadings({
         <Grid size={{xs: 12}}>
           {hasLastReadings && (
             <Alert severity="info" sx={{ mb: 2 }}>
-              Last shift readings are available. Opening readings will be auto-filled when you select pumps.
+              {dictionary.forms.shifts.messages.lastShiftReadingsAutoFill}
             </Alert>
           )}
           
           <Typography variant="h6" gutterBottom>
-            Select Pumps for this Cashier
+            {dictionary.forms.shifts.messages.selectPumpsForCashier}
           </Typography>
           <Autocomplete
             multiple
@@ -219,7 +221,7 @@ function PumpReadings({
                     disabled={!isAvailable}
                   />
                   <Box>
-                    <div>{option.name} - {products?.find(p => p.id === option.product_id)?.name || 'Unknown'}</div>
+                    <div>{option.name} - {products?.find(p => p.id === option.product_id)?.name || dictionary.forms.shifts.labels.unknown}</div>
                     {lastReading && (
                       <Typography variant="caption" color="textSecondary">
                         Last closing: {lastReading.toLocaleString()}
@@ -227,7 +229,7 @@ function PumpReadings({
                     )}
                     {!isAvailable && (
                       <Typography variant="caption" color="error">
-                        Assigned to another cashier
+                        {dictionary.forms.shifts.messages.assignedToAnother}
                       </Typography>
                     )}
                   </Box>
@@ -237,8 +239,8 @@ function PumpReadings({
             renderInput={(params) => (
               <TextField
                 {...params}
-                label="Select Pumps"
-                placeholder="Choose pumps..."
+                label={dictionary.forms.shifts.labels.selectPumps}
+                placeholder={dictionary.forms.shifts.labels.choosePumps}
               />
             )}
             onChange={(e, selectedValues) => {
@@ -258,7 +260,7 @@ function PumpReadings({
       {selectedPumpsWithDetails.length > 0 ? (
         <>
           <Typography variant="subtitle1" gutterBottom>
-            Pump Readings
+            {dictionary.forms.shifts.tabs.pumpReadings}
           </Typography>
           <Grid container spacing={2}>
             {selectedPumpsWithDetails.map((pump) => {
@@ -276,20 +278,20 @@ function PumpReadings({
                     <CardContent>
                       <Box sx={{ mb: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                         <Tooltip 
-                          title={'Pump name'}
+                          title={dictionary.tooltips.pumpName}
                           arrow
                         >
                           <Typography variant="subtitle2" sx={{ fontWeight: 'bold', cursor: 'pointer' }}>
                             {pump.name}
                           </Typography>
                         </Tooltip>
-                        <Tooltip title={'Tank name'} arrow>
+                        <Tooltip title={dictionary.tooltips.tankName} arrow>
                           <Typography variant="caption" color="textSecondary" sx={{ ml: 2, fontWeight: 'bold', cursor: 'pointer' }}>
                             {pump.tankName}
                           </Typography>
                         </Tooltip>
                       </Box>
-                      <Tooltip title="Fuel Name" arrow>
+                      <Tooltip title={dictionary.tooltips.fuelName} arrow>
                         <Typography variant="caption" color="textSecondary" sx={{ display: 'block', cursor: 'pointer' }}>
                           {pump.productName}
                         </Typography>
@@ -311,14 +313,14 @@ function PumpReadings({
                             const pumpHasLastReading = pump.lastClosing !== undefined;
                             return (
                               <TextField
-                                label="Opening Reading"
+                                label={dictionary.forms.shifts.labels.openingReading}
                                 fullWidth
                                 size="small"
                                 value={currentReading.opening}
                                 error={!!errors?.cashiers?.[cashierIndex]?.pump_readings?.[readingIndex]?.opening}
                                 helperText={
                                   errors?.cashiers?.[cashierIndex]?.pump_readings?.[readingIndex]?.opening?.message ??
-                                  (!pumpHasLastReading ? 'No prior reading for this pump - enter its starting meter value.' : undefined)
+                                  (!pumpHasLastReading ? dictionary.forms.shifts.messages.noPriorReading : undefined)
                                 }
                                 onChange={(e) => {
                                   if (!pumpHasLastReading) {
@@ -337,7 +339,7 @@ function PumpReadings({
                         
                         <Grid size={12}>
                           <TextField
-                            label="Closing Reading"
+                            label={dictionary.forms.shifts.labels.closingReading}
                             fullWidth
                             size="small"
                             value={currentReading.closing}
@@ -361,7 +363,7 @@ function PumpReadings({
                             mt: 1
                           }}>
                             <Typography variant="caption" color="textSecondary">
-                              Difference:
+                              {dictionary.forms.shifts.labels.difference}
                             </Typography>
                             <Typography 
                               variant="caption" 
@@ -370,7 +372,7 @@ function PumpReadings({
                                 color: difference >= 0 ? 'success.main' : 'error.main'
                               }}
                             >
-                              {difference.toLocaleString()} liters
+                              {dictionary.forms.shifts.labels.liters.replace('{value}', difference.toLocaleString())}
                             </Typography>
                           </Box>
                         </Grid>
@@ -385,14 +387,14 @@ function PumpReadings({
       ) : (
         <Box sx={{ textAlign: 'center', py: 4 }}>
           <Typography color="textSecondary">
-            Please select pumps for this cashier using the selector above
+            {dictionary.forms.shifts.messages.pleaseSelectPumps}
           </Typography>
           <Typography variant="caption" color="textSecondary" sx={{ mt: 1 }}>
-            Available pumps: {availablePumps.length}
+            {dictionary.forms.shifts.messages.availablePumps.replace('{count}', availablePumps.length)}
           </Typography>
           {hasLastReadings && (
             <Typography variant="caption" color="info.main" sx={{ mt: 1, display: 'block' }}>
-              Last shift readings are available for auto-filling
+              {dictionary.forms.shifts.messages.lastShiftReadingsAvailable}
             </Typography>
           )}
         </Box>
