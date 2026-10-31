@@ -6,6 +6,16 @@ const withPWA = withPWAInit({
   disable: process.env.NODE_ENV !== 'production',
   reloadOnOnline: true,
   workboxOptions: {
+    // Next emits an empty client chunk for every API route handler (~900 of
+    // them), and the service worker was precaching all of them on each
+    // install. They're never used in the browser. The first three entries are
+    // next-pwa's defaults, which setting `exclude` replaces.
+    exclude: [
+      /\/_next\/static\/.*(?<!\.p)\.woff2/,
+      /\.map$/,
+      /^manifest.*\.js$/,
+      /app\/api\/.+\/route-[^/]+\.js$/,
+    ],
     disableDevLogs: true,
     skipWaiting: true,
     clientsClaim: true,
