@@ -11,7 +11,7 @@ frontend:
         # Amplify console env vars only exist at build time, not in the SSR
         # runtime - bake the server-side ones into .env.production so
         # NextAuth/API routes can read them.
-        - env | grep -E '^(NEXTAUTH_|API_BASE_URL|SMS_|NEXTSMS_|NEXT_PUBLIC_)' >> .env.production || true
+        - env | grep -E '^(NEXTAUTH_|API_BASE_URL|SMS_|NEXTSMS_|NEXT_PUBLIC_|UPLOADS_)' >> .env.production || true
         - yarn run build
   artifacts:
     baseDirectory: .next

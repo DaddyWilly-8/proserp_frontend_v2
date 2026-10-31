@@ -1,21 +1,20 @@
-// Amplify runs Next.js API routes on Lambda, which rejects request bodies over
-// 6MB - and multipart uploads are base64-encoded on the way in (~1.33x), so
-// anything much past 4MB never reaches the route (CloudFront answers 413).
-export const MAX_UPLOAD_BYTES = 4 * 1024 * 1024;
+// The backend's own attachment limit. Files this size go through the S3
+// uploads bucket (see attachmentsServices), not through the API route body.
+export const MAX_UPLOAD_BYTES = 30 * 1024 * 1024;
+
+// Without the bucket, a file is sent in the API route's body, which Amplify's
+// Lambda caps at 6MB - base64-encoded on the way in (~1.33x), so ~4MB of file.
+// Images are compressed to fit under this either way.
+export const DIRECT_UPLOAD_MAX_BYTES = 4 * 1024 * 1024;
 
 // Formats a canvas can redraw losslessly enough for an attachment. GIF (may be
 // animated) and SVG (vector) are left alone.
 const COMPRESSIBLE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/bmp'];
 
-// Users may pick images up to this size; they're shrunk below MAX_UPLOAD_BYTES
-// before upload. Other file types can't be shrunk, so they're held to
-// MAX_UPLOAD_BYTES as picked.
-export const MAX_IMAGE_SELECT_BYTES = 15 * 1024 * 1024;
-
 export const isCompressibleImage = (file: File) => COMPRESSIBLE_TYPES.includes(file.type);
 
-// Tried in order until the result fits under MAX_UPLOAD_BYTES; the first step
-// is usually enough even for a 15MB phone photo.
+// Tried in order until the result fits under DIRECT_UPLOAD_MAX_BYTES; the
+// first step is usually enough even for a 15MB phone photo.
 const ATTEMPTS = [
   { maxDimension: 2000, quality: 0.8 },
   { maxDimension: 1600, quality: 0.7 },
@@ -70,7 +69,7 @@ export async function compressImage(file: File): Promise<File> {
         canvas.toBlob(resolve, 'image/jpeg', quality)
       );
       if (blob && (!best || blob.size < best.size)) best = blob;
-      if (best && best.size <= MAX_UPLOAD_BYTES) break;
+      if (best && best.size <= DIRECT_UPLOAD_MAX_BYTES) break;
     }
 
     if (!best || best.size >= file.size) return file;

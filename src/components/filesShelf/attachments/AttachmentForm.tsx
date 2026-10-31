@@ -1,8 +1,7 @@
 import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import {
   compressImage,
-  isCompressibleImage,
-  MAX_IMAGE_SELECT_BYTES,
+  DIRECT_UPLOAD_MAX_BYTES,
   MAX_UPLOAD_BYTES,
 } from '@/lib/utils/compressImage';
 import { getErrorMessage } from '@/utilities/helpers/errorHandler';
@@ -94,9 +93,10 @@ function AttachmentForm({
     '{max}',
     String(MAX_UPLOAD_BYTES / (1024 * 1024))
   );
-  const imageTooLargeMessage = t.errors.tooLarge.replace(
+  // A 413 only happens on the direct-upload fallback (no S3 bucket).
+  const directTooLargeMessage = t.errors.tooLarge.replace(
     '{max}',
-    String(MAX_IMAGE_SELECT_BYTES / (1024 * 1024))
+    String(DIRECT_UPLOAD_MAX_BYTES / (1024 * 1024))
   );
 
   const {
@@ -126,7 +126,7 @@ function AttachmentForm({
       // A 413 comes from CloudFront with an empty body, so getErrorMessage
       // would have nothing to show.
       const message =
-        error?.response?.status === 413 ? tooLargeMessage : getErrorMessage(error);
+        error?.response?.status === 413 ? directTooLargeMessage : getErrorMessage(error);
       enqueueSnackbar(message, { variant: 'error' });
     },
   });
@@ -159,10 +159,9 @@ function AttachmentForm({
       return;
     }
 
-    const isImage = isCompressibleImage(selected);
-    if (selected.size > (isImage ? MAX_IMAGE_SELECT_BYTES : MAX_UPLOAD_BYTES)) {
+    if (selected.size > MAX_UPLOAD_BYTES) {
       setFile(null);
-      setFileError(isImage ? imageTooLargeMessage : tooLargeMessage);
+      setFileError(tooLargeMessage);
       return;
     }
 
@@ -170,11 +169,6 @@ function AttachmentForm({
     const prepared = await compressImage(selected);
     setIsCompressing(false);
 
-    if (prepared.size > MAX_UPLOAD_BYTES) {
-      setFile(null);
-      setFileError(isImage ? imageTooLargeMessage : tooLargeMessage);
-      return;
-    }
     setFile(prepared);
     setFileError(null);
   };
