@@ -579,6 +579,11 @@
     "vsBalanceAsAt": "ikilinganishwa na mizania ya",
     "totalReceivable": "Jumla ya Zinazodaiwa",
     "totalPayable": "Jumla ya Madeni ya Kulipa",
+    "assetsShort": "Mali",
+    "liabilitiesShort": "Madeni",
+    "cashShort": "Fedha",
+    "showFigures": "Onyesha takwimu",
+    "hideFigures": "Ficha takwimu",
     "asAt": "Hadi",
     "financialSummaryError": "Imeshindwa kupakia muhtasari wa fedha"
   },

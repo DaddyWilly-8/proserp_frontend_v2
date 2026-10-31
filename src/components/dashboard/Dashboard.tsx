@@ -17,6 +17,7 @@ import React, {
 } from 'react';
 import { CostCenter } from '../masters/costCenters/CostCenterType';
 import QuickLinks from './QuickLinks';
+import { readShowFigures, writeShowFigures } from './showFiguresPreference';
 import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
 
 const OrganizationCalendar = lazy(() => import('./OrganizationCalendar'));
@@ -56,6 +57,9 @@ const QuickReports = lazy(() => import('./QuickReports'));
 interface DashboardContextType {
   chartFilters: ChartFilters;
   setChartFilters: React.Dispatch<React.SetStateAction<ChartFilters>>;
+  // Headline figures (income statement, balance sheet, ...) are opt-in.
+  showFigures: boolean;
+  setShowFigures: (show: boolean) => void;
 }
 
 interface ChartFilters {
@@ -94,6 +98,14 @@ function Dashboard() {
   const active_subscriptions: any =
     authOrganization?.organization?.active_subscriptions || [];
   const [mounted, setMounted] = useState(false);
+  const userId = (authUser as AuthUser | null)?.user?.id;
+  const [showFigures, setShowFiguresState] = useState(() =>
+    readShowFigures(userId)
+  );
+  const setShowFigures = (show: boolean) => {
+    setShowFiguresState(show);
+    writeShowFigures(userId, show);
+  };
   const router = useRouter();
   const lang = useLanguage();
 
@@ -137,7 +149,9 @@ function Dashboard() {
   return (
     <React.Fragment>
       {authOrganization?.organization && (
-        <DashboardContext.Provider value={{ chartFilters, setChartFilters }}>
+        <DashboardContext.Provider
+          value={{ chartFilters, setChartFilters, showFigures, setShowFigures }}
+        >
           {/* <AnnouncementBanner
             id='customer-service-month-2026'
             startDate='2026-10-01'

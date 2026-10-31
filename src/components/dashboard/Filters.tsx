@@ -1,14 +1,17 @@
 import JumboCardQuick from '@jumbo/components/JumboCardQuick/JumboCardQuick'
-import { Grid } from '@mui/material'
+import { Checkbox, FormControlLabel, Grid } from '@mui/material'
+import { VisibilityOffOutlined, VisibilityOutlined } from '@mui/icons-material'
 import { DateTimePicker } from '@mui/x-date-pickers'
 import dayjs, { Dayjs } from 'dayjs'
 import { useDashboardSettings } from './Dashboard'
 import CostCenterSelector from '../masters/costCenters/CostCenterSelector'
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider'
 import { CostCenter } from '../masters/costCenters/CostCenterType'
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext'
 
 function Filters() {
-    const { chartFilters: { from, to }, setChartFilters } = useDashboardSettings();
+    const { chartFilters: { from, to }, setChartFilters, showFigures, setShowFigures } = useDashboardSettings();
+    const dictionary = useDictionary();
     const { authOrganization } = useJumboAuth();
     
     return (
@@ -66,6 +69,26 @@ function Filters() {
                                 return { ...filters, cost_center_ids, costCenters }; 
                             });
                         }}
+                    />
+                </Grid>
+                <Grid size={{ xs: 12, lg: 2 }} display='flex' alignItems='center' justifyContent='center'>
+                    <FormControlLabel
+                        control={
+                            <Checkbox
+                                size='small'
+                                color='primary'
+                                checked={showFigures}
+                                onChange={(e) => setShowFigures(e.target.checked)}
+                                icon={<VisibilityOffOutlined />}
+                                checkedIcon={<VisibilityOutlined />}
+                            />
+                        }
+                        label={
+                            showFigures
+                                ? dictionary.dashboardCards.hideFigures
+                                : dictionary.dashboardCards.showFigures
+                        }
+                        sx={{ mr: 0 }}
                     />
                 </Grid>
             </Grid>

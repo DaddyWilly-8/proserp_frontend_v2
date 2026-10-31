@@ -572,6 +572,11 @@
     "vsBalanceAsAt": "vs balance as at",
     "totalReceivable": "Total Receivable",
     "totalPayable": "Total Payable",
+    "assetsShort": "Assets",
+    "liabilitiesShort": "Liabilities",
+    "cashShort": "Cash",
+    "showFigures": "Show figures",
+    "hideFigures": "Hide figures",
     "asAt": "As at",
     "financialSummaryError": "Could not load the financial summary"
   },

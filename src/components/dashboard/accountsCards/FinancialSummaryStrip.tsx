@@ -2,7 +2,13 @@
 import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 import { ArrowDownward, ArrowUpward, Remove } from '@mui/icons-material';
-import { Box, Skeleton, Tooltip, Typography } from '@mui/material';
+import {
+  Box,
+  Skeleton,
+  Tooltip,
+  Typography,
+  useMediaQuery,
+} from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import financialReportsServices from '../../accounts/reports/financial-reports-services';
@@ -34,6 +40,8 @@ interface FinancialSummary {
 
 interface StatConfig {
   label: string;
+  // Shorter title used when the strip is dense (phones), so four fit across.
+  shortLabel?: string;
   metric: SummaryMetric;
   // Whether a rise versus the previous period is good news (revenue) or bad
   // news (expenses, liabilities). Drives the colour of the delta only.
@@ -44,10 +52,16 @@ interface StatConfig {
 
 // Strip text is 10% smaller than the theme's stock sizes.
 const SCALE = 0.9;
-const scaled = (size: string | number | undefined, fallback: string) =>
+// Dense strips (four figures on a phone) shrink a further 10%.
+const DENSE_SCALE = SCALE * 0.9;
+const scaled = (
+  size: string | number | undefined,
+  fallback: string,
+  scale = SCALE
+) =>
   typeof size === 'number'
-    ? `${size * SCALE}px`
-    : `calc(${size ?? fallback} * ${SCALE})`;
+    ? `${size * scale}px`
+    : `calc(${size ?? fallback} * ${scale})`;
 
 const compact = new Intl.NumberFormat('en-US', {
   notation: 'compact',
@@ -64,10 +78,13 @@ const legendAmount = (value: number) =>
 export function useFinancialSummary() {
   const {
     chartFilters: { from, to, cost_center_ids },
+    showFigures,
   } = useDashboardSettings();
 
   return useQuery<FinancialSummary>({
     queryKey: ['financialSummary', from, to, cost_center_ids],
+    // Nothing is requested until the user chooses to see the figures.
+    enabled: showFigures,
     queryFn: () =>
       financialReportsServices.dashboardSummary({ from, to, cost_center_ids }),
   });
@@ -78,14 +95,17 @@ function Stat({
   currency,
   comparisonLabel,
   inline = false,
+  dense = false,
 }: {
   stat: StatConfig;
   currency: string;
   comparisonLabel: string;
   // One line (label, figure, change) for use as a chart legend.
   inline?: boolean;
+  dense?: boolean;
 }) {
   const { theme } = useJumboTheme();
+  const { showFigures } = useDashboardSettings();
   const { value, previous } = stat.metric;
 
   const change = value - previous;
@@ -99,6 +119,59 @@ function Stat({
       ? theme.palette.success.main
       : theme.palette.error.main;
   const DeltaIcon = isFlat ? Remove : change > 0 ? ArrowUpward : ArrowDownward;
+  const scale = dense ? DENSE_SCALE : SCALE;
+
+  if (!showFigures) {
+    // Same footprint as the real figure so the card doesn't jump when toggled.
+    const mask = (
+      <Typography
+        noWrap
+        sx={{
+          fontWeight: 700,
+          color: theme.palette.text.disabled,
+          letterSpacing: 2,
+          fontSize: inline
+            ? scaled(theme.typography.h5.fontSize, '1.25rem')
+            : scaled(theme.typography.h3.fontSize, '1.5rem', scale),
+        }}
+      >
+        ••••
+      </Typography>
+    );
+    return inline ? (
+      <Box sx={{ display: 'inline-flex', justifyContent: 'center' }}>
+        {mask}
+      </Box>
+    ) : (
+      <Box sx={{ minWidth: 0, flex: 1, textAlign: 'center' }}>
+        <Typography
+          variant='caption'
+          color='text.secondary'
+          component='div'
+          noWrap
+          sx={{
+            textTransform: 'uppercase',
+            letterSpacing: 0.5,
+            fontWeight: 600,
+            fontSize: scaled(
+              theme.typography.caption.fontSize,
+              '0.75rem',
+              scale
+            ),
+          }}
+        >
+          {dense && stat.shortLabel ? stat.shortLabel : stat.label}
+        </Typography>
+        {mask}
+        <Typography
+          variant='caption'
+          sx={{ visibility: 'hidden', display: 'block' }}
+        >
+          &nbsp;
+        </Typography>
+      </Box>
+    );
+  }
 
   if (inline) {
     return (
@@ -169,10 +242,10 @@ function Stat({
           textTransform: 'uppercase',
           letterSpacing: 0.5,
           fontWeight: 600,
-          fontSize: scaled(theme.typography.caption.fontSize, '0.75rem'),
+          fontSize: scaled(theme.typography.caption.fontSize, '0.75rem', scale),
         }}
       >
-        {stat.label}
+        {dense && stat.shortLabel ? stat.shortLabel : stat.label}
       </Typography>
       <Tooltip
         title={`${currency} ${value.toLocaleString('en-US', {
@@ -186,7 +259,7 @@ function Stat({
           sx={{
             mb: 0,
             fontWeight: 700,
-            fontSize: scaled(theme.typography.h3.fontSize, '1.5rem'),
+            fontSize: scaled(theme.typography.h3.fontSize, '1.5rem', scale),
             color:
               stat.signColoured && value < 0
                 ? theme.palette.error.main
@@ -205,12 +278,16 @@ function Stat({
             color: deltaColour,
           }}
         >
-          <DeltaIcon sx={{ fontSize: 11 }} />
+          <DeltaIcon sx={{ fontSize: dense ? 10 : 11 }} />
           <Typography
             variant='caption'
             sx={{
               fontWeight: 600,
-              fontSize: scaled(theme.typography.caption.fontSize, '0.75rem'),
+              fontSize: scaled(
+                theme.typography.caption.fontSize,
+                '0.75rem',
+                scale
+              ),
             }}
           >
             {percent === null
@@ -235,7 +312,25 @@ export function FigureLegend({
   higherIsBetter?: boolean;
 }) {
   const cards = useDictionary().dashboardCards;
+  const { showFigures } = useDashboardSettings();
   const { data: summary } = useFinancialSummary();
+  if (!showFigures) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+        <Stat
+          inline
+          stat={{
+            label: '',
+            metric: { value: 0, previous: 0 },
+            higherIsBetter,
+            signColoured: false,
+          }}
+          currency=''
+          comparisonLabel=''
+        />
+      </Box>
+    );
+  }
   if (!summary) return <Skeleton variant='rounded' height={28} />;
 
   const previousStart = dayjs(summary.period.previous_from);
@@ -244,7 +339,12 @@ export function FigureLegend({
     <Box sx={{ display: 'flex', justifyContent: 'center' }}>
       <Stat
         inline
-        stat={{ label: '', metric: { value, previous }, higherIsBetter, signColoured: false }}
+        stat={{
+          label: '',
+          metric: { value, previous },
+          higherIsBetter,
+          signColoured: false,
+        }}
         currency={summary.currency_code}
         comparisonLabel={`${cards.vsPreviousPeriod}: ${previousStart.format('D MMM YYYY')} – ${previousEnd.format('D MMM YYYY')}`}
       />
@@ -268,13 +368,40 @@ function FinancialSummaryStrip({
   inline?: boolean;
 }) {
   const cards = useDictionary().dashboardCards;
-  const { data: summary, isLoading, isError } = useFinancialSummary();
+  const { theme } = useJumboTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const { showFigures } = useDashboardSettings();
+  const { data: fetched, isLoading, isError } = useFinancialSummary();
 
-  if (isError) return null;
+  if (isError && showFigures) return null;
 
-  if (isLoading || !summary) {
+  // While hidden nothing is fetched; zeros stand in so the masked layout
+  // renders identically to the real one.
+  const zero = { value: 0, previous: 0 };
+  const summary: FinancialSummary | undefined = showFigures
+    ? fetched
+    : {
+        currency_code: '',
+        period: { previous_from: '', previous_to: '' },
+        income_statement: { revenue: zero, expenses: zero, net_profit: zero },
+        balance_sheet: {
+          assets: zero,
+          liabilities: zero,
+          equity: zero,
+          cash: zero,
+          receivables: zero,
+          payables: zero,
+          inventory: zero,
+        },
+      };
+
+  if ((showFigures && isLoading) || !summary) {
     return (
-      <Skeleton variant='rounded' height={inline ? 28 : 52} sx={{ mb: inline ? 0 : 1 }} />
+      <Skeleton
+        variant='rounded'
+        height={inline ? 28 : 52}
+        sx={{ mb: inline ? 0 : 1 }}
+      />
     );
   }
 
@@ -292,8 +419,15 @@ function FinancialSummaryStrip({
     label: string,
     metric: SummaryMetric,
     higherIsBetter = true,
-    signColoured = false
-  ): StatConfig => ({ label, metric, higherIsBetter, signColoured });
+    signColoured = false,
+    shortLabel?: string
+  ): StatConfig => ({
+    label,
+    shortLabel,
+    metric,
+    higherIsBetter,
+    signColoured,
+  });
 
   const statsByKind: Record<SummaryKind, StatConfig[]> = {
     incomeStatement: [
@@ -304,10 +438,16 @@ function FinancialSummaryStrip({
     revenue: [stat(cards.revenue, pl.revenue)],
     expenses: [stat(cards.expenses, pl.expenses, false)],
     balanceSheet: [
-      stat(cards.totalAssets, bs.assets),
-      stat(cards.totalLiabilities, bs.liabilities, false),
+      stat(cards.totalAssets, bs.assets, true, false, cards.assetsShort),
+      stat(
+        cards.totalLiabilities,
+        bs.liabilities,
+        false,
+        false,
+        cards.liabilitiesShort
+      ),
       stat(cards.equity, bs.equity, true, true),
-      stat(cards.cashAndBank, bs.cash, true, true),
+      stat(cards.cashAndBank, bs.cash, true, true, cards.cashShort),
     ],
     receivablesPayables: [
       stat(cards.totalReceivable, bs.receivables),
@@ -316,6 +456,8 @@ function FinancialSummaryStrip({
     inventory: [stat(cards.inventoryValue, bs.inventory)],
   };
   const stats = statsByKind[kind];
+  // Only the four-across Balance Sheet strip needs the tighter phone layout.
+  const dense = isMobile && kind === 'balanceSheet';
   return (
     <Box
       sx={
@@ -323,7 +465,7 @@ function FinancialSummaryStrip({
           ? { display: 'flex', justifyContent: 'center', gap: 2 }
           : {
               display: 'flex',
-              gap: 1,
+              gap: dense ? 0.5 : 1,
               mb: 1,
               pb: 1,
               borderBottom: (theme) => `1px solid ${theme.palette.divider}`,
@@ -337,6 +479,7 @@ function FinancialSummaryStrip({
           currency={summary.currency_code}
           comparisonLabel={comparisonLabel}
           inline={inline}
+          dense={dense}
         />
       ))}
     </Box>
