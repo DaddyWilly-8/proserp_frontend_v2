@@ -463,7 +463,8 @@
     "errors": {
       "nameRequired": "File Name is required",
       "unsupportedFormat": "Unsupported File Format",
-      "fileRequired": "File is required"
+      "fileRequired": "File is required",
+      "tooLarge": "File is too large. Maximum size is {max} MB."
     },
     "messages": {
       "uploaded": "Attachment uploaded",

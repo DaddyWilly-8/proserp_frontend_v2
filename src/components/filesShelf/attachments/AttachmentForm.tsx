@@ -1,4 +1,10 @@
 import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
+import {
+  compressImage,
+  isCompressibleImage,
+  MAX_IMAGE_SELECT_BYTES,
+  MAX_UPLOAD_BYTES,
+} from '@/lib/utils/compressImage';
 import { getErrorMessage } from '@/utilities/helpers/errorHandler';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { LoadingButton } from '@mui/lab';
@@ -83,6 +89,15 @@ function AttachmentForm({
   const [isFetching, setIsFetching] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [fileError, setFileError] = useState<string | null>(null);
+  const [isCompressing, setIsCompressing] = useState(false);
+  const tooLargeMessage = t.errors.tooLarge.replace(
+    '{max}',
+    String(MAX_UPLOAD_BYTES / (1024 * 1024))
+  );
+  const imageTooLargeMessage = t.errors.tooLarge.replace(
+    '{max}',
+    String(MAX_IMAGE_SELECT_BYTES / (1024 * 1024))
+  );
 
   const {
     register,
@@ -108,7 +123,11 @@ function AttachmentForm({
       setFileError(null);
     },
     onError: (error: any) => {
-      enqueueSnackbar(getErrorMessage(error), { variant: 'error' });
+      // A 413 comes from CloudFront with an empty body, so getErrorMessage
+      // would have nothing to show.
+      const message =
+        error?.response?.status === 413 ? tooLargeMessage : getErrorMessage(error);
+      enqueueSnackbar(message, { variant: 'error' });
     },
   });
 
@@ -127,14 +146,36 @@ function AttachmentForm({
     queryFn: fetchAttachments,
   });
 
-  const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
     const selected = event.target.files?.[0] || null;
     if (selected && !allowedFormats.includes(selected.type)) {
       setFile(null);
       setFileError(t.errors.unsupportedFormat);
       return;
     }
-    setFile(selected);
+    if (!selected) {
+      setFile(null);
+      setFileError(null);
+      return;
+    }
+
+    const isImage = isCompressibleImage(selected);
+    if (selected.size > (isImage ? MAX_IMAGE_SELECT_BYTES : MAX_UPLOAD_BYTES)) {
+      setFile(null);
+      setFileError(isImage ? imageTooLargeMessage : tooLargeMessage);
+      return;
+    }
+
+    setIsCompressing(true);
+    const prepared = await compressImage(selected);
+    setIsCompressing(false);
+
+    if (prepared.size > MAX_UPLOAD_BYTES) {
+      setFile(null);
+      setFileError(isImage ? imageTooLargeMessage : tooLargeMessage);
+      return;
+    }
+    setFile(prepared);
     setFileError(null);
   };
 
@@ -195,7 +236,7 @@ function AttachmentForm({
                   variant='contained'
                   color='success'
                   type='submit'
-                  loading={addAttachment.isPending}
+                  loading={addAttachment.isPending || isCompressing}
                 >
                   {t.buttons.upload}
                 </LoadingButton>

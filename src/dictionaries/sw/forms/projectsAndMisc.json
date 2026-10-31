@@ -463,7 +463,8 @@
     "errors": {
       "nameRequired": "Jina la Faili linahitajika",
       "unsupportedFormat": "Aina ya Faili Haikubaliki",
-      "fileRequired": "Faili linahitajika"
+      "fileRequired": "Faili linahitajika",
+      "tooLarge": "Faili ni kubwa mno. Ukubwa wa juu ni MB {max}."
     },
     "messages": {
       "uploaded": "Kiambatisho kimepakiwa",
