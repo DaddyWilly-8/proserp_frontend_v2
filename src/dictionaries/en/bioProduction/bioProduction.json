@@ -371,6 +371,8 @@
         "harvest": "Harvest",
         "produce": "Collect produce",
         "close": "Close batch",
+        "edit": "Edit batch",
+        "delete": "Delete batch",
         "more": "Actions"
       },
       "summary": {
@@ -567,6 +569,11 @@
           "help": "Closes a batch with no {animals} left. Any cost still in WIP is written off as a loss.",
           "fishLeft": "{count} {animals} are still alive. Harvest them before closing the batch."
         },
+        "edit": {
+          "title": "Edit Batch",
+          "help": "Correct when this batch started, or its remarks. The start can move earlier, but not past the first record on the batch or the start of its second stage."
+        },
+        "confirmDeleteBatch": "Delete this batch? This cannot be undone. Only a batch with no recorded activity can be deleted.",
         "confirmDeleteInput": "Remove this input and return its stock?",
         "confirmDeleteExpense": "Remove this cost from the batch?",
         "confirmDeleteHarvest": "Delete this harvest? Its animals return to the batch, its stock is taken out of the store and its cost goes back into the batch. This cannot be done once the stock has been used or sold.",

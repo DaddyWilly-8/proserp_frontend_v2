@@ -371,6 +371,8 @@
         "harvest": "Vuna",
         "produce": "Kusanya mazao",
         "close": "Funga kundi",
+        "edit": "Hariri kundi",
+        "delete": "Futa kundi",
         "more": "Vitendo"
       },
       "summary": {
@@ -567,6 +569,11 @@
           "help": "Hufunga kundi lisilo na {animals} waliobaki. Gharama yoyote iliyobaki kwenye WIP hufutwa kama hasara.",
           "fishLeft": "{animals} {count} bado wako hai. Wavune kabla ya kufunga kundi."
         },
+        "edit": {
+          "title": "Hariri Kundi",
+          "help": "Sahihisha lini kundi hili lilianza, au maelezo yake. Mwanzo unaweza kusogezwa nyuma, lakini si baada ya rekodi ya kwanza kwenye kundi au kuanza kwa hatua yake ya pili."
+        },
+        "confirmDeleteBatch": "Futa kundi hili? Hili haliwezi kutenduliwa. Ni kundi lisilo na shughuli yoyote lililorekodiwa tu linaloweza kufutwa.",
         "confirmDeleteInput": "Ondoa pembejeo hii na kurudisha bidhaa zake?",
         "confirmDeleteExpense": "Ondoa gharama hii kwenye kundi?",
         "confirmDeleteHarvest": "Futa mavuno haya? Wanyama wake wanarudi kwenye kundi, stoo yake inatolewa na gharama yake inarudi kwenye kundi. Haiwezekani kama stoo imetumika au kuuzwa.",

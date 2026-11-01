@@ -2,8 +2,8 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { useParams } from 'next/navigation';
-import { ArrowBackOutlined } from '@mui/icons-material';
+import { useParams, useRouter } from 'next/navigation';
+import { ArrowBackOutlined, DeleteOutlined, EditOutlined } from '@mui/icons-material';
 import { Box, Button, Card, IconButton, LinearProgress, Stack, Tab, Tabs, Tooltip, Typography } from '@mui/material';
 import { useJumboDialog } from '@jumbo/components/JumboDialog/hooks/useJumboDialog';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -23,6 +23,7 @@ import BioGate from '../BioGate';
 import { useBioAccess } from '../useBioAccess';
 import AdvanceDialog from './dialogs/AdvanceDialog';
 import CloseDialog from './dialogs/CloseDialog';
+import EditDialog from './dialogs/EditDialog';
 import ExpenseDialog from './dialogs/ExpenseDialog';
 import HarvestDialog from './dialogs/HarvestDialog';
 import ProduceDialog from './dialogs/ProduceDialog';
@@ -32,7 +33,7 @@ import TransferDialog from './dialogs/TransferDialog';
 import WeightDialog from './dialogs/WeightDialog';
 import WriteOffDialog from './dialogs/WriteOffDialog';
 
-type DialogName = 'mortality' | 'weight' | 'input' | 'expense' | 'transfer' | 'advance' | 'writeOff' | 'harvest' | 'produce' | 'close';
+type DialogName = 'mortality' | 'weight' | 'input' | 'expense' | 'transfer' | 'advance' | 'writeOff' | 'harvest' | 'produce' | 'close' | 'edit';
 type TabName = 'summary' | 'stages' | 'inputs' | 'costs' | 'mortality' | 'weights' | 'movements' | 'outcomes' | 'produce';
 
 const BatchDetailContent = () => {
@@ -48,6 +49,7 @@ const BatchDetailContent = () => {
   const { showDialog, hideDialog } = useJumboDialog();
   const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
+  const router = useRouter();
 
   const { data: batch, isLoading, isError } = useQuery<Batch>({
     queryKey: ['bioBatch', batchId],
@@ -79,6 +81,16 @@ const BatchDetailContent = () => {
   const { mutate: removeHarvest } = useMutation({ mutationFn: batchServices.deleteHarvest, onSuccess: onRemoved, onError: onRemoveError });
   const { mutate: removeProduce } = useMutation({ mutationFn: batchServices.deleteProduce, onSuccess: onRemoved, onError: onRemoveError });
   const { mutate: removeExpense } = useMutation({ mutationFn: batchServices.deleteExpense, onSuccess: onRemoved, onError: onRemoveError });
+
+  const { mutate: removeBatch } = useMutation({
+    mutationFn: batchServices.delete,
+    onSuccess: (data: { message: string }) => {
+      queryClient.invalidateQueries({ queryKey: ['bioBatches'] });
+      enqueueSnackbar(data.message, { variant: 'success' });
+      router.push(`/${lang}/bioProduction/batches`);
+    },
+    onError: onRemoveError,
+  });
 
   const confirm = (content: string, onYes: () => void) =>
     showDialog({ title: bio.common.confirmDeleteTitle, content, onYes: () => { hideDialog(); onYes(); }, onNo: () => hideDialog(), variant: 'confirm' });
@@ -120,10 +132,16 @@ const BatchDetailContent = () => {
         </Tooltip>
         <Typography variant='h4' mb={0}>{batch.batchNo}</Typography>
         <BatchStatusChip status={batch.status} />
-        <Typography color='text.secondary'>
+        <Typography color='text.secondary' sx={{ flexGrow: 1 }}>
           {batch.species_template?.name} · {batch.farm?.name} · {batch.production_unit?.name}
           {batch.farm?.cost_center?.name ? ` · ${text.labels.costCenter}: ${batch.farm.cost_center.name}` : ''}
         </Typography>
+        {open && access.manage && (
+          <Button size='small' variant='outlined' startIcon={<EditOutlined />} onClick={() => setDialog('edit')}>{text.actions.edit}</Button>
+        )}
+        {open && access.delete && (
+          <Button size='small' variant='outlined' color='error' startIcon={<DeleteOutlined />} onClick={() => confirm(text.dialogs.confirmDeleteBatch, () => removeBatch(batchId))}>{text.actions.delete}</Button>
+        )}
       </Stack>
 
       <Card>
@@ -220,6 +238,7 @@ const BatchDetailContent = () => {
 
       {open && (
         <>
+          <EditDialog batch={batch} open={dialog === 'edit'} onClose={close} />
           <MortalityDialog batch={batch} open={dialog === 'mortality'} onClose={close} />
           <WeightDialog batch={batch} open={dialog === 'weight'} onClose={close} />
           <InputDialog batch={batch} open={dialog === 'input'} onClose={close} />
