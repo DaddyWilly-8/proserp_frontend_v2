@@ -80,12 +80,11 @@
         "capacity": "Uwezo",
         "capacityUnit": "Kipimo cha uwezo",
         "status": "Hali",
-        "maxBatches": "Makundi inayoweza kubeba",
+        "maxBatches": "Makundi ya juu",
         "occupancy": "Matumizi"
       },
       "placeholders": {
-        "name": "mfano: Bwawa 1",
-        "capacityUnit": "mfano: m³"
+        "name": "mfano: Bwawa 1"
       },
       "types": {
         "pond": "Bwawa",

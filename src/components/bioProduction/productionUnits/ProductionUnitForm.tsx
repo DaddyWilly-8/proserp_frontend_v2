@@ -13,6 +13,7 @@ import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import BioSelect, { useStatusOptions } from '../BioSelect';
 import { getErrorMessage } from '@/utilities/helpers/errorHandler';
 import InfoHint from '../InfoHint';
+import MeasurementSelector from '@/components/masters/measurementUnits/MeasurementSelector';
 import { farmServices, productionUnitServices, speciesTemplateServices } from '../bio-production-services';
 import { BioFarm, BioFormProps, BioProductionUnit, BioSpeciesTemplate } from '../types';
 
@@ -23,7 +24,7 @@ interface UnitFormData {
   name: string;
   type: (typeof UNIT_TYPES)[number] | '';
   capacity?: number | null;
-  capacity_unit?: string | null;
+  capacity_unit_id?: number | null;
   max_batches: number | '';
   status: 'active' | 'inactive';
 }
@@ -63,7 +64,7 @@ const ProductionUnitForm = ({ setOpenDialog, item: unit = null }: BioFormProps<B
       .nullable()
       .min(0, text.validation.capacityInvalid)
       .typeError(text.validation.capacityInvalid),
-    capacity_unit: yup.string().nullable(),
+    capacity_unit_id: yup.number().nullable().transform((value, original) => (original === '' || original == null ? null : value)),
     max_batches: yup.number().typeError(text.validation.maxBatchesInvalid).integer(text.validation.maxBatchesInvalid).min(1, text.validation.maxBatchesInvalid).required(text.validation.maxBatchesInvalid),
     status: yup.string().oneOf(['active', 'inactive']).required(),
   });
@@ -80,7 +81,7 @@ const ProductionUnitForm = ({ setOpenDialog, item: unit = null }: BioFormProps<B
       name: unit?.name ?? '',
       type: unit?.type ?? '',
       capacity: unit?.capacity != null && unit.capacity !== '' ? Number(unit.capacity) : null,
-      capacity_unit: unit?.capacity_unit ?? '',
+      capacity_unit_id: unit?.capacity_unit?.id ?? unit?.capacity_unit_id ?? null,
       max_batches: unit?.max_batches ?? 1,
       status: unit?.status ?? 'active',
     },
@@ -109,7 +110,7 @@ const ProductionUnitForm = ({ setOpenDialog, item: unit = null }: BioFormProps<B
         {loadingFarms && <LinearProgress />}
         <form autoComplete='off' onSubmit={handleSubmit((data) => save(data))}>
           <Grid container spacing={2} mt={0}>
-            <Grid size={{ xs: 12, md: 6 }}>
+            <Grid size={{ xs: 12, md: isEdit ? 4 : 6 }}>
               <Controller
                 name='farm_id'
                 control={control}
@@ -118,7 +119,7 @@ const ProductionUnitForm = ({ setOpenDialog, item: unit = null }: BioFormProps<B
                 )}
               />
             </Grid>
-            <Grid size={{ xs: 12, md: 6 }}>
+            <Grid size={{ xs: 12, md: isEdit ? 5 : 6 }}>
               <TextField
                 label={text.labels.name}
                 placeholder={text.placeholders.name}
@@ -129,7 +130,18 @@ const ProductionUnitForm = ({ setOpenDialog, item: unit = null }: BioFormProps<B
                 {...register('name')}
               />
             </Grid>
-            <Grid size={{ xs: 12, md: 4 }}>
+            {isEdit && (
+              <Grid size={{ xs: 12, md: 3 }}>
+                <Controller
+                  name='status'
+                  control={control}
+                  render={({ field }) => (
+                    <BioSelect required label={text.labels.status} options={statuses} value={field.value} onChange={field.onChange} />
+                  )}
+                />
+              </Grid>
+            )}
+            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
               <Controller
                 name='type'
                 control={control}
@@ -138,7 +150,7 @@ const ProductionUnitForm = ({ setOpenDialog, item: unit = null }: BioFormProps<B
                 )}
               />
             </Grid>
-            <Grid size={{ xs: 6, md: 4 }}>
+            <Grid size={{ xs: 6, sm: 6, md: 3 }}>
               <TextField
                 type='number'
                 label={text.labels.capacity}
@@ -150,24 +162,28 @@ const ProductionUnitForm = ({ setOpenDialog, item: unit = null }: BioFormProps<B
                 {...register('capacity')}
               />
             </Grid>
-            <Grid size={{ xs: 6, md: 4 }}>
-              <TextField
-                label={text.labels.capacityUnit}
-                placeholder={text.placeholders.capacityUnit}
-                size='small'
-                fullWidth
-                {...register('capacity_unit')}
+            <Grid size={{ xs: 6, sm: 6, md: 3 }}>
+              <Controller
+                name='capacity_unit_id'
+                control={control}
+                render={({ field }) => (
+                  <MeasurementSelector
+                    label={text.labels.capacityUnit}
+                    defaultValue={field.value ?? null}
+                    onChange={(value) => field.onChange(value && !Array.isArray(value) ? value.id : null)}
+                  />
+                )}
               />
             </Grid>
-            <Grid size={{ xs: 12, md: isEdit ? 4 : 12 }}>
+            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
               <TextField
                 type='number'
                 label={text.labels.maxBatches}
-                helperText={errors.max_batches?.message ?? text.help.maxBatches}
+                helperText={errors.max_batches?.message}
                 error={!!errors.max_batches}
                 size='small'
                 fullWidth
-                slotProps={{ htmlInput: { min: 1, step: 1 } }}
+                slotProps={{ htmlInput: { min: 1, step: 1 }, input: { endAdornment: <InfoHint text={text.help.maxBatches} /> } }}
                 {...register('max_batches')}
               />
             </Grid>
@@ -217,17 +233,6 @@ const ProductionUnitForm = ({ setOpenDialog, item: unit = null }: BioFormProps<B
                 </Button>
               </Box>
             </Grid>
-            {isEdit && (
-              <Grid size={{ xs: 12, md: 4 }}>
-                <Controller
-                  name='status'
-                  control={control}
-                  render={({ field }) => (
-                    <BioSelect required label={text.labels.status} options={statuses} value={field.value} onChange={field.onChange} />
-                  )}
-                />
-              </Grid>
-            )}
           </Grid>
           <DialogActions>
             <Button size='small' onClick={() => setOpenDialog(false)}>{common.cancel}</Button>

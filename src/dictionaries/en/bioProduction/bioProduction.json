@@ -80,12 +80,11 @@
         "capacity": "Capacity",
         "capacityUnit": "Capacity unit",
         "status": "Status",
-        "maxBatches": "Batches it can hold",
+        "maxBatches": "Max batches",
         "occupancy": "Occupancy"
       },
       "placeholders": {
-        "name": "e.g. Pond 1",
-        "capacityUnit": "e.g. m³"
+        "name": "e.g. Pond 1"
       },
       "types": {
         "pond": "Pond",

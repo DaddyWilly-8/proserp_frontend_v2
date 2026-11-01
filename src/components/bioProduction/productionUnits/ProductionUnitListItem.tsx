@@ -17,7 +17,7 @@ const ProductionUnitListItem = ({ unit }: { unit: BioProductionUnit }) => {
   const { held, max, full, names } = unitOccupancy(unit);
   const [showEnvironment, setShowEnvironment] = useState(false);
   const capacity = unit.capacity != null && unit.capacity !== ''
-    ? `${Number(unit.capacity).toLocaleString()} ${unit.capacity_unit ?? ''}`.trim()
+    ? `${Number(unit.capacity).toLocaleString()} ${unit.capacity_unit?.symbol || unit.capacity_unit?.name || ''}`.trim()
     : '';
 
   return (

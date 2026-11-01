@@ -19,7 +19,8 @@ export interface BioProductionUnit {
   name: string;
   type: 'pond' | 'cage' | 'tank' | 'house' | 'pen';
   capacity?: number | string | null;
-  capacity_unit?: string | null;
+  capacity_unit_id?: number | null;
+  capacity_unit?: { id: number; name: string; symbol?: string | null } | null;
   max_batches?: number;
   open_batches?: { id: number; batchNo?: string }[];
   status: BioStatus;
