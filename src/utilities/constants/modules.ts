@@ -10,4 +10,5 @@ export const MODULES = {
   SMS: 'SMS',
   ASSET_REGISTER: 'Asset Register',
   ASSET_BOOKINGS: 'Asset Bookings',
+  BIO_PRODUCTION: 'Bio Production',
 };

@@ -197,6 +197,104 @@ export async function getMenus(locale: string) {
       ],
     },
     {
+      label: sidebar.menu.bioProduction,
+      type: 'section',
+      children: [
+        {
+          uri: `/${locale}/bioProduction/dashboard`,
+          label: sidebar.menuItem.bioDashboard,
+          type: 'nav-item',
+          icon: icon('bioDashboard'),
+        },
+        {
+          uri: `/${locale}/bioProduction/batches`,
+          label: sidebar.menuItem.bioBatches,
+          type: 'nav-item',
+          icon: icon('bioBatches'),
+        },
+        {
+          label: sidebar.menuItem.dailyRecords,
+          type: 'collapsible',
+          icon: icon('dailyRecords'),
+          children: [
+            {
+              uri: `/${locale}/bioProduction/rounds/feeding`,
+              label: sidebar.menuItem.feedingRound,
+              type: 'nav-item',
+              icon: icon('feedingRound'),
+            },
+            {
+              uri: `/${locale}/bioProduction/rounds/mortality`,
+              label: sidebar.menuItem.mortalityRound,
+              type: 'nav-item',
+              icon: icon('mortalityRound'),
+            },
+            {
+              uri: `/${locale}/bioProduction/rounds/weights`,
+              label: sidebar.menuItem.weightsRound,
+              type: 'nav-item',
+              icon: icon('weightsRound'),
+            },
+            {
+              uri: `/${locale}/bioProduction/rounds/costs`,
+              label: sidebar.menuItem.costsRound,
+              type: 'nav-item',
+              icon: icon('costsRound'),
+            },
+            {
+              uri: `/${locale}/bioProduction/rounds/harvests`,
+              label: sidebar.menuItem.harvestRound,
+              type: 'nav-item',
+              icon: icon('harvestRound'),
+            },
+            {
+              uri: `/${locale}/bioProduction/rounds/produce`,
+              label: sidebar.menuItem.produceRound,
+              type: 'nav-item',
+              icon: icon('produceRound'),
+            },
+            {
+              uri: `/${locale}/bioProduction/rounds/measurements`,
+              label: sidebar.menuItem.measurementsRound,
+              type: 'nav-item',
+              icon: icon('measurementsRound'),
+            },
+          ],
+        },
+        {
+          label: sidebar.menuItem.masters,
+          type: 'collapsible',
+          icon: icon('manufacturingMasters'),
+          children: [
+            {
+              uri: `/${locale}/bioProduction/farms`,
+              label: sidebar.menuItem.farms,
+              type: 'nav-item',
+              icon: icon('farms'),
+            },
+            {
+              uri: `/${locale}/bioProduction/productionUnits`,
+              label: sidebar.menuItem.productionUnits,
+              type: 'nav-item',
+              icon: icon('productionUnits'),
+            },
+            {
+              uri: `/${locale}/bioProduction/speciesTemplates`,
+              label: sidebar.menuItem.speciesTemplates,
+              type: 'nav-item',
+              icon: icon('speciesTemplates'),
+            },
+            {
+              uri: `/${locale}/bioProduction/measurementParameters`,
+              label: sidebar.menuItem.measurementParameters,
+              type: 'nav-item',
+              icon: icon('measurementParameters'),
+            },
+          ],
+        },
+      ],
+    },
+    {
       label: sidebar.menu.projectManagement,
       type: 'section',
       children: [

@@ -1,5 +1,5 @@
 import JumboCardQuick from '@jumbo/components/JumboCardQuick/JumboCardQuick'
-import { Checkbox, FormControlLabel, Grid } from '@mui/material'
+import { Checkbox, Chip, FormControlLabel, Grid, Stack } from '@mui/material'
 import { VisibilityOffOutlined, VisibilityOutlined } from '@mui/icons-material'
 import { DateTimePicker } from '@mui/x-date-pickers'
 import dayjs, { Dayjs } from 'dayjs'
@@ -8,6 +8,19 @@ import CostCenterSelector from '../masters/costCenters/CostCenterSelector'
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider'
 import { CostCenter } from '../masters/costCenters/CostCenterType'
 import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext'
+
+const PRESETS = ['today', 'last7', 'last30', 'thisMonth', 'thisYear'] as const;
+
+const presetRange = (preset: (typeof PRESETS)[number]) => {
+    const now = dayjs();
+    switch (preset) {
+        case 'today': return now.startOf('day');
+        case 'last7': return now.subtract(6, 'day').startOf('day');
+        case 'thisMonth': return now.startOf('month');
+        case 'thisYear': return now.startOf('year');
+        default: return now.subtract(29, 'day').startOf('day');
+    }
+};
 
 function Filters() {
     const { chartFilters: { from, to }, setChartFilters, showFigures, setShowFigures } = useDashboardSettings();
@@ -90,6 +103,20 @@ function Filters() {
                         }
                         sx={{ mr: 0 }}
                     />
+                </Grid>
+                <Grid size={{ xs: 12 }}>
+                    <Stack direction='row' spacing={0.5} flexWrap='wrap' useFlexGap justifyContent='center'>
+                        {PRESETS.map((preset) => (
+                            <Chip
+                                key={preset}
+                                size='small'
+                                variant='outlined'
+                                clickable
+                                label={dictionary.dashboardCards.presets[preset]}
+                                onClick={() => setChartFilters((filters) => ({ ...filters, from: presetRange(preset).toISOString(), to: dayjs().toISOString() }))}
+                            />
+                        ))}
+                    </Stack>
                 </Grid>
             </Grid>
         </JumboCardQuick>

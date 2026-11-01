@@ -19,7 +19,7 @@ interface LocaleDictionary {
 
 const dictionaries: LocaleDictionary = {
   'en-US': async () => {
-    const [main, organizations,measurementUnits,currencies,stakeholders,filesShelf,userManagement,productCategories,stores,products,assets,assetBookings,recurringTransactions] = await Promise.all([
+    const [main, organizations,measurementUnits,currencies,stakeholders,filesShelf,userManagement,productCategories,stores,products,assets,assetBookings,recurringTransactions,bioProduction] = await Promise.all([
       import('@/dictionaries/en/en.json').then(m => m.default),
       import('@/dictionaries/en/organizations/organizations.json').then(m => m.default),
       import('@/dictionaries/en/measurementUnits/measurementUnits.json').then(m => m.default),
@@ -32,7 +32,8 @@ const dictionaries: LocaleDictionary = {
       import('@/dictionaries/en/product/products.json').then(m =>m.default),
       import('@/dictionaries/en/assets/assets.json').then(m =>m.default),
       import('@/dictionaries/en/assetBookings/assetBookings.json').then(m =>m.default),
-      import('@/dictionaries/en/recurringTransactions/recurringTransactions.json').then(m =>m.default)
+      import('@/dictionaries/en/recurringTransactions/recurringTransactions.json').then(m =>m.default),
+      import('@/dictionaries/en/bioProduction/bioProduction.json').then(m =>m.default)
     ]);
     const humanResources = (await Promise.all([
       import('@/dictionaries/en/humanResources/employeeProfileSections.json').then(m => m.default),
@@ -76,6 +77,7 @@ const dictionaries: LocaleDictionary = {
       ...assets,
       ...assetBookings,
       ...recurringTransactions,
+      ...bioProduction,
       humanResources,
       forms: { ...main.forms, ...forms },
       projectManagement,
@@ -84,7 +86,7 @@ const dictionaries: LocaleDictionary = {
     };
   },
   'sw-TZ': async () => {
-    const [main, organizations,measurementUnits,currencies,stakeholders,filesShelf,userManagement,productCategories,stores,products,assets,assetBookings,recurringTransactions] = await Promise.all([
+    const [main, organizations,measurementUnits,currencies,stakeholders,filesShelf,userManagement,productCategories,stores,products,assets,assetBookings,recurringTransactions,bioProduction] = await Promise.all([
       import('@/dictionaries/sw/sw.json').then(m => m.default),
       import('@/dictionaries/sw/organizations/organizations.json').then(m => m.default),
       import('@/dictionaries/sw/measurementUnits/measurementUnits.json').then(m => m.default),
@@ -97,7 +99,8 @@ const dictionaries: LocaleDictionary = {
       import('@/dictionaries/sw/product/products.json').then(m =>m.default),
       import('@/dictionaries/sw/assets/assets.json').then(m =>m.default),
       import('@/dictionaries/sw/assetBookings/assetBookings.json').then(m =>m.default),
-      import('@/dictionaries/sw/recurringTransactions/recurringTransactions.json').then(m =>m.default)
+      import('@/dictionaries/sw/recurringTransactions/recurringTransactions.json').then(m =>m.default),
+      import('@/dictionaries/sw/bioProduction/bioProduction.json').then(m =>m.default)
     ]);
     const humanResources = (await Promise.all([
       import('@/dictionaries/sw/humanResources/employeeProfileSections.json').then(m => m.default),
@@ -141,6 +144,7 @@ const dictionaries: LocaleDictionary = {
       ...assets,
       ...assetBookings,
       ...recurringTransactions,
+      ...bioProduction,
       humanResources,
       forms: { ...main.forms, ...forms },
       projectManagement,

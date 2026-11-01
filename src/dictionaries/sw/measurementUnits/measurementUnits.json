@@ -11,7 +11,13 @@
       "listHeader": "Vipimo",
       "name": "Jina la Kipimo",
       "symbol": "Alama ya Kipimo",
-      "description": "Maelezo"
+      "description": "Maelezo",
+      "dimension": "Hupima",
+      "baseFactor": "Ni sawa na",
+      "dimensionHelp": "Kitu ambacho kipimo kinapima, na gramu, lita au mita ngapi ni sawa na kimoja chake. Hii huruhusu mfumo kubadilisha kati ya vipimo vya aina moja bila kutegemea bidhaa, kwa mfano kupata uzito wa chakula nyuma ya FCR. Acha tupu kwa vipimo kama vipande au magunia, ambavyo ukubwa wake unategemea bidhaa.",
+      "factorRequired": "Eleza kipimo kimoja ni sawa na kiasi gani",
+      "dimensions": {"none": "Hakuna maalum (idadi, pakiti, ...)", "mass": "Uzito", "volume": "Ujazo", "length": "Urefu"},
+      "reference": {"mass": "g", "volume": "lita", "length": "mita"}
     },
     "placeholders": {
       "UnitName": "Mf. dozeni",

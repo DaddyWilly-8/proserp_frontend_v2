@@ -10,6 +10,8 @@ import {
   DialogTitle,
   FormControlLabel,
   Grid,
+  MenuItem,
+  Stack,
   TextField,
 } from '@mui/material';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -17,6 +19,7 @@ import { useSnackbar } from 'notistack';
 import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import * as yup from 'yup';
+import InfoHint from '@/components/bioProduction/InfoHint';
 import measurementUnitServices from './measurement-unit-services';
 import { MeasurementUnit } from './MeasurementUnitType';
 
@@ -116,6 +119,15 @@ const MeasurementUnitForm: React.FC<MeasurementUnitFormProps> = ({
         dictionary.measurementUnits.form.errors.validation.symbol.invalid
       ),
     description: yup.string().nullable(),
+    dimension: yup.string().nullable(),
+    base_factor: yup
+      .number()
+      .transform((value, original) => (original === '' || original == null ? null : value))
+      .nullable()
+      .when('dimension', {
+        is: (dimension: string) => !!dimension,
+        then: (schema) => schema.required(dictionary.measurementUnits.form.labels.factorRequired).moreThan(0, dictionary.measurementUnits.form.labels.factorRequired),
+      }),
   });
   const {
     register,
@@ -132,6 +144,8 @@ const MeasurementUnitForm: React.FC<MeasurementUnitFormProps> = ({
       // Matches the column's own default: every existing/new unit allows
       // fractional quantities until someone explicitly turns it off for a
       // discrete unit (Pieces, Units, Boxes...).
+      dimension: (measurementUnit?.dimension ?? '') as FormData['dimension'],
+      base_factor: measurementUnit?.base_factor != null ? Number(measurementUnit.base_factor) : ('' as any),
       allows_fractional: measurementUnit?.id
         ? measurementUnit?.allows_fractional !== false
         : true,
@@ -224,6 +238,45 @@ const MeasurementUnitForm: React.FC<MeasurementUnitFormProps> = ({
                 />
               </Div>
             </Grid>
+            <Grid size={{ xs: 12, md: watch('dimension') ? 6 : 12 }}>
+              <Div sx={{ mt: 1, mb: 1 }}>
+                <Stack direction='row' alignItems='center' spacing={0.5}>
+                <TextField
+                  select
+                  size='small'
+                  fullWidth
+                  label={dictionary.measurementUnits.form.labels.dimension}
+                  value={watch('dimension') ?? ''}
+                  onChange={(event) => {
+                    setValue('dimension', (event.target.value || null) as FormData['dimension']);
+                    if (!event.target.value) setValue('base_factor', '' as any);
+                  }}
+                >
+                  <MenuItem value=''>{dictionary.measurementUnits.form.labels.dimensions.none}</MenuItem>
+                  {(['mass', 'volume', 'length'] as const).map((dimension) => (
+                    <MenuItem key={dimension} value={dimension}>{dictionary.measurementUnits.form.labels.dimensions[dimension]}</MenuItem>
+                  ))}
+                </TextField>
+                <InfoHint text={dictionary.measurementUnits.form.labels.dimensionHelp} />
+                </Stack>
+              </Div>
+            </Grid>
+            {!!watch('dimension') && (
+              <Grid size={{ xs: 12, md: 6 }}>
+                <Div sx={{ mt: 1, mb: 1 }}>
+                  <TextField
+                    type='number'
+                    size='small'
+                    fullWidth
+                    label={`${dictionary.measurementUnits.form.labels.baseFactor} (${dictionary.measurementUnits.form.labels.reference[watch('dimension') as 'mass']})`}
+                    slotProps={{ htmlInput: { min: 0, step: 'any' } }}
+                    error={!!errors.base_factor}
+                    helperText={errors.base_factor?.message as string}
+                    {...register('base_factor')}
+                  />
+                </Div>
+              </Grid>
+            )}
             <Grid size={12}>
               <Div sx={{ mt: 1, mb: 1 }}>
                 <FormControlLabel

@@ -13,6 +13,8 @@ const CommaSeparatedField = React.forwardRef<HTMLInputElement, CommaSeparatedFie
 
     return (
       <NumericFormat
+        // A phone's numeric keypad has no decimal point; the decimal one has, and quantities and rates need it.
+        inputMode='decimal'
         {...other}
         getInputRef={ref}
         onValueChange={(values, sourceInfo) => {

@@ -113,6 +113,26 @@ bankReconciliationServices.unignoreLine = async (lineId) => {
     return data;
 };
 
+bankReconciliationServices.markOutstandingBulk = async (bankAccountId, journalIds, note) => {
+    const { data } = await axios.post(`/api/accounts/bankReconciliation/bankAccounts/${bankAccountId}/markOutstandingBulk`, { journal_ids: journalIds, note });
+    return data;
+};
+
+bankReconciliationServices.unmarkOutstandingBulk = async (bankAccountId, itemIds) => {
+    const { data } = await axios.post(`/api/accounts/bankReconciliation/bankAccounts/${bankAccountId}/unmarkOutstandingBulk`, { item_ids: itemIds });
+    return data;
+};
+
+bankReconciliationServices.ignoreLinesBulk = async (statementId, lineIds) => {
+    const { data } = await axios.post(`/api/accounts/bankReconciliation/statements/${statementId}/lines/ignoreBulk`, { line_ids: lineIds });
+    return data;
+};
+
+bankReconciliationServices.unignoreLinesBulk = async (statementId, lineIds) => {
+    const { data } = await axios.post(`/api/accounts/bankReconciliation/statements/${statementId}/lines/unignoreBulk`, { line_ids: lineIds });
+    return data;
+};
+
 bankReconciliationServices.postTransaction = async (lineId, payload) => {
     const { data } = await axios.post(`/api/accounts/bankReconciliation/statementLines/${lineId}/postTransaction`, payload);
     return data;

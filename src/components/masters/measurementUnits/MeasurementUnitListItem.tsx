@@ -38,6 +38,11 @@ const dictionary = useDictionary();
               <Tooltip title={dictionary.measurementUnits.list.labels.description}>
                 <Typography>{measurementUnit.description}</Typography>
               </Tooltip>
+                {!!measurementUnit.dimension && measurementUnit.base_factor != null && (
+                  <Typography variant='caption' color='text.secondary' display='block'>
+                    {`${dictionary.measurementUnits.form.labels.dimensions[measurementUnit.dimension]}: 1 ${measurementUnit.symbol ?? ''} = ${Number(measurementUnit.base_factor).toLocaleString(undefined, { maximumFractionDigits: 8 })} ${dictionary.measurementUnits.form.labels.reference[measurementUnit.dimension]}`}
+                  </Typography>
+                )}
             </Grid>
             <Grid size={{xs: 1, md: 0.5, lg: 1}} textAlign={"end"}>
               <MeasurementUnitItemAction measurementUnit={measurementUnit}/>

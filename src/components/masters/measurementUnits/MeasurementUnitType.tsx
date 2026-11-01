@@ -10,4 +10,6 @@ export interface MeasurementUnit {
   deleted_at?: Date | null;
   conversion_factor?: number;
   allows_fractional?: boolean;
+  dimension?: 'mass' | 'volume' | 'length' | null;
+  base_factor?: number | string | null;
 }
