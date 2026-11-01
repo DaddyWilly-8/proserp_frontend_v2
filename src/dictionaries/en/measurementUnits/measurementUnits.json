@@ -11,7 +11,13 @@
       "listHeader": "Measurement Units",
       "name": "Unit Name",
       "symbol": "Unit Symbol",
-      "description": "Description"
+      "description": "Description",
+      "dimension": "Measures",
+      "baseFactor": "Equals",
+      "dimensionHelp": "What the unit measures, and how many grams, litres or metres one of it equals. This lets the system convert between units of the same kind without help from a product, for example to work out the weight of feed behind a feed conversion ratio. Leave it empty for units such as pieces or bags, whose size depends on the product.",
+      "factorRequired": "Say how much one of this unit equals",
+      "dimensions": {"none": "Nothing in particular (count, pack, ...)", "mass": "Weight", "volume": "Volume", "length": "Length"},
+      "reference": {"mass": "g", "volume": "litres", "length": "metres"}
     },
     "placeholders": {
       "UnitName": "e.g. dozens",

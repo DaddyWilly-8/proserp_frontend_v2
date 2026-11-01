@@ -1,0 +1,738 @@
+{
+  "bioProduction": {
+    "common": {
+      "submit": "Save",
+      "cancel": "Cancel",
+      "edit": "Edit",
+      "delete": "Delete",
+      "actions": "Actions",
+      "status": "Status",
+      "active": "Active",
+      "inactive": "Inactive",
+      "confirmDeleteTitle": "Confirm Delete",
+      "searchPlaceholder": "Search"
+    },
+    "farms": {
+      "pageTitle": "Farms",
+      "new": "New Farm",
+      "newTitle": "New Farm",
+      "editTitle": "Edit: {name}",
+      "labels": {
+        "name": "Farm name",
+        "address": "Location / address",
+        "status": "Status",
+        "costCenter": "Cost center",
+        "productionUnits": "Production units",
+        "users": "Users",
+        "inputCategories": "Product categories for inputs",
+        "outputCategories": "Product categories for outputs"
+      },
+      "costCenterMode": {
+        "heading": "Cost center",
+        "create": "Create a new cost center for this farm",
+        "adopt": "Use an existing cost center",
+        "adoptHelp": "Production and sales then post to the same cost center, with its history intact. Pick the one a sales outlet or project already uses.",
+        "createHelp": "A cost center with the farm's name is created.",
+        "fixedHelp": "The cost center is fixed once the farm is created.",
+        "select": "Cost center"
+      },
+      "messages": {
+        "deleteContent": "Are you sure you want to delete this farm? Its cost center is kept unless the farm created it."
+      },
+      "validation": {
+        "nameRequired": "Farm name is required",
+        "costCenterRequired": "Choose the cost center to use"
+      },
+      "searchPlaceholder": "Search by farm name or location",
+      "help": {
+        "users": "People who work on this farm. Only they, and people who can see every cost center, can see the farm and its units, batches and records. You are added automatically when you create a farm.",
+        "inputCategories": "Only products in these categories can be fed, treated or applied on this farm. Leave empty to allow any product.",
+        "outputCategories": "Only products in these categories can be harvested or collected into stock from this farm. Leave empty to allow any product."
+      }
+    },
+    "productionUnits": {
+      "environment": {
+        "open": "Conditions",
+        "title": "Conditions in {name}",
+        "period": "Period",
+        "days": "Last {count} days",
+        "none": "No readings yet for this unit.",
+        "noReadings": "No readings",
+        "limits": "Watch {watch} · Critical {critical}",
+        "outOfRangeHint": "{count} of {total} readings were outside the watch range"
+      },
+      "buttons": {
+        "addSpecies": "Add species",
+        "removeSpecies": "Remove"
+      },
+      "pageTitle": "Production Units",
+      "new": "New Production Unit",
+      "newTitle": "New Production Unit",
+      "editTitle": "Edit: {name}",
+      "labels": {
+        "suitability": "Suitable for",
+        "species": "Species",
+        "suitableStages": "Stages",
+        "allStages": "All stages",
+        "farm": "Farm",
+        "name": "Name",
+        "type": "Type",
+        "capacity": "Capacity",
+        "capacityUnit": "Capacity unit",
+        "status": "Status",
+        "maxBatches": "Batches it can hold",
+        "occupancy": "Occupancy"
+      },
+      "placeholders": {
+        "name": "e.g. Pond 1",
+        "capacityUnit": "e.g. m³"
+      },
+      "types": {
+        "pond": "Pond",
+        "cage": "Cage",
+        "tank": "Tank",
+        "house": "House",
+        "pen": "Pen"
+      },
+      "messages": {
+        "deleteContent": "Are you sure you want to delete this production unit?"
+      },
+      "validation": {
+        "farmRequired": "Choose a farm",
+        "nameRequired": "Name is required",
+        "typeRequired": "Choose a type",
+        "capacityInvalid": "Capacity must be zero or more",
+        "maxBatchesInvalid": "Enter a whole number of 1 or more"
+      },
+      "searchPlaceholder": "Search by unit name",
+      "help": {
+        "suitability": "The species (and stages of them) this unit is set up for. A batch can only be placed or moved here if it matches. Leave empty to allow any species and stage.",
+        "maxBatches": "How many batches can be in this unit at once: 1 for a cage, tank or house; more for a shared pond."
+      },
+      "occupancy": {
+        "free": "Free",
+        "holds": "{held} of {max}"
+      }
+    },
+    "measurementParameters": {
+      "pageTitle": "Measurement Parameters",
+      "new": "New Parameter",
+      "newTitle": "New Measurement Parameter",
+      "editTitle": "Edit {name}",
+      "searchPlaceholder": "Search parameters",
+      "allTypes": "All unit types",
+      "labels": {
+        "name": "Parameter",
+        "unit": "Unit of measure (optional)",
+        "decimals": "Decimals",
+        "types": "Measured on",
+        "limits": "Limits",
+        "watch": "Watch",
+        "critical": "Critical",
+        "min": "Lowest",
+        "max": "Highest",
+        "status": "Status"
+      },
+      "placeholders": {
+        "unit": "e.g. mg/L, °C"
+      },
+      "help": {
+        "legacyUnit": "Shown as \"{label}\" from before units were chosen from the list. Pick a unit to replace it, or save to remove it.",
+        "types": "The kinds of unit this is measured on. Leave empty to offer it for every kind of unit.",
+        "limits": "Watch is the range a reading should stay in: outside it, the reading is flagged amber. Critical wraps the watch range: outside it, the reading is flagged red. Leave a limit empty if it does not matter."
+      },
+      "messages": {
+        "deleteContent": "This parameter will be removed. A parameter that already has readings cannot be deleted; set it to inactive instead.",
+        "watch": "Outside the watch range ({range})",
+        "critical": "Outside the critical range ({range})"
+      },
+      "validation": {
+        "nameRequired": "Parameter name is required",
+        "numberInvalid": "Enter a number",
+        "decimalsInvalid": "Enter a whole number from 0 to 6"
+      },
+      "status": {
+        "ok": "Normal",
+        "watch": "Watch",
+        "critical": "Critical"
+      }
+    },
+    "dashboard": {
+      "title": "Bio Production Dashboard",
+      "updated": "Updated {time}",
+      "refresh": "Refresh",
+      "kpis": {
+        "openBatches": "Open batches",
+        "alive": "{count} alive",
+        "unitsInUse": "Units in use",
+        "mortality": "Deaths",
+        "feed": "Feed cost",
+        "wip": "Cost in WIP",
+        "harvest": "Harvested",
+        "produce": "Produce collected",
+        "none": "None in this period",
+        "vsPrevious": "{change} vs previous period",
+        "fcr": "Feed conversion (FCR)",
+        "fcrHint": "{feed} kg of feed for {gain} kg gained, over {batches} batches",
+        "fcrNone": "Not enough weighings",
+        "fcrVs": "{change} vs previous period"
+      },
+      "alerts": {
+        "title": "Needs attention",
+        "none": "Nothing needs attention here.",
+        "critical": "{count} critical",
+        "watch": "{count} to watch",
+        "showAll": "Show all {count}",
+        "showLess": "Show less",
+        "open": "Open",
+        "conditions": "Conditions",
+        "tabs": {
+          "conditions": "Conditions",
+          "mortality": "Mortality",
+          "feeding": "Feeding",
+          "stages": "Stages"
+        },
+        "levels": {
+          "watch": "watch",
+          "critical": "critical"
+        },
+        "outside": "Outside the {level} range",
+        "unmeasured": "{unit} has not been measured",
+        "lastMeasured": "Last measured {days} days ago",
+        "neverMeasured": "No reading has been taken on it yet",
+        "abnormal": "{abnormal} deaths beyond the {pct}% allowance and not yet written off ({died} of {opening} died)",
+        "noFeed": "No feed recorded for {days} days",
+        "neverFed": "No feed recorded since it started, {days} days ago",
+        "overStage": "{over} days past the expected {expected} days in {stage}",
+        "farm": "Farm: {name}"
+      },
+      "trends": {
+        "deaths": "Deaths",
+        "feed": "Feed cost",
+        "readings": "Out-of-range readings",
+        "output": "Harvest and produce quantity",
+        "interval": "Interval",
+        "day": "Daily",
+        "week": "Weekly",
+        "month": "Monthly",
+        "year": "Yearly",
+        "none": "Nothing in this period.",
+        "weekOf": "Week of {date}",
+        "watch": "Watch",
+        "critical": "Critical",
+        "harvestSeries": "Harvested",
+        "produceSeries": "Produce collected"
+      },
+      "occupancy": {
+        "title": "Units in use",
+        "ofTotal": "{used} of {total}"
+      },
+      "activity": {
+        "title": "Recent records",
+        "none": "No records yet",
+        "lines": "{count} lines",
+        "by": "by {name}"
+      },
+      "sections": {
+        "now": "Right now",
+        "period": "In the selected period"
+      },
+      "filters": {
+        "from": "From",
+        "to": "To",
+        "farms": "Farms",
+        "allFarms": "All my farms",
+        "presets": {
+          "today": "Today",
+          "last7": "Last 7 days",
+          "last30": "Last 30 days",
+          "thisMonth": "This month",
+          "thisYear": "This year"
+        }
+      }
+    },
+    "speciesTemplates": {
+      "pageTitle": "Species Templates",
+      "new": "New Species Template",
+      "newTitle": "New Species Template",
+      "editTitle": "Edit: {name}",
+      "labels": {
+        "products": "Products it yields",
+        "name": "Species name",
+        "description": "Description",
+        "trackingMode": "Tracking",
+        "status": "Status",
+        "stages": "Stages",
+        "stageCount": "{count} stages",
+        "stageName": "Stage",
+        "purpose": "Purpose",
+        "durationDays": "Duration (days)",
+        "entryWeight": "Entry weight",
+        "targetWeight": "Target weight",
+        "normalMortality": "Normal mortality (%)",
+        "countLabel": "Counted as",
+        "usefulLife": "Useful life (days)",
+        "salvageValue": "Value per head at the end",
+        "weightUnit": "Weight unit",
+        "depreciation": "Depreciation"
+      },
+      "trackingModes": {
+        "batch": "By batch (counts and average weight)",
+        "individual": "Individual animals"
+      },
+      "purposes": {
+        "consumable": "Consumable (grown out for sale)",
+        "bearer": "Bearer (breeding stock)"
+      },
+      "help": {
+        "products": "The products this species puts into stock, such as eggs for layers or live birds for broilers. Harvest and Collect produce offer only these. Leave empty to allow any product.",
+        "stages": "List the stages in the order a batch passes through them. Normal mortality is the share of a stage's opening count that is expected to be lost; losses beyond it are written off as abnormal. Leave it empty until the rates are confirmed.",
+        "countLabel": "What the animals are called on screens, e.g. fish or birds.",
+        "depreciation": "Depreciation is a straight line over the useful life, down to the value per head at the end. It is added to the cost of the produce collected, so the animals are carried at roughly that value when they are sold or slaughtered.",
+        "weightUnit": "The unit weights are entered and shown in for this species, such as grams for fingerlings and kilograms for cattle. They are stored in grams, so changing it later does not alter any weight already recorded."
+      },
+      "buttons": {
+        "addStage": "Add stage",
+        "removeStage": "Remove stage",
+        "moveUp": "Move up",
+        "moveDown": "Move down"
+      },
+      "messages": {
+        "deleteContent": "Are you sure you want to delete this species template?"
+      },
+      "validation": {
+        "nameRequired": "Species name is required",
+        "stageNameRequired": "Stage name is required",
+        "atLeastOneStage": "Add at least one stage",
+        "mortalityRange": "Enter a percentage between 0 and 100",
+        "numberInvalid": "Enter a number of zero or more"
+      },
+      "searchPlaceholder": "Search by species name",
+      "weightUnits": {
+        "g": "Grams (g)",
+        "kg": "Kilograms (kg)"
+      }
+    },
+    "batches": {
+      "pageTitle": "Batches",
+      "new": "New Batch",
+      "newTitle": "Stock a New Batch",
+      "backToList": "Batches",
+      "noBatch": "Batch not found",
+      "status": {
+        "on progress": "On progress",
+        "closed": "Closed"
+      },
+      "labels": {
+        "notSetUp": "Not set up for {species} at {stage}",
+        "batchNo": "Batch",
+        "species": "Species",
+        "farm": "Farm",
+        "unit": "Production unit",
+        "stage": "Stage",
+        "startStage": "Starting stage",
+        "startDate": "Start date and time",
+        "endDate": "End date and time",
+        "initialQuantity": "Number stocked",
+        "currentQuantity": "Alive now",
+        "averageWeight": "Average weight",
+        "remarks": "Remarks",
+        "costCenter": "Cost center",
+        "quantity": "Quantity",
+        "date": "Date and time",
+        "occupiedBy": "Occupied by {batches}",
+        "partlyOccupied": "{held} of {max} places taken"
+      },
+      "costs": {
+        "accrued": "Cost accrued",
+        "writtenOff": "Written off",
+        "harvested": "Moved to stock",
+        "balance": "Cost in WIP",
+        "perFish": "Cost each (alive)"
+      },
+      "actions": {
+        "mortality": "Record mortality",
+        "weight": "Weight sample",
+        "input": "Feed / medication",
+        "expense": "Add cost",
+        "transfer": "Move unit",
+        "advance": "Next stage",
+        "writeOff": "Write off mortality",
+        "harvest": "Harvest",
+        "produce": "Collect produce",
+        "close": "Close batch",
+        "more": "Actions"
+      },
+      "summary": {
+        "environment": "Conditions during this batch",
+        "parameter": "Parameter",
+        "readings": "Readings",
+        "average": "Average",
+        "lowest": "Lowest",
+        "highest": "Highest",
+        "outOfRange": "Out of range",
+        "each": "each alive",
+        "movedToStock": "Moved to stock",
+        "harvests": "Harvests",
+        "produce": "Produce",
+        "alive": "{Animals} alive",
+        "died": "Died",
+        "harvestedAnimals": "Harvested",
+        "days": "Days running",
+        "costsByCategory": "Costs by category",
+        "category": "Category",
+        "entries": "Entries",
+        "amount": "Amount",
+        "share": "Share",
+        "total": "Total",
+        "inputCategory": {
+          "feed": "Feed",
+          "medication": "Medication",
+          "other": "Other inputs"
+        },
+        "costsByStage": "Costs by stage",
+        "stage": "Stage",
+        "period": "Period",
+        "inputsCol": "Inputs",
+        "otherCol": "Other costs",
+        "inputsByProduct": "Inputs by product",
+        "type": "Type",
+        "product": "Product",
+        "quantity": "Quantity",
+        "averageRate": "Average rate",
+        "cost": "Cost",
+        "timesUsed": "Times used",
+        "usedBetween": "First → last used",
+        "outputs": "What came out",
+        "kind": "Kind",
+        "animals": "{Animals}",
+        "fcr": {
+          "title": "Feed conversion (FCR)",
+          "help": "Kilograms of feed given for each kilogram of weight gained. Lower is better. Gain is the weight of the animals now, less what they weighed at the start, plus the weight of those harvested or lost along the way. It depends on weighings being kept up to date, and only feed whose unit has a weight equivalence in Measurement Units is counted.",
+          "wholeBatch": "Whole batch",
+          "feed": "Feed",
+          "gain": "Weight gained",
+          "value": "FCR",
+          "lastWeighed": "Last weighed",
+          "noWeights": "Not weighed yet",
+          "notEnough": "Not enough yet",
+          "otherUnits": "Feed given in {units} was left out because its unit has no weight equivalence set in Measurement Units."
+        }
+      },
+      "tabs": {
+        "summary": "Summary",
+        "stages": "Stages",
+        "inputs": "Inputs",
+        "costs": "Costs",
+        "mortality": "Mortality",
+        "weights": "Weights",
+        "movements": "Movements",
+        "outcomes": "Write-offs & harvests",
+        "produce": "Produce"
+      },
+      "tables": {
+        "stage": "Stage",
+        "period": "Period",
+        "opening": "Opening",
+        "closing": "Closing",
+        "mortality": "Died",
+        "mortalityPct": "Mortality %",
+        "allowance": "Allowed %",
+        "abnormal": "Abnormal",
+        "cost": "Cost",
+        "date": "Date",
+        "type": "Type",
+        "product": "Product",
+        "quantity": "Quantity",
+        "rate": "Rate",
+        "amount": "Amount",
+        "ledger": "Ledger",
+        "cause": "Cause",
+        "remarks": "Remarks",
+        "sample": "Sample size",
+        "avgWeight": "Avg weight",
+        "from": "From",
+        "to": "To",
+        "kind": "Kind",
+        "fish": "{Animals}",
+        "stock": "Stock",
+        "costPerUnit": "Cost per unit",
+        "runningCost": "Running cost",
+        "depreciation": "Depreciation",
+        "store": "Store",
+        "empty": "Nothing recorded yet",
+        "abnormalKind": "Abnormal mortality",
+        "residualKind": "Residual cost",
+        "loss": "Loss",
+        "status": "Status",
+        "totalCost": "Total cost",
+        "totalLost": "Total {animals} lost"
+      },
+      "inputTypes": {
+        "feed": "Feed",
+        "medication": "Medication",
+        "other": "Other"
+      },
+      "dialogs": {
+        "mortality": {
+          "title": "Record Mortality",
+          "cause": "Cause",
+          "help": "Mortality up to the stage's allowance is absorbed into the survivors' cost. Beyond it, you will be asked to write it off."
+        },
+        "weight": {
+          "title": "Record Weight Sample",
+          "sampleSize": "{Animals} weighed",
+          "averageWeight": "Average weight"
+        },
+        "transfer": {
+          "title": "Move to Another Unit",
+          "toUnit": "Move to",
+          "help": "Only units on the same farm can be used. Moving a batch between farms is not supported yet."
+        },
+        "advance": {
+          "requiredUnit": "Move to",
+          "mustMove": "{unit} is not set up for the {stage} stage, so the batch must move to a unit that is.",
+          "title": "Move to the Next Stage",
+          "help": "The current stage closes at the live count. Optionally move the batch to another unit in the same step.",
+          "optionalUnit": "Also move to (optional)",
+          "closingWeight": "Average weight now (optional)"
+        },
+        "input": {
+          "title": "Feed / Medication",
+          "type": "Type",
+          "reason": "Reason (e.g. treatment for)",
+          "store": "Store",
+          "addItem": "Add item",
+          "product": "Product",
+          "unit": "Unit",
+          "removeItem": "Remove item",
+          "help": "Stock is issued at its average cost and charged to the batch. It must be held under the farm's cost center."
+        },
+        "expense": {
+          "title": "Add Cost to Batch",
+          "ledger": "Ledger the cost sits in",
+          "quantity": "Quantity",
+          "rate": "Rate",
+          "total": "Total",
+          "help": "Moves a cost already booked in another ledger (labour, power, purchase of fry, ...) into the batch."
+        },
+        "writeOff": {
+          "title": "Write Off Abnormal Mortality",
+          "lossLedger": "Loss ledger",
+          "nothing": "There is no abnormal mortality to write off.",
+          "summary": "{quantity} {animals} beyond the allowed mortality, at {rate} each",
+          "total": "Loss to write off",
+          "balance": "Cost in WIP before write-off",
+          "help": "Normal losses stay in the survivors' cost. This takes only the excess out, as a loss."
+        },
+        "produce": {
+          "title": "Collect produce",
+          "help": "The produce goes into stock at the cost of running the flock since the last collection plus its depreciation. The {animals} stay in the batch.",
+          "product": "Product collected",
+          "store": "Store",
+          "quantity": "Quantity collected (in the product's unit)",
+          "costTitle": "Cost of this collection",
+          "running": "Running cost (feed, medication, added costs)",
+          "depreciation": "Depreciation ({days} days)",
+          "total": "Cost of the produce",
+          "perUnit": "Cost per unit",
+          "carried": "Value of the animals before this collection",
+          "fullyDepreciated": "The useful life is used up: nothing more is depreciated.",
+          "editTitle": "Correct produce record",
+          "recalculated": "The cost is worked out again when you save, from the batch as it stands without this record."
+        },
+        "harvest": {
+          "title": "Harvest",
+          "fish": "{Animals} harvested",
+          "product": "Product received",
+          "store": "Store",
+          "weight": "Quantity received (in the product's unit)",
+          "help": "The batch's cost of these {animals} moves into stock. Harvesting every one that remains closes the batch.",
+          "blocked": "Write off the abnormal mortality first.",
+          "editTitle": "Correct harvest"
+        },
+        "close": {
+          "title": "Close Batch",
+          "lossLedger": "Loss ledger (for any cost left)",
+          "help": "Closes a batch with no {animals} left. Any cost still in WIP is written off as a loss.",
+          "fishLeft": "{count} {animals} are still alive. Harvest them before closing the batch."
+        },
+        "confirmDeleteInput": "Remove this input and return its stock?",
+        "confirmDeleteExpense": "Remove this cost from the batch?",
+        "confirmDeleteHarvest": "Delete this harvest? Its animals return to the batch, its stock is taken out of the store and its cost goes back into the batch. This cannot be done once the stock has been used or sold.",
+        "confirmDeleteProduce": "Delete this produce record? Its stock is taken out of the store and its cost goes back into the batch. This cannot be done once the stock has been used or sold."
+      },
+      "messages": {
+        "deleteContent": "Delete this batch? This is only possible if nothing has been recorded against it."
+      },
+      "validation": {
+        "templateRequired": "Choose a species",
+        "farmRequired": "Choose a farm",
+        "unitRequired": "Choose a production unit",
+        "quantityRequired": "Enter a whole number above zero",
+        "dateRequired": "Enter a date",
+        "numberInvalid": "Enter a number above zero",
+        "itemsRequired": "Add at least one item",
+        "storeRequired": "Choose a store",
+        "productRequired": "Choose a product",
+        "unitOfMeasureRequired": "Choose a unit",
+        "ledgerRequired": "Choose a ledger",
+        "tooMany": "More than are alive"
+      },
+      "searchPlaceholder": "Search by batch number"
+    },
+    "rounds": {
+      "titles": {
+        "measurement": "Measurements",
+        "harvest": "Harvest",
+        "produce": "Produce",
+        "cost": "Costs",
+        "feeding": "Feeding and Medication",
+        "mortality": "Mortality",
+        "weighing": "Weight Samples"
+      },
+      "edit": {
+        "measurement": "Edit {recordNo}",
+        "harvest": "Edit {recordNo}",
+        "produce": "Edit {recordNo}",
+        "cost": "Edit {recordNo}",
+        "feeding": "Edit {recordNo}",
+        "mortality": "Edit {recordNo}",
+        "weighing": "Edit {recordNo}"
+      },
+      "new": {
+        "measurement": "New Measurement Record",
+        "harvest": "New Harvest Record",
+        "produce": "New Produce Record",
+        "cost": "New Cost Record",
+        "feeding": "New Feeding Record",
+        "mortality": "New Mortality Record",
+        "weighing": "New Weight Sample Record"
+      },
+      "searchPlaceholder": "Search by record number",
+      "labels": {
+        "from": "From",
+        "to": "To",
+        "dateTime": "Date and time",
+        "measuredAt": "Date and time",
+        "parameters": "Parameters measured",
+        "findUnit": "Find a unit",
+        "parameter": "Parameter",
+        "value": "Value",
+        "reading": "Reading",
+        "time": "Time",
+        "harvested": "Harvested",
+        "received": "Quantity received",
+        "collected": "Quantity collected",
+        "payNow": "Pay now",
+        "payFrom": "Pay from account",
+        "paymentReference": "Payment reference",
+        "payment": "Payment",
+        "ledger": "Ledger the cost sits in",
+        "rate": "Rate",
+        "rateOverride": "Rate (if different)",
+        "amount": "Amount",
+        "costNote": "Description",
+        "farm": "Farm",
+        "date": "Date",
+        "type": "Type",
+        "reason": "Reason (e.g. treatment for)",
+        "store": "Store",
+        "product": "Product",
+        "unit": "Unit of measure",
+        "causeAll": "Cause for all lines (optional)",
+        "productionUnit": "Production unit",
+        "quantity": "Quantity",
+        "died": "Died",
+        "cause": "Cause",
+        "sampleSize": "Number weighed",
+        "averageWeight": "Average weight",
+        "batch": "Batch",
+        "stage": "Stage",
+        "alive": "Alive",
+        "cost": "Cost",
+        "recordNo": "Record",
+        "creator": "Recorded by",
+        "lines": "Lines",
+        "summary": "Summary",
+        "available": "Available stock",
+        "thisRecord": "This record",
+        "remaining": "Remaining",
+        "stockFor": "Stock held for this farm"
+      },
+      "summary": {
+        "measurement": "{count} readings taken",
+        "harvest": "{product}: {quantity} received from {count} units",
+        "produce": "{product}: {quantity} collected from {count} units",
+        "cost": "{quantity} charged to {count} units",
+        "feeding": "{product}: {quantity} {unit} to {count} units",
+        "mortality": "{quantity} died in {count} units",
+        "weighing": "{count} units weighed"
+      },
+      "messages": {
+        "measureOnlyWhatYouTook": "Type only what you measured; leave the other parameters empty.",
+        "chooseParameters": "Choose the parameters you measured. A card appears for each unit they apply to.",
+        "readingsSummary": "{readings} readings on {units} units",
+        "noUnitsForParameters": "None of this farm's units take the chosen parameters.",
+        "needBothHarvest": "Enter a whole number harvested and the quantity received",
+        "paidEdit": "This record has a payment ({voucherNo}). Saving changes the payment with it; switch Pay now off to delete the payment.",
+        "paidNoRights": "This record has a payment ({voucherNo}). Only people who may post payments can change it.",
+        "deletePaid": "The payment {paymentNo} made for it is deleted too.",
+        "payNowHelp": "Makes a payment as the record is saved: money leaves the account you choose and settles the ledger the costs were booked to. Only people who may post payments see this. The payment is made with the record, so if any line is refused neither is saved.",
+        "needPositive": "Enter a number above zero",
+        "noItems": "Add at least one production unit.",
+        "add": "Add",
+        "edit": "Edit this line",
+        "remove": "Remove this line",
+        "added": "Added",
+        "partlyUsed": "already on this record",
+        "total": "{count} units",
+        "totalQuantity": "{count} units · {quantity}",
+        "overLive": "More than are alive",
+        "needWholeNumber": "Enter a whole number",
+        "needBoth": "Enter both the number weighed and the average weight",
+        "nothingSaved": "Nothing was saved. Fix the lines marked below and save again.",
+        "completeHeader": "Complete the details above first.",
+        "unsaved": {
+          "title": "A line has not been added",
+          "message": "You have started a line but not added it to the record.",
+          "addAndSave": "Add it and save",
+          "saveWithout": "Save without it"
+        },
+        "deleteTitle": "Delete this record?",
+        "deleteContent": "The entries it made are reversed: feed returns to the store and recorded deaths are restored. This cannot be done once a batch has moved on or closed.",
+        "view": "View",
+        "viewTitle": "{recordNo}",
+        "close": "Close",
+        "exportPdf": "Export to PDF",
+        "exportExcel": "Export to Excel",
+        "backToRecord": "Back to record",
+        "printedBy": "Printed by",
+        "printedOn": "Printed on",
+        "refusedRows": "Some lines could not be reversed",
+        "exceedsStock": "Only {remaining} {unit} of stock remain for this farm",
+        "noStock": "No stock of this product is held for this farm in this store",
+        "laterMovements": "Later movements limit what can be issued on this date",
+        "over": "This record uses more than is available",
+        "lineHeader": "Add a unit"
+      },
+      "sections": {
+        "details": "Details",
+        "lines": {
+          "measurement": "Units measured",
+          "harvest": "Units harvested",
+          "produce": "Units collected from",
+          "cost": "Units charged",
+          "feeding": "Units fed",
+          "mortality": "Units with deaths",
+          "weighing": "Units weighed"
+        }
+      }
+    },
+    "farmFirst": {
+      "label": "Farm",
+      "choose": "Choose a farm to continue.",
+      "noFarms": "You have not been given access to any farm yet. Ask your administrator to add you to one."
+    }
+  }
+}

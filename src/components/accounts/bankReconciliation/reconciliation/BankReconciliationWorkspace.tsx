@@ -5,7 +5,9 @@ import {
   Alert,
   Box,
   Button,
+  Checkbox,
   Chip,
+  FormControlLabel,
   Dialog,
   Divider,
   IconButton,
@@ -79,6 +81,19 @@ export default function BankReconciliationWorkspace({ bankAccountId }: Props) {
   const [dateFrom, setDateFrom] = useState<Dayjs | null>(null);
   const [dateTo, setDateTo] = useState<Dayjs | null>(null);
   const [search, setSearch] = useState('');
+  // Rows ticked for a bulk action — ids of whatever the current tab lists
+  // (statement lines, book entries, or outstanding-item ids). Cleared on any
+  // tab/statement change so a selection never leaks into a different list.
+  const [selectedIds, setSelectedIds] = useState<number[]>([]);
+  // Each row mounts its own autocomplete, mutations and dialogs, so rendering
+  // a long list at once (a first statement can list an account's whole
+  // history) freezes the page. Rows render in pages; "select all" still
+  // covers every filtered row, not just the rendered ones.
+  const PAGE_SIZE = 50;
+  const [shown, setShown] = useState(PAGE_SIZE);
+  React.useEffect(() => {
+    setShown(PAGE_SIZE);
+  }, [tab, selectedStatementId, dateFrom, dateTo, search]);
 
   // Any save in flight, or the workspace still reloading after one. The lists
   // below are locked for that whole window: acting on a row that is about to
@@ -167,6 +182,73 @@ export default function BankReconciliationWorkspace({ bankAccountId }: Props) {
     },
     onError: (err: any) => enqueueSnackbar(err?.response?.data?.message || 'Failed to unmark', { variant: 'error' }),
   });
+
+  const bulkMutation = useMutation({
+    mutationFn: (action: () => Promise<any>) => action(),
+    onSuccess: (result) => {
+      enqueueSnackbar(result.message || 'Done', { variant: 'success' });
+      setSelectedIds([]);
+      queryClient.invalidateQueries({ queryKey: ['bank-reconciliation-workspace', bankAccountId] });
+    },
+    onError: (err: any) => enqueueSnackbar(err?.response?.data?.message || 'Bulk action failed', { variant: 'error' }),
+  });
+
+  const toggleSelected = (id: number) =>
+    setSelectedIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
+
+  // Select-all box + action buttons above a tab's list. "All" means every row
+  // the current filters leave visible, so date/search filters double as the
+  // way to pick a large group (e.g. everything before the statement start).
+  const renderBulkBar = (
+    visibleIds: number[],
+    actions: { label: string; confirm: string; run: (ids: number[]) => Promise<any> }[],
+    locked: boolean
+  ) => {
+    if (visibleIds.length === 0 || !checkOrganizationPermission(PERMISSIONS.BANK_RECONCILIATION_EDIT)) return null;
+    const chosen = selectedIds.filter((id) => visibleIds.includes(id));
+    const allChosen = chosen.length === visibleIds.length;
+    return (
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap', pb: 1, mb: 1, borderBottom: 1, borderColor: 'divider' }}>
+        <FormControlLabel
+          control={
+            <Checkbox
+              size='small'
+              disabled={locked}
+              checked={allChosen}
+              indeterminate={chosen.length > 0 && !allChosen}
+              onChange={() => setSelectedIds(allChosen ? [] : visibleIds)}
+            />
+          }
+          label={chosen.length > 0 ? `${chosen.length} selected` : `Select all (${visibleIds.length})`}
+        />
+        {actions.map((a) => (
+          <Tooltip key={a.label} title={locked ? LOCKED_HINT : ''}>
+            <span>
+              <Button
+                size='small'
+                variant='outlined'
+                disabled={locked || chosen.length === 0}
+                onClick={() =>
+                  showDialog({
+                    title: `${a.label} ${chosen.length} item${chosen.length === 1 ? '' : 's'}?`,
+                    content: a.confirm,
+                    variant: 'confirm',
+                    onYes: () => {
+                      hideDialog();
+                      bulkMutation.mutate(() => a.run(chosen));
+                    },
+                    onNo: () => hideDialog(),
+                  })
+                }
+              >
+                {a.label}
+              </Button>
+            </span>
+          </Tooltip>
+        ))}
+      </Box>
+    );
+  };
 
   const confirmDeleteStatement = () => {
     showDialog({
@@ -264,6 +346,7 @@ export default function BankReconciliationWorkspace({ bankAccountId }: Props) {
                 value={statement.id}
                 onChange={(e) => {
                   setSelectedStatementId(Number(e.target.value));
+                  setSelectedIds([]);
                   setTab(0);
                 }}
                 sx={{ mt: 0.5, minWidth: { xs: 0, sm: 260 }, maxWidth: '100%' }}
@@ -408,7 +491,7 @@ export default function BankReconciliationWorkspace({ bankAccountId }: Props) {
           {busy && <LinearProgress sx={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 1 }} />}
           <Tabs
             value={tab}
-            onChange={(e, v) => setTab(v)}
+            onChange={(e, v) => { setTab(v); setSelectedIds([]); }}
             variant='scrollable'
             scrollButtons='auto'
             allowScrollButtonsMobile
@@ -426,7 +509,19 @@ export default function BankReconciliationWorkspace({ bankAccountId }: Props) {
               {unmatched_lines.length === 0 && (
                 <Typography color='text.secondary'>{filtersActive ? 'Nothing matches the current filters.' : 'No unmatched statement lines.'}</Typography>
               )}
-              {unmatched_lines.map((item: any) => (
+              {renderBulkBar(
+                unmatched_lines.map((i: any) => i.line.id),
+                [{
+                  label: 'Ignore selected',
+                  confirm: 'Selected lines are set aside as not expected to match any book entry. Lines that already have book entries linked are skipped. You can restore them from the Ignored tab.',
+                  run: (ids) => bankReconciliationServices.ignoreLinesBulk(statement.id, ids),
+                }],
+                isCompleted
+              )}
+              {unmatched_lines.slice(0, shown).map((item: any) => (
+                <Box key={item.line.id} sx={{ display: 'flex', alignItems: 'center' }}>
+                  <Checkbox size='small' disabled={isCompleted} checked={selectedIds.includes(item.line.id)} onChange={() => toggleSelected(item.line.id)} />
+                  <Box sx={{ flex: 1, minWidth: 0 }}>
                 <UnmatchedLineRow
                   key={item.line.id}
                   bankAccountId={bankAccountId}
@@ -439,6 +534,8 @@ export default function BankReconciliationWorkspace({ bankAccountId }: Props) {
                   tolerance={tolerance}
                   locked={isCompleted}
                 />
+                  </Box>
+                </Box>
               ))}
             </Box>
           )}
@@ -448,7 +545,19 @@ export default function BankReconciliationWorkspace({ bankAccountId }: Props) {
               {unmatched_journals.length === 0 && (
                 <Typography color='text.secondary'>{filtersActive ? 'Nothing matches the current filters.' : 'No unmatched book entries.'}</Typography>
               )}
-              {unmatched_journals.map((journal: any) => (
+              {renderBulkBar(
+                unmatched_journals.map((j: any) => j.id),
+                [{
+                  label: 'Mark outstanding',
+                  confirm: 'Selected book entries are acknowledged as timing differences and excluded from the difference until they clear on a future statement. Entries already fully matched are skipped. You can unmark them from the Outstanding tab.',
+                  run: (ids) => bankReconciliationServices.markOutstandingBulk(bankAccountId, ids),
+                }],
+                isCompleted
+              )}
+              {unmatched_journals.slice(0, shown).map((journal: any) => (
+                <Box key={journal.id} sx={{ display: 'flex', alignItems: 'center' }}>
+                  <Checkbox size='small' disabled={isCompleted} checked={selectedIds.includes(journal.id)} onChange={() => toggleSelected(journal.id)} />
+                  <Box sx={{ flex: 1, minWidth: 0 }}>
                 <UnmatchedJournalRow
                   key={journal.id}
                   bankAccountId={bankAccountId}
@@ -460,6 +569,8 @@ export default function BankReconciliationWorkspace({ bankAccountId }: Props) {
                   tolerance={tolerance}
                   locked={isCompleted}
                 />
+                  </Box>
+                </Box>
               ))}
             </Box>
           )}
@@ -469,7 +580,7 @@ export default function BankReconciliationWorkspace({ bankAccountId }: Props) {
               {matched_lines.length === 0 && (
                 <Typography color='text.secondary'>{filtersActive ? 'Nothing matches the current filters.' : 'No matched lines yet.'}</Typography>
               )}
-              {matched_lines.map((matchedLine: any) => (
+              {matched_lines.slice(0, shown).map((matchedLine: any) => (
                 <MatchedLineGroup
                   key={matchedLine.line.id}
                   bankAccountId={bankAccountId}
@@ -486,10 +597,20 @@ export default function BankReconciliationWorkspace({ bankAccountId }: Props) {
               {ignored_lines.length === 0 && (
                 <Typography color='text.secondary'>{filtersActive ? 'Nothing matches the current filters.' : 'No ignored lines.'}</Typography>
               )}
-              {ignored_lines.map((line: any) => (
+              {renderBulkBar(
+                ignored_lines.map((l: any) => l.id),
+                [{
+                  label: 'Restore selected',
+                  confirm: 'Selected lines go back to Unmatched Statement Lines.',
+                  run: (ids) => bankReconciliationServices.unignoreLinesBulk(statement.id, ids),
+                }],
+                isCompleted
+              )}
+              {ignored_lines.slice(0, shown).map((line: any) => (
                 <Box key={line.id} sx={{ py: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1, flexWrap: 'wrap' }}>
                   <Divider sx={{ mb: 1, width: '100%' }} />
-                  <Typography variant='body2'>
+                  <Checkbox size='small' disabled={isCompleted} checked={selectedIds.includes(line.id)} onChange={() => toggleSelected(line.id)} />
+                  <Typography variant='body2' sx={{ flex: 1 }}>
                     {formatDate(line.line_date)} — {line.description} — {formatAmount(line.amount)}
                   </Typography>
                   {checkOrganizationPermission(PERMISSIONS.BANK_RECONCILIATION_EDIT) && (
@@ -519,10 +640,20 @@ export default function BankReconciliationWorkspace({ bankAccountId }: Props) {
               {outstanding_journals.length === 0 && (
                 <Typography color='text.secondary'>{filtersActive ? 'Nothing matches the current filters.' : 'No outstanding book entries.'}</Typography>
               )}
-              {outstanding_journals.map((journal: any) => (
+              {renderBulkBar(
+                outstanding_journals.map((j: any) => j.outstanding_item_id),
+                [{
+                  label: 'Unmark selected',
+                  confirm: 'Selected book entries go back to Unmatched Book Entries and count towards the difference again.',
+                  run: (ids) => bankReconciliationServices.unmarkOutstandingBulk(bankAccountId, ids),
+                }],
+                isCompleted
+              )}
+              {outstanding_journals.slice(0, shown).map((journal: any) => (
                 <Box key={journal.id} sx={{ py: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1, flexWrap: 'wrap' }}>
                   <Divider sx={{ mb: 1, width: '100%' }} />
-                  <Box>
+                  <Checkbox size='small' disabled={isCompleted} checked={selectedIds.includes(journal.outstanding_item_id)} onChange={() => toggleSelected(journal.outstanding_item_id)} />
+                  <Box sx={{ flex: 1 }}>
                     <Typography variant='body2'>
                       {formatDate(journal.journal_date)} — {journal.description} — {formatAmount(journal.comparable_amount)}
                     </Typography>
@@ -549,6 +680,16 @@ export default function BankReconciliationWorkspace({ bankAccountId }: Props) {
               ))}
             </Box>
           )}
+          {(() => {
+            const total = [unmatched_lines, unmatched_journals, matched_lines, ignored_lines, outstanding_journals][tab]?.length ?? 0;
+            return total > shown ? (
+              <Box sx={{ p: 2, pt: 0, textAlign: 'center' }}>
+                <Button onClick={() => setShown((n) => n + PAGE_SIZE)}>
+                  Show more ({shown} of {total} shown)
+                </Button>
+              </Box>
+            ) : null;
+          })()}
         </Paper>
       </Box>
     );

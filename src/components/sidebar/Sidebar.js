@@ -348,6 +348,35 @@ function Sidebar({ menus }) {
                 }
             }
 
+            // Bio Production: the subscription decides whether the section exists, and the user's own permissions
+            // decide which of its pages they are offered (the server refuses the rest in any case).
+            if (organizationHasSubscribed(MODULES.BIO_PRODUCTION)) {
+                const bioMasters = {
+                    farms: [PERMISSIONS.BIO_FARMS_READ, PERMISSIONS.BIO_FARMS_CREATE, PERMISSIONS.BIO_FARMS_EDIT, PERMISSIONS.BIO_FARMS_DELETE],
+                    productionUnits: [PERMISSIONS.BIO_PRODUCTION_UNITS_READ, PERMISSIONS.BIO_PRODUCTION_UNITS_CREATE, PERMISSIONS.BIO_PRODUCTION_UNITS_EDIT, PERMISSIONS.BIO_PRODUCTION_UNITS_DELETE],
+                    speciesTemplates: [PERMISSIONS.BIO_SPECIES_TEMPLATES_READ, PERMISSIONS.BIO_SPECIES_TEMPLATES_CREATE, PERMISSIONS.BIO_SPECIES_TEMPLATES_EDIT, PERMISSIONS.BIO_SPECIES_TEMPLATES_DELETE],
+                    measurementParameters: [PERMISSIONS.BIO_MEASUREMENT_PARAMETERS_READ, PERMISSIONS.BIO_MEASUREMENT_PARAMETERS_CREATE, PERMISSIONS.BIO_MEASUREMENT_PARAMETERS_EDIT, PERMISSIONS.BIO_MEASUREMENT_PARAMETERS_DELETE],
+                };
+                // The page a menu entry opens decides which permissions it needs.
+                const bioNeeds = (uri = '') => {
+                    if (uri.endsWith('/bioProduction/dashboard')) return [PERMISSIONS.BIO_DASHBOARD_READ];
+                    if (uri.endsWith('/bioProduction/batches')) return [PERMISSIONS.BIO_BATCHES_READ];
+                    if (uri.includes('/bioProduction/rounds/')) return [PERMISSIONS.BIO_RECORDS_READ];
+                    const master = Object.keys(bioMasters).find(key => uri.endsWith(`/bioProduction/${key}`));
+                    return master ? bioMasters[master] : null;
+                };
+                const bioAllowed = (items = []) => items
+                    .map(item => item.children ? { ...item, children: bioAllowed(item.children) } : item)
+                    .filter(item => item.children ? item.children.length > 0 : (bioNeeds(item.uri) ? checkOrganizationPermission(bioNeeds(item.uri)) : false));
+                const bioMenu = menus.find(menu => menu.label === dictionary.sidebar.menu.bioProduction);
+                if (bioMenu) {
+                    const children = bioAllowed(bioMenu.children);
+                    if (children.length > 0) {
+                        updatedMenus = [...updatedMenus, { ...bioMenu, children }];
+                    }
+                }
+            }
+
             if (organizationHasSubscribed(MODULES.MANUFACTURING_AND_PROCESSING)) {
                 //Manufacturing & Processing
                 if (checkOrganizationPermission([

@@ -162,6 +162,11 @@ const PERMISSION_MODULES: PermissionModuleConfig[] = [
     prefixes: ['BOM', 'ManufacturingOrders', 'ProductionBatches', 'WorkCenters'],
   },
   {
+    key: 'bio_production',
+    displayName: MODULES.BIO_PRODUCTION,
+    prefixes: ['BioDashboard', 'BioFarms', 'BioProductionUnits', 'BioSpeciesTemplates', 'BioMeasurementParameters', 'BioBatches', 'BioRecords'],
+  },
+  {
     key: 'project_management',
     displayName: MODULES.PROJECT_MANAGEMENT,
     prefixes: ['ProjectCategories', 'Projects', 'ProjectClaims', 'ProjectSubcontracts', 'ProjectSubcontractCertificates', 'ProjectPaymentClaims'],

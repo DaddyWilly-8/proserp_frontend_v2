@@ -1,0 +1,738 @@
+{
+  "bioProduction": {
+    "common": {
+      "submit": "Hifadhi",
+      "cancel": "Ghairi",
+      "edit": "Hariri",
+      "delete": "Futa",
+      "actions": "Vitendo",
+      "status": "Hali",
+      "active": "Inatumika",
+      "inactive": "Haitumiki",
+      "confirmDeleteTitle": "Thibitisha Kufuta",
+      "searchPlaceholder": "Tafuta"
+    },
+    "farms": {
+      "pageTitle": "Mashamba",
+      "new": "Shamba Jipya",
+      "newTitle": "Shamba Jipya",
+      "editTitle": "Hariri: {name}",
+      "labels": {
+        "name": "Jina la shamba",
+        "address": "Mahali / anwani",
+        "status": "Hali",
+        "costCenter": "Kituo cha gharama",
+        "productionUnits": "Vitengo vya uzalishaji",
+        "users": "Watumiaji",
+        "inputCategories": "Kategoria za bidhaa za pembejeo",
+        "outputCategories": "Kategoria za bidhaa za mazao"
+      },
+      "costCenterMode": {
+        "heading": "Kituo cha gharama",
+        "create": "Unda kituo kipya cha gharama kwa shamba hili",
+        "adopt": "Tumia kituo cha gharama kilichopo",
+        "adoptHelp": "Uzalishaji na mauzo vitaingia kwenye kituo kimoja cha gharama, na historia yake ikibaki. Chagua kile ambacho duka au mradi tayari unatumia.",
+        "createHelp": "Kituo cha gharama chenye jina la shamba kitaundwa.",
+        "fixedHelp": "Kituo cha gharama hakibadiliki baada ya shamba kuundwa.",
+        "select": "Kituo cha gharama"
+      },
+      "messages": {
+        "deleteContent": "Una uhakika unataka kufuta shamba hili? Kituo chake cha gharama kinabaki isipokuwa shamba ndilo lililokiunda."
+      },
+      "validation": {
+        "nameRequired": "Jina la shamba linahitajika",
+        "costCenterRequired": "Chagua kituo cha gharama cha kutumia"
+      },
+      "searchPlaceholder": "Tafuta kwa jina la shamba au mahali",
+      "help": {
+        "users": "Watu wanaofanya kazi kwenye shamba hili. Wao pekee, na watu wanaoweza kuona vituo vyote vya gharama, ndio wanaoweza kuona shamba na vitengo, makundi na rekodi zake. Unaongezwa kiotomatiki unapounda shamba.",
+        "inputCategories": "Ni bidhaa za kategoria hizi tu zinazoweza kulishwa, kutibiwa au kutumika kwenye shamba hili. Acha wazi kuruhusu bidhaa yoyote.",
+        "outputCategories": "Ni bidhaa za kategoria hizi tu zinazoweza kuvunwa au kukusanywa stoo kutoka shamba hili. Acha wazi kuruhusu bidhaa yoyote."
+      }
+    },
+    "productionUnits": {
+      "environment": {
+        "open": "Hali",
+        "title": "Hali ya {name}",
+        "period": "Kipindi",
+        "days": "Siku {count} zilizopita",
+        "none": "Bado hakuna vipimo vya kitengo hiki.",
+        "noReadings": "Hakuna vipimo",
+        "limits": "Angalia {watch} · Hatari {critical}",
+        "outOfRangeHint": "Vipimo {count} kati ya {total} vilikuwa nje ya kiwango cha kuangalia"
+      },
+      "buttons": {
+        "addSpecies": "Ongeza aina",
+        "removeSpecies": "Ondoa"
+      },
+      "pageTitle": "Vitengo vya Uzalishaji",
+      "new": "Kitengo Kipya cha Uzalishaji",
+      "newTitle": "Kitengo Kipya cha Uzalishaji",
+      "editTitle": "Hariri: {name}",
+      "labels": {
+        "suitability": "Inafaa kwa",
+        "species": "Aina",
+        "suitableStages": "Hatua",
+        "allStages": "Hatua zote",
+        "farm": "Shamba",
+        "name": "Jina",
+        "type": "Aina",
+        "capacity": "Uwezo",
+        "capacityUnit": "Kipimo cha uwezo",
+        "status": "Hali",
+        "maxBatches": "Makundi inayoweza kubeba",
+        "occupancy": "Matumizi"
+      },
+      "placeholders": {
+        "name": "mfano: Bwawa 1",
+        "capacityUnit": "mfano: m³"
+      },
+      "types": {
+        "pond": "Bwawa",
+        "cage": "Kizimba",
+        "tank": "Tangi",
+        "house": "Banda",
+        "pen": "Zizi"
+      },
+      "messages": {
+        "deleteContent": "Una uhakika unataka kufuta kitengo hiki cha uzalishaji?"
+      },
+      "validation": {
+        "farmRequired": "Chagua shamba",
+        "nameRequired": "Jina linahitajika",
+        "typeRequired": "Chagua aina",
+        "capacityInvalid": "Uwezo lazima uwe sifuri au zaidi",
+        "maxBatchesInvalid": "Weka namba nzima ya 1 au zaidi"
+      },
+      "searchPlaceholder": "Tafuta kwa jina la kitengo",
+      "help": {
+        "suitability": "Aina (na hatua zake) ambazo kitengo hiki kimeandaliwa kwazo. Kundi linaweza kuwekwa au kuhamishiwa hapa likilingana tu. Acha wazi kuruhusu aina na hatua yoyote.",
+        "maxBatches": "Makundi mangapi yanaweza kuwa kwenye kitengo hiki kwa wakati mmoja: 1 kwa kizimba, tangi au banda; zaidi kwa bwawa la pamoja."
+      },
+      "occupancy": {
+        "free": "Wazi",
+        "holds": "{held} kati ya {max}"
+      }
+    },
+    "measurementParameters": {
+      "pageTitle": "Vigezo vya Vipimo",
+      "new": "Kigezo Kipya",
+      "newTitle": "Kigezo Kipya cha Kipimo",
+      "editTitle": "Hariri {name}",
+      "searchPlaceholder": "Tafuta vigezo",
+      "allTypes": "Aina zote za vitengo",
+      "labels": {
+        "name": "Kigezo",
+        "unit": "Kipimo (si lazima)",
+        "decimals": "Desimali",
+        "types": "Hupimwa kwenye",
+        "limits": "Mipaka",
+        "watch": "Angalia",
+        "critical": "Hatari",
+        "min": "Chini kabisa",
+        "max": "Juu kabisa",
+        "status": "Hali"
+      },
+      "placeholders": {
+        "unit": "mf. mg/L, °C"
+      },
+      "help": {
+        "legacyUnit": "Inaonyeshwa kama \"{label}\" kabla vipimo kuchaguliwa kwenye orodha. Chagua kipimo kuibadilisha, au hifadhi ili kuiondoa.",
+        "types": "Aina za vitengo kinapimwa. Acha wazi kukionyesha kwa kila aina ya kitengo.",
+        "limits": "Angalia ni kiwango ambacho kipimo kinapaswa kubaki: nje yake, kipimo kinawekewa alama ya njano. Hatari inazunguka kiwango cha kuangalia: nje yake, kipimo kinawekewa alama nyekundu. Acha mpaka wazi kama haujalishi."
+      },
+      "messages": {
+        "deleteContent": "Kigezo hiki kitaondolewa. Kigezo chenye vipimo hakiwezi kufutwa; kiweke kisichotumika badala yake.",
+        "watch": "Nje ya kiwango cha kuangalia ({range})",
+        "critical": "Nje ya kiwango cha hatari ({range})"
+      },
+      "validation": {
+        "nameRequired": "Jina la kigezo linahitajika",
+        "numberInvalid": "Weka nambari",
+        "decimalsInvalid": "Weka nambari kamili kutoka 0 hadi 6"
+      },
+      "status": {
+        "ok": "Kawaida",
+        "watch": "Angalia",
+        "critical": "Hatari"
+      }
+    },
+    "dashboard": {
+      "title": "Dashibodi ya Shamba",
+      "updated": "Imesasishwa {time}",
+      "refresh": "Onyesha upya",
+      "kpis": {
+        "openBatches": "Makundi yaliyo wazi",
+        "alive": "{count} walio hai",
+        "unitsInUse": "Vitengo vinavyotumika",
+        "mortality": "Vifo",
+        "feed": "Gharama ya chakula",
+        "wip": "Gharama iliyo WIP",
+        "harvest": "Vilivyovunwa",
+        "produce": "Mazao yaliyokusanywa",
+        "none": "Hakuna katika kipindi hiki",
+        "vsPrevious": "{change} ikilinganishwa na kipindi kilichopita",
+        "fcr": "Ubadilishaji wa chakula (FCR)",
+        "fcrHint": "Kilo {feed} za chakula kwa kilo {gain} zilizoongezeka, katika makundi {batches}",
+        "fcrNone": "Vipimo vya uzito havitoshi",
+        "fcrVs": "{change} ikilinganishwa na kipindi kilichopita"
+      },
+      "alerts": {
+        "title": "Yanayohitaji uangalizi",
+        "none": "Hakuna kinachohitaji uangalizi hapa.",
+        "critical": "{count} hatari",
+        "watch": "{count} ya kuangalia",
+        "showAll": "Onyesha yote {count}",
+        "showLess": "Onyesha machache",
+        "open": "Fungua",
+        "conditions": "Hali",
+        "tabs": {
+          "conditions": "Hali",
+          "mortality": "Vifo",
+          "feeding": "Ulishaji",
+          "stages": "Hatua"
+        },
+        "levels": {
+          "watch": "kuangalia",
+          "critical": "hatari"
+        },
+        "outside": "Nje ya kiwango cha {level}",
+        "unmeasured": "{unit} hakijapimwa",
+        "lastMeasured": "Kimepimwa mara ya mwisho siku {days} zilizopita",
+        "neverMeasured": "Bado hakuna kipimo kilichochukuliwa",
+        "abnormal": "Vifo {abnormal} zaidi ya kiwango cha {pct}% na bado havijafutwa ({died} kati ya {opening} walikufa)",
+        "noFeed": "Hakuna chakula kilichorekodiwa kwa siku {days}",
+        "neverFed": "Hakuna chakula kilichorekodiwa tangu kilipoanza, siku {days} zilizopita",
+        "overStage": "Siku {over} zaidi ya siku {expected} zinazotarajiwa katika {stage}",
+        "farm": "Shamba: {name}"
+      },
+      "trends": {
+        "deaths": "Vifo",
+        "feed": "Gharama ya chakula",
+        "readings": "Vipimo nje ya kiwango",
+        "output": "Kiasi cha mavuno na mazao",
+        "interval": "Muda",
+        "day": "Kila siku",
+        "week": "Kila wiki",
+        "month": "Kila mwezi",
+        "year": "Kila mwaka",
+        "none": "Hakuna kitu katika kipindi hiki.",
+        "weekOf": "Wiki ya {date}",
+        "watch": "Angalia",
+        "critical": "Hatari",
+        "harvestSeries": "Vilivyovunwa",
+        "produceSeries": "Mazao yaliyokusanywa"
+      },
+      "occupancy": {
+        "title": "Vitengo vinavyotumika",
+        "ofTotal": "{used} kati ya {total}"
+      },
+      "activity": {
+        "title": "Rekodi za hivi karibuni",
+        "none": "Bado hakuna rekodi",
+        "lines": "Mistari {count}",
+        "by": "na {name}"
+      },
+      "sections": {
+        "now": "Sasa hivi",
+        "period": "Katika kipindi kilichochaguliwa"
+      },
+      "filters": {
+        "from": "Kuanzia",
+        "to": "Hadi",
+        "farms": "Mashamba",
+        "allFarms": "Mashamba yangu yote",
+        "presets": {
+          "today": "Leo",
+          "last7": "Siku 7 zilizopita",
+          "last30": "Siku 30 zilizopita",
+          "thisMonth": "Mwezi huu",
+          "thisYear": "Mwaka huu"
+        }
+      }
+    },
+    "speciesTemplates": {
+      "pageTitle": "Violezo vya Spishi",
+      "new": "Kielelezo Kipya cha Spishi",
+      "newTitle": "Kielelezo Kipya cha Spishi",
+      "editTitle": "Hariri: {name}",
+      "labels": {
+        "products": "Bidhaa inazotoa",
+        "name": "Jina la spishi",
+        "description": "Maelezo",
+        "trackingMode": "Ufuatiliaji",
+        "status": "Hali",
+        "stages": "Hatua",
+        "stageCount": "Hatua {count}",
+        "stageName": "Hatua",
+        "purpose": "Madhumuni",
+        "durationDays": "Muda (siku)",
+        "entryWeight": "Uzito wa kuingia",
+        "targetWeight": "Uzito unaolengwa",
+        "normalMortality": "Vifo vya kawaida (%)",
+        "countLabel": "Wanahesabiwa kama",
+        "usefulLife": "Muda wa matumizi (siku)",
+        "salvageValue": "Thamani kwa kila mnyama mwishoni",
+        "weightUnit": "Kipimo cha uzito",
+        "depreciation": "Uchakavu"
+      },
+      "trackingModes": {
+        "batch": "Kwa kundi (idadi na wastani wa uzito)",
+        "individual": "Mnyama mmoja mmoja"
+      },
+      "purposes": {
+        "consumable": "Ya kuuzwa (inakuzwa kwa mauzo)",
+        "bearer": "Ya kuzaliana (mitamba)"
+      },
+      "help": {
+        "products": "Bidhaa ambazo aina hii huweka stoo, kama mayai kwa kuku wa mayai au kuku hai kwa wa nyama. Mavuno na Kusanya mazao hutoa hizi tu. Acha wazi kuruhusu bidhaa yoyote.",
+        "stages": "Orodhesha hatua kwa mpangilio kundi linavyopitia. Vifo vya kawaida ni sehemu ya idadi ya mwanzo wa hatua inayotarajiwa kupotea; hasara zaidi ya hapo hufutwa kama zisizo za kawaida. Iache wazi hadi viwango vithibitishwe.",
+        "countLabel": "Wanyama wanaitwaje kwenye skrini, mf. samaki au kuku.",
+        "depreciation": "Uchakavu ni wa mstari ulionyooka katika muda wa matumizi, hadi thamani ya kila mnyama mwishoni. Huongezwa kwenye gharama ya mazao yanayokusanywa, hivyo wanyama hubebwa kwa thamani hiyo takriban wanapouzwa au kuchinjwa.",
+        "weightUnit": "Kipimo ambacho uzito huingizwa na kuonyeshwa kwa spishi hii, kama gramu kwa vifaranga na kilo kwa ng'ombe. Huhifadhiwa kwa gramu, kwa hivyo kubadilisha baadaye hakubadilishi uzito uliorekodiwa."
+      },
+      "buttons": {
+        "addStage": "Ongeza hatua",
+        "removeStage": "Ondoa hatua",
+        "moveUp": "Juu",
+        "moveDown": "Chini"
+      },
+      "messages": {
+        "deleteContent": "Una uhakika unataka kufuta kielelezo hiki cha spishi?"
+      },
+      "validation": {
+        "nameRequired": "Jina la spishi linahitajika",
+        "stageNameRequired": "Jina la hatua linahitajika",
+        "atLeastOneStage": "Ongeza angalau hatua moja",
+        "mortalityRange": "Weka asilimia kati ya 0 na 100",
+        "numberInvalid": "Weka namba ya sifuri au zaidi"
+      },
+      "searchPlaceholder": "Tafuta kwa jina la spishi",
+      "weightUnits": {
+        "g": "Gramu (g)",
+        "kg": "Kilo (kg)"
+      }
+    },
+    "batches": {
+      "pageTitle": "Makundi",
+      "new": "Kundi Jipya",
+      "newTitle": "Weka Kundi Jipya",
+      "backToList": "Makundi",
+      "noBatch": "Kundi halijapatikana",
+      "status": {
+        "on progress": "Linaendelea",
+        "closed": "Limefungwa"
+      },
+      "labels": {
+        "notSetUp": "Hakijaandaliwa kwa {species} katika hatua ya {stage}",
+        "batchNo": "Kundi",
+        "species": "Spishi",
+        "farm": "Shamba",
+        "unit": "Kitengo cha uzalishaji",
+        "stage": "Hatua",
+        "startStage": "Hatua ya kuanzia",
+        "startDate": "Tarehe na saa ya kuanza",
+        "endDate": "Tarehe na saa ya kumaliza",
+        "initialQuantity": "Idadi iliyowekwa",
+        "currentQuantity": "Walio hai sasa",
+        "averageWeight": "Wastani wa uzito",
+        "remarks": "Maelezo",
+        "costCenter": "Kituo cha gharama",
+        "quantity": "Idadi",
+        "date": "Tarehe na saa",
+        "occupiedBy": "Limetumika na {batches}",
+        "partlyOccupied": "Nafasi {held} kati ya {max} zimetumika"
+      },
+      "costs": {
+        "accrued": "Gharama iliyokusanywa",
+        "writtenOff": "Iliyofutwa",
+        "harvested": "Iliyohamishiwa stoo",
+        "balance": "Gharama kwenye WIP",
+        "perFish": "Gharama kwa kila mmoja (aliye hai)"
+      },
+      "actions": {
+        "mortality": "Rekodi vifo",
+        "weight": "Sampuli ya uzito",
+        "input": "Chakula / dawa",
+        "expense": "Ongeza gharama",
+        "transfer": "Hamisha kitengo",
+        "advance": "Hatua inayofuata",
+        "writeOff": "Futa vifo",
+        "harvest": "Vuna",
+        "produce": "Kusanya mazao",
+        "close": "Funga kundi",
+        "more": "Vitendo"
+      },
+      "summary": {
+        "environment": "Hali wakati wa kundi hili",
+        "parameter": "Kigezo",
+        "readings": "Vipimo",
+        "average": "Wastani",
+        "lowest": "Chini",
+        "highest": "Juu",
+        "outOfRange": "Nje ya kiwango",
+        "each": "kwa kila aliye hai",
+        "movedToStock": "Imehamishiwa stoo",
+        "harvests": "Mavuno",
+        "produce": "Mazao",
+        "alive": "{Animals} walio hai",
+        "died": "Waliokufa",
+        "harvestedAnimals": "Waliovunwa",
+        "days": "Siku za kuendelea",
+        "costsByCategory": "Gharama kwa kategoria",
+        "category": "Kategoria",
+        "entries": "Rekodi",
+        "amount": "Kiasi",
+        "share": "Sehemu",
+        "total": "Jumla",
+        "inputCategory": {
+          "feed": "Chakula",
+          "medication": "Dawa",
+          "other": "Pembejeo nyingine"
+        },
+        "costsByStage": "Gharama kwa hatua",
+        "stage": "Hatua",
+        "period": "Kipindi",
+        "inputsCol": "Pembejeo",
+        "otherCol": "Gharama nyingine",
+        "inputsByProduct": "Pembejeo kwa bidhaa",
+        "type": "Aina",
+        "product": "Bidhaa",
+        "quantity": "Kiasi",
+        "averageRate": "Kiwango cha wastani",
+        "cost": "Gharama",
+        "timesUsed": "Mara zilizotumika",
+        "usedBetween": "Ya kwanza → ya mwisho",
+        "outputs": "Kilichotoka",
+        "kind": "Aina",
+        "animals": "{Animals}",
+        "fcr": {
+          "title": "Ubadilishaji wa chakula (FCR)",
+          "help": "Kilo za chakula zilizotolewa kwa kila kilo ya uzito iliyoongezeka. Chini ni bora. Ongezeko ni uzito wa wanyama sasa, ukiondoa uzito wao mwanzoni, ukijumlisha uzito wa waliovunwa au waliopotea njiani. Inategemea vipimo vya uzito kuwa vya kisasa, na chakula chenye kipimo kilicho na uwiano wa uzito katika Vipimo pekee ndicho kinachohesabiwa.",
+          "wholeBatch": "Kundi zima",
+          "feed": "Chakula",
+          "gain": "Uzito ulioongezeka",
+          "value": "FCR",
+          "lastWeighed": "Ilipimwa mwisho",
+          "noWeights": "Haijapimwa bado",
+          "notEnough": "Bado haitoshi",
+          "otherUnits": "Chakula kilichotolewa kwa {units} hakijajumuishwa kwa sababu kipimo chake hakina uwiano wa uzito katika Vipimo."
+        }
+      },
+      "tabs": {
+        "summary": "Muhtasari",
+        "stages": "Hatua",
+        "inputs": "Pembejeo",
+        "costs": "Gharama",
+        "mortality": "Vifo",
+        "weights": "Uzito",
+        "movements": "Uhamishaji",
+        "outcomes": "Zilizofutwa na mavuno",
+        "produce": "Mazao"
+      },
+      "tables": {
+        "stage": "Hatua",
+        "period": "Kipindi",
+        "opening": "Mwanzo",
+        "closing": "Mwisho",
+        "mortality": "Waliokufa",
+        "mortalityPct": "Vifo %",
+        "allowance": "Inayoruhusiwa %",
+        "abnormal": "Zisizo za kawaida",
+        "cost": "Gharama",
+        "date": "Tarehe",
+        "type": "Aina",
+        "product": "Bidhaa",
+        "quantity": "Kiasi",
+        "rate": "Bei",
+        "amount": "Kiasi cha fedha",
+        "ledger": "Leja",
+        "cause": "Sababu",
+        "remarks": "Maelezo",
+        "sample": "Idadi ya sampuli",
+        "avgWeight": "Wastani wa uzito",
+        "from": "Kutoka",
+        "to": "Kwenda",
+        "kind": "Aina",
+        "fish": "{Animals}",
+        "stock": "Bidhaa stoo",
+        "costPerUnit": "Gharama kwa kipimo",
+        "runningCost": "Gharama za uendeshaji",
+        "depreciation": "Uchakavu",
+        "store": "Stoo",
+        "empty": "Hakuna kilichorekodiwa bado",
+        "abnormalKind": "Vifo visivyo vya kawaida",
+        "residualKind": "Gharama iliyobaki",
+        "loss": "Hasara",
+        "status": "Hali",
+        "totalCost": "Jumla ya gharama",
+        "totalLost": "Jumla ya {animals} waliopotea"
+      },
+      "inputTypes": {
+        "feed": "Chakula",
+        "medication": "Dawa",
+        "other": "Nyingine"
+      },
+      "dialogs": {
+        "mortality": {
+          "title": "Rekodi Vifo",
+          "cause": "Sababu",
+          "help": "Vifo hadi kiwango kinachoruhusiwa kwa hatua hujumuishwa kwenye gharama ya walionusurika. Zaidi ya hapo, utaombwa kuvifuta."
+        },
+        "weight": {
+          "title": "Rekodi Sampuli ya Uzito",
+          "sampleSize": "{Animals} waliopimwa",
+          "averageWeight": "Wastani wa uzito"
+        },
+        "transfer": {
+          "title": "Hamisha hadi Kitengo Kingine",
+          "toUnit": "Hamisha hadi",
+          "help": "Vitengo vya shamba lilelile pekee vinaweza kutumika. Kuhamisha kundi kati ya mashamba bado hakuruhusiwi."
+        },
+        "advance": {
+          "requiredUnit": "Hamishia",
+          "mustMove": "{unit} hakijaandaliwa kwa hatua ya {stage}, hivyo kundi lazima lihamishiwe kitengo kilichoandaliwa.",
+          "title": "Nenda Hatua Inayofuata",
+          "help": "Hatua ya sasa inafungwa kwa idadi iliyo hai. Unaweza pia kuhamishia kundi kwenye kitengo kingine hapohapo.",
+          "optionalUnit": "Hamisha pia hadi (si lazima)",
+          "closingWeight": "Wastani wa uzito sasa (si lazima)"
+        },
+        "input": {
+          "title": "Chakula / Dawa",
+          "type": "Aina",
+          "reason": "Sababu (mf. matibabu ya)",
+          "store": "Stoo",
+          "addItem": "Ongeza bidhaa",
+          "product": "Bidhaa",
+          "unit": "Kipimo",
+          "removeItem": "Ondoa bidhaa",
+          "help": "Bidhaa hutolewa kwa gharama yake ya wastani na kutozwa kundi. Lazima ziwe chini ya kituo cha gharama cha shamba."
+        },
+        "expense": {
+          "title": "Ongeza Gharama kwa Kundi",
+          "ledger": "Leja ambamo gharama ipo",
+          "quantity": "Kiasi",
+          "rate": "Bei",
+          "total": "Jumla",
+          "help": "Huhamisha gharama iliyokwisha andikwa kwenye leja nyingine (kazi, umeme, ununuzi wa vifaranga, ...) hadi kwenye kundi."
+        },
+        "writeOff": {
+          "title": "Futa Vifo Visivyo vya Kawaida",
+          "lossLedger": "Leja ya hasara",
+          "nothing": "Hakuna vifo visivyo vya kawaida vya kufuta.",
+          "summary": "{quantity} {animals} zaidi ya vifo vinavyoruhusiwa, kwa {rate} kila mmoja",
+          "total": "Hasara ya kufuta",
+          "balance": "Gharama kwenye WIP kabla ya kufuta",
+          "help": "Hasara za kawaida zinabaki kwenye gharama ya walionusurika. Hii huondoa ziada tu, kama hasara."
+        },
+        "produce": {
+          "title": "Kusanya mazao",
+          "help": "Mazao huingia stoo kwa gharama ya kuendesha kundi tangu ukusanyaji wa mwisho pamoja na uchakavu wake. {animals} hubaki kwenye kundi.",
+          "product": "Bidhaa iliyokusanywa",
+          "store": "Stoo",
+          "quantity": "Kiasi kilichokusanywa (kwa kipimo cha bidhaa)",
+          "costTitle": "Gharama ya ukusanyaji huu",
+          "running": "Gharama za uendeshaji (chakula, dawa, gharama zilizoongezwa)",
+          "depreciation": "Uchakavu (siku {days})",
+          "total": "Gharama ya mazao",
+          "perUnit": "Gharama kwa kipimo",
+          "carried": "Thamani ya wanyama kabla ya ukusanyaji huu",
+          "fullyDepreciated": "Muda wa matumizi umekwisha: hakuna uchakavu zaidi.",
+          "editTitle": "Sahihisha rekodi ya mazao",
+          "recalculated": "Gharama inakokotolewa upya unapohifadhi, kutokana na kundi bila rekodi hii."
+        },
+        "harvest": {
+          "title": "Vuna",
+          "fish": "{Animals} waliovunwa",
+          "product": "Bidhaa inayopokelewa",
+          "store": "Stoo",
+          "weight": "Kiasi kinachopokelewa (kwa kipimo cha bidhaa)",
+          "help": "Gharama ya kundi kwa {animals} hawa inahamia stooni. Kuvuna wote waliobaki hufunga kundi.",
+          "blocked": "Futa kwanza vifo visivyo vya kawaida.",
+          "editTitle": "Sahihisha mavuno"
+        },
+        "close": {
+          "title": "Funga Kundi",
+          "lossLedger": "Leja ya hasara (kwa gharama iliyobaki)",
+          "help": "Hufunga kundi lisilo na {animals} waliobaki. Gharama yoyote iliyobaki kwenye WIP hufutwa kama hasara.",
+          "fishLeft": "{animals} {count} bado wako hai. Wavune kabla ya kufunga kundi."
+        },
+        "confirmDeleteInput": "Ondoa pembejeo hii na kurudisha bidhaa zake?",
+        "confirmDeleteExpense": "Ondoa gharama hii kwenye kundi?",
+        "confirmDeleteHarvest": "Futa mavuno haya? Wanyama wake wanarudi kwenye kundi, stoo yake inatolewa na gharama yake inarudi kwenye kundi. Haiwezekani kama stoo imetumika au kuuzwa.",
+        "confirmDeleteProduce": "Futa rekodi hii ya mazao? Stoo yake inatolewa na gharama yake inarudi kwenye kundi. Haiwezekani kama stoo imetumika au kuuzwa."
+      },
+      "messages": {
+        "deleteContent": "Futa kundi hili? Inawezekana tu kama hakuna kilichorekodiwa kwake."
+      },
+      "validation": {
+        "templateRequired": "Chagua spishi",
+        "farmRequired": "Chagua shamba",
+        "unitRequired": "Chagua kitengo cha uzalishaji",
+        "quantityRequired": "Weka namba nzima zaidi ya sifuri",
+        "dateRequired": "Weka tarehe",
+        "numberInvalid": "Weka namba zaidi ya sifuri",
+        "itemsRequired": "Ongeza angalau bidhaa moja",
+        "storeRequired": "Chagua stoo",
+        "productRequired": "Chagua bidhaa",
+        "unitOfMeasureRequired": "Chagua kipimo",
+        "ledgerRequired": "Chagua leja",
+        "tooMany": "Zaidi ya walio hai"
+      },
+      "searchPlaceholder": "Tafuta kwa namba ya kundi"
+    },
+    "rounds": {
+      "titles": {
+        "measurement": "Vipimo",
+        "harvest": "Mavuno",
+        "produce": "Mazao",
+        "cost": "Gharama",
+        "feeding": "Ulishaji na Dawa",
+        "mortality": "Vifo",
+        "weighing": "Sampuli za Uzito"
+      },
+      "edit": {
+        "measurement": "Hariri {recordNo}",
+        "harvest": "Hariri {recordNo}",
+        "produce": "Hariri {recordNo}",
+        "cost": "Hariri {recordNo}",
+        "feeding": "Hariri {recordNo}",
+        "mortality": "Hariri {recordNo}",
+        "weighing": "Hariri {recordNo}"
+      },
+      "new": {
+        "measurement": "Rekodi Mpya ya Vipimo",
+        "harvest": "Rekodi Mpya ya Mavuno",
+        "produce": "Rekodi Mpya ya Mazao",
+        "cost": "Rekodi Mpya ya Gharama",
+        "feeding": "Rekodi Mpya ya Ulishaji",
+        "mortality": "Rekodi Mpya ya Vifo",
+        "weighing": "Rekodi Mpya ya Sampuli za Uzito"
+      },
+      "searchPlaceholder": "Tafuta kwa namba ya rekodi",
+      "labels": {
+        "from": "Kuanzia",
+        "to": "Hadi",
+        "dateTime": "Tarehe na saa",
+        "measuredAt": "Tarehe na saa",
+        "parameters": "Vigezo vilivyopimwa",
+        "findUnit": "Tafuta kitengo",
+        "parameter": "Kigezo",
+        "value": "Thamani",
+        "reading": "Kipimo",
+        "time": "Saa",
+        "harvested": "Vilivyovunwa",
+        "received": "Kiasi kilichopokelewa",
+        "collected": "Kiasi kilichokusanywa",
+        "payNow": "Lipa sasa",
+        "payFrom": "Lipa kutoka akaunti",
+        "paymentReference": "Kumbukumbu ya malipo",
+        "payment": "Malipo",
+        "ledger": "Leja ambayo gharama ipo",
+        "rate": "Kiwango",
+        "rateOverride": "Kiwango (kama tofauti)",
+        "amount": "Kiasi",
+        "costNote": "Maelezo",
+        "farm": "Shamba",
+        "date": "Tarehe",
+        "type": "Aina",
+        "reason": "Sababu (mf. matibabu ya)",
+        "store": "Stoo",
+        "product": "Bidhaa",
+        "unit": "Kipimo",
+        "causeAll": "Sababu kwa mistari yote (si lazima)",
+        "productionUnit": "Kitengo cha uzalishaji",
+        "quantity": "Kiasi",
+        "died": "Waliokufa",
+        "cause": "Sababu",
+        "sampleSize": "Idadi iliyopimwa",
+        "averageWeight": "Wastani wa uzito",
+        "batch": "Kundi",
+        "stage": "Hatua",
+        "alive": "Walio hai",
+        "cost": "Gharama",
+        "recordNo": "Rekodi",
+        "creator": "Imerekodiwa na",
+        "lines": "Mistari",
+        "summary": "Muhtasari",
+        "available": "Stoo iliyopo",
+        "thisRecord": "Rekodi hii",
+        "remaining": "Kinachobaki",
+        "stockFor": "Stoo iliyopo kwa shamba hili"
+      },
+      "summary": {
+        "measurement": "Vipimo {count} vimechukuliwa",
+        "harvest": "{product}: {quantity} imepokelewa kutoka vitengo {count}",
+        "produce": "{product}: {quantity} imekusanywa kutoka vitengo {count}",
+        "cost": "{quantity} zimewekwa kwenye vitengo {count}",
+        "feeding": "{product}: {quantity} {unit} kwa vitengo {count}",
+        "mortality": "{quantity} wamekufa katika vitengo {count}",
+        "weighing": "Vitengo {count} vimepimwa"
+      },
+      "messages": {
+        "measureOnlyWhatYouTook": "Andika ulichopima tu; acha vigezo vingine wazi.",
+        "chooseParameters": "Chagua vigezo ulivyopima. Kadi inaonekana kwa kila kitengo vinavyohusika.",
+        "readingsSummary": "Vipimo {readings} kwenye vitengo {units}",
+        "noUnitsForParameters": "Hakuna kitengo cha shamba hili kinachopimwa kwa vigezo vilivyochaguliwa.",
+        "needBothHarvest": "Weka idadi kamili iliyovunwa na kiasi kilichopokelewa",
+        "paidEdit": "Rekodi hii ina malipo ({voucherNo}). Kuhifadhi kunabadilisha malipo pamoja nayo; zima Lipa sasa ili kufuta malipo.",
+        "paidNoRights": "Rekodi hii ina malipo ({voucherNo}). Ni wanaoruhusiwa kufanya malipo tu wanaoweza kuibadilisha.",
+        "deletePaid": "Malipo {paymentNo} yaliyofanywa kwa ajili yake yanafutwa pia.",
+        "payNowHelp": "Hufanya malipo rekodi inapohifadhiwa: fedha zinatoka kwenye akaunti unayochagua na kulipa leja ambayo gharama ziliwekwa. Wanaoruhusiwa kufanya malipo tu ndio wanaona hili. Malipo hufanyika pamoja na rekodi, hivyo mstari ukikataliwa hakuna kinachohifadhiwa.",
+        "needPositive": "Weka nambari kubwa kuliko sifuri",
+        "noItems": "Ongeza angalau kitengo kimoja cha uzalishaji.",
+        "add": "Ongeza",
+        "edit": "Hariri mstari huu",
+        "remove": "Ondoa mstari huu",
+        "added": "Imeongezwa",
+        "partlyUsed": "tayari kwenye rekodi hii",
+        "total": "Vitengo {count}",
+        "totalQuantity": "Vitengo {count} · {quantity}",
+        "overLive": "Zaidi ya walio hai",
+        "needWholeNumber": "Weka namba nzima",
+        "needBoth": "Weka idadi iliyopimwa na wastani wa uzito",
+        "nothingSaved": "Hakuna kilichohifadhiwa. Rekebisha mistari iliyotiwa alama hapa chini na uhifadhi tena.",
+        "completeHeader": "Kamilisha maelezo ya juu kwanza.",
+        "unsaved": {
+          "title": "Mstari haujaongezwa",
+          "message": "Umeanza mstari lakini haujauongeza kwenye rekodi.",
+          "addAndSave": "Uongeze na uhifadhi",
+          "saveWithout": "Hifadhi bila huo"
+        },
+        "deleteTitle": "Futa rekodi hii?",
+        "deleteContent": "Kilichorekodiwa kinarudishwa nyuma: chakula kinarudi stooni na vifo vilivyorekodiwa vinarejeshwa. Haiwezekani kama kundi limeendelea hatua au limefungwa.",
+        "view": "Tazama",
+        "viewTitle": "{recordNo}",
+        "close": "Funga",
+        "exportPdf": "Hamisha kwa PDF",
+        "exportExcel": "Hamisha kwa Excel",
+        "backToRecord": "Rudi kwenye rekodi",
+        "printedBy": "Imechapishwa na",
+        "printedOn": "Imechapishwa tarehe",
+        "refusedRows": "Baadhi ya mistari haikuweza kurudishwa nyuma",
+        "exceedsStock": "Ni {remaining} {unit} tu za stoo zinazobaki kwa shamba hili",
+        "noStock": "Hakuna stoo ya bidhaa hii kwa shamba hili katika stoo hii",
+        "laterMovements": "Miamala ya baadaye inapunguza kinachoweza kutolewa tarehe hii",
+        "over": "Rekodi hii inatumia zaidi ya kilichopo",
+        "lineHeader": "Ongeza kitengo"
+      },
+      "sections": {
+        "details": "Maelezo",
+        "lines": {
+          "measurement": "Vitengo vilivyopimwa",
+          "harvest": "Vitengo vilivyovunwa",
+          "produce": "Vitengo vilivyokusanywa",
+          "cost": "Vitengo vinavyotozwa",
+          "feeding": "Vitengo vilivyolishwa",
+          "mortality": "Vitengo vyenye vifo",
+          "weighing": "Vitengo vilivyopimwa"
+        }
+      }
+    },
+    "farmFirst": {
+      "label": "Shamba",
+      "choose": "Chagua shamba ili uendelee.",
+      "noFarms": "Bado hujapewa ufikiaji wa shamba lolote. Mwombe msimamizi wako akuongeze kwenye shamba."
+    }
+  }
+}

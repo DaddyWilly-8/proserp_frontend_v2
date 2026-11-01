@@ -11,6 +11,7 @@ import type ProductsDictionary from './en/product/products.json';
 import type Assets from './en/assets/assets.json';
 import type AssetBookings from './en/assetBookings/assetBookings.json';
 import type RecurringTransactions from './en/recurringTransactions/recurringTransactions.json';
+import type BioProduction from './en/bioProduction/bioProduction.json';
 import type HumanResourcesEmployeeProfileSections from './en/humanResources/employeeProfileSections.json';
 import type HumanResourcesEmployees from './en/humanResources/employees.json';
 import type HumanResourcesLoansAndDeductions from './en/humanResources/loansAndDeductions.json';
@@ -54,7 +55,8 @@ export type Dictionary = typeof Main &
   } &
   typeof Assets &
   typeof AssetBookings &
-  typeof RecurringTransactions & {
+  typeof RecurringTransactions &
+  typeof BioProduction & {
     humanResources: typeof HumanResourcesEmployeeProfileSections &
       typeof HumanResourcesEmployees &
       typeof HumanResourcesLoansAndDeductions &
