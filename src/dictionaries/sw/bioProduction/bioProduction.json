@@ -221,7 +221,8 @@
         "watch": "Angalia",
         "critical": "Hatari",
         "harvestSeries": "Vilivyovunwa",
-        "produceSeries": "Mazao yaliyokusanywa"
+        "produceSeries": "Mazao yaliyokusanywa",
+        "loadFailed": "Chati hii haikuweza kupakiwa."
       },
       "occupancy": {
         "title": "Vitengo vinavyotumika",
@@ -249,6 +250,16 @@
           "thisMonth": "Mwezi huu",
           "thisYear": "Mwaka huu"
         }
+      },
+      "empty": {
+        "title": "Bado hakuna shamba la kuonyesha",
+        "text": "Dashibodi huonyesha mashamba unayofanyia kazi. Unda shamba, au muombe msimamizi akuongeze kama mtumiaji wa shamba.",
+        "action": "Nenda kwenye Mashamba",
+        "askAdmin": "Bado wewe si mtumiaji wa shamba lolote. Muombe msimamizi akuongeze kwenye shamba."
+      },
+      "error": {
+        "title": "Dashibodi haikuweza kupakiwa",
+        "retry": "Jaribu tena"
       }
     },
     "speciesTemplates": {

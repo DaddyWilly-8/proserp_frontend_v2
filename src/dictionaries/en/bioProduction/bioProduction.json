@@ -221,7 +221,8 @@
         "watch": "Watch",
         "critical": "Critical",
         "harvestSeries": "Harvested",
-        "produceSeries": "Produce collected"
+        "produceSeries": "Produce collected",
+        "loadFailed": "This chart could not be loaded."
       },
       "occupancy": {
         "title": "Units in use",
@@ -249,6 +250,16 @@
           "thisMonth": "This month",
           "thisYear": "This year"
         }
+      },
+      "empty": {
+        "title": "There is no farm to show yet",
+        "text": "The dashboard shows the farms you work on. Create a farm, or ask an administrator to add you as a user of one.",
+        "action": "Go to Farms",
+        "askAdmin": "You are not a user of any farm yet. Ask an administrator to add you to a farm."
+      },
+      "error": {
+        "title": "The dashboard could not be loaded",
+        "retry": "Try again"
       }
     },
     "speciesTemplates": {
