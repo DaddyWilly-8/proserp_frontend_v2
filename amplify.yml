@@ -13,6 +13,13 @@ frontend:
         # NextAuth/API routes can read them.
         - env | grep -E '^(NEXTAUTH_|API_BASE_URL|SMS_|NEXTSMS_|NEXT_PUBLIC_|UPLOADS_)' >> .env.production || true
         - yarn run build
+    postBuild:
+      commands:
+        # Amplify caps the deployed output at 220MiB. None of these are needed
+        # at runtime: the webpack cache (~2GB), build trace and generated
+        # types, and the native SWC compilers (build-only, ~100MB+ each).
+        - rm -rf .next/cache .next/trace .next/types
+        - rm -rf node_modules/@next/swc-linux-* node_modules/@swc/core-linux-*
   artifacts:
     baseDirectory: .next
     files:
