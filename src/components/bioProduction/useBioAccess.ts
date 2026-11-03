@@ -36,12 +36,6 @@ export const useBioAccess = () => {
   return {
     dashboard: has(PERMISSIONS.BIO_DASHBOARD_READ),
     reports: has(PERMISSIONS.BIO_REPORTS_READ),
-    /** Shared costs post to the ledger, so they have their own permissions. */
-    sharedCosts: {
-      read: has(PERMISSIONS.BIO_SHARED_COSTS_READ, PERMISSIONS.BIO_SHARED_COSTS_CREATE, PERMISSIONS.BIO_SHARED_COSTS_DELETE),
-      create: has(PERMISSIONS.BIO_SHARED_COSTS_CREATE),
-      delete: has(PERMISSIONS.BIO_SHARED_COSTS_DELETE),
-    },
     /** Any permission of the module at all. */
     any: Object.values(PERMISSIONS).some((name) => name.startsWith('Bio') && has(name)),
     master: (master: BioMaster) => ({

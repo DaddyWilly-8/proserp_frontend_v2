@@ -13,22 +13,6 @@ export interface BioFarm {
   output_categories?: { id: number; name: string }[];
 }
 
-export interface BioSharedCost {
-  id: number;
-  farm_id: number;
-  unit_group_id?: number | null;
-  expense_date: string;
-  ledger_id: number;
-  amount: number | string;
-  basis: 'equal' | 'animals' | 'biomass' | 'feed';
-  remarks?: string | null;
-  expenses_count?: number;
-  payment?: { id: number; voucherNo: string; reference?: string | null; credit_ledger?: { id: number; name: string } | null } | null;
-  farm?: { id: number; name: string } | null;
-  ledger?: { id: number; name: string } | null;
-  unit_group?: { id: number; path?: string } | null;
-}
-
 export interface BioUnitGroup {
   id: number;
   farm_id: number;

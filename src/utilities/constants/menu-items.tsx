@@ -259,12 +259,6 @@ export async function getMenus(locale: string) {
               type: 'nav-item',
               icon: icon('measurementsRound'),
             },
-            {
-              uri: `/${locale}/bioProduction/sharedCosts`,
-              label: sidebar.menuItem.sharedCosts,
-              type: 'nav-item',
-              icon: icon('sharedCosts'),
-            },
           ],
         },
         {

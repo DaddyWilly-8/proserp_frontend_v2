@@ -30,12 +30,6 @@ export const reportServices = {
   excel: async (report, params) => (await axios.post(`/api/bioProduction/reports/${report}`, params, { responseType: 'blob' })).data,
 };
 
-export const sharedCostServices = {
-  ...crud('/api/bioProduction/sharedCosts'),
-  preview: async (payload) => (await axios.post('/api/bioProduction/sharedCosts/preview', payload)).data,
-  pay: async (id, payload) => (await axios.post(`/api/bioProduction/sharedCosts/${id}/payment`, payload)).data,
-};
-
 export const unitGroupServices = crud('/api/bioProduction/unitGroups');
 export const productionUnitServices = {
   ...crud('/api/bioProduction/productionUnits'),
@@ -94,6 +88,8 @@ export const dashboardServices = {
 const roundPath = '/api/bioProduction/rounds';
 
 export const roundServices = {
+  /** How an amount would be shared over the open batches of a farm or group; nothing is saved. */
+  spreadCost: (payload) => post(`${roundPath}/costs/spread`, payload),
   getList: async (params = {}) => {
     const { page = 1, limit = 10, ...queryParams } = params;
 

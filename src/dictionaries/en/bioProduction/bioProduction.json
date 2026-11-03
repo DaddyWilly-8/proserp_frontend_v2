@@ -929,78 +929,28 @@
           "mortality": "Units with deaths",
           "weighing": "Units weighed"
         }
+      },
+      "spread": {
+        "title": "Spread an amount over the batches",
+        "help": "Fills the lines below from one amount, such as boat fuel, shared over the open batches that have animals on the date of this record: all farm, or only a group and the groups inside it. Equally per cage: every unit takes the same, and a unit with several batches divides its part. By animals alive: more animals, more cost. By biomass: animals alive times their last sampled weight. By feed given: by the cost of feed given in the last days. Nothing is saved until you save the record, and you can change any line first.",
+        "amount": "Amount to spread",
+        "group": "Group (empty for the whole farm)",
+        "basis": "Spread",
+        "feedDays": "Days of feed",
+        "button": "Fill the lines",
+        "filled": "{count} lines filled, {total} in all. Change any line before saving.",
+        "bases": {
+          "equal": "Equally per cage",
+          "animals": "By animals alive",
+          "biomass": "By biomass",
+          "feed": "By feed given"
+        }
       }
     },
     "farmFirst": {
       "label": "Farm",
       "choose": "Choose a farm to continue.",
       "noFarms": "You have not been given access to any farm yet. Ask your administrator to add you to one."
-    },
-    "sharedCosts": {
-      "pageTitle": "Shared Costs",
-      "new": "New Shared Cost",
-      "newTitle": "New Shared Cost",
-      "searchPlaceholder": "Search by note",
-      "wholeFarm": "Whole farm",
-      "batchesCount": "{count} batches",
-      "viewShares": "See who took a share",
-      "sharesTitle": "Shares of {ledger}",
-      "labels": {
-        "farm": "Farm",
-        "group": "Group",
-        "date": "Date and time",
-        "ledger": "Ledger",
-        "amount": "Amount",
-        "basis": "Spread",
-        "feedDays": "Days of feed",
-        "remarks": "Note",
-        "payNow": "Pay now",
-        "payFrom": "Pay from account",
-        "paymentReference": "Payment reference"
-      },
-      "placeholders": {
-        "remarks": "e.g. Boat fuel, week 44"
-      },
-      "basis": {
-        "equal": "Equally per cage",
-        "animals": "By animals alive",
-        "biomass": "By biomass",
-        "feed": "By feed given"
-      },
-      "help": {
-        "group": "Where the cost applies. Leave empty for the whole farm, or choose a group (for example Line 3) to spread it over that group and the groups inside it only.",
-        "basis": "How the amount is shared. Equally per cage: every unit that holds animals takes the same, and a unit with several batches divides its part. By animals alive: more animals, more cost. By biomass: animals alive times their last sampled weight. By feed given: by the cost of feed given in the last days. Only open batches that have animals on that date take a share.",
-        "feedDays": "How many days of feed, up to the date, are compared.",
-        "payNow": "Posts a payment as the cost is made: money leaves the account you choose and settles the ledger the cost was booked to. Only people who may post payments see this. The payment is made with the shared cost, so if a share is refused neither is saved."
-      },
-      "buttons": {
-        "preview": "Preview",
-        "spread": "Spread the cost",
-        "postPayment": "Post payment",
-        "pay": "Post payment"
-      },
-      "preview": {
-        "title": "This cost would be shared by {count} batches",
-        "batch": "Batch",
-        "unit": "Unit",
-        "animals": "Animals",
-        "share": "Share",
-        "amount": "Amount",
-        "total": "Total"
-      },
-      "messages": {
-        "deleteContent": "Remove this shared cost and every share of it from the batches? The journals are reversed."
-      },
-      "validation": {
-        "farmRequired": "Choose a farm",
-        "dateRequired": "Choose the date and time",
-        "ledgerRequired": "Choose the ledger the cost sits in",
-        "amountInvalid": "Enter an amount above zero"
-      },
-      "paid": "Paid",
-      "paidFrom": "Paid from {ledger}",
-      "payTitle": "Post the payment",
-      "payHelp": "Pays {amount} from the account you choose, settling the ledger {ledger} that the cost was booked to."
     }
   }
 }

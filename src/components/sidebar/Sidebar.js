@@ -363,7 +363,6 @@ function Sidebar({ menus }) {
                     if (uri.endsWith('/bioProduction/dashboard')) return [PERMISSIONS.BIO_DASHBOARD_READ];
                     if (uri.endsWith('/bioProduction/batches')) return [PERMISSIONS.BIO_BATCHES_READ];
                     if (uri.endsWith('/bioProduction/reports')) return [PERMISSIONS.BIO_REPORTS_READ];
-                    if (uri.endsWith('/bioProduction/sharedCosts')) return [PERMISSIONS.BIO_SHARED_COSTS_READ, PERMISSIONS.BIO_SHARED_COSTS_CREATE, PERMISSIONS.BIO_SHARED_COSTS_DELETE];
                     if (uri.includes('/bioProduction/rounds/')) return [PERMISSIONS.BIO_RECORDS_READ];
                     const master = Object.keys(bioMasters).find(key => uri.endsWith(`/bioProduction/${key}`));
                     return master ? bioMasters[master] : null;

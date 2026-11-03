@@ -48,6 +48,7 @@ import { roundServices } from '../bio-production-services';
 import { BioFormProps } from '../types';
 import { nowStamp } from '../dateTime';
 import { BIO_WIP_LEDGER_ID } from '../batches/batchConstants';
+import { unitGroupOptions, useUnitGroups } from '../useUnitGroups';
 import { BatchRoundMode, RoundBatchRow, RoundDraftLine, RoundRecord } from './roundTypes';
 import LineTable, { LineColumn } from './LineTable';
 import { useAvailableStock } from './useAvailableStock';
@@ -115,6 +116,12 @@ const RoundFormBody = ({ mode, setOpenDialog, record = null, savedProduct = null
   const [rate, setRate] = useState(record?.rate != null ? String(Number(record.rate)) : '');
   // A cost line is usually for one of something, so that is what a new line starts with.
   const freshDraft = (): Draft => ({ ...emptyDraft, quantity: mode === 'cost' ? '1' : '' });
+  // A cost can be spread over the open batches of a farm or group, which fills the lines below.
+  const [spreadAmount, setSpreadAmount] = useState('');
+  const [spreadGroup, setSpreadGroup] = useState<string | number>('');
+  const [spreadBasis, setSpreadBasis] = useState<string | number>('equal');
+  const [spreadDays, setSpreadDays] = useState('30');
+  const { data: spreadGroups } = useUnitGroups(mode === 'cost' ? farmId : null);
   const [items, setItems] = useState<RoundDraftLine[]>([]);
   const [draft, setDraft] = useState<Draft>(freshDraft);
   const [rowErrors, setRowErrors] = useState<Record<number, string>>({});
@@ -221,6 +228,26 @@ const RoundFormBody = ({ mode, setOpenDialog, record = null, savedProduct = null
   const draftRow = batches.find((row) => row.batch_id === draft.batchId);
   const draftState = draftRow ? assess(draftRow, draft) : { complete: false };
   const draftDirty = draft.batchId !== '' || (mode !== 'cost' && filled(draft.quantity)) || filled(draft.product_quantity) || filled(draft.sample_size) || filled(draft.average_weight_g);
+
+  const { mutate: spreadCost, isPending: spreading } = useMutation({
+    mutationFn: () => roundServices.spreadCost({
+      farm_id: farmId, unit_group_id: spreadGroup || null, expense_date: date, amount: Number(spreadAmount), basis: spreadBasis, feed_days: spreadBasis === 'feed' ? Number(spreadDays) || 30 : null,
+    }),
+    onSuccess: (data: { rows: { batch_id: number; amount: number }[]; total: number }) => {
+      // Every share is one line of one, at its own amount: the sheet is then saved like any cost record, and any line can be changed first.
+      const lines = data.rows.flatMap((share) => {
+        const row = batches.find((batch) => batch.batch_id === share.batch_id);
+
+        return row ? [{ row, quantity: '1', rate: String(share.amount) } as RoundDraftLine] : [];
+      });
+      setItems(lines);
+      setDraft(freshDraft());
+      setRowErrors({});
+      if (!rate) setRate(String(data.total));
+      enqueueSnackbar(text.spread.filled.replace('{count}', String(lines.length)).replace('{total}', data.total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })), { variant: 'success' });
+    },
+    onError: (error) => enqueueSnackbar(getErrorMessage(error), { variant: 'error' }),
+  });
 
   const addLine = (): RoundDraftLine[] | null => {
     if (!draftRow || !draftState.complete) return null;
@@ -520,6 +547,33 @@ const RoundFormBody = ({ mode, setOpenDialog, record = null, savedProduct = null
               </Grid>
               <Grid size={12}>
                 <TextField size='small' fullWidth label={text.labels.costNote} value={reason} onChange={(event) => setReason(event.target.value)} />
+              </Grid>
+              <Grid size={12}>
+                <Box sx={{ border: 1, borderColor: 'divider', borderRadius: 1, p: 1.5 }}>
+                  <Stack direction='row' alignItems='center' spacing={0.5} sx={{ mb: 1 }}>
+                    <Typography variant='subtitle2'>{text.spread.title}</Typography>
+                    <InfoHint text={text.spread.help} />
+                  </Stack>
+                  <Grid container spacing={1.5} alignItems='center'>
+                    <Grid size={{ xs: 12, md: 3 }}>
+                      <TextField size='small' fullWidth label={text.spread.amount} value={spreadAmount} onChange={(event) => setSpreadAmount(unformatted(event.target.value))} InputProps={formattedInput} />
+                    </Grid>
+                    <Grid size={{ xs: 12, md: 3 }}>
+                      <BioSelect label={text.spread.group} options={unitGroupOptions(spreadGroups?.data)} value={spreadGroup} onChange={setSpreadGroup} />
+                    </Grid>
+                    <Grid size={{ xs: 12, md: spreadBasis === 'feed' ? 2 : 4 }}>
+                      <BioSelect label={text.spread.basis} options={(['equal', 'animals', 'biomass', 'feed'] as const).map((value) => ({ value, label: text.spread.bases[value] }))} value={spreadBasis} onChange={setSpreadBasis} />
+                    </Grid>
+                    {spreadBasis === 'feed' && (
+                      <Grid size={{ xs: 6, md: 2 }}>
+                        <TextField size='small' fullWidth label={text.spread.feedDays} value={spreadDays} onChange={(event) => setSpreadDays(unformatted(event.target.value))} InputProps={formattedInput} />
+                      </Grid>
+                    )}
+                    <Grid size={{ xs: 12, md: 'auto' }}>
+                      <LoadingButton size='small' variant='outlined' loading={spreading} disabled={!(Number(spreadAmount) > 0) || !date} onClick={() => spreadCost()}>{text.spread.button}</LoadingButton>
+                    </Grid>
+                  </Grid>
+                </Box>
               </Grid>
               {record?.payment && (
                 <Grid size={12}>

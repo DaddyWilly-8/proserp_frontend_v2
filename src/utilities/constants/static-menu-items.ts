@@ -32,7 +32,6 @@ export const staticMenuItems = [
   { label: 'Bio Production Dashboard', uri: '/en-US/bioProduction/dashboard' },
   { label: 'Production Units', uri: '/en-US/bioProduction/productionUnits' },
   { label: 'Unit Groups', uri: '/en-US/bioProduction/unitGroups' },
-  { label: 'Shared Costs', uri: '/en-US/bioProduction/sharedCosts' },
   { label: 'Bio Production Reports', uri: '/en-US/bioProduction/reports' },
   { label: 'Species Templates', uri: '/en-US/bioProduction/speciesTemplates' },
   { label: 'Projects', uri: '/en-US/projectManagement/projects' },
