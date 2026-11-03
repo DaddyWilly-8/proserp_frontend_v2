@@ -3,7 +3,7 @@
 import React from 'react';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { Grid, TextField, Typography } from '@mui/material';
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import * as yup from 'yup';
 import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import LedgerSelect from '@/components/accounts/ledgers/forms/LedgerSelect';
@@ -11,7 +11,9 @@ import { batchServices } from '../../bio-production-services';
 import { DialogProps } from '../batchTypes';
 import ActionDialog, { FormDate, useBatchAction } from './ActionDialog';
 import { nowStamp } from '../../dateTime';
+import NumberField from '../../NumberField';
 import { BIO_WIP_LEDGER_ID } from '../batchConstants';
+import { FormNumber } from '../../NumberField';
 
 const ExpenseDialog = ({ batch, open, onClose }: DialogProps) => {
   const text = useDictionary().bioProduction.batches;
@@ -39,6 +41,7 @@ const ExpenseDialog = ({ batch, open, onClose }: DialogProps) => {
         <Grid size={{ xs: 12, md: 8 }}>
           <LedgerSelect
             label={dialog.ledger}
+            allowedGroups={['Expenses']}
             notAllowedLedgers={[BIO_WIP_LEDGER_ID]}
             frontError={errors.ledger_id as any}
             onChange={(ledger: any) => setValue('ledger_id', ledger?.id ?? null, { shouldValidate: true })}
@@ -48,12 +51,12 @@ const ExpenseDialog = ({ batch, open, onClose }: DialogProps) => {
           <FormDate control={control} name='expense_date' label={text.labels.date} minDate={batch.start_date} />
         </Grid>
         <Grid size={{ xs: 6, md: 4 }}>
-          <TextField type='number' size='small' fullWidth label={dialog.quantity} error={!!errors.quantity}
-            slotProps={{ htmlInput: { step: 'any' } }} helperText={errors.quantity?.message as string} {...register('quantity')} />
+          <FormNumber control={control} name='quantity' label={dialog.quantity} error={!!errors.quantity} helperText={errors.quantity?.message as string} />
         </Grid>
         <Grid size={{ xs: 6, md: 4 }}>
-          <TextField type='number' size='small' fullWidth label={dialog.rate} error={!!errors.rate}
-            slotProps={{ htmlInput: { step: 'any' } }} helperText={errors.rate?.message as string} {...register('rate')} />
+          <Controller name='rate' control={control} render={({ field }) => (
+            <NumberField label={dialog.rate} error={!!errors.rate} helperText={errors.rate?.message as string} value={field.value} onChange={field.onChange} />
+          )} />
         </Grid>
         <Grid size={{ xs: 12, md: 4 }} alignContent='center'>
           <Typography variant='body2' color='text.secondary'>{dialog.total}</Typography>

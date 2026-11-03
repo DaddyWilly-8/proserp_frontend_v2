@@ -164,7 +164,7 @@ const PERMISSION_MODULES: PermissionModuleConfig[] = [
   {
     key: 'bio_production',
     displayName: MODULES.BIO_PRODUCTION,
-    prefixes: ['BioDashboard', 'BioFarms', 'BioProductionUnits', 'BioSpeciesTemplates', 'BioMeasurementParameters', 'BioBatches', 'BioRecords'],
+    prefixes: ['BioDashboard', 'BioFarms', 'BioProductionUnits', 'BioUnitGroups', 'BioSpeciesTemplates', 'BioMeasurementParameters', 'BioBatches', 'BioRecords', 'BioReports', 'BioSharedCosts'],
   },
   {
     key: 'project_management',

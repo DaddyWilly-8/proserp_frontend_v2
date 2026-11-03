@@ -7,7 +7,7 @@ import { AddOutlined, DeleteOutlined } from '@mui/icons-material';
 import { Autocomplete, Box, Button, DialogActions, DialogContent, DialogTitle, Grid, IconButton, LinearProgress, Stack, TextField, Tooltip, Typography } from '@mui/material';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useSnackbar } from 'notistack';
-import { Controller, useForm } from 'react-hook-form';
+import { Controller, useForm, useWatch } from 'react-hook-form';
 import * as yup from 'yup';
 import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import BioSelect, { useStatusOptions } from '../BioSelect';
@@ -15,12 +15,15 @@ import { getErrorMessage } from '@/utilities/helpers/errorHandler';
 import InfoHint from '../InfoHint';
 import MeasurementSelector from '@/components/masters/measurementUnits/MeasurementSelector';
 import { farmServices, productionUnitServices, speciesTemplateServices } from '../bio-production-services';
+import { unitGroupOptions, useUnitGroups } from '../useUnitGroups';
 import { BioFarm, BioFormProps, BioProductionUnit, BioSpeciesTemplate } from '../types';
+import { FormNumber } from '../NumberField';
 
 const UNIT_TYPES = ['pond', 'cage', 'tank', 'house', 'pen'] as const;
 
 interface UnitFormData {
   farm_id: number | '';
+  unit_group_id?: number | '' | null;
   name: string;
   type: (typeof UNIT_TYPES)[number] | '';
   capacity?: number | null;
@@ -56,6 +59,7 @@ const ProductionUnitForm = ({ setOpenDialog, item: unit = null }: BioFormProps<B
 
   const validationSchema = yup.object({
     farm_id: yup.number().typeError(text.validation.farmRequired).required(text.validation.farmRequired),
+    unit_group_id: yup.number().nullable().transform((value, original) => (original === '' || original == null ? null : value)),
     name: yup.string().trim().required(text.validation.nameRequired),
     type: yup.string().oneOf([...UNIT_TYPES], text.validation.typeRequired).required(text.validation.typeRequired),
     capacity: yup
@@ -73,11 +77,13 @@ const ProductionUnitForm = ({ setOpenDialog, item: unit = null }: BioFormProps<B
     register,
     handleSubmit,
     control,
+    setValue,
     formState: { errors },
   } = useForm<UnitFormData>({
     resolver: yupResolver(validationSchema) as any,
     defaultValues: {
       farm_id: unit?.farm_id ?? '',
+      unit_group_id: unit?.unit_group?.id ?? unit?.unit_group_id ?? '',
       name: unit?.name ?? '',
       type: unit?.type ?? '',
       capacity: unit?.capacity != null && unit.capacity !== '' ? Number(unit.capacity) : null,
@@ -87,16 +93,20 @@ const ProductionUnitForm = ({ setOpenDialog, item: unit = null }: BioFormProps<B
     },
   });
 
+  const farmId = useWatch({ control, name: 'farm_id' });
+  const { data: groups, isLoading: loadingGroups } = useUnitGroups(farmId || null, 'active');
+
   const payload = () => suitability.filter((row) => row.species_template_id !== '').map((row) => ({ species_template_id: row.species_template_id, stages: row.stages }));
 
   const { mutate: save, isPending } = useMutation({
     mutationFn: (data: UnitFormData) =>
-      isEdit ? productionUnitServices.update({ id: unit!.id, ...data, suitability: payload() }) : productionUnitServices.add({ ...data, suitability: payload() }),
+      isEdit ? productionUnitServices.update({ id: unit!.id, ...data, unit_group_id: data.unit_group_id || null, suitability: payload() }) : productionUnitServices.add({ ...data, unit_group_id: data.unit_group_id || null, suitability: payload() }),
     onSuccess: (data) => {
       setOpenDialog(false);
       enqueueSnackbar(data.message, { variant: 'success' });
       queryClient.invalidateQueries({ queryKey: ['bioProductionUnits'] });
       queryClient.invalidateQueries({ queryKey: ['bioFarms'] });
+      queryClient.invalidateQueries({ queryKey: ['bioUnitGroups'] });
     },
     onError: (error) => enqueueSnackbar(getErrorMessage(error), { variant: 'error' }),
   });
@@ -110,16 +120,25 @@ const ProductionUnitForm = ({ setOpenDialog, item: unit = null }: BioFormProps<B
         {loadingFarms && <LinearProgress />}
         <form autoComplete='off' onSubmit={handleSubmit((data) => save(data))}>
           <Grid container spacing={2} mt={0}>
-            <Grid size={{ xs: 12, md: isEdit ? 4 : 6 }}>
+            <Grid size={{ xs: 12, md: isEdit ? 3 : 4 }}>
               <Controller
                 name='farm_id'
                 control={control}
                 render={({ field }) => (
-                  <BioSelect required label={text.labels.farm} loading={loadingFarms} options={(farms?.data ?? []).map((farm) => ({ value: farm.id, label: farm.name }))} value={field.value} onChange={field.onChange} error={!!errors.farm_id} helperText={errors.farm_id?.message} />
+                  <BioSelect required label={text.labels.farm} loading={loadingFarms} options={(farms?.data ?? []).map((farm) => ({ value: farm.id, label: farm.name }))} value={field.value} onChange={(value) => { field.onChange(value); setValue('unit_group_id', ''); }} error={!!errors.farm_id} helperText={errors.farm_id?.message} />
                 )}
               />
             </Grid>
-            <Grid size={{ xs: 12, md: isEdit ? 5 : 6 }}>
+            <Grid size={{ xs: 12, md: isEdit ? 3 : 4 }}>
+              <Controller
+                name='unit_group_id'
+                control={control}
+                render={({ field }) => (
+                  <BioSelect disabled={!farmId} loading={loadingGroups} label={text.labels.group} options={unitGroupOptions(groups?.data)} value={field.value} onChange={field.onChange} />
+                )}
+              />
+            </Grid>
+            <Grid size={{ xs: 12, md: isEdit ? 3 : 4 }}>
               <TextField
                 label={text.labels.name}
                 placeholder={text.placeholders.name}
@@ -151,16 +170,7 @@ const ProductionUnitForm = ({ setOpenDialog, item: unit = null }: BioFormProps<B
               />
             </Grid>
             <Grid size={{ xs: 6, sm: 6, md: 3 }}>
-              <TextField
-                type='number'
-                label={text.labels.capacity}
-                size='small'
-                fullWidth
-                slotProps={{ htmlInput: { min: 0, step: 'any' } }}
-                error={!!errors.capacity}
-                helperText={errors.capacity?.message}
-                {...register('capacity')}
-              />
+              <FormNumber control={control} name='capacity' label={text.labels.capacity} error={!!errors.capacity} helperText={errors.capacity?.message} />
             </Grid>
             <Grid size={{ xs: 6, sm: 6, md: 3 }}>
               <Controller

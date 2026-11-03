@@ -50,6 +50,164 @@
         "outputCategories": "Ni bidhaa za kategoria hizi tu zinazoweza kuvunwa au kukusanywa stoo kutoka shamba hili. Acha wazi kuruhusu bidhaa yoyote."
       }
     },
+    "reports": {
+      "pageTitle": "Ripoti",
+      "cards": {
+        "group-cost": {
+          "title": "Gharama kwa kundi",
+          "description": "Kila kundi la vitengo liligharimu nini na lilizalisha nini, kila kundi likihesabu makundi yaliyo ndani yake."
+        },
+        "batch-performance": {
+          "title": "Utendaji wa makundi ya wanyama",
+          "description": "Mstari mmoja kwa kila kundi: vifo, FCR, uzito, gharama hadi sasa na gharama kwa mnyama. Linganisha makundi na vizimba."
+        },
+        "mortality": {
+          "title": "Vifo",
+          "description": "Vifo kwa kundi la wanyama, kundi la vitengo, kitengo, hatua, sababu au mwezi, vikubwa kwanza. Ona hasara ziko wapi."
+        },
+        "feed": {
+          "title": "Chakula kilichotumika",
+          "description": "Chakula kilichotolewa kwa bidhaa, kundi, kitengo, kundi la wanyama au mwezi, kwa kilo na gharama, pamoja na gharama kwa kilo."
+        },
+        "harvest-output": {
+          "title": "Mavuno na mazao",
+          "description": "Kilichotoka kwenye makundi kwenda stoo: wanyama waliovunwa na mazao yaliyokusanywa, pamoja na gharama na gharama kwa kipimo."
+        }
+      },
+      "filters": {
+        "farm": "Shamba",
+        "from": "Kuanzia",
+        "to": "Hadi",
+        "group": "Kundi",
+        "species": "Spishi",
+        "status": "Hali",
+        "groupBy": "Panga kwa"
+      },
+      "presets": {
+        "last7": "Siku 7 zilizopita",
+        "last30": "Siku 30 zilizopita",
+        "thisMonth": "Mwezi huu",
+        "lastMonth": "Mwezi uliopita",
+        "thisYear": "Mwaka huu"
+      },
+      "status": {
+        "open": "Yaliyo wazi",
+        "closed": "Yaliyofungwa"
+      },
+      "groupBy": {
+        "batch": "Kundi la wanyama",
+        "group": "Kundi la vitengo",
+        "unit": "Kitengo",
+        "stage": "Hatua",
+        "cause": "Sababu",
+        "month": "Mwezi",
+        "product": "Bidhaa"
+      },
+      "run": "Onyesha ripoti",
+      "total": "Jumla",
+      "noData": "Hakuna cha kuonyesha kwa vichujio hivi.",
+      "excelError": "Faili la Excel halikuweza kutengenezwa. Jaribu tena.",
+      "printedBy": "Imechapishwa na",
+      "printedOn": "Imechapishwa tarehe",
+      "columns": {
+        "units": "Vitengo",
+        "batches": "Makundi yaliyo wazi",
+        "animals_alive": "Hai sasa",
+        "feed_cost": "Chakula",
+        "other_input_cost": "Dawa na nyingine",
+        "expense_cost": "Gharama nyingine",
+        "total_cost": "Jumla ya gharama",
+        "cost_per_unit": "Gharama kwa kitengo",
+        "deaths": "Vifo",
+        "harvest_animals": "Waliovunwa",
+        "harvest_quantity": "Kiasi cha mavuno",
+        "fcr": "FCR",
+        "batch": "Kundi",
+        "species": "Spishi",
+        "group": "Kundi la vitengo",
+        "unit": "Kitengo",
+        "stage": "Hatua",
+        "start": "Lilianza",
+        "days": "Siku",
+        "stocked": "Waliowekwa",
+        "alive": "Hai",
+        "mortality_pct": "Vifo %",
+        "weight_g": "Uzito wastani (g)",
+        "feed_kg": "Chakula (kg)",
+        "cost": "Gharama",
+        "cost_per_stocked": "Gharama kwa mnyama aliyewekwa",
+        "harvested": "Waliovunwa",
+        "share": "Sehemu ya vifo vyote",
+        "product": "Chakula",
+        "quantity": "Kiasi",
+        "kg": "Chakula (kg)",
+        "cost_per_kg": "Gharama kwa kilo",
+        "feedings": "Siku za kulisha",
+        "type": "Aina",
+        "animals": "Wanyama waliovunwa"
+      },
+      "notes": {
+        "group-cost": [
+          "Kila kundi linahesabu kila kitu kilicho ndani ya makundi yaliyo chini yake. Gharama, vifo na mavuno huenda kwenye kitengo vilichorekodiwa.",
+          "Makundi yaliyo wazi na Hai sasa ni kufikia sasa, bila kujali tarehe. FCR inahusishwa na kitengo ambacho kundi la wanyama liko sasa."
+        ],
+        "batch-performance": [
+          "Inaorodhesha makundi yaliyofanya kazi wakati wowote katika tarehe. Gharama, vifo, chakula na FCR ni takwimu tangu mwanzo wa kundi hadi tarehe ya Hadi, si tarehe zilizochaguliwa tu.",
+          "Gharama ni chakula, dawa na gharama nyingine zilizotozwa kwa kundi. Uzito wastani ni sampuli ya mwisho ya uzito, au uzito wa kuanzia kama hakuna sampuli. FCR ya jumla inahesabu makundi yenye uzito tu."
+        ],
+        "mortality": [
+          "Vifo vilivyorekodiwa katika tarehe, vikubwa kwanza (kwa mwezi, kwa mpangilio wa tarehe). Kifo huenda kwenye kitengo kilichorekodiwa. Kiasi cha hasara kilichozidi kiwango cha hatua kiko kwenye kichupo cha Hatua cha kila kundi."
+        ],
+        "feed": [
+          "Kiasi kiko katika kipimo cha bidhaa ya chakula. Chakula (kg) kinahesabu chakula chenye kipimo chenye usawa wa uzito katika Vipimo; chakula kingine kinaonyesha kiasi na gharama bila kilo.",
+          "Siku za kulisha zinahesabu kila kundi na siku mara moja. Chakula huenda kwenye kitengo kilichorekodiwa. Gharama ni gharama ya stoo ya kilichotolewa."
+        ],
+        "harvest-output": [
+          "Kilichotoka kwenye makundi kwenda stoo katika tarehe, kwa bidhaa, pamoja na gharama iliyobebwa. Gharama kwa kipimo ni gharama ya kipimo kimoja cha bidhaa, kama kilo moja au yai moja.",
+          "Hakuna mstari wa jumla kwa sababu bidhaa zina vipimo tofauti. Mavuno au ukusanyaji huenda kwenye kitengo kilichorekodiwa."
+        ]
+      },
+      "summary": "Muhtasari",
+      "page": "Ukurasa",
+      "preparedBy": "Imeandaliwa na",
+      "verifiedBy": "Imehakikiwa na",
+      "approvedBy": "Imeidhinishwa na",
+      "signature": "Sahihi"
+    },
+    "unitGroups": {
+      "pageTitle": "Makundi ya Vitengo",
+      "new": "Kundi Jipya la Vitengo",
+      "newTitle": "Kundi Jipya la Vitengo",
+      "editTitle": "Hariri: {name}",
+      "labels": {
+        "farm": "Shamba",
+        "parent": "Ndani ya kundi",
+        "name": "Jina la kundi",
+        "code": "Msimbo",
+        "description": "Maelezo",
+        "status": "Hali",
+        "units": "Vitengo vya uzalishaji katika kundi hili (bila makundi yaliyo ndani yake)",
+        "unitsShort": "vitengo",
+        "groups": "Makundi yaliyo ndani ya kundi hili",
+        "groupsShort": "makundi"
+      },
+      "placeholders": {
+        "name": "mfano: Mstari 3, au Kundi 1"
+      },
+      "help": {
+        "code": "Msimbo mfupi kwa matumizi yako, kama M3. Si lazima."
+      },
+      "noParent": "Acha tupu kwa kundi la juu, kama Mstari. Chagua kundi ili kuweka hili ndani yake, kama Kundi 1 ndani ya Mstari 3.",
+      "messages": {
+        "deleteContent": "Una uhakika unataka kufuta kundi hili? Lazima lisiwe na vitengo vya uzalishaji wala makundi ndani yake."
+      },
+      "validation": {
+        "farmRequired": "Chagua shamba",
+        "nameRequired": "Jina la kundi linahitajika"
+      },
+      "searchPlaceholder": "Tafuta kwa jina la kundi",
+      "costReport": "Fungua ripoti ya Gharama kwa kundi"
+    },
     "productionUnits": {
       "environment": {
         "open": "Hali",
@@ -70,6 +228,7 @@
       "newTitle": "Kitengo Kipya cha Uzalishaji",
       "editTitle": "Hariri: {name}",
       "labels": {
+        "group": "Kundi",
         "suitability": "Inafaa kwa",
         "species": "Aina",
         "suitableStages": "Hatua",
@@ -107,6 +266,32 @@
       "help": {
         "suitability": "Aina (na hatua zake) ambazo kitengo hiki kimeandaliwa kwazo. Kundi linaweza kuwekwa au kuhamishiwa hapa likilingana tu. Acha wazi kuruhusu aina na hatua yoyote.",
         "maxBatches": "Makundi mangapi yanaweza kuwa kwenye kitengo hiki kwa wakati mmoja: 1 kwa kizimba, tangi au banda; zaidi kwa bwawa la pamoja."
+      },
+      "bulk": {
+        "open": "Ongeza vitengo kadhaa kwa mara moja",
+        "title": "Ongeza Vitengo Kadhaa vya Uzalishaji",
+        "labels": {
+          "prefix": "Jina linaanza na",
+          "from": "Kutoka namba",
+          "to": "Hadi namba"
+        },
+        "placeholders": {
+          "prefix": "mfano: 3G1C"
+        },
+        "preview": "Hii inaunda vitengo {count}: {first} hadi {last}.",
+        "submit": "Unda {count}",
+        "validation": {
+          "prefixRequired": "Weka jinsi majina yanavyoanza",
+          "numberInvalid": "Weka namba nzima, sifuri au zaidi",
+          "toBeforeFrom": "Namba ya mwisho isiwe chini ya ya kwanza"
+        }
+      },
+      "move": {
+        "selected": "Vitengo {count} vimechaguliwa",
+        "toGroup": "Hamishia kwenye kundi",
+        "apply": "Hamisha",
+        "remove": "Toa kwenye kundi",
+        "clear": "Futa uchaguzi"
       },
       "occupancy": {
         "free": "Wazi",
@@ -750,6 +935,72 @@
       "label": "Shamba",
       "choose": "Chagua shamba ili uendelee.",
       "noFarms": "Bado hujapewa ufikiaji wa shamba lolote. Mwombe msimamizi wako akuongeze kwenye shamba."
+    },
+    "sharedCosts": {
+      "pageTitle": "Gharama za Pamoja",
+      "new": "Gharama Mpya ya Pamoja",
+      "newTitle": "Gharama Mpya ya Pamoja",
+      "searchPlaceholder": "Tafuta kwa maelezo",
+      "wholeFarm": "Shamba zima",
+      "batchesCount": "makundi {count}",
+      "viewShares": "Ona waliochukua sehemu",
+      "sharesTitle": "Sehemu za {ledger}",
+      "labels": {
+        "farm": "Shamba",
+        "group": "Kundi la vitengo",
+        "date": "Tarehe na saa",
+        "ledger": "Leja",
+        "amount": "Kiasi",
+        "basis": "Mgawanyo",
+        "feedDays": "Siku za chakula",
+        "remarks": "Maelezo",
+        "payNow": "Lipa sasa",
+        "payFrom": "Lipa kutoka akaunti",
+        "paymentReference": "Kumbukumbu ya malipo"
+      },
+      "placeholders": {
+        "remarks": "mfano: Mafuta ya boti, wiki ya 44"
+      },
+      "basis": {
+        "equal": "Sawa kwa kila kizimba",
+        "animals": "Kwa wanyama walio hai",
+        "biomass": "Kwa uzito wa jumla",
+        "feed": "Kwa chakula kilichotolewa"
+      },
+      "help": {
+        "group": "Gharama inatumika wapi. Acha tupu kwa shamba zima, au chagua kundi (kwa mfano Mstari 3) ili kugawa kwa kundi hilo na makundi yaliyo ndani yake tu.",
+        "basis": "Jinsi kiasi kinavyogawanywa. Sawa kwa kila kizimba: kila kitengo chenye wanyama kinachukua sawa, na kitengo chenye makundi kadhaa kinagawa sehemu yake. Kwa wanyama walio hai: wanyama wengi, gharama zaidi. Kwa uzito wa jumla: wanyama walio hai mara uzito wao wa mwisho uliopimwa. Kwa chakula: kwa gharama ya chakula kilichotolewa siku za mwisho. Ni makundi yaliyo wazi yenye wanyama siku hiyo tu yanayochukua sehemu.",
+        "feedDays": "Siku ngapi za chakula, hadi tarehe hiyo, zinalinganishwa.",
+        "payNow": "Inaweka malipo gharama inapofanywa: pesa zinatoka kwenye akaunti unayochagua na kufunga leja ambamo gharama iliwekwa. Ni watu wanaoruhusiwa kuweka malipo tu wanaoona hili. Malipo yanafanywa pamoja na gharama ya pamoja, kwa hiyo sehemu ikikataliwa hakuna kinachohifadhiwa."
+      },
+      "buttons": {
+        "preview": "Hakiki",
+        "spread": "Gawa gharama",
+        "postPayment": "Weka malipo",
+        "pay": "Weka malipo"
+      },
+      "preview": {
+        "title": "Gharama hii ingegawanywa kwa makundi {count}",
+        "batch": "Kundi",
+        "unit": "Kitengo",
+        "animals": "Wanyama",
+        "share": "Sehemu",
+        "amount": "Kiasi",
+        "total": "Jumla"
+      },
+      "messages": {
+        "deleteContent": "Ondoa gharama hii ya pamoja na kila sehemu yake kwenye makundi? Majarida yanarudishwa."
+      },
+      "validation": {
+        "farmRequired": "Chagua shamba",
+        "dateRequired": "Chagua tarehe na saa",
+        "ledgerRequired": "Chagua leja ambamo gharama ipo",
+        "amountInvalid": "Weka kiasi kikubwa kuliko sifuri"
+      },
+      "paid": "Imelipwa",
+      "paidFrom": "Imelipwa kutoka {ledger}",
+      "payTitle": "Weka malipo",
+      "payHelp": "Inalipa {amount} kutoka akaunti unayochagua, ikifunga leja {ledger} ambamo gharama iliwekwa."
     }
   }
 }

@@ -22,6 +22,7 @@ import { BioFarm, BioFormProps, BioProductionUnit, BioSpeciesTemplate } from '..
 import { Batch } from './batchTypes';
 import { FormDate } from './dialogs/ActionDialog';
 import { nowStamp } from '../dateTime';
+import { FormNumber } from '../NumberField';
 
 const BatchForm = ({ setOpenDialog }: BioFormProps<Batch>) => {
   const dictionary = useDictionary();
@@ -123,7 +124,7 @@ const BatchForm = ({ setOpenDialog }: BioFormProps<Batch>) => {
 
                   const suits = suitsUnit(unit);
 
-                  return { value: unit.id, label: unit.name, disabled: full || !suits, hint: !suits ? text.labels.notSetUp.replace('{species}', template?.name ?? '').replace('{stage}', startStage?.name ?? '') : full ? text.labels.occupiedBy.replace('{batches}', names) : held > 0 ? text.labels.partlyOccupied.replace('{held}', String(held)).replace('{max}', String(max)) : undefined };
+                  return { value: unit.id, label: unit.name, disabled: full || !suits, hint: !suits ? text.labels.notSetUp.replace('{species}', template?.name ?? '').replace('{stage}', startStage?.name ?? '') : full ? text.labels.occupiedBy.replace('{batches}', names) : held > 0 ? text.labels.partlyOccupied.replace('{held}', String(held)).replace('{max}', String(max)) : unit.unit_group?.path };
                 })} value={field.value} onChange={field.onChange} error={!!errors.production_unit_id} helperText={errors.production_unit_id?.message as string} />
               )} />
             </Grid>
@@ -131,8 +132,7 @@ const BatchForm = ({ setOpenDialog }: BioFormProps<Batch>) => {
               <FormDate control={control} name='start_date' label={text.labels.startDate} minDate={recordingStart} />
             </Grid>
             <Grid size={{ xs: 6, md: 4 }}>
-              <TextField type='number' size='small' fullWidth label={text.labels.initialQuantity} error={!!errors.initial_quantity}
-                helperText={errors.initial_quantity?.message as string} {...register('initial_quantity')} />
+              <FormNumber control={control} name='initial_quantity' integer label={text.labels.initialQuantity} error={!!errors.initial_quantity} helperText={errors.initial_quantity?.message as string} />
             </Grid>
             <Grid size={{ xs: 6, md: 4 }}>
               <TextField type='number' size='small' fullWidth label={withUnit(text.labels.averageWeight, chosenTemplate?.weight_unit)} error={!!errors.average_weight_g}

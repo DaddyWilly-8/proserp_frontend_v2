@@ -25,8 +25,22 @@ const crud = (path) => ({
 });
 
 export const farmServices = crud('/api/bioProduction/farms');
+export const reportServices = {
+  get: async (report, params) => (await axios.get(`/api/bioProduction/reports/${report}`, { params })).data,
+  excel: async (report, params) => (await axios.post(`/api/bioProduction/reports/${report}`, params, { responseType: 'blob' })).data,
+};
+
+export const sharedCostServices = {
+  ...crud('/api/bioProduction/sharedCosts'),
+  preview: async (payload) => (await axios.post('/api/bioProduction/sharedCosts/preview', payload)).data,
+  pay: async (id, payload) => (await axios.post(`/api/bioProduction/sharedCosts/${id}/payment`, payload)).data,
+};
+
+export const unitGroupServices = crud('/api/bioProduction/unitGroups');
 export const productionUnitServices = {
   ...crud('/api/bioProduction/productionUnits'),
+  addMany: async (payload) => (await axios.post('/api/bioProduction/productionUnits/bulk', payload)).data,
+  moveToGroup: async (payload) => (await axios.post('/api/bioProduction/productionUnits/move-to-group', payload)).data,
   getEnvironment: async (id, params = {}) => (await axios.get(`/api/bioProduction/productionUnits/${id}/environment`, { params })).data,
 };
 export const measurementParameterServices = crud('/api/bioProduction/measurementParameters');

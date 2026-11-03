@@ -17,6 +17,7 @@ import { useAvailableStock } from '../../rounds/useAvailableStock';
 import { BioInputType, DialogProps } from '../batchTypes';
 import ActionDialog, { FormDate, useBatchAction } from './ActionDialog';
 import { nowStamp } from '../../dateTime';
+import { FormNumber } from '../../NumberField';
 
 interface ItemRow {
   product: any;
@@ -191,8 +192,7 @@ const InputDialog = ({ batch, open, onClose }: DialogProps) => {
                   />
                 </Grid>
                 <Grid size={{ xs: 11, md: 3 }}>
-                  <TextField type='number' size='small' fullWidth label={text.labels.quantity} error={!!itemErrors?.quantity || !!stockIssue(index)}
-                    slotProps={{ htmlInput: { step: 'any' } }} helperText={itemErrors?.quantity?.message ?? stockIssue(index)} {...register(`items.${index}.quantity`)} />
+                  <FormNumber control={control} name={`items.${index}.quantity`} label={text.labels.quantity} error={!!itemErrors?.quantity || !!stockIssue(index)} helperText={itemErrors?.quantity?.message ?? stockIssue(index)} />
                 </Grid>
                 <Grid size={{ xs: 1, md: 1 }} textAlign='end'>
                   <Tooltip title={dialog.removeItem}>

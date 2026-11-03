@@ -18,6 +18,7 @@ import { BatchProduce, EditableDialogProps, ProduceCostPreview } from '../batchT
 import { money } from '../BatchTables';
 import ActionDialog, { FormDate, useBatchAction } from './ActionDialog';
 import { nowStamp } from '../../dateTime';
+import { FormNumber } from '../../NumberField';
 
 /**
  * Produce collected from animals that stay in the batch (eggs from laying hens). The cost shown is what
@@ -89,8 +90,7 @@ const ProduceDialog = ({ batch, open, onClose, record = null }: EditableDialogPr
           />
         </Grid>
         <Grid size={{ xs: 12, md: 6 }}>
-          <TextField type='number' size='small' fullWidth label={dialog.quantity} error={!!errors.product_quantity}
-            slotProps={{ htmlInput: { step: 'any' } }} helperText={errors.product_quantity?.message as string} {...register('product_quantity')} />
+          <FormNumber control={control} name='product_quantity' label={dialog.quantity} error={!!errors.product_quantity} helperText={errors.product_quantity?.message as string} />
         </Grid>
         <Grid size={12}>
           <TextField size='small' fullWidth label={text.labels.remarks} {...register('remarks')} />

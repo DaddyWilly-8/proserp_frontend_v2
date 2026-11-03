@@ -12,6 +12,7 @@ import { toGrams, withUnit } from '../../weightUnit';
 import { DialogProps } from '../batchTypes';
 import ActionDialog, { FormDate, useBatchAction } from './ActionDialog';
 import { nowStamp } from '../../dateTime';
+import { FormNumber } from '../../NumberField';
 
 const WeightDialog = ({ batch, open, onClose }: DialogProps) => {
   const text = useDictionary().bioProduction.batches;
@@ -39,8 +40,7 @@ const WeightDialog = ({ batch, open, onClose }: DialogProps) => {
           <FormDate control={control} name='sample_date' label={text.labels.date} minDate={batch.start_date} />
         </Grid>
         <Grid size={{ xs: 6, md: 4 }}>
-          <TextField type='number' size='small' fullWidth label={animalText(dialog.sampleSize, batch.species_template?.count_label)} error={!!errors.sample_size}
-            helperText={errors.sample_size?.message} {...register('sample_size')} />
+          <FormNumber control={control} name='sample_size' integer label={animalText(dialog.sampleSize, batch.species_template?.count_label)} error={!!errors.sample_size} helperText={errors.sample_size?.message} />
         </Grid>
         <Grid size={{ xs: 6, md: 4 }}>
           <TextField type='number' size='small' fullWidth label={withUnit(dialog.averageWeight, batch.species_template?.weight_unit)} error={!!errors.average_weight_g}

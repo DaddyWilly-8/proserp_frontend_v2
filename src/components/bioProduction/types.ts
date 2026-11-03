@@ -13,9 +13,43 @@ export interface BioFarm {
   output_categories?: { id: number; name: string }[];
 }
 
+export interface BioSharedCost {
+  id: number;
+  farm_id: number;
+  unit_group_id?: number | null;
+  expense_date: string;
+  ledger_id: number;
+  amount: number | string;
+  basis: 'equal' | 'animals' | 'biomass' | 'feed';
+  remarks?: string | null;
+  expenses_count?: number;
+  payment?: { id: number; voucherNo: string; reference?: string | null; credit_ledger?: { id: number; name: string } | null } | null;
+  farm?: { id: number; name: string } | null;
+  ledger?: { id: number; name: string } | null;
+  unit_group?: { id: number; path?: string } | null;
+}
+
+export interface BioUnitGroup {
+  id: number;
+  farm_id: number;
+  parent_id?: number | null;
+  name: string;
+  code?: string | null;
+  description?: string | null;
+  status: BioStatus;
+  /** The full path, e.g. "Line 3 › Group 1". */
+  path: string;
+  depth: number;
+  units_count?: number;
+  children_count?: number;
+  farm?: { id: number; name: string } | null;
+}
+
 export interface BioProductionUnit {
   id: number;
   farm_id: number;
+  unit_group_id?: number | null;
+  unit_group?: { id: number; name: string; path?: string } | null;
   name: string;
   type: 'pond' | 'cage' | 'tank' | 'house' | 'pen';
   capacity?: number | string | null;

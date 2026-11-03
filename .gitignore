@@ -44,3 +44,7 @@ package-lock.json
 
 # error-wrapper
 /src/app/error-wrapper.tsx
+
+# local AI agent instructions (not shared)
+/CLAUDE.md
+/AGENTS.md

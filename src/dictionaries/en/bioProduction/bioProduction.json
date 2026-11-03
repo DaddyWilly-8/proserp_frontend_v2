@@ -50,6 +50,164 @@
         "outputCategories": "Only products in these categories can be harvested or collected into stock from this farm. Leave empty to allow any product."
       }
     },
+    "reports": {
+      "pageTitle": "Reports",
+      "cards": {
+        "group-cost": {
+          "title": "Cost by group",
+          "description": "What each group of units cost and produced, with every group counting the groups inside it."
+        },
+        "batch-performance": {
+          "title": "Batch performance",
+          "description": "One row per batch: mortality, feed conversion, weight, cost to date and cost per animal. Rank batches and cages against each other."
+        },
+        "mortality": {
+          "title": "Mortality",
+          "description": "Deaths by batch, group, unit, stage, cause or month, highest first. See where the losses are."
+        },
+        "feed": {
+          "title": "Feed used",
+          "description": "Feed given by product, group, unit, batch or month, in kilograms and cost, with the cost per kilogram."
+        },
+        "harvest-output": {
+          "title": "Harvest and produce",
+          "description": "What left the batches into stock: harvested animals and collected produce, with their cost and cost per unit."
+        }
+      },
+      "filters": {
+        "farm": "Farm",
+        "from": "From",
+        "to": "To",
+        "group": "Group",
+        "species": "Species",
+        "status": "Status",
+        "groupBy": "Group by"
+      },
+      "presets": {
+        "last7": "Last 7 days",
+        "last30": "Last 30 days",
+        "thisMonth": "This month",
+        "lastMonth": "Last month",
+        "thisYear": "This year"
+      },
+      "status": {
+        "open": "Open",
+        "closed": "Closed"
+      },
+      "groupBy": {
+        "batch": "Batch",
+        "group": "Group",
+        "unit": "Unit",
+        "stage": "Stage",
+        "cause": "Cause",
+        "month": "Month",
+        "product": "Product"
+      },
+      "run": "Show report",
+      "total": "Total",
+      "noData": "Nothing to show for these filters.",
+      "excelError": "The Excel file could not be made. Try again.",
+      "printedBy": "Printed by",
+      "printedOn": "Printed on",
+      "columns": {
+        "units": "Units",
+        "batches": "Open batches",
+        "animals_alive": "Alive now",
+        "feed_cost": "Feed",
+        "other_input_cost": "Medicine and other",
+        "expense_cost": "Other costs",
+        "total_cost": "Total cost",
+        "cost_per_unit": "Cost per unit",
+        "deaths": "Deaths",
+        "harvest_animals": "Harvested",
+        "harvest_quantity": "Harvest quantity",
+        "fcr": "FCR",
+        "batch": "Batch",
+        "species": "Species",
+        "group": "Group",
+        "unit": "Unit",
+        "stage": "Stage",
+        "start": "Started",
+        "days": "Days",
+        "stocked": "Stocked",
+        "alive": "Alive",
+        "mortality_pct": "Mortality %",
+        "weight_g": "Avg weight (g)",
+        "feed_kg": "Feed (kg)",
+        "cost": "Cost",
+        "cost_per_stocked": "Cost per animal stocked",
+        "harvested": "Harvested",
+        "share": "Share of all deaths",
+        "product": "Feed",
+        "quantity": "Quantity",
+        "kg": "Feed (kg)",
+        "cost_per_kg": "Cost per kg",
+        "feedings": "Feeding days",
+        "type": "Type",
+        "animals": "Animals harvested"
+      },
+      "notes": {
+        "group-cost": [
+          "Each group counts everything in the groups beneath it. Costs, deaths and harvests belong to the unit they were recorded for.",
+          "Open batches and Alive now are as of now, whatever the dates. Feed conversion (FCR) belongs to the unit the batch is in now."
+        ],
+        "batch-performance": [
+          "Lists the batches that ran at any time in the dates. Cost, deaths, feed and feed conversion are lifetime-to-date figures, from the batch's start to the To date, not only the dates chosen.",
+          "Cost is the feed, medicine and other costs charged to the batch. Average weight is the last weight sample, or the opening weight when none was taken. The total FCR counts only batches with weights."
+        ],
+        "mortality": [
+          "Deaths recorded in the dates, highest first (by month in date order). A death belongs to the unit it was recorded for. How much of a loss was beyond the stage allowance is on each batch's Stages tab."
+        ],
+        "feed": [
+          "Quantity is in the feed product's own unit. Feed (kg) counts feed whose unit has a mass equivalence on Measurement Units; other feed shows quantity and cost but no kilograms.",
+          "Feeding days counts each batch and day once. Feed belongs to the unit it was recorded for. Cost is the stock cost of what was issued."
+        ],
+        "harvest-output": [
+          "What left the batches into stock in the dates, by product, with the cost it carried. Cost per unit is the cost of one unit of the product, such as one kg or one egg.",
+          "There is no total row because products are in different units. A harvest or collection belongs to the unit it was recorded for."
+        ]
+      },
+      "summary": "Summary",
+      "page": "Page",
+      "preparedBy": "Prepared by",
+      "verifiedBy": "Verified by",
+      "approvedBy": "Approved by",
+      "signature": "Signature"
+    },
+    "unitGroups": {
+      "pageTitle": "Unit Groups",
+      "new": "New Unit Group",
+      "newTitle": "New Unit Group",
+      "editTitle": "Edit: {name}",
+      "labels": {
+        "farm": "Farm",
+        "parent": "Inside group",
+        "name": "Group name",
+        "code": "Code",
+        "description": "Description",
+        "status": "Status",
+        "units": "Production units in this group (not counting groups inside it)",
+        "unitsShort": "units",
+        "groups": "Groups inside this group",
+        "groupsShort": "groups"
+      },
+      "placeholders": {
+        "name": "e.g. Line 3, or Group 1"
+      },
+      "help": {
+        "code": "A short code for your own use, such as L3. Optional."
+      },
+      "noParent": "Leave empty for a top-level group, such as a Line. Choose a group to put this one inside it, such as Group 1 inside Line 3.",
+      "messages": {
+        "deleteContent": "Are you sure you want to delete this group? It must have no production units and no groups inside it."
+      },
+      "validation": {
+        "farmRequired": "Choose a farm",
+        "nameRequired": "Group name is required"
+      },
+      "searchPlaceholder": "Search by group name",
+      "costReport": "Open the Cost by group report"
+    },
     "productionUnits": {
       "environment": {
         "open": "Conditions",
@@ -70,6 +228,7 @@
       "newTitle": "New Production Unit",
       "editTitle": "Edit: {name}",
       "labels": {
+        "group": "Group",
         "suitability": "Suitable for",
         "species": "Species",
         "suitableStages": "Stages",
@@ -107,6 +266,32 @@
       "help": {
         "suitability": "The species (and stages of them) this unit is set up for. A batch can only be placed or moved here if it matches. Leave empty to allow any species and stage.",
         "maxBatches": "How many batches can be in this unit at once: 1 for a cage, tank or house; more for a shared pond."
+      },
+      "bulk": {
+        "open": "Add several units at once",
+        "title": "Add Several Production Units",
+        "labels": {
+          "prefix": "Name starts with",
+          "from": "From number",
+          "to": "To number"
+        },
+        "placeholders": {
+          "prefix": "e.g. 3G1C"
+        },
+        "preview": "This makes {count} units: {first} to {last}.",
+        "submit": "Create {count}",
+        "validation": {
+          "prefixRequired": "Enter how the names start",
+          "numberInvalid": "Enter a whole number, zero or more",
+          "toBeforeFrom": "The last number must not be below the first"
+        }
+      },
+      "move": {
+        "selected": "{count} units selected",
+        "toGroup": "Move to group",
+        "apply": "Move",
+        "remove": "Take out of group",
+        "clear": "Clear"
       },
       "occupancy": {
         "free": "Free",
@@ -750,6 +935,72 @@
       "label": "Farm",
       "choose": "Choose a farm to continue.",
       "noFarms": "You have not been given access to any farm yet. Ask your administrator to add you to one."
+    },
+    "sharedCosts": {
+      "pageTitle": "Shared Costs",
+      "new": "New Shared Cost",
+      "newTitle": "New Shared Cost",
+      "searchPlaceholder": "Search by note",
+      "wholeFarm": "Whole farm",
+      "batchesCount": "{count} batches",
+      "viewShares": "See who took a share",
+      "sharesTitle": "Shares of {ledger}",
+      "labels": {
+        "farm": "Farm",
+        "group": "Group",
+        "date": "Date and time",
+        "ledger": "Ledger",
+        "amount": "Amount",
+        "basis": "Spread",
+        "feedDays": "Days of feed",
+        "remarks": "Note",
+        "payNow": "Pay now",
+        "payFrom": "Pay from account",
+        "paymentReference": "Payment reference"
+      },
+      "placeholders": {
+        "remarks": "e.g. Boat fuel, week 44"
+      },
+      "basis": {
+        "equal": "Equally per cage",
+        "animals": "By animals alive",
+        "biomass": "By biomass",
+        "feed": "By feed given"
+      },
+      "help": {
+        "group": "Where the cost applies. Leave empty for the whole farm, or choose a group (for example Line 3) to spread it over that group and the groups inside it only.",
+        "basis": "How the amount is shared. Equally per cage: every unit that holds animals takes the same, and a unit with several batches divides its part. By animals alive: more animals, more cost. By biomass: animals alive times their last sampled weight. By feed given: by the cost of feed given in the last days. Only open batches that have animals on that date take a share.",
+        "feedDays": "How many days of feed, up to the date, are compared.",
+        "payNow": "Posts a payment as the cost is made: money leaves the account you choose and settles the ledger the cost was booked to. Only people who may post payments see this. The payment is made with the shared cost, so if a share is refused neither is saved."
+      },
+      "buttons": {
+        "preview": "Preview",
+        "spread": "Spread the cost",
+        "postPayment": "Post payment",
+        "pay": "Post payment"
+      },
+      "preview": {
+        "title": "This cost would be shared by {count} batches",
+        "batch": "Batch",
+        "unit": "Unit",
+        "animals": "Animals",
+        "share": "Share",
+        "amount": "Amount",
+        "total": "Total"
+      },
+      "messages": {
+        "deleteContent": "Remove this shared cost and every share of it from the batches? The journals are reversed."
+      },
+      "validation": {
+        "farmRequired": "Choose a farm",
+        "dateRequired": "Choose the date and time",
+        "ledgerRequired": "Choose the ledger the cost sits in",
+        "amountInvalid": "Enter an amount above zero"
+      },
+      "paid": "Paid",
+      "paidFrom": "Paid from {ledger}",
+      "payTitle": "Post the payment",
+      "payHelp": "Pays {amount} from the account you choose, settling the ledger {ledger} that the cost was booked to."
     }
   }
 }

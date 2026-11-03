@@ -259,7 +259,19 @@ export async function getMenus(locale: string) {
               type: 'nav-item',
               icon: icon('measurementsRound'),
             },
+            {
+              uri: `/${locale}/bioProduction/sharedCosts`,
+              label: sidebar.menuItem.sharedCosts,
+              type: 'nav-item',
+              icon: icon('sharedCosts'),
+            },
           ],
+        },
+        {
+          uri: `/${locale}/bioProduction/reports`,
+          label: sidebar.menuItem.bioReports,
+          type: 'nav-item',
+          icon: icon('reports'),
         },
         {
           label: sidebar.menuItem.masters,
@@ -271,6 +283,12 @@ export async function getMenus(locale: string) {
               label: sidebar.menuItem.farms,
               type: 'nav-item',
               icon: icon('farms'),
+            },
+            {
+              uri: `/${locale}/bioProduction/unitGroups`,
+              label: sidebar.menuItem.unitGroups,
+              type: 'nav-item',
+              icon: icon('unitGroups'),
             },
             {
               uri: `/${locale}/bioProduction/productionUnits`,

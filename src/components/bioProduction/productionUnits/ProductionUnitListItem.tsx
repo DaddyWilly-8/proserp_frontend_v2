@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { MonitorHeartOutlined } from '@mui/icons-material';
-import { Chip, Divider, Grid, IconButton, Stack, Tooltip, Typography } from '@mui/material';
+import { Checkbox, Chip, Divider, Grid, IconButton, Stack, Tooltip, Typography } from '@mui/material';
 import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import BioItemActions from '../BioItemActions';
 import { useBioAccess } from '../useBioAccess';
@@ -11,7 +11,7 @@ import { unitOccupancy } from '../unitOccupancy';
 import ProductionUnitForm from './ProductionUnitForm';
 import UnitEnvironment from './UnitEnvironment';
 
-const ProductionUnitListItem = ({ unit }: { unit: BioProductionUnit }) => {
+const ProductionUnitListItem = ({ unit, selected = false, onToggle }: { unit: BioProductionUnit; selected?: boolean; onToggle?: () => void }) => {
   const text = useDictionary().bioProduction.productionUnits;
   const access = useBioAccess().master('productionUnits');
   const { held, max, full, names } = unitOccupancy(unit);
@@ -33,9 +33,17 @@ const ProductionUnitListItem = ({ unit }: { unit: BioProductionUnit }) => {
         sx={{ '&:hover': { bgcolor: 'action.hover' } }}
       >
         <Grid size={{ xs: 12, md: 2.5 }}>
-          <Tooltip title={text.labels.name}>
-            <Typography variant='h5' fontSize={14} lineHeight={1.25} mb={0} noWrap>{unit.name}</Typography>
-          </Tooltip>
+          <Stack direction='row' alignItems='center'>
+            {onToggle && <Checkbox size='small' checked={selected} onChange={onToggle} sx={{ p: 0.5, mr: 0.5 }} />}
+            <Tooltip title={text.labels.name}>
+              <Typography variant='h5' fontSize={14} lineHeight={1.25} mb={0} noWrap>{unit.name}</Typography>
+            </Tooltip>
+          </Stack>
+          {!!unit.unit_group && (
+            <Tooltip title={text.labels.group}>
+              <Typography variant='caption' color='text.secondary' display='block' noWrap>{unit.unit_group.path ?? unit.unit_group.name}</Typography>
+            </Tooltip>
+          )}
           {!!unit.suitability?.length && (
             <Tooltip title={text.labels.suitability}>
               <Typography variant='caption' color='text.secondary' display='block' noWrap>

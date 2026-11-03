@@ -34,6 +34,7 @@ import { useState } from 'react';
 import { useSnackbar } from 'notistack';
 import humanResourcesServices from '../../humanResourcesServices';
 import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
+import InfoHint from '@/shared/Information/InfoHint';
 
 type LeaveTypeOption = { id: number; name: string };
 
@@ -216,10 +217,10 @@ function LeaveRenewalsReportContent({ onClose }: { onClose?: () => void }) {
         )}
         <Grid container spacing={1.5} alignItems='center'>
           <Grid size={{ xs: 12 }} textAlign='center' marginBottom={2} sx={onClose ? { px: 4 } : undefined}>
-            <Typography variant='h3'>{dictionary.humanResources.reports.leaveRenewals.title}</Typography>
-            <Typography variant='body2' color='text.secondary'>
-              {dictionary.humanResources.reports.leaveRenewals.subtitle}
-            </Typography>
+            <Stack direction='row' alignItems='center' justifyContent='center' spacing={0.5}>
+              <Typography variant='h3'>{dictionary.humanResources.reports.leaveRenewals.title}</Typography>
+              <InfoHint text={dictionary.humanResources.reports.leaveRenewals.subtitle} />
+            </Stack>
           </Grid>
 
           <Grid size={{ xs: 12, md: 3 }}>

@@ -17,6 +17,7 @@ import { BatchHarvest, EditableDialogProps } from '../batchTypes';
 import ActionDialog, { FormDate, useBatchAction } from './ActionDialog';
 import { nowStamp } from '../../dateTime';
 import { useWriteOffPreview } from './WriteOffDialog';
+import { FormNumber } from '../../NumberField';
 
 const HarvestDialog = ({ batch, open, onClose, record = null }: EditableDialogProps<BatchHarvest>) => {
   const categories = useFarmCategories(batch.farm_id);
@@ -57,8 +58,7 @@ const HarvestDialog = ({ batch, open, onClose, record = null }: EditableDialogPr
           <FormDate control={control} name='harvest_date' label={text.labels.date} minDate={batch.start_date} />
         </Grid>
         <Grid size={{ xs: 12, md: 8 }}>
-          <TextField type='number' size='small' fullWidth label={`${animalText(dialog.fish, batch.species_template?.count_label)} (max ${available.toLocaleString()})`} error={!!errors.quantity}
-            helperText={errors.quantity?.message as string} {...register('quantity')} />
+          <FormNumber control={control} name='quantity' integer label={`${animalText(dialog.fish, batch.species_template?.count_label)} (max ${available.toLocaleString()})`} error={!!errors.quantity} helperText={errors.quantity?.message as string} />
         </Grid>
         <Grid size={{ xs: 12, md: 6 }}>
           <ProductSelect
@@ -80,8 +80,7 @@ const HarvestDialog = ({ batch, open, onClose, record = null }: EditableDialogPr
           />
         </Grid>
         <Grid size={12}>
-          <TextField type='number' size='small' fullWidth label={dialog.weight} error={!!errors.product_quantity}
-            slotProps={{ htmlInput: { step: 'any' } }} helperText={errors.product_quantity?.message as string} {...register('product_quantity')} />
+          <FormNumber control={control} name='product_quantity' label={dialog.weight} error={!!errors.product_quantity} helperText={errors.product_quantity?.message as string} />
         </Grid>
         <Grid size={12}>
           <TextField size='small' fullWidth label={text.labels.remarks} {...register('remarks')} />

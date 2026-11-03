@@ -18,6 +18,7 @@ import {
   IconButton,
   LinearProgress,
   MenuItem,
+  Stack,
   Table,
   TableBody,
   TableCell,
@@ -40,6 +41,7 @@ import { Department } from '../../departments/DepartmentsType';
 import humanResourcesServices from '../../humanResourcesServices';
 import StaffLoanReportDocument from './StaffLoanReportDocument';
 import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
+import InfoHint from '@/shared/Information/InfoHint';
 
 const buildStatusOptions = (dictionary: any) => [
   { label: dictionary.humanResources.reports.staffLoans.statusOptions.all, value: '' },
@@ -191,10 +193,10 @@ function StaffLoanReportContent({ onClose }: { onClose?: () => void }) {
         )}
         <Grid container spacing={1.5} alignItems='center'>
           <Grid size={{ xs: 12 }} textAlign='center' marginBottom={2} sx={onClose ? { px: 4 } : undefined}>
-            <Typography variant='h3'>{dictionary.humanResources.reports.staffLoans.title}</Typography>
-            <Typography variant='body2' color='text.secondary'>
-              {dictionary.humanResources.reports.staffLoans.subtitle}
-            </Typography>
+            <Stack direction='row' alignItems='center' justifyContent='center' spacing={0.5}>
+              <Typography variant='h3'>{dictionary.humanResources.reports.staffLoans.title}</Typography>
+              <InfoHint text={dictionary.humanResources.reports.staffLoans.subtitle} />
+            </Stack>
           </Grid>
 
           <Grid size={{ xs: 12, md: 3 }}>

@@ -26,6 +26,7 @@ import * as yup from 'yup';
 import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import BioSelect, { useStatusOptions } from '../BioSelect';
 import InfoHint from '../InfoHint';
+import NumberField from '../NumberField';
 import ProductSelect from '@/components/productAndServices/products/ProductSelect';
 import { getErrorMessage } from '@/utilities/helpers/errorHandler';
 import { speciesTemplateServices } from '../bio-production-services';
@@ -323,16 +324,26 @@ const TemplateFormBody = ({ setOpenDialog, template }: { setOpenDialog: (open: b
                       ] as const
                     ).map(([name, label, step]) => (
                       <Grid size={{ xs: 6, md: 3 }} key={name}>
-                        <TextField
-                          type='number'
-                          label={label}
-                          size='small'
-                          fullWidth
-                          slotProps={{ htmlInput: { min: 0, step } }}
-                          error={!!stageErrors?.[index]?.[name]}
-                          helperText={stageErrors?.[index]?.[name]?.message}
-                          {...register(`stages.${index}.${name}`)}
-                        />
+                        {name === 'salvage_value_per_head' ? (
+                          <Controller
+                            name={`stages.${index}.salvage_value_per_head`}
+                            control={control}
+                            render={({ field }) => (
+                              <NumberField label={label} error={!!stageErrors?.[index]?.[name]} helperText={stageErrors?.[index]?.[name]?.message as string} value={field.value as any} onChange={field.onChange} />
+                            )}
+                          />
+                        ) : (
+                          <TextField
+                            type='number'
+                            label={label}
+                            size='small'
+                            fullWidth
+                            slotProps={{ htmlInput: { min: 0, step } }}
+                            error={!!stageErrors?.[index]?.[name]}
+                            helperText={stageErrors?.[index]?.[name]?.message}
+                            {...register(`stages.${index}.${name}`)}
+                          />
+                        )}
                       </Grid>
                     ))}
                   {stagePurposes?.[index]?.purpose === 'bearer' && (

@@ -354,6 +354,7 @@ function Sidebar({ menus }) {
                 const bioMasters = {
                     farms: [PERMISSIONS.BIO_FARMS_READ, PERMISSIONS.BIO_FARMS_CREATE, PERMISSIONS.BIO_FARMS_EDIT, PERMISSIONS.BIO_FARMS_DELETE],
                     productionUnits: [PERMISSIONS.BIO_PRODUCTION_UNITS_READ, PERMISSIONS.BIO_PRODUCTION_UNITS_CREATE, PERMISSIONS.BIO_PRODUCTION_UNITS_EDIT, PERMISSIONS.BIO_PRODUCTION_UNITS_DELETE],
+                    unitGroups: [PERMISSIONS.BIO_UNIT_GROUPS_READ, PERMISSIONS.BIO_UNIT_GROUPS_CREATE, PERMISSIONS.BIO_UNIT_GROUPS_EDIT, PERMISSIONS.BIO_UNIT_GROUPS_DELETE],
                     speciesTemplates: [PERMISSIONS.BIO_SPECIES_TEMPLATES_READ, PERMISSIONS.BIO_SPECIES_TEMPLATES_CREATE, PERMISSIONS.BIO_SPECIES_TEMPLATES_EDIT, PERMISSIONS.BIO_SPECIES_TEMPLATES_DELETE],
                     measurementParameters: [PERMISSIONS.BIO_MEASUREMENT_PARAMETERS_READ, PERMISSIONS.BIO_MEASUREMENT_PARAMETERS_CREATE, PERMISSIONS.BIO_MEASUREMENT_PARAMETERS_EDIT, PERMISSIONS.BIO_MEASUREMENT_PARAMETERS_DELETE],
                 };
@@ -361,6 +362,8 @@ function Sidebar({ menus }) {
                 const bioNeeds = (uri = '') => {
                     if (uri.endsWith('/bioProduction/dashboard')) return [PERMISSIONS.BIO_DASHBOARD_READ];
                     if (uri.endsWith('/bioProduction/batches')) return [PERMISSIONS.BIO_BATCHES_READ];
+                    if (uri.endsWith('/bioProduction/reports')) return [PERMISSIONS.BIO_REPORTS_READ];
+                    if (uri.endsWith('/bioProduction/sharedCosts')) return [PERMISSIONS.BIO_SHARED_COSTS_READ, PERMISSIONS.BIO_SHARED_COSTS_CREATE, PERMISSIONS.BIO_SHARED_COSTS_DELETE];
                     if (uri.includes('/bioProduction/rounds/')) return [PERMISSIONS.BIO_RECORDS_READ];
                     const master = Object.keys(bioMasters).find(key => uri.endsWith(`/bioProduction/${key}`));
                     return master ? bioMasters[master] : null;
