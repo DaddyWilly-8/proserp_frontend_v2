@@ -6,15 +6,17 @@ const withPWA = withPWAInit({
   disable: process.env.NODE_ENV !== 'production',
   reloadOnOnline: true,
   workboxOptions: {
-    // Next emits an empty client chunk for every API route handler (~900 of
-    // them), and the service worker was precaching all of them on each
-    // install. They're never used in the browser. The first three entries are
-    // next-pwa's defaults, which setting `exclude` replaces.
+    // Precaching downloaded every route's chunk on each new deploy - ~900
+    // empty API route chunks plus hundreds of page/layout chunks the user may
+    // never open. The app has no offline mode, and the 'assets' runtime cache
+    // below already keeps a chunk once its page is visited, so only the shared
+    // chunks are precached. The first three entries are next-pwa's defaults,
+    // which setting `exclude` replaces.
     exclude: [
       /\/_next\/static\/.*(?<!\.p)\.woff2/,
       /\.map$/,
       /^manifest.*\.js$/,
-      /app\/api\/.+\/route-[^/]+\.js$/,
+      /\/chunks\/app\/.+\.js$/,
     ],
     disableDevLogs: true,
     skipWaiting: true,
