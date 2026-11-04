@@ -16,6 +16,7 @@ import { useSpeciesProducts } from '../../useSpeciesProducts';
 import { batchServices } from '../../bio-production-services';
 import { BatchProduce, EditableDialogProps, ProduceCostPreview } from '../batchTypes';
 import { money } from '../BatchTables';
+import { useBioAccess } from '../../useBioAccess';
 import ActionDialog, { FormDate, useBatchAction } from './ActionDialog';
 import { nowStamp } from '../../dateTime';
 import { FormNumber } from '../../NumberField';
@@ -55,6 +56,7 @@ const ProduceDialog = ({ batch, open, onClose, record = null }: EditableDialogPr
   });
 
   const { mutate, isPending } = useBatchAction(batch.id, record ? batchServices.updateProduce : batchServices.collectProduce, () => { reset(); onClose(); });
+  const { finance } = useBioAccess();
   const unitCost = cost && quantity > 0 ? cost.cost / quantity : null;
   const row = (label: string, value: React.ReactNode, bold = false) => (
     <Stack direction='row' justifyContent='space-between'>
@@ -95,7 +97,7 @@ const ProduceDialog = ({ batch, open, onClose, record = null }: EditableDialogPr
         <Grid size={12}>
           <TextField size='small' fullWidth label={text.labels.remarks} {...register('remarks')} />
         </Grid>
-        <Grid size={12}>
+        {finance && <Grid size={12}>
           <Box sx={{ border: 1, borderColor: 'divider', borderRadius: 1, p: 1.5, opacity: isFetching ? 0.6 : 1 }}>
             <Typography variant='overline' color='text.secondary'>{dialog.costTitle}</Typography>
             {record ? (
@@ -114,7 +116,7 @@ const ProduceDialog = ({ batch, open, onClose, record = null }: EditableDialogPr
               <Typography variant='body2' color='text.secondary'>—</Typography>
             )}
           </Box>
-        </Grid>
+        </Grid>}
       </Grid>
     </ActionDialog>
   );

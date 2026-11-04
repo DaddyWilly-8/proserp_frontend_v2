@@ -13,6 +13,7 @@ import { batchServices } from '../../bio-production-services';
 import { DialogProps } from '../batchTypes';
 import ActionDialog, { FormDate, useBatchAction } from './ActionDialog';
 import { nowStamp } from '../../dateTime';
+import { useBioAccess } from '../../useBioAccess';
 
 export interface WriteOffPreview {
   quantity: number;
@@ -33,6 +34,7 @@ const money = (value: number) => value.toLocaleString(undefined, { maximumFracti
 
 const WriteOffDialog = ({ batch, open, onClose }: DialogProps) => {
   const text = useDictionary().bioProduction.batches;
+  const { finance } = useBioAccess();
   const dialog = text.dialogs.writeOff;
   const { data: preview, isFetching } = useWriteOffPreview(batch.id, open);
 
@@ -55,6 +57,8 @@ const WriteOffDialog = ({ batch, open, onClose }: DialogProps) => {
       {nothing && <Alert severity='success' sx={{ mb: 2 }}>{dialog.nothing}</Alert>}
       {preview && preview.quantity > 0 && (
         <Grid container spacing={1} mb={2}>
+          {!finance && <Grid size={12}><Typography>{animalText('{quantity} {animals}', batch.species_template?.count_label).replace('{quantity}', preview.quantity.toLocaleString())}</Typography></Grid>}
+          {finance && <>
           <Grid size={12}>
             <Typography>{animalText(dialog.summary, batch.species_template?.count_label).replace('{quantity}', preview.quantity.toLocaleString()).replace('{rate}', money(preview.cost_per_fish))}</Typography>
           </Grid>
@@ -71,6 +75,7 @@ const WriteOffDialog = ({ batch, open, onClose }: DialogProps) => {
               <Typography variant='body2'>{stage.name}: {stage.quantity.toLocaleString()} → {money(stage.amount)}</Typography>
             </Grid>
           ))}
+          </>}
         </Grid>
       )}
       <Grid container spacing={2}>

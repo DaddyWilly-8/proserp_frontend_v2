@@ -36,6 +36,8 @@ export const useBioAccess = () => {
   return {
     dashboard: has(PERMISSIONS.BIO_DASHBOARD_READ),
     reports: has(PERMISSIONS.BIO_REPORTS_READ),
+    /** Money figures (costs, rates, amounts) are only for those who may read financial reports; the server leaves them out for everyone else. */
+    finance: has(PERMISSIONS.ACCOUNTS_REPORTS),
     /** Any permission of the module at all. */
     any: Object.values(PERMISSIONS).some((name) => name.startsWith('Bio') && has(name)),
     master: (master: BioMaster) => ({

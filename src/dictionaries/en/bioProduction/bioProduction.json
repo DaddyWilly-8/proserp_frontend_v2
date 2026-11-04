@@ -867,6 +867,7 @@
         "harvest": "{product}: {quantity} received from {count} units",
         "produce": "{product}: {quantity} collected from {count} units",
         "cost": "{quantity} charged to {count} units",
+        "costPlain": "Charged to {count} units",
         "feeding": "{product}: {quantity} {unit} to {count} units",
         "mortality": "{quantity} died in {count} units",
         "weighing": "{count} units weighed"

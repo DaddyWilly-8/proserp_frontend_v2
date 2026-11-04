@@ -37,7 +37,8 @@ const RoundListItem = ({ record, queryKey }: { record: RoundRecord; queryKey: st
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
   const [viewing, setViewing] = useState(false);
   const [editing, setEditing] = useState(false);
-  const allowed = useBioAccess().records.kind(record.kind);
+  const access = useBioAccess();
+  const allowed = access.records.kind(record.kind);
 
   const { mutate: remove } = useMutation({
     mutationFn: roundServices.delete,
@@ -60,7 +61,8 @@ const RoundListItem = ({ record, queryKey }: { record: RoundRecord; queryKey: st
 
   const menuItems = [
     { icon: <VisibilityOutlined />, title: text.messages.view, action: 'view' },
-    ...(allowed.edit ? [{ icon: <EditOutlined />, title: dictionary.bioProduction.common.edit, action: 'edit' }] : []),
+    // A cost record is edited from its rates and amounts, which are not sent to someone who may not see money.
+    ...(allowed.edit && (record.kind !== 'cost' || access.finance) ? [{ icon: <EditOutlined />, title: dictionary.bioProduction.common.edit, action: 'edit' }] : []),
     ...(allowed.delete ? [{ icon: <DeleteOutlined color='error' />, title: dictionary.bioProduction.common.delete, action: 'delete' }] : []),
   ];
 
@@ -116,7 +118,7 @@ const RoundListItem = ({ record, queryKey }: { record: RoundRecord; queryKey: st
         <Grid size={{ xs: 12, md: 5 }}>
           <Tooltip title={text.labels.summary}>
             <Typography noWrap>
-              {roundSummary(record, text.summary[record.kind])}
+              {roundSummary(record, record.kind === 'cost' && !access.finance ? text.summary.costPlain : text.summary[record.kind])}
               {record.paymentNo && (
                 <Chip size='small' color='success' variant='outlined' label={`${text.labels.payment}: ${record.paymentNo}`} sx={{ ml: 1 }} />
               )}

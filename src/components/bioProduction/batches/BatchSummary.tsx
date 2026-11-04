@@ -7,6 +7,7 @@ import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import InfoHint from '../InfoHint';
 import { stamp } from '../dateTime';
 import { animalText } from '../animalText';
+import { useBioAccess } from '../useBioAccess';
 import { batchServices } from '../bio-production-services';
 import { money } from './BatchTables';
 import ResponsiveTable from './ResponsiveTable';
@@ -37,6 +38,7 @@ const BatchSummary = ({ batch }: { batch: Batch }) => {
   const bio = useDictionary().bioProduction;
   const text = bio.batches;
   const t = text.summary;
+  const { finance } = useBioAccess();
   const animals = batch.species_template?.count_label;
 
   const { data, isLoading } = useQuery<Summary>({
@@ -46,13 +48,15 @@ const BatchSummary = ({ batch }: { batch: Batch }) => {
 
   if (isLoading || !data) return <LinearProgress />;
 
-  const { costs, categories, by_stage: byStage, inputs, outputs } = data;
-  const total = costs.total || 0;
+  const { costs, inputs, outputs } = data;
+  const categories = data.categories ?? [];
+  const byStage = data.by_stage ?? [];
+  const total = costs?.total || 0;
   const share = (amount: number) => (total > 0 ? `${num((amount / total) * 100, 1)}%` : '—');
   const categoryName = (category: Summary['categories'][number]) => (category.group === 'input' ? t.inputCategory[category.key as 'feed' | 'medication' | 'other'] : category.name);
   const empty = text.tables.empty;
   const stageTotals = byStage.reduce((sum, stage) => ({ inputs: sum.inputs + stage.inputs, other: sum.other + stage.other, total: sum.total + stage.total }), { inputs: 0, other: 0, total: 0 });
-  const inputTotals = inputs.reduce((sum, row) => sum + row.cost, 0);
+  const inputTotals = inputs.reduce((sum, row) => sum + (row.cost ?? 0), 0);
 
   return (
     <Box p={2}>
@@ -61,15 +65,21 @@ const BatchSummary = ({ batch }: { batch: Batch }) => {
         <Grid size={{ xs: 6, md: 3 }}><Stat label={text.labels.startDate} value={day(batch.start_date)} /></Grid>
         <Grid size={{ xs: 6, md: 3 }}><Stat label={text.labels.endDate} value={batch.end_date ? day(batch.end_date) : '—'} /></Grid>
         <Grid size={{ xs: 6, md: 3 }}><Stat label={t.days} value={num(data.days, 0)} /></Grid>
-        <Grid size={{ xs: 6, md: 3 }}><Stat label={text.costs.accrued} value={money(costs.total)} /></Grid>
-        <Grid size={{ xs: 6, md: 3 }}><Stat label={text.costs.balance} value={money(costs.wip_balance)} hint={costs.per_unit != null ? `${money(costs.per_unit)} ${t.each}` : undefined} /></Grid>
-        <Grid size={{ xs: 6, md: 3 }}><Stat label={t.movedToStock} value={money((costs.harvested ?? 0) + (costs.collected ?? 0))} hint={`${t.harvests} ${money(costs.harvested)} · ${t.produce} ${money(costs.collected)}`} /></Grid>
-        <Grid size={{ xs: 6, md: 3 }}><Stat label={text.costs.writtenOff} value={money(costs.written_off)} color={costs.written_off > 0 ? 'error.main' : undefined} /></Grid>
+        {finance && costs && (
+          <>
+          <Grid size={{ xs: 6, md: 3 }}><Stat label={text.costs.accrued} value={money(costs.total)} /></Grid>
+          <Grid size={{ xs: 6, md: 3 }}><Stat label={text.costs.balance} value={money(costs.wip_balance)} hint={costs.per_unit != null ? `${money(costs.per_unit)} ${t.each}` : undefined} /></Grid>
+          <Grid size={{ xs: 6, md: 3 }}><Stat label={t.movedToStock} value={money((costs.harvested ?? 0) + (costs.collected ?? 0))} hint={`${t.harvests} ${money(costs.harvested)} · ${t.produce} ${money(costs.collected)}`} /></Grid>
+          <Grid size={{ xs: 6, md: 3 }}><Stat label={text.costs.writtenOff} value={money(costs.written_off)} color={costs.written_off > 0 ? 'error.main' : undefined} /></Grid>
+          </>
+        )}
         <Grid size={{ xs: 6, md: 3 }}><Stat label={animalText(t.alive, animals)} value={`${num(data.animals.alive, 0)} / ${num(data.animals.initial, 0)}`} /></Grid>
         <Grid size={{ xs: 6, md: 3 }}><Stat label={t.died} value={num(data.animals.died, 0)} hint={data.animals.mortality_pct != null ? `${num(data.animals.mortality_pct)}%` : undefined} /></Grid>
         <Grid size={{ xs: 6, md: 3 }}><Stat label={t.harvestedAnimals} value={num(data.animals.harvested, 0)} /></Grid>
       </Grid>
 
+      {finance && (
+      <>
       <Section title={t.costsByCategory}>
         <ResponsiveTable<Summary['categories'][number]>
           empty={empty}
@@ -100,6 +110,8 @@ const BatchSummary = ({ batch }: { batch: Batch }) => {
           footer={[t.total, null, money(stageTotals.inputs), money(stageTotals.other), money(stageTotals.total)]}
         />
       </Section>
+      </>
+      )}
 
       <Section title={t.fcr.title} hint={t.fcr.help}>
         <ResponsiveTable<{ key: string; name: string; row: FcrRow }>
@@ -128,12 +140,11 @@ const BatchSummary = ({ batch }: { batch: Batch }) => {
             { label: t.product, primary: true, render: (row) => row.product },
             { label: t.type, render: (row) => text.inputTypes[row.type] },
             { label: t.quantity, align: 'right', render: (row) => `${num(row.quantity, 5)} ${row.unit ?? ''}` },
-            { label: t.averageRate, align: 'right', render: (row) => (row.rate == null ? '—' : money(row.rate)) },
-            { label: t.cost, align: 'right', headline: true, render: (row) => money(row.cost) },
+            ...(finance ? [{ label: t.averageRate, align: 'right' as const, render: (row: any) => (row.rate == null ? '—' : money(row.rate)) }, { label: t.cost, align: 'right' as const, headline: true, render: (row: any) => money(row.cost) }] : []),
             { label: t.timesUsed, align: 'right', render: (row) => row.applications },
             { label: t.usedBetween, render: (row) => `${day(row.first_date)} → ${day(row.last_date)}` },
           ]}
-          footer={[t.total, null, null, null, money(inputTotals), null, null]}
+          footer={finance ? [t.total, null, null, null, money(inputTotals), null, null] : undefined}
         />
       </Section>
 
@@ -167,7 +178,7 @@ const BatchSummary = ({ batch }: { batch: Batch }) => {
               { label: t.kind, render: (row) => row.kind },
               { label: animalText(t.animals, animals), align: 'right', render: (row) => (row.animals == null ? '—' : num(row.animals, 0)) },
               { label: t.quantity, align: 'right', render: (row) => num(row.quantity, 5) },
-              { label: t.cost, align: 'right', headline: true, render: (row) => money(row.cost) },
+              ...(finance ? [{ label: t.cost, align: 'right' as const, headline: true, render: (row: any) => money(row.cost) }] : []),
             ]}
           />
         </Section>

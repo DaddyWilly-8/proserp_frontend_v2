@@ -10,6 +10,7 @@ import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
 import BioGate from '../BioGate';
 import InfoHint from '../InfoHint';
+import { useBioAccess } from '../useBioAccess';
 import ReportViewer from './ReportViewer';
 import { REPORTS, ReportDefinition, ReportId } from './reportTypes';
 
@@ -27,19 +28,22 @@ const BioReportsContent = () => {
   const { theme } = useJumboTheme();
   const belowLarge = useMediaQuery(theme.breakpoints.down('lg'));
   const [open, setOpen] = useState<ReportDefinition | null>(null);
+  // Cost by group is all money, so it is only offered to those who may read financial reports.
+  const { finance } = useBioAccess();
+  const available = REPORTS.filter((report) => finance || report.id !== 'group-cost');
 
   // A link such as ?report=group-cost opens that report straight away.
   useEffect(() => {
-    const wanted = REPORTS.find((report) => report.id === searchParams.get('report'));
+    const wanted = available.find((report) => report.id === searchParams.get('report'));
     if (wanted) setOpen(wanted);
-  }, [searchParams]);
+  }, [searchParams, finance]);
 
   return (
     <>
       <Typography variant='h4' mb={2}>{dict.pageTitle}</Typography>
       <JumboCardQuick sx={{ height: '100%' }}>
         <Grid container textAlign='center' columnSpacing={2} rowSpacing={2}>
-          {REPORTS.map((report) => {
+          {available.map((report) => {
             const Icon = ICONS[report.id];
             const card = dict.cards[report.id];
 

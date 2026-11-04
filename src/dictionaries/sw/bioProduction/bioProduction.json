@@ -867,6 +867,7 @@
         "harvest": "{product}: {quantity} imepokelewa kutoka vitengo {count}",
         "produce": "{product}: {quantity} imekusanywa kutoka vitengo {count}",
         "cost": "{quantity} zimewekwa kwenye vitengo {count}",
+        "costPlain": "Imewekwa kwenye vitengo {count}",
         "feeding": "{product}: {quantity} {unit} kwa vitengo {count}",
         "mortality": "{quantity} wamekufa katika vitengo {count}",
         "weighing": "Vitengo {count} vimepimwa"

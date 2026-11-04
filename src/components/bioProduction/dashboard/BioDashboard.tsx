@@ -90,6 +90,7 @@ const DashboardContent = () => {
   const { lang } = useParams<{ lang: string }>();
   const access = useBioAccess();
   const farmAccess = access.master('farms');
+  const { finance } = access;
   const { theme } = useJumboTheme();
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
   const [tab, setTab] = useState<TabKey>('conditions');
@@ -272,16 +273,18 @@ const DashboardContent = () => {
         <Grid size={{ xs: 6, md: 3 }}>
           <KpiCard label={t.kpis.unitsInUse} value={`${summary.units_in_use} / ${summary.units_total}`} progress={summary.units_total ? (summary.units_in_use / summary.units_total) * 100 : 0} />
         </Grid>
-        <Grid size={{ xs: 12, md: 6 }}><KpiCard label={t.kpis.wip} value={money(summary.wip_balance)} /></Grid>
+        {finance && <Grid size={{ xs: 12, md: 6 }}><KpiCard label={t.kpis.wip} value={money(summary.wip_balance)} /></Grid>}
       </Grid>
       <Typography variant='overline' color='text.secondary'>{t.sections.period}</Typography>
       <Grid container spacing={1.5}>
         <Grid size={{ xs: 6, md: 3 }}>
           <KpiCard label={t.kpis.mortality} value={num(summary.mortality.current)} change={change(summary.mortality.current, summary.mortality.previous, (value) => num(value))} />
         </Grid>
-        <Grid size={{ xs: 6, md: 3 }}>
-          <KpiCard label={t.kpis.feed} value={money(summary.feed_cost.current)} change={change(summary.feed_cost.current, summary.feed_cost.previous, (value) => money(value))} />
-        </Grid>
+        {finance && (
+          <Grid size={{ xs: 6, md: 3 }}>
+            <KpiCard label={t.kpis.feed} value={money(summary.feed_cost.current)} change={change(summary.feed_cost.current, summary.feed_cost.previous, (value) => money(value))} />
+          </Grid>
+        )}
         <Grid size={{ xs: 6, md: 3 }}>
           <KpiCard
             label={t.kpis.fcr}
@@ -294,7 +297,7 @@ const DashboardContent = () => {
           <KpiCard
             label={t.kpis.harvest}
             value={num(summary.harvest.animals)}
-            hint={summary.harvest.animals ? `${num(summary.harvest.quantity, 1)} · ${money(summary.harvest.cost)}` : t.kpis.none}
+            hint={summary.harvest.animals ? `${num(summary.harvest.quantity, 1)}${finance ? ` · ${money(summary.harvest.cost)}` : ''}` : t.kpis.none}
           />
         </Grid>
         <Grid size={{ xs: 6, md: 3 }}>
@@ -363,9 +366,9 @@ const DashboardContent = () => {
         <Grid size={{ xs: 12, xl: 6 }}>
           <TrendCard metric='deaths' kind='area' title={t.trends.deaths} params={params} series={[{ key: 'deaths', label: t.trends.deaths, color: theme.palette.error.main }]} />
         </Grid>
-        <Grid size={{ xs: 12, xl: 6 }}>
+        {finance && <Grid size={{ xs: 12, xl: 6 }}>
           <TrendCard metric='feed' kind='area' title={t.trends.feed} params={params} money series={[{ key: 'feed_cost', label: t.trends.feed, color: theme.palette.primary.main }]} />
-        </Grid>
+        </Grid>}
         <Grid size={{ xs: 12, xl: 6 }}>
           <TrendCard metric='readings' title={t.trends.readings} params={params} stacked series={[{ key: 'watch_readings', label: t.trends.watch, color: theme.palette.warning.main }, { key: 'critical_readings', label: t.trends.critical, color: theme.palette.error.main }]} />
         </Grid>

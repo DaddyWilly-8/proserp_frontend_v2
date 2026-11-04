@@ -27,7 +27,23 @@ export const recordFacts = (record: RoundRecord, text: any, inputTypes: Record<s
   ).filter((pair): pair is [string, string] => !!pair[1]);
 
 /** Column headings and each line's cells, in the order the record is read on screen. */
-export const recordTable = (record: RoundRecord, text: any): { head: string[]; rows: string[][]; numeric: boolean[] } => {
+type RecordTable = { head: string[]; rows: string[][]; numeric: boolean[] };
+
+/** Takes out the last `count` columns when they hold nothing: the server leaves money out for those who may not see it. */
+const withoutEmptyMoney = (table: RecordTable, count: number): RecordTable => {
+  const first = table.head.length - count;
+  if (table.rows.length === 0 || table.rows.some((row) => row.slice(first).some((cell) => cell !== ''))) return table;
+
+  return { head: table.head.slice(0, first), rows: table.rows.map((row) => row.slice(0, first)), numeric: table.numeric.slice(0, first) };
+};
+
+export const recordTable = (record: RoundRecord, text: any): RecordTable => {
+  const table = buildRecordTable(record, text);
+
+  return withoutEmptyMoney(table, record.kind === 'cost' ? 2 : ['feeding', 'harvest', 'produce'].includes(record.kind) ? 1 : 0);
+};
+
+const buildRecordTable = (record: RoundRecord, text: any): RecordTable => {
   const symbol = record.measurement_unit?.symbol ?? '';
   const head = [text.labels.productionUnit, text.labels.batch, text.labels.stage];
   const lead = (line: NonNullable<RoundRecord['lines']>[number]) => [line.unit?.name ?? '', line.batchNo, line.stage?.name ?? ''];

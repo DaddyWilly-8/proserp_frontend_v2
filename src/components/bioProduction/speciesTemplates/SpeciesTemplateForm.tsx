@@ -26,6 +26,7 @@ import * as yup from 'yup';
 import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import BioSelect, { useStatusOptions } from '../BioSelect';
 import InfoHint from '../InfoHint';
+import { useBioAccess } from '../useBioAccess';
 import NumberField from '../NumberField';
 import ProductSelect from '@/components/productAndServices/products/ProductSelect';
 import { getErrorMessage } from '@/utilities/helpers/errorHandler';
@@ -79,6 +80,7 @@ const payload = ({ products, stages, ...rest }: TemplateFormData) => ({
 const TemplateFormBody = ({ setOpenDialog, template }: { setOpenDialog: (open: boolean) => void; template: BioSpeciesTemplate | null }) => {
   const dictionary = useDictionary();
   const text = dictionary.bioProduction.speciesTemplates;
+  const { finance } = useBioAccess();
   const common = dictionary.bioProduction.common;
   const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
@@ -322,7 +324,7 @@ const TemplateFormBody = ({ setOpenDialog, template }: { setOpenDialog: (open: b
                         ['useful_life_days', text.labels.usefulLife, '1'],
                         ['salvage_value_per_head', text.labels.salvageValue, 'any'],
                       ] as const
-                    ).map(([name, label, step]) => (
+                    ).filter(([name]) => finance || name !== 'salvage_value_per_head').map(([name, label, step]) => (
                       <Grid size={{ xs: 6, md: 3 }} key={name}>
                         {name === 'salvage_value_per_head' ? (
                           <Controller

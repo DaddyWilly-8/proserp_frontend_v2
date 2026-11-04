@@ -7,6 +7,7 @@ import { Box, Chip, DialogContent, DialogTitle, Grid, IconButton, LinearProgress
 import { useQuery } from '@tanstack/react-query';
 import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import { stamp } from '../dateTime';
+import { useBioAccess } from '../useBioAccess';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { FileExportGrid } from '@/components/sharedComponents/FileExportGrid';
 import PDFContent from '@/components/pdf/PDFContent';
@@ -33,6 +34,7 @@ const RoundView = ({ recordId, onClose }: { recordId: number; onClose: () => voi
   });
 
   const { authOrganization, authUser } = useJumboAuth();
+  const { finance } = useBioAccess();
   const [showPdf, setShowPdf] = useState(false);
   const [exportingExcel, setExportingExcel] = useState(false);
 
@@ -56,7 +58,7 @@ const RoundView = ({ recordId, onClose }: { recordId: number; onClose: () => voi
   const tail: Record<string, LineColumn<RoundLineData>[]> = {
     feeding: [
       { label: text.labels.quantity, xs: 6, md: 2.5, right: true, render: (line) => `${num(line.quantity, 5)} ${record.measurement_unit?.symbol ?? ''}` },
-      { label: text.labels.cost, xs: 6, md: 2.5, right: true, render: (line) => money(line.cost) },
+      ...(finance ? [{ label: text.labels.cost, xs: 6, md: 2.5, right: true, render: (line: RoundLineData) => money(line.cost) }] : []),
     ],
     harvest: [
       { label: text.labels.harvested, xs: 6, md: 2.5, right: true, render: (line) => num(line.quantity, 0) },
@@ -64,11 +66,11 @@ const RoundView = ({ recordId, onClose }: { recordId: number; onClose: () => voi
     ],
     produce: [
       { label: text.labels.collected, xs: 6, md: 2.5, right: true, render: (line) => num(line.quantity, 5) },
-      { label: text.labels.cost, xs: 6, md: 2.5, right: true, render: (line) => money(line.cost) },
+      ...(finance ? [{ label: text.labels.cost, xs: 6, md: 2.5, right: true, render: (line: RoundLineData) => money(line.cost) }] : []),
     ],
     cost: [
-      { label: text.labels.quantity, xs: 6, md: 2.5, right: true, render: (line) => `${num(line.quantity, 5)} × ${money(line.rate)}` },
-      { label: text.labels.amount, xs: 6, md: 2.5, right: true, render: (line) => money(line.amount) },
+      { label: text.labels.quantity, xs: 6, md: 2.5, right: true, render: (line) => (finance ? `${num(line.quantity, 5)} × ${money(line.rate)}` : num(line.quantity, 5)) },
+      ...(finance ? [{ label: text.labels.amount, xs: 6, md: 2.5, right: true, render: (line: RoundLineData) => money(line.amount) }] : []),
     ],
     mortality: [
       { label: text.labels.died, xs: 6, md: 1.5, right: true, render: (line) => num(line.quantity, 0) },
@@ -90,7 +92,7 @@ const RoundView = ({ recordId, onClose }: { recordId: number; onClose: () => voi
   const readingUnits = new Set((record.lines ?? []).map((line) => line.unit?.id)).size;
   const total = record.kind === 'measurement'
     ? text.messages.readingsSummary.replace('{readings}', String(record.lines_count)).replace('{units}', String(readingUnits))
-    : (record.kind === 'weighing' ? text.messages.total : text.messages.totalQuantity)
+    : (record.kind === 'weighing' || (record.kind === 'cost' && !finance) ? text.messages.total : text.messages.totalQuantity)
     .replace('{count}', String(record.lines_count))
     .replace('{quantity}', `${record.kind === 'cost' ? money(record.total_quantity) : num(record.total_quantity, 5)}${record.measurement_unit?.symbol ? ` ${record.measurement_unit.symbol}` : ''}`);
   const inputTypes = dictionary.bioProduction.batches.inputTypes;
@@ -137,7 +139,7 @@ const RoundView = ({ recordId, onClose }: { recordId: number; onClose: () => voi
           {fact(text.labels.unit, record.measurement_unit?.symbol ?? record.measurement_unit?.name)}
           {fact(text.labels.causeAll, record.cause)}
           {fact(text.labels.ledger, record.ledger?.name)}
-          {fact(text.labels.rate, record.rate != null ? money(record.rate) : undefined)}
+          {finance && fact(text.labels.rate, record.rate != null ? money(record.rate) : undefined)}
           {fact(text.labels.payment, record.payment?.voucherNo)}
           {fact(text.labels.creator, record.creator?.name)}
         </Grid>

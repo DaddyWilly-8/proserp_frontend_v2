@@ -8,6 +8,7 @@ import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import BioSelect from '../BioSelect';
 import { animalText } from '../animalText';
 import { stamp } from '../dateTime';
+import { useBioAccess } from '../useBioAccess';
 import ResponsiveTable from './ResponsiveTable';
 import { Batch, BatchExpense, BatchHarvest, BatchInput, BatchMortality, BatchProduce } from './batchTypes';
 
@@ -18,6 +19,9 @@ const num = (value: number | string | null | undefined, digits = 2) =>
   value == null ? '—' : Number(value).toLocaleString(undefined, { maximumFractionDigits: digits });
 
 const day = (value: string | null | undefined) => stamp(value);
+
+/** Columns that are shown only to those who may see money. */
+const ifFinance = <T,>(finance: boolean, ...columns: T[]): T[] => (finance ? columns : []);
 
 interface Column<T> {
   label: string;
@@ -71,17 +75,20 @@ const PagedFooter = ({ page, limit, total, onPageChange, onLimitChange }: PagedF
 );
 
 /** A headline figure above a paged table. */
-const TotalBar = ({ label, value, children }: { label: string; value: React.ReactNode; children?: React.ReactNode }) => (
+const TotalBar = ({ label, value, children }: { label?: string; value?: React.ReactNode; children?: React.ReactNode }) => (
   <Stack direction='row' alignItems='center' justifyContent='space-between' flexWrap='wrap' useFlexGap spacing={2} p={1.5}>
     <Box sx={{ minWidth: { md: 240 } }}>{children}</Box>
-    <Typography>
-      {label}: <b>{value}</b>
-    </Typography>
+    {label && (
+      <Typography>
+        {label}: <b>{value}</b>
+      </Typography>
+    )}
   </Stack>
 );
 
 export const StagesTable = ({ batch }: { batch: Batch }) => {
   const t = useDictionary().bioProduction.batches.tables;
+  const { finance } = useBioAccess();
 
   return (
     <SimpleTable
@@ -99,7 +106,7 @@ export const StagesTable = ({ batch }: { batch: Batch }) => {
           align: 'right',
           render: (s) => (s.abnormal_mortality_quantity ? <Box color='error.main'>{num(s.abnormal_mortality_quantity, 0)}</Box> : '—'),
         },
-        { label: t.cost, align: 'right', render: (s) => money(batch.costs?.by_stage?.[s.id] ?? 0) },
+        ...ifFinance(finance, { label: t.cost, align: 'right' as const, render: (s: any) => money(batch.costs?.by_stage?.[s.id] ?? 0) }),
       ]}
     />
   );
@@ -123,10 +130,11 @@ interface InputsTableProps {
 export const InputsTable = ({ inputs, onRemove, canEdit, type, onTypeChange, page, limit, total, totalCost, onPageChange, onLimitChange }: InputsTableProps) => {
   const text = useDictionary().bioProduction.batches;
   const t = text.tables;
+  const { finance } = useBioAccess();
 
   return (
     <>
-      <TotalBar label={t.totalCost} value={money(totalCost)}>
+      <TotalBar label={finance ? t.totalCost : undefined} value={finance ? money(totalCost) : undefined}>
         <BioSelect
           label={t.type}
           options={(['feed', 'medication', 'other'] as const).map((value) => ({ value, label: text.inputTypes[value] }))}
@@ -145,12 +153,12 @@ export const InputsTable = ({ inputs, onRemove, canEdit, type, onTypeChange, pag
             render: (i) =>
               i.items.map((item, index) => (
                 <div key={index}>
-                  {item.product?.name ?? item.product?.item_name} · {num(item.quantity, 5)} {item.measurement_unit?.symbol} @ {money(item.rate)}
+                  {item.product?.name ?? item.product?.item_name} · {num(item.quantity, 5)} {item.measurement_unit?.symbol} {finance ? ` @ ${money(item.rate)}` : ''}
                 </div>
               )),
           },
           { label: t.store, render: (i) => i.store?.name },
-          { label: t.cost, align: 'right', render: (i) => money(i.cost) },
+          ...ifFinance(finance, { label: t.cost, align: 'right' as const, render: (i: any) => money(i.cost) }),
           { label: '', align: 'right', render: (i) => (canEdit ? <RemoveButton label={text.dialogs.confirmDeleteInput} onClick={() => onRemove(i)} /> : null) },
         ]}
       />
@@ -175,18 +183,18 @@ interface ExpensesTableProps {
 export const ExpensesTable = ({ rows, onRemove, canEdit, page, limit, total, totalAmount, onPageChange, onLimitChange }: ExpensesTableProps) => {
   const text = useDictionary().bioProduction.batches;
   const t = text.tables;
+  const { finance } = useBioAccess();
 
   return (
     <>
-      <TotalBar label={t.totalCost} value={money(totalAmount)} />
+      {finance && <TotalBar label={t.totalCost} value={money(totalAmount)} />}
       <SimpleTable
         rows={rows}
         columns={[
           { label: t.date, render: (e) => day(e.expense_date) },
           { label: t.ledger, render: (e) => e.ledger?.name },
           { label: t.quantity, align: 'right', render: (e) => num(e.quantity, 5) },
-          { label: t.rate, align: 'right', render: (e) => money(e.rate) },
-          { label: t.amount, align: 'right', render: (e) => money(e.amount) },
+          ...ifFinance(finance, { label: t.rate, align: 'right' as const, render: (e: any) => money(e.rate) }, { label: t.amount, align: 'right' as const, render: (e: any) => money(e.amount) }),
           { label: t.remarks, render: (e) => e.remarks },
           { label: '', align: 'right', render: (e) => (canEdit ? <RemoveButton label={text.dialogs.confirmDeleteExpense} onClick={() => onRemove(e.id)} /> : null) },
         ]}
@@ -276,6 +284,7 @@ interface OutcomesTableProps {
 export const OutcomesTable = ({ batch, onEditHarvest, onDeleteHarvest, canChange = true }: OutcomesTableProps) => {
   const text = useDictionary().bioProduction;
   const t = text.batches.tables;
+  const { finance } = useBioAccess();
   const latest = [...(batch.harvests ?? [])].sort((a, b) => String(a.harvest_date).localeCompare(String(b.harvest_date)) || a.id - b.id).at(-1);
   const animals = batch.species_template?.count_label;
   const rows = [
@@ -306,8 +315,7 @@ export const OutcomesTable = ({ batch, onEditHarvest, onDeleteHarvest, canChange
         { label: t.date, render: (r) => day(r.date) },
         { label: t.kind, render: (r) => r.kind },
         { label: animalText(t.fish, animals), align: 'right', render: (r) => num(r.fish, 0) },
-        { label: t.amount, align: 'right', headline: true, render: (r) => money(r.amount) },
-        { label: t.costPerUnit, align: 'right', render: (r) => (r.perUnit == null ? '—' : money(r.perUnit)) },
+        ...ifFinance(finance, { label: t.amount, align: 'right' as const, headline: true, render: (r: any) => money(r.amount) }, { label: t.costPerUnit, align: 'right' as const, render: (r: any) => (r.perUnit == null ? '—' : money(r.perUnit)) }),
         {
           label: '',
           align: 'right',
@@ -342,20 +350,23 @@ interface ProduceTableProps {
 export const ProduceTable = ({ rows, page, limit, total, totalCost, latestId, onEdit, onDelete, onPageChange, onLimitChange }: ProduceTableProps) => {
   const text = useDictionary().bioProduction;
   const t = text.batches.tables;
+  const { finance } = useBioAccess();
 
   return (
     <>
-      <TotalBar label={t.totalCost} value={money(totalCost)} />
+      {finance && <TotalBar label={t.totalCost} value={money(totalCost)} />}
       <SimpleTable
         rows={rows}
         columns={[
           { label: t.date, render: (r) => day(r.collection_date) },
           { label: t.product, render: (r) => r.product?.name ?? r.product?.item_name },
           { label: t.quantity, align: 'right', render: (r) => num(r.product_quantity, 5) },
-          { label: t.runningCost, align: 'right', render: (r) => money(r.running_cost_amount) },
-          { label: t.depreciation, align: 'right', render: (r) => money(r.depreciation_amount) },
-          { label: t.cost, align: 'right', headline: true, render: (r) => money(r.cost_amount) },
-          { label: t.costPerUnit, align: 'right', render: (r) => (r.cost_per_unit == null ? '—' : money(r.cost_per_unit)) },
+          ...ifFinance(finance,
+            { label: t.runningCost, align: 'right' as const, render: (r: any) => money(r.running_cost_amount) },
+            { label: t.depreciation, align: 'right' as const, render: (r: any) => money(r.depreciation_amount) },
+            { label: t.cost, align: 'right' as const, headline: true, render: (r: any) => money(r.cost_amount) },
+            { label: t.costPerUnit, align: 'right' as const, render: (r: any) => (r.cost_per_unit == null ? '—' : money(r.cost_per_unit)) },
+          ),
           { label: t.remarks, render: (r) => r.remarks },
           {
             label: '',
