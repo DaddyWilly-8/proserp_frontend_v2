@@ -47,7 +47,7 @@ const TrendCard = ({ metric, title, series, stacked = false, kind = 'bar', param
   return (
     <JumboCardQuick
       title={title}
-      sx={{ height: 360 }}
+      sx={{ minHeight: 360 }}
       action={
         narrow ? (
           <FormControl size='small' sx={{ minWidth: 120 }}>
@@ -74,7 +74,7 @@ const TrendCard = ({ metric, title, series, stacked = false, kind = 'bar', param
       ) : data.periods.length === 0 ? (
         <Typography color='text.secondary'>{t.none}</Typography>
       ) : (
-        <Box sx={{ height: 270 }}>
+        <Box sx={{ height: narrow ? 330 : 270 }}>
           <ResponsiveContainer width='100%' height='100%'>
             <Chart data={data.periods} margin={{ top: 6, right: 6, bottom: 0, left: -10 }}>
               <CartesianGrid strokeDasharray='3 3' stroke={theme.palette.divider} vertical={false} />
@@ -84,7 +84,7 @@ const TrendCard = ({ metric, title, series, stacked = false, kind = 'bar', param
                 labelFormatter={(period) => (by === 'week' ? t.weekOf.replace('{date}', dayjs(String(period)).format('D MMM YYYY')) : by === 'day' ? dayjs(String(period)).format('ddd, D MMM YYYY') : axisLabel(String(period), by))}
                 formatter={(value, name) => [money ? Number(value).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : Number(value).toLocaleString(), name]}
               />
-              {series.length > 1 && <Legend wrapperStyle={{ fontSize: 12 }} />}
+              {series.length > 1 && <Legend wrapperStyle={{ fontSize: 12, paddingTop: 6, lineHeight: '18px', left: 0, width: '100%' }} />}
               {series.map((item) =>
                 kind === 'area' ? (
                   <Area key={item.key} type='monotone' dataKey={item.key} name={item.label} stroke={item.color} fill={item.color} fillOpacity={0.15} strokeWidth={2} dot={{ r: 2.5 }} activeDot={{ r: 4 }} isAnimationActive={false} />

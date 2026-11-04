@@ -145,7 +145,7 @@ export const InputsTable = ({ inputs, onRemove, canEdit, type, onTypeChange, pag
             render: (i) =>
               i.items.map((item, index) => (
                 <div key={index}>
-                  {item.product?.item_name ?? item.product?.name} · {num(item.quantity, 5)} {item.measurement_unit?.symbol} @ {money(item.rate)}
+                  {item.product?.name ?? item.product?.item_name} · {num(item.quantity, 5)} {item.measurement_unit?.symbol} @ {money(item.rate)}
                 </div>
               )),
           },
@@ -350,7 +350,7 @@ export const ProduceTable = ({ rows, page, limit, total, totalCost, latestId, on
         rows={rows}
         columns={[
           { label: t.date, render: (r) => day(r.collection_date) },
-          { label: t.product, render: (r) => r.product?.item_name },
+          { label: t.product, render: (r) => r.product?.name ?? r.product?.item_name },
           { label: t.quantity, align: 'right', render: (r) => num(r.product_quantity, 5) },
           { label: t.runningCost, align: 'right', render: (r) => money(r.running_cost_amount) },
           { label: t.depreciation, align: 'right', render: (r) => money(r.depreciation_amount) },

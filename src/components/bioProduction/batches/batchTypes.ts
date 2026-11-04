@@ -63,7 +63,7 @@ export interface BatchHarvest {
   cost_amount: number | string;
   cost_per_unit: number | null;
   remarks: string | null;
-  product?: { id: number; item_name: string };
+  product?: { id: number; item_name: string; name?: string };
   store?: { id: number; name: string };
 }
 
@@ -78,7 +78,7 @@ export interface BatchProduce {
   remarks: string | null;
   product_id: number;
   store_id: number;
-  product?: { id: number; item_name: string };
+  product?: { id: number; item_name: string; name?: string };
   store?: { id: number; name: string };
   batch_stage?: { id: number; name: string };
 }
