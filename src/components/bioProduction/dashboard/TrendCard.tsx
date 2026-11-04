@@ -35,9 +35,10 @@ const TrendCard = ({ metric, title, series, stacked = false, kind = 'bar', param
   const narrow = useMediaQuery(theme.breakpoints.down('lg'));
   const [by, setBy] = useState<Grouping>('day');
 
-  const { data, isLoading } = useQuery<{ periods: TrendPeriod[] }>({
+  const { data, isLoading, isError } = useQuery<{ periods: TrendPeriod[] }>({
     queryKey: ['bioDashboardTrend', metric, by, params],
     queryFn: () => dashboardServices.trend({ ...params, metric, aggregate_by: by }),
+    retry: (count, failure: any) => (failure?.response?.status ?? 500) >= 500 && count < 2,
     placeholderData: (previous) => previous,
   });
   const Chart = kind === 'area' ? AreaChart : BarChart;
@@ -66,7 +67,9 @@ const TrendCard = ({ metric, title, series, stacked = false, kind = 'bar', param
         )
       }
     >
-      {isLoading || !data ? (
+      {isError && !data ? (
+        <Typography color='text.secondary'>{t.loadFailed}</Typography>
+      ) : isLoading || !data ? (
         <Skeleton variant='rounded' height={250} />
       ) : data.periods.length === 0 ? (
         <Typography color='text.secondary'>{t.none}</Typography>

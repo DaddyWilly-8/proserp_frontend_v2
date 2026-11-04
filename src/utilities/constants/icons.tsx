@@ -122,6 +122,7 @@ export const ICONS = {
   measurementsRound: ThermostatOutlined,
   measurementParameters: ScienceOutlined,
   productionUnits: WaterOutlined,
+  unitGroups: AccountTreeOutlined,
   speciesTemplates: SetMealOutlined,
   outlets: StoreOutlined,
   settings: StoreOutlined,

@@ -10,6 +10,7 @@ import { batchServices } from '../../bio-production-services';
 import { DialogProps } from '../batchTypes';
 import ActionDialog, { FormDate, useBatchAction } from './ActionDialog';
 import { nowStamp } from '../../dateTime';
+import { FormNumber } from '../../NumberField';
 
 const MortalityDialog = ({ batch, open, onClose }: DialogProps) => {
   const text = useDictionary().bioProduction.batches;
@@ -37,8 +38,7 @@ const MortalityDialog = ({ batch, open, onClose }: DialogProps) => {
           <FormDate control={control} name='event_date' label={text.labels.date} minDate={batch.start_date} />
         </Grid>
         <Grid size={{ xs: 12, md: 6 }}>
-          <TextField type='number' size='small' fullWidth label={text.labels.quantity} error={!!errors.quantity}
-            helperText={errors.quantity?.message} {...register('quantity')} />
+          <FormNumber control={control} name='quantity' integer label={text.labels.quantity} error={!!errors.quantity} helperText={errors.quantity?.message} />
         </Grid>
         <Grid size={12}>
           <TextField size='small' fullWidth label={dialog.cause} {...register('cause')} />

@@ -24,13 +24,15 @@ interface BioMasterListProps<T> {
   filterControls?: React.ReactNode[];
   /** False hides the "new" button, for someone who may only look. */
   canCreate?: boolean;
+  /** More buttons beside "new". */
+  extraActions?: React.ReactNode;
 }
 
 /**
  * The searchable, paginated list with a "new" dialog that the Bio Production
  * masters share.
  */
-function BioMasterList<T>({ title, newLabel, searchPlaceholder, queryKey, service, renderItem, Form, filters, filterControls, canCreate = true }: BioMasterListProps<T>) {
+function BioMasterList<T>({ title, newLabel, searchPlaceholder, queryKey, service, renderItem, Form, filters, filterControls, canCreate = true, extraActions }: BioMasterListProps<T>) {
   const [keyword, setKeyword] = useState('');
   const [openDialog, setOpenDialog] = useState(false);
   const { theme } = useJumboTheme();
@@ -70,6 +72,7 @@ function BioMasterList<T>({ title, newLabel, searchPlaceholder, queryKey, servic
                 <Grid size={{ xs: 12, md: 6, lg: 5 }}>
                   <Stack direction='row' alignItems='center'>
                     <JumboSearch onChange={setKeyword} value={keyword} placeholder={searchPlaceholder} />
+                    {extraActions}
                     {canCreate && <BioActionTail label={newLabel} onClick={() => setOpenDialog(true)} />}
                   </Stack>
                 </Grid>

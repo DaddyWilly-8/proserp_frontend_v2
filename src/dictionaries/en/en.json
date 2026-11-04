@@ -57,6 +57,8 @@
       "bioBatches": "Batches",
       "farms": "Farms",
       "productionUnits": "Production Units",
+      "unitGroups": "Unit Groups",
+      "bioReports": "Reports",
       "speciesTemplates": "Species Templates",
       "sales": "Sales",
       "projects": "Projects",

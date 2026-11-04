@@ -13,13 +13,32 @@ export interface BioFarm {
   output_categories?: { id: number; name: string }[];
 }
 
+export interface BioUnitGroup {
+  id: number;
+  farm_id: number;
+  parent_id?: number | null;
+  name: string;
+  code?: string | null;
+  description?: string | null;
+  status: BioStatus;
+  /** The full path, e.g. "Line 3 › Group 1". */
+  path: string;
+  depth: number;
+  units_count?: number;
+  children_count?: number;
+  farm?: { id: number; name: string } | null;
+}
+
 export interface BioProductionUnit {
   id: number;
   farm_id: number;
+  unit_group_id?: number | null;
+  unit_group?: { id: number; name: string; path?: string } | null;
   name: string;
   type: 'pond' | 'cage' | 'tank' | 'house' | 'pen';
   capacity?: number | string | null;
-  capacity_unit?: string | null;
+  capacity_unit_id?: number | null;
+  capacity_unit?: { id: number; name: string; symbol?: string | null } | null;
   max_batches?: number;
   open_batches?: { id: number; batchNo?: string }[];
   status: BioStatus;

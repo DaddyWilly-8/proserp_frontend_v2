@@ -10,6 +10,7 @@ import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 import { useQuery } from '@tanstack/react-query';
 import dayjs, { Dayjs } from 'dayjs';
 import { useParams } from 'next/navigation';
+import { getErrorMessage } from '@/utilities/helpers/errorHandler';
 import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import { dashboardServices, farmServices } from '../bio-production-services';
 import { money } from '../batches/BatchTables';
@@ -88,6 +89,7 @@ const DashboardContent = () => {
   const t = bio.dashboard;
   const { lang } = useParams<{ lang: string }>();
   const access = useBioAccess();
+  const farmAccess = access.master('farms');
   const { theme } = useJumboTheme();
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
   const [tab, setTab] = useState<TabKey>('conditions');
@@ -98,7 +100,7 @@ const DashboardContent = () => {
   const [to, setTo] = useState<Dayjs>(() => dayjs());
   const [farmIds, setFarmIds] = useState<number[]>([]);
 
-  const { data: farmList } = useQuery<{ data: BioFarm[] }>({
+  const { data: farmList, isSuccess: farmsLoaded } = useQuery<{ data: BioFarm[] }>({
     queryKey: ['bioActiveFarms'],
     queryFn: () => farmServices.getList({ status: 'active', limit: 500 }),
   });
@@ -112,9 +114,12 @@ const DashboardContent = () => {
     to: to.format('YYYY-MM-DD HH:mm:ss'),
   }), [farmIds, from, to]);
 
-  const { data, isLoading, isFetching, refetch } = useQuery<Dashboard>({
+  // Without a farm the server has nothing to show, so it is not asked. A refusal (no access, a bad range) is shown, not retried.
+  const { data, isLoading, isError, error, isFetching, refetch } = useQuery<Dashboard>({
     queryKey: ['bioDashboard', params],
     queryFn: () => dashboardServices.get(params),
+    enabled: farmsLoaded && farms.length > 0,
+    retry: (count, failure: any) => (failure?.response?.status ?? 500) >= 500 && count < 2,
     placeholderData: (previous) => previous,
     refetchInterval: 5 * 60 * 1000,
   });
@@ -150,6 +155,33 @@ const DashboardContent = () => {
       </Grid>
     </JumboCardQuick>
   );
+
+  if (farmsLoaded && farms.length === 0) {
+    return (
+      <Card variant='outlined'>
+        <CardContent sx={{ textAlign: 'center', py: 5 }}>
+          <Typography variant='h5'>{t.empty.title}</Typography>
+          <Typography color='text.secondary' mb={2}>{farmAccess.create ? t.empty.text : t.empty.askAdmin}</Typography>
+          {farmAccess.create && <Button variant='contained' component={Link} href={`/${lang}/bioProduction/farms`}>{t.empty.action}</Button>}
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (isError && !data) {
+    return (
+      <Box>
+        {filters}
+        <Card variant='outlined'>
+          <CardContent sx={{ textAlign: 'center', py: 4 }}>
+            <Typography variant='h5'>{t.error.title}</Typography>
+            <Typography color='text.secondary' mb={2}>{getErrorMessage(error)}</Typography>
+            <Button variant='outlined' onClick={() => refetch()}>{t.error.retry}</Button>
+          </CardContent>
+        </Card>
+      </Box>
+    );
+  }
 
   if (isLoading || !data) return <Box>{filters}<LinearProgress /></Box>;
 

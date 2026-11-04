@@ -1,20 +1,65 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { Divider, Grid, Tooltip, Typography } from '@mui/material';
+import { DeleteOutlined, EditOutlined, MoreHorizOutlined } from '@mui/icons-material';
+import { Box, Divider, Grid, Tooltip, Typography } from '@mui/material';
+import { JumboDdMenu } from '@jumbo/components';
+import { useJumboDialog } from '@jumbo/components/JumboDialog/hooks/useJumboDialog';
+import { MenuItemProps } from '@jumbo/types';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useSnackbar } from 'notistack';
 import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
+import { getErrorMessage } from '@/utilities/helpers/errorHandler';
+import { batchServices } from '../bio-production-services';
+import { useBioAccess } from '../useBioAccess';
+import EditDialog from './dialogs/EditDialog';
 import { stamp } from '../dateTime';
 import BatchStatusChip from './BatchStatusChip';
 import { Batch } from './batchTypes';
 
 const BatchListItem = ({ batch }: { batch: Batch }) => {
-  const text = useDictionary().bioProduction.batches;
+  const bio = useDictionary().bioProduction;
+  const text = bio.batches;
   const { lang } = useParams<{ lang: string }>();
+  const access = useBioAccess().batches;
+  const { showDialog, hideDialog } = useJumboDialog();
+  const { enqueueSnackbar } = useSnackbar();
+  const queryClient = useQueryClient();
+  const [editing, setEditing] = useState(false);
+
+  const { mutate: remove } = useMutation({
+    mutationFn: batchServices.delete,
+    onSuccess: (data: { message: string }) => {
+      queryClient.invalidateQueries({ queryKey: ['bioBatches'] });
+      enqueueSnackbar(data.message, { variant: 'success' });
+    },
+    onError: (error) => enqueueSnackbar(getErrorMessage(error), { variant: 'error' }),
+  });
+
+  // A closed batch can be neither edited nor deleted.
+  const open = batch.status === 'on progress';
+  const menuItems = [
+    ...(open && access.manage ? [{ icon: <EditOutlined />, title: text.actions.edit, action: 'edit' }] : []),
+    ...(open && access.delete ? [{ icon: <DeleteOutlined color='error' />, title: text.actions.delete, action: 'delete' }] : []),
+  ];
+  const onAction = (item: MenuItemProps) => {
+    if (item.action === 'edit') setEditing(true);
+    else if (item.action === 'delete') {
+      showDialog({
+        title: bio.common.confirmDeleteTitle,
+        content: text.dialogs.confirmDeleteBatch,
+        onYes: () => { hideDialog(); remove(batch.id); },
+        onNo: () => hideDialog(),
+        variant: 'confirm',
+      });
+    }
+  };
 
   return (
     <React.Fragment>
       <Divider />
-      <Link href={`/${lang}/bioProduction/batches/${batch.id}`} style={{ color: 'inherit', textDecoration: 'none' }}>
+      <Box display='flex' alignItems='center'>
+      <Link style={{ flex: 1, minWidth: 0, color: 'inherit', textDecoration: 'none' }} href={`/${lang}/bioProduction/batches/${batch.id}`}>
         <Grid
           container
           mt={1}
@@ -59,6 +104,17 @@ const BatchListItem = ({ batch }: { batch: Batch }) => {
           </Grid>
         </Grid>
       </Link>
+      {menuItems.length > 0 && (
+        <Box pr={1}>
+          <JumboDdMenu
+            icon={<Tooltip title={bio.common.actions}><MoreHorizOutlined fontSize='small' /></Tooltip>}
+            menuItems={menuItems}
+            onClickCallback={onAction}
+          />
+        </Box>
+      )}
+      </Box>
+      {editing && <EditDialog batch={batch} open onClose={() => setEditing(false)} />}
     </React.Fragment>
   );
 };

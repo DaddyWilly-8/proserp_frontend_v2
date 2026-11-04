@@ -262,6 +262,12 @@ export async function getMenus(locale: string) {
           ],
         },
         {
+          uri: `/${locale}/bioProduction/reports`,
+          label: sidebar.menuItem.bioReports,
+          type: 'nav-item',
+          icon: icon('reports'),
+        },
+        {
           label: sidebar.menuItem.masters,
           type: 'collapsible',
           icon: icon('manufacturingMasters'),
@@ -271,6 +277,12 @@ export async function getMenus(locale: string) {
               label: sidebar.menuItem.farms,
               type: 'nav-item',
               icon: icon('farms'),
+            },
+            {
+              uri: `/${locale}/bioProduction/unitGroups`,
+              label: sidebar.menuItem.unitGroups,
+              type: 'nav-item',
+              icon: icon('unitGroups'),
             },
             {
               uri: `/${locale}/bioProduction/productionUnits`,
