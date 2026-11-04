@@ -69,7 +69,9 @@ const allowedFormats = [
 // value can end up as `{}` instead of the actual File.
 const getValidationSchema = (dictionary: any) =>
   yup.object({
-    name: yup.string().required(dictionary.forms.attachments.errors.nameRequired),
+    name: yup
+      .string()
+      .required(dictionary.forms.attachments.errors.nameRequired),
   });
 
 function AttachmentForm({
@@ -93,7 +95,8 @@ function AttachmentForm({
     '{max}',
     String(MAX_UPLOAD_BYTES / (1024 * 1024))
   );
-  // A 413 only happens on the direct-upload fallback (no S3 bucket).
+  // For the direct-upload fallback (no S3 bucket), where Amplify's Lambda
+  // body limit is what rejects the file.
   const directTooLargeMessage = t.errors.tooLarge.replace(
     '{max}',
     String(DIRECT_UPLOAD_MAX_BYTES / (1024 * 1024))
@@ -123,10 +126,16 @@ function AttachmentForm({
       setFileError(null);
     },
     onError: (error: any) => {
-      // A 413 comes from CloudFront with an empty body, so getErrorMessage
-      // would have nothing to show.
+      // A 413's body is empty (CloudFront) or the web server's HTML page, so
+      // getErrorMessage has nothing useful to show. A multipart request means
+      // the direct fallback hit Amplify's limit; otherwise the file already
+      // went through S3 and it's the backend's own body limit that refused it.
       const message =
-        error?.response?.status === 413 ? directTooLargeMessage : getErrorMessage(error);
+        error?.response?.status === 413
+          ? error?.config?.data instanceof FormData
+            ? directTooLargeMessage
+            : t.errors.serverTooLarge
+          : getErrorMessage(error);
       enqueueSnackbar(message, { variant: 'error' });
     },
   });
@@ -218,7 +227,9 @@ function AttachmentForm({
                   inputProps={{ onChange: handleFileChange }}
                 />
                 {!fileError ? (
-                  <InputLabel htmlFor='file-input'>{t.labels.fileAttachment}</InputLabel>
+                  <InputLabel htmlFor='file-input'>
+                    {t.labels.fileAttachment}
+                  </InputLabel>
                 ) : (
                   <FormHelperText error>{fileError}</FormHelperText>
                 )}
