@@ -663,6 +663,7 @@
         "loss": "Loss",
         "status": "Status",
         "totalCost": "Total cost",
+        "record": "Record",
         "totalLost": "Total {animals} lost"
       },
       "inputTypes": {
@@ -673,6 +674,7 @@
       "dialogs": {
         "mortality": {
           "title": "Record Mortality",
+          "editTitle": "Correct Mortality",
           "cause": "Cause",
           "help": "Mortality up to the stage's allowance is absorbed into the survivors' cost. Beyond it, you will be asked to write it off."
         },
@@ -767,6 +769,7 @@
         "confirmDeleteBatch": "Delete this batch? This cannot be undone. Only a batch with no recorded activity can be deleted.",
         "confirmDeleteInput": "Remove this input and return its stock?",
         "confirmDeleteExpense": "Remove this cost from the batch?",
+        "confirmDeleteMortality": "Delete this loss and its daily record? Its animals return to the batch. This cannot be done once the batch has moved on from this stage, or after this stage's losses have been written off.",
         "confirmDeleteHarvest": "Delete this harvest? Its animals return to the batch, its stock is taken out of the store and its cost goes back into the batch. This cannot be done once the stock has been used or sold.",
         "confirmDeleteProduce": "Delete this produce record? Its stock is taken out of the store and its cost goes back into the batch. This cannot be done once the stock has been used or sold."
       },

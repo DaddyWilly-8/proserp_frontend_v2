@@ -4,7 +4,8 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { ArrowBackOutlined, DeleteOutlined, EditOutlined } from '@mui/icons-material';
-import { Box, Button, Card, IconButton, LinearProgress, Stack, Tab, Tabs, Tooltip, Typography } from '@mui/material';
+import { Box, Button, Card, Dialog, IconButton, LinearProgress, Stack, Tab, Tabs, Tooltip, Typography, useMediaQuery } from '@mui/material';
+import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 import { useJumboDialog } from '@jumbo/components/JumboDialog/hooks/useJumboDialog';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useSnackbar } from 'notistack';
@@ -13,6 +14,7 @@ import LedgerSelectProvider from '@/components/accounts/ledgers/forms/LedgerSele
 import ProductsSelectProvider from '@/components/productAndServices/products/ProductsSelectProvider';
 import { getErrorMessage } from '@/utilities/helpers/errorHandler';
 import { batchServices } from '../bio-production-services';
+import RoundView from '../rounds/RoundView';
 import BatchStatusChip from './BatchStatusChip';
 import BatchSummary from './BatchSummary';
 import { ExpensesTable, InputsTable, MortalityTable, MovementsTable, OutcomesTable, ProduceTable, StagesTable, WeightsTable } from './BatchTables';
@@ -46,6 +48,10 @@ const BatchDetailContent = () => {
   const [dialog, setDialog] = useState<DialogName | null>(null);
   const [tab, setTab] = useState<TabName>('summary');
   const [editingStage, setEditingStage] = useState<BatchStage | null>(null);
+  const [editingMortality, setEditingMortality] = useState<BatchMortality | null>(null);
+  const [viewingRecord, setViewingRecord] = useState<number | null>(null);
+  const { theme } = useJumboTheme();
+  const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
   const [editingHarvest, setEditingHarvest] = useState<BatchHarvest | null>(null);
   const [editingProduce, setEditingProduce] = useState<BatchProduce | null>(null);
   const { showDialog, hideDialog } = useJumboDialog();
@@ -80,6 +86,7 @@ const BatchDetailContent = () => {
   const onRemoveError = (error: unknown) => enqueueSnackbar(getErrorMessage(error), { variant: 'error' });
 
   const { mutate: removeInput } = useMutation({ mutationFn: batchServices.deleteInput, onSuccess: onRemoved, onError: onRemoveError });
+  const { mutate: removeMortality } = useMutation({ mutationFn: batchServices.deleteMortality, onSuccess: onRemoved, onError: onRemoveError });
   const { mutate: removeHarvest } = useMutation({ mutationFn: batchServices.deleteHarvest, onSuccess: onRemoved, onError: onRemoveError });
   const { mutate: removeProduce } = useMutation({ mutationFn: batchServices.deleteProduce, onSuccess: onRemoved, onError: onRemoveError });
   const { mutate: removeExpense } = useMutation({ mutationFn: batchServices.deleteExpense, onSuccess: onRemoved, onError: onRemoveError });
@@ -169,6 +176,7 @@ const BatchDetailContent = () => {
               inputs={inputs.rows}
               canEdit={open && access.record}
               onRemove={(input) => confirm(text.dialogs.confirmDeleteInput, () => removeInput({ id: batchId, eventId: input.id }))}
+              onOpenRecord={setViewingRecord}
               type={inputsType}
               onTypeChange={(type) => { setInputsType(type); inputs.setPage(0); }}
               page={inputs.page}
@@ -200,6 +208,9 @@ const BatchDetailContent = () => {
               limit={mortalities.limit}
               total={mortalities.total}
               totalQuantity={mortalities.response?.total_quantity ?? 0}
+              onOpenRecord={setViewingRecord}
+              onEdit={open && access.record ? setEditingMortality : undefined}
+              onDelete={(row) => confirm(text.dialogs.confirmDeleteMortality, () => removeMortality({ id: batchId, eventId: row.id }))}
               onPageChange={mortalities.setPage}
               onLimitChange={mortalities.setLimit}
             />
@@ -232,6 +243,10 @@ const BatchDetailContent = () => {
       </Card>
 
       {editingStage && <StageDateDialog key={editingStage.id} batch={batch} stage={editingStage} open onClose={() => setEditingStage(null)} />}
+      {editingMortality && <MortalityDialog key={editingMortality.id} batch={batch} open record={editingMortality} onClose={() => setEditingMortality(null)} />}
+      <Dialog open={viewingRecord !== null} fullWidth maxWidth='md' fullScreen={belowLargeScreen} onClose={() => setViewingRecord(null)}>
+        {viewingRecord !== null && <RoundView recordId={viewingRecord} onClose={() => setViewingRecord(null)} />}
+      </Dialog>
       {editingHarvest && (
         <HarvestDialog key={editingHarvest.id} batch={batch} open record={editingHarvest} onClose={() => setEditingHarvest(null)} />
       )}

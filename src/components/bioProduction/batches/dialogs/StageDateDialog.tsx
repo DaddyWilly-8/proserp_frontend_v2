@@ -2,11 +2,12 @@
 
 import React from 'react';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { Grid } from '@mui/material';
+import { Grid, Stack } from '@mui/material';
 import { useForm } from 'react-hook-form';
 import * as yup from 'yup';
 import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import { batchServices } from '../../bio-production-services';
+import InfoHint from '../../InfoHint';
 import { BatchStage, DialogProps } from '../batchTypes';
 import ActionDialog, { FormDate, useBatchAction } from './ActionDialog';
 
@@ -21,11 +22,14 @@ const StageDateDialog = ({ batch, stage, open, onClose }: DialogProps & { stage:
   const { mutate, isPending } = useBatchAction(batch.id, batchServices.updateStage, onClose);
 
   return (
-    <ActionDialog open={open} title={dialog.title.replace('{stage}', stage.name)} help={dialog.help} loading={isPending} onClose={onClose}
+    <ActionDialog open={open} title={dialog.title.replace('{stage}', stage.name)} loading={isPending} onClose={onClose}
       onSubmit={handleSubmit((data: any) => mutate({ id: batch.id, stageId: stage.id, ...data }))}>
       <Grid container spacing={2}>
         <Grid size={{ xs: 12, md: 6 }}>
-          <FormDate control={control} name='start_date' label={dialog.label} />
+          <Stack direction='row' alignItems='center' spacing={0.5}>
+            <FormDate control={control} name='start_date' label={dialog.label} />
+            <InfoHint text={dialog.help} />
+          </Stack>
         </Grid>
       </Grid>
     </ActionDialog>

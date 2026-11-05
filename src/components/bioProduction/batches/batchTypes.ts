@@ -110,10 +110,17 @@ export interface BatchMortality {
   cause: string | null;
   remarks: string | null;
   batch_stage_id: number;
+  /** The daily record the loss belongs to, where it is corrected. */
+  daily_record_id?: number | null;
+  daily_record?: { id: number; recordNo: string; lines_count: number } | null;
 }
 
 export interface BatchInput {
   id: number;
+  daily_record_id?: number | null;
+  recordNo?: string | null;
+  /** How many lines the record holds; more than one means it is corrected on Daily Records. */
+  record_lines?: number | null;
   event_date: string;
   type: 'feed' | 'medication' | 'other';
   reason: string | null;

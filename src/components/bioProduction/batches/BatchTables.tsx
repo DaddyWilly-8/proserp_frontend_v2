@@ -3,7 +3,7 @@
 import { fromGrams, withUnit } from '../weightUnit';
 import React from 'react';
 import { DeleteOutlined, EditOutlined } from '@mui/icons-material';
-import { Box, IconButton, Stack, TablePagination, Tooltip, Typography } from '@mui/material';
+import { Box, IconButton, Link, Stack, TablePagination, Tooltip, Typography } from '@mui/material';
 import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import BioSelect from '../BioSelect';
 import { animalText } from '../animalText';
@@ -119,6 +119,7 @@ interface InputsTableProps {
   inputs: BatchInput[];
   canEdit: boolean;
   onRemove: (input: BatchInput) => void;
+  onOpenRecord: (recordId: number) => void;
   type: string | number;
   onTypeChange: (type: string | number) => void;
   page: number;
@@ -130,7 +131,7 @@ interface InputsTableProps {
 }
 
 /** The batch's feed and medication, a page at a time, filterable by type. */
-export const InputsTable = ({ inputs, onRemove, canEdit, type, onTypeChange, page, limit, total, totalCost, onPageChange, onLimitChange }: InputsTableProps) => {
+export const InputsTable = ({ inputs, onRemove, onOpenRecord, canEdit, type, onTypeChange, page, limit, total, totalCost, onPageChange, onLimitChange }: InputsTableProps) => {
   const text = useDictionary().bioProduction.batches;
   const t = text.tables;
   const { finance } = useBioAccess();
@@ -162,7 +163,9 @@ export const InputsTable = ({ inputs, onRemove, canEdit, type, onTypeChange, pag
           },
           { label: t.store, render: (i) => i.store?.name },
           ...ifFinance(finance, { label: t.cost, align: 'right' as const, render: (i: any) => money(i.cost) }),
-          { label: '', align: 'right', render: (i) => (canEdit ? <RemoveButton label={text.dialogs.confirmDeleteInput} onClick={() => onRemove(i)} /> : null) },
+          { label: t.record, render: (i) => <RecordLink recordNo={i.recordNo} recordId={i.daily_record_id} onOpen={onOpenRecord} /> },
+          // An input on a record shared with other lines is deleted from Daily Records; one of its own record, or older with none, is removed here.
+          { label: '', align: 'right', render: (i) => (canEdit && (i.record_lines ?? 1) <= 1 ? <RemoveButton label={text.dialogs.confirmDeleteInput} onClick={() => onRemove(i)} /> : null) },
         ]}
       />
       <PagedFooter page={page} limit={limit} total={total} onPageChange={onPageChange} onLimitChange={onLimitChange} />
@@ -207,6 +210,10 @@ export const ExpensesTable = ({ rows, onRemove, canEdit, page, limit, total, tot
   );
 };
 
+/** The number of the daily record an entry was made on, opening it; blank for an entry that has none. */
+const RecordLink = ({ recordNo, recordId, onOpen }: { recordNo?: string | null; recordId?: number | null; onOpen: (recordId: number) => void }) =>
+  recordId ? <Link component='button' type='button' underline='hover' onClick={() => onOpen(recordId)}>{recordNo ?? `#${recordId}`}</Link> : <>—</>;
+
 interface MortalityTableProps {
   batch: Batch;
   rows: BatchMortality[];
@@ -214,13 +221,18 @@ interface MortalityTableProps {
   limit: number;
   total: number;
   totalQuantity: number;
+  onOpenRecord: (recordId: number) => void;
+  /** Set when the person may change losses: they may record and the batch is open. */
+  onEdit?: (row: BatchMortality) => void;
+  onDelete?: (row: BatchMortality) => void;
   onPageChange: (page: number) => void;
   onLimitChange: (limit: number) => void;
 }
 
-/** Every loss recorded against the batch, a page at a time. */
-export const MortalityTable = ({ batch, rows, page, limit, total, totalQuantity, onPageChange, onLimitChange }: MortalityTableProps) => {
+/** Every loss recorded against the batch, a page at a time, each with the daily record it was made on. A loss on a record shared with other lines is changed from Daily Records. */
+export const MortalityTable = ({ batch, rows, page, limit, total, totalQuantity, onOpenRecord, onEdit, onDelete, onPageChange, onLimitChange }: MortalityTableProps) => {
   const t = useDictionary().bioProduction.batches.tables;
+  const common = useDictionary().bioProduction.common;
   const animals = batch.species_template?.count_label;
   const stageNames = Object.fromEntries((batch.stages ?? []).map((stage) => [stage.id, stage.name]));
 
@@ -235,6 +247,18 @@ export const MortalityTable = ({ batch, rows, page, limit, total, totalQuantity,
           { label: animalText(t.fish, animals), align: 'right', render: (m) => num(m.quantity, 0) },
           { label: t.cause, render: (m) => m.cause },
           { label: t.remarks, render: (m) => m.remarks },
+          { label: t.record, render: (m) => <RecordLink recordNo={m.daily_record?.recordNo} recordId={m.daily_record_id} onOpen={onOpenRecord} /> },
+          ...(onEdit && onDelete ? [{
+            label: '',
+            align: 'right' as const,
+            render: (m: BatchMortality) =>
+              m.daily_record && m.daily_record.lines_count <= 1 ? (
+                <>
+                  <EditButton label={common.edit} onClick={() => onEdit(m)} />
+                  <RemoveButton label={common.delete} onClick={() => onDelete(m)} />
+                </>
+              ) : null,
+          }] : []),
         ]}
       />
       <PagedFooter page={page} limit={limit} total={total} onPageChange={onPageChange} onLimitChange={onLimitChange} />

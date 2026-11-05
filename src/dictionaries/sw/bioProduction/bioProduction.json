@@ -663,6 +663,7 @@
         "loss": "Hasara",
         "status": "Hali",
         "totalCost": "Jumla ya gharama",
+        "record": "Rekodi",
         "totalLost": "Jumla ya {animals} waliopotea"
       },
       "inputTypes": {
@@ -673,6 +674,7 @@
       "dialogs": {
         "mortality": {
           "title": "Rekodi Vifo",
+          "editTitle": "Sahihisha Vifo",
           "cause": "Sababu",
           "help": "Vifo hadi kiwango kinachoruhusiwa kwa hatua hujumuishwa kwenye gharama ya walionusurika. Zaidi ya hapo, utaombwa kuvifuta."
         },
@@ -767,6 +769,7 @@
         "confirmDeleteBatch": "Futa kundi hili? Hili haliwezi kutenduliwa. Ni kundi lisilo na shughuli yoyote lililorekodiwa tu linaloweza kufutwa.",
         "confirmDeleteInput": "Ondoa pembejeo hii na kurudisha bidhaa zake?",
         "confirmDeleteExpense": "Ondoa gharama hii kwenye kundi?",
+        "confirmDeleteMortality": "Futa hasara hii na rekodi yake ya kila siku? Wanyama wake wanarudi kwenye kundi. Haiwezekani baada ya kundi kuhamia hatua nyingine, au baada ya hasara za hatua hii kufutwa kwenye vitabu.",
         "confirmDeleteHarvest": "Futa mavuno haya? Wanyama wake wanarudi kwenye kundi, stoo yake inatolewa na gharama yake inarudi kwenye kundi. Haiwezekani kama stoo imetumika au kuuzwa.",
         "confirmDeleteProduce": "Futa rekodi hii ya mazao? Stoo yake inatolewa na gharama yake inarudi kwenye kundi. Haiwezekani kama stoo imetumika au kuuzwa."
       },
