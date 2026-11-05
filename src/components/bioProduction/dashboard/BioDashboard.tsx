@@ -341,25 +341,27 @@ const DashboardContent = () => {
             </Panel>
             <Panel title={t.activity.title}>
               {activity.length === 0 && <Typography color='text.secondary'>{t.activity.none}</Typography>}
+              <Box sx={{ maxHeight: 360, overflowY: 'auto' }}>
               {activity.map((record) => (
                 <Stack
                   key={record.id}
                   direction='row'
                   justifyContent='space-between'
-                  alignItems='center'
+                  alignItems='flex-start'
                   spacing={1}
                   onClick={() => access.records.read && setRecordId(record.id)}
                   sx={{ cursor: access.records.read ? 'pointer' : 'default', py: 0.5, px: 0.5, borderRadius: 1, '&:hover': { bgcolor: 'action.hover' } }}
                 >
                   <Box sx={{ minWidth: 0 }}>
-                    <Typography fontWeight={600} noWrap>{withFarm(`${record.recordNo}`, record.farm)} · {bio.rounds.titles[record.kind as keyof typeof bio.rounds.titles]}</Typography>
-                    <Typography variant='caption' color='text.secondary' noWrap display='block'>
+                    <Typography fontWeight={600} sx={{ overflowWrap: 'anywhere' }}>{withFarm(`${record.recordNo}`, record.farm)} · {bio.rounds.titles[record.kind as keyof typeof bio.rounds.titles]}</Typography>
+                    <Typography variant='caption' color='text.secondary' display='block' sx={{ overflowWrap: 'anywhere' }}>
                       {stamp(record.record_date)}{record.creator ? ` · ${t.activity.by.replace('{name}', record.creator)}` : ''}
                     </Typography>
                   </Box>
-                  <Chip size='small' variant='outlined' label={t.activity.lines.replace('{count}', String(record.lines_count))} />
+                  <Chip size='small' variant='outlined' sx={{ flexShrink: 0 }} label={t.activity.lines.replace('{count}', String(record.lines_count))} />
                 </Stack>
               ))}
+              </Box>
             </Panel>
           </Stack>
         </Grid>
