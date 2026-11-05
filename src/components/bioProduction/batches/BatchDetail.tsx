@@ -16,7 +16,7 @@ import { batchServices } from '../bio-production-services';
 import BatchStatusChip from './BatchStatusChip';
 import BatchSummary from './BatchSummary';
 import { ExpensesTable, InputsTable, MortalityTable, MovementsTable, OutcomesTable, ProduceTable, StagesTable, WeightsTable } from './BatchTables';
-import { Batch, BatchExpense, BatchHarvest, BatchInput, BatchMortality, BatchProduce } from './batchTypes';
+import { Batch, BatchStage, BatchExpense, BatchHarvest, BatchInput, BatchMortality, BatchProduce } from './batchTypes';
 import { usePagedBatchList } from './usePagedBatchList';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
 import BioGate from '../BioGate';
@@ -24,6 +24,7 @@ import { useBioAccess } from '../useBioAccess';
 import AdvanceDialog from './dialogs/AdvanceDialog';
 import CloseDialog from './dialogs/CloseDialog';
 import EditDialog from './dialogs/EditDialog';
+import StageDateDialog from './dialogs/StageDateDialog';
 import ExpenseDialog from './dialogs/ExpenseDialog';
 import HarvestDialog from './dialogs/HarvestDialog';
 import ProduceDialog from './dialogs/ProduceDialog';
@@ -44,6 +45,7 @@ const BatchDetailContent = () => {
   const batchId = Number(id);
   const [dialog, setDialog] = useState<DialogName | null>(null);
   const [tab, setTab] = useState<TabName>('summary');
+  const [editingStage, setEditingStage] = useState<BatchStage | null>(null);
   const [editingHarvest, setEditingHarvest] = useState<BatchHarvest | null>(null);
   const [editingProduce, setEditingProduce] = useState<BatchProduce | null>(null);
   const { showDialog, hideDialog } = useJumboDialog();
@@ -161,7 +163,7 @@ const BatchDetailContent = () => {
         )}
         <Box>
           {tab === 'summary' && <BatchSummary batch={batch} />}
-          {tab === 'stages' && <StagesTable batch={batch} />}
+          {tab === 'stages' && <StagesTable batch={batch} onEditStage={open && access.manage ? setEditingStage : undefined} />}
           {tab === 'inputs' && (
             <InputsTable
               inputs={inputs.rows}
@@ -229,6 +231,7 @@ const BatchDetailContent = () => {
         </Box>
       </Card>
 
+      {editingStage && <StageDateDialog key={editingStage.id} batch={batch} stage={editingStage} open onClose={() => setEditingStage(null)} />}
       {editingHarvest && (
         <HarvestDialog key={editingHarvest.id} batch={batch} open record={editingHarvest} onClose={() => setEditingHarvest(null)} />
       )}

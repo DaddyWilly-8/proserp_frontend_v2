@@ -10,7 +10,7 @@ import { animalText } from '../animalText';
 import { stamp } from '../dateTime';
 import { useBioAccess } from '../useBioAccess';
 import ResponsiveTable from './ResponsiveTable';
-import { Batch, BatchExpense, BatchHarvest, BatchInput, BatchMortality, BatchProduce } from './batchTypes';
+import { Batch, BatchStage, BatchExpense, BatchHarvest, BatchInput, BatchMortality, BatchProduce } from './batchTypes';
 
 export const money = (value: number | string | null | undefined) =>
   value == null ? '—' : Number(value).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -86,8 +86,10 @@ const TotalBar = ({ label, value, children }: { label?: string; value?: React.Re
   </Stack>
 );
 
-export const StagesTable = ({ batch }: { batch: Batch }) => {
-  const t = useDictionary().bioProduction.batches.tables;
+/** The batch's stages; with `onEditStage`, each one can have its start date corrected. */
+export const StagesTable = ({ batch, onEditStage }: { batch: Batch; onEditStage?: (stage: BatchStage) => void }) => {
+  const text = useDictionary().bioProduction;
+  const t = text.batches.tables;
   const { finance } = useBioAccess();
 
   return (
@@ -107,6 +109,7 @@ export const StagesTable = ({ batch }: { batch: Batch }) => {
           render: (s) => (s.abnormal_mortality_quantity ? <Box color='error.main'>{num(s.abnormal_mortality_quantity, 0)}</Box> : '—'),
         },
         ...ifFinance(finance, { label: t.cost, align: 'right' as const, render: (s: any) => money(batch.costs?.by_stage?.[s.id] ?? 0) }),
+        ...(onEditStage ? [{ label: '', align: 'right' as const, render: (s: any) => <EditButton label={text.batches.dialogs.stageDate.edit} onClick={() => onEditStage(s)} /> }] : []),
       ]}
     />
   );

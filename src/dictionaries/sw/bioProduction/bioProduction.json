@@ -758,6 +758,12 @@
           "title": "Hariri Kundi",
           "help": "Sahihisha lini kundi hili lilianza, au maelezo yake. Mwanzo unaweza kusogezwa nyuma, lakini si baada ya rekodi ya kwanza kwenye kundi au kuanza kwa hatua yake ya pili."
         },
+        "stageDate": {
+          "title": "Badilisha tarehe ambayo {stage} ilianza",
+          "help": "Sahihisha tarehe hatua hii ilipoanza; hatua iliyotangulia inaisha tarehe hiyo hiyo. Lazima iwe baada ya hatua iliyotangulia kuanza na kabla ya inayofuata kuanza, na hakuna rekodi iliyokwisha fanywa inayopaswa kubaki nje ya hatua yake. Makundi yaliyofungwa hayawezi kubadilishwa.",
+          "label": "Mwanzo wa hatua",
+          "edit": "Badilisha tarehe ya hatua"
+        },
         "confirmDeleteBatch": "Futa kundi hili? Hili haliwezi kutenduliwa. Ni kundi lisilo na shughuli yoyote lililorekodiwa tu linaloweza kufutwa.",
         "confirmDeleteInput": "Ondoa pembejeo hii na kurudisha bidhaa zake?",
         "confirmDeleteExpense": "Ondoa gharama hii kwenye kundi?",
