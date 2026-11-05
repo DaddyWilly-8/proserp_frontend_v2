@@ -463,7 +463,9 @@
     "errors": {
       "nameRequired": "File Name is required",
       "unsupportedFormat": "Unsupported File Format",
-      "fileRequired": "File is required"
+      "fileRequired": "File is required",
+      "tooLarge": "File is too large. Maximum size is {max} MB.",
+      "serverTooLarge": "The server rejected this file because it is too large. Try a smaller file or ask your administrator to raise the upload limit."
     },
     "messages": {
       "uploaded": "Attachment uploaded",
