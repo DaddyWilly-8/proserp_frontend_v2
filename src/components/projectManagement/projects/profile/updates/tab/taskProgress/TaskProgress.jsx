@@ -193,7 +193,10 @@ function TaskProgress({
 
     if (index > -1) {
       const updated = [...taskProgressItems];
-      updated[index] = item;
+      // The form only edits the execution itself; its materials live outside the form values, so
+      // carry them over or saving the update would delete them.
+      const materialUsed = updated[index]?.material_used ?? taskProgressItem?.material_used;
+      updated[index] = materialUsed ? { ...item, material_used: materialUsed } : item;
       setTaskProgressItems(updated);
       setUploadFieldsKey((prevKey) => prevKey + 1);
     } else {
