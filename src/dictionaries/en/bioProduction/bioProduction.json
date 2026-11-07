@@ -790,7 +790,7 @@
         "ledgerRequired": "Choose a ledger",
         "tooMany": "More than are alive"
       },
-      "searchPlaceholder": "Search by batch number"
+      "searchPlaceholder": "Search by batch number or unit"
     },
     "rounds": {
       "titles": {
