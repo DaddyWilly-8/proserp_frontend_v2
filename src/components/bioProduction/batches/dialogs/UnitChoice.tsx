@@ -14,7 +14,7 @@ import { Batch } from '../batchTypes';
 export const useFarmUnits = (batch: Batch) =>
   useQuery<{ data: BioProductionUnit[] }>({
     queryKey: ['bioFarmUnits', batch.farm_id],
-    queryFn: () => productionUnitServices.getList({ farm_id: batch.farm_id, status: 'active', limit: 500 }),
+    queryFn: () => productionUnitServices.getList({ farm_id: batch.farm_id, status: 'active', limit: 2000 }),
   });
 
 interface UnitChoiceProps {

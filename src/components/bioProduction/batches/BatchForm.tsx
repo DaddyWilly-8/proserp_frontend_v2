@@ -71,7 +71,7 @@ const BatchForm = ({ setOpenDialog }: BioFormProps<Batch>) => {
   });
   const { data: units } = useQuery<{ data: BioProductionUnit[] }>({
     queryKey: ['bioFarmUnits', farmId],
-    queryFn: () => productionUnitServices.getList({ farm_id: farmId, status: 'active', limit: 500 }),
+    queryFn: () => productionUnitServices.getList({ farm_id: farmId, status: 'active', limit: 2000 }),
     enabled: !!farmId,
   });
 

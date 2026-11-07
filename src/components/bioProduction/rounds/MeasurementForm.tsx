@@ -111,7 +111,7 @@ const MeasurementFormBody = ({ setOpenDialog, record = null }: { setOpenDialog: 
   });
   const { data: unitList, isLoading: loadingUnits } = useQuery<{ data: BioProductionUnit[] }>({
     queryKey: ['bioFarmUnits', farm.id],
-    queryFn: () => productionUnitServices.getList({ farm_id: farm.id, status: 'active', limit: 500 }),
+    queryFn: () => productionUnitServices.getList({ farm_id: farm.id, status: 'active', limit: 2000 }),
   });
 
   const parameters = useMemo(() => (parameterList?.data ?? []).filter((parameter) => parameterIds.includes(parameter.id)), [parameterList, parameterIds]);
