@@ -91,7 +91,6 @@ export const StagesTable = ({ batch, onEditStage }: { batch: Batch; onEditStage?
   const text = useDictionary().bioProduction;
   const t = text.batches.tables;
   const { finance } = useBioAccess();
-  const weightUnit = batch.species_template?.weight_unit;
 
   return (
     <SimpleTable
@@ -101,8 +100,6 @@ export const StagesTable = ({ batch, onEditStage }: { batch: Batch; onEditStage?
         { label: t.period, render: (s) => `${day(s.start_date)} → ${s.end_date ? day(s.end_date) : '…'}` },
         { label: t.opening, align: 'right', render: (s) => num(s.opening_quantity, 0) },
         { label: t.closing, align: 'right', render: (s) => (s.closing_quantity == null ? '—' : num(s.closing_quantity, 0)) },
-        { label: withUnit(t.openingWeight, weightUnit), align: 'right', render: (s) => (s.opening_avg_weight_g == null ? '—' : num(fromGrams(Number(s.opening_avg_weight_g), weightUnit), 4)) },
-        { label: withUnit(t.closingWeight, weightUnit), align: 'right', render: (s) => (s.closing_avg_weight_g == null ? '—' : num(fromGrams(Number(s.closing_avg_weight_g), weightUnit), 4)) },
         { label: t.mortality, align: 'right', render: (s) => num(s.mortality_quantity, 0) },
         { label: t.mortalityPct, align: 'right', render: (s) => (s.mortality_pct == null ? '—' : `${num(s.mortality_pct)}%`) },
         { label: t.allowance, align: 'right', render: (s) => (s.normal_mortality_pct == null ? '—' : `${num(s.normal_mortality_pct)}%`) },

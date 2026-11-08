@@ -342,7 +342,7 @@
       }
     },
     "dashboard": {
-      "title": "Bio Farming Dashboard",
+      "title": "Bio Production Dashboard",
       "updated": "Updated {time}",
       "refresh": "Refresh",
       "kpis": {
@@ -617,7 +617,7 @@
         },
         "fcr": {
           "title": "Feed conversion (FCR)",
-          "help": "Kilograms of feed given for each kilogram of weight gained. Lower is better. Gain is the weight of the animals now, less what they weighed at the start, plus the weight of those harvested or lost along the way. Weights come from the Weights tab and from the weight typed when a stage ends. It depends on weighings being kept up to date, and only feed whose unit has a weight equivalence in Measurement Units is counted.",
+          "help": "Kilograms of feed given for each kilogram of weight gained. Lower is better. Gain is the weight of the animals now, less what they weighed at the start, plus the weight of those harvested or lost along the way. It depends on weighings being kept up to date, and only feed whose unit has a weight equivalence in Measurement Units is counted.",
           "wholeBatch": "Whole batch",
           "feed": "Feed",
           "gain": "Weight gained",
@@ -644,8 +644,6 @@
         "period": "Period",
         "opening": "Opening",
         "closing": "Closing",
-        "openingWeight": "Opening weight",
-        "closingWeight": "Closing weight",
         "mortality": "Died",
         "mortalityPct": "Mortality %",
         "allowance": "Allowed %",
