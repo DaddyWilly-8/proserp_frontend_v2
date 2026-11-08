@@ -391,6 +391,7 @@
         "farm": "Shamba: {name}"
       },
       "trends": {
+        "fcr": "FCR (chakula kwa kilo iliyoongezeka)",
         "deaths": "Vifo",
         "feed": "Gharama ya chakula",
         "readings": "Vipimo nje ya kiwango",
@@ -603,6 +604,12 @@
         "outputs": "Kilichotoka",
         "kind": "Aina",
         "animals": "{Animals}",
+        "fcrTrend": {
+          "title": "Ubadilishaji wa chakula kwa muda",
+          "help": "FCR ya kundi kama ilivyokuwa kila siku uzito ulipopimwa (sampuli, au uzito ulioandikwa hatua ilipoisha), ikihesabu chakula chote na ongezeko la uzito tangu mwanzo wa kundi hadi siku hiyo. Mstari unaoshuka unamaanisha kundi linabadilisha chakula vizuri zaidi. Inahitaji angalau siku mbili zenye uzito.",
+          "fcr": "FCR",
+          "none": "Hakuna uzito wa kutosha kuchora mwelekeo: inahitaji angalau siku mbili zenye uzito na chakula kilichotolewa."
+        },
         "feedTrend": {
           "title": "Chakula katika kundi lote",
           "help": "Chakula kilichotolewa kila siku tangu kundi lilipoanza (kilo, nguzo) na gharama yake (mstari). Kusanya kwa wiki au mwezi ili kuona mwelekeo vizuri zaidi. Ni chakula chenye kipimo kinacholingana na uzito katika Vipimo pekee kinachohesabiwa kwa kilo.",
@@ -869,6 +876,9 @@
         "product": "Bidhaa",
         "unit": "Kipimo",
         "causeAll": "Sababu kwa mistari yote (si lazima)",
+        "applyToUnit": "Kipimo kimoja",
+        "applyToGroup": "Kikundi kizima",
+        "unitGroup": "Kikundi cha vitengo",
         "productionUnit": "Kitengo cha uzalishaji",
         "quantity": "Kiasi",
         "died": "Waliokufa",
@@ -899,6 +909,8 @@
         "weighing": "Vitengo {count} vimepimwa"
       },
       "messages": {
+        "groupEmpty": "Hakuna kitengo katika kikundi hiki kinachoweza kupokea vipimo hivi (au vyote tayari viko kwenye orodha).",
+        "groupWillReceive": "Vitengo {count} kati ya {total} vitapata vipimo hivi (vikundi vinajumuisha vilivyo chini yake; vitengo vilivyo kwenye orodha vinaruka).",
         "measureOnlyWhatYouTook": "Andika ulichopima tu; acha vigezo vingine wazi.",
         "chooseParameters": "Chagua vigezo ulivyopima. Kadi inaonekana kwa kila kitengo vinavyohusika.",
         "readingsSummary": "Vipimo {readings} kwenye vitengo {units}",

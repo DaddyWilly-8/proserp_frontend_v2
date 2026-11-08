@@ -73,9 +73,9 @@ export interface Dashboard {
 }
 
 export type Grouping = 'day' | 'week' | 'month' | 'year';
-export type TrendMetric = 'deaths' | 'feed' | 'readings' | 'output';
+export type TrendMetric = 'deaths' | 'feed' | 'readings' | 'output' | 'fcr';
 
 export interface TrendPeriod {
   period: string;
-  [series: string]: string | number;
+  [series: string]: string | number | null;
 }

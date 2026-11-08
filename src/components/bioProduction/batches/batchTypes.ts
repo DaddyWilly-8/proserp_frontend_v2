@@ -161,6 +161,7 @@ export interface BatchSummary {
   days: number;
   environment: { parameter_id: number; name: string; unit_label: string | null; decimals: number; readings: number; average: number; min: number; max: number; out_of_range: number }[];
   fcr: { batch: FcrRow | null; stages: (FcrRow & { stage_id: number; stage: string })[] };
+  fcr_trend: { date: string; fcr: number | null; feed_kg: number; gain_kg: number }[];
   feed_trend: { days: { date: string; kg: number; cost: number }[]; other_units: string[] };
 }
 

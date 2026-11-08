@@ -10,6 +10,7 @@ import { animalText } from '../animalText';
 import { useBioAccess } from '../useBioAccess';
 import { batchServices } from '../bio-production-services';
 import { money } from './BatchTables';
+import FcrTrend from './FcrTrend';
 import FeedTrend from './FeedTrend';
 import ResponsiveTable from './ResponsiveTable';
 import { Batch, BatchSummary as Summary, FcrRow } from './batchTypes';
@@ -137,6 +138,10 @@ const BatchSummary = ({ batch }: { batch: Batch }) => {
         {!!data.fcr.batch?.other_units?.length && (
           <Typography variant='caption' color='warning.main' display='block' p={1.5}>{t.fcr.otherUnits.replace('{units}', data.fcr.batch.other_units.join(', '))}</Typography>
         )}
+      </Section>
+
+      <Section title={t.fcrTrend.title} hint={t.fcrTrend.help}>
+        <FcrTrend trend={data.fcr_trend} />
       </Section>
 
       <Section title={t.inputsByProduct}>

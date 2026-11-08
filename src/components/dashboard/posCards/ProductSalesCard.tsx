@@ -147,7 +147,16 @@ function ProductSalesCard() {
   const { data: popularProducts = [], isLoading } = useQuery({
     queryKey: ['topProducts', params],
     queryFn: async () => {
-      return await posServices.productSales(params);
+      const rows = await posServices.productSales(params);
+      // A dispatch not linked to a sale item has no quantity, revenue or unit; show it as zeros rather than failing the whole card.
+      return (Array.isArray(rows) ? rows : []).map((row: any) => ({
+        ...row,
+        unit_symbol: row.unit_symbol ?? '',
+        quantity: Number(row.quantity ?? 0),
+        revenue: Number(row.revenue ?? 0),
+        cogs: Number(row.cogs ?? 0),
+        profit: Number(row.profit ?? 0),
+      }));
     },
   });
 

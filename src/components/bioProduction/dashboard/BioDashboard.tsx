@@ -377,6 +377,9 @@ const DashboardContent = () => {
         <Grid size={{ xs: 12, xl: 6 }}>
           <TrendCard metric='output' title={t.trends.output} params={params} series={[{ key: 'harvest_quantity', label: t.trends.harvestSeries, color: theme.palette.success.main }, { key: 'produce_quantity', label: t.trends.produceSeries, color: theme.palette.info.main }]} />
         </Grid>
+        <Grid size={{ xs: 12, xl: 6 }}>
+          <TrendCard metric='fcr' kind='line' title={t.trends.fcr} params={params} series={[{ key: 'fcr', label: t.trends.fcr, color: theme.palette.success.dark }]} />
+        </Grid>
       </Grid>
 
       {unit && <UnitEnvironment unit={unit} open onClose={() => setUnit(null)} />}

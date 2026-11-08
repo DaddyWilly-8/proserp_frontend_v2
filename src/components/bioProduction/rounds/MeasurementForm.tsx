@@ -15,6 +15,8 @@ import {
   DialogTitle,
   Grid,
   IconButton,
+  ToggleButton,
+  ToggleButtonGroup,
   LinearProgress,
   Paper,
   TextField,
@@ -31,6 +33,7 @@ import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { getErrorMessage } from '@/utilities/helpers/errorHandler';
 import BioSelect from '../BioSelect';
 import { useBioFarm } from '../FarmFirstPage';
+import { unitGroupOptions, useUnitGroups } from '../useUnitGroups';
 import { measurementParameterServices, productionUnitServices, roundServices } from '../bio-production-services';
 import { rangeText, statusOf } from '../measurementParameters/rangeText';
 import { BioFormProps, BioMeasurementParameter, BioProductionUnit } from '../types';
@@ -42,11 +45,12 @@ interface Line {
   values: Record<number, string>;
 }
 interface Draft {
-  unitId: number | '';
+  unitIds: number[];
+  groupIds: number[];
   values: Record<number, string>;
 }
 
-const emptyDraft: Draft = { unitId: '', values: {} };
+const emptyDraft: Draft = { unitIds: [], groupIds: [], values: {} };
 const filled = (value?: string) => value !== undefined && value.trim() !== '';
 /** Digits, one decimal point and a leading minus: what a reading can contain. */
 const cleanNumber = (value: string) => {
@@ -94,6 +98,8 @@ const MeasurementFormBody = ({ setOpenDialog, record = null }: { setOpenDialog: 
     return Array.from(byUnit.values());
   });
   const [draft, setDraft] = useState<Draft>(emptyDraft);
+  // Readings are typed for one unit, or once for a whole group and then given to each unit in it.
+  const [target, setTarget] = useState<'unit' | 'group'>('unit');
   const [rowErrors, setRowErrors] = useState<Record<number, string[]>>({});
   const [showWarning, setShowWarning] = useState(false);
   const [parameterIds, setParameterIds] = useState<number[]>(() => {
@@ -114,6 +120,8 @@ const MeasurementFormBody = ({ setOpenDialog, record = null }: { setOpenDialog: 
     queryFn: () => productionUnitServices.getList({ farm_id: farm.id, status: 'active', limit: 2000 }),
   });
 
+  const { data: groupList, isLoading: loadingGroups } = useUnitGroups(farm.id, 'active');
+
   const parameters = useMemo(() => (parameterList?.data ?? []).filter((parameter) => parameterIds.includes(parameter.id)), [parameterList, parameterIds]);
   const applies = (parameter: BioMeasurementParameter, unit: BioProductionUnit) => !parameter.unit_types?.length || parameter.unit_types.includes(unit.type);
   const unitOf = (id: number | '') => unitList?.data.find((unit) => unit.id === id);
@@ -121,19 +129,40 @@ const MeasurementFormBody = ({ setOpenDialog, record = null }: { setOpenDialog: 
   const taken = (parameter: BioMeasurementParameter, values: Record<number, string>) => filled(values[parameter.id]);
 
   // The unit being entered: the parameters that apply to it, what has been typed, and whether it can be added.
-  const draftUnit = unitOf(draft.unitId);
-  const draftParameters = draftUnit ? parameters.filter((parameter) => applies(parameter, draftUnit)) : [];
+  // The groups chosen, with the groups beneath them.
+  const groupIds = useMemo(() => {
+    const ids = new Set<number>(draft.groupIds);
+    let grew = true;
+    while (grew) {
+      grew = false;
+      (groupList?.data ?? []).forEach((group) => {
+        if (group.parent_id && ids.has(group.parent_id) && !ids.has(group.id)) {
+          ids.add(group.id);
+          grew = true;
+        }
+      });
+    }
+
+    return ids;
+  }, [draft.groupIds, groupList]);
+  // The units the readings are for: those picked, or those in the groups picked.
+  const chosenUnits = target === 'group'
+    ? (unitList?.data ?? []).filter((unit) => !!unit.unit_group_id && groupIds.has(unit.unit_group_id))
+    : draft.unitIds.map((id) => unitOf(id)).filter((unit): unit is BioProductionUnit => !!unit);
+  const draftParameters = parameters.filter((parameter) => chosenUnits.some((unit) => applies(parameter, unit)));
   const draftEntered = draftParameters.filter((parameter) => taken(parameter, draft.values));
   const draftInvalid = draftEntered.some((parameter) => Number.isNaN(Number(draft.values[parameter.id])));
-  const draftComplete = !!draftUnit && draftEntered.length > 0 && !draftInvalid;
-  const draftDirty = draft.unitId !== '' || Object.values(draft.values).some(filled);
+  // Units the readings will go to: those that take at least one parameter typed, and are not already on the list.
+  const targets = chosenUnits.filter((unit) => !lines.some((line) => line.unitId === unit.id) && draftEntered.some((parameter) => applies(parameter, unit)));
+  const draftComplete = draftEntered.length > 0 && !draftInvalid && targets.length > 0;
+  const draftDirty = draft.unitIds.length > 0 || draft.groupIds.length > 0 || Object.values(draft.values).some(filled);
 
   const clean = (unit: BioProductionUnit, values: Record<number, string>) =>
     Object.fromEntries(parameters.filter((parameter) => applies(parameter, unit) && taken(parameter, values)).map((parameter) => [parameter.id, values[parameter.id]]));
 
   const addLine = (): Line[] | null => {
-    if (!draftUnit || !draftComplete) return null;
-    const next = [...lines, { unitId: draftUnit.id, values: clean(draftUnit, draft.values) }];
+    if (!draftComplete) return null;
+    const next = [...lines, ...targets.map((unit) => ({ unitId: unit.id, values: clean(unit, draft.values) }))];
     setLines(next);
     setDraft(emptyDraft);
     setTimeout(() => unitRef.current?.focus(), 0);
@@ -141,7 +170,8 @@ const MeasurementFormBody = ({ setOpenDialog, record = null }: { setOpenDialog: 
     return next;
   };
   const editLine = (index: number) => {
-    setDraft({ unitId: lines[index].unitId, values: lines[index].values });
+    setTarget('unit');
+    setDraft({ unitIds: [lines[index].unitId], groupIds: [], values: lines[index].values });
     setLines(lines.filter((_, i) => i !== index));
   };
   const removeLine = (index: number) => setLines(lines.filter((_, i) => i !== index));
@@ -277,15 +307,40 @@ const MeasurementFormBody = ({ setOpenDialog, record = null }: { setOpenDialog: 
             <SectionLabel>{text.sections.lines.measurement}</SectionLabel>
             <Paper variant='outlined' sx={{ p: 1.5, bgcolor: (theme) => alpha(theme.palette.primary.main, 0.04) }}>
               <Grid container spacing={1} alignItems='flex-start'>
+                <Grid size={12}>
+                  <ToggleButtonGroup exclusive size='small' value={target} onChange={(_, value) => value && (setTarget(value), setDraft(emptyDraft))}>
+                    <ToggleButton value='unit'>{text.labels.applyToUnit}</ToggleButton>
+                    <ToggleButton value='group'>{text.labels.applyToGroup}</ToggleButton>
+                  </ToggleButtonGroup>
+                </Grid>
                 <Grid size={{ xs: 12, md: 4 }}>
-                  <BioSelect
-                    ref={unitRef}
-                    label={text.labels.productionUnit}
-                    loading={loadingUnits}
-                    options={unitOptions}
-                    value={draft.unitId}
-                    onChange={(value) => setDraft({ unitId: value as number | '', values: {} })}
-                  />
+                  {target === 'unit' ? (
+                    <Autocomplete
+                      multiple
+                      size='small'
+                      disableCloseOnSelect
+                      loading={loadingUnits}
+                      options={unitOptions.filter((option) => !option.disabled)}
+                      getOptionLabel={(option) => option.label}
+                      isOptionEqualToValue={(option, value) => option.value === value.value}
+                      value={unitOptions.filter((option) => draft.unitIds.includes(option.value as number))}
+                      onChange={(_, value) => setDraft({ unitIds: value.map((option) => option.value as number), groupIds: [], values: {} })}
+                      renderInput={(params) => <TextField {...params} inputRef={unitRef} label={text.labels.productionUnit} />}
+                    />
+                  ) : (
+                    <Autocomplete
+                      multiple
+                      size='small'
+                      disableCloseOnSelect
+                      loading={loadingGroups}
+                      options={unitGroupOptions(groupList?.data ?? [])}
+                      getOptionLabel={(option) => option.label}
+                      isOptionEqualToValue={(option, value) => option.value === value.value}
+                      value={unitGroupOptions(groupList?.data ?? []).filter((option) => draft.groupIds.includes(option.value as number))}
+                      onChange={(_, value) => setDraft({ unitIds: [], groupIds: value.map((option) => option.value as number), values: {} })}
+                      renderInput={(params) => <TextField {...params} inputRef={unitRef} label={text.labels.unitGroup} />}
+                    />
+                  )}
                 </Grid>
                 {draftParameters.map((parameter) => {
                   const raw = draft.values[parameter.id] ?? '';
@@ -322,7 +377,12 @@ const MeasurementFormBody = ({ setOpenDialog, record = null }: { setOpenDialog: 
                   </Tooltip>
                 </Grid>
               </Grid>
-              {draftUnit && <Typography variant='caption' color='text.secondary' display='block' mt={0.5}>{text.messages.measureOnlyWhatYouTook}</Typography>}
+              {chosenUnits.length > 0 && <Typography variant='caption' color='text.secondary' display='block' mt={0.5}>{text.messages.measureOnlyWhatYouTook}</Typography>}
+              {(target === 'group' ? draft.groupIds.length > 0 : draft.unitIds.length > 1) && (
+                <Typography variant='caption' color={targets.length || draftEntered.length === 0 ? 'text.secondary' : 'warning.main'} display='block' mt={0.5}>
+                  {(chosenUnits.length === 0 ? text.messages.groupEmpty : text.messages.groupWillReceive).replace('{count}', String(targets.length)).replace('{total}', String(chosenUnits.length))}
+                </Typography>
+              )}
             </Paper>
 
             {lines.length > 0 && (

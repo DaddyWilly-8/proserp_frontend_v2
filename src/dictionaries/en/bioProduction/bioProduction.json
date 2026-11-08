@@ -391,6 +391,7 @@
         "farm": "Farm: {name}"
       },
       "trends": {
+        "fcr": "FCR (feed per kg gained)",
         "deaths": "Deaths",
         "feed": "Feed cost",
         "readings": "Out-of-range readings",
@@ -603,6 +604,12 @@
         "outputs": "What came out",
         "kind": "Kind",
         "animals": "{Animals}",
+        "fcrTrend": {
+          "title": "Feed conversion over time",
+          "help": "The batch's FCR as it stood on each day a weight was read (a sample, or the weight typed when a stage ended), counting all feed and weight gain from the start of the batch to that day. A falling line means the batch is converting feed better. At least two weighed days are needed.",
+          "fcr": "FCR",
+          "none": "Not enough weights yet to draw a trend: it needs at least two days with a weight and feed given."
+        },
         "feedTrend": {
           "title": "Feed over the batch",
           "help": "Feed given each day from the start of the batch (kilograms, bars) and what it cost (line). Group by week or month to see the trend more clearly. Only feed whose unit has a weight equivalence in Measurement Units is counted in kilograms.",
@@ -869,6 +876,9 @@
         "product": "Product",
         "unit": "Unit of measure",
         "causeAll": "Cause for all lines (optional)",
+        "applyToUnit": "Single unit",
+        "applyToGroup": "Whole group",
+        "unitGroup": "Unit group",
         "productionUnit": "Production unit",
         "quantity": "Quantity",
         "died": "Died",
@@ -899,6 +909,8 @@
         "weighing": "{count} units weighed"
       },
       "messages": {
+        "groupEmpty": "Nothing in this group can take these readings (or all of its units are already on the list).",
+        "groupWillReceive": "{count} of {total} units will get these readings (groups include the groups beneath them; units already on the list are skipped).",
         "measureOnlyWhatYouTook": "Type only what you measured; leave the other parameters empty.",
         "chooseParameters": "Choose the parameters you measured. A card appears for each unit they apply to.",
         "readingsSummary": "{readings} readings on {units} units",
