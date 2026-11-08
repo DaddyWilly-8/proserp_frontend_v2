@@ -4,7 +4,6 @@ import '@assets/fonts/noir-pro/styles.css';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import '@/components/assetBookings/asset-booking-calendar-dark.css';
 import { ReactNode } from 'react';
-import { SpeedInsights } from '@vercel/speed-insights/next';
 import { Providers } from '../providers';
 import { getDictionary } from './dictionaries';
 import { DictionaryProvider } from './contexts/DictionaryContext';
@@ -94,7 +93,6 @@ export default async function RootLayout({ children, params }: RootLayoutProps) 
           <LanguageProvider lang={lang}>
             <DictionaryProvider dictionary={dictionary}>
               <Providers>{children}</Providers>
-              <SpeedInsights />
             </DictionaryProvider>
           </LanguageProvider>
         </div>
