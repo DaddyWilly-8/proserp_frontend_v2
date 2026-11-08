@@ -52,7 +52,7 @@ const FeedTrend = ({ trend, start, end, showCost }: { trend: BatchSummary['feed_
       }
     });
 
-    return [...periods.values()].sort((a, b) => a.period.localeCompare(b.period)).map((row) => ({ ...row, kg: Math.round(row.kg * 1000) / 1000, cost: Math.round(row.cost * 100) / 100 }));
+    return Array.from(periods.values()).sort((a, b) => a.period.localeCompare(b.period)).map((row) => ({ ...row, kg: Math.round(row.kg * 1000) / 1000, cost: Math.round(row.cost * 100) / 100 }));
   }, [trend, firstDay, lastDay, by]);
 
   if (!trend?.days.length) return <Typography color='text.secondary' p={2}>{t.none}</Typography>;
