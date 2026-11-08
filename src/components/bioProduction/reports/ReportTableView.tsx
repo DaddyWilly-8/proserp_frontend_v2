@@ -1,8 +1,9 @@
 'use client'
 
 import React from 'react';
-import { Box, Card, Divider, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, useMediaQuery } from '@mui/material';
+import { Box, Card, Link as MuiLink, Divider, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, useMediaQuery } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
+import Link from 'next/link';
 import { formatValue } from './formatValue';
 import { ReportColumn, ReportTable } from './reportTypes';
 
@@ -12,13 +13,18 @@ interface Props {
   labelOf: (column: ReportColumn) => string;
   totalLabel: string;
   emptyText: string;
+  /** Where a cell leads, when it names something with a page of its own (a batch); none for totals. */
+  linkOf?: (row: Record<string, any>, column: ReportColumn) => string | null;
 }
+
+const Cell = ({ href, children }: { href: string | null | undefined; children: React.ReactNode }) =>
+  href ? <MuiLink component={Link} href={href} underline='hover' color='primary' sx={{ fontWeight: 600 }}>{children}</MuiLink> : <>{children}</>;
 
 /**
  * The report as a table on a wide screen, with its first column kept in view while the rest scrolls, and as
  * one card per row on a narrow one, so a report with a dozen columns reads on a phone without sideways scrolling.
  */
-const ReportTableView = ({ table, labelOf, totalLabel, emptyText }: Props) => {
+const ReportTableView = ({ table, labelOf, totalLabel, emptyText, linkOf }: Props) => {
   const theme = useTheme();
   const narrow = useMediaQuery(theme.breakpoints.down('md'));
   const [first, ...rest] = table.columns;
@@ -34,13 +40,13 @@ const ReportTableView = ({ table, labelOf, totalLabel, emptyText }: Props) => {
       <Stack spacing={1.25}>
         {cards.map((row, index) => (
           <Card key={index} variant='outlined' sx={{ p: 1.5, bgcolor: row.isTotal ? 'action.hover' : undefined }}>
-            <Typography variant='subtitle2' fontWeight={700} noWrap sx={{ mb: 0.75 }}>{formatValue(row[first.key] ?? row.label ?? row.batch, 'text') || totalLabel}</Typography>
+            <Typography variant='subtitle2' fontWeight={700} noWrap sx={{ mb: 0.75 }}><Cell href={row.isTotal ? null : linkOf?.(row, first)}>{formatValue(row[first.key] ?? row.label ?? row.batch, 'text') || totalLabel}</Cell></Typography>
             <Divider sx={{ mb: 0.75 }} />
             <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', columnGap: 2, rowGap: 0.75 }}>
               {rest.filter((column) => row[column.key] !== undefined && row[column.key] !== '').map((column) => (
                 <Box key={column.key} sx={{ minWidth: 0 }}>
                   <Typography variant='caption' color='text.secondary' display='block' noWrap>{labelOf(column)}</Typography>
-                  <Typography variant='body2' noWrap>{formatValue(row[column.key], column.type)}</Typography>
+                  <Typography variant='body2' noWrap><Cell href={row.isTotal ? null : linkOf?.(row, column)}>{formatValue(row[column.key], column.type)}</Cell></Typography>
                 </Box>
               ))}
             </Box>
@@ -69,7 +75,7 @@ const ReportTableView = ({ table, labelOf, totalLabel, emptyText }: Props) => {
               {table.columns.map((column, index) => (
                 <TableCell key={column.key} align={column.type === 'text' ? 'left' : 'right'}
                   sx={{ whiteSpace: 'pre', fontWeight: row.bold ? 700 : 400, ...(index === 0 ? { position: 'sticky', left: 0, bgcolor: 'background.paper', zIndex: 1 } : {}) }}>
-                  {formatValue(row[column.key], column.type)}
+                  <Cell href={linkOf?.(row, column)}>{formatValue(row[column.key], column.type)}</Cell>
                 </TableCell>
               ))}
             </TableRow>

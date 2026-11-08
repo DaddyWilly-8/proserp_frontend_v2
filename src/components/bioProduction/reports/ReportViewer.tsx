@@ -5,6 +5,7 @@ import { Alert, Box, Chip, DialogContent, DialogTitle, Grid, IconButton, LinearP
 import { LoadingButton } from '@mui/lab';
 import { CloseOutlined } from '@mui/icons-material';
 import { DatePicker } from '@mui/x-date-pickers';
+import { useParams } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import dayjs, { Dayjs } from 'dayjs';
 import { useSnackbar } from 'notistack';
@@ -36,6 +37,7 @@ const presetRange = (preset: (typeof PRESETS)[number]) => {
 
 /** One report: its filters, the table (or cards on a narrow screen), and the Excel and PDF exports. */
 const ReportViewer = ({ definition, onClose }: { definition: ReportDefinition; onClose: () => void }) => {
+  const { lang } = useParams<{ lang: string }>();
   const bio = useDictionary().bioProduction;
   const dict = bio.reports;
   const card = dict.cards[definition.id];
@@ -184,7 +186,8 @@ const ReportViewer = ({ definition, onClose }: { definition: ReportDefinition; o
           )}
           {table && !isFetching && !showPdf && (
             <>
-              <ReportTableView table={table} labelOf={labelOf} totalLabel={dict.total} emptyText={dict.noData} />
+              <ReportTableView table={table} labelOf={labelOf} totalLabel={dict.total} emptyText={dict.noData}
+                linkOf={(row, column) => (row.batch_id && (column.key === 'batch' || column.key === 'label') ? `/${lang}/bioProduction/batches/${row.batch_id}` : null)} />
               {notes.map((note) => (
                 <Typography key={note} variant='caption' color='text.secondary' display='block' sx={{ mt: 1 }}>{note}</Typography>
               ))}
