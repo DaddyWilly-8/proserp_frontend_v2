@@ -604,10 +604,23 @@
         "outputs": "What came out",
         "kind": "Kind",
         "animals": "{Animals}",
+        "deathsByStage": {
+          "title": "Deaths by stage",
+          "help": "Deaths recorded in each stage, and as a share of the animals the stage began with. Deaths belong to the stage the batch was in on the day they happened.",
+          "opening": "Started with",
+          "rate": "Mortality"
+        },
         "fcrTrend": {
           "title": "Feed conversion over time",
-          "help": "The batch's FCR as it stood on each day a weight was read (a sample, or the weight typed when a stage ended), counting all feed and weight gain from the start of the batch to that day. A falling line means the batch is converting feed better. At least two weighed days are needed.",
+          "help": "For each weighing: the feed given and the weight gained since the previous one (bars), and the ratio of the two, the FCR over that interval (line). This shows how the batch is converting now. The FCR is left blank where no weight was gained. At least two weighed days are needed.",
           "fcr": "FCR",
+          "interval": {
+            "title": "FCR between weighings",
+            "help": "For each weighing: the feed given and the weight gained since the previous one (bars), and the ratio of the two (line). This shows how the batch is converting now. It is left blank where no weight was gained.",
+            "feed": "Feed (kg)",
+            "gain": "Weight gained (kg)",
+            "fcr": "FCR in the interval"
+          },
           "none": "Not enough weights yet to draw a trend: it needs at least two days with a weight and feed given."
         },
         "feedTrend": {
@@ -629,6 +642,7 @@
           "feed": "Feed",
           "gain": "Weight gained",
           "value": "FCR",
+          "lastAbw": "Last ABW",
           "lastWeighed": "Last weighed",
           "noWeights": "Not weighed yet",
           "notEnough": "Not enough yet",

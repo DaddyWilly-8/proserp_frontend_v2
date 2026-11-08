@@ -604,10 +604,23 @@
         "outputs": "Kilichotoka",
         "kind": "Aina",
         "animals": "{Animals}",
+        "deathsByStage": {
+          "title": "Vifo kwa hatua",
+          "help": "Vifo vilivyorekodiwa katika kila hatua, na kama asilimia ya wanyama ambao hatua ilianza nao. Vifo vinahesabiwa kwa hatua ambayo kundi lilikuwemo siku vilipotokea.",
+          "opening": "Ilianza na",
+          "rate": "Vifo %"
+        },
         "fcrTrend": {
           "title": "Ubadilishaji wa chakula kwa muda",
-          "help": "FCR ya kundi kama ilivyokuwa kila siku uzito ulipopimwa (sampuli, au uzito ulioandikwa hatua ilipoisha), ikihesabu chakula chote na ongezeko la uzito tangu mwanzo wa kundi hadi siku hiyo. Mstari unaoshuka unamaanisha kundi linabadilisha chakula vizuri zaidi. Inahitaji angalau siku mbili zenye uzito.",
+          "help": "Kwa kila kipimo: chakula kilichotolewa na uzito ulioongezeka tangu kipimo kilichotangulia (nguzo), na uwiano wa hivyo viwili, yaani FCR ya kipindi hicho (mstari). Inaonyesha jinsi kundi linavyobadilisha chakula sasa. FCR huachwa wazi pasipo ongezeko la uzito. Inahitaji angalau siku mbili zenye uzito.",
           "fcr": "FCR",
+          "interval": {
+            "title": "FCR kati ya vipimo",
+            "help": "Kwa kila kipimo: chakula kilichotolewa na uzito ulioongezeka tangu kipimo kilichotangulia (nguzo), na uwiano wa hivyo viwili (mstari). Inaonyesha jinsi kundi linavyobadilisha chakula sasa. Huachwa wazi pasipo ongezeko la uzito.",
+            "feed": "Chakula (kg)",
+            "gain": "Uzito ulioongezeka (kg)",
+            "fcr": "FCR ya kipindi"
+          },
           "none": "Hakuna uzito wa kutosha kuchora mwelekeo: inahitaji angalau siku mbili zenye uzito na chakula kilichotolewa."
         },
         "feedTrend": {
@@ -629,6 +642,7 @@
           "feed": "Chakula",
           "gain": "Uzito ulioongezeka",
           "value": "FCR",
+          "lastAbw": "ABW ya mwisho",
           "lastWeighed": "Ilipimwa mwisho",
           "noWeights": "Haijapimwa bado",
           "notEnough": "Bado haitoshi",

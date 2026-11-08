@@ -10,6 +10,7 @@ import { animalText } from '../animalText';
 import { useBioAccess } from '../useBioAccess';
 import { batchServices } from '../bio-production-services';
 import { money } from './BatchTables';
+import { fromGrams, withUnit } from '../weightUnit';
 import FcrTrend from './FcrTrend';
 import FeedTrend from './FeedTrend';
 import ResponsiveTable from './ResponsiveTable';
@@ -132,6 +133,7 @@ const BatchSummary = ({ batch }: { batch: Batch }) => {
             { label: t.fcr.feed, align: 'right', render: (entry) => (entry.row.reason ? '—' : `${num(entry.row.feed_kg, 1)} kg`) },
             { label: t.fcr.gain, align: 'right', render: (entry) => (entry.row.gain_kg == null ? '—' : `${num(entry.row.gain_kg, 1)} kg`) },
             { label: t.fcr.value, align: 'right', headline: true, render: (entry) => (entry.row.fcr == null ? <Box component='span' color='text.secondary'>{entry.row.reason ? t.fcr.noWeights : t.fcr.notEnough}</Box> : num(entry.row.fcr, 2)) },
+            { label: withUnit(t.fcr.lastAbw, batch.species_template?.weight_unit), align: 'right', render: (entry) => (entry.row.last_abw_g == null ? '—' : num(fromGrams(Number(entry.row.last_abw_g), batch.species_template?.weight_unit), 2)) },
             { label: t.fcr.lastWeighed, render: (entry) => (entry.row.last_weighed_at ? day(entry.row.last_weighed_at) : '—') },
           ]}
         />
@@ -196,6 +198,22 @@ const BatchSummary = ({ batch }: { batch: Batch }) => {
           />
         </Section>
       )}
+
+      <Section title={t.deathsByStage.title} hint={t.deathsByStage.help}>
+        <ResponsiveTable<Summary['deaths_by_stage'][number]>
+          empty={empty}
+          rows={data.deaths_by_stage ?? []}
+          rowKey={(stage) => stage.stage_id}
+          columns={[
+            { label: t.stage, primary: true, render: (stage) => stage.name },
+            { label: t.period, render: (stage) => `${day(stage.start_date)} → ${stage.end_date ? day(stage.end_date) : '…'}` },
+            { label: t.deathsByStage.opening, align: 'right', render: (stage) => (stage.opening_quantity == null ? '—' : num(stage.opening_quantity, 0)) },
+            { label: t.died, align: 'right', headline: true, render: (stage) => num(stage.died, 0) },
+            { label: t.deathsByStage.rate, align: 'right', render: (stage) => (stage.mortality_pct == null ? '—' : `${num(stage.mortality_pct)}%`) },
+          ]}
+          footer={[t.total, null, null, num((data.deaths_by_stage ?? []).reduce((sum, stage) => sum + stage.died, 0), 0), null]}
+        />
+      </Section>
     </Box>
   );
 };

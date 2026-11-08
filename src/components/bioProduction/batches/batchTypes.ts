@@ -161,6 +161,7 @@ export interface BatchSummary {
   days: number;
   environment: { parameter_id: number; name: string; unit_label: string | null; decimals: number; readings: number; average: number; min: number; max: number; out_of_range: number }[];
   fcr: { batch: FcrRow | null; stages: (FcrRow & { stage_id: number; stage: string })[] };
+  deaths_by_stage: { stage_id: number; name: string; start_date: string; end_date: string | null; opening_quantity: number | null; died: number; mortality_pct: number | null }[];
   fcr_trend: { date: string; fcr: number | null; feed_kg: number; gain_kg: number }[];
   feed_trend: { days: { date: string; kg: number; cost: number }[]; other_units: string[] };
 }
@@ -171,5 +172,6 @@ export interface FcrRow {
   fcr: number | null;
   reason?: 'no_weights';
   last_weighed_at: string | null;
+  last_abw_g?: number | null;
   other_units?: string[];
 }
