@@ -617,7 +617,7 @@
         },
         "fcr": {
           "title": "Ubadilishaji wa chakula (FCR)",
-          "help": "Kilo za chakula zilizotolewa kwa kila kilo ya uzito iliyoongezeka. Chini ni bora. Ongezeko ni uzito wa wanyama sasa, ukiondoa uzito wao mwanzoni, ukijumlisha uzito wa waliovunwa au waliopotea njiani. Inategemea vipimo vya uzito kuwa vya kisasa, na chakula chenye kipimo kilicho na uwiano wa uzito katika Vipimo pekee ndicho kinachohesabiwa.",
+          "help": "Kilo za chakula zilizotolewa kwa kila kilo ya uzito iliyoongezeka. Chini ni bora. Ongezeko ni uzito wa wanyama sasa, ukiondoa uzito wao mwanzoni, ukijumlisha uzito wa waliovunwa au waliopotea njiani. Uzito hutoka kwenye kichupo cha Uzito na kwenye uzito ulioandikwa hatua inapoisha. Inategemea vipimo vya uzito kuwa vya kisasa, na chakula chenye kipimo kilicho na uwiano wa uzito katika Vipimo pekee ndicho kinachohesabiwa.",
           "wholeBatch": "Kundi zima",
           "feed": "Chakula",
           "gain": "Uzito ulioongezeka",
@@ -644,6 +644,8 @@
         "period": "Kipindi",
         "opening": "Mwanzo",
         "closing": "Mwisho",
+        "openingWeight": "Uzito wa mwanzo",
+        "closingWeight": "Uzito wa mwisho",
         "mortality": "Waliokufa",
         "mortalityPct": "Vifo %",
         "allowance": "Inayoruhusiwa %",
