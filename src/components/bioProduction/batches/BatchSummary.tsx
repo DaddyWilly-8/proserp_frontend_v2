@@ -196,3 +196,4 @@ const BatchSummary = ({ batch }: { batch: Batch }) => {
 };
 
 export default BatchSummary;
+
