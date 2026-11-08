@@ -30,6 +30,7 @@ import StageDateDialog from './dialogs/StageDateDialog';
 import ExpenseDialog from './dialogs/ExpenseDialog';
 import HarvestDialog from './dialogs/HarvestDialog';
 import ProduceDialog from './dialogs/ProduceDialog';
+import EditInputRecordDialog from './dialogs/EditInputRecordDialog';
 import InputDialog from './dialogs/InputDialog';
 import MortalityDialog from './dialogs/MortalityDialog';
 import TransferDialog from './dialogs/TransferDialog';
@@ -50,6 +51,8 @@ const BatchDetailContent = () => {
   const [editingStage, setEditingStage] = useState<BatchStage | null>(null);
   const [editingMortality, setEditingMortality] = useState<BatchMortality | null>(null);
   const [viewingRecord, setViewingRecord] = useState<number | null>(null);
+  const [editingInputRecord, setEditingInputRecord] = useState<number | null>(null);
+  const [editingInput, setEditingInput] = useState<BatchInput | null>(null);
   const { theme } = useJumboTheme();
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
   const [editingHarvest, setEditingHarvest] = useState<BatchHarvest | null>(null);
@@ -176,6 +179,7 @@ const BatchDetailContent = () => {
               inputs={inputs.rows}
               canEdit={open && access.record}
               onRemove={(input) => confirm(text.dialogs.confirmDeleteInput, () => removeInput({ id: batchId, eventId: input.id }))}
+              onEdit={(input) => (input.daily_record_id ? setEditingInputRecord(input.daily_record_id) : setEditingInput(input))}
               onOpenRecord={setViewingRecord}
               type={inputsType}
               onTypeChange={(type) => { setInputsType(type); inputs.setPage(0); }}
@@ -243,6 +247,8 @@ const BatchDetailContent = () => {
       </Card>
 
       {editingStage && <StageDateDialog key={editingStage.id} batch={batch} stage={editingStage} open onClose={() => setEditingStage(null)} />}
+      {editingInputRecord !== null && <EditInputRecordDialog recordId={editingInputRecord} farmId={batch.farm_id} onClose={() => { setEditingInputRecord(null); refresh(); }} />}
+      {editingInput && <InputDialog key={editingInput.id} batch={batch} open record={editingInput} onClose={() => setEditingInput(null)} />}
       {editingMortality && <MortalityDialog key={editingMortality.id} batch={batch} open record={editingMortality} onClose={() => setEditingMortality(null)} />}
       <Dialog open={viewingRecord !== null} fullWidth maxWidth='md' fullScreen={belowLargeScreen} onClose={() => setViewingRecord(null)}>
         {viewingRecord !== null && <RoundView recordId={viewingRecord} onClose={() => setViewingRecord(null)} />}

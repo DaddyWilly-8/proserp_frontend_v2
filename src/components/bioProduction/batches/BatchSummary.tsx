@@ -10,6 +10,7 @@ import { animalText } from '../animalText';
 import { useBioAccess } from '../useBioAccess';
 import { batchServices } from '../bio-production-services';
 import { money } from './BatchTables';
+import FeedTrend from './FeedTrend';
 import ResponsiveTable from './ResponsiveTable';
 import { Batch, BatchSummary as Summary, FcrRow } from './batchTypes';
 
@@ -112,6 +113,10 @@ const BatchSummary = ({ batch }: { batch: Batch }) => {
       </Section>
       </>
       )}
+
+      <Section title={t.feedTrend.title} hint={t.feedTrend.help}>
+        <FeedTrend trend={data.feed_trend} start={batch.start_date} end={batch.end_date} showCost={!!finance} />
+      </Section>
 
       <Section title={t.fcr.title} hint={t.fcr.help}>
         <ResponsiveTable<{ key: string; name: string; row: FcrRow }>

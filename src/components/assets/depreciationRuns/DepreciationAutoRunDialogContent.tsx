@@ -210,6 +210,10 @@ const DepreciationAutoRunDialogContent: React.FC<DepreciationAutoRunDialogConten
               {t.helper.notifyUsers}
             </Typography>
 
+            <Typography variant="caption" color="text.secondary">
+              {t.helper.timezone.replace('{timezone}', template.timezone)}
+            </Typography>
+
             <Stack spacing={0.5}>
               <Typography variant="body2">{t.labels.latestPosted}: {monthLabel(template.latest_posted_period)}</Typography>
               {form.enabled && <Typography variant="body2">{t.labels.nextMonth}: {monthLabel(template.next_period)}</Typography>}

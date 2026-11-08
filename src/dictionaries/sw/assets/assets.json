@@ -258,11 +258,12 @@
         "lastProblem": "Ulisimama kwa sababu"
       },
       "helper": {
-        "monthEnd": "Inapost mwezi siku yake ya mwisho, karibu saa 23:50.",
+        "monthEnd": "Inapost mwezi siku yake ya mwisho, katika uendeshaji wa usiku saa 23:50 UTC (saa 02:50 Dar es Salaam).",
         "dayOfNextMonth": "Inapost mwezi uliopita kuanzia siku hii. Usiku ukikosa, usiku unaofuata unafidia.",
         "startMonth": "Inatumika hadi uendeshaji wa kwanza uwepo. Baada ya hapo inaendelea kutoka mwezi wa mwisho uliopostiwa.",
         "startMonthRequired": "Inahitajika: hakuna uendeshaji wa uchakavu uliopostiwa bado.",
         "narration": "Tumia {month} kwa kipindi, mfano \"Oktoba 2026\".",
+        "timezone": "Kila uendeshaji unapewa tarehe ya dakika ya mwisho (23:59:59) ya siku ya mwisho ya mwezi wake, kwa saa za {timezone}, saa ambazo hii ilihifadhiwa.",
         "notifyUsers": "Acha wazi kuarifu kila mwenye uwezo wa kupost uchakavu."
       },
       "buttons": {

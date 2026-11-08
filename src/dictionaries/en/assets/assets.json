@@ -258,11 +258,12 @@
         "lastProblem": "Stopped because"
       },
       "helper": {
-        "monthEnd": "Posts the month on its own last day, at about 23:50.",
+        "monthEnd": "Posts the month on its own last day, in the nightly run at 23:50 UTC (02:50 in Dar es Salaam).",
         "dayOfNextMonth": "Posts the previous month on or after this day. If a night is missed, the next night makes it up.",
         "startMonth": "Used only until the first run exists. After that it carries on from the latest posted month.",
         "startMonthRequired": "Required: no depreciation run has been posted yet.",
         "narration": "Use {month} for the period, for example \"October 2026\".",
+        "timezone": "Each run is dated the last moment (23:59:59) of its month's last day, in {timezone}, the timezone this was saved in.",
         "notifyUsers": "Leave empty to notify everyone who can post depreciation."
       },
       "buttons": {

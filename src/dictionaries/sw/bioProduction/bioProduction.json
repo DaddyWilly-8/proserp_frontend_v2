@@ -603,6 +603,18 @@
         "outputs": "Kilichotoka",
         "kind": "Aina",
         "animals": "{Animals}",
+        "feedTrend": {
+          "title": "Chakula katika kundi lote",
+          "help": "Chakula kilichotolewa kila siku tangu kundi lilipoanza (kilo, nguzo) na gharama yake (mstari). Kusanya kwa wiki au mwezi ili kuona mwelekeo vizuri zaidi. Ni chakula chenye kipimo kinacholingana na uzito katika Vipimo pekee kinachohesabiwa kwa kilo.",
+          "kg": "Chakula (kg)",
+          "cost": "Gharama ya chakula",
+          "day": "Siku",
+          "week": "Wiki",
+          "month": "Mwezi",
+          "weekOf": "Wiki ya {date}",
+          "none": "Hakuna chakula kilichotolewa kwa kundi hili bado.",
+          "otherUnits": "Hazijahesabiwa kwa kilo (hakuna kipimo cha uzito): {units}"
+        },
         "fcr": {
           "title": "Ubadilishaji wa chakula (FCR)",
           "help": "Kilo za chakula zilizotolewa kwa kila kilo ya uzito iliyoongezeka. Chini ni bora. Ongezeko ni uzito wa wanyama sasa, ukiondoa uzito wao mwanzoni, ukijumlisha uzito wa waliovunwa au waliopotea njiani. Inategemea vipimo vya uzito kuwa vya kisasa, na chakula chenye kipimo kilicho na uwiano wa uzito katika Vipimo pekee ndicho kinachohesabiwa.",
@@ -698,6 +710,7 @@
         },
         "input": {
           "title": "Chakula / Dawa",
+          "editTitle": "Hariri chakula / dawa",
           "type": "Aina",
           "reason": "Sababu (mf. matibabu ya)",
           "store": "Stoo",

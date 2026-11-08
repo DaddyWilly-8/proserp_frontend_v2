@@ -22,9 +22,12 @@ interface RecurringScheduleFieldsProps {
   // Once a schedule has posted, its shape is history: only the name and the
   // end can move (and in total mode, not even the end).
   structureLocked?: boolean;
+  // The timezone the time of day is read in: the schedule's own when editing,
+  // otherwise the browser's, which is what a new schedule takes.
+  timezone?: string;
 }
 
-const RecurringScheduleFields: React.FC<RecurringScheduleFieldsProps> = ({ form, setForm, structureLocked = false }) => {
+const RecurringScheduleFields: React.FC<RecurringScheduleFieldsProps> = ({ form, setForm, structureLocked = false, timezone }) => {
   const dictionary = useDictionary();
   const t = dictionary.recurringTransactions.form;
   const isTotal = form.amount_mode === 'total';
@@ -84,7 +87,7 @@ const RecurringScheduleFields: React.FC<RecurringScheduleFieldsProps> = ({ form,
           type="time"
           label={t.labels.postTime}
           value={form.post_time}
-          helperText={t.helper.postTime}
+          helperText={t.helper.postTime.replace('{timezone}', timezone ?? Intl.DateTimeFormat().resolvedOptions().timeZone)}
           onChange={(e) => update({ post_time: e.target.value })}
           slotProps={{ inputLabel: { shrink: true } }}
         />

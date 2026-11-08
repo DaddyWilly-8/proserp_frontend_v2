@@ -11,6 +11,9 @@ import { BioFarm } from './types';
 
 const FarmContext = createContext<{ farm: BioFarm } | null>(null);
 
+/** Supplies the farm to forms used outside a FarmFirstPage, such as a record opened from a batch. */
+export const BioFarmProvider = ({ farm, children }: { farm: BioFarm; children: React.ReactNode }) => <FarmContext.Provider value={{ farm }}>{children}</FarmContext.Provider>;
+
 /** The farm chosen at the top of the page. Forms read it instead of asking for a farm again. */
 export const useBioFarm = () => {
   const context = useContext(FarmContext);

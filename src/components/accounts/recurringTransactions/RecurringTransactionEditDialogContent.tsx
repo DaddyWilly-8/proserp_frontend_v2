@@ -71,7 +71,7 @@ const RecurringTransactionEditDialogContent: React.FC<RecurringTransactionEditDi
         ) : (
           <>
             {structureLocked && <Alert severity="info" sx={{ mb: 1 }}>{t.helper.locked}</Alert>}
-            <RecurringScheduleFields form={form} setForm={setForm as React.Dispatch<React.SetStateAction<ScheduleForm>>} structureLocked={structureLocked} />
+            <RecurringScheduleFields form={form} setForm={setForm as React.Dispatch<React.SetStateAction<ScheduleForm>>} structureLocked={structureLocked} timezone={schedule?.timezone} />
           </>
         )}
       </DialogContent>

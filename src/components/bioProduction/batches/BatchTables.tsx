@@ -119,6 +119,8 @@ interface InputsTableProps {
   inputs: BatchInput[];
   canEdit: boolean;
   onRemove: (input: BatchInput) => void;
+  /** Corrects the input: through its daily record when it has one, otherwise in place. Offered only when nothing else shares it. */
+  onEdit?: (input: BatchInput) => void;
   onOpenRecord: (recordId: number) => void;
   type: string | number;
   onTypeChange: (type: string | number) => void;
@@ -131,8 +133,9 @@ interface InputsTableProps {
 }
 
 /** The batch's feed and medication, a page at a time, filterable by type. */
-export const InputsTable = ({ inputs, onRemove, onOpenRecord, canEdit, type, onTypeChange, page, limit, total, totalCost, onPageChange, onLimitChange }: InputsTableProps) => {
+export const InputsTable = ({ inputs, onRemove, onEdit, onOpenRecord, canEdit, type, onTypeChange, page, limit, total, totalCost, onPageChange, onLimitChange }: InputsTableProps) => {
   const text = useDictionary().bioProduction.batches;
+  const common = useDictionary().bioProduction.common;
   const t = text.tables;
   const { finance } = useBioAccess();
 
@@ -165,7 +168,12 @@ export const InputsTable = ({ inputs, onRemove, onOpenRecord, canEdit, type, onT
           ...ifFinance(finance, { label: t.cost, align: 'right' as const, render: (i: any) => money(i.cost) }),
           { label: t.record, render: (i) => <RecordLink recordNo={i.recordNo} recordId={i.daily_record_id} onOpen={onOpenRecord} /> },
           // An input on a record shared with other lines is deleted from Daily Records; one of its own record, or older with none, is removed here.
-          { label: '', align: 'right', render: (i) => (canEdit && (i.record_lines ?? 1) <= 1 ? <RemoveButton label={text.dialogs.confirmDeleteInput} onClick={() => onRemove(i)} /> : null) },
+          { label: '', align: 'right', render: (i) => (canEdit && (i.record_lines ?? 1) <= 1 ? (
+            <>
+              {onEdit && <EditButton label={common.edit} onClick={() => onEdit(i)} />}
+              <RemoveButton label={text.dialogs.confirmDeleteInput} onClick={() => onRemove(i)} />
+            </>
+          ) : null) },
         ]}
       />
       <PagedFooter page={page} limit={limit} total={total} onPageChange={onPageChange} onLimitChange={onLimitChange} />

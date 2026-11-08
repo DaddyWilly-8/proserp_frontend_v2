@@ -112,7 +112,7 @@ const RecurringTransactionViewDialogContent: React.FC<RecurringTransactionViewDi
             <Field label={t.form.labels.amountMode} value={schedule.amount_mode === 'total' ? t.form.labels.total : t.form.labels.fixed} />
             <Field label={t.view.labels.repeats} value={every} />
             <Field label={t.form.labels.startDate} value={dayjs(schedule.start_date).format('DD MMM YYYY')} />
-            <Field label={t.form.labels.postTime} value={(schedule.post_time ?? '00:00').slice(0, 5)} />
+            <Field label={t.form.labels.postTime} value={`${(schedule.post_time ?? '00:00').slice(0, 5)} (${schedule.timezone})`} />
             <Field label={schedule.amount_mode === 'total' ? t.form.labels.periods : t.form.labels.ends} value={
               schedule.end_date ? dayjs(schedule.end_date).format('DD MMM YYYY') : schedule.max_occurrences ?? t.form.labels.never
             } />

@@ -14,7 +14,8 @@ import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import StoreSelector from '@/components/procurement/stores/StoreSelector';
 import { batchServices } from '../../bio-production-services';
 import { useAvailableStock } from '../../rounds/useAvailableStock';
-import { BioInputType, DialogProps } from '../batchTypes';
+import { BatchInput, BioInputType, DialogProps } from '../batchTypes';
+import { useProductsSelect } from '@/components/productAndServices/products/ProductsSelectProvider';
 import ActionDialog, { FormDate, useBatchAction } from './ActionDialog';
 import { nowStamp } from '../../dateTime';
 import { FormNumber } from '../../NumberField';
@@ -62,7 +63,9 @@ const StockField = ({ productId, storeId, costCenterId, unitId, date, symbol, on
   );
 };
 
-const InputDialog = ({ batch, open, onClose }: DialogProps) => {
+/** Records feed, medication or another input, or, with a record, corrects one made before inputs were daily records. */
+const InputDialog = ({ batch, open, onClose, record }: DialogProps & { record?: BatchInput }) => {
+  const { productOptions } = useProductsSelect();
   const categories = useFarmCategories(batch.farm_id);
   const text = useDictionary().bioProduction.batches;
   const dialog = text.dialogs.input;
@@ -86,7 +89,15 @@ const InputDialog = ({ batch, open, onClose }: DialogProps) => {
 
   const { register, handleSubmit, control, setValue, watch, reset, formState: { errors } } = useForm<any>({
     resolver: yupResolver(schema) as any,
-    defaultValues: { event_date: nowStamp(), type: 'feed' as BioInputType, store_id: null, reason: '', remarks: '', items: [emptyRow()] },
+    defaultValues: record
+      ? {
+          event_date: record.event_date, type: record.type, store_id: record.store?.id ?? null, reason: record.reason ?? '', remarks: record.remarks ?? '',
+          items: record.items.map((item): ItemRow => ({
+            product: productOptions.find((option: any) => option.id === item.product?.id) ?? null,
+            product_id: item.product?.id ?? null, measurement_unit_id: item.measurement_unit?.id ?? null, quantity: item.quantity,
+          })),
+        }
+      : { event_date: nowStamp(), type: 'feed' as BioInputType, store_id: null, reason: '', remarks: '', items: [emptyRow()] },
   });
   const { fields, append, remove } = useFieldArray({ control, name: 'items' });
 
@@ -96,7 +107,9 @@ const InputDialog = ({ batch, open, onClose }: DialogProps) => {
   const costCenterId = (batch.farm as any)?.cost_center?.id ?? (batch.farm as any)?.cost_center_id;
   const stockIssue = (index: number): string | undefined => {
     const item = watchedItems[index];
-    const available = usable[fields[index]?.id];
+    // Correcting an input puts its own stock back first, so what it gave counts as available again.
+    const given = record && record.store?.id === watch('store_id') ? record.items.filter((original) => original.product?.id === item?.product_id && original.measurement_unit?.id === item?.measurement_unit_id).reduce((sum, original) => sum + Number(original.quantity), 0) : 0;
+    const available = usable[fields[index]?.id] == null ? null : usable[fields[index]?.id]! + given;
     if (!item || available == null || !(Number(item.quantity) > 0)) return undefined;
     // Rows for the same product in the same unit draw on the same stock.
     const others = watchedItems.reduce((sum, other, j) => (j !== index && other.product_id === item.product_id && other.measurement_unit_id === item.measurement_unit_id ? sum + Number(other.quantity || 0) : sum), 0);
@@ -108,11 +121,12 @@ const InputDialog = ({ batch, open, onClose }: DialogProps) => {
   };
   const hasStockIssue = fields.some((_, index) => !!stockIssue(index));
 
-  const { mutate, isPending } = useBatchAction(batch.id, batchServices.recordInput, () => { reset(); onClose(); });
+  const { mutate, isPending } = useBatchAction(batch.id, record ? batchServices.updateInput : batchServices.recordInput, () => { reset(); onClose(); });
 
   const submit = (data: any) =>
     mutate({
       id: batch.id,
+      ...(record ? { eventId: record.id } : {}),
       event_date: data.event_date,
       type: data.type,
       reason: data.reason,
@@ -123,10 +137,10 @@ const InputDialog = ({ batch, open, onClose }: DialogProps) => {
         measurement_unit_id: item.measurement_unit_id,
         quantity: item.quantity,
       })),
-    });
+    } as any);
 
   return (
-    <ActionDialog open={open} title={dialog.title} help={dialog.help} maxWidth='md' loading={isPending} disableSubmit={hasStockIssue} onClose={onClose}
+    <ActionDialog open={open} title={record ? dialog.editTitle : dialog.title} help={dialog.help} maxWidth='md' loading={isPending} disableSubmit={hasStockIssue} onClose={onClose}
       onSubmit={handleSubmit(submit)}>
       <Grid container spacing={2}>
         <Grid size={{ xs: 12, md: 3 }}>
@@ -142,7 +156,7 @@ const InputDialog = ({ batch, open, onClose }: DialogProps) => {
             label={dialog.store}
             allowSubStores={true}
             includeStores={authOrganization?.stores?.length ? authOrganization.stores : undefined}
-            defaultValue={null}
+            defaultValue={record?.store ?? null}
             frontError={errors.store_id as any}
             onChange={(store: any) => setValue('store_id', store?.id ?? null, { shouldValidate: true })}
           />
@@ -166,6 +180,7 @@ const InputDialog = ({ batch, open, onClose }: DialogProps) => {
                     label={dialog.product}
                     allowedTypes={['Inventory']}
                     allowedCategoryIds={categories.input}
+                    defaultValue={record ? product : null}
                     frontError={itemErrors?.product_id}
                     onChange={(selected: any) => {
                       const unit = selected?.primary_unit?.id ?? selected?.measurement_unit_id ?? null;

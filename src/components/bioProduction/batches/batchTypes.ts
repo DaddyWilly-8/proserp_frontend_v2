@@ -126,13 +126,13 @@ export interface BatchInput {
   reason: string | null;
   remarks: string | null;
   stage?: { name: string };
-  store?: { name: string };
+  store?: { id?: number; name: string };
   consumptionNo?: string;
   cost: number;
   items: {
-    product?: { item_name?: string; name?: string };
+    product?: { id?: number; item_name?: string; name?: string };
     quantity: number;
-    measurement_unit?: { symbol?: string; name?: string };
+    measurement_unit?: { id?: number; symbol?: string; name?: string };
     rate: number;
   }[];
 }
@@ -161,6 +161,7 @@ export interface BatchSummary {
   days: number;
   environment: { parameter_id: number; name: string; unit_label: string | null; decimals: number; readings: number; average: number; min: number; max: number; out_of_range: number }[];
   fcr: { batch: FcrRow | null; stages: (FcrRow & { stage_id: number; stage: string })[] };
+  feed_trend: { days: { date: string; kg: number; cost: number }[]; other_units: string[] };
 }
 
 export interface FcrRow {

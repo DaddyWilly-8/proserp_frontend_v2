@@ -603,6 +603,18 @@
         "outputs": "What came out",
         "kind": "Kind",
         "animals": "{Animals}",
+        "feedTrend": {
+          "title": "Feed over the batch",
+          "help": "Feed given each day from the start of the batch (kilograms, bars) and what it cost (line). Group by week or month to see the trend more clearly. Only feed whose unit has a weight equivalence in Measurement Units is counted in kilograms.",
+          "kg": "Feed (kg)",
+          "cost": "Feed cost",
+          "day": "Day",
+          "week": "Week",
+          "month": "Month",
+          "weekOf": "Week of {date}",
+          "none": "No feed has been given to this batch yet.",
+          "otherUnits": "Not counted in kilograms (no weight equivalence): {units}"
+        },
         "fcr": {
           "title": "Feed conversion (FCR)",
           "help": "Kilograms of feed given for each kilogram of weight gained. Lower is better. Gain is the weight of the animals now, less what they weighed at the start, plus the weight of those harvested or lost along the way. It depends on weighings being kept up to date, and only feed whose unit has a weight equivalence in Measurement Units is counted.",
@@ -698,6 +710,7 @@
         },
         "input": {
           "title": "Feed / Medication",
+          "editTitle": "Edit feed / medication",
           "type": "Type",
           "reason": "Reason (e.g. treatment for)",
           "store": "Store",
