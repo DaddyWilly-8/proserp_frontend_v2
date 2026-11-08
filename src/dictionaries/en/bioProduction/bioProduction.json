@@ -776,10 +776,12 @@
           "help": "Correct when this batch started, or its remarks. The start can move earlier, but not past the first record on the batch or the start of its second stage."
         },
         "stageDate": {
-          "title": "Change when {stage} started",
+          "title": "Change {stage}",
           "help": "Correct the date this stage began; the stage before it ends on the same date. It must be after the previous stage began and before the next one begins, and no record already made may be left outside its stage. Closed batches cannot be changed.",
           "label": "Stage start",
-          "edit": "Change stage date"
+          "weight": "Weight at stage start",
+          "weightHelp": "The average weight the animals had when this stage began. It is also the weight the stage before it ended at, so that stage's closing weight changes with it, and feed conversion (FCR) uses it. Leave it blank to keep the weight as it is.",
+          "edit": "Change stage date or weight"
         },
         "confirmDeleteBatch": "Delete this batch? This cannot be undone. Only a batch with no recorded activity can be deleted.",
         "confirmDeleteInput": "Remove this input and return its stock?",

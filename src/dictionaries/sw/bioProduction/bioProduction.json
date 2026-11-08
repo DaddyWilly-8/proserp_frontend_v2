@@ -776,10 +776,12 @@
           "help": "Sahihisha lini kundi hili lilianza, au maelezo yake. Mwanzo unaweza kusogezwa nyuma, lakini si baada ya rekodi ya kwanza kwenye kundi au kuanza kwa hatua yake ya pili."
         },
         "stageDate": {
-          "title": "Badilisha tarehe ambayo {stage} ilianza",
+          "title": "Badilisha {stage}",
           "help": "Sahihisha tarehe hatua hii ilipoanza; hatua iliyotangulia inaisha tarehe hiyo hiyo. Lazima iwe baada ya hatua iliyotangulia kuanza na kabla ya inayofuata kuanza, na hakuna rekodi iliyokwisha fanywa inayopaswa kubaki nje ya hatua yake. Makundi yaliyofungwa hayawezi kubadilishwa.",
           "label": "Mwanzo wa hatua",
-          "edit": "Badilisha tarehe ya hatua"
+          "weight": "Uzito mwanzoni mwa hatua",
+          "weightHelp": "Uzito wa wastani wanyama walionao hatua hii ilipoanza. Pia ndio uzito ambao hatua iliyotangulia iliishia nao, kwa hiyo uzito wa mwisho wa hatua hiyo hubadilika pamoja nao, na FCR huutumia. Uache wazi ili uzito ubaki kama ulivyo.",
+          "edit": "Badilisha tarehe au uzito wa hatua"
         },
         "confirmDeleteBatch": "Futa kundi hili? Hili haliwezi kutenduliwa. Ni kundi lisilo na shughuli yoyote lililorekodiwa tu linaloweza kufutwa.",
         "confirmDeleteInput": "Ondoa pembejeo hii na kurudisha bidhaa zake?",
