@@ -56,6 +56,7 @@ export const batchServices = {
   ...crud(batchPath),
   // Batch actions all take the batch id alongside their payload.
   advanceStage: ({ id, ...payload }) => post(`${batchPath}/${id}/advance-stage`, payload),
+  undoStage: ({ id }) => post(`${batchPath}/${id}/undo-stage`, {}),
   updateStage: ({ id, stageId, ...payload }) => put(`${batchPath}/${id}/stages/${stageId}`, payload),
   transfer: ({ id, ...payload }) => post(`${batchPath}/${id}/transfers`, payload),
   recordMortality: ({ id, ...payload }) => post(`${batchPath}/${id}/mortalities`, payload),

@@ -72,6 +72,10 @@
         "harvest-output": {
           "title": "Mavuno na mazao",
           "description": "Kilichotoka kwenye makundi kwenda stoo: wanyama waliovunwa na mazao yaliyokusanywa, pamoja na gharama na gharama kwa kipimo."
+        },
+        "feed-projection": {
+          "title": "Makadirio ya chakula",
+          "description": "Chakula ambacho makundi yako yaliyo wazi yatahitaji kwa siku 30 hadi mwaka mmoja, au hadi mwisho wa mzunguko wao: kwa kundi, kwa kundi na hatua, au kwa chakula, pamoja na kilichopo stoo na cha kununua."
         }
       },
       "filters": {
@@ -81,7 +85,8 @@
         "group": "Kundi",
         "species": "Spishi",
         "status": "Hali",
-        "groupBy": "Panga kwa"
+        "groupBy": "Panga kwa",
+        "period": "Kipindi"
       },
       "presets": {
         "last7": "Siku 7 zilizopita",
@@ -144,7 +149,21 @@
         "cost_per_kg": "Gharama kwa kilo",
         "feedings": "Siku za kulisha",
         "type": "Aina",
-        "animals": "Wanyama waliovunwa"
+        "animals": "Wanyama waliovunwa",
+        "weight_now_g": "Uzito sasa (g)",
+        "weight_end_g": "Uzito mwishoni (g)",
+        "growth": "Ukuaji kutoka",
+        "gain_kg": "Ongezeko la uzito (kg)",
+        "note": "Maelezo",
+        "weight_from": "Uzito wa kuanza (g)",
+        "weight_to": "Uzito wa mwisho (g)",
+        "rate_pct": "Wastani wa kiwango cha kulisha %",
+        "feeds": "Chakula",
+        "on_hand_kg": "Kilichopo stoo (kg)",
+        "runs_out": "Kinaisha",
+        "short_kg": "Cha kununua (kg)",
+        "units_short": "Cha kununua (vipimo)",
+        "rate_per_kg": "Gharama kwa kilo"
       },
       "notes": {
         "group-cost": [
@@ -165,6 +184,12 @@
         "harvest-output": [
           "Kilichotoka kwenye makundi kwenda stoo katika tarehe, kwa bidhaa, pamoja na gharama iliyobebwa. Gharama kwa kipimo ni gharama ya kipimo kimoja cha bidhaa, kama kilo moja au yai moja.",
           "Hakuna mstari wa jumla kwa sababu bidhaa zina vipimo tofauti. Mavuno au ukusanyaji huenda kwenye kitengo kilichorekodiwa."
+        ],
+        "feed-projection": [
+          "Inaangalia mbele kuanzia leo makundi yaliyo wazi ya shamba, kwa hiyo Kuanzia na Hadi hazitumiki. Chakula kinatoka kwenye jedwali la kulisha la kiolezo cha spishi, kwa uzito ambao kundi linatarajiwa kuwa nao kila siku.",
+          "Ukuaji unafuata vipimo vya uzito vya kundi lenyewe vinapokuwa viwili vilivyochukuliwa kwa umbali wa siku 5 hadi 45 (Vipimo); vinginevyo unafuata kiolezo (Kiolezo). Vifo vinafuata vifo vya kawaida vya kiolezo, si vifo halisi vya kundi.",
+          "FCR inayotarajiwa ni chakula kilichogawanywa kwa uzito ulioongezeka: matokeo ya makadirio, si lengo. Kiwango cha kulisha ni wastani wa siku zinazoonyeshwa, kwa hiyo huwa chini kwa kipindi kirefu.",
+          "Kilichopo stoo ni salio la kituo cha gharama cha shamba, kwa vyakula vyenye kipimo cha uzito. Gharama inatumia gharama ya karibuni kwa kilo ya kila chakula. Makundi yasiyoweza kukadiriwa yanaorodheshwa na sababu."
         ]
       },
       "summary": "Muhtasari",
@@ -172,7 +197,16 @@
       "preparedBy": "Imeandaliwa na",
       "verifiedBy": "Imehakikiwa na",
       "approvedBy": "Imeidhinishwa na",
-      "signature": "Sahihi"
+      "signature": "Sahihi",
+      "periods": {
+        "30": "Siku 30 zijazo",
+        "60": "Siku 60 zijazo",
+        "90": "Siku 90 zijazo",
+        "180": "Miezi 6 ijayo",
+        "270": "Miezi 9 ijayo",
+        "365": "Miezi 12 ijayo",
+        "cycle": "Mzunguko mzima"
+      }
     },
     "unitGroups": {
       "pageTitle": "Makundi ya Vitengo",
@@ -610,7 +644,8 @@
         "close": "Funga kundi",
         "edit": "Hariri kundi",
         "delete": "Futa kundi",
-        "more": "Vitendo"
+        "more": "Vitendo",
+        "undoStage": "Tendua uhamisho wa mwisho"
       },
       "summary": {
         "environment": "Hali wakati wa kundi hili",
@@ -862,7 +897,8 @@
         "confirmDeleteExpense": "Ondoa gharama hii kwenye kundi?",
         "confirmDeleteMortality": "Futa hasara hii na rekodi yake ya kila siku? Wanyama wake wanarudi kwenye kundi. Haiwezekani baada ya kundi kuhamia hatua nyingine, au baada ya hasara za hatua hii kufutwa kwenye vitabu.",
         "confirmDeleteHarvest": "Futa mavuno haya? Wanyama wake wanarudi kwenye kundi, stoo yake inatolewa na gharama yake inarudi kwenye kundi. Haiwezekani kama stoo imetumika au kuuzwa.",
-        "confirmDeleteProduce": "Futa rekodi hii ya mazao? Stoo yake inatolewa na gharama yake inarudi kwenye kundi. Haiwezekani kama stoo imetumika au kuuzwa."
+        "confirmDeleteProduce": "Futa rekodi hii ya mazao? Stoo yake inatolewa na gharama yake inarudi kwenye kundi. Haiwezekani kama stoo imetumika au kuuzwa.",
+        "confirmUndoStage": "Tendua uhamisho wa mwisho kwenda hatua inayofuata? Kundi litarudi kwenye hatua iliyotangulia. Hii inawezekana tu kama hakuna kilichorekodiwa kwenye hatua aliyohamia (chakula, vifo, uzito, gharama); viondoe kwanza."
       },
       "messages": {
         "deleteContent": "Futa kundi hili? Inawezekana tu kama hakuna kilichorekodiwa kwake."

@@ -37,7 +37,7 @@ import TransferDialog from './dialogs/TransferDialog';
 import WeightDialog from './dialogs/WeightDialog';
 import WriteOffDialog from './dialogs/WriteOffDialog';
 
-type DialogName = 'mortality' | 'weight' | 'input' | 'expense' | 'transfer' | 'advance' | 'writeOff' | 'harvest' | 'produce' | 'close' | 'edit';
+type DialogName = 'mortality' | 'weight' | 'input' | 'expense' | 'transfer' | 'advance' | 'undoStage' | 'writeOff' | 'harvest' | 'produce' | 'close' | 'edit';
 type TabName = 'summary' | 'stages' | 'inputs' | 'costs' | 'mortality' | 'weights' | 'movements' | 'outcomes' | 'produce';
 
 const BatchDetailContent = () => {
@@ -94,6 +94,8 @@ const BatchDetailContent = () => {
   const { mutate: removeProduce } = useMutation({ mutationFn: batchServices.deleteProduce, onSuccess: onRemoved, onError: onRemoveError });
   const { mutate: removeExpense } = useMutation({ mutationFn: batchServices.deleteExpense, onSuccess: onRemoved, onError: onRemoveError });
 
+  const { mutate: undoStage } = useMutation({ mutationFn: batchServices.undoStage, onSuccess: onRemoved, onError: onRemoveError });
+
   const { mutate: removeBatch } = useMutation({
     mutationFn: batchServices.delete,
     onSuccess: (data: { message: string }) => {
@@ -120,7 +122,7 @@ const BatchDetailContent = () => {
   // Each action sits on the tab it belongs to, as on a project's profile; a closed batch has none.
   const tabActions: Partial<Record<TabName, TabAction[]>> = open
     ? {
-        stages: access.manage ? [act('advance', text.actions.advance, 'contained')] : [],
+        stages: access.manage ? [...((batch.stages ?? []).length > 1 ? [act('undoStage', text.actions.undoStage)] : []), act('advance', text.actions.advance, 'contained')] : [],
         inputs: access.record ? [act('input', text.actions.input, 'contained')] : [],
         costs: access.record ? [act('expense', text.actions.expense, 'contained')] : [],
         mortality: access.record ? [act('mortality', text.actions.mortality, 'contained')] : [],
@@ -165,7 +167,7 @@ const BatchDetailContent = () => {
         {toolbar.length > 0 && (
           <Stack direction='row' spacing={1} useFlexGap flexWrap='wrap' justifyContent='flex-end' sx={{ px: 2, pt: 1.5 }}>
             {toolbar.map((action) => (
-              <Button key={action.name} size='small' variant={action.variant ?? 'outlined'} color={action.color ?? 'primary'} onClick={() => setDialog(action.name)}>
+              <Button key={action.name} size='small' variant={action.variant ?? 'outlined'} color={action.color ?? 'primary'} onClick={() => (action.name === 'undoStage' ? confirm(text.dialogs.confirmUndoStage, () => undoStage({ id: batchId })) : setDialog(action.name))}>
                 {action.label}
               </Button>
             ))}

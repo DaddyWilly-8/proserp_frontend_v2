@@ -51,6 +51,7 @@ const ReportViewer = ({ definition, onClose }: { definition: ReportDefinition; o
   const [groupId, setGroupId] = useState<string | number>('');
   const [speciesId, setSpeciesId] = useState<string | number>('');
   const [status, setStatus] = useState<string | number>('');
+  const [days, setDays] = useState<string>('30');
   const [groupBy, setGroupBy] = useState<string>(definition.groupBy?.[0] ?? '');
   const [applied, setApplied] = useState<ReportFilters | null>(null);
   const [showPdf, setShowPdf] = useState(false);
@@ -65,6 +66,7 @@ const ReportViewer = ({ definition, onClose }: { definition: ReportDefinition; o
   const filters = (): ReportFilters => ({
     farm_id: farmId, from: from.format('YYYY-MM-DD HH:mm:ss'), to: to.endOf('day').format('YYYY-MM-DD HH:mm:ss'),
     group_id: groupId || undefined, species_template_id: speciesId || undefined, status: (status as string) || undefined, group_by: groupBy || undefined,
+    days: definition.period ? days : undefined,
   });
 
   // Show the report as soon as the farm is known, then again whenever Run is pressed.
@@ -107,7 +109,9 @@ const ReportViewer = ({ definition, onClose }: { definition: ReportDefinition; o
   const farmName = farms?.data?.find((farm) => farm.id === Number(applied?.farm_id))?.name ?? '';
   const filterLines = useMemo<[string, string][]>(() => {
     if (!applied) return [];
-    const lines: [string, string][] = [[dict.filters.farm, farmName], [dict.filters.from, dayjs(applied.from).format('DD MMM YYYY')], [dict.filters.to, dayjs(applied.to).format('DD MMM YYYY')]];
+    const lines: [string, string][] = [[dict.filters.farm, farmName]];
+    if (applied.days) lines.push([dict.filters.period, dict.periods[applied.days as keyof typeof dict.periods]]);
+    else lines.push([dict.filters.from, dayjs(applied.from).format('DD MMM YYYY')], [dict.filters.to, dayjs(applied.to).format('DD MMM YYYY')]);
     if (applied.group_id) lines.push([dict.filters.group, groups?.data?.find((group) => group.id === Number(applied.group_id))?.path ?? '']);
     if (applied.status) lines.push([dict.filters.status, dict.status[applied.status as 'open' | 'closed']]);
     if (applied.group_by) lines.push([dict.filters.groupBy, dict.groupBy[applied.group_by as keyof typeof dict.groupBy]]);
@@ -131,12 +135,20 @@ const ReportViewer = ({ definition, onClose }: { definition: ReportDefinition; o
             <Grid size={{ xs: 12, sm: 6, md: 3 }}>
               <BioSelect required label={dict.filters.farm} loading={loadingFarms} options={(farms?.data ?? []).map((farm) => ({ value: farm.id, label: farm.name }))} value={farmId} onChange={(value) => { setFarmId(value); setGroupId(''); }} />
             </Grid>
-            <Grid size={{ xs: 6, md: 2 }}>
-              <DatePicker label={dict.filters.from} value={from} onChange={(value) => value && setFrom(value)} slotProps={{ textField: { size: 'small', fullWidth: true } }} />
-            </Grid>
-            <Grid size={{ xs: 6, md: 2 }}>
-              <DatePicker label={dict.filters.to} value={to} onChange={(value) => value && setTo(value)} slotProps={{ textField: { size: 'small', fullWidth: true } }} />
-            </Grid>
+            {definition.period ? (
+              <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                <BioSelect required label={dict.filters.period} options={Object.entries(dict.periods).map(([value, label]) => ({ value, label: label as string }))} value={days} onChange={(value) => setDays(String(value))} />
+              </Grid>
+            ) : (
+              <>
+                <Grid size={{ xs: 6, md: 2 }}>
+                  <DatePicker label={dict.filters.from} value={from} onChange={(value) => value && setFrom(value)} slotProps={{ textField: { size: 'small', fullWidth: true } }} />
+                </Grid>
+                <Grid size={{ xs: 6, md: 2 }}>
+                  <DatePicker label={dict.filters.to} value={to} onChange={(value) => value && setTo(value)} slotProps={{ textField: { size: 'small', fullWidth: true } }} />
+                </Grid>
+              </>
+            )}
             {definition.filters.includes('group') && (
               <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                 <BioSelect label={dict.filters.group} disabled={!farmId} options={unitGroupOptions(groups?.data)} value={groupId} onChange={setGroupId} />
@@ -160,7 +172,7 @@ const ReportViewer = ({ definition, onClose }: { definition: ReportDefinition; o
             <Grid size={12}>
               <Stack direction='row' spacing={0.75} flexWrap='wrap' useFlexGap alignItems='center' justifyContent='space-between'>
                 <Stack direction='row' spacing={0.5} flexWrap='wrap' useFlexGap>
-                  {PRESETS.map((preset) => (
+                  {!definition.period && PRESETS.map((preset) => (
                     <Chip key={preset} size='small' variant='outlined' clickable label={dict.presets[preset]} onClick={() => { const range = presetRange(preset); setFrom(range.from); setTo(range.to); }} />
                   ))}
                 </Stack>

@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { BarChartOutlined, EggAltOutlined, HeartBrokenOutlined, RestaurantOutlined, SpeedOutlined } from '@mui/icons-material';
+import { BarChartOutlined, EggAltOutlined, HeartBrokenOutlined, RestaurantOutlined, SpeedOutlined, TrendingUpOutlined } from '@mui/icons-material';
 import { Box, Dialog, Grid, Stack, Typography, useMediaQuery } from '@mui/material';
 import JumboCardQuick from '@jumbo/components/JumboCardQuick';
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
@@ -20,6 +20,7 @@ const ICONS: Record<ReportId, React.ElementType> = {
   mortality: HeartBrokenOutlined,
   feed: RestaurantOutlined,
   'harvest-output': EggAltOutlined,
+  'feed-projection': TrendingUpOutlined,
 };
 
 const BioReportsContent = () => {

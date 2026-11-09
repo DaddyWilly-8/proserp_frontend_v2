@@ -72,6 +72,10 @@
         "harvest-output": {
           "title": "Harvest and produce",
           "description": "What left the batches into stock: harvested animals and collected produce, with their cost and cost per unit."
+        },
+        "feed-projection": {
+          "title": "Feed projection",
+          "description": "The feed your open batches will need over the next 30 days to a year, or to the end of their cycle: by batch, by batch and stage, or by feed, with what is in stock and what to buy."
         }
       },
       "filters": {
@@ -81,7 +85,8 @@
         "group": "Group",
         "species": "Species",
         "status": "Status",
-        "groupBy": "Group by"
+        "groupBy": "Group by",
+        "period": "Period"
       },
       "presets": {
         "last7": "Last 7 days",
@@ -144,7 +149,21 @@
         "cost_per_kg": "Cost per kg",
         "feedings": "Feeding days",
         "type": "Type",
-        "animals": "Animals harvested"
+        "animals": "Animals harvested",
+        "weight_now_g": "Weight now (g)",
+        "weight_end_g": "Weight at end (g)",
+        "growth": "Growth from",
+        "gain_kg": "Weight gain (kg)",
+        "note": "Note",
+        "weight_from": "Start weight (g)",
+        "weight_to": "End weight (g)",
+        "rate_pct": "Average feeding rate %",
+        "feeds": "Feed",
+        "on_hand_kg": "In stock (kg)",
+        "runs_out": "Runs out",
+        "short_kg": "To buy (kg)",
+        "units_short": "To buy (units)",
+        "rate_per_kg": "Cost per kg"
       },
       "notes": {
         "group-cost": [
@@ -165,6 +184,12 @@
         "harvest-output": [
           "What left the batches into stock in the dates, by product, with the cost it carried. Cost per unit is the cost of one unit of the product, such as one kg or one egg.",
           "There is no total row because products are in different units. A harvest or collection belongs to the unit it was recorded for."
+        ],
+        "feed-projection": [
+          "Looks ahead from today at the farm's open batches, so From and To do not apply. The feed comes from the feeding table of each batch's species template, at the weight the batch is expected to have each day.",
+          "Growth follows the batch's own weighings when it has two taken 5 to 45 days apart (Weighings); otherwise it follows the template (Template). Deaths follow the template's normal mortality, not the batch's real deaths.",
+          "Expected FCR is the feed divided by the weight gained: a result of the projection, not a target. The feeding rate is an average over the days shown, so it is lower for a longer period.",
+          "In stock is the balance of the farm's cost center, for feeds with a mass unit. Cost uses the recent cost per kg of each feed. Batches that cannot be projected are listed with the reason."
         ]
       },
       "summary": "Summary",
@@ -172,7 +197,16 @@
       "preparedBy": "Prepared by",
       "verifiedBy": "Verified by",
       "approvedBy": "Approved by",
-      "signature": "Signature"
+      "signature": "Signature",
+      "periods": {
+        "30": "Next 30 days",
+        "60": "Next 60 days",
+        "90": "Next 90 days",
+        "180": "Next 6 months",
+        "270": "Next 9 months",
+        "365": "Next 12 months",
+        "cycle": "Whole cycle"
+      }
     },
     "unitGroups": {
       "pageTitle": "Unit Groups",
@@ -610,7 +644,8 @@
         "close": "Close batch",
         "edit": "Edit batch",
         "delete": "Delete batch",
-        "more": "Actions"
+        "more": "Actions",
+        "undoStage": "Undo last move"
       },
       "summary": {
         "environment": "Conditions during this batch",
@@ -862,7 +897,8 @@
         "confirmDeleteExpense": "Remove this cost from the batch?",
         "confirmDeleteMortality": "Delete this loss and its daily record? Its animals return to the batch. This cannot be done once the batch has moved on from this stage, or after this stage's losses have been written off.",
         "confirmDeleteHarvest": "Delete this harvest? Its animals return to the batch, its stock is taken out of the store and its cost goes back into the batch. This cannot be done once the stock has been used or sold.",
-        "confirmDeleteProduce": "Delete this produce record? Its stock is taken out of the store and its cost goes back into the batch. This cannot be done once the stock has been used or sold."
+        "confirmDeleteProduce": "Delete this produce record? Its stock is taken out of the store and its cost goes back into the batch. This cannot be done once the stock has been used or sold.",
+        "confirmUndoStage": "Undo the last move to the next stage? The batch goes back to the previous stage. This only works while nothing has been recorded in the stage it moved into (feed, deaths, weights, costs); remove those first."
       },
       "messages": {
         "deleteContent": "Delete this batch? This is only possible if nothing has been recorded against it."

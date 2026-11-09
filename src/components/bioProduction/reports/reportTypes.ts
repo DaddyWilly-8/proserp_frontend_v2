@@ -1,4 +1,4 @@
-export type ReportId = 'group-cost' | 'batch-performance' | 'mortality' | 'feed' | 'harvest-output';
+export type ReportId = 'group-cost' | 'batch-performance' | 'mortality' | 'feed' | 'harvest-output' | 'feed-projection';
 export type ColumnType = 'text' | 'integer' | 'decimal' | 'money' | 'percent';
 
 export interface ReportColumn {
@@ -25,6 +25,7 @@ export interface ReportFilters {
   species_template_id?: number | string;
   status?: string;
   group_by?: string;
+  days?: string;
 }
 
 /** Which of the optional filters a report offers, and the groupings it can be read by. */
@@ -32,6 +33,8 @@ export interface ReportDefinition {
   id: ReportId;
   filters: ('group' | 'species' | 'status')[];
   groupBy?: string[];
+  /** Looks ahead from today for a chosen period, so it has no From and To. */
+  period?: boolean;
 }
 
 export const REPORTS: ReportDefinition[] = [
@@ -40,4 +43,5 @@ export const REPORTS: ReportDefinition[] = [
   { id: 'mortality', filters: ['group'], groupBy: ['batch', 'group', 'unit', 'stage', 'cause', 'month'] },
   { id: 'feed', filters: ['group'], groupBy: ['product', 'group', 'unit', 'batch', 'month'] },
   { id: 'harvest-output', filters: ['group'], groupBy: ['month', 'batch', 'group', 'unit', 'product'] },
+  { id: 'feed-projection', filters: ['group', 'species'], groupBy: ['batch', 'stage', 'product'], period: true },
 ];

@@ -43,12 +43,17 @@ const ReportTableView = ({ table, labelOf, totalLabel, emptyText, linkOf }: Prop
             <Typography variant='subtitle2' fontWeight={700} noWrap sx={{ mb: 0.75 }}><Cell href={row.isTotal ? null : linkOf?.(row, first)}>{formatValue(row[first.key] ?? row.label ?? row.batch, 'text') || totalLabel}</Cell></Typography>
             <Divider sx={{ mb: 0.75 }} />
             <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', columnGap: 2, rowGap: 0.75 }}>
-              {rest.filter((column) => row[column.key] !== undefined && row[column.key] !== '').map((column) => (
-                <Box key={column.key} sx={{ minWidth: 0 }}>
-                  <Typography variant='caption' color='text.secondary' display='block' noWrap>{labelOf(column)}</Typography>
-                  <Typography variant='body2' noWrap><Cell href={row.isTotal ? null : linkOf?.(row, column)}>{formatValue(row[column.key], column.type)}</Cell></Typography>
-                </Box>
-              ))}
+              {rest.filter((column) => row[column.key] !== undefined && row[column.key] !== '').map((column) => {
+                // A long piece of text (the feeds of a stage, a note) takes the card's full width and wraps instead of being cut short.
+                const long = column.type === 'text' && String(row[column.key] ?? '').length > 22;
+
+                return (
+                  <Box key={column.key} sx={{ minWidth: 0, ...(long ? { gridColumn: '1 / -1' } : {}) }}>
+                    <Typography variant='caption' color='text.secondary' display='block' noWrap>{labelOf(column)}</Typography>
+                    <Typography variant='body2' noWrap={!long}><Cell href={row.isTotal ? null : linkOf?.(row, column)}>{formatValue(row[column.key], column.type)}</Cell></Typography>
+                  </Box>
+                );
+              })}
             </Box>
           </Card>
         ))}
