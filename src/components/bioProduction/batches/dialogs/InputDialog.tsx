@@ -19,6 +19,7 @@ import { useProductsSelect } from '@/components/productAndServices/products/Prod
 import ActionDialog, { FormDate, useBatchAction } from './ActionDialog';
 import { nowStamp } from '../../dateTime';
 import { FormNumber } from '../../NumberField';
+import FeedGuide from './FeedGuide';
 
 interface ItemRow {
   product: any;
@@ -143,6 +144,7 @@ const InputDialog = ({ batch, open, onClose, record }: DialogProps & { record?: 
     <ActionDialog open={open} title={record ? dialog.editTitle : dialog.title} help={dialog.help} maxWidth='md' loading={isPending} disableSubmit={hasStockIssue} onClose={onClose}
       onSubmit={handleSubmit(submit)}>
       <Grid container spacing={2}>
+        {!record && watch('type') === 'feed' && batch.status !== 'closed' && !batch.end_date && <Grid size={12}><FeedGuide batch={batch} /></Grid>}
         <Grid size={{ xs: 12, md: 3 }}>
           <Controller name='type' control={control} render={({ field }) => (
             <BioSelect required label={dialog.type} options={(['feed', 'medication', 'other'] as const).map((type) => ({ value: type, label: text.inputTypes[type] }))} value={field.value} onChange={field.onChange} />

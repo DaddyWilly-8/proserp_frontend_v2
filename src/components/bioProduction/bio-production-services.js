@@ -76,6 +76,7 @@ export const batchServices = {
   getProduceCostPreview: async (id, date) => (await axios.get(`${batchPath}/${id}/produce-cost-preview`, { params: { date } })).data,
   close: ({ id, ...payload }) => post(`${batchPath}/${id}/close`, payload),
   getSummary: async (id) => (await axios.get(`${batchPath}/${id}/summary`)).data,
+  getFeedProjection: async (id, params = {}) => (await axios.get(`${batchPath}/${id}/feed-projection`, { params })).data,
   getInputs: async (id, params = {}) => (await axios.get(`${batchPath}/${id}/inputs`, { params })).data,
   getExpenses: async (id, params = {}) => (await axios.get(`${batchPath}/${id}/expenses`, { params })).data,
   getMortalities: async (id, params = {}) => (await axios.get(`${batchPath}/${id}/mortalities`, { params })).data,
@@ -87,6 +88,7 @@ export const batchServices = {
 export const dashboardServices = {
   get: async (params) => (await axios.get('/api/bioProduction/dashboard', { params })).data,
   trend: async (params) => (await axios.get('/api/bioProduction/dashboard/trend', { params })).data,
+  feedProjection: async (params) => (await axios.get('/api/bioProduction/dashboard/feed-projection', { params })).data,
 };
 
 const roundPath = '/api/bioProduction/rounds';

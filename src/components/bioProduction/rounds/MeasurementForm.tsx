@@ -308,7 +308,7 @@ const MeasurementFormBody = ({ setOpenDialog, record = null }: { setOpenDialog: 
             <Paper variant='outlined' sx={{ p: 1.5, bgcolor: (theme) => alpha(theme.palette.primary.main, 0.04) }}>
               <Grid container spacing={1} alignItems='flex-start'>
                 <Grid size={12}>
-                  <ToggleButtonGroup exclusive size='small' value={target} onChange={(_, value) => value && (setTarget(value), setDraft(emptyDraft))}>
+                  <ToggleButtonGroup exclusive fullWidth size='small' sx={{ maxWidth: { sm: 360 } }} value={target} onChange={(_, value) => value && (setTarget(value), setDraft(emptyDraft))}>
                     <ToggleButton value='unit'>{text.labels.applyToUnit}</ToggleButton>
                     <ToggleButton value='group'>{text.labels.applyToGroup}</ToggleButton>
                   </ToggleButtonGroup>

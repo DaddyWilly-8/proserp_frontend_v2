@@ -75,8 +75,20 @@ export interface BioSpeciesTemplateStage {
   entry_weight_g?: number | string | null;
   target_weight_g?: number | string | null;
   normal_mortality_pct?: number | string | null;
+  /** Form only: the products chosen as feed, as the picker holds them. */
   useful_life_days?: number | null;
   salvage_value_per_head?: number | string | null;
+}
+
+/** A row of the feeding table by fish weight; weights are in the template's unit on the form and grams from the server. */
+export interface BioFeedingBand {
+  from_weight_g: number | string | null;
+  to_weight_g: number | string | null;
+  rate_start_pct: number | string | null;
+  rate_end_pct?: number | string | null;
+  feed_products?: { product_id: number; share_pct?: number | string | null }[];
+  feeds?: { product_id: number; share_pct: number; product?: { id: number; name: string } | null }[];
+  feed_items?: any[];
 }
 
 export interface BioSpeciesTemplate {
@@ -86,6 +98,7 @@ export interface BioSpeciesTemplate {
   tracking_mode: 'batch' | 'individual';
   count_label?: string;
   weight_unit?: 'g' | 'kg';
+  feeding_bands?: BioFeedingBand[] | null;
   status: BioStatus;
   stages_count?: number;
   stages?: BioSpeciesTemplateStage[];

@@ -13,7 +13,7 @@ import { useParams } from 'next/navigation';
 import { getErrorMessage } from '@/utilities/helpers/errorHandler';
 import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import { dashboardServices, farmServices } from '../bio-production-services';
-import { money } from '../batches/BatchTables';
+import { useBioMoney } from '../useBioMoney';
 import { stamp } from '../dateTime';
 import UnitEnvironment from '../productionUnits/UnitEnvironment';
 import RoundView from '../rounds/RoundView';
@@ -22,6 +22,7 @@ import { PERMISSIONS } from '@/utilities/constants/permissions';
 import BioGate from '../BioGate';
 import { useBioAccess } from '../useBioAccess';
 import TrendCard from './TrendCard';
+import FeedProjection from '../FeedProjection';
 import { AlertSeverity, ConditionAlert, Dashboard } from './dashboardTypes';
 
 const num = (value: number, digits = 0) => value.toLocaleString(undefined, { maximumFractionDigits: digits });
@@ -91,6 +92,7 @@ const DashboardContent = () => {
   const access = useBioAccess();
   const farmAccess = access.master('farms');
   const { finance } = access;
+  const money = useBioMoney();
   const { theme } = useJumboTheme();
   const belowLargeScreen = useMediaQuery(theme.breakpoints.down('lg'));
   const [tab, setTab] = useState<TabKey>('conditions');
@@ -376,6 +378,11 @@ const DashboardContent = () => {
         </Grid>
         <Grid size={{ xs: 12, xl: 6 }}>
           <TrendCard metric='output' title={t.trends.output} params={params} series={[{ key: 'harvest_quantity', label: t.trends.harvestSeries, color: theme.palette.success.main }, { key: 'produce_quantity', label: t.trends.produceSeries, color: theme.palette.info.main }]} />
+        </Grid>
+        <Grid size={12}>
+          <JumboCardQuick title={bio.feedProjection.title} sx={{ minHeight: 360 }}>
+            <FeedProjection horizons={[30, 90, 180, 270, 365]} scope={`farms-${JSON.stringify(params.farm_ids ?? '')}`} load={(days) => dashboardServices.feedProjection({ farm_ids: params.farm_ids, days })} showCost={!!finance} />
+          </JumboCardQuick>
         </Grid>
         <Grid size={{ xs: 12, xl: 6 }}>
           <TrendCard metric='fcr' kind='line' title={t.trends.fcr} params={params} series={[{ key: 'fcr', label: t.trends.fcr, color: theme.palette.success.dark }]} />

@@ -10,7 +10,9 @@ import { animalText } from '../animalText';
 import { useBioAccess } from '../useBioAccess';
 import { batchServices } from '../bio-production-services';
 import { money } from './BatchTables';
+import { useBioMoney } from '../useBioMoney';
 import { fromGrams, withUnit } from '../weightUnit';
+import FeedProjection from '../FeedProjection';
 import FcrTrend from './FcrTrend';
 import FeedTrend from './FeedTrend';
 import ResponsiveTable from './ResponsiveTable';
@@ -42,6 +44,7 @@ const BatchSummary = ({ batch }: { batch: Batch }) => {
   const text = bio.batches;
   const t = text.summary;
   const { finance } = useBioAccess();
+  const cash = useBioMoney();
   const animals = batch.species_template?.count_label;
 
   const { data, isLoading } = useQuery<Summary>({
@@ -71,10 +74,10 @@ const BatchSummary = ({ batch }: { batch: Batch }) => {
         <Grid size={{ xs: 6, md: 3 }}><Stat label={t.days} value={num(data.days, 0)} /></Grid>
         {finance && costs && (
           <>
-          <Grid size={{ xs: 6, md: 3 }}><Stat label={text.costs.accrued} value={money(costs.total)} /></Grid>
-          <Grid size={{ xs: 6, md: 3 }}><Stat label={text.costs.balance} value={money(costs.wip_balance)} hint={costs.per_unit != null ? `${money(costs.per_unit)} ${t.each}` : undefined} /></Grid>
-          <Grid size={{ xs: 6, md: 3 }}><Stat label={t.movedToStock} value={money((costs.harvested ?? 0) + (costs.collected ?? 0))} hint={`${t.harvests} ${money(costs.harvested)} · ${t.produce} ${money(costs.collected)}`} /></Grid>
-          <Grid size={{ xs: 6, md: 3 }}><Stat label={text.costs.writtenOff} value={money(costs.written_off)} color={costs.written_off > 0 ? 'error.main' : undefined} /></Grid>
+          <Grid size={{ xs: 6, md: 3 }}><Stat label={text.costs.accrued} value={cash(costs.total)} /></Grid>
+          <Grid size={{ xs: 6, md: 3 }}><Stat label={text.costs.balance} value={cash(costs.wip_balance)} hint={costs.per_unit != null ? `${cash(costs.per_unit)} ${t.each}` : undefined} /></Grid>
+          <Grid size={{ xs: 6, md: 3 }}><Stat label={t.movedToStock} value={cash((costs.harvested ?? 0) + (costs.collected ?? 0))} hint={`${t.harvests} ${cash(costs.harvested)} · ${t.produce} ${cash(costs.collected)}`} /></Grid>
+          <Grid size={{ xs: 6, md: 3 }}><Stat label={text.costs.writtenOff} value={cash(costs.written_off)} color={costs.written_off > 0 ? 'error.main' : undefined} /></Grid>
           </>
         )}
         <Grid size={{ xs: 6, md: 3 }}><Stat label={animalText(t.alive, animals)} value={`${num(data.animals.alive, 0)} / ${num(data.animals.initial, 0)}`} /></Grid>
@@ -122,6 +125,12 @@ const BatchSummary = ({ batch }: { batch: Batch }) => {
       <Section title={t.feedTrend.title} hint={t.feedTrend.help}>
         <FeedTrend trend={data.feed_trend} start={batch.start_date} end={batch.end_date} showCost={!!finance} />
       </Section>
+
+      {batch.status !== 'closed' && !batch.end_date && (
+        <Section title={bio.feedProjection.title} hint={bio.feedProjection.help}>
+          <FeedProjection horizons={[30, 60, 90, 'cycle']} scope={`batch-${batch.id}`} load={(days) => batchServices.getFeedProjection(batch.id, { days })} weightUnit={batch.species_template?.weight_unit} showCost={!!finance} />
+        </Section>
+      )}
 
       <Section title={t.fcr.title} hint={t.fcr.help}>
         <ResponsiveTable<{ key: string; name: string; row: FcrRow }>

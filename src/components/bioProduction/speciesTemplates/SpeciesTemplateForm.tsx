@@ -31,8 +31,9 @@ import NumberField from '../NumberField';
 import ProductSelect from '@/components/productAndServices/products/ProductSelect';
 import { getErrorMessage } from '@/utilities/helpers/errorHandler';
 import { speciesTemplateServices } from '../bio-production-services';
+import { useAllFarmInputCategories } from '../useFarmCategories';
 import { WeightUnit, fromGrams, normalizeUnit, toGrams, withUnit } from '../weightUnit';
-import { BioFormProps, BioSpeciesTemplate, BioSpeciesTemplateStage } from '../types';
+import { BioFeedingBand, BioFormProps, BioSpeciesTemplate, BioSpeciesTemplateStage } from '../types';
 
 interface TemplateFormData {
   name: string;
@@ -42,8 +43,11 @@ interface TemplateFormData {
   weight_unit: WeightUnit;
   status: 'active' | 'inactive';
   stages: BioSpeciesTemplateStage[];
+  feeding_bands: BioFeedingBand[];
   products: { id: number }[];
 }
+
+const emptyBand = (): BioFeedingBand => ({ from_weight_g: null, to_weight_g: null, rate_start_pct: null, rate_end_pct: null, feed_products: [], feed_items: [] });
 
 const emptyStage = (): BioSpeciesTemplateStage => ({
   name: '',
@@ -67,12 +71,19 @@ const optionalNumber = (message: string) =>
 
 /** The products are sent as ids. */
 // The form holds weights in the species' unit; the server keeps grams.
-const payload = ({ products, stages, ...rest }: TemplateFormData) => ({
+const payload = ({ products, stages, feeding_bands, ...rest }: TemplateFormData) => ({
   ...rest,
   stages: stages.map((stage) => ({
     ...stage,
     entry_weight_g: stage.entry_weight_g != null && stage.entry_weight_g !== ('' as any) ? toGrams(Number(stage.entry_weight_g), rest.weight_unit) : null,
     target_weight_g: stage.target_weight_g != null && stage.target_weight_g !== ('' as any) ? toGrams(Number(stage.target_weight_g), rest.weight_unit) : null,
+  })),
+  feeding_bands: (feeding_bands ?? []).filter((band) => band.from_weight_g !== null && band.from_weight_g !== ('' as any) && band.to_weight_g !== null && band.to_weight_g !== ('' as any) && band.rate_start_pct !== null && band.rate_start_pct !== ('' as any)).map((band) => ({
+    from_weight_g: toGrams(Number(band.from_weight_g), rest.weight_unit),
+    to_weight_g: toGrams(Number(band.to_weight_g), rest.weight_unit),
+    rate_start_pct: Number(band.rate_start_pct),
+    rate_end_pct: band.rate_end_pct === null || band.rate_end_pct === ('' as any) || band.rate_end_pct === undefined ? null : Number(band.rate_end_pct),
+    feed_products: (band.feed_products ?? []).map((feed) => ({ product_id: feed.product_id, share_pct: feed.share_pct === '' || feed.share_pct == null ? null : Number(feed.share_pct) })),
   })),
   product_ids: (products ?? []).map((product) => product.id),
 });
@@ -127,6 +138,14 @@ const TemplateFormBody = ({ setOpenDialog, template }: { setOpenDialog: (open: b
       weight_unit: normalizeUnit(template?.weight_unit),
       status: template?.status ?? 'active',
       products: template?.products ?? [],
+      feeding_bands: (template?.feeding_bands ?? []).map((band) => ({
+        from_weight_g: fromGrams(Number(band.from_weight_g), template?.weight_unit),
+        to_weight_g: fromGrams(Number(band.to_weight_g), template?.weight_unit),
+        rate_start_pct: Number(band.rate_start_pct),
+        rate_end_pct: band.rate_end_pct != null ? Number(band.rate_end_pct) : null,
+        feed_products: (band.feeds ?? []).map((feed) => ({ product_id: feed.product_id, share_pct: feed.share_pct })),
+        feed_items: (band.feeds ?? []).filter((feed) => feed.product).map((feed) => feed.product as any),
+      })),
       stages: template?.stages?.length
         ? template.stages.map((stage) => ({
             name: stage.name,
@@ -143,6 +162,9 @@ const TemplateFormBody = ({ setOpenDialog, template }: { setOpenDialog: (open: b
   });
 
   const { fields, append, remove, move } = useFieldArray({ control, name: 'stages' });
+  const { fields: bandFields, append: appendBand, remove: removeBand } = useFieldArray({ control, name: 'feeding_bands' });
+  const bands = useWatch({ control, name: 'feeding_bands' });
+  const inputCategories = useAllFarmInputCategories();
   const stagePurposes = useWatch({ control, name: 'stages' });
   const weightUnit = useWatch({ control, name: 'weight_unit' });
 
@@ -153,6 +175,12 @@ const TemplateFormBody = ({ setOpenDialog, template }: { setOpenDialog: (open: b
       (['entry_weight_g', 'target_weight_g'] as const).forEach((field) => {
         const value = stage[field];
         if (value != null && value !== ('' as any) && !Number.isNaN(Number(value))) setValue(`stages.${index}.${field}`, fromGrams(toGrams(Number(value), weightUnit), next));
+      });
+    });
+    (getValues('feeding_bands') ?? []).forEach((band, index) => {
+      (['from_weight_g', 'to_weight_g'] as const).forEach((field) => {
+        const value = band[field];
+        if (value != null && value !== ('' as any) && !Number.isNaN(Number(value))) setValue(`feeding_bands.${index}.${field}`, fromGrams(toGrams(Number(value), weightUnit), next));
       });
     });
     setValue('weight_unit', next);
@@ -364,6 +392,58 @@ const TemplateFormBody = ({ setOpenDialog, template }: { setOpenDialog: (open: b
                 <Button size='small' startIcon={<AddOutlined />} onClick={() => append(emptyStage())}>
                   {text.buttons.addStage}
                 </Button>
+              </Box>
+            </Grid>
+            <Grid size={12}>
+              <Divider sx={{ my: 1 }} />
+              <Stack direction='row' alignItems='center' spacing={0.5}>
+                <Typography variant='h5' mb={0}>{text.labels.feedingBands}</Typography>
+                <InfoHint text={text.help.feedingBands} />
+              </Stack>
+            </Grid>
+            {bandFields.map((field, index) => (
+              <Grid size={12} key={field.id}>
+                <Grid container spacing={1} alignItems='flex-start'>
+                  {(
+                    [
+                      ['from_weight_g', withUnit(text.labels.bandFrom, weightUnit)],
+                      ['to_weight_g', withUnit(text.labels.bandTo, weightUnit)],
+                      ['rate_start_pct', text.labels.rateStart],
+                      ['rate_end_pct', text.labels.rateEnd],
+                    ] as const
+                  ).map(([name, label]) => (
+                    <Grid size={{ xs: 6, md: 2.5 }} key={name}>
+                      <TextField type='number' label={label} size='small' fullWidth slotProps={{ htmlInput: { min: 0, step: 'any' } }} {...register(`feeding_bands.${index}.${name}`)} />
+                    </Grid>
+                  ))}
+                  <Grid size={{ xs: 12, md: 2 }}>
+                    <Stack direction='row' justifyContent='flex-end'>
+                      <Tooltip title={text.buttons.removeBand}>
+                        <IconButton size='small' onClick={() => removeBand(index)}><DeleteOutlined fontSize='small' /></IconButton>
+                      </Tooltip>
+                    </Stack>
+                  </Grid>
+                  <Grid size={12}>
+                    <ProductSelect
+                      multiple
+                      label={text.labels.feedProducts}
+                      allowedTypes={['Inventory']}
+                      allowedCategoryIds={inputCategories}
+                      defaultValue={(bands?.[index] as any)?.feed_items ?? []}
+                      onChange={(value: any) => {
+                        const chosen: any[] = Array.isArray(value) ? value : value ? [value] : [];
+                        setValue(`feeding_bands.${index}.feed_items` as any, chosen);
+                        setValue(`feeding_bands.${index}.feed_products` as any, chosen.map((product) => ({ product_id: product.id, share_pct: null })), { shouldDirty: true });
+                      }}
+                    />
+                  </Grid>
+                </Grid>
+                <Divider sx={{ mt: 1.5 }} />
+              </Grid>
+            ))}
+            <Grid size={12}>
+              <Box>
+                <Button size='small' startIcon={<AddOutlined />} onClick={() => appendBand(emptyBand())}>{text.buttons.addBand}</Button>
               </Box>
             </Grid>
           </Grid>

@@ -18,3 +18,18 @@ export const useFarmCategories = (farmId?: number | null) => {
 
   return { input: categoryIds(data?.input_categories), output: categoryIds(data?.output_categories) };
 };
+
+/**
+ * The input categories to offer where no single farm applies (a species template is used by every farm): the categories
+ * the farms use for inputs, or null (any product) as soon as one farm has chosen none, since that farm is not restricted.
+ */
+export const useAllFarmInputCategories = () => {
+  const { data } = useQuery<{ data: BioFarm[] }>({
+    queryKey: ['bioFarmInputCategories'],
+    queryFn: () => farmServices.getList({ limit: 500 }),
+  });
+  const farms = (data?.data ?? []).filter((farm) => farm.status !== 'inactive');
+  if (!data || farms.length === 0 || farms.some((farm) => !farm.input_categories?.length)) return null;
+
+  return Array.from(new Set(farms.flatMap((farm) => farm.input_categories!.map((category) => category.id))));
+};
