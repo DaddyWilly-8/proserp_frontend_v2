@@ -81,7 +81,11 @@ function CustomerInvoicePDF({ invoice, organization }) {
       columns={columns}
       rows={(invoice.items ?? []).map((item, index) => ({ ...item, key: item.id ?? index }))}
       totals={totals}
-      receipts={invoice.receipts ?? []}
+      // Journal vouchers that settled part of the invoice (e.g. withholding tax) sit in the same list
+      receipts={[
+        ...(invoice.receipts ?? []),
+        ...(invoice.journal_vouchers ?? []).map((voucher) => ({ ...voucher, id: `jv-${voucher.id}` })),
+      ]}
       narration={invoice.narration}
       terms={invoice.terms_and_instructions}
       preparedBy={invoice.creator?.name}

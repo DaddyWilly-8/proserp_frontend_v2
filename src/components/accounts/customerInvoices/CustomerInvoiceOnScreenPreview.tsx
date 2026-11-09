@@ -326,7 +326,7 @@ function CustomerInvoiceOnScreenPreview({ invoice, organization }: { invoice: an
                           </Typography>
                         )}
                         {receipt.cancelled_at && (
-                          <Tooltip title={`Cancelled ${readableDate(receipt.cancelled_at)} — this receipt was reversed, but the amount it applied here is unaffected and may no longer be accurate`}>
+                          <Tooltip title={`Cancelled ${readableDate(receipt.cancelled_at)} — this receipt was reversed and no longer counts towards the amount paid`}>
                             <Chip
                               size='small'
                               color='error'
@@ -349,6 +349,73 @@ function CustomerInvoiceOnScreenPreview({ invoice, organization }: { invoice: an
                     </td>
                     <td style={{ padding: 8, border: `1px solid ${theme.palette.divider}`, textAlign: 'right' }}>
                       {money(receipt.amount)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </Box>
+        </Box>
+      )}
+
+      {!!invoice.journal_vouchers?.length && (
+        <Box sx={{ mt: 3 }}>
+          <Typography variant='h6' sx={{ color: headerColor, textAlign: 'center', mb: 2 }}>
+            JOURNAL VOUCHERS
+          </Typography>
+          <Box
+            sx={{
+              p: 2,
+              backgroundColor: theme.palette.background.default,
+              border: `1px solid ${theme.palette.divider}`,
+              borderRadius: 1,
+              overflowX: 'auto',
+            }}
+          >
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <thead>
+                <tr style={{ background: theme.palette.action.hover }}>
+                  <th style={{ padding: 8, border: `1px solid ${theme.palette.divider}`, textAlign: 'left' }}>
+                    Voucher No.
+                  </th>
+                  <th style={{ padding: 8, border: `1px solid ${theme.palette.divider}`, textAlign: 'left' }}>
+                    Date
+                  </th>
+                  <th style={{ padding: 8, border: `1px solid ${theme.palette.divider}`, textAlign: 'left' }}>
+                    Reference
+                  </th>
+                  <th style={{ padding: 8, border: `1px solid ${theme.palette.divider}` }}>Amount</th>
+                </tr>
+              </thead>
+              <tbody>
+                {invoice.journal_vouchers.map((voucher: any) => (
+                  <tr key={voucher.id}>
+                    <td style={{ padding: 8, border: `1px solid ${theme.palette.divider}` }}>
+                      <Stack direction='row' spacing={1} alignItems='center'>
+                        <Typography component='span' variant='body2'>
+                          {voucher.voucherNo}
+                        </Typography>
+                        {voucher.cancelled_at && (
+                          <Tooltip title={`Cancelled ${readableDate(voucher.cancelled_at)} — this voucher was reversed and no longer counts towards the amount paid`}>
+                            <Chip
+                              size='small'
+                              color='error'
+                              variant='outlined'
+                              icon={<CancelOutlined fontSize='small' />}
+                              label='Cancelled'
+                            />
+                          </Tooltip>
+                        )}
+                      </Stack>
+                    </td>
+                    <td style={{ padding: 8, border: `1px solid ${theme.palette.divider}` }}>
+                      {readableDate(voucher.transaction_date)}
+                    </td>
+                    <td style={{ padding: 8, border: `1px solid ${theme.palette.divider}` }}>
+                      {voucher.reference || voucher.narration}
+                    </td>
+                    <td style={{ padding: 8, border: `1px solid ${theme.palette.divider}`, textAlign: 'right' }}>
+                      {money(voucher.amount)}
                     </td>
                   </tr>
                 ))}

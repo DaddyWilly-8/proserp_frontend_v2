@@ -13,8 +13,9 @@ export async function GET(
   if (response) return response;
 
   const url = new URL(`${API_BASE}/stakeholders/${id}/customer-invoices`);
+  // append, not set: repeated keys (cost_center_ids[]) must all survive
   req.nextUrl.searchParams.forEach((value, key) =>
-    url.searchParams.set(key, value)
+    url.searchParams.append(key, value)
   );
 
   const res = await fetch(url.toString(), {

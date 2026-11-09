@@ -36,6 +36,7 @@ type TransactionItemRowProps = {
   index: number;
   items?: TransactionItem[];
   setItems: React.Dispatch<React.SetStateAction<TransactionItem[]>>;
+  costCenterIds?: number[];
 };
 
 const TransactionItemRow: React.FC<TransactionItemRowProps> = ({
@@ -51,7 +52,8 @@ const TransactionItemRow: React.FC<TransactionItemRowProps> = ({
   item,
   index,
   items = [],
-  setItems
+  setItems,
+  costCenterIds,
 }) => {
   const dictionary = useDictionary();
   const [showForm, setShowForm] = useState(false);
@@ -157,6 +159,7 @@ const TransactionItemRow: React.FC<TransactionItemRowProps> = ({
           items={items}
           selectedCurrencyId={selectedCurrencyId}
           setItems={setItems as any}
+          costCenterIds={costCenterIds}
         />
       )}
     </React.Fragment>

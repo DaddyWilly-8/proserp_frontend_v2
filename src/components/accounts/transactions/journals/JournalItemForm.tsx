@@ -25,6 +25,9 @@ import * as yup from 'yup';
 import { useLedgerSelect } from '../../ledgers/forms/LedgerSelectProvider';
 import QuickAddLedger from '../../ledgers/forms/QuickAddLedger';
 import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
+import InvoicePicker, {
+  InvoiceOption,
+} from '@/components/shared/pickers/InvoicePicker';
 
 interface LedgerOption {
   id: number;
@@ -59,6 +62,11 @@ interface JournalItem {
   credit_ledger_currency_id?: number;
   amount: number;
   description: string;
+  // Customer Invoice this line settles (e.g. withholding tax withheld by the customer)
+  relatable_type?: 'invoice' | null;
+  relatable_id?: number | null;
+  relatable?: InvoiceOption | null;
+  relatableNo?: string;
 }
 
 interface JournalItemFormProps {
@@ -76,6 +84,10 @@ interface JournalItemFormProps {
   ) => void;
   selectedCurrencyId?: number;
   onLedgerCurrencyDetected?: (currencyId?: number) => void;
+  // False for a recurring schedule, which can't point at one specific invoice
+  allowInvoiceLink?: boolean;
+  // The voucher's selected cost centers - narrows the invoice picker
+  costCenterIds?: number[];
 }
 
 interface FormValues {
@@ -87,6 +99,7 @@ interface FormValues {
   credit_ledger_currency_id?: number | null;
   amount: number;
   description: string;
+  relatable?: InvoiceOption | null;
 }
 
 function JournalItemForm({
@@ -102,6 +115,8 @@ function JournalItemForm({
   setItems,
   selectedCurrencyId,
   onLedgerCurrencyDetected,
+  allowInvoiceLink = true,
+  costCenterIds,
 }: JournalItemFormProps) {
   const dictionary = useDictionary();
   const [isAdding, setIsAdding] = useState(false);
@@ -150,6 +165,27 @@ function JournalItemForm({
       .number()
       .required(dictionary.forms.journals.itemForm.errors.validation.amountRequired)
       .positive(dictionary.forms.journals.itemForm.errors.validation.amountPositive)
+      .test(
+        'max-invoice-amount',
+        dictionary.forms.journals.itemForm.errors.validation.amountExceedsInvoice,
+        function (value) {
+          const invoice = this.parent?.relatable as InvoiceOption | null | undefined;
+          // Nothing to cap against until an invoice is linked (or when only its number is known, on edit)
+          if (!invoice?.id || value == null || invoice.unpaid_amount == null) {
+            return true;
+          }
+          const maxAmount = Number(invoice.unpaid_amount);
+          if (Number(value) <= maxAmount) {
+            return true;
+          }
+          return this.createError({
+            message: dictionary.forms.journals.itemForm.errors.validation.amountExceedsInvoice.replace(
+              '{max}',
+              maxAmount.toLocaleString()
+            ),
+          });
+        }
+      )
       .typeError(dictionary.forms.journals.itemForm.errors.validation.amountNumber),
   });
 
@@ -176,6 +212,11 @@ function JournalItemForm({
       debit_ledger_currency_id: item?.debit_ledger_currency_id,
       amount: item?.amount || 0,
       description: item?.description || '',
+      relatable:
+        item?.relatable ??
+        (item?.relatable_id && item?.relatableNo
+          ? ({ id: item.relatable_id, invoiceNo: item.relatableNo } as InvoiceOption)
+          : null),
     },
   });
 
@@ -353,6 +394,14 @@ function JournalItemForm({
       credit_ledger_currency_id: formData.credit_ledger_currency_id || undefined,
       amount: formData.amount,
       description: formData.description,
+      ...(allowInvoiceLink && formData.relatable?.id
+        ? {
+            relatable_type: 'invoice' as const,
+            relatable_id: formData.relatable.id,
+            relatable: formData.relatable,
+            relatableNo: formData.relatable.invoiceNo,
+          }
+        : {}),
     };
 
     if (index > -1) {
@@ -477,6 +526,8 @@ function JournalItemForm({
                   shouldDirty: true,
                 });
                 setValue('credit_ledger_currency_id', newValue?.currency?.id || null);
+                // An invoice link only makes sense for the customer being credited
+                setValue('relatable', null);
                 onLedgerCurrencyDetected?.(newValue?.currency?.id);
                 // Clear error when user changes selection
                 if (
@@ -560,6 +611,29 @@ function JournalItemForm({
             />
           </Div>
         </Grid>
+
+        {/* Settling a customer's invoice (e.g. withholding tax they withheld): the
+            credited customer's invoices can be picked here so it counts as paid */}
+        {allowInvoiceLink &&
+          (watch('credit_ledger') as any)?.stakeholders?.[0] && (
+            <Grid size={{ xs: 12, md: 6 }}>
+              <Div sx={{ mt: 1 }}>
+                <InvoicePicker
+                  label={dictionary.forms.journals.itemForm.labels.linkToInvoice}
+                  value={watch('relatable') ?? null}
+                  stakeholder={(watch('credit_ledger') as any).stakeholders[0]}
+                  currencyId={selectedCurrencyId ?? null}
+                  costCenterIds={costCenterIds}
+                  onChange={(newValue) => {
+                    setValue('relatable', newValue, {
+                      shouldValidate: true,
+                      shouldDirty: true,
+                    });
+                  }}
+                />
+              </Div>
+            </Grid>
+          )}
 
         <Grid size={12} textAlign={'end'}>
           <LoadingButton

@@ -24,6 +24,7 @@ interface JournalItem {
   creditLedgerName: string;
   debitLedgerName: string;
   amount: number;
+  relatableNo?: string;
 }
 
 interface Transaction {
@@ -154,7 +155,14 @@ function JournalOnScreen({ transaction, authObject }: JournalOnScreenProps) {
                 }}
               >
                 <TableCell>{index + 1}</TableCell>
-                <TableCell>{item.description}</TableCell>
+                <TableCell>
+                  {item.description}
+                  {item.relatableNo && (
+                    <Typography variant='caption' color='text.secondary' display='block'>
+                      {item.relatableNo}
+                    </Typography>
+                  )}
+                </TableCell>
                 <TableCell>{item.creditLedgerName}</TableCell>
                 <TableCell>{item.debitLedgerName}</TableCell>
                 <TableCell align="right" sx={{ fontFamily: 'monospace' }}>

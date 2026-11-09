@@ -236,7 +236,8 @@
         "credit": "Mkopo (Credit)",
         "description": "Maelezo",
         "amount": "Kiasi",
-        "diffOpeningBalances": "Tofauti ya Salio la Mwanzo"
+        "diffOpeningBalances": "Tofauti ya Salio la Mwanzo",
+        "linkToInvoice": "Unganisha na Ankara (si lazima)"
       },
       "buttons": {
         "done": "Imekamilika",
@@ -253,6 +254,7 @@
           "amountRequired": "Kiasi kinahitajika",
           "amountPositive": "Kiasi lazima kiwe kikubwa kuliko 0",
           "amountNumber": "Kiasi lazima kiwe nambari",
+          "amountExceedsInvoice": "Kiasi hakipaswi kuzidi kinachodaiwa kwenye ankara iliyochaguliwa ({max})",
           "debitCurrencyMustMatch": "Sarafu ya leja ya Debit lazima ilingane na sarafu iliyochaguliwa.",
           "creditCurrencyMustMatch": "Sarafu ya leja ya Credit lazima ilingane na sarafu iliyochaguliwa."
         }

@@ -596,6 +596,7 @@ function ReceiptFormDialogContent({
           onLedgerCurrencyDetected={(currencyId) =>
             applyCurrencyLock(currencyId)
           }
+          costCenterIds={watch('cost_centers')?.map((costCenter) => costCenter.id)}
         />
 
         {errors?.items?.message && items.length < 1 && (
@@ -616,6 +617,7 @@ function ReceiptFormDialogContent({
             items={items as any}
             setItems={setItems as any}
             isReceipt={true}
+            costCenterIds={watch('cost_centers')?.map((costCenter) => costCenter.id)}
           />
         ))}
 

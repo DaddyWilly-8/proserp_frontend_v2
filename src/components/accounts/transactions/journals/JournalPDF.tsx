@@ -13,6 +13,7 @@ interface JournalItem {
   creditLedgerName: string;
   debitLedgerName: string;
   amount: number;
+  relatableNo?: string;
 }
 
 interface Transaction {
@@ -174,6 +175,7 @@ function JournalPDF({ transaction, authObject }: JournalPDFProps) {
                                 flex: 2
                             }}>
                                 {transactionItem.description}
+                                {transactionItem.relatableNo ? ` (${transactionItem.relatableNo})` : ''}
                             </Text>
                             <Text style={{ 
                                 ...pdfStyles.tableCell, 

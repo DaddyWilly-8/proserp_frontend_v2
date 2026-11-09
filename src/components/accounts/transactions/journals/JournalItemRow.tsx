@@ -21,6 +21,9 @@ interface JournalItem {
   credit_ledger_currency_id?: number;
   amount: number;
   description: string;
+  relatable_type?: 'invoice' | null;
+  relatable_id?: number | null;
+  relatableNo?: string;
 }
 
 interface JournalItemRowProps {
@@ -34,6 +37,8 @@ interface JournalItemRowProps {
   items?: JournalItem[];
   setItems: (items: JournalItem[] | ((prevItems: JournalItem[]) => JournalItem[])) => void;
   selectedCurrencyId?: number;
+  allowInvoiceLink?: boolean;
+  costCenterIds?: number[];
 }
 
 function JournalItemRow({ 
@@ -47,6 +52,8 @@ function JournalItemRow({
   items = [], 
   setItems,
   selectedCurrencyId,
+  allowInvoiceLink = true,
+  costCenterIds,
 }: JournalItemRowProps) {
     const dictionary = useDictionary();
     const { ungroupedLedgerOptions } = useLedgerSelect();
@@ -87,6 +94,11 @@ function JournalItemRow({
                         <Tooltip title={dictionary.tooltips.description}>
                             <Typography>{item.description}</Typography>
                         </Tooltip>
+                        {allowInvoiceLink && item.relatableNo && (
+                            <Typography variant='caption' color='text.secondary'>
+                                {item.relatableNo}
+                            </Typography>
+                        )}
                     </Grid>
                     
                     <Grid size={{xs: 6, md: 3, lg: 2}}>
@@ -127,6 +139,8 @@ function JournalItemRow({
                     items={items}
                     setItems={setItems}
                     selectedCurrencyId={selectedCurrencyId}
+                    allowInvoiceLink={allowInvoiceLink}
+                    costCenterIds={costCenterIds}
                 />
             )}
         </React.Fragment>

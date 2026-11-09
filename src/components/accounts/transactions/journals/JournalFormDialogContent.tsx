@@ -49,6 +49,10 @@ type JournalItem = {
   credit_ledger_currency_id?: number;
   amount: number;
   description: string;
+  // Customer Invoice this line settles (e.g. withholding tax withheld by the customer)
+  relatable_type?: 'invoice' | null;
+  relatable_id?: number | null;
+  relatableNo?: string;
 };
 
 type JournalResponse = {
@@ -162,6 +166,11 @@ function JournalFormDialogContent({
     if (!journal?.items) return [];
     return journal.items.map((item: JournalItem) => ({
       ...item,
+      // A duplicate is a fresh voucher: carrying the invoice link over would count the
+      // same invoice as settled twice.
+      ...(isDuplicate
+        ? { relatable_type: null, relatable_id: null, relatableNo: undefined }
+        : {}),
       // Find the currency IDs from the ledger options
       debit_ledger_currency_id:
         item.debit_ledger_currency_id ||
@@ -349,6 +358,10 @@ function JournalFormDialogContent({
         credit_ledger_currency_id: item.credit_ledger_currency_id,
         amount: item.amount,
         description: item.description,
+        // Recurring schedules can't point at one specific invoice
+        ...(!scheduleMode && item.relatable_type && item.relatable_id
+          ? { relatable_type: item.relatable_type, relatable_id: item.relatable_id }
+          : {}),
       })),
     };
     await saveJournal.mutate(updatedData);
@@ -533,6 +546,8 @@ function JournalFormDialogContent({
           onLedgerCurrencyDetected={(currencyId) =>
             applyJournalCurrencyLock(currencyId)
           }
+          allowInvoiceLink={!scheduleMode}
+          costCenterIds={watch('cost_centers')?.map((costCenter) => costCenter.id)}
         />
 
         {errors?.items?.message && items.length < 1 && (
@@ -552,6 +567,8 @@ function JournalFormDialogContent({
             items={items}
             setItems={setItems}
             selectedCurrencyId={selectedCurrencyId || undefined}
+            allowInvoiceLink={!scheduleMode}
+            costCenterIds={watch('cost_centers')?.map((costCenter) => costCenter.id)}
           />
         ))}
 

@@ -4,7 +4,7 @@ import { readableDate } from '@/app/helpers/input-sanitization-helpers';
 import customerInvoiceServices from '@/components/accounts/invoices/customerInvoice-services';
 import stakeholderServices from '@/components/masters/stakeholders/stakeholder-services';
 import { Autocomplete, CircularProgress, Grid, TextField } from '@mui/material';
-import { useQuery } from '@tanstack/react-query';
+import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import React, { useEffect, useState } from 'react';
 
 export interface InvoiceOption {
@@ -33,6 +33,11 @@ interface InvoicePickerProps {
   // Scopes results to invoices raised in this currency — an invoice inherits
   // its currency from its revenue journals, see InvoiceController::listByStakeholder().
   currencyId?: number | null;
+  // Narrows the list to invoices raised under any of these cost centers (or none) - pass the
+  // document's selected cost centers so a payment lands on the right project's invoice.
+  costCenterIds?: number[] | null;
+  // Hides fully settled invoices; the currently selected one always stays in the list.
+  onlyUnpaid?: boolean;
 }
 
 // Customer Invoice picker, optionally narrowed to a known customer. There is
@@ -51,6 +56,8 @@ function InvoicePicker({
   frontError = null,
   stakeholder = null,
   currencyId = null,
+  costCenterIds = null,
+  onlyUnpaid = true,
 }: InvoicePickerProps) {
   const [stakeholderId, setStakeholderId] = useState<number | null>(
     stakeholder?.id ?? value?.stakeholder?.id ?? null
@@ -97,13 +104,35 @@ function InvoicePicker({
     enabled: !stakeholder,
   });
 
+  // Typing in the invoice field searches the customer's invoices on the server (invoice no.,
+  // references, narration), so an invoice beyond the first page is still reachable.
+  const [keyword, setKeyword] = useState('');
+  const [debouncedKeyword, setDebouncedKeyword] = useState('');
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedKeyword(keyword.trim()), 300);
+    return () => clearTimeout(timer);
+  }, [keyword]);
+
+  const costCenterKey = (costCenterIds ?? []).join(',');
   const { data: invoicesResponse, isFetching: isFetchingInvoices } = useQuery({
-    queryKey: ['invoicePickerInvoices', stakeholderId, currencyId],
+    queryKey: [
+      'invoicePickerInvoices',
+      stakeholderId,
+      currencyId,
+      costCenterKey,
+      onlyUnpaid,
+      debouncedKeyword,
+    ],
     queryFn: () =>
       customerInvoiceServices.listByStakeholder(stakeholderId as number, {
         currency_id: currencyId,
+        cost_center_ids: costCenterIds?.length ? costCenterIds : undefined,
+        only_unpaid: onlyUnpaid ? 1 : undefined,
+        keyword: debouncedKeyword || undefined,
       }),
     enabled: !!stakeholderId,
+    // keep the previous options on screen while a new search loads, so the list doesn't flicker
+    placeholderData: keepPreviousData,
   });
 
   const invoiceOptions: InvoiceOption[] = Array.isArray(invoicesResponse)
@@ -151,6 +180,12 @@ function InvoicePicker({
           }
           isOptionEqualToValue={(option: any, val: any) => sameInvoice(option, val)}
           onChange={(e, newValue: any) => onChange(newValue)}
+          // the server does the searching, so don't also filter the options client-side
+          filterOptions={(options) => options}
+          onInputChange={(e, inputValue, reason) => {
+            // 'reset' is the field being filled with a chosen option's label - not a search
+            setKeyword(reason === 'input' ? inputValue : '');
+          }}
           renderInput={(params) => (
             <TextField
               {...params}

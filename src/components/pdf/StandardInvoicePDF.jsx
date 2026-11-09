@@ -158,7 +158,7 @@ function StandardInvoicePDF({
         {receipts.length > 0 && (
           <View style={{ ...pdfStyles.table, minHeight: 40, marginTop: 14 }}>
             <View style={pdfStyles.tableRow}>
-              <Text style={headerCell(3)}>Receipt No.</Text>
+              <Text style={headerCell(3)}>Receipt / Voucher No.</Text>
               <Text style={headerCell(2)}>Date</Text>
               <Text style={headerCell(2)}>Reference</Text>
               <Text style={headerCell(2, 'right')}>Amount</Text>

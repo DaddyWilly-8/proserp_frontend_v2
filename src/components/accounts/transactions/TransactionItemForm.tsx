@@ -84,6 +84,8 @@ type TransactionItemFormProps = {
   items?: TransactionItem[];
   setItems: React.Dispatch<React.SetStateAction<TransactionItem[]>>;
   defaultAmount?: number;
+  // The document's selected cost centers - narrows the invoice link picker (Receipts)
+  costCenterIds?: number[];
 };
 
 type FormValues = {
@@ -117,6 +119,7 @@ const TransactionItemForm: React.FC<TransactionItemFormProps> = ({
   items = [],
   setItems,
   defaultAmount,
+  costCenterIds,
 }) => {
   const dictionary = useDictionary();
   const [isAdding, setIsAdding] = useState(false);
@@ -630,6 +633,7 @@ const TransactionItemForm: React.FC<TransactionItemFormProps> = ({
                         ?.stakeholders?.[0] ?? null
                     }
                     currencyId={selectedCurrencyId ?? null}
+                    costCenterIds={costCenterIds}
                     onChange={(newValue) => {
                       setValue('relatable', newValue);
                       setValue('relatable_id', newValue?.id ?? null);
