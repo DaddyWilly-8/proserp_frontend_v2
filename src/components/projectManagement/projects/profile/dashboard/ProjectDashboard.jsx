@@ -1084,6 +1084,17 @@ function ProjectDashboard() {
                         }
                       />
                     </Grid>
+                    <Grid size={{ xs: 12, md: 6, lg: 6 }}>
+                      <StatItem
+                        label={dictionary.projectManagement.dashboard.grossProfitPercentage}
+                        value={`${Number(dashboardFigures?.gross_profit_percentage ?? 0).toFixed(2)}%`}
+                        valueColor={
+                          Number(dashboardFigures?.gross_profit_percentage) < 0
+                            ? 'error.main'
+                            : undefined
+                        }
+                      />
+                    </Grid>
                   </Grid>
                 )}
               </CardContent>
