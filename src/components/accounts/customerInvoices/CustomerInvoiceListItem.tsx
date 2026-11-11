@@ -18,8 +18,9 @@ function CustomerInvoiceListItem({ invoice }: { invoice: CustomerInvoice }) {
     : paidAmount > 0
       ? 'partial'
       : 'unpaid';
+  const isCancelled = !!invoice.cancelled_at;
   const isOverdue =
-    paymentStatus !== 'paid' && !!invoice.due_date && new Date(invoice.due_date).getTime() < Date.now();
+    !isCancelled && paymentStatus !== 'paid' && !!invoice.due_date && new Date(invoice.due_date).getTime() < Date.now();
 
   const sourceLabel =
     invoice.source?.type === 'FuelVoucher'
@@ -72,17 +73,22 @@ function CustomerInvoiceListItem({ invoice }: { invoice: CustomerInvoice }) {
                   {invoice.invoiceNo}
                 </Typography>
               </Tooltip>
-              {paymentStatus === 'paid' && (
+              {isCancelled && (
+                <Tooltip title={`Cancelled${invoice.cancel_reason ? `: ${invoice.cancel_reason}` : ''}`}>
+                  <Chip size='small' variant='outlined' color='error' label='Cancelled' />
+                </Tooltip>
+              )}
+              {!isCancelled && paymentStatus === 'paid' && (
                 <Tooltip title={invoice.manually_paid_at ? 'Marked as paid' : 'Fully received from the customer'}>
                   <Chip size='small' variant='outlined' color='success' label='Paid' />
                 </Tooltip>
               )}
-              {paymentStatus === 'partial' && (
+              {!isCancelled && paymentStatus === 'partial' && (
                 <Tooltip title={`Partially received: ${money(paidAmount)} of ${money(netAmount)}`}>
                   <Chip size='small' variant='outlined' color='warning' label='Partially Paid' />
                 </Tooltip>
               )}
-              {paymentStatus === 'unpaid' && (
+              {!isCancelled && paymentStatus === 'unpaid' && (
                 <Tooltip title={dictionary.tooltips.notYetReceivedFromTheCustomer}>
                   <Chip size='small' variant='outlined' label='Unpaid' />
                 </Tooltip>

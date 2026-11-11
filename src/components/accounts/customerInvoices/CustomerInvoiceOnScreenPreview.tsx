@@ -3,7 +3,7 @@ import { readableDate } from '@/app/helpers/input-sanitization-helpers';
 import ReceiptPreviewDialog from '@/components/accounts/transactions/receipts/ReceiptPreviewDialog';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
 import { CancelOutlined } from '@mui/icons-material';
-import { Box, Chip, Divider, Grid, Stack, Tooltip, Typography, useTheme } from '@mui/material';
+import { Alert, Box, Chip, Divider, Grid, Stack, Tooltip, Typography, useTheme } from '@mui/material';
 import { useState } from 'react';
 import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
@@ -46,6 +46,15 @@ function CustomerInvoiceOnScreenPreview({ invoice, organization }: { invoice: an
           {invoice.invoiceNo}
         </Typography>
       </Box>
+
+      {invoice.cancelled_at && (
+        <Alert severity='error' sx={{ mb: 3 }}>
+          Cancelled on {readableDate(invoice.cancelled_at)}
+          {invoice.cancelled_by?.name ? ` by ${invoice.cancelled_by.name}` : ''}
+          {invoice.cancel_reason ? `: ${invoice.cancel_reason}` : ''}. Its revenue and VAT have been
+          reversed, so nothing is owed on it.
+        </Alert>
+      )}
 
       <Grid container spacing={2} sx={{ mb: 3 }}>
         <Grid size={{ xs: 12, sm: 6, md: 4 }}>

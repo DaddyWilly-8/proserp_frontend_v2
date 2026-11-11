@@ -19,7 +19,8 @@ export interface FeedProjectionData {
   gain_kg?: number;
   fcr?: number | null;
   total_cost: number | null;
-  feeds: { key: string; name: string | null; kg: number; cost: number | null; rate_per_kg: number | null; on_hand_kg: number | null; runs_out: string | null; short_kg: number | null; unit: string | null; units_needed: number | null; units_short: number | null }[];
+  buy_cost?: number | null;
+  feeds: { key: string; name: string | null; kg: number; cost: number | null; rate_per_kg: number | null; on_hand_kg: number | null; runs_out: string | null; short_kg: number | null; unit: string | null; units_needed: number | null; units_short: number | null; buy_cost?: number | null }[];
   weeks: { week: string; feeds: Record<string, number> }[];
   batches: { batch_id: number; feed_kg: number; gain_kg: number; fcr: number | null; growth: 'actual' | 'template'; weight_now_g: number; overdue: boolean; stages: { stage: string; feeds: { key: string; name: string | null; share_pct: number }[]; rate_pct: number | null; days: number; kg: number; weight_from_g: number | null; weight_to_g: number | null }[] }[];
   skipped: { batch_id: number; reason: 'no_plan' | 'no_weight' | 'no_table' }[];
@@ -101,6 +102,7 @@ const FeedProjection = ({ scope, load, weightUnit, showCost, horizons = [30, 60,
             <Box><Typography variant='body2' color='text.secondary'>{t.totalFeed}</Typography><Typography variant='h4' mb={0} sx={{ fontSize: { xs: '1.35rem', sm: '1.75rem' } }}>{num(data.total_kg)} kg</Typography></Box>
             {data.fcr != null && <Box><Typography variant='body2' color='text.secondary'>{t.expectedFcr}</Typography><Typography variant='h4' mb={0} sx={{ fontSize: { xs: '1.35rem', sm: '1.75rem' } }}>{num(data.fcr, 2)}</Typography></Box>}
             {showCost && data.total_cost != null && <Box><Typography variant='body2' color='text.secondary'>{t.estimatedCost}</Typography><Typography variant='h4' mb={0} sx={{ fontSize: { xs: '1.35rem', sm: '1.75rem' } }}>{money(data.total_cost)}</Typography></Box>}
+            {showCost && stocked && data.buy_cost != null && <Box><Typography variant='body2' color='text.secondary'>{t.buyValue}</Typography><Typography variant='h4' mb={0} color={data.buy_cost > 0 ? 'error.main' : undefined} sx={{ fontSize: { xs: '1.35rem', sm: '1.75rem' } }}>{money(data.buy_cost)}</Typography></Box>}
           </Box>
 
           <Box sx={{ height: { xs: 260, md: 280 } }}>
@@ -131,7 +133,7 @@ const FeedProjection = ({ scope, load, weightUnit, showCost, horizons = [30, 60,
                     {stocked && feed.on_hand_kg != null && (
                       <Box display='flex' justifyContent='space-between' gap={1}>
                         <Typography variant='caption' color='text.secondary'>{t.inStock}: {num(feed.on_hand_kg)} · {feed.runs_out ? `${t.runsOut} ${dayjs(feed.runs_out).format('D MMM')}` : t.lasts}</Typography>
-                        <Typography variant='caption' color={feed.runs_out ? 'error.main' : 'text.secondary'} whiteSpace='nowrap'>{t.toBuy}: {toBuy(feed)}</Typography>
+                        <Typography variant='caption' color={feed.runs_out ? 'error.main' : 'text.secondary'} whiteSpace='nowrap'>{t.toBuy}: {toBuy(feed)}{showCost && feed.buy_cost ? ` · ${money(feed.buy_cost)}` : ''}</Typography>
                       </Box>
                     )}
                     {showCost && (
@@ -154,6 +156,7 @@ const FeedProjection = ({ scope, load, weightUnit, showCost, horizons = [30, 60,
                     {stocked && <TableCell align='right'>{t.inStock}</TableCell>}
                   {stocked && <TableCell align='right'>{t.runsOut}</TableCell>}
                   {stocked && <TableCell align='right'>{t.toBuy}</TableCell>}
+                  {stocked && showCost && <TableCell align='right'>{t.buyValue}</TableCell>}
                   {showCost && <TableCell align='right'>{t.ratePerKg}</TableCell>}
                     {showCost && <TableCell align='right'>{t.cost}</TableCell>}
                   </TableRow>
@@ -166,6 +169,7 @@ const FeedProjection = ({ scope, load, weightUnit, showCost, horizons = [30, 60,
                       {stocked && <TableCell align='right'>{feed.on_hand_kg != null ? num(feed.on_hand_kg) : '—'}</TableCell>}
                     {stocked && <TableCell align='right'>{feed.on_hand_kg == null ? '—' : feed.runs_out ? dayjs(feed.runs_out).format('D MMM') : t.lasts}</TableCell>}
                     {stocked && <TableCell align='right'>{toBuy(feed)}</TableCell>}
+                    {stocked && showCost && <TableCell align='right'>{feed.buy_cost != null ? money(feed.buy_cost) : '—'}</TableCell>}
                     {showCost && <TableCell align='right'>{feed.rate_per_kg != null ? money(feed.rate_per_kg) : '—'}</TableCell>}
                       {showCost && <TableCell align='right'>{money(feed.cost)}</TableCell>}
                     </TableRow>

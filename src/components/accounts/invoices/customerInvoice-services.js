@@ -41,6 +41,21 @@ customerInvoiceServices.unmarkPaid = async (id) => {
   return data;
 };
 
+// Cancels an invoice: reverses its revenue and VAT journals with offsetting entries instead
+// of deleting anything, so it stays on record. See CustomerInvoice::cancel().
+customerInvoiceServices.cancel = async (id, { reason, cancellation_date } = {}) => {
+  const { data } = await axios.post(`/api/pos/counter/${id}/cancelInvoice`, {
+    reason,
+    cancellation_date,
+  });
+  return data;
+};
+
+customerInvoiceServices.reverseCancellation = async (id) => {
+  const { data } = await axios.post(`/api/pos/counter/${id}/reverseInvoiceCancellation`);
+  return data;
+};
+
 // Fuel Voucher invoices share the Customer Invoices list but live in their own table, so
 // their details and paid-override go through separate endpoints.
 customerInvoiceServices.fuelVoucherInvoiceDetails = async (id) => {

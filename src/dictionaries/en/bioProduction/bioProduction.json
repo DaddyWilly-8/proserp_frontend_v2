@@ -163,7 +163,8 @@
         "runs_out": "Runs out",
         "short_kg": "To buy (kg)",
         "units_short": "To buy (units)",
-        "rate_per_kg": "Cost per kg"
+        "rate_per_kg": "Cost per kg",
+        "buy_cost": "Value to buy"
       },
       "notes": {
         "group-cost": [
@@ -415,7 +416,8 @@
       "toBuy": "To buy",
       "lasts": "Lasts",
       "runsOutWarning": "Stock will not cover the period: {feeds}. Order before then.",
-      "stockNote": "Stock is what the farm's cost center holds now."
+      "stockNote": "Stock is what the farm's cost center holds now.",
+      "buyValue": "Value to buy"
     },
     "dashboard": {
       "title": "Bio Farming Dashboard",

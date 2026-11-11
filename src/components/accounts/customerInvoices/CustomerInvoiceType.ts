@@ -26,9 +26,8 @@ export interface CustomerInvoicePayingReceipt {
   // The amount THIS receipt applied to this specific invoice — not necessarily the receipt's own total.
   amount: number;
   debit_ledger?: { id: number; name: string } | null;
-  // Set when the receipt was later cancelled — see CustomerInvoice::getPayingReceiptsAttribute():
-  // a cancellation reverses the receipt but doesn't remove this link, so the amount above may no
-  // longer be accurate.
+  // Set when the receipt was later cancelled: it stays listed as history but no longer counts
+  // towards the amount paid.
   cancelled_at?: string | null;
 }
 
@@ -42,6 +41,13 @@ export interface CustomerInvoice {
   transaction_date: string;
   due_date?: string | null;
   manually_paid_at?: string | null;
+  // Set once the invoice is cancelled (its revenue and VAT are reversed; it stays on record)
+  cancelled_at?: string | null;
+  cancel_reason?: string | null;
+  cancelled_by?: { id: number; name: string } | null;
+  // False while receipts / vouchers settle it, a manual paid mark is set, a fiscal (VFD)
+  // receipt exists, or it comes from a project claim
+  cancellable?: boolean;
   // Fuel Voucher invoices only: receipts are linked to it, so it can't be deleted
   has_receipts?: boolean;
   internal_reference?: string | null;

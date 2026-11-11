@@ -163,7 +163,8 @@
         "runs_out": "Kinaisha",
         "short_kg": "Cha kununua (kg)",
         "units_short": "Cha kununua (vipimo)",
-        "rate_per_kg": "Gharama kwa kilo"
+        "rate_per_kg": "Gharama kwa kilo",
+        "buy_cost": "Thamani ya kununua"
       },
       "notes": {
         "group-cost": [
@@ -415,7 +416,8 @@
       "toBuy": "Ya kununua",
       "lasts": "Inatosha",
       "runsOutWarning": "Stoo haitatosha kwa kipindi hiki: {feeds}. Agiza kabla ya hapo.",
-      "stockNote": "Stoo ni kile ambacho kituo cha gharama cha shamba kinashikilia sasa."
+      "stockNote": "Stoo ni kile ambacho kituo cha gharama cha shamba kinashikilia sasa.",
+      "buyValue": "Thamani ya kununua"
     },
     "dashboard": {
       "title": "Dashibodi ya Shamba",
