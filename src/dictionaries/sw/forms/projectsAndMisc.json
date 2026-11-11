@@ -257,6 +257,10 @@
         "ledgerRequired": "Leja Linganishi inahitajika"
       },
       "labels": {
+        "amountMode": "Kiasi",
+        "percentageMode": "% ya Jumla",
+        "percentage": "Asilimia ya Jumla (%)",
+        "percentageMax": "Asilimia haiwezi kuzidi 100",
         "type": "Aina",
         "complementLedger": "Leja Linganishi",
         "amount": "Kiasi",
@@ -343,6 +347,10 @@
         "ledgerRequired": "Leja Linganishi inahitajika"
       },
       "labels": {
+        "amountMode": "Kiasi",
+        "percentageMode": "% ya Jumla",
+        "percentage": "Asilimia ya Jumla (%)",
+        "percentageMax": "Asilimia haiwezi kuzidi 100",
         "type": "Aina",
         "complementLedger": "Leja Linganishi",
         "amount": "Kiasi",

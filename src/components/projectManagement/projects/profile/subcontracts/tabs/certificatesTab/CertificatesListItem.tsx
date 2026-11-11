@@ -59,7 +59,7 @@ const CertificatesListItem: React.FC<CertificatesListItemProps> = ({ certificate
         },
       }}
     >
-      <Grid size={{ xs: 12, md: 4, lg: 3.5 }}>
+      <Grid size={{ xs: 12, md: 3, lg: 3 }}>
         <ListItemText
           primary={
             <Tooltip title={dictionary.tooltips.certificateDate}>
@@ -98,7 +98,7 @@ const CertificatesListItem: React.FC<CertificatesListItemProps> = ({ certificate
         />
       </Grid>
 
-      <Grid size={{ xs: 12, md: 5, lg: 5 }}>
+      <Grid size={{ xs: 12, md: 4, lg: 4 }}>
         <Tooltip title={certificate.remarks} placement="top-start">
           <Typography
             variant="body2"
@@ -117,21 +117,22 @@ const CertificatesListItem: React.FC<CertificatesListItemProps> = ({ certificate
       </Grid>
 
       <Grid
-        size={{ xs: 8, md: 2, lg: 3 }}
+        size={{ xs: 8, md: 3, lg: 3 }}
         textAlign={{ xs: 'left', md: 'right' }}
         sx={{ pr: { md: 2 } }}
       >
         <Tooltip title={dictionary.tooltips.certifiedTotalAmount}>
           <Typography
             variant="h6"
+            noWrap
           >
             {formattedAmount}
           </Typography>
         </Tooltip>
       </Grid>
 
-      <Grid size={{ xs: 4, md: 1, lg: 0.5 }} textAlign="end">
-        <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 1 }}>
+      <Grid size={{ xs: 4, md: 2, lg: 2 }} textAlign="end">
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 1, flexShrink: 0 }}>
           <CertificateApprovalsActionTail certificate={certificate} />
           <CertificateItemAction certificate={certificate} />
         </Box>

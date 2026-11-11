@@ -257,6 +257,10 @@
         "ledgerRequired": "Complement Ledger is required"
       },
       "labels": {
+        "amountMode": "Amount",
+        "percentageMode": "% of Gross",
+        "percentage": "Percentage of Gross (%)",
+        "percentageMax": "Percentage cannot exceed 100",
         "type": "Type",
         "complementLedger": "Complement Ledger",
         "amount": "Amount",
@@ -343,6 +347,10 @@
         "ledgerRequired": "Complement Ledger is required"
       },
       "labels": {
+        "amountMode": "Amount",
+        "percentageMode": "% of Gross",
+        "percentage": "Percentage of Gross (%)",
+        "percentageMax": "Percentage cannot exceed 100",
         "type": "Type",
         "complementLedger": "Complement Ledger",
         "amount": "Amount",

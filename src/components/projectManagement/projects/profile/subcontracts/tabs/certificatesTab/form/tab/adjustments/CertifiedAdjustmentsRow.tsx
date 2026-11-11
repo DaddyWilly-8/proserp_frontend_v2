@@ -21,6 +21,7 @@ interface Adjustment {
   type?: string;
   type_name?: string;
   amount?: number | string;
+  percentage?: number | string | null;
   complement_ledger_id?: number;
   complement_ledger?: { id: number; name: string };
 }
@@ -106,6 +107,7 @@ const CertifiedAdjustmentsRow: React.FC<CertifiedAdjustmentsRowProps> = ({
                 sx={{ whiteSpace: 'normal', wordBreak: 'break-word' }}
               >
                 {adjustment.description || '-'}
+                {adjustment.percentage != null && ` (${Number(adjustment.percentage)}%)`}
               </Typography>
             </Tooltip>
             <Tooltip title={dictionary.tooltips.complementLedger}>

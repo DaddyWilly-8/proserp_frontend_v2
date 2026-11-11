@@ -28,7 +28,7 @@ import { DateTimePicker } from '@mui/x-date-pickers';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import { useSnackbar } from 'notistack';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as yup from 'yup';
 import posServices from '@/components/pos/pos-services';
@@ -51,6 +51,7 @@ interface Adjustment {
   type_name?: string;
   description?: string;
   amount?: number | string;
+  percentage?: number | string | null;
   complement_ledger_id?: number;
   complement_ledger?: { id: number; name: string };
 }
@@ -246,6 +247,22 @@ const ProjectClaimsForm: React.FC<ProjectClaimsFormProps> = ({
       };
     }, [deliverableItems, adjustments, watchVatPercentage]);
 
+  // Percentage adjustments follow the gross: when certified items change,
+  // re-derive their amounts (the server recomputes them on save anyway).
+  useEffect(() => {
+    setAdjustments((prev: any[]) => {
+      let changed = false;
+      const next = prev.map((adj) => {
+        if (adj.percentage == null) return adj;
+        const amount = Math.round(grossAmount * Number(adj.percentage)) / 100;
+        if (amount === Number(adj.amount)) return adj;
+        changed = true;
+        return { ...adj, amount };
+      });
+      return changed ? next : prev;
+    });
+  }, [grossAmount]);
+
   const onSubmit = (data: FormValues) => {
     if (deliverableItems.length === 0) {
       setError('claimed_deliverables' as any, {
@@ -281,6 +298,7 @@ const ProjectClaimsForm: React.FC<ProjectClaimsFormProps> = ({
             ? 'deduction'
             : 'addition',
         amount: Number(adj.amount),
+        percentage: adj.percentage != null ? Number(adj.percentage) : null,
       })),
     };
 
@@ -619,6 +637,7 @@ const ProjectClaimsForm: React.FC<ProjectClaimsFormProps> = ({
                 setIsDirty={setIsDirty}
                 adjustments={adjustments as any}
                 setAdjustments={setAdjustments as any}
+                grossAmount={grossAmount}
               />
 
               {adjustments.map((adjustment, index) => (

@@ -3,6 +3,8 @@ import {
   IconButton,
   LinearProgress,
   TextField,
+  ToggleButton,
+  ToggleButtonGroup,
   Tooltip,
 } from '@mui/material';
 import React, { useEffect, useState } from 'react';
@@ -28,6 +30,7 @@ interface Adjustment {
   type_name?: string;
   description?: string;
   amount?: number;
+  percentage?: number | null;
   complement_ledger_id?: number;
   complement_ledger?: { id: number };
 }
@@ -43,6 +46,7 @@ interface ProjectClaimsAdjustmentsProps {
   adjustment?: Adjustment;
   adjustments: Adjustment[];
   setAdjustments: (fn: (prev: Adjustment[]) => Adjustment[]) => void;
+  grossAmount?: number;
 }
 
 interface FormValues {
@@ -64,12 +68,20 @@ const ProjectClaimsAdjustments: React.FC<ProjectClaimsAdjustmentsProps> = ({
   adjustment,
   adjustments,
   setAdjustments,
+  grossAmount = 0,
 }) => {
   const dictionary = useDictionary();
   const t = dictionary.forms.projects.claimAdjustments;
   const sh = dictionary.forms.projects.shared;
   const [isAdding, setIsAdding] = useState(false);
   const { ungroupedLedgerOptions } = useLedgerSelect();
+  const [byPercentage, setByPercentage] = useState(
+    adjustment?.percentage != null
+  );
+  const [pct, setPct] = useState<number | ''>(
+    adjustment?.percentage != null ? Number(adjustment.percentage) : ''
+  );
+  const pctTooHigh = byPercentage && Number(pct) > 100;
 
   const normalizeType = (type?: string): string => {
     if (!type) return '-';
@@ -128,7 +140,18 @@ const ProjectClaimsAdjustments: React.FC<ProjectClaimsAdjustmentsProps> = ({
 
   const watchedAmount = watch('amount');
 
+  // In % mode the amount always follows the percentage and the current gross.
+  useEffect(() => {
+    if (!byPercentage) return;
+    setValue(
+      'amount',
+      pct === '' ? ('' as any) : Math.round(grossAmount * Number(pct)) / 100,
+      { shouldDirty: true, shouldValidate: pct !== '' }
+    );
+  }, [byPercentage, pct, grossAmount, setValue]);
+
   const updateItems = (data: FormValues) => {
+    if (pctTooHigh) return;
     setIsAdding(true);
 
     const itemToSave: Adjustment = {
@@ -136,6 +159,7 @@ const ProjectClaimsAdjustments: React.FC<ProjectClaimsAdjustmentsProps> = ({
       type_name: data.type_name,
       description: data.description,
       amount: Number(data.amount),
+      percentage: byPercentage && pct !== '' ? Number(pct) : null,
       complement_ledger_id: data.complement_ledger_id!,
     };
 
@@ -150,6 +174,8 @@ const ProjectClaimsAdjustments: React.FC<ProjectClaimsAdjustmentsProps> = ({
       }
     }
 
+    setByPercentage(false);
+    setPct('');
     reset();
     setClearFormKey((prev) => prev + 1);
     setIsAdding(false);
@@ -162,7 +188,7 @@ const ProjectClaimsAdjustments: React.FC<ProjectClaimsAdjustmentsProps> = ({
 
   return (
     <Grid container spacing={1} mt={0.5} width="100%">
-      <Grid size={{ xs: 12, md: 3 }}>
+      <Grid size={{ xs: 12, sm: 6, md: 3 }}>
         <Div sx={{ mt: 0.3 }}>
           <OperationSelector
             label={t.labels.type}
@@ -182,7 +208,7 @@ const ProjectClaimsAdjustments: React.FC<ProjectClaimsAdjustmentsProps> = ({
       </Grid>
 
       {/* Complement Ledger */}
-      <Grid size={{ xs: 12, md: 5 }}>
+      <Grid size={{ xs: 12, sm: 6, md: 3 }}>
         <Div sx={{ mt: 0.3 }}>
           <LedgerSelect
             multiple={false}
@@ -202,9 +228,63 @@ const ProjectClaimsAdjustments: React.FC<ProjectClaimsAdjustmentsProps> = ({
         </Div>
       </Grid>
 
-      {/* Amount */}
-      <Grid size={{ xs: 12, md: 4 }}>
+
+      {/* Amount / % of Gross mode */}
+      <Grid size={{ xs: 12, sm: 6, md: 3 }}>
         <Div sx={{ mt: 0.3 }}>
+          <ToggleButtonGroup
+            exclusive
+            fullWidth
+            size="small"
+            sx={{
+              height: 40,
+              '& .MuiToggleButton-root': {
+                whiteSpace: 'nowrap',
+                textTransform: 'none',
+                px: 0.5,
+              },
+            }}
+            value={byPercentage ? 'percentage' : 'amount'}
+            onChange={(_, mode) => {
+              if (!mode) return;
+              setByPercentage(mode === 'percentage');
+              if (mode === 'amount') setPct('');
+            }}
+          >
+            <ToggleButton value="amount">{t.labels.amountMode}</ToggleButton>
+            <ToggleButton value="percentage">{t.labels.percentageMode}</ToggleButton>
+          </ToggleButtonGroup>
+        </Div>
+      </Grid>
+
+      {/* Amount */}
+      <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+        <Div sx={{ mt: 0.3 }}>
+          {byPercentage ? (
+          <TextField
+            size="small"
+            fullWidth
+            label={t.labels.percentage}
+            value={pct}
+            error={pctTooHigh}
+            helperText={
+              pctTooHigh
+                ? t.labels.percentageMax
+                : Number(watchedAmount) > 0
+                  ? Number(watchedAmount).toLocaleString(undefined, {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })
+                  : ''
+            }
+            InputProps={{
+              inputComponent: CommaSeparatedField as any,
+            }}
+            onChange={(e) => {
+              setPct(e.target.value ? Number(sanitizedNumber(e.target.value)) : '');
+            }}
+          />
+        ) : (
           <TextField
             size="small"
             fullWidth
@@ -223,6 +303,7 @@ const ProjectClaimsAdjustments: React.FC<ProjectClaimsAdjustmentsProps> = ({
               });
             }}
           />
+        )}
         </Div>
       </Grid>
 

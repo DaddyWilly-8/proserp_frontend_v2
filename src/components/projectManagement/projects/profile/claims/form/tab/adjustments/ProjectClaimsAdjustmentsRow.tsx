@@ -95,6 +95,7 @@ const ProjectClaimsAdjustmentsRow: React.FC<ProjectClaimsAdjustmentsRowProps> = 
           >
             <Tooltip title={dictionary.tooltips.amount}>
               <Typography variant="body2">
+                {adjustment?.percentage != null && `${Number(adjustment.percentage)}% · `}
                 {adjustment?.amount?.toLocaleString() || '0'}
               </Typography>
             </Tooltip>
