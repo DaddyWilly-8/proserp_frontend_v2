@@ -35,6 +35,7 @@ import {
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useSnackbar } from 'notistack';
 import React, { useState } from 'react';
+import LedgerSelectProvider from '@/components/accounts/ledgers/forms/LedgerSelectProvider';
 const CertificateForm = dynamic(() => import('./form/CertificateForm'), { ssr: false });
 const CertificateOnScreen = dynamic(() => import('./preview/CertificateOnScreen'), { ssr: false });
 import CertificateInvoiceDialog from './CertificateInvoiceDialog';
@@ -201,11 +202,16 @@ const EditCertificate: React.FC<{
       </div>
     );
 
+  // Self-provided: this action is also rendered on the org-wide certificates list, which has no
+  // LedgerSelectProvider above it (without one, the ledger dropdowns spin forever). Same query key
+  // as the subcontract-scoped provider, so nesting just reuses its cache.
   return (
-    <CertificateForm
-      setOpenDialog={setOpenDialog}
-      certificate={certificateDetails}
-    />
+    <LedgerSelectProvider>
+      <CertificateForm
+        setOpenDialog={setOpenDialog}
+        certificate={certificateDetails}
+      />
+    </LedgerSelectProvider>
   );
 };
 
