@@ -27,6 +27,8 @@ export interface BatchCosts {
   wip_balance: number;
   per_unit: number | null;
   by_stage: Record<string, number>;
+  carried_in?: number;
+  carried_out?: number;
 }
 
 export interface Batch {
@@ -50,7 +52,34 @@ export interface Batch {
   weight_samplings?: { id: number; sample_date: string; sample_size: number; average_weight_g: number | string; remarks: string | null }[];
   mortality_writeoffs?: { id: number; writeoff_date: string; kind: 'abnormal' | 'residual'; quantity: number; cost_per_fish: number | string; amount: number | string }[];
   harvests?: BatchHarvest[];
+  merges_in?: BatchMerge[];
+  merged_into?: BatchMerge | null;
   costs?: BatchCosts;
+}
+
+/** A batch dissolved into another on the same stage: its fish, and the cost it carried (money users only), moved across on a date. */
+export interface BatchMerge {
+  id: number;
+  from_batch_id: number;
+  into_batch_id: number;
+  merge_date: string;
+  quantity: number;
+  cost_amount?: number | string;
+  from_batch?: { id: number; batchNo: string };
+  into_batch?: { id: number; batchNo: string };
+}
+
+export interface MergePreview {
+  from: { id: number; batchNo: string; quantity: number; weight_g: number | null };
+  into: { id: number; batchNo: string; quantity: number; weight_g: number | null };
+  stage: string;
+  total_quantity: number;
+  merged_weight_g: number | null;
+  gap_pct: number | null;
+  warning: boolean;
+  gap_limit_pct: number;
+  cost_amount?: number;
+  cost_per_fish_after?: number | null;
 }
 
 export interface BatchHarvest {
@@ -150,7 +179,7 @@ export interface EditableDialogProps<T> extends DialogProps {
 
 export interface BatchSummary {
   costs: BatchCosts;
-  categories: { group: 'input' | 'ledger'; key: string; name: string | null; amount: number; entries?: number }[];
+  categories: { group: 'input' | 'ledger' | 'merge'; key: string; name: string | null; amount: number; entries?: number }[];
   by_stage: { stage_id: number; name: string; start_date: string; end_date: string | null; inputs: number; other: number; total: number }[];
   inputs: { type: BioInputType; product_id: number; product: string | null; unit: string | null; quantity: number; cost: number; rate: number | null; applications: number; first_date: string | null; last_date: string | null }[];
   outputs: {

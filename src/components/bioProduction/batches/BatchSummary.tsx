@@ -60,7 +60,7 @@ const BatchSummary = ({ batch }: { batch: Batch }) => {
   const byStage = data.by_stage ?? [];
   const total = costs?.total || 0;
   const share = (amount: number) => (total > 0 ? `${num((amount / total) * 100, 1)}%` : '—');
-  const categoryName = (category: Summary['categories'][number]) => (category.group === 'input' ? t.inputCategory[category.key as 'feed' | 'medication' | 'other'] : category.name);
+  const categoryName = (category: Summary['categories'][number]) => (category.group === 'input' ? t.inputCategory[category.key as 'feed' | 'medication' | 'other'] : category.group === 'merge' ? t.mergedCategory : category.name);
   const empty = text.tables.empty;
   const stageTotals = byStage.reduce((sum, stage) => ({ inputs: sum.inputs + stage.inputs, other: sum.other + stage.other, total: sum.total + stage.total }), { inputs: 0, other: 0, total: 0 });
   const inputTotals = inputs.reduce((sum, row) => sum + (row.cost ?? 0), 0);

@@ -647,7 +647,9 @@
         "edit": "Hariri kundi",
         "delete": "Futa kundi",
         "more": "Vitendo",
-        "undoStage": "Tendua uhamisho wa mwisho"
+        "undoStage": "Tendua uhamisho wa mwisho",
+        "merge": "Unganisha na kundi lingine",
+        "undoMerge": "Tengua kuunganisha"
       },
       "summary": {
         "environment": "Hali wakati wa kundi hili",
@@ -735,7 +737,8 @@
           "noWeights": "Haijapimwa bado",
           "notEnough": "Bado haitoshi",
           "otherUnits": "Chakula kilichotolewa kwa {units} hakijajumuishwa kwa sababu kipimo chake hakina uwiano wa uzito katika Vipimo."
-        }
+        },
+        "mergedCategory": "Imehamishwa kutoka kundi lililounganishwa"
       },
       "tabs": {
         "summary": "Muhtasari",
@@ -900,7 +903,25 @@
         "confirmDeleteMortality": "Futa hasara hii na rekodi yake ya kila siku? Wanyama wake wanarudi kwenye kundi. Haiwezekani baada ya kundi kuhamia hatua nyingine, au baada ya hasara za hatua hii kufutwa kwenye vitabu.",
         "confirmDeleteHarvest": "Futa mavuno haya? Wanyama wake wanarudi kwenye kundi, stoo yake inatolewa na gharama yake inarudi kwenye kundi. Haiwezekani kama stoo imetumika au kuuzwa.",
         "confirmDeleteProduce": "Futa rekodi hii ya mazao? Stoo yake inatolewa na gharama yake inarudi kwenye kundi. Haiwezekani kama stoo imetumika au kuuzwa.",
-        "confirmUndoStage": "Tendua uhamisho wa mwisho kwenda hatua inayofuata? Kundi litarudi kwenye hatua iliyotangulia. Hii inawezekana tu kama hakuna kilichorekodiwa kwenye hatua aliyohamia (chakula, vifo, uzito, gharama); viondoe kwanza."
+        "confirmUndoStage": "Tendua uhamisho wa mwisho kwenda hatua inayofuata? Kundi litarudi kwenye hatua iliyotangulia. Hii inawezekana tu kama hakuna kilichorekodiwa kwenye hatua aliyohamia (chakula, vifo, uzito, gharama); viondoe kwanza.",
+        "confirmUndoMerge": "Tengua kuunganisha huku? Kundi hili litafunguka tena na samaki wake na kundi lingine litawarudisha, pamoja na gharama. Hii inawezekana tu kama hakuna kilichorekodiwa kwenye kundi lingine tangu kuunganishwa; ondoa rekodi hizo kwanza.",
+        "merge": {
+          "title": "Unganisha na Kundi Lingine",
+          "help": "Tumia hii kundi hili linapovunjwa na samaki wake kuongezwa kwenye tanki lenye kundi lingine lililo kwenye hatua ileile. Samaki na gharama ambayo kundi hili bado linabeba vinahamia kwenye kundi lingine, na kundi hili linafungwa huku kila kilichorekodiwa kikibaki.",
+          "into": "Unganisha na",
+          "noTargets": "Hakuna kundi lingine wazi la spishi hii, katika hatua na shamba hilohilo, la kuunganisha nalo.",
+          "fromWeight": "Wastani wa uzito wa {batch} sasa (si lazima)",
+          "intoWeight": "Wastani wa uzito wa {batch} sasa (si lazima)",
+          "weightHint": "Acha uzito wazi ili kutumia upimaji wa mwisho wa kila kundi.",
+          "after": "Kile {batch} litakachokuwa nacho",
+          "moving": "{count} wanaingia kutoka {from}",
+          "total": "{count} kwa jumla baada ya kuunganisha",
+          "weights": "Wastani wa uzito: {from} na {into}, kwa pamoja {merged}",
+          "cost": "Gharama inayohamishwa: {amount} ({perFish} kwa samaki baada ya kuunganisha)",
+          "gapWarning": "Wastani wa uzito unatofautiana kwa {gap}% ({from} na {into}), zaidi ya {limit}%. Kuchanganya samaki wa ukubwa tofauti hivi kunaweza kusababisha ushindani wa chakula na ukuaji usio sawa.",
+          "confirmGap": "Naelewa, unganisha hata hivyo",
+          "noWeight": "Moja ya makundi halina uzito bado, kwa hiyo hakuna uzito wa pamoja utakaorekodiwa. Pima kundi baada ya kuunganisha."
+        }
       },
       "messages": {
         "deleteContent": "Futa kundi hili? Inawezekana tu kama hakuna kilichorekodiwa kwake."
@@ -919,7 +940,12 @@
         "ledgerRequired": "Chagua leja",
         "tooMany": "Zaidi ya walio hai"
       },
-      "searchPlaceholder": "Tafuta kwa namba ya kundi au kitengo"
+      "searchPlaceholder": "Tafuta kwa namba ya kundi au kitengo",
+      "merge": {
+        "mergedInto": "Liliunganishwa {date}: samaki {count} walihamia",
+        "mergesIn": "Tarehe {date}, samaki {count} waliongezwa kutoka",
+        "costCarried": "gharama iliyohamishwa {amount}"
+      }
     },
     "rounds": {
       "titles": {

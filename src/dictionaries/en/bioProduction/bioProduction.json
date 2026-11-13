@@ -647,7 +647,9 @@
         "edit": "Edit batch",
         "delete": "Delete batch",
         "more": "Actions",
-        "undoStage": "Undo last move"
+        "undoStage": "Undo last move",
+        "merge": "Merge into another batch",
+        "undoMerge": "Undo merge"
       },
       "summary": {
         "environment": "Conditions during this batch",
@@ -735,7 +737,8 @@
           "noWeights": "Not weighed yet",
           "notEnough": "Not enough yet",
           "otherUnits": "Feed given in {units} was left out because its unit has no weight equivalence set in Measurement Units."
-        }
+        },
+        "mergedCategory": "Carried over from merged batch"
       },
       "tabs": {
         "summary": "Summary",
@@ -900,7 +903,25 @@
         "confirmDeleteMortality": "Delete this loss and its daily record? Its animals return to the batch. This cannot be done once the batch has moved on from this stage, or after this stage's losses have been written off.",
         "confirmDeleteHarvest": "Delete this harvest? Its animals return to the batch, its stock is taken out of the store and its cost goes back into the batch. This cannot be done once the stock has been used or sold.",
         "confirmDeleteProduce": "Delete this produce record? Its stock is taken out of the store and its cost goes back into the batch. This cannot be done once the stock has been used or sold.",
-        "confirmUndoStage": "Undo the last move to the next stage? The batch goes back to the previous stage. This only works while nothing has been recorded in the stage it moved into (feed, deaths, weights, costs); remove those first."
+        "confirmUndoStage": "Undo the last move to the next stage? The batch goes back to the previous stage. This only works while nothing has been recorded in the stage it moved into (feed, deaths, weights, costs); remove those first.",
+        "confirmUndoMerge": "Undo this merge? The batch opens again with its fish and the other batch gives them back, with the cost. This only works while nothing has been recorded on the other batch since the merge; remove those records first.",
+        "merge": {
+          "title": "Merge into Another Batch",
+          "help": "Use this when this batch is dissolved and its fish are added to a cage that holds another batch on the same stage. The fish and the cost this batch still carries move to the other batch, and this batch closes with everything recorded on it kept.",
+          "into": "Merge into",
+          "noTargets": "There is no other open batch of this species on the same stage and farm to merge into.",
+          "fromWeight": "Average weight of {batch} now (optional)",
+          "intoWeight": "Average weight of {batch} now (optional)",
+          "weightHint": "Leave the weights empty to use the last weighing of each batch.",
+          "after": "What {batch} will hold",
+          "moving": "{count} moving in from {from}",
+          "total": "{count} in total after the merge",
+          "weights": "Average weight: {from} and {into}, together {merged}",
+          "cost": "Cost carried over: {amount} ({perFish} per fish after the merge)",
+          "gapWarning": "The average weights differ by {gap}% ({from} and {into}), more than {limit}%. Mixing fish of such different sizes can lead to competition for feed and uneven growth.",
+          "confirmGap": "I understand, merge anyway",
+          "noWeight": "One of the batches has no weight yet, so no combined weight is recorded. Weigh the batch after the merge."
+        }
       },
       "messages": {
         "deleteContent": "Delete this batch? This is only possible if nothing has been recorded against it."
@@ -919,7 +940,12 @@
         "ledgerRequired": "Choose a ledger",
         "tooMany": "More than are alive"
       },
-      "searchPlaceholder": "Search by batch number or unit"
+      "searchPlaceholder": "Search by batch number or unit",
+      "merge": {
+        "mergedInto": "Merged on {date}: {count} fish moved into",
+        "mergesIn": "On {date}, {count} fish were added from",
+        "costCarried": "cost carried {amount}"
+      }
     },
     "rounds": {
       "titles": {

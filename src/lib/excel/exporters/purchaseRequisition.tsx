@@ -284,11 +284,10 @@ export async function exportPurchaseRequisitionExcel(exportedData: any) {
           };
         }
 
-        const qtyDisplay = item.measurement_unit?.symbol
-          ? `${(item.quantity || 0).toLocaleString('en-US', { maximumFractionDigits: 5 })} ${item.measurement_unit.symbol}`
-          : null;
-        if (qtyDisplay) {
-          ws.getCell(`C${rowNum}`).value = qtyDisplay;
+        const qtyUnit = item.measurement_unit?.symbol;
+        if (qtyUnit) {
+          ws.getCell(`C${rowNum}`).value = Number(item.quantity || 0);
+          ws.getCell(`C${rowNum}`).numFmt = `#,##0.#####" ${qtyUnit}"`;
           ws.getCell(`C${rowNum}`).alignment = {
             horizontal: 'right',
             vertical: 'middle',
@@ -439,15 +438,17 @@ export async function exportPurchaseRequisitionExcel(exportedData: any) {
           '';
         const costLabel =
           cost.credit_ledger_name || cost.ledger?.name || cost.name || '-';
-        const costAmountDisplay =
-          `${costCurrencyCode} ${Number(cost.amount || 0).toLocaleString('en-US', { maximumFractionDigits: 2 })}`.trim();
+        const costAmount = Number(cost.amount || 0);
 
         ws.addRow([
           index + 1,
           costLabel,
           ...Array(colCount - 3).fill(' '),
-          costAmountDisplay,
+          costAmount,
         ]);
+        ws.getCell(`${amtCol}${acRowNum}`).numFmt = costCurrencyCode
+          ? `"${costCurrencyCode}" #,##0.00`
+          : '#,##0.00';
         styleBorderRow(ws, acRowNum, LAST_COL_CODE);
         ws.mergeCells(`B${acRowNum}:${labelEndCol}${acRowNum}`);
         ws.getCell(`A${acRowNum}`).alignment = {

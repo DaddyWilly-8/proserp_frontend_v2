@@ -281,6 +281,8 @@
     },
     "salesManifestCard": "Orodha ya Mauzo",
     "salesAndCashSummaryCard": "Muhtasari wa Mauzo na Fedha",
-    "salesPerformanceCard": "Utendaji wa Mauzo"
+    "salesPerformanceCard": "Utendaji wa Mauzo",
+    "productSalesReportCard": "Ripoti ya Mauzo ya Bidhaa",
+    "topProductsCard": "Bidhaa Bora"
   }
 }

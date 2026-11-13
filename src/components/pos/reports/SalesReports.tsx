@@ -5,7 +5,7 @@ import JumboCardQuick from '@jumbo/components/JumboCardQuick/JumboCardQuick';
 import { Dialog, Grid, Typography, useMediaQuery } from '@mui/material';
 import React, { useState, ReactNode } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { LeaderboardOutlined, ListAltOutlined, SummarizeOutlined } from '@mui/icons-material';
+import { AssessmentOutlined, EmojiEventsOutlined, LeaderboardOutlined, ListAltOutlined, SummarizeOutlined } from '@mui/icons-material';
 import SalesManifest from './salesManifest/SalesManifest';
 import SalesPerformance from './salesPerformance/SalesPerformance';
 import StakeholderSelectProvider from '../../masters/stakeholders/StakeholderSelectProvider';
@@ -20,6 +20,9 @@ import { MODULES } from '@/utilities/constants/modules';
 import UnsubscribedAccess from '@/shared/Information/UnsubscribedAccess';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
 import UnauthorizedAccess from '@/shared/Information/UnauthorizedAccess';
+import CurrencySelectProvider from '../../masters/Currencies/CurrencySelectProvider';
+import ProductSalesReportDialog from '../counter/ProductSalesReportDialog';
+import TopProductsReport from './topProducts/TopProductsReport';
 import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
 
 function SalesReports() {
@@ -29,6 +32,8 @@ function SalesReports() {
     const [openSalesAndCashSummary, setOpenSalesAndCashSummary] = useState<boolean>(false);
     const [openSalesManifest, setOpenSalesManifest] = useState<boolean>(false);
     const [openSalesPerformance, setOpenSalesPerformance] = useState<boolean>(false);
+    const [openProductSalesReport, setOpenProductSalesReport] = useState<boolean>(false);
+    const [openTopProducts, setOpenTopProducts] = useState<boolean>(false);
     const [report, setReport] = useState<ReactNode>(null);
     const { checkOrganizationPermission, organizationHasSubscribed } = useJumboAuth();
     
@@ -85,6 +90,13 @@ function SalesReports() {
                     >
                         {report}
                     </Dialog>
+                    <CurrencySelectProvider>
+                        <ProductSalesReportDialog
+                            open={openProductSalesReport}
+                            onClose={() => setOpenProductSalesReport(false)}
+                        />
+                    </CurrencySelectProvider>
+                    <TopProductsReport open={openTopProducts} onClose={() => setOpenTopProducts(false)} />
                     <Typography variant={'h4'} mb={2}>{dictionary.reports.posReports.title}</Typography>
                     <JumboCardQuick sx={{ height: '100%' }}>
                         <Grid container textAlign={'center'} columnSpacing={2} rowSpacing={2}>
@@ -170,6 +182,40 @@ function SalesReports() {
                             >
                                 <LeaderboardOutlined sx={{ fontSize: '40px' }} />
                                 <Typography>{dictionary.reports.posReports.salesPerformanceCard}</Typography>
+                            </Grid>
+
+                            {/* Product Sales Report Card */}
+                            <Grid
+                                sx={{
+                                    cursor: 'pointer',
+                                    '&:hover': {
+                                        bgcolor: 'action.hover',
+                                    }
+                                }}
+                                size={{xs: 6, md: 3, lg: 2}}
+                                p={1}
+                                textAlign={'center'}
+                                onClick={() => setOpenProductSalesReport(true)}
+                            >
+                                <AssessmentOutlined sx={{ fontSize: '40px' }} />
+                                <Typography>{dictionary.reports.posReports.productSalesReportCard}</Typography>
+                            </Grid>
+
+                            {/* Top Products Card */}
+                            <Grid
+                                sx={{
+                                    cursor: 'pointer',
+                                    '&:hover': {
+                                        bgcolor: 'action.hover',
+                                    }
+                                }}
+                                size={{xs: 6, md: 3, lg: 2}}
+                                p={1}
+                                textAlign={'center'}
+                                onClick={() => setOpenTopProducts(true)}
+                            >
+                                <EmojiEventsOutlined sx={{ fontSize: '40px' }} />
+                                <Typography>{dictionary.reports.posReports.topProductsCard}</Typography>
                             </Grid>
                         </Grid>
                     </JumboCardQuick>

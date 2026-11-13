@@ -106,16 +106,16 @@ const StockMovementOnScreen = ({
     ) / 10000;
 
   // Quantity columns in display order. With details every one of them also
-  // shows its amount at the latest rate.
+  // shows its amount at the latest rate (purchases, production, transfers in and gains use their actual cost).
   const quantityColumns = [
     { key: 'opening', label: dict.opening, get: (m) => num(m.opening_balance) },
-    { key: 'purchaseReceived', label: dict.purchased, get: (m) => num(m.quantity_received) },
+    { key: 'purchaseReceived', label: dict.purchased, get: (m) => num(m.quantity_received), amount: (m) => num(m.amount_received) },
     ...(organizationHasSubscribed(MODULES.MANUFACTURING_AND_PROCESSING)
-      ? [{ key: 'produced', label: dict.produced, get: (m) => num(m.quantity_produced) }]
+      ? [{ key: 'produced', label: dict.produced, get: (m) => num(m.quantity_produced), amount: (m) => num(m.amount_produced) }]
       : []),
-    { key: 'transferIn', label: dict.transIn, get: (m) => num(m.quantity_transferred_in) },
+    { key: 'transferIn', label: dict.transIn, get: (m) => num(m.quantity_transferred_in), amount: (m) => num(m.amount_transferred_in) },
     { key: 'transferOut', label: dict.transOut, get: (m) => num(m.quantity_transferred_out) },
-    { key: 'stockGain', label: dict.gain, get: (m) => num(m.stock_gain) },
+    { key: 'stockGain', label: dict.gain, get: (m) => num(m.stock_gain), amount: (m) => num(m.amount_gain) },
     { key: 'stockLoss', label: dict.loss, get: (m) => num(m.stock_loss) },
     { key: 'consumed', label: dict.consumed, get: (m) => num(m.quantity_consumed) },
     { key: 'sold', label: dict.sold, get: (m) => num(m.quantity_sold) },
@@ -213,7 +213,7 @@ const StockMovementOnScreen = ({
                       </TableCell>
                       {detailed && (
                         <TableCell align="right" sx={mono}>
-                          {formatNumber(rate * quantity)}
+                          {formatNumber(column.amount ? column.amount(movement) : rate * quantity)}
                         </TableCell>
                       )}
                     </React.Fragment>
@@ -241,7 +241,7 @@ const StockMovementOnScreen = ({
                     {formatNumber(
                       movements.reduce(
                         (total, movement) =>
-                          total + num(movement.latest_rate) * column.get(movement),
+                          total + (column.amount ? column.amount(movement) : num(movement.latest_rate) * column.get(movement)),
                         0
                       )
                     )}

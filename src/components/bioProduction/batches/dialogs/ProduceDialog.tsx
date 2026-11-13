@@ -86,6 +86,7 @@ const ProduceDialog = ({ batch, open, onClose, record = null }: EditableDialogPr
         <Grid size={{ xs: 12, md: 6 }}>
           <StoreSelector
             label={dialog.store}
+            allowSubStores={true}
             defaultValue={record?.store ?? null}
             frontError={errors.store_id as any}
             onChange={(store: any) => setValue('store_id', store?.id ?? null, { shouldValidate: true })}

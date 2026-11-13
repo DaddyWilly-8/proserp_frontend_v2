@@ -17,17 +17,15 @@ export async function exportbudgetItemsDetailsExcel(exportedData: any) {
     const subcontract_task_items = budgetDetails.subcontract_task_items;
 
     // ========== HELPER FUNCTIONS ========== //
-    const formatCurrency = (
-      amount: number,
-      currencyCode: string = 'USD'
-    ): string => {
-      if (isNaN(amount)) return '0.00';
-      return amount.toLocaleString('en-US', {
-        style: 'currency',
-        currency: currencyCode,
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-      });
+    // Cells hold real numbers (so users can use them in formulas); the currency
+    // code / unit prefix-suffix comes from the number format only.
+    const moneyFormat = (currencyCode: string = 'USD'): string =>
+      `"${currencyCode}" #,##0.00`;
+    const quantityFormat = (unitSymbol: string): string =>
+      unitSymbol ? `#,##0.###" ${unitSymbol}"` : '#,##0.###';
+    const toNumber = (value: any): number => {
+      const n = Number(value);
+      return isNaN(n) ? 0 : n;
     };
 
     const formatPercentage = (budgeted: number, spent: number): any => {
@@ -99,10 +97,12 @@ export async function exportbudgetItemsDetailsExcel(exportedData: any) {
     ]);
     const infoDataRow = ws.addRow([
       ' ',
-      formatCurrency(totalBudgetedAmount, baseCurrency?.code),
-      formatCurrency(totalSpentAmount, baseCurrency?.code),
+      totalBudgetedAmount,
+      totalSpentAmount,
       percentageSpent / 100,
     ]);
+    ws.getCell('B5').numFmt = moneyFormat(baseCurrency?.code);
+    ws.getCell('C5').numFmt = moneyFormat(baseCurrency?.code);
     ws.getCell(`D5`).numFmt = '0.00%';
     ws.getCell(`D5`).alignment = {
       horizontal: 'left',
@@ -171,13 +171,19 @@ export async function exportbudgetItemsDetailsExcel(exportedData: any) {
         ws.getRow(summaryTableRow + index).values = [
           index + 1,
           exp.name,
-          formatCurrency(exp.budgeted, baseCurrency?.code),
-          formatCurrency(exp.spent, baseCurrency?.code),
+          toNumber(exp.budgeted),
+          toNumber(exp.spent),
           typeof formatPercentage(exp.budgeted, exp.spent) !== 'string'
             ? formatPercentage(exp.budgeted, exp.spent) / 100
             : formatPercentage(exp.budgeted, exp.spent),
         ];
 
+        ws.getCell(`C${summaryTableRow + index}`).numFmt = moneyFormat(
+          baseCurrency?.code
+        );
+        ws.getCell(`D${summaryTableRow + index}`).numFmt = moneyFormat(
+          baseCurrency?.code
+        );
         ws.getCell(`E${summaryTableRow + index}`).numFmt = '0.00%';
 
         for (let itemCell = 0; itemCell < 5; itemCell++) {
@@ -266,10 +272,13 @@ export async function exportbudgetItemsDetailsExcel(exportedData: any) {
           ws.getRow(ledgerItemsTableRow + index).values = [
             index + 1,
             ' ',
-            `${quantity} ${unitSymbol}`,
-            `${formatCurrency(rate, currencyCode)}`,
-            `${formatCurrency(amount, currencyCode)}`,
+            quantity,
+            rate,
+            amount,
           ];
+          ws.getCell(`C${ledgerItemsTableRow + index}`).numFmt = quantityFormat(unitSymbol);
+          ws.getCell(`D${ledgerItemsTableRow + index}`).numFmt = moneyFormat(currencyCode);
+          ws.getCell(`E${ledgerItemsTableRow + index}`).numFmt = moneyFormat(currencyCode);
 
           if (taskLabel && item.description) {
             ws.getRow(ledgerItemsTableRow + index).height = 80;
@@ -409,10 +418,13 @@ export async function exportbudgetItemsDetailsExcel(exportedData: any) {
           ws.getRow(productsTableRow + index).values = [
             index + 1,
             ' ',
-            `${quantity} ${unitSymbol}`,
-            `${formatCurrency(rate, currencyCode)}`,
-            `${formatCurrency(amount, currencyCode)}`,
+            quantity,
+            rate,
+            amount,
           ];
+          ws.getCell(`C${productsTableRow + index}`).numFmt = quantityFormat(unitSymbol);
+          ws.getCell(`D${productsTableRow + index}`).numFmt = moneyFormat(currencyCode);
+          ws.getCell(`E${productsTableRow + index}`).numFmt = moneyFormat(currencyCode);
 
           if (taskLabel && item.description) {
             ws.getRow(productsTableRow + index).height = 80;
@@ -542,10 +554,16 @@ export async function exportbudgetItemsDetailsExcel(exportedData: any) {
             index + 1,
             ' ',
             item.expense_ledger?.name || '',
-            `${quantity} ${unitSymbol}`,
-            `${formatCurrency(rate, currencyCode)}`,
-            `${formatCurrency(amount, currencyCode)}`,
+            quantity,
+            rate,
+            amount,
           ];
+          ws.getCell(`D${subcontractsTableRow + index}`).numFmt =
+            quantityFormat(unitSymbol);
+          ws.getCell(`E${subcontractsTableRow + index}`).numFmt =
+            moneyFormat(currencyCode);
+          ws.getCell(`F${subcontractsTableRow + index}`).numFmt =
+            moneyFormat(currencyCode);
           if (item.description) {
             ws.getCell(`B${subcontractsTableRow + index}`).value =
               `${name}\n(${description})`;

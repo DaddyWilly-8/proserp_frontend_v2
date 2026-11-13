@@ -212,16 +212,11 @@ export async function exportDebtorsOrCreditorsToExcel(exportedData: any) {
       periodKeys.forEach((key, i) => {
         const start = 2 + i * subCount;
         const figures = node[key];
-        const netText =
-          figures?.net?.amount
-            ? `${figures.net.amount.toLocaleString('en-US', {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              })} ${figures.net.side}`
-            : '';
+        // Net stays a real number; the Dr/Cr side is shown through the number format.
+        const netValue = figures?.net?.amount ? Number(figures.net.amount) : '';
         const values: (number | string)[] = netOnly
-          ? [netText]
-          : [figures?.debit || '', figures?.credit || '', netText];
+          ? [netValue]
+          : [figures?.debit || '', figures?.credit || '', netValue];
         values.forEach((value, j) => {
           const cell = ws.getCell(row, start + j);
           cell.value = value;
@@ -230,6 +225,9 @@ export async function exportDebtorsOrCreditorsToExcel(exportedData: any) {
           cell.border = thinBorder;
           // A net on the opposite side to the node's normal side is a negative balance
           const isNet = j === values.length - 1;
+          if (isNet && figures?.net?.amount && figures.net.side) {
+            cell.numFmt = `#,##0.00" ${figures.net.side}"`;
+          }
           const negative =
             isNet &&
             node.normal_side &&

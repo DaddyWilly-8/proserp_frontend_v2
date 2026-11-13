@@ -57,6 +57,10 @@ export const batchServices = {
   // Batch actions all take the batch id alongside their payload.
   advanceStage: ({ id, ...payload }) => post(`${batchPath}/${id}/advance-stage`, payload),
   undoStage: ({ id }) => post(`${batchPath}/${id}/undo-stage`, {}),
+  mergeTargets: async (id) => (await axios.get(`${batchPath}/${id}/merge-targets`)).data,
+  mergePreview: async ({ id, ...params }) => (await axios.get(`${batchPath}/${id}/merge-preview`, { params })).data,
+  merge: ({ id, ...payload }) => post(`${batchPath}/${id}/merge`, payload),
+  undoMerge: ({ id }) => post(`${batchPath}/${id}/undo-merge`, {}),
   updateStage: ({ id, stageId, ...payload }) => put(`${batchPath}/${id}/stages/${stageId}`, payload),
   transfer: ({ id, ...payload }) => post(`${batchPath}/${id}/transfers`, payload),
   recordMortality: ({ id, ...payload }) => post(`${batchPath}/${id}/mortalities`, payload),

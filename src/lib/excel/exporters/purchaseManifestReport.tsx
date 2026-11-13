@@ -12,8 +12,9 @@ function getUserName(user: any): string {
   return parts.length ? parts.join(' ') : user?.email || '-';
 }
 
-function formatQty(qty: number, symbol: string): string {
-  return `${(qty || 0).toLocaleString()} ${symbol || ''}`.trim();
+// Quantities stay numeric; the unit is shown through the number format.
+function qtyFormat(symbol: string): string {
+  return symbol ? `#,##0.###" ${symbol}"` : '#,##0.###';
 }
 
 export async function exportPurchaseManifestReportToExcel(exportedData: any) {
@@ -285,14 +286,12 @@ export async function exportPurchaseManifestReportToExcel(exportedData: any) {
       setTxt(COL_DESCRIPTION, item.product?.description || '-');
       setTxt(COL_STATUS, item.status || '-');
       setTxt(COL_VENDOR, item.vendor?.name || '-');
-      setTxt(COL_QTY_ORDERED, formatQty(item.quantity_ordered, unitSymbol));
-      setTxt(COL_QTY_RECEIVED, formatQty(item.quantity_received, unitSymbol));
-      setTxt(
+      setNum(COL_QTY_ORDERED, item.quantity_ordered || 0, qtyFormat(unitSymbol));
+      setNum(COL_QTY_RECEIVED, item.quantity_received || 0, qtyFormat(unitSymbol));
+      setNum(
         COL_QTY_PENDING,
-        formatQty(
-          (item.quantity_ordered || 0) - (item.quantity_received || 0),
-          unitSymbol
-        )
+        (item.quantity_ordered || 0) - (item.quantity_received || 0),
+        qtyFormat(unitSymbol)
       );
       setNum(COL_RATE, item.rate || 0);
       setNum(COL_ORDERED_AMOUNT, orderedAmt, currencyFmt);

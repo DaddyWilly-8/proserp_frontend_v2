@@ -281,6 +281,8 @@
     },
     "salesManifestCard": "Sales Manifest",
     "salesAndCashSummaryCard": "Sales & Cash Summary",
-    "salesPerformanceCard": "Sales Performance"
+    "salesPerformanceCard": "Sales Performance",
+    "productSalesReportCard": "Product Sales Report",
+    "topProductsCard": "Top Products"
   }
 }

@@ -20,6 +20,7 @@ import {
   IconButton,
   LinearProgress,
   Paper,
+  Stack,
   Table,
   TableBody,
   TableCell,
@@ -93,9 +94,27 @@ const formatAmount = (value: number) =>
     maximumFractionDigits: 2,
   });
 
-const ProductSalesReportDialog: React.FC = () => {
+interface ProductSalesReportDialogProps {
+  /** Controlled mode: when provided, the toolbar trigger icon is hidden. */
+  open?: boolean;
+  onClose?: () => void;
+}
+
+const ProductSalesReportDialog: React.FC<ProductSalesReportDialogProps> = ({
+  open: controlledOpen,
+  onClose,
+}) => {
   const dictionary = useDictionary();
-  const [open, setOpen] = useState(false);
+  const isControlled = controlledOpen !== undefined;
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = isControlled ? controlledOpen : internalOpen;
+  const setOpen = (value: boolean) => {
+    if (isControlled) {
+      if (!value) onClose?.();
+    } else {
+      setInternalOpen(value);
+    }
+  };
   const [from, setFrom] = useState<Dayjs | null>(dayjs().startOf('day'));
   const [to, setTo] = useState<Dayjs | null>(dayjs().endOf('day'));
   const [selectedCounters, setSelectedCounters] = useState<CounterOption[]>(
@@ -213,11 +232,13 @@ const ProductSalesReportDialog: React.FC = () => {
 
   return (
     <>
-      <Tooltip title={dictionary.tooltips.productSalesReport}>
-        <IconButton size='small' onClick={handleOpen}>
-          <AssessmentOutlined />
-        </IconButton>
-      </Tooltip>
+      {!isControlled && (
+        <Tooltip title={dictionary.tooltips.productSalesReport}>
+          <IconButton size='small' onClick={handleOpen}>
+            <AssessmentOutlined />
+          </IconButton>
+        </Tooltip>
+      )}
       <Dialog
         open={open}
         onClose={() => setOpen(false)}
@@ -314,16 +335,34 @@ const ProductSalesReportDialog: React.FC = () => {
                 }
               />
             </Grid>
-            <Grid size={{ xs: 12 }} textAlign='right'>
-              <Button
-                fullWidth={belowSmScreen}
-                variant='contained'
-                size='small'
-                disabled={!from || !to || generateReport.isPending}
-                onClick={handleGenerate}
+            <Grid size={{ xs: 12 }}>
+              <Stack
+                direction='row'
+                spacing={1}
+                alignItems='center'
+                justifyContent={{ xs: 'space-between', sm: 'flex-end' }}
+                width={{ xs: '100%', sm: 'auto' }}
+                sx={{ ml: 'auto' }}
               >
-                {dictionary.forms.counter.productSalesReport.labels.generate}
-              </Button>
+                {rows && rows.length > 0 && (
+                  <FileExportGrid
+                    exportExcel
+                    handlExcelExport={handleExportExcel}
+                    exportingExcel={isExportingExcel}
+                    exportPdf
+                    handlePdf={() => setShowPdfPreview((prev) => !prev)}
+                  />
+                )}
+                <Button
+                  fullWidth={belowSmScreen}
+                  variant='contained'
+                  size='small'
+                  disabled={!from || !to || generateReport.isPending}
+                  onClick={handleGenerate}
+                >
+                  {dictionary.forms.counter.productSalesReport.labels.generate}
+                </Button>
+              </Stack>
             </Grid>
           </Grid>
 
@@ -723,15 +762,6 @@ const ProductSalesReportDialog: React.FC = () => {
             ))}
         </DialogContent>
         <DialogActions>
-          {rows && rows.length > 0 && (
-            <FileExportGrid
-              exportExcel
-              handlExcelExport={handleExportExcel}
-              exportingExcel={isExportingExcel}
-              exportPdf
-              handlePdf={() => setShowPdfPreview((prev) => !prev)}
-            />
-          )}
           <Button size='small' onClick={() => setOpen(false)}>
             {dictionary.forms.counter.productSalesReport.labels.close}
           </Button>

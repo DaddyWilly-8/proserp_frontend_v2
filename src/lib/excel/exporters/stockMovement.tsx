@@ -30,6 +30,14 @@ function setText(cell: any, value: any) {
   cell.alignment = { horizontal: 'left', vertical: 'middle' };
 }
 
+// Columns valued at the movements' own cost rather than the latest rate
+const ACTUAL_AMOUNT_FIELDS: Record<string, string> = {
+  purchaseReceived: 'amount_received',
+  produced: 'amount_produced',
+  transferIn: 'amount_transferred_in',
+  stockGain: 'amount_gain',
+};
+
 // Helper function to get quantity value from movement based on column key
 function getQuantityFromMovement(movement: any, key: string): number {
   switch (key) {
@@ -455,7 +463,11 @@ export async function exportStockMovementReportToExcel(exportedData: any) {
     ws.addRow([]);
 
     // ---- META INFO SECTION ----
-    const addMetaRow = (label: string, value: string, rowNum: number) => {
+    const addMetaRow = (
+      label: string,
+      value: string | number,
+      rowNum: number
+    ) => {
       ws.getCell(`A${rowNum}`).value = label;
       ws.getCell(`A${rowNum}`).font = {
         bold: true,
@@ -501,12 +513,11 @@ export async function exportStockMovementReportToExcel(exportedData: any) {
     if (!withDetails && hasAccountsPermission) {
       addMetaRow(
         'Estimated Closing Value',
-        totalEstimatedValue.toLocaleString(undefined, {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2,
-        }),
+        totalEstimatedValue,
         metaRow
       );
+      ws.getCell(`B${metaRow}`).numFmt = '#,##0.00';
+      ws.getCell(`B${metaRow}`).alignment = { horizontal: 'left' };
       metaRow++;
     }
 
@@ -632,7 +643,9 @@ export async function exportStockMovementReportToExcel(exportedData: any) {
         }
       };
 
-      const getAmount = (quantity: number) => {
+      const getAmount = (quantity: number, key?: string) => {
+        if (key && ACTUAL_AMOUNT_FIELDS[key])
+          return Number(movement[ACTUAL_AMOUNT_FIELDS[key]] || 0);
         return latestRate * quantity;
       };
 
@@ -642,7 +655,7 @@ export async function exportStockMovementReportToExcel(exportedData: any) {
         if (withDetails && col.hasSub) {
           const qtyValue = getValue(col.key);
           const qtyNum = typeof qtyValue === 'number' ? qtyValue : 0;
-          const amtValue = getAmount(qtyNum);
+          const amtValue = getAmount(qtyNum, col.key);
 
           const qtyCell = ws.getCell(
             `${getExcelColumnName(currentCol)}${rowNum}`
@@ -703,7 +716,10 @@ export async function exportStockMovementReportToExcel(exportedData: any) {
           let totalAmt = 0;
           movements.forEach((movement: any) => {
             const qty = getQuantityFromMovement(movement, col.key);
-            totalAmt += (movement.latest_rate || 0) * qty;
+            totalAmt +=
+              ACTUAL_AMOUNT_FIELDS[col.key]
+                ? Number(movement[ACTUAL_AMOUNT_FIELDS[col.key]] || 0)
+                : (movement.latest_rate || 0) * qty;
           });
 
           // Quantity total

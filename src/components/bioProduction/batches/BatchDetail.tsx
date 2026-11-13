@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { ArrowBackOutlined, DeleteOutlined, EditOutlined } from '@mui/icons-material';
-import { Box, Button, Card, Dialog, IconButton, LinearProgress, Stack, Tab, Tabs, Tooltip, Typography, useMediaQuery } from '@mui/material';
+import { Alert, Box, Button, Card, Dialog, IconButton, LinearProgress, Stack, Tab, Tabs, Tooltip, Typography, useMediaQuery } from '@mui/material';
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 import { useJumboDialog } from '@jumbo/components/JumboDialog/hooks/useJumboDialog';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -23,12 +23,15 @@ import { usePagedBatchList } from './usePagedBatchList';
 import { PERMISSIONS } from '@/utilities/constants/permissions';
 import BioGate from '../BioGate';
 import { useBioAccess } from '../useBioAccess';
+import { useBioMoney } from '../useBioMoney';
+import { stamp } from '../dateTime';
 import AdvanceDialog from './dialogs/AdvanceDialog';
 import CloseDialog from './dialogs/CloseDialog';
 import EditDialog from './dialogs/EditDialog';
 import StageDateDialog from './dialogs/StageDateDialog';
 import ExpenseDialog from './dialogs/ExpenseDialog';
 import HarvestDialog from './dialogs/HarvestDialog';
+import MergeDialog from './dialogs/MergeDialog';
 import ProduceDialog from './dialogs/ProduceDialog';
 import EditInputRecordDialog from './dialogs/EditInputRecordDialog';
 import InputDialog from './dialogs/InputDialog';
@@ -37,12 +40,13 @@ import TransferDialog from './dialogs/TransferDialog';
 import WeightDialog from './dialogs/WeightDialog';
 import WriteOffDialog from './dialogs/WriteOffDialog';
 
-type DialogName = 'mortality' | 'weight' | 'input' | 'expense' | 'transfer' | 'advance' | 'undoStage' | 'writeOff' | 'harvest' | 'produce' | 'close' | 'edit';
+type DialogName = 'mortality' | 'weight' | 'input' | 'expense' | 'transfer' | 'advance' | 'undoStage' | 'merge' | 'writeOff' | 'harvest' | 'produce' | 'close' | 'edit';
 type TabName = 'summary' | 'stages' | 'inputs' | 'costs' | 'mortality' | 'weights' | 'movements' | 'outcomes' | 'produce';
 
 const BatchDetailContent = () => {
   const bio = useDictionary().bioProduction;
   const access = useBioAccess().batches;
+  const money = useBioMoney();
   const text = bio.batches;
   const { lang, id } = useParams<{ lang: string; id: string }>();
   const batchId = Number(id);
@@ -94,6 +98,7 @@ const BatchDetailContent = () => {
   const { mutate: removeProduce } = useMutation({ mutationFn: batchServices.deleteProduce, onSuccess: onRemoved, onError: onRemoveError });
   const { mutate: removeExpense } = useMutation({ mutationFn: batchServices.deleteExpense, onSuccess: onRemoved, onError: onRemoveError });
 
+  const { mutate: undoMerge } = useMutation({ mutationFn: batchServices.undoMerge, onSuccess: onRemoved, onError: onRemoveError });
   const { mutate: undoStage } = useMutation({ mutationFn: batchServices.undoStage, onSuccess: onRemoved, onError: onRemoveError });
 
   const { mutate: removeBatch } = useMutation({
@@ -122,7 +127,7 @@ const BatchDetailContent = () => {
   // Each action sits on the tab it belongs to, as on a project's profile; a closed batch has none.
   const tabActions: Partial<Record<TabName, TabAction[]>> = open
     ? {
-        stages: access.manage ? [...((batch.stages ?? []).length > 1 ? [act('undoStage', text.actions.undoStage)] : []), act('advance', text.actions.advance, 'contained')] : [],
+        stages: access.manage ? [...((batch.stages ?? []).length > 1 ? [act('undoStage', text.actions.undoStage)] : []), act('merge', text.actions.merge), act('advance', text.actions.advance, 'contained')] : [],
         inputs: access.record ? [act('input', text.actions.input, 'contained')] : [],
         costs: access.record ? [act('expense', text.actions.expense, 'contained')] : [],
         mortality: access.record ? [act('mortality', text.actions.mortality, 'contained')] : [],
@@ -157,6 +162,21 @@ const BatchDetailContent = () => {
           <Button size='small' variant='outlined' color='error' startIcon={<DeleteOutlined />} onClick={() => confirm(text.dialogs.confirmDeleteBatch, () => removeBatch(batchId))}>{text.actions.delete}</Button>
         )}
       </Stack>
+
+      {batch.merged_into && (
+        <Alert severity='info' sx={{ mb: 2 }} action={access.manage ? <Button color='inherit' size='small' onClick={() => confirm(text.dialogs.confirmUndoMerge, () => undoMerge({ id: batchId }))}>{text.actions.undoMerge}</Button> : undefined}>
+          {text.merge.mergedInto.replace('{count}', batch.merged_into.quantity.toLocaleString()).replace('{date}', stamp(batch.merged_into.merge_date))}{' '}
+          <Link href={`/${lang}/bioProduction/batches/${batch.merged_into.into_batch_id}`}>{batch.merged_into.into_batch?.batchNo ?? `#${batch.merged_into.into_batch_id}`}</Link>
+          {batch.merged_into.cost_amount != null ? ` · ${text.merge.costCarried.replace('{amount}', money(batch.merged_into.cost_amount))}` : ''}
+        </Alert>
+      )}
+      {(batch.merges_in ?? []).map((merge) => (
+        <Alert key={merge.id} severity='info' sx={{ mb: 2 }}>
+          {text.merge.mergesIn.replace('{count}', merge.quantity.toLocaleString()).replace('{date}', stamp(merge.merge_date))}{' '}
+          <Link href={`/${lang}/bioProduction/batches/${merge.from_batch_id}`}>{merge.from_batch?.batchNo ?? `#${merge.from_batch_id}`}</Link>
+          {merge.cost_amount != null ? ` · ${text.merge.costCarried.replace('{amount}', money(merge.cost_amount))}` : ''}
+        </Alert>
+      ))}
 
       <Card>
         <Tabs value={tab} onChange={(_, value) => setTab(value)} variant='scrollable' scrollButtons='auto'>
@@ -271,6 +291,7 @@ const BatchDetailContent = () => {
           <ExpenseDialog batch={batch} open={dialog === 'expense'} onClose={close} />
           <TransferDialog batch={batch} open={dialog === 'transfer'} onClose={close} />
           <AdvanceDialog batch={batch} open={dialog === 'advance'} onClose={close} />
+          <MergeDialog batch={batch} open={dialog === 'merge'} onClose={close} />
           <WriteOffDialog batch={batch} open={dialog === 'writeOff'} onClose={close} />
           <ProduceDialog batch={batch} open={dialog === 'produce'} onClose={close} />
           <HarvestDialog batch={batch} open={dialog === 'harvest'} onClose={close} />
