@@ -418,6 +418,7 @@ const TimelineActivityAccordion = memo(function TimelineActivityAccordion({ acti
 });
 
 function WBSListItem() {
+  const dictionary = useDictionary();
   const { projectTimelineActivities } = useProjectProfile();
   const [openDialog, setOpenDialog] = useState(false);
   const [expandedById, setExpandedById] = useState({});

@@ -524,6 +524,9 @@ function ProjectDashboard() {
   const params = {
     as_at: dayjs().toISOString(),
     cost_center_ids: [project?.cost_center?.id ?? project?.id],
+    // Only this project's own postings - not journals that carry no cost center, which the
+    // organization-wide reports count in every selection.
+    only_tagged_journals: true,
   };
   const { data: creditors, isLoading: liabilitesLoading } = useQuery({
     queryKey: [project?.id, 'creditors'],
@@ -1759,6 +1762,125 @@ function ProjectDashboard() {
                               <TableCell>{stock.category}</TableCell>
                               <TableCell align='right'>
                                 {formatCurrency(stock.value)}
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </TableContainer>
+                  )}
+                </AccordionDetails>
+              </Accordion>
+
+              <Accordion
+                expanded={expandedCommittedSection === 'subcontracts'}
+                onChange={(e, isExpanded) =>
+                  setExpandedCommittedSection(
+                    isExpanded ? 'subcontracts' : false
+                  )
+                }
+              >
+                <AccordionSummary expandIcon={<ExpandMoreOutlined />}>
+                  <Box
+                    display='flex'
+                    justifyContent='space-between'
+                    alignItems='center'
+                    width='100%'
+                    pr={1}
+                  >
+                    <Typography>
+                      {dictionary.projectManagement.dashboard.subcontractWorkNotCertified}
+                    </Typography>
+                    <Typography fontWeight={600}>
+                      {formatCurrency(commitments?.committed_subcontracts)}
+                    </Typography>
+                  </Box>
+                </AccordionSummary>
+                <AccordionDetails>
+                  {belowSmallScreen ? (
+                    <Box mb={3}>
+                      {(commitments?.subcontracts || []).length === 0 && (
+                        <Alert severity='info'>
+                          {dictionary.projectManagement.dashboard.noUncertifiedSubcontractWork}
+                        </Alert>
+                      )}
+                      {(commitments?.subcontracts || []).map((row) => (
+                        <Card
+                          key={`${row.project_subcontract_id}-${row.project_task_id}`}
+                          variant='outlined'
+                          sx={{ mb: 1 }}
+                        >
+                          <CardContent sx={{ pb: '12px !important' }}>
+                            <Typography variant='subtitle2'>
+                              {row.task_name}
+                            </Typography>
+                            <Typography variant='body2' color='text.secondary'>
+                              {row.subcontract_no}
+                              {row.subcontractor && ` · ${row.subcontractor}`}
+                            </Typography>
+                            <Divider sx={{ my: 1 }} />
+                            <Grid container spacing={1}>
+                              <Grid size={6}>
+                                <Typography variant='caption' color='text.secondary'>
+                                  {dictionary.projectManagement.dashboard.uncertifiedQty}
+                                </Typography>
+                                <Typography variant='body2'>
+                                  {Number(row.uncertified_quantity).toLocaleString(undefined, { maximumFractionDigits: 3 })}
+                                </Typography>
+                              </Grid>
+                              <Grid size={6}>
+                                <Typography variant='caption' color='text.secondary'>
+                                  {dictionary.projectManagement.dashboard.value}
+                                </Typography>
+                                <Typography variant='body2'>
+                                  {formatCurrencyIn(row.amount, row.currency)}
+                                </Typography>
+                              </Grid>
+                            </Grid>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </Box>
+                  ) : (
+                    <TableContainer sx={{ mb: 3 }}>
+                      <Table size='small'>
+                        <TableHead>
+                          <TableRow>
+                            <TableCell>{dictionary.projectManagement.dashboard.subcontractRef}</TableCell>
+                            <TableCell>{dictionary.projectManagement.dashboard.subcontractorLabel}</TableCell>
+                            <TableCell>{dictionary.projectManagement.dashboard.subcontractTask}</TableCell>
+                            <TableCell align='right'>{dictionary.projectManagement.dashboard.executedQty}</TableCell>
+                            <TableCell align='right'>{dictionary.projectManagement.dashboard.certifiedQty}</TableCell>
+                            <TableCell align='right'>{dictionary.projectManagement.dashboard.uncertifiedQty}</TableCell>
+                            <TableCell align='right'>{dictionary.projectManagement.dashboard.value}</TableCell>
+                          </TableRow>
+                        </TableHead>
+                        <TableBody>
+                          {(commitments?.subcontracts || []).length === 0 && (
+                            <TableRow>
+                              <TableCell colSpan={7} align='center'>
+                                {dictionary.projectManagement.dashboard.noUncertifiedSubcontractWork}
+                              </TableCell>
+                            </TableRow>
+                          )}
+                          {(commitments?.subcontracts || []).map((row) => (
+                            <TableRow
+                              key={`${row.project_subcontract_id}-${row.project_task_id}`}
+                            >
+                              <TableCell>{row.subcontract_no}</TableCell>
+                              <TableCell>{row.subcontractor}</TableCell>
+                              <TableCell>{row.task_name}</TableCell>
+                              <TableCell align='right'>
+                                {Number(row.executed_quantity).toLocaleString(undefined, { maximumFractionDigits: 3 })}
+                              </TableCell>
+                              <TableCell align='right'>
+                                {Number(row.certified_quantity).toLocaleString(undefined, { maximumFractionDigits: 3 })}
+                              </TableCell>
+                              <TableCell align='right'>
+                                {Number(row.uncertified_quantity).toLocaleString(undefined, { maximumFractionDigits: 3 })}
+                              </TableCell>
+                              <TableCell align='right'>
+                                {formatCurrencyIn(row.amount, row.currency)}
                               </TableCell>
                             </TableRow>
                           ))}

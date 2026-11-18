@@ -521,7 +521,7 @@ const TransactionItemForm: React.FC<TransactionItemFormProps> = ({
                 frontError={errors.credit_ledger_id}
                 allowedGroups={
                   isReceipt
-                    ? ['Accounts Receivable', 'Accounts Payable', 'Capital', 'Current Assets', 'Current Liabilities']
+                    ? ['Accounts Receivable', 'Accounts Payable', 'Capital', 'Current Assets', 'Liabilities']
                     : []
                 }
                 defaultValue={ungroupedLedgerOptions.find(
