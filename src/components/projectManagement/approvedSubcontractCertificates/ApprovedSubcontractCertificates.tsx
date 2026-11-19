@@ -1,21 +1,21 @@
 'use client';
 
-import React from 'react';
-import { Card, Grid, Typography } from '@mui/material';
-import JumboRqList from '@jumbo/components/JumboReactQuery/JumboRqList/JumboRqList';
-import JumboSearch from '@jumbo/components/JumboSearch/JumboSearch';
-import JumboListToolbar from '@jumbo/components/JumboList/components/JumboListToolbar/JumboListToolbar';
-import { useSearchParams } from 'next/navigation';
-import projectsServices from '@/components/projectManagement/projects/project-services';
-import { getSanitizedSearchKeyword } from '@/utilities/getSanitizedSearchKeyword';
 import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import ProjectDocumentFilters, {
   DocumentFilters,
   documentFiltersToQueryParams,
   EMPTY_DOCUMENT_FILTERS,
 } from '@/components/projectManagement/ProjectDocumentFilters';
-import ApprovedSubcontractCertificatesListItem from './ApprovedSubcontractCertificatesListItem';
 import { Certificate } from '@/components/projectManagement/projects/profile/subcontracts/tabs/certificatesTab/CertificateType';
+import projectsServices from '@/components/projectManagement/projects/project-services';
+import { getSanitizedSearchKeyword } from '@/utilities/getSanitizedSearchKeyword';
+import JumboListToolbar from '@jumbo/components/JumboList/components/JumboListToolbar/JumboListToolbar';
+import JumboRqList from '@jumbo/components/JumboReactQuery/JumboRqList/JumboRqList';
+import JumboSearch from '@jumbo/components/JumboSearch/JumboSearch';
+import { Card, Grid, Typography } from '@mui/material';
+import { useSearchParams } from 'next/navigation';
+import React from 'react';
+import ApprovedSubcontractCertificatesListItem from './ApprovedSubcontractCertificatesListItem';
 
 // Org-wide list of every certificate regardless of status (draft, in_review, returned,
 // approved, invoiced) - status is shown per-row via status_label, so there's no need to filter
@@ -76,13 +76,16 @@ const ApprovedSubcontractCertificates: React.FC = () => {
     setFilters(next);
     setQueryOptions((prev) => ({
       ...prev,
-      queryParams: { ...prev.queryParams, ...documentFiltersToQueryParams(next) },
+      queryParams: {
+        ...prev.queryParams,
+        ...documentFiltersToQueryParams(next),
+      },
     }));
   }, []);
 
   return (
     <>
-      <Typography variant="h4" mb={2}>
+      <Typography variant='h4' mb={2}>
         {dictionary.projectManagement.approvedCertificates.title}
       </Typography>
 
@@ -90,29 +93,34 @@ const ApprovedSubcontractCertificates: React.FC = () => {
         ref={listRef}
         wrapperComponent={Card}
         service={projectsServices.getApprovedSubcontractCertificates}
-        primaryKey="id"
+        primaryKey='id'
         queryOptions={queryOptions}
         itemsPerPage={20}
         itemsPerPageOptions={[10, 20, 30, 50]}
         renderItem={renderCertificate}
-        componentElement="div"
+        componentElement='div'
         wrapperSx={{ flex: 1, display: 'flex', flexDirection: 'column' }}
         toolbar={
           <JumboListToolbar
             hideItemsPerPage
             action={
-              <Grid container columnSpacing={1} rowSpacing={1} justifyContent="end">
+              <Grid
+                container
+                columnSpacing={1}
+                rowSpacing={1}
+                justifyContent='end'
+              >
                 <ProjectDocumentFilters
                   value={filters}
                   onChange={handleFiltersChange}
                 />
-                <Grid size={{ xs: 11, lg: 5.5 }}>
-                  <JumboSearch
-                    onChange={handleOnChange}
-                    value={queryOptions.queryParams.keyword}
-                  />
-                </Grid>
               </Grid>
+            }
+            actionTail={
+              <JumboSearch
+                onChange={handleOnChange}
+                value={queryOptions.queryParams.keyword}
+              />
             }
           />
         }

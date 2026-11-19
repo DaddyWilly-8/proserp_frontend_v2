@@ -18,7 +18,7 @@ import {
   Typography,
   Alert,
 } from '@mui/material';
-import { InfoOutlined } from '@mui/icons-material';
+import { AddOutlined, InfoOutlined } from '@mui/icons-material';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSnackbar } from 'notistack';
 import React, { useState } from 'react';
@@ -28,12 +28,15 @@ import dayjs from 'dayjs';
 import { DatePicker } from '@mui/x-date-pickers';
 import LedgerSelect from '@/components/accounts/ledgers/forms/LedgerSelect';
 import ProductSelect from '@/components/productAndServices/products/ProductSelect';
+import ProductQuickAdd from '@/components/productAndServices/products/ProductQuickAdd';
+import ProductsProvider from '@/components/productAndServices/products/ProductsProvider';
 import { useProductsSelect } from '@/components/productAndServices/products/ProductsSelectProvider';
 import StoreSelector from '@/components/procurement/stores/StoreSelector';
 import EmployeeSelector from '@/components/humanResources/employees/EmployeeSelector';
 import CostCenterSelector from '@/components/masters/costCenters/CostCenterSelector';
 import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
 import { MODULES } from '@/utilities/constants/modules';
+import { PERMISSIONS } from '@/utilities/constants/permissions';
 import CommaSeparatedField from '@/shared/Inputs/CommaSeparatedField';
 import { sanitizedNumber } from '@/app/helpers/input-sanitization-helpers';
 import assetsServices from './assets-services';
@@ -83,7 +86,7 @@ const AssetFormDialogContent: React.FC<AssetFormDialogContentProps> = ({
   const dictionary = useDictionary();
   const { productOptions } = useProductsSelect();
   const assetProducts = productOptions.filter((p: any) => p.type === 'Asset');
-  const { organizationHasSubscribed, authOrganization } = useJumboAuth();
+  const { organizationHasSubscribed, authOrganization, checkOrganizationPermission } = useJumboAuth();
   const hrSubscribed = organizationHasSubscribed(MODULES.HUMAN_RESOURCES);
   const bookingsSubscribed = organizationHasSubscribed(MODULES.ASSET_BOOKINGS);
   const multiCostCenters = authOrganization?.costCenters?.length > 1;
@@ -92,6 +95,10 @@ const AssetFormDialogContent: React.FC<AssetFormDialogContentProps> = ({
   const financialsLocked = mode === 'edit' && hasDepreciationHistory;
 
   const [postJournal, setPostJournal] = useState(false);
+  // Register a new asset product without leaving the form (only for users allowed to create products)
+  const [openProductQuickAdd, setOpenProductQuickAdd] = useState(false);
+  const [addedProduct, setAddedProduct] = useState<any>(null);
+  const canQuickAddProduct = mode === 'create' && checkOrganizationPermission([PERMISSIONS.PRODUCTS_CREATE]);
 
   const addAsset = useMutation({
     mutationFn: assetsServices.add,
@@ -227,7 +234,36 @@ const AssetFormDialogContent: React.FC<AssetFormDialogContentProps> = ({
       <DialogTitle>{title}</DialogTitle>
       <DialogContent>
         <Grid container p={1} spacing={1} rowGap={1}>
-          {mode !== 'activate' && (
+          {mode !== 'activate' && openProductQuickAdd && (
+            <>
+              <Grid size={12}>
+                <Typography variant="subtitle2" color="text.secondary">
+                  {dictionary.forms.purchases.itemForm.titles.quickProductRegistration}
+                </Typography>
+              </Grid>
+              {/* Enter in one of its fields must not submit the asset form behind it */}
+              <Grid
+                size={12}
+                onKeyDown={(event: React.KeyboardEvent) => {
+                  if (event.key === 'Enter' && (event.target as HTMLElement).tagName === 'INPUT') {
+                    event.preventDefault();
+                  }
+                }}
+              >
+                <Grid container spacing={1}>
+                  <ProductsProvider>
+                    <ProductQuickAdd
+                      fixedType="Asset"
+                      setOpen={setOpenProductQuickAdd}
+                      setAddedProduct={setAddedProduct}
+                    />
+                  </ProductsProvider>
+                </Grid>
+              </Grid>
+            </>
+          )}
+          {mode !== 'activate' && !openProductQuickAdd && (
+
             <>
               <Grid size={12}>
                 <Typography variant="subtitle2" color="text.secondary">{dictionary.register.form.sections.product}</Typography>
@@ -238,6 +274,14 @@ const AssetFormDialogContent: React.FC<AssetFormDialogContentProps> = ({
                   disabled={mode === 'edit'}
                   allowedTypes={['Asset']}
                   showType={false}
+                  addedProduct={addedProduct}
+                  startAdornment={
+                    canQuickAddProduct && (
+                      <Tooltip title={dictionary.tooltips.addNewProduct}>
+                        <AddOutlined onClick={() => setOpenProductQuickAdd(true)} sx={{ cursor: 'pointer' }} />
+                      </Tooltip>
+                    )
+                  }
                   defaultValue={assetProducts.find((p: any) => p.id === asset?.product_item?.product?.id) || null}
                   onChange={(newValue: any) => {
                     setValue('product_id', newValue ? newValue.id : null, { shouldValidate: true, shouldDirty: true });

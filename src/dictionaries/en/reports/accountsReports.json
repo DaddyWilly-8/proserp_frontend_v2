@@ -21,6 +21,7 @@
       "day": "Day",
       "week": "Week",
       "month": "Month",
+      "quarter": "Quarter",
       "year": "Year",
       "serialNumber": "S/N",
       "opening": "Opening",

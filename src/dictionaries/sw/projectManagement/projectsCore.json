@@ -345,6 +345,8 @@
     "projectStatusReport": "Ripoti ya Hali ya Mradi"
   },
   "documentFilters": {
+    "filterDates": "Chuja kwa tarehe",
+    "hideDates": "Ficha vichujio vya tarehe",
     "from": "Kuanzia",
     "to": "Hadi",
     "clearFilters": "Futa Vichujio",

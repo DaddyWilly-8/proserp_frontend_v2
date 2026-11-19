@@ -31,7 +31,10 @@ const PRODUCT_TYPES = [
   { name: 'Asset' },
 ];
 
-function ProductQuickAdd({ setOpen, setAddedProduct }) {
+// fixedType: register only this type of product (e.g. 'Asset' from the Asset Register) - the type is
+// preset and can't be changed.
+/** @param {{ setOpen: Function, setAddedProduct: Function, fixedType?: string | null }} props */
+function ProductQuickAdd({ setOpen, setAddedProduct, fixedType = null }) {
   const dictionary = useDictionary();
   //Screen handling constants
   const { theme } = useJumboTheme();
@@ -135,6 +138,7 @@ function ProductQuickAdd({ setOpen, setAddedProduct }) {
     resolver: yupResolver(validationSchema),
     defaultValues: {
       vat_exempted: false,
+      ...(fixedType ? { type: fixedType } : {}),
     },
   });
 
@@ -188,6 +192,13 @@ function ProductQuickAdd({ setOpen, setAddedProduct }) {
             getOptionLabel={(option) => dictionary.forms.products.form.types[option.name] || option.name}
             isOptionEqualToValue={(option, value) => option.name === value.name}
             options={productTypeOptions}
+            {...(fixedType
+              ? {
+                  value: productTypeOptions.find((option) => option.name === fixedType) ?? { name: fixedType },
+                  disabled: true,
+                  disableClearable: true,
+                }
+              : {})}
             renderInput={(params) => (
               <TextField
                 {...params}
@@ -385,7 +396,7 @@ function ProductQuickAdd({ setOpen, setAddedProduct }) {
         <Div sx={{ mt: 1, mb: 1 }}>
           <Button onClick={() => setOpen(false)}>{dictionary.forms.products.quickAdd.buttons.cancel}</Button>
           <LoadingButton
-            type='submit'
+            type='button'
             loading={addProduct.isPending}
             onClick={handleSubmit(saveMutation)}
             variant='contained'

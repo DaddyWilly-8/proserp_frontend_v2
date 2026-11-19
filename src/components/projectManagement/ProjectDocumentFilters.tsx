@@ -1,6 +1,11 @@
 'use client';
 
-import React from 'react';
+import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
+import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
+import CostCenterSelector from '@/components/masters/costCenters/CostCenterSelector';
+import { CostCenter } from '@/components/masters/costCenters/CostCenterType';
+import RequisitionsWaitingForSelector from '@/components/processApproval/RequisitionsWaitingForSelector';
+import { FilterAltOffOutlined, FilterAltOutlined } from '@mui/icons-material';
 import {
   Autocomplete,
   Chip,
@@ -9,13 +14,9 @@ import {
   TextField,
   Tooltip,
 } from '@mui/material';
-import { FilterAltOffOutlined } from '@mui/icons-material';
 import { DatePicker } from '@mui/x-date-pickers';
 import { Dayjs } from 'dayjs';
-import { useJumboAuth } from '@/app/providers/JumboAuthProvider';
-import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
-import CostCenterSelector from '@/components/masters/costCenters/CostCenterSelector';
-import { CostCenter } from '@/components/masters/costCenters/CostCenterType';
+import React from 'react';
 
 export const DOCUMENT_STATUSES = [
   'draft',
@@ -29,6 +30,9 @@ export const DOCUMENT_STATUSES = [
 export interface DocumentFilters {
   statuses: string[];
   costCenters: CostCenter[];
+  waitingFor: number | null;
+  // Date range pickers are tucked behind a toggle (as on Requisitions); lives here so it survives toolbar re-renders.
+  showDates: boolean;
   from: Dayjs | null;
   to: Dayjs | null;
 }
@@ -36,6 +40,8 @@ export interface DocumentFilters {
 export const EMPTY_DOCUMENT_FILTERS: DocumentFilters = {
   statuses: [],
   costCenters: [],
+  waitingFor: null,
+  showDates: false,
   from: null,
   to: null,
 };
@@ -47,6 +53,7 @@ export const documentFiltersToQueryParams = (filters: DocumentFilters) => ({
   cost_center_ids: filters.costCenters.length
     ? filters.costCenters.map((c) => c.id).join(',')
     : undefined,
+  next_approval_role_id: filters.waitingFor ?? undefined,
   from: filters.from ? filters.from.format('YYYY-MM-DD') : undefined,
   to: filters.to ? filters.to.format('YYYY-MM-DD') : undefined,
 });
@@ -76,26 +83,66 @@ const ProjectDocumentFilters: React.FC<ProjectDocumentFiltersProps> = ({
   const statusLabel = (status: string): string =>
     (t.statuses as Record<string, string>)[status] ?? status;
 
-  // CostCenterSelector only applies a non-empty defaultValue, so clearing means remounting it.
-  const [selectorKey, setSelectorKey] = React.useState(0);
+  const toggleDates = () =>
+    onChange(
+      value.showDates
+        ? { ...value, showDates: false, from: null, to: null }
+        : { ...value, showDates: true }
+    );
 
-  const hasFilters =
-    value.statuses.length > 0 ||
-    value.costCenters.length > 0 ||
-    !!value.from ||
-    !!value.to;
-
-  const handleClear = () => {
-    setSelectorKey((key) => key + 1);
-    onChange(EMPTY_DOCUMENT_FILTERS);
-  };
-
+  // Same arrangement as the Requisitions toolbar: the date row (when opened) on top, then
+  // status / waiting for / cost center, then the filter toggle.
   return (
     <>
-      <Grid size={{ xs: 12, md: 6, lg: 3 }}>
+      {value.showDates && (
+        <Grid size={{ xs: 12 }}>
+          <Grid container spacing={1}>
+            <Grid size={{ xs: 12, md: 6 }}>
+              <DatePicker
+                label={t.from}
+                value={value.from}
+                maxDate={value.to ?? undefined}
+                format='DD/MM/YYYY'
+                onChange={(from: Dayjs | null) =>
+                  onChange({
+                    ...value,
+                    from: from && from.isValid() ? from : null,
+                  })
+                }
+                slotProps={{
+                  textField: { size: 'small', fullWidth: true },
+                  field: { clearable: true },
+                }}
+              />
+            </Grid>
+            <Grid size={{ xs: 12, md: 6 }}>
+              <DatePicker
+                label={t.to}
+                value={value.to}
+                minDate={value.from ?? undefined}
+                format='DD/MM/YYYY'
+                onChange={(to: Dayjs | null) =>
+                  onChange({ ...value, to: to && to.isValid() ? to : null })
+                }
+                slotProps={{
+                  textField: { size: 'small', fullWidth: true },
+                  field: { clearable: true },
+                }}
+              />
+            </Grid>
+          </Grid>
+        </Grid>
+      )}
+      <Grid
+        size={{
+          xs: 12,
+          md: multiCostCenters ? 3.5 : 6,
+          lg: multiCostCenters ? 4 : 6,
+        }}
+      >
         <Autocomplete
           multiple
-          size="small"
+          size='small'
           options={[...DOCUMENT_STATUSES] as string[]}
           value={value.statuses}
           getOptionLabel={statusLabel}
@@ -106,7 +153,7 @@ const ProjectDocumentFilters: React.FC<ProjectDocumentFiltersProps> = ({
               return (
                 <Chip
                   key={key}
-                  size="small"
+                  size='small'
                   label={statusLabel(status)}
                   {...tagProps}
                 />
@@ -116,10 +163,22 @@ const ProjectDocumentFilters: React.FC<ProjectDocumentFiltersProps> = ({
           renderInput={(params) => <TextField {...params} label={t.status} />}
         />
       </Grid>
+      <Grid
+        size={{
+          xs: multiCostCenters ? 12 : 11,
+          md: multiCostCenters ? 3.5 : 5,
+          lg: multiCostCenters ? 4 : 5.5,
+        }}
+        textAlign='center'
+      >
+        <RequisitionsWaitingForSelector
+          value={value.waitingFor}
+          onChange={(waitingFor) => onChange({ ...value, waitingFor })}
+        />
+      </Grid>
       {multiCostCenters && (
-        <Grid size={{ xs: 12, md: 6, lg: 3 }}>
+        <Grid size={{ xs: 11, md: 4, lg: 3.5 }}>
           <CostCenterSelector
-            key={selectorKey}
             label={t.costCenters}
             allowSameType={true}
             onlyTypes={['Project']}
@@ -135,43 +194,11 @@ const ProjectDocumentFilters: React.FC<ProjectDocumentFiltersProps> = ({
           />
         </Grid>
       )}
-      <Grid size={{ xs: 12, md: 6, lg: 3 }}>
-        <DatePicker
-          label={t.from}
-          value={value.from}
-          maxDate={value.to ?? undefined}
-          format="DD/MM/YYYY"
-          onChange={(from: Dayjs | null) =>
-            onChange({ ...value, from: from && from.isValid() ? from : null })
-          }
-          slotProps={{
-            textField: { size: 'small', fullWidth: true },
-            field: { clearable: true },
-          }}
-        />
-      </Grid>
-      <Grid size={{ xs: 12, md: 6, lg: 3 }}>
-        <DatePicker
-          label={t.to}
-          value={value.to}
-          minDate={value.from ?? undefined}
-          format="DD/MM/YYYY"
-          onChange={(to: Dayjs | null) =>
-            onChange({ ...value, to: to && to.isValid() ? to : null })
-          }
-          slotProps={{
-            textField: { size: 'small', fullWidth: true },
-            field: { clearable: true },
-          }}
-        />
-      </Grid>
       <Grid size={{ xs: 1, lg: 0.5 }}>
-        <Tooltip title={t.clearFilters}>
-          <span>
-            <IconButton size="small" disabled={!hasFilters} onClick={handleClear}>
-              <FilterAltOffOutlined />
-            </IconButton>
-          </span>
+        <Tooltip title={value.showDates ? t.hideDates : t.filterDates}>
+          <IconButton size='small' onClick={toggleDates}>
+            {value.showDates ? <FilterAltOffOutlined /> : <FilterAltOutlined />}
+          </IconButton>
         </Tooltip>
       </Grid>
     </>

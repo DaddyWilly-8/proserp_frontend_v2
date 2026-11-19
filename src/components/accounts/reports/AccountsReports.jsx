@@ -127,7 +127,11 @@ function AccountsReports() {
           // size (Opening/Current/Closing x Debit/Credit/Net needs the room);
           // below the large breakpoint they go full screen instead.
           maxWidth={
-            wideReport ? 'xl' : openCashierReport || openIncomeStatement ? 'lg' : 'md'
+            wideReport
+              ? 'xl'
+              : openCashierReport || openIncomeStatement || openCashFlow
+                ? 'lg'
+                : 'md'
           }
           fullScreen={
             (openBalanceSheet ||

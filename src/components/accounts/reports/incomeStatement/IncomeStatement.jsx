@@ -351,6 +351,9 @@ function IncomeStatement({
                     <MenuItem value='month'>
                       {dictionary.reports.accountsReports.common.month}
                     </MenuItem>
+                    <MenuItem value='quarter'>
+                      {dictionary.reports.accountsReports.common.quarter}
+                    </MenuItem>
                     <MenuItem value='year'>
                       {dictionary.reports.accountsReports.common.year}
                     </MenuItem>

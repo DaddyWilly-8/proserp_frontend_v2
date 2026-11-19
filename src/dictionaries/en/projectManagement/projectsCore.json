@@ -345,6 +345,8 @@
     "projectStatusReport": "Project Status Report"
   },
   "documentFilters": {
+    "filterDates": "Filter by dates",
+    "hideDates": "Hide date filters",
     "from": "From",
     "to": "To",
     "clearFilters": "Clear Filters",
