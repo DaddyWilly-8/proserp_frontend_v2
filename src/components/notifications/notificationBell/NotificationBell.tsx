@@ -27,6 +27,7 @@ import { useParams, useRouter } from 'next/navigation';
 import React from 'react';
 import notificationServices, { NotificationItem } from '../notification-services';
 import { timeAgo } from '../notification-helpers';
+import { usePendingApprovalCounts } from '@/components/processApproval/pendingApprovals/usePendingApprovalCounts';
 
 const JumboDdPopover = dynamic(
   () => import('@jumbo/components').then((mod) => mod.JumboDdPopover),
@@ -48,6 +49,11 @@ const NotificationBell = () => {
     queryKey: UNREAD_COUNT_KEY,
     queryFn: notificationServices.getUnreadCount
   });
+
+  // Approvals awaiting this user are added to the bell so it never reads
+  // "all caught up" while sign-offs are outstanding.
+  const { total: pendingApprovals } = usePendingApprovalCounts();
+  const badgeTotal = unreadCount + pendingApprovals;
 
   const { data: recentData, isLoading } = useQuery({
     queryKey: RECENT_LIST_KEY,
@@ -108,7 +114,7 @@ const NotificationBell = () => {
       <JumboDdPopover
         triggerButton={
           <IconButton sx={{ width: 40, height: 40 }}>
-            <Badge badgeContent={unreadCount} color='error' max={99}>
+            <Badge badgeContent={badgeTotal} color='error' max={99}>
               <NotificationsOutlinedIcon sx={{ fontSize: '1.25rem' }} />
             </Badge>
           </IconButton>
@@ -117,7 +123,14 @@ const NotificationBell = () => {
         <Div sx={{ width: 360, maxWidth: '100%' }}>
           <CardHeader
             title='Notifications'
-            subheader={unreadCount > 0 ? `${unreadCount} unread` : 'All caught up'}
+            subheader={
+              badgeTotal > 0
+                ? [
+                    unreadCount > 0 && `${unreadCount} unread`,
+                    pendingApprovals > 0 && `${pendingApprovals} awaiting your approval`,
+                  ].filter(Boolean).join(' · ')
+                : 'All caught up'
+            }
             action={
               <Stack direction='row' spacing={0.5}>
                 {unreadCount > 0 && (

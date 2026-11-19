@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Card, Typography } from '@mui/material';
+import { Card, Grid, Typography } from '@mui/material';
 import JumboRqList from '@jumbo/components/JumboReactQuery/JumboRqList/JumboRqList';
 import JumboSearch from '@jumbo/components/JumboSearch/JumboSearch';
 import JumboListToolbar from '@jumbo/components/JumboList/components/JumboListToolbar/JumboListToolbar';
@@ -9,6 +9,11 @@ import { useSearchParams } from 'next/navigation';
 import projectsServices from '@/components/projectManagement/projects/project-services';
 import { getSanitizedSearchKeyword } from '@/utilities/getSanitizedSearchKeyword';
 import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
+import ProjectDocumentFilters, {
+  DocumentFilters,
+  documentFiltersToQueryParams,
+  EMPTY_DOCUMENT_FILTERS,
+} from '@/components/projectManagement/ProjectDocumentFilters';
 import ApprovedProjectPaymentClaimsListItem from './ApprovedProjectPaymentClaimsListItem';
 import { ProjectClaim } from '@/components/projectManagement/projects/profile/claims/ProjectClaimType';
 
@@ -27,6 +32,10 @@ const ApprovedProjectPaymentClaims: React.FC = () => {
     queryKey: 'projectProjectClaims',
     queryParams: {
       keyword: '',
+      status: undefined as string | undefined,
+      cost_center_ids: undefined as string | undefined,
+      from: undefined as string | undefined,
+      to: undefined as string | undefined,
     },
     countKey: 'total',
     dataKey: 'data',
@@ -59,6 +68,18 @@ const ApprovedProjectPaymentClaims: React.FC = () => {
     }));
   }, []);
 
+  const [filters, setFilters] = React.useState<DocumentFilters>(
+    EMPTY_DOCUMENT_FILTERS
+  );
+
+  const handleFiltersChange = React.useCallback((next: DocumentFilters) => {
+    setFilters(next);
+    setQueryOptions((prev) => ({
+      ...prev,
+      queryParams: { ...prev.queryParams, ...documentFiltersToQueryParams(next) },
+    }));
+  }, []);
+
   return (
     <>
       <Typography variant="h4" mb={2}>
@@ -79,11 +100,19 @@ const ApprovedProjectPaymentClaims: React.FC = () => {
         toolbar={
           <JumboListToolbar
             hideItemsPerPage
-            actionTail={
-              <JumboSearch
-                onChange={handleOnChange}
-                value={queryOptions.queryParams.keyword}
-              />
+            action={
+              <Grid container columnSpacing={1} rowSpacing={1} justifyContent="end">
+                <ProjectDocumentFilters
+                  value={filters}
+                  onChange={handleFiltersChange}
+                />
+                <Grid size={{ xs: 11, lg: 5.5 }}>
+                  <JumboSearch
+                    onChange={handleOnChange}
+                    value={queryOptions.queryParams.keyword}
+                  />
+                </Grid>
+              </Grid>
             }
           />
         }

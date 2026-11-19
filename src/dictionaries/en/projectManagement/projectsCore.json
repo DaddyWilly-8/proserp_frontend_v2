@@ -344,6 +344,21 @@
     "title": "Project Management Reports",
     "projectStatusReport": "Project Status Report"
   },
+  "documentFilters": {
+    "from": "From",
+    "to": "To",
+    "clearFilters": "Clear Filters",
+    "status": "Status",
+    "costCenters": "Cost Centers",
+    "statuses": {
+      "draft": "Draft",
+      "in_review": "In Review",
+      "returned": "Returned",
+      "rejected": "Rejected",
+      "approved": "Approved",
+      "invoiced": "Invoiced"
+    }
+  },
   "approvedClaims": {
     "title": "Project Payment Claims",
     "draftPending": "Draft / Pending"

@@ -555,7 +555,7 @@ function PurchaseOrderListItemAction({ order }) {
           </Tooltip>
         )}
 
-      {organization?.settings?.defer_grn_billing &&
+      {!!organization?.settings?.defer_grn_billing &&
         !order.billed &&
         order.unbilled_amount > 0 &&
         checkOrganizationPermission(PERMISSIONS.SUPPLIER_BILLS_CREATE) && (

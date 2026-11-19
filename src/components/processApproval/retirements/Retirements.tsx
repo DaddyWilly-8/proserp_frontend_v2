@@ -19,6 +19,7 @@ import LedgerSelectProvider from '@/components/accounts/ledgers/forms/LedgerSele
 import CostCenterSelector from '../../masters/costCenters/CostCenterSelector';
 import { CostCenter } from '@/components/masters/costCenters/CostCenterType';
 import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
+import RequisitionsWaitingForSelector from '@/components/processApproval/RequisitionsWaitingForSelector';
 import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 
 interface FilterDate {
@@ -30,6 +31,7 @@ interface QueryParams {
   id?: string;
   keyword: string;
   cost_center_ids: number[];
+  next_approval_role_id: number | null;
   from?: string | null;
   to?: string | null;
 }
@@ -60,6 +62,7 @@ const Retirements = () => {
     queryParams: {
       id: params.id as string,
       keyword: getSanitizedSearchKeyword('Retirements', searchParams),
+      next_approval_role_id: null,
       cost_center_ids: authOrganization?.costCenters?.map((cost_center: CostCenter) => cost_center.id) || [],
     },
     countKey: 'total',
@@ -77,6 +80,13 @@ const Retirements = () => {
         ...state.queryParams,
         keyword: keyword,
       },
+    }));
+  }, []);
+
+  const handleOnWaitingForChange = useCallback((next_approval_role_id: number | null) => {
+    setQueryOptions((state) => ({
+      ...state,
+      queryParams: { ...state.queryParams, next_approval_role_id },
     }));
   }, []);
 
@@ -213,6 +223,12 @@ const Retirements = () => {
                       />
                     </Grid>
                   )}
+                  <Grid size={{ xs: 12, md: 6, lg: 3 }}>
+                    <RequisitionsWaitingForSelector
+                      value={queryOptions.queryParams.next_approval_role_id}
+                      onChange={handleOnWaitingForChange}
+                    />
+                  </Grid>
                   <Grid size={{ xs: 1, lg: 0.5 }}>
                     <Tooltip title={!openFilters ? 'Filter' : 'Clear Filters'}>
                       <IconButton size='small' onClick={handleClearFilters}>

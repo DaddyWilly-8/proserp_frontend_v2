@@ -58,6 +58,9 @@
       "title": "Balance Sheet",
       "category": "Category"
     },
+    "cashFlow": {
+      "title": "Cash Flow"
+    },
     "trialBalance": {
       "title": "Trial Balance",
       "costCenterLabel": "Cost Centers (leave empty for all)",

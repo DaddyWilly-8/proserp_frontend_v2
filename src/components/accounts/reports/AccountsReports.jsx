@@ -18,6 +18,7 @@ import {
   QueryStatsOutlined,
   ReceiptLongOutlined,
   ViewTimelineOutlined,
+  WaterfallChartOutlined,
 } from '@mui/icons-material';
 import {
   Button,
@@ -36,6 +37,7 @@ import DebtorCreditorReport from './debtorCreditor/DebtorCreditorReport';
 import ApArAgingReport from './agingReport/ApArAgingReport';
 import ReconciliationStatementReport from './reconciliationStatement/ReconciliationStatementReport';
 import IncomeStatement from './incomeStatement/IncomeStatement';
+import CashFlow from './cash flow/CashFlow';
 import TrialBalance from './trial balance/TrialBalance';
 import XReport from './zReport/ZReport';
 import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
@@ -50,6 +52,7 @@ function AccountsReports() {
   const [openCashierReport, setOpenCashierReport] = useState(false);
   const [openReceiptDialog, setOpenReceiptDialog] = useState(false);
   const [openTrialBalance, setOpenTrialBalance] = useState(false);
+  const [openCashFlow, setOpenCashFlow] = useState(false);
   const [openIncomeStatement, setOpenIncomeStatement] = useState(false);
 
   const [report, setReport] = useState(null);
@@ -76,6 +79,9 @@ function AccountsReports() {
     if (reportParam === 'trial-balance') {
       setReport(<TrialBalance setOpenTrialBalanceDialog={setOpenTrialBalance} />);
       setOpenTrialBalance(true);
+    } else if (reportParam === 'cash-flow') {
+      setReport(<CashFlow setOpenCashFlowDialog={setOpenCashFlow} />);
+      setOpenCashFlow(true);
     } else if (reportParam === 'income-statement') {
       setReport(<IncomeStatement setOpenIncomeStatementDialog={setOpenIncomeStatement} />);
       setOpenIncomeStatement(true);
@@ -128,6 +134,7 @@ function AccountsReports() {
               openCashierReport ||
               openIncomeStatement ||
               openDialog ||
+              openCashFlow ||
               openTrialBalance) &&
             belowLargeScreen
           }
@@ -137,6 +144,7 @@ function AccountsReports() {
             openBalanceSheet ||
             openCashierReport ||
             openTrialBalance ||
+            openCashFlow ||
             openIncomeStatement
           }
         >
@@ -153,6 +161,7 @@ function AccountsReports() {
                     setOpenReceiptDialog(false);
                     setOpenBalanceSheet(false);
                     setOpenTrialBalance(false);
+                    setOpenCashFlow(false);
                     setOpenCashierReport(false);
                     setOpenIncomeStatement(false);
                   }}
@@ -240,6 +249,28 @@ function AccountsReports() {
               <DeckOutlined sx={{ fontSize: '40px' }} />
               <Typography>
                 {dictionary.reports.accountsReports.trialBalance.title}
+              </Typography>
+            </Grid>
+            <Grid
+              sx={{
+                cursor: 'pointer',
+                '&:hover': {
+                  bgcolor: 'action.hover',
+                },
+              }}
+              size={{ xs: 6, md: 3, lg: 2 }}
+              p={1}
+              textAlign={'center'}
+              onClick={() => {
+                setReport(
+                  <CashFlow setOpenCashFlowDialog={setOpenCashFlow} />
+                );
+                setOpenCashFlow(true);
+              }}
+            >
+              <WaterfallChartOutlined sx={{ fontSize: '40px' }} />
+              <Typography>
+                {dictionary.reports.accountsReports.cashFlow.title}
               </Typography>
             </Grid>
             <Grid

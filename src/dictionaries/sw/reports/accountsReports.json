@@ -58,6 +58,9 @@
       "title": "Mizania",
       "category": "Kategoria"
     },
+    "cashFlow": {
+      "title": "Mtiririko wa Fedha"
+    },
     "trialBalance": {
       "title": "Mizania ya Majaribio",
       "costCenterLabel": "Vituo vya Gharama (acha wazi kwa vyote)",

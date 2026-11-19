@@ -14,6 +14,7 @@ import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import { useTranslation } from '@/hooks/useTranslation';
 import { Box } from '@mui/material';
 import JumboSearch from '@jumbo/components/JumboSearch';
+import { usePendingApprovalCounts } from '@/components/processApproval/pendingApprovals/usePendingApprovalCounts';
 
 const collapseMenusByModule = (items, dictionary) => {
     const homeLabel = dictionary.sidebar.menu.home;
@@ -42,6 +43,28 @@ const collapseMenusByModule = (items, dictionary) => {
         ];
     });
 };
+
+// Process Approval menu item (by the end of its uri) -> key in the pending-approvals counts.
+const PENDING_APPROVAL_URIS = {
+    '/requisitions': 'requisitions',
+    '/retirements': 'retirements',
+    '/humanResources/leave-requests': 'leave_requests',
+    '/humanResources/loan-requests': 'loan_requests',
+    '/humanResources/payroll-approvals': 'payroll_runs',
+};
+
+// Adds a `badge` (count awaiting the user's approval) to the matching items; a
+// parent shows the sum of its children so a collapsed section still signals work.
+const withPendingBadges = (items, counts) => items.map((item) => {
+    if (!item) return item;
+    if (Array.isArray(item.children) && item.children.length > 0) {
+        const children = withPendingBadges(item.children, counts);
+        const badge = children.reduce((sum, child) => sum + (child?.badge || 0), 0);
+        return { ...item, children, badge };
+    }
+    const key = Object.keys(PENDING_APPROVAL_URIS).find((suffix) => item.uri?.endsWith(suffix));
+    return key ? { ...item, badge: counts[PENDING_APPROVAL_URIS[key]] || 0 } : item;
+});
 
 const filterMenuItems = (items, searchTerm, translateLabel) => {
     const normalizedSearch = searchTerm?.trim().toLowerCase();
@@ -76,6 +99,7 @@ function Sidebar({ menus }) {
     const { t } = useTranslation();
     const [menuItems, setMenuItems] = React.useState(menus);
     const [searchTerm, setSearchTerm] = React.useState('');
+    const { counts: pendingCounts } = usePendingApprovalCounts();
     const { authOrganization, checkPermission, checkOrganizationPermission, organizationHasSubscribed, authUser } = useJumboAuth();
 
     React.useEffect(() => {
@@ -1241,8 +1265,8 @@ function Sidebar({ menus }) {
     }, [authOrganization, checkOrganizationPermission, authUser?.permissions, checkPermission, dictionary, menus, organizationHasSubscribed]);
 
     const visibleMenuItems = React.useMemo(() => {
-        return filterMenuItems(menuItems, searchTerm, (item) => t(item.label));
-    }, [menuItems, searchTerm, t]);
+        return filterMenuItems(withPendingBadges(menuItems, pendingCounts), searchTerm, (item) => t(item.label));
+    }, [menuItems, pendingCounts, searchTerm, t]);
 
     return (
         <React.Fragment>

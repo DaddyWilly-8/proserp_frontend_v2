@@ -20,6 +20,8 @@ interface CostCenterSelectorProps {
   frontError?: { message?: string } | null;
   removedCostCenters?: number[];
   removedCostCentersIds?: boolean;
+  // When set, only cost centers of these types (e.g. ['Project']) are offered.
+  onlyTypes?: string[];
   disabled?: boolean;
   readOnly?: boolean;
   allowSameType?: boolean;
@@ -38,6 +40,7 @@ function CostCenterSelector(props: CostCenterSelectorProps) {
     frontError = null,
     removedCostCenters = [],
     removedCostCentersIds = false,
+    onlyTypes,
     disabled = false,
     readOnly = false,
     allowSameType = false,
@@ -93,10 +96,12 @@ function CostCenterSelector(props: CostCenterSelectorProps) {
       ? [createNotSpecifiedOption()]
       : [];
 
-  // Filter out removed cost centers
+  // Filter out removed cost centers (and, when asked, anything but the given types)
   const filteredCostCenters = (costCenters: CostCenter[]) =>
     costCenters.filter(
-      (center) => !removedCostCenters.some((removed) => removed === center.id)
+      (center) =>
+        !removedCostCenters.some((removed) => removed === center.id) &&
+        (!onlyTypes || onlyTypes.includes(center.type))
     );
 
   // Projects (and Sales Outlets/Fuel Stations/Work Centers) auto-create a

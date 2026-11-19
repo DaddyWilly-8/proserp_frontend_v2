@@ -344,6 +344,21 @@
     "title": "Ripoti za Usimamizi wa Miradi",
     "projectStatusReport": "Ripoti ya Hali ya Mradi"
   },
+  "documentFilters": {
+    "from": "Kuanzia",
+    "to": "Hadi",
+    "clearFilters": "Futa Vichujio",
+    "status": "Hali",
+    "costCenters": "Vituo vya Gharama",
+    "statuses": {
+      "draft": "Rasimu",
+      "in_review": "Inapitiwa",
+      "returned": "Imerudishwa",
+      "rejected": "Imekataliwa",
+      "approved": "Imeidhinishwa",
+      "invoiced": "Imetolewa Ankara"
+    }
+  },
   "approvedClaims": {
     "title": "Madai ya Malipo ya Mradi",
     "draftPending": "Rasimu / Inasubiri"

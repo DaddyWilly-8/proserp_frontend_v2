@@ -4,6 +4,7 @@ import React from 'react';
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
+import NavBadge from "./NavBadge";
 import Collapse from "@mui/material/Collapse";
 import List from "@mui/material/List";
 import { Popover } from "@mui/material";
@@ -125,6 +126,8 @@ const JumboNavCollapsible = ({ item, translate, isNested = false, isSearchActive
             }}
           />
         )}
+        {!isMiniAndClosed && !open && <NavBadge count={item.badge} />}
+        {isMiniAndClosed && <NavBadge count={item.badge} dot />}
       </ListItemButton>
       {subMenus && !isMiniAndClosed && (
         <Collapse component="li" in={open} timeout="auto" unmountOnExit>

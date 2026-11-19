@@ -11,6 +11,7 @@ import { deviceType } from '@/utilities/helpers/user-agent-helpers';
 import { useJumboLayout } from '../JumboLayout/hooks';
 import { BackdropSpinner } from '@/shared/ProgressIndicators/BackdropSpinner';
 import AppIcon from '@/components/AppIcon';
+import NavBadge from './NavBadge';
 
 const menuBefore = {
   left: 0,
@@ -150,6 +151,8 @@ const JumboNavItem = ({ item, isNested, translate }) => {
               }}
             />
           )}
+          {!isMiniAndClosed && <NavBadge count={item.badge} />}
+          {isMiniAndClosed && <NavBadge count={item.badge} dot />}
         </Link>
       </ListItemButton>
       {isLoading && <BackdropSpinner isRouterTransfer />}
