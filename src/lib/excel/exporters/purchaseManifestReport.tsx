@@ -3,7 +3,7 @@ import { getExcelColumnName } from '../uitls';
 import { createWorkbook } from '../workBook';
 
 const NUM_FMT = '#,##0.00';
-const DATE_FMT = 'mmm dd, yyyy';
+const DATE_FMT = 'mmm dd, yyyy hh:mm';
 
 function getUserName(user: any): string {
   if (user?.name) return user.name;
@@ -71,8 +71,8 @@ export async function exportPurchaseManifestReportToExcel(exportedData: any) {
     ws.getColumn(getExcelColumnName(COL_SN)).width = 6;
     ws.getColumn(getExcelColumnName(COL_ORDER_NO)).width = 16;
     ws.getColumn(getExcelColumnName(COL_REFERENCE)).width = 18;
-    ws.getColumn(getExcelColumnName(COL_ORDER_DATE)).width = 16;
-    ws.getColumn(getExcelColumnName(COL_DATE_REQUIRED)).width = 16;
+    ws.getColumn(getExcelColumnName(COL_ORDER_DATE)).width = 20;
+    ws.getColumn(getExcelColumnName(COL_DATE_REQUIRED)).width = 20;
     ws.getColumn(getExcelColumnName(COL_SKU)).width = 14;
     ws.getColumn(getExcelColumnName(COL_BRAND)).width = 14;
     ws.getColumn(getExcelColumnName(COL_ITEM_NAME)).width = 26;
@@ -261,7 +261,10 @@ export async function exportPurchaseManifestReportToExcel(exportedData: any) {
       const setDate = (col: number, value: string | null) => {
         const cell = ws.getCell(`${getExcelColumnName(col)}${ROW}`);
         if (value) {
-          cell.value = new Date(value);
+          // Excel stores no timezone: shift to local time so the time shown
+          // matches what the on-screen report and PDF display.
+          const d = new Date(value);
+          cell.value = new Date(d.getTime() - d.getTimezoneOffset() * 60000);
           cell.numFmt = DATE_FMT;
         } else {
           cell.value = '-';
