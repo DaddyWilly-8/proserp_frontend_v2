@@ -138,7 +138,7 @@ export async function exportPurchaseManifestReportToExcel(exportedData: any) {
 
     addFilterRow(
       'Reporting Period',
-      `${filters.from ? new Date(filters.from).toDateString() : '-'} — ${filters.to ? new Date(filters.to).toDateString() : '-'}`
+      `${filters.from ? new Date(filters.from).toLocaleString() : '-'} — ${filters.to ? new Date(filters.to).toLocaleString() : '-'}`
     );
     addFilterRow('Filter Status', filters.status || 'All');
     if (filters.cost_centers && filters.cost_centers.length > 0) {

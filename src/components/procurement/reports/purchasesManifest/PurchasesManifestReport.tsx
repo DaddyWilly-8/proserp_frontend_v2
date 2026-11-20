@@ -27,7 +27,7 @@ import {
   Typography,
   useMediaQuery,
 } from '@mui/material';
-import { DatePicker } from '@mui/x-date-pickers';
+import { DateTimePicker } from '@mui/x-date-pickers';
 import dayjs from 'dayjs';
 import { useSnackbar } from 'notistack';
 import { useEffect, useState } from 'react';
@@ -190,7 +190,7 @@ const PurchasesManifestReport = ({
 
             <Grid size={{ xs: 12, md: 6 }}>
               <Div sx={{ mt: 0.3 }}>
-                <DatePicker
+                <DateTimePicker
                   label={dict.fromDate}
                   minDate={dayjs(
                     authOrganization?.organization.recording_start_date
@@ -218,7 +218,7 @@ const PurchasesManifestReport = ({
             </Grid>
             <Grid size={{ xs: 12, md: 6 }}>
               <Div sx={{ mt: 0.3 }}>
-                <DatePicker
+                <DateTimePicker
                   label={dict.toDate}
                   minDate={dayjs(
                     authOrganization?.organization.recording_start_date
