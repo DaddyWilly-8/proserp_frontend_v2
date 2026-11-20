@@ -9,6 +9,7 @@ import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAx
 import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
 import { fromGrams, normalizeUnit } from './weightUnit';
 import { useBioMoney } from './useBioMoney';
+import { animalText } from './animalText';
 
 export interface FeedProjectionData {
   days: number;
@@ -34,7 +35,7 @@ const num = (value: number, digits = 1) => Number(value).toLocaleString(undefine
  * The feed that open batches still need over the coming days, by feed product and week, from the stages' feeding plans.
  * `scope` and `load` say whether it is one batch (with a table by stage) or farms (with how many batches are included).
  */
-const FeedProjection = ({ scope, load, weightUnit, showCost, horizons = [30, 60, 90] }: { scope: string; load: (days: Horizon) => Promise<FeedProjectionData>; weightUnit?: string | null; showCost: boolean; horizons?: Horizon[] }) => {
+const FeedProjection = ({ scope, load, weightUnit, showCost, animalsLabel, horizons = [30, 60, 90] }: { animalsLabel?: string | null; scope: string; load: (days: Horizon) => Promise<FeedProjectionData>; weightUnit?: string | null; showCost: boolean; horizons?: Horizon[] }) => {
   const t = useDictionary().bioProduction.feedProjection;
   const { theme } = useJumboTheme();
   const money = useBioMoney();
@@ -234,7 +235,7 @@ const FeedProjection = ({ scope, load, weightUnit, showCost, horizons = [30, 60,
       {data.batches.length > 0 && onTemplate > 0 && <Alert severity='info' sx={{ mt: 1 }}>{(single ? t.growthTemplate : t.growthTemplateMany.replace('{count}', String(onTemplate)))}</Alert>}
       {overdue > 0 && <Alert severity='info' sx={{ mt: 1 }}>{t.overdue.replace('{count}', String(overdue))}</Alert>}
       {(noWeight > 0 || noPlan > 0 || noTable > 0) && <Alert severity='warning' sx={{ mt: 1 }}>{t.skipped.replace('{noWeight}', String(noWeight)).replace('{noPlan}', String(noPlan)).replace('{noTable}', String(noTable))}</Alert>}
-      <Typography variant='caption' color='text.secondary' display='block' mt={1}>{t.note}{canAmount ? ` ${t.amountNote}` : ''}{data.cycle ? ` ${t.cycleNote}` : ''} {t.rateHint}</Typography>
+      <Typography variant='caption' color='text.secondary' display='block' mt={1}>{t.note}{canAmount ? ` ${t.amountNote}` : ''}{data.cycle ? ` ${t.cycleNote}` : ''} {animalText(t.rateHint, animalsLabel ?? 'animals')}</Typography>
     </Box>
   );
 };

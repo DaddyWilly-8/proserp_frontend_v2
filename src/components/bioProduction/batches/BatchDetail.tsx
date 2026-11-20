@@ -24,6 +24,7 @@ import { PERMISSIONS } from '@/utilities/constants/permissions';
 import BioGate from '../BioGate';
 import { useBioAccess } from '../useBioAccess';
 import { useBioMoney } from '../useBioMoney';
+import { animalText } from '../animalText';
 import { stamp } from '../dateTime';
 import AdvanceDialog from './dialogs/AdvanceDialog';
 import CloseDialog from './dialogs/CloseDialog';
@@ -164,16 +165,21 @@ const BatchDetailContent = () => {
         )}
       </Stack>
 
-      {batch.merged_into && (
-        <Alert severity='info' sx={{ mb: 2 }} action={access.manage ? <Button color='inherit' size='small' onClick={() => confirm(text.dialogs.confirmUndoMerge, () => undoMerge({ id: batchId }))}>{text.actions.undoMerge}</Button> : undefined}>
-          {text.merge.mergedInto.replace('{count}', batch.merged_into.quantity.toLocaleString()).replace('{date}', stamp(batch.merged_into.merge_date))}{' '}
-          <Link href={`/${lang}/bioProduction/batches/${batch.merged_into.into_batch_id}`}>{batch.merged_into.into_batch?.batchNo ?? `#${batch.merged_into.into_batch_id}`}</Link>
-          {batch.merged_into.cost_amount != null ? ` · ${text.merge.costCarried.replace('{amount}', money(batch.merged_into.cost_amount))}` : ''}
+      {(batch.merges_out ?? []).length > 0 && (
+        <Alert severity='info' sx={{ mb: 2 }} action={access.manage ? <Button color='inherit' size='small' onClick={() => confirm(animalText(text.dialogs.confirmUndoMerge, batch.species_template?.count_label), () => undoMerge({ id: batchId }))}>{text.actions.undoMerge}</Button> : undefined}>
+          {(batch.merges_out ?? []).map((merge) => (
+            <Box key={merge.id}>
+              {animalText(text.merge.movedOut, batch.species_template?.count_label).replace('{count}', merge.quantity.toLocaleString()).replace('{date}', stamp(merge.merge_date))}{' '}
+              <Link href={`/${lang}/bioProduction/batches/${merge.into_batch_id}`}>{merge.into_batch?.batchNo ?? `#${merge.into_batch_id}`}</Link>
+              {merge.new_batch ? ` (${text.merge.newBatch})` : ''}
+              {merge.cost_amount != null ? ` · ${text.merge.costCarried.replace('{amount}', money(merge.cost_amount))}` : ''}
+            </Box>
+          ))}
         </Alert>
       )}
       {(batch.merges_in ?? []).map((merge) => (
         <Alert key={merge.id} severity='info' sx={{ mb: 2 }}>
-          {text.merge.mergesIn.replace('{count}', merge.quantity.toLocaleString()).replace('{date}', stamp(merge.merge_date))}{' '}
+          {animalText(text.merge.mergesIn, batch.species_template?.count_label).replace('{count}', merge.quantity.toLocaleString()).replace('{date}', stamp(merge.merge_date))}{' '}
           <Link href={`/${lang}/bioProduction/batches/${merge.from_batch_id}`}>{merge.from_batch?.batchNo ?? `#${merge.from_batch_id}`}</Link>
           {merge.cost_amount != null ? ` · ${text.merge.costCarried.replace('{amount}', money(merge.cost_amount))}` : ''}
         </Alert>

@@ -128,7 +128,7 @@ const BatchSummary = ({ batch }: { batch: Batch }) => {
 
       {batch.status !== 'closed' && !batch.end_date && (
         <Section title={bio.feedProjection.title} hint={bio.feedProjection.help}>
-          <FeedProjection horizons={[30, 60, 90, 'cycle']} scope={`batch-${batch.id}`} load={(days) => batchServices.getFeedProjection(batch.id, { days })} weightUnit={batch.species_template?.weight_unit} showCost={!!finance} />
+          <FeedProjection horizons={[30, 60, 90, 'cycle']} scope={`batch-${batch.id}`} load={(days) => batchServices.getFeedProjection(batch.id, { days })} weightUnit={batch.species_template?.weight_unit} animalsLabel={batch.species_template?.count_label} showCost={!!finance} />
         </Section>
       )}
 

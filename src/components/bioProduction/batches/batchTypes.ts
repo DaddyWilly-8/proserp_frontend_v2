@@ -53,7 +53,7 @@ export interface Batch {
   mortality_writeoffs?: { id: number; writeoff_date: string; kind: 'abnormal' | 'residual'; quantity: number; cost_per_fish: number | string; amount: number | string }[];
   harvests?: BatchHarvest[];
   merges_in?: BatchMerge[];
-  merged_into?: BatchMerge | null;
+  merges_out?: BatchMerge[];
   costs?: BatchCosts;
 }
 
@@ -65,21 +65,37 @@ export interface BatchMerge {
   merge_date: string;
   quantity: number;
   cost_amount?: number | string;
+  dissolved?: boolean;
+  new_batch?: boolean;
   from_batch?: { id: number; batchNo: string };
   into_batch?: { id: number; batchNo: string };
 }
 
+export interface MergePreviewTarget {
+  id: number | null;
+  batchNo: string | null;
+  new: boolean;
+  unit: string | null;
+  quantity: number;
+  current_quantity: number;
+  weight_g: number | null;
+  merged_weight_g: number | null;
+  total_quantity: number;
+  gap_pct: number | null;
+  warning: boolean;
+  cost_amount?: number;
+  cost_per_fish_after?: number | null;
+}
+
 export interface MergePreview {
   from: { id: number; batchNo: string; quantity: number; weight_g: number | null };
-  into: { id: number; batchNo: string; quantity: number; weight_g: number | null };
   stage: string;
-  total_quantity: number;
-  merged_weight_g: number | null;
-  gap_pct: number | null;
+  moving: number;
+  remaining: number;
+  targets: MergePreviewTarget[];
   warning: boolean;
   gap_limit_pct: number;
   cost_amount?: number;
-  cost_per_fish_after?: number | null;
 }
 
 export interface BatchHarvest {

@@ -28,6 +28,7 @@ import BioSelect, { useStatusOptions } from '../BioSelect';
 import InfoHint from '../InfoHint';
 import { useBioAccess } from '../useBioAccess';
 import NumberField from '../NumberField';
+import { animalText } from '../animalText';
 import ProductSelect from '@/components/productAndServices/products/ProductSelect';
 import { getErrorMessage } from '@/utilities/helpers/errorHandler';
 import { speciesTemplateServices } from '../bio-production-services';
@@ -167,6 +168,7 @@ const TemplateFormBody = ({ setOpenDialog, template }: { setOpenDialog: (open: b
   const inputCategories = useAllFarmInputCategories();
   const stagePurposes = useWatch({ control, name: 'stages' });
   const weightUnit = useWatch({ control, name: 'weight_unit' });
+  const countLabel = useWatch({ control, name: 'count_label' });
 
   // Changing the unit keeps the weights the same, only written in the new unit.
   const changeWeightUnit = (next: WeightUnit) => {
@@ -397,8 +399,8 @@ const TemplateFormBody = ({ setOpenDialog, template }: { setOpenDialog: (open: b
             <Grid size={12}>
               <Divider sx={{ my: 1 }} />
               <Stack direction='row' alignItems='center' spacing={0.5}>
-                <Typography variant='h5' mb={0}>{text.labels.feedingBands}</Typography>
-                <InfoHint text={text.help.feedingBands} />
+                <Typography variant='h5' mb={0}>{animalText(text.labels.feedingBands, countLabel)}</Typography>
+                <InfoHint text={animalText(text.help.feedingBands, countLabel)} />
               </Stack>
             </Grid>
             {bandFields.map((field, index) => (
