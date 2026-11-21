@@ -34,7 +34,7 @@ function ItemMovementOnScreen({ movementsData, authObject, baseCurrency }) {
   const { movements } = movementsData;
   const [openingBalanceTx, ...restTransactions] = movements;
 
-  const openingQty = openingBalanceTx?.quantity_in ?? 0;
+  const openingQty = (openingBalanceTx?.quantity_in ?? 0) - (openingBalanceTx?.quantity_out ?? 0); // negative when more left the selected cost centers than came in
   const openingAvgCost = openingBalanceTx?.average_cost ?? 0;
   const openingAmount = openingQty * openingAvgCost;
 
