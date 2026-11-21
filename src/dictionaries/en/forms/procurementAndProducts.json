@@ -226,7 +226,7 @@
     "stockAdjustment": {
       "titles": {
         "edit": "Edit: {adjustmentNo}",
-        "new": "New Stock Adjustment"
+        "new": "New Stock Adjustment for {storeName}"
       },
       "labels": {
         "adjustmentDate": "Adjustment Date (MM/DD/YYYY)",

@@ -226,7 +226,7 @@
     "stockAdjustment": {
       "titles": {
         "edit": "Hariri: {adjustmentNo}",
-        "new": "Marekebisho Mapya ya Hisa"
+        "new": "Marekebisho Mapya ya Hisa kwa {storeName}"
       },
       "labels": {
         "adjustmentDate": "Tarehe ya Marekebisho (MM/DD/YYYY)",

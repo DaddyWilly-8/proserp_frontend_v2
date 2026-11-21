@@ -137,7 +137,7 @@ function StockAdjustmentDialogForm({toggleOpen,stockAdjustment = null}) {
 
   return (
     <>
-      <DialogTitle textAlign={'center'}>{stockAdjustment ? dictionary.forms.stores.stockAdjustment.titles.edit.replace('{adjustmentNo}', stockAdjustment.adjustmentNo) : dictionary.forms.stores.stockAdjustment.titles.new}</DialogTitle>
+      <DialogTitle textAlign={'center'}>{stockAdjustment ? dictionary.forms.stores.stockAdjustment.titles.edit.replace('{adjustmentNo}', stockAdjustment.adjustmentNo) : dictionary.forms.stores.stockAdjustment.titles.new.replace('{storeName}', activeStore?.name || '')}</DialogTitle>
       <DialogContent>
         <form autoComplete='false'>
           <Grid container columnSpacing={1}>
