@@ -1,3 +1,6 @@
+import {
+  manifestAmounts,
+} from '@/components/procurement/reports/purchasesManifest/manifestAmounts';
 import { applyCellStyle, CELL_STYLES, getAlternatingRowFill } from '../styles';
 import { getExcelColumnName } from '../uitls';
 import { createWorkbook } from '../workBook';
@@ -52,9 +55,8 @@ export async function exportPurchaseManifestReportToExcel(exportedData: any) {
     > = items.reduce((acc: any, item: any) => {
       const code = item.currency?.code || 'TZS';
       const symbol = item.currency?.symbol || code;
-      const orderedAmt = (item.quantity_ordered || 0) * (item.rate || 0);
-      const receivedAmt = (item.quantity_received || 0) * (item.rate || 0);
-      const pendingAmt = orderedAmt - receivedAmt;
+      const { itemAmount: orderedAmt, receivedAmt, pendingAmt } =
+        manifestAmounts(item);
       if (!acc[code])
         acc[code] = { symbol, ordered: 0, received: 0, pending: 0 };
       acc[code].ordered += orderedAmt;
@@ -240,9 +242,12 @@ export async function exportPurchaseManifestReportToExcel(exportedData: any) {
       const fill = getAlternatingRowFill(index);
       const unitSymbol = item.measurement_unit?.symbol || '';
       const currencyFmt = `"${item.currency?.symbol || item.currency?.code || ''} "#,##0.00`;
-      const orderedAmt = (item.quantity_ordered || 0) * (item.rate || 0);
-      const receivedAmt = (item.quantity_received || 0) * (item.rate || 0);
-      const pendingAmt = orderedAmt - receivedAmt;
+      const {
+        billed,
+        itemAmount: orderedAmt,
+        receivedAmt,
+        pendingAmt,
+      } = manifestAmounts(item);
 
       const setTxt = (col: number, value: string) => {
         const cell = ws.getCell(`${getExcelColumnName(col)}${ROW}`);
@@ -290,12 +295,18 @@ export async function exportPurchaseManifestReportToExcel(exportedData: any) {
       setTxt(COL_STATUS, item.status || '-');
       setTxt(COL_VENDOR, item.vendor?.name || '-');
       setNum(COL_QTY_ORDERED, item.quantity_ordered || 0, qtyFormat(unitSymbol));
-      setNum(COL_QTY_RECEIVED, item.quantity_received || 0, qtyFormat(unitSymbol));
-      setNum(
-        COL_QTY_PENDING,
-        (item.quantity_ordered || 0) - (item.quantity_received || 0),
-        qtyFormat(unitSymbol)
-      );
+      if (billed) {
+        // Billed, not received into a store: no received quantity to show
+        setTxt(COL_QTY_RECEIVED, '-');
+        setTxt(COL_QTY_PENDING, '-');
+      } else {
+        setNum(COL_QTY_RECEIVED, item.quantity_received || 0, qtyFormat(unitSymbol));
+        setNum(
+          COL_QTY_PENDING,
+          (item.quantity_ordered || 0) - (item.quantity_received || 0),
+          qtyFormat(unitSymbol)
+        );
+      }
       setNum(COL_RATE, item.rate || 0);
       setNum(COL_ORDERED_AMOUNT, orderedAmt, currencyFmt);
       setNum(COL_RECEIVED_AMOUNT, receivedAmt, currencyFmt);

@@ -96,6 +96,19 @@ storeServices.getStockMovementAllStoresExcel = async (filters) => {
     return data;
 };
 
+// Products sent between stores with what the receiving side has booked.
+storeServices.getStockTransfers = async (filters) => {
+    const { data } = await axios.post('/api/stores/stockTransfers', filters);
+    return data;
+};
+
+storeServices.getStockTransfersExcel = async (filters) => {
+    const { data } = await axios.post('/api/stores/stockTransfersExcel', filters, {
+        responseType: 'blob',
+    });
+    return data;
+};
+
 storeServices.getStock = async (params) => {
     const { data } = await axios.get(`/api/stores/${params.store_id}/getStock`, {
         params

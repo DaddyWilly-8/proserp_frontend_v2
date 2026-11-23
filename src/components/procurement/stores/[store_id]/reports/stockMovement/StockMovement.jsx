@@ -591,9 +591,8 @@ function StockMovement({ toggleOpen, dormantStock = false, isFromDashboard }) {
       to: dayjs().toISOString(),
       isFromDashboard: isFromDashboard || false,
       store_id: isFromDashboard ? null : activeStore?.id,
-      cost_center_ids: authOrganization.costCenters.map(
-        (cost_center) => cost_center.id
-      ),
+      // Empty means every cost center the user can see, including stock with none assigned
+      cost_center_ids: [],
       include_children: includeChildren,
     },
   });
@@ -776,17 +775,10 @@ function StockMovement({ toggleOpen, dormantStock = false, isFromDashboard }) {
                     multiple={true}
                     allowSameType={true}
                     onChange={(cost_centers) => {
-                      // Clearing back to nothing must resubmit the user's full
-                      // accessible list, not a bare empty array — some backend
-                      // cost-center filters treat [] as "match none" rather
-                      // than "no filter".
-                      const selectedCostCenterIds =
-                        cost_centers.length === 0
-                          ? authOrganization?.costCenters.map(
-                              (cost_center) => cost_center.id
-                            ) || []
-                          : cost_centers.map((cost_center) => cost_center.id);
-                      setValue('cost_center_ids', selectedCostCenterIds);
+                      setValue(
+                        'cost_center_ids',
+                        cost_centers.map((cost_center) => cost_center.id)
+                      );
                     }}
                   />
                 </Div>

@@ -10,6 +10,7 @@ import JumboCardQuick from '@jumbo/components/JumboCardQuick';
 import { useJumboTheme } from '@jumbo/components/JumboTheme/hooks';
 import {
   FeedOutlined,
+  SwapHorizOutlined,
   InsightsOutlined,
   Inventory2Outlined,
   ReceiptLongOutlined,
@@ -31,6 +32,7 @@ import ProductInsights from './productInsights/ProductInsights';
 import PurchasesManifestReport from './purchasesManifest/PurchasesManifestReport';
 import PurchasesReport from './PurchasesReport';
 import StockByCostCenterReport from './StockByCostCenterReport';
+import StockTransfersReport from './StockTransfersReport';
 import StockMovement from '../stores/[store_id]/reports/stockMovement/StockMovement';
 import PageLoadingSkeleton from '@/shared/ProgressIndicators/PageLoadingSkeleton';
 import { useDictionary } from '@/app/[lang]/contexts/DictionaryContext';
@@ -71,6 +73,10 @@ function ProcurementReports() {
       setReportName('StockMovement');
       setReport(<StockMovement toggleOpen={setOpenDialog} isFromDashboard={true} />);
       setOpenDialog(true);
+    } else if (reportParam === 'stock-transfers') {
+      setReportName('StockTransfersReport');
+      setReport(<StockTransfersReport />);
+      setOpenDialog(true);
     } else if (reportParam === 'stock-by-cost-center') {
       setReport(<StockByCostCenterReport />);
       setOpenDialog(true);
@@ -95,7 +101,7 @@ function ProcurementReports() {
             fullWidth
             fullScreen={belowLargeScreen}
             maxWidth={
-              ['PurchasesManifestReport', 'StockByCostCenterReport', 'StockMovement'].includes(
+              ['PurchasesManifestReport', 'StockByCostCenterReport', 'StockMovement', 'StockTransfersReport'].includes(
                 reportName
               )
                 ? 'lg'
@@ -235,6 +241,27 @@ function ProcurementReports() {
                 >
                   <FeedOutlined sx={{ fontSize: '40px' }} />
                   <Typography>{dict.stockMovement}</Typography>
+                </Grid>
+              )}
+              {checkOrganizationPermission(PERMISSIONS.STORES_REPORTS) && (
+                <Grid
+                  sx={{
+                    cursor: 'pointer',
+                    '&:hover': {
+                      bgcolor: 'action.hover',
+                    },
+                  }}
+                  size={{ xs: 6, md: 3, lg: 2 }}
+                  p={1}
+                  textAlign={'center'}
+                  onClick={() => {
+                    setReportName('StockTransfersReport');
+                    setReport(<StockTransfersReport />);
+                    setOpenDialog(true);
+                  }}
+                >
+                  <SwapHorizOutlined sx={{ fontSize: '40px' }} />
+                  <Typography>{dict.stockTransfers.title}</Typography>
                 </Grid>
               )}
             </Grid>

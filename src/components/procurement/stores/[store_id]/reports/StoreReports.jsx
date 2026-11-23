@@ -1,10 +1,11 @@
 'use client'
 
-import { AccountTreeOutlined, FeedOutlined, TrendingDownOutlined, ViewTimelineOutlined } from '@mui/icons-material'
+import { AccountTreeOutlined, FeedOutlined, SwapHorizOutlined, TrendingDownOutlined, ViewTimelineOutlined } from '@mui/icons-material'
 import { Button, Dialog, DialogActions, Grid, Tooltip, useMediaQuery } from '@mui/material'
 import React, { useState } from 'react'
 import ItemMovement from '../storeStock/ItemMovement';
 import StockByCostCenterReport from '../../../reports/StockByCostCenterReport';
+import StockTransfersReport from '../../../reports/StockTransfersReport';
 import { useStoreProfile } from '../StoreProfileProvider';
 import StockMovement from './stockMovement/StockMovement';
 import StockReport from '../storeStock/StockReport';
@@ -21,6 +22,7 @@ function StoreReports() {
     const [stockMovementDialogOpen, setStockMovementDialogOpen] = useState(false);
     const [dormantStockDialogOpen, setDormantStockDialogOpen] = useState(false);
     const [distributionDialogOpen, setDistributionDialogOpen] = useState(false);
+    const [transfersDialogOpen, setTransfersDialogOpen] = useState(false);
     const { activeStore } = useStoreProfile();
 
     //Screen handling constants
@@ -30,16 +32,26 @@ function StoreReports() {
   return (
     <React.Fragment>
         <Dialog
-            open={stockReportDialogOpen || itemMovementDialogOpen || stockMovementDialogOpen || dormantStockDialogOpen || distributionDialogOpen}
+            open={stockReportDialogOpen || itemMovementDialogOpen || stockMovementDialogOpen || dormantStockDialogOpen || distributionDialogOpen || transfersDialogOpen}
             scroll={belowLargeScreen ? 'body' : 'paper'}
             fullWidth   
-            maxWidth={distributionDialogOpen || stockMovementDialogOpen || dormantStockDialogOpen ? 'lg' : 'md'}
+            maxWidth={distributionDialogOpen || transfersDialogOpen || stockMovementDialogOpen || dormantStockDialogOpen ? 'lg' : 'md'}
             fullScreen={belowLargeScreen}
         >
             {stockReportDialogOpen && <StockReport setOpenDialog={setStockReportDialogOpen} />}
             {itemMovementDialogOpen && <ItemMovement toggleOpen={setItemMovementDialogOpen} />}
             {stockMovementDialogOpen && <StockMovement toggleOpen={setStockMovementDialogOpen} />}
             {dormantStockDialogOpen && <StockMovement toggleOpen={setDormantStockDialogOpen} dormantStock={true} />}
+            {transfersDialogOpen && (
+                <React.Fragment>
+                    <StockTransfersReport store={activeStore} />
+                    <DialogActions>
+                        <Button size='small' variant='outlined' onClick={() => setTransfersDialogOpen(false)}>
+                            {dictionary.reports.procurementReports.close}
+                        </Button>
+                    </DialogActions>
+                </React.Fragment>
+            )}
             {distributionDialogOpen && (
                 <React.Fragment>
                     <StockByCostCenterReport store={activeStore} />
@@ -88,6 +100,12 @@ function StoreReports() {
                 <Button size='large' onClick={() => setDistributionDialogOpen(true)}>
                     <AccountTreeOutlined fontSize='large' />
                     {` ${dict.stockDistribution}`}
+                </Button>
+            </Grid>
+            <Grid size={{xs: 12, md: 6, lg: 3}}>
+                <Button size='large' onClick={() => setTransfersDialogOpen(true)}>
+                    <SwapHorizOutlined fontSize='large' />
+                    {` ${dict.stockTransfers}`}
                 </Button>
             </Grid>
         </Grid>

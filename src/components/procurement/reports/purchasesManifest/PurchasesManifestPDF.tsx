@@ -1,5 +1,6 @@
 'use client';
 
+import { isFullyFulfilled, manifestAmounts } from './manifestAmounts';
 import { readableDate, reportCostCentersToShow } from '@/app/helpers/input-sanitization-helpers';
 import PageFooter from '@/components/pdf/PageFooter';
 import PageNumber from '@/components/pdf/PageNumber';
@@ -29,6 +30,9 @@ export interface PurchaseManifestItem {
   };
   quantity_ordered: number;
   quantity_received: number;
+  // 'billed' for services and non-inventory items, which are fulfilled by billing
+  fulfilment?: 'received' | 'billed' | null;
+  billed_amount?: number | null;
   rate: number;
   currency: {
     id: number;
@@ -234,7 +238,7 @@ const PurchasesManifestPDF = ({
       (acc, item) => {
         const code = item.currency?.code;
         const symbol = code || item.currency?.symbol || 'TZS';
-        const receivedAmt = (item.quantity_received || 0) * (item.rate || 0);
+        const { receivedAmt } = manifestAmounts(item);
         if (!acc[code]) acc[code] = { symbol, total: 0 };
         acc[code].total += receivedAmt;
         return acc;
@@ -249,9 +253,7 @@ const PurchasesManifestPDF = ({
       (acc, item) => {
         const code = item.currency?.code;
         const symbol = code || item.currency?.symbol || 'TZS';
-        const pendingAmt =
-          ((item.quantity_ordered || 0) - (item.quantity_received || 0)) *
-          (item.rate || 0);
+        const { pendingAmt } = manifestAmounts(item);
         if (!acc[code]) acc[code] = { symbol, total: 0 };
         acc[code].total += pendingAmt;
         return acc;
@@ -479,18 +481,9 @@ const PurchasesManifestPDF = ({
           {items.map((item, index) => {
             const isEven = index % 2 === 0;
             const backgroundColor = isEven ? '#FFFFFF' : lightColor;
-            const qtyPending =
-              (item.quantity_ordered || 0) - (item.quantity_received || 0) >= 0
-                ? (item.quantity_ordered || 0) - (item.quantity_received || 0)
-                : 0;
-            const itemAmount = (item.quantity_ordered || 0) * (item.rate || 0);
-            const receivedAmt =
-              (item.quantity_received || 0) * (item.rate || 0);
-            const pendingAmt =
-              ((item.quantity_ordered || 0) - (item.quantity_received || 0)) *
-              (item.rate || 0);
-            const isFullyReceived =
-              item.status?.toLowerCase() === 'fully received';
+            const { billed, qtyPending, itemAmount, receivedAmt, pendingAmt } =
+              manifestAmounts(item);
+            const isFullyReceived = isFullyFulfilled(item.status);
             const statusColor = isFullyReceived ? '#2e7d32' : '#b45309';
 
             return (
@@ -558,7 +551,7 @@ const PurchasesManifestPDF = ({
                     textAlign: 'right',
                   }}
                 >
-                  {`${(item.quantity_received || 0).toLocaleString()} ${item.measurement_unit?.symbol || ''}`}
+                  {billed ? '—' : `${(item.quantity_received || 0).toLocaleString()} ${item.measurement_unit?.symbol || ''}`}
                 </Text>
 
                 <Text
@@ -568,7 +561,7 @@ const PurchasesManifestPDF = ({
                     textAlign: 'right',
                   }}
                 >
-                  {`${(qtyPending || 0).toLocaleString()} ${item.measurement_unit?.symbol || ''}`}
+                  {billed ? '—' : `${(qtyPending || 0).toLocaleString()} ${item.measurement_unit?.symbol || ''}`}
                 </Text>
 
                 <Text

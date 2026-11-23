@@ -1,5 +1,6 @@
 'use client';
 
+import { isFullyFulfilled, manifestAmounts } from './manifestAmounts';
 import { readableDate, reportCostCentersToShow } from '@/app/helpers/input-sanitization-helpers';
 import { Organization } from '@/types/auth-types';
 import {
@@ -40,6 +41,8 @@ export interface PurchaseManifestItem {
   };
   quantity_ordered: number;
   quantity_received: number;
+  fulfilment?: 'received' | 'billed' | null;
+  billed_amount?: number | null;
   rate: number;
   currency: {
     id: number;
@@ -136,7 +139,7 @@ const PurchasesManifestOnScreen: React.FC<PurchasesManifestOnScreenProps> = ({
     return (
       reportItems.reduce((acc: Record<string, number>, item) => {
         const code = item.currency?.code || 'TZS';
-        const receivedAmt = (item.quantity_received || 0) * (item.rate || 0);
+        const { receivedAmt } = manifestAmounts(item);
         acc[code] = (acc[code] || 0) + receivedAmt;
         return acc;
       }, {}) || {}
@@ -148,9 +151,7 @@ const PurchasesManifestOnScreen: React.FC<PurchasesManifestOnScreenProps> = ({
     return (
       reportItems.reduce((acc: Record<string, number>, item) => {
         const code = item.currency?.code || 'TZS';
-        const pendingAmt =
-          ((item.quantity_ordered || 0) - (item.quantity_received || 0)) *
-          (item.rate || 0);
+        const { pendingAmt } = manifestAmounts(item);
         acc[code] = (acc[code] || 0) + pendingAmt;
         return acc;
       }, {}) || {}
@@ -382,23 +383,9 @@ const PurchasesManifestOnScreen: React.FC<PurchasesManifestOnScreenProps> = ({
               </TableHead>
               <TableBody>
                 {reportData?.items?.map((item, index) => {
-                  const qtyPending =
-                    (item.quantity_ordered || 0) -
-                      (item.quantity_received || 0) >=
-                    0
-                      ? (item.quantity_ordered || 0) -
-                        (item.quantity_received || 0)
-                      : 0;
-                  const itemAmount =
-                    (item.quantity_ordered || 0) * (item.rate || 0);
-                  const receivedAmt =
-                    (item.quantity_received || 0) * (item.rate || 0);
-                  const pendingAmt =
-                    ((item.quantity_ordered || 0) -
-                      (item.quantity_received || 0)) *
-                    (item.rate || 0);
-                  const isFullyReceived =
-                    item.status?.toLowerCase() === 'fully received';
+                  const { billed, qtyPending, itemAmount, receivedAmt, pendingAmt } =
+                    manifestAmounts(item);
+                  const isFullyReceived = isFullyFulfilled(item.status);
 
                   return (
                     <TableRow
@@ -469,13 +456,13 @@ const PurchasesManifestOnScreen: React.FC<PurchasesManifestOnScreenProps> = ({
                         align='right'
                         sx={{ fontFamily: 'monospace', textWrap: 'nowrap' }}
                       >
-                        {`${item.quantity_received?.toLocaleString()} ${item.measurement_unit?.symbol || ''}`}
+                        {billed ? '—' : `${item.quantity_received?.toLocaleString()} ${item.measurement_unit?.symbol || ''}`}
                       </TableCell>
                       <TableCell
                         align='right'
                         sx={{ fontFamily: 'monospace', textWrap: 'nowrap' }}
                       >
-                        {`${qtyPending?.toLocaleString()} ${item.measurement_unit?.symbol || ''}`}
+                        {billed ? '—' : `${qtyPending?.toLocaleString()} ${item.measurement_unit?.symbol || ''}`}
                       </TableCell>
                       <TableCell align='right' sx={{ fontFamily: 'monospace' }}>
                         {formatNumber(item.rate)}
@@ -495,6 +482,11 @@ const PurchasesManifestOnScreen: React.FC<PurchasesManifestOnScreenProps> = ({
               </TableBody>
             </Table>
           </TableContainer>
+          {reportItems.some((item) => item.fulfilment === 'billed') && (
+            <Typography variant='caption' color='text.secondary' sx={{ display: 'block', mt: 1 }}>
+              {dict.billedNote}
+            </Typography>
+          )}
         </Grid>
 
         {/* Aggregate Totals Summary Section */}

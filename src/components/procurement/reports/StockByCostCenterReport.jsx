@@ -39,6 +39,18 @@ import StockByCostCenterPdf from './StockByCostCenterPdf';
 import StoreSelector from '../stores/StoreSelector';
 import storeServices from '../stores/store-services';
 
+// Product and Unit stay in view while the store columns scroll sideways
+const PRODUCT_WIDTH = 240;
+const UNIT_WIDTH = 70;
+const frozen = (left, width, background, zIndex) => ({
+  position: 'sticky',
+  left,
+  minWidth: width,
+  maxWidth: width,
+  bgcolor: background,
+  zIndex,
+});
+
 const formatAmount = (value) =>
   Number(value).toLocaleString(undefined, {
     minimumFractionDigits: 2,
@@ -61,8 +73,8 @@ function StockByCostCenterReport({ store = null }) {
   const { enqueueSnackbar } = useSnackbar();
   const classes = useProsERPStyles();
 
-  const allCostCenterIds = authOrganization.costCenters.map((c) => c.id);
-  const [costCenterIds, setCostCenterIds] = useState(allCostCenterIds);
+  // Empty means every cost center the user can see, including stock with none assigned
+  const [costCenterIds, setCostCenterIds] = useState([]);
   const [storeIds, setStoreIds] = useState([]);
   const [categoryIds, setCategoryIds] = useState([]);
   const [asAt, setAsAt] = useState(dayjs());
@@ -151,14 +163,7 @@ function StockByCostCenterReport({ store = null }) {
                     multiple={true}
                     allowSameType={true}
                     onChange={(costCenters) =>
-                      // Clearing falls back to every accessible cost center
-                      // rather than an empty list, which some filters read as
-                      // "match none".
-                      setCostCenterIds(
-                        costCenters.length === 0
-                          ? allCostCenterIds
-                          : costCenters.map((c) => c.id)
-                      )
+                      setCostCenterIds(costCenters.map((c) => c.id))
                     }
                   />
                 </Div>
@@ -269,8 +274,12 @@ function StockByCostCenterReport({ store = null }) {
                 <Table size='small' stickyHeader>
                   <TableHead>
                     <TableRow>
-                      <TableCell>{dict.product}</TableCell>
-                      <TableCell>{dict.unit}</TableCell>
+                      <TableCell sx={frozen(0, PRODUCT_WIDTH, 'background.paper', 4)}>
+                        {dict.product}
+                      </TableCell>
+                      <TableCell sx={frozen(PRODUCT_WIDTH, UNIT_WIDTH, 'background.paper', 4)}>
+                        {dict.unit}
+                      </TableCell>
                       {report.stores.map((column) => (
                         <TableCell key={column.id} align='right'>
                           {column.direct
@@ -298,8 +307,14 @@ function StockByCostCenterReport({ store = null }) {
                         hover
                         sx={product.value_flag ? { bgcolor: 'error.light' } : undefined}
                       >
-                        <TableCell>{product.name}</TableCell>
-                        <TableCell>
+                        <TableCell
+                          sx={frozen(0, PRODUCT_WIDTH, product.value_flag ? 'error.light' : 'background.paper', 1)}
+                        >
+                          {product.name}
+                        </TableCell>
+                        <TableCell
+                          sx={frozen(PRODUCT_WIDTH, UNIT_WIDTH, product.value_flag ? 'error.light' : 'background.paper', 1)}
+                        >
                           {product.measurement_unit?.symbol}
                         </TableCell>
                         {report.stores.map((column) => {
@@ -348,12 +363,12 @@ function StockByCostCenterReport({ store = null }) {
                     {report.with_values && (
                       <TableRow>
                         <TableCell
-                          colSpan={4 + report.stores.length}
-                          align='right'
-                          sx={{ fontWeight: 'bold' }}
+                          colSpan={2}
+                          sx={{ ...frozen(0, PRODUCT_WIDTH + UNIT_WIDTH, 'background.paper', 1), maxWidth: 'none', fontWeight: 'bold' }}
                         >
                           {dict.total}
                         </TableCell>
+                        <TableCell colSpan={2 + report.stores.length} />
                         <TableCell align='right' sx={{ fontWeight: 'bold' }}>
                           {formatAmount(report.total_value)}
                         </TableCell>
