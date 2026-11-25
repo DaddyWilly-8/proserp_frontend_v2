@@ -487,6 +487,9 @@ const PayrollRunsListItem = ({
             )}
             <Chip
               label={
+                (payrollRun.status?.toLowerCase() === 'submitted'
+                  ? payrollRun.status_label
+                  : undefined) ||
                 (t.status as Record<string, string>)[
                   (payrollRun.status || 'draft').toLowerCase()
                 ] ||
